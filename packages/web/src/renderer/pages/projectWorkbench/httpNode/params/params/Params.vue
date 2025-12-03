@@ -35,7 +35,7 @@ import { computed, ref, watch } from 'vue'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { useI18n } from 'vue-i18n'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { router } from '@/router'
 import { cloneDeep } from 'lodash-es'
 import type { ApidocProperty } from '@src/types'
@@ -43,11 +43,11 @@ import { Switch } from '@element-plus/icons-vue'
 
 const httpNodeStore = useHttpNode()
 const httpRedoUndoStore = useHttpRedoUndo()
-const apidocTabsStore = useApidocTas()
+const projectNavStore = useProjectNav()
 const projectId = router.currentRoute.value.query.id as string;
-const currentSelectTab = computed(() => {
-  const tabs = apidocTabsStore.tabs[projectId];
-  return tabs?.find((tab) => tab.selected) || null;
+const currentSelectNav = computed(() => {
+  const navs = projectNavStore.navs[projectId];
+  return navs?.find((nav) => nav.selected) || null;
 });
 const { t } = useI18n()
 type ParamsTreeInstance = InstanceType<typeof SParamsTree> & {
@@ -84,9 +84,9 @@ watch(queryParamsTreeRef, (instance) => {
 const handleQueryParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
   const oldValue = cloneDeep(httpNodeStore.apidoc.item.queryParams);
   httpNodeStore.apidoc.item.queryParams = newData as ApidocProperty<'string'>[];
-  if (!currentSelectTab.value) return;
+  if (!currentSelectNav.value) return;
   httpRedoUndoStore.recordOperation({
-    nodeId: currentSelectTab.value._id,
+    nodeId: currentSelectNav.value._id,
     type: "queryParamsOperation",
     operationName: "修改查询参数",
     affectedModuleName: "queryParams",
@@ -100,9 +100,9 @@ const handleQueryParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) =
 const handlePathParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
   const oldValue = cloneDeep(httpNodeStore.apidoc.item.paths);
   httpNodeStore.apidoc.item.paths = newData as ApidocProperty<'string'>[];
-  if (!currentSelectTab.value) return;
+  if (!currentSelectNav.value) return;
   httpRedoUndoStore.recordOperation({
-    nodeId: currentSelectTab.value._id,
+    nodeId: currentSelectNav.value._id,
     type: "pathsOperation",
     operationName: "修改路径参数",
     affectedModuleName: "paths",

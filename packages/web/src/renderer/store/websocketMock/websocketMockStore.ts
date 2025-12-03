@@ -1,11 +1,11 @@
 import { WebSocketMockNode } from "@src/types/mockNode";
 import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
-import { cloneDeep } from "lodash-es";
+import { cloneDeep } from 'lodash-es';
 import { ElMessageBox } from 'element-plus';
-import { useApidocTas } from "../httpNode/httpTabsStore.ts";
+import { useProjectNav } from "../projectWorkbench/projectNavStore.ts";
 import { router } from "@/router/index.ts";
-import { useApidocBanner } from "../httpNode/httpBannerStore.ts";
+import { useBanner } from "../projectWorkbench/bannerStore.ts";
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { logger, generateEmptyWebSocketMockNode } from '@/helper';
 import { apiNodesCache } from "@/cache/nodes/nodesCache";
@@ -29,11 +29,11 @@ export const useWebSocketMock = defineStore('websocketMock', () => {
   const saveLoading = ref(false);
   const refreshLoading = ref(false);
 
-  const apidocTabsStore = useApidocTas();
-  const apidocBannerStore = useApidocBanner();
-  const { deleteTabByIds, changeTabInfoById } = apidocTabsStore;
-  const { changeBannerInfoById } = apidocBannerStore;
-  const { tabs } = storeToRefs(apidocTabsStore);
+  const projectNavStore = useProjectNav();
+  const bannerStore = useBanner();
+  const { deleteNavByIds, changeNavInfoById } = projectNavStore;
+  const { changeBannerInfoById } = bannerStore;
+  const { navs } = storeToRefs(projectNavStore);
 
   // 缓存当前 websocketMock 配置
   const cacheWebSocketMockNode = (): void => {
@@ -104,7 +104,7 @@ export const useWebSocketMock = defineStore('websocketMock', () => {
           cancelButtonText: '取消',
           type: 'warning',
         }).then(() => {
-          return deleteTabByIds({
+          return deleteNavByIds({
             ids: [payload.id],
             projectId: payload.projectId,
             force: true,
@@ -126,10 +126,10 @@ export const useWebSocketMock = defineStore('websocketMock', () => {
   // 保存 WebSocketMock 配置
   const saveWebSocketMockNode = async (): Promise<void> => {
     const projectId = router.currentRoute.value.query.id as string;
-    const currentTabs = tabs.value[projectId];
-    const currentSelectTab = currentTabs?.find((tab) => tab.selected) || null;
-    if (!currentSelectTab) {
-      logger.warn('缺少tab信息');
+    const currentNavs = navs.value[projectId];
+    const currentSelectNav = currentNavs?.find((nav) => nav.selected) || null;
+    if (!currentSelectNav) {
+      logger.warn('缺少nav信息');
       return;
     }
     saveLoading.value = true;
@@ -137,8 +137,8 @@ export const useWebSocketMock = defineStore('websocketMock', () => {
       const websocketMockDetail = cloneDeep(websocketMock.value);
       websocketMockDetail.updatedAt = new Date().toISOString();
       await apiNodesCache.replaceNode(websocketMockDetail);
-      changeTabInfoById({
-        id: currentSelectTab._id,
+      changeNavInfoById({
+        id: currentSelectNav._id,
         field: 'head',
         value: {
           icon: 'websocketMock',
@@ -146,13 +146,13 @@ export const useWebSocketMock = defineStore('websocketMock', () => {
         },
       })
       changeBannerInfoById({
-        id: currentSelectTab._id,
+        id: currentSelectNav._id,
         field: 'path' as unknown as 'name',
         value: websocketMockDetail.requestCondition.path,
       })
       replaceOriginWebSocketMockNode();
-      changeTabInfoById({
-        id: currentSelectTab._id,
+      changeNavInfoById({
+        id: currentSelectNav._id,
         field: 'saved',
         value: true,
       })

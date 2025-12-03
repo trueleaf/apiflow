@@ -1,4 +1,4 @@
-import { useApidocBanner } from '@/store/httpNode/httpBannerStore';
+import { useBanner } from '@/store/projectWorkbench/bannerStore';
 import { useRoute } from 'vue-router'
 
 type ReturnData = {
@@ -6,19 +6,19 @@ type ReturnData = {
 };
 
 export const useBannerData = (): ReturnData => {
-  const apidocBannerStore = useApidocBanner()
+  const bannerStore = useBanner()
   const route = useRoute()
   const getBannerData = async () => {
     try {
       const projectId = route.query.id as string;
-      if (apidocBannerStore.loading) {
+      if (bannerStore.bannerLoading) {
         return
       }
-      apidocBannerStore.changeBannerLoading(true)
-      await apidocBannerStore.getDocBanner({ projectId });
-      apidocBannerStore.changeBannerLoading(false)
+      bannerStore.changeBannerLoading(true)
+      await bannerStore.getDocBanner({ projectId });
+      bannerStore.changeBannerLoading(false)
     } catch {
-      apidocBannerStore.changeBannerLoading(false)
+      bannerStore.changeBannerLoading(false)
     }
   }
   return {

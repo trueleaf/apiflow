@@ -198,7 +198,7 @@
 <script lang="ts" setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { ElEmpty, ElButton, ElInput, ElSelect, ElOption, ElDialog, ElMessageBox } from 'element-plus'
 import type { MockLog } from '@src/types/mockNode'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache'
@@ -211,8 +211,8 @@ import MockLogItem from './MockLogItem.vue'
 
 const defaultTemplate = '[$time_local] $remote_addr - $remote_user "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $response_time_ms ms'
 
-const apidocTabsStore = useApidocTas()
-const { currentSelectTab } = storeToRefs(apidocTabsStore)
+const projectNavStore = useProjectNav()
+const { currentSelectNav } = storeToRefs(projectNavStore)
 const loading = ref(false)
 const errorMessage = ref('')
 const requestLogs = ref<Extract<MockLog, { type: 'request' }>[]>([])
@@ -311,7 +311,7 @@ const unknownTemplateVariables = computed(() => {
   return Array.from(new Set(keys.filter(key => !templateVariableKeys.value.includes(key))))
 })
 
-const currentNodeId = computed(() => currentSelectTab.value?._id || '')
+const currentNodeId = computed(() => currentSelectNav.value?._id || '')
 // 初始化视图模式
 watch(currentNodeId, (newId) => {
   if (newId) {

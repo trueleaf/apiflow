@@ -1,9 +1,7 @@
-import { ref, Ref, computed, WritableComputedRef, ComputedRef } from 'vue'
-import { ApidocProjectHost } from '@src/types'
+import { ref, Ref, computed, WritableComputedRef } from 'vue'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore'
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { router } from '@/router'
 
 type HostReturn = {
@@ -16,10 +14,6 @@ type HostReturn = {
      */
   host: WritableComputedRef<string>,
   /**
-     * host枚举值
-     */
-  hostEnum: ComputedRef<ApidocProjectHost[]>,
-  /**
      * 改变host值
      */
   handleChangeHost: (host: string | number | boolean) => void,
@@ -27,13 +21,12 @@ type HostReturn = {
 
 export default (): HostReturn => {
   const httpNodeStore = useHttpNode()
-  const apidocBaseInfoStore = useApidocBaseInfo()
   const httpRedoUndoStore = useHttpRedoUndo()
-  const apidocTabsStore = useApidocTas()
+  const projectNavStore = useProjectNav()
   const projectId = router.currentRoute.value.query.id as string;
-  const currentSelectTab = computed(() => {
-    const tabs = apidocTabsStore.tabs[projectId];
-    return tabs?.find((tab) => tab.selected) || null;
+  const currentSelectNav = computed(() => {
+    const navs = projectNavStore.navs[projectId];
+    return navs?.find((nav) => nav.selected) || null;
   });
   //host弹窗
   const hostDialogVisible = ref(false);
@@ -43,12 +36,12 @@ export default (): HostReturn => {
       return httpNodeStore.apidoc.item.url.prefix
     },
     set(val) {
-      if (!currentSelectTab.value) return;
+      if (!currentSelectNav.value) return;
       const oldValue = httpNodeStore.apidoc.item.url.prefix;
       if (oldValue !== val) {
         // 记录URL前缀变化操作
         httpRedoUndoStore.recordOperation({
-          nodeId: currentSelectTab.value._id,
+          nodeId: currentSelectNav.value._id,
           type: "prefixOperation",
           operationName: "修改URL前缀",
           affectedModuleName: "prefix",
@@ -62,13 +55,13 @@ export default (): HostReturn => {
   });
     //改变host的值
   const handleChangeHost = (server: string | number | boolean) => {
-    if (!currentSelectTab.value) return;
+    if (!currentSelectNav.value) return;
     const oldValue = httpNodeStore.apidoc.item.url.prefix;
     const newValue = server as string;
     if (oldValue !== newValue) {
       // 记录URL前缀变化操作
       httpRedoUndoStore.recordOperation({
-        nodeId: currentSelectTab.value._id,
+        nodeId: currentSelectNav.value._id,
         type: "prefixOperation",
         operationName: "修改URL前缀",
         affectedModuleName: "prefix",
@@ -79,14 +72,9 @@ export default (): HostReturn => {
     }
     httpNodeStore.changeApidocPrefix(newValue);
   }
-  //host枚举值
-  const hostEnum = computed<ApidocProjectHost[]>(() => {
-    return apidocBaseInfoStore.hosts
-  })
   return {
     hostDialogVisible,
     host,
-    hostEnum,
     handleChangeHost,
   }
 }

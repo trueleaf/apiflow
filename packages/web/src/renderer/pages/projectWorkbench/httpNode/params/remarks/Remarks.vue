@@ -19,18 +19,18 @@ import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { router } from '@/router'
 import { cloneDeep } from 'lodash-es'
 import MarkdownEditor from '@/components/ui/cleanDesign/markdownEditor/MarkdownEditor.vue'
 
 const httpNodeStore = useHttpNode()
 const httpRedoUndoStore = useHttpRedoUndo()
-const apidocTabsStore = useApidocTas()
+const projectNavStore = useProjectNav()
 const projectId = router.currentRoute.value.query.id as string;
-const currentSelectTab = computed(() => {
-  const tabs = apidocTabsStore.tabs[projectId];
-  return tabs?.find((tab) => tab.selected) || null;
+const currentSelectNav = computed(() => {
+  const navs = projectNavStore.navs[projectId];
+  return navs?.find((nav) => nav.selected) || null;
 });
 const { t } = useI18n()
 
@@ -49,7 +49,7 @@ const handleDescriptionChange = (newValue: string) => {
 }
 //处理编辑器undo
 const handleEditorUndo = () => {
-  const nodeId = currentSelectTab.value?._id;
+  const nodeId = currentSelectNav.value?._id;
   if (nodeId) {
     const result = httpRedoUndoStore.httpUndo(nodeId);
     if (result.code === 0 && result.operation?.type === 'remarksOperation') {
@@ -61,7 +61,7 @@ const handleEditorUndo = () => {
 }
 //处理编辑器redo
 const handleEditorRedo = () => {
-  const nodeId = currentSelectTab.value?._id;
+  const nodeId = currentSelectNav.value?._id;
   if (nodeId) {
     const result = httpRedoUndoStore.httpRedo(nodeId);
     if (result.code === 0 && result.operation?.type === 'remarksOperation') {
@@ -73,12 +73,12 @@ const handleEditorRedo = () => {
 }
 //备注记录函数
 const recordRemarksOperation = (oldValue: { description: string }, newValue: { description: string }) => {
-  if (!currentSelectTab.value || oldValue.description === newValue.description) return;
+  if (!currentSelectNav.value || oldValue.description === newValue.description) return;
 
   const cursorPosition = editorRef.value?.getCursorPosition?.() || undefined;
 
   httpRedoUndoStore.recordOperation({
-    nodeId: currentSelectTab.value._id,
+    nodeId: currentSelectNav.value._id,
     type: "remarksOperation",
     operationName: "修改备注",
     affectedModuleName: "remarks",

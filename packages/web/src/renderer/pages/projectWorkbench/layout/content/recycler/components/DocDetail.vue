@@ -109,7 +109,7 @@ import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import SParamsView from '@/components/apidoc/paramsView/ClParamsView.vue'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { formatDate } from '@/helper'
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { requestMethods as validRequestMethods } from '@/data/data'
 import { useApidocRequest } from '@/store/httpNode/requestStore';
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { useRuntime } from '@/store/runtime/runtimeStore';
@@ -122,7 +122,6 @@ const props = defineProps({
   },
 });
 
-const apidocBaseInfoStore = useApidocBaseInfo()
 const apidocRequestStore = useApidocRequest()
 const runtimeStore = useRuntime()
 /*
@@ -222,7 +221,6 @@ const hasHeaders = computed(() => {
   const { headers } = docDetail.value.item;
   return headers.filter(p => p.select).some((data) => data.key);
 })
-const validRequestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods)
 
 /*
 |--------------------------------------------------------------------------

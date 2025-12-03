@@ -4,10 +4,9 @@ import { defineStore } from "pinia"
 import { ref } from 'vue';
 import { router } from '@/router';
 
-export const useVariable = defineStore('apidocVariable', () => {
+export const useVariable = defineStore('projectVariable', () => {
   const variables = ref<ApidocVariable[]>([]);
   const objectVariable = ref<Record<string, unknown>>({})
-  
   // 同步变量到主进程
   const syncVariablesToMainProcess = async () => {
     try {
@@ -17,8 +16,7 @@ export const useVariable = defineStore('apidocVariable', () => {
       console.error(error);
     }
   };
-  
-  //改变变量值
+  // 改变变量值
   const changeVariableById = (id: string, varInfo: ApidocVariable) => {
     variables.value.forEach((item) => {
       if (item._id === id) {
@@ -31,7 +29,7 @@ export const useVariable = defineStore('apidocVariable', () => {
     // 同步到主进程
     syncVariablesToMainProcess();
   }
-  //替换所有变量
+  // 替换所有变量
   const replaceVariables = (varList: ApidocVariable[]) => {
     variables.value.splice(0, variables.value.length, ...varList);
     getObjectVariable(variables.value).then((value) => {

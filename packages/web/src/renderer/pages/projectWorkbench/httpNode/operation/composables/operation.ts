@@ -2,7 +2,7 @@ import { ref, Ref, computed } from 'vue'
 import { router } from '@/router/index'
 import { sendRequest, stopRequest } from '@/server/request/request'
 import { httpResponseCache } from '@/cache/httpNode/httpResponseCache'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { useApidocResponse } from '@/store/httpNode/responseStore'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
@@ -32,7 +32,7 @@ type OperationReturn = {
 }
 
 export default (): OperationReturn => {
-  const apidocTabsStore = useApidocTas();
+  const projectNavStore = useProjectNav();
   const httpNodeStore = useHttpNode()
   const apidocResponseStroe = useApidocResponse()
   const runtimeStore = useRuntime()
@@ -41,10 +41,10 @@ export default (): OperationReturn => {
   const loading3 = ref(false); //刷新接口
   const projectId = router.currentRoute.value.query.id as string;
   const isOffline = () => runtimeStore.networkMode === 'offline';
-  const currentSelectTab = computed(() => {
-    const tabs = apidocTabsStore.tabs[projectId];
-    const currentTab = tabs?.find((tab) => tab.selected) || null;
-    return currentTab;
+  const currentSelectNav = computed(() => {
+    const navs = projectNavStore.navs[projectId];
+    const currentNav = navs?.find((nav) => nav.selected) || null;
+    return currentNav;
   });
     //发送请求
   const handleSendRequest = () => {
@@ -64,12 +64,12 @@ export default (): OperationReturn => {
       // todo
       apidocResponseStroe.changeRequestState('waiting');
       apidocResponseStroe.clearResponse()
-      if (currentSelectTab.value) {
-        const nodeId = currentSelectTab.value._id;
+      if (currentSelectNav.value) {
+        const nodeId = currentSelectNav.value._id;
         httpResponseCache.deleteResponse(nodeId);
         httpRedoUndoStore.clearRedoUndoListByNodeId(nodeId);
       }
-      if (currentSelectTab.value?._id.startsWith('local_')) { //通过+按钮新增的空白文档
+      if (currentSelectNav.value?._id.startsWith('local_')) { //通过+按钮新增的空白文档
         const cpOriginApidoc = httpNodeStore.originApidoc;
         httpNodeStore.changeApidoc(JSON.parse(JSON.stringify(cpOriginApidoc)))
         loading3.value = false;
@@ -78,7 +78,7 @@ export default (): OperationReturn => {
 
       const executeRefresh = () => {
         httpNodeStore.getApidocDetail({
-          id: currentSelectTab.value?._id || "",
+          id: currentSelectNav.value?._id || "",
           projectId,
         }).finally(() => {
           loading3.value = false;

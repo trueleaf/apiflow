@@ -1,0 +1,197 @@
+import { request } from '@/api/api';
+import { ApidocProjectBaseInfoState, ApidocProjectCommonHeader, ApidocProperty, CommonResponse } from '@src/types';
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
+import { router } from '@/router';
+import { commonHeaderCache } from '@/cache/project/commonHeadersCache';
+import { apiNodesCache } from '@/cache/nodes/nodesCache';
+import { useRuntime } from '../runtime/runtimeStore';
+
+type HeaderInfo = Pick<ApidocProperty, '_id' | 'key' | 'value' | 'description' | 'select'> & { path?: string[]; nodeId?: string };
+type CommonHeaderResult = {
+  matched: boolean;
+  nodeId: string;
+  data: HeaderInfo[];
+};
+type MatchedHeaderOptions = {
+  id: string | undefined;
+  preCommonHeaders: HeaderInfo[];
+  result: CommonHeaderResult;
+  deep: number;
+};
+type GlobalCommonHeader = Pick<ApidocProperty, '_id' | 'key' | 'value' | 'description' | 'select'> & { path?: string[]; nodeId?: string };
+
+const getMatchedHeaders = (data: ApidocProjectBaseInfoState['commonHeaders'], options: MatchedHeaderOptions) => {
+  for (let i = 0; i < data.length; i += 1) {
+    const currentItem = data[i];
+    const currentHeaders: HeaderInfo[] = [];
+    const { _id, commonHeaders, children } = currentItem;
+    if (_id === options.id) {
+      options.result.matched = true;
+      options.result.data = options.preCommonHeaders;
+      options.result.nodeId = currentItem.pid;
+      return;
+    }
+    options.preCommonHeaders.concat(commonHeaders).forEach((header) => {
+      if (header && currentHeaders.every((v) => v.key !== header.key)) {
+        currentHeaders.push(JSON.parse(JSON.stringify(header)));
+      }
+    });
+    if (children?.length > 0) {
+      getMatchedHeaders(children, {
+        id: options.id,
+        deep: options.deep + 1,
+        result: options.result,
+        preCommonHeaders: currentHeaders,
+      });
+    }
+  }
+};
+
+export const useCommonHeader = defineStore('commonHeader', () => {
+  const runtimeStore = useRuntime();
+  const isOffline = () => runtimeStore.networkMode === 'offline';
+  const commonHeaders = ref<ApidocProjectCommonHeader[]>([]);
+  const globalCommonHeaders = ref<GlobalCommonHeader[]>([]);
+  // 改变公共请求头信息
+  const changeCommonHeaders = (headers: ApidocProjectCommonHeader[]): void => {
+    commonHeaders.value = headers;
+  };
+  // 根据 header ID 获取路径
+  const getCommonHeaderPathById = (headerItemId: string) => {
+    const path: string[] = [];
+    const cpCommonHeaders = commonHeaders.value;
+    let isMatched = false;
+    const loop = (loopData: ApidocProjectCommonHeader[], id: string, level: number) => {
+      for (let i = 0; i < loopData.length; i++) {
+        if (isMatched) {
+          return;
+        }
+        const data = loopData[i];
+        if (level === 0) {
+          path.length = 0;
+        }
+        path[level] = data.name as string;
+        for (let j = 0; j < data.commonHeaders.length; j++) {
+          const header = data.commonHeaders[j];
+          if (header._id === id) {
+            isMatched = true;
+            return;
+          }
+        }
+        if (data.children.length) {
+          loop(data.children, id, level + 1);
+        }
+      }
+    };
+    loop(cpCommonHeaders, headerItemId, 0);
+    return path;
+  };
+  // 根据文档id获取公共请求头
+  const getCommonHeadersById = (id: string) => {
+    if (!id) {
+      return [];
+    }
+    const result: CommonHeaderResult = {
+      matched: false,
+      nodeId: '',
+      data: [],
+    };
+    getMatchedHeaders(commonHeaders.value, {
+      id,
+      preCommonHeaders: [],
+      deep: 1,
+      result,
+    });
+    const validCommonHeaders = result.data?.filter((v) => v.key && v.select) || [];
+    validCommonHeaders.forEach((header) => {
+      header.path = getCommonHeaderPathById(header._id);
+      header.nodeId = result.nodeId;
+    });
+    const validGlobalCommonHeaders = globalCommonHeaders.value?.filter((v) => v.key && v.select) || [];
+    return [...validCommonHeaders, ...validGlobalCommonHeaders];
+  };
+  // 获取全部公共请求头信息
+  const getCommonHeaders = async (): Promise<void> => {
+    if (isOffline()) {
+      const projectId = router.currentRoute.value.query.id as string;
+      const allNodes = await apiNodesCache.getNodesByProjectId(projectId);
+      const folderNodes = allNodes.filter((node) => node.info.type === 'folder');
+      const buildTree = (pid: string): ApidocProjectCommonHeader[] => {
+        return folderNodes
+          .filter((node) => node.pid === pid)
+          .map((node) => {
+            const folderNode = node as import('@src/types').FolderNode;
+            return {
+              _id: folderNode._id,
+              name: folderNode.info.name,
+              pid: folderNode.pid,
+              type: 'folder' as const,
+              commonHeaders: (folderNode.commonHeaders || []).map((h) => ({
+                _id: h._id,
+                key: h.key,
+                value: h.value,
+                description: h.description,
+                select: h.select,
+              })),
+              children: buildTree(folderNode._id),
+            };
+          });
+      };
+      const treeData = buildTree(projectId);
+      changeCommonHeaders(treeData);
+      return;
+    }
+    return new Promise((resolve, reject) => {
+      const projectId = router.currentRoute.value.query.id as string;
+      const params = {
+        projectId,
+      };
+      request
+        .get<CommonResponse<ApidocProjectBaseInfoState['commonHeaders']>, CommonResponse<ApidocProjectBaseInfoState['commonHeaders']>>(
+          '/api/project/common_headers',
+          { params }
+        )
+        .then((res) => {
+          changeCommonHeaders(res.data);
+          resolve();
+        })
+        .catch((err) => {
+          console.error(err);
+          reject(err);
+        });
+    });
+  };
+  // 获取全局公共请求头
+  const getGlobalCommonHeaders = async (): Promise<void> => {
+    return new Promise(async (resolve, reject) => {
+      if (isOffline()) {
+        const headers = await commonHeaderCache.getCommonHeaders();
+        globalCommonHeaders.value = headers;
+        resolve();
+        return;
+      }
+      const params = {
+        projectId: router.currentRoute.value.query.id as string,
+      };
+      request
+        .get<CommonResponse<GlobalCommonHeader[]>, CommonResponse<GlobalCommonHeader[]>>('/api/project/global_common_headers', { params })
+        .then((res) => {
+          globalCommonHeaders.value = res.data;
+          resolve();
+        })
+        .catch((err) => {
+          console.error(err);
+          reject(err);
+        });
+    });
+  };
+  return {
+    commonHeaders,
+    globalCommonHeaders,
+    changeCommonHeaders,
+    getCommonHeadersById,
+    getCommonHeaders,
+    getGlobalCommonHeaders,
+  };
+});

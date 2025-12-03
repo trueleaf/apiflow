@@ -7,9 +7,9 @@ import { cloneDeep } from "lodash-es";
 import { apiNodesCache } from "@/cache/nodes/nodesCache";
 import { httpMockNodeCache } from "@/cache/mock/httpMock/httpMockNodeCache.ts";
 import { ElMessageBox } from 'element-plus';
-import { useApidocTas } from "../httpNode/httpTabsStore.ts";
+import { useProjectNav } from "../projectWorkbench/projectNavStore.ts";
 import { router } from "@/router/index.ts";
-import { useApidocBanner } from "../httpNode/httpBannerStore.ts";
+import { useBanner } from "../projectWorkbench/bannerStore.ts";
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { logger } from '@/helper';
 import axios, { Canceler } from 'axios';
@@ -26,11 +26,11 @@ export const useHttpMock = defineStore('httpMock', () => {
   const refreshLoading = ref(false);
   const cancel: Canceler[] = []; // 请求取消函数数组
 
-  const apidocTabsStore = useApidocTas();
-  const apidocBannerStore = useApidocBanner();
-  const { deleteTabByIds, changeTabInfoById } = apidocTabsStore;
-  const { changeBannerInfoById } = apidocBannerStore;
-  const { tabs } = storeToRefs(apidocTabsStore);
+  const projectNavStore = useProjectNav();
+  const bannerStore = useBanner();
+  const { deleteNavByIds, changeNavInfoById } = projectNavStore;
+  const { changeBannerInfoById } = bannerStore;
+  const { navs } = storeToRefs(projectNavStore);
 
   /*
   |--------------------------------------------------------------------------
@@ -146,7 +146,7 @@ export const useHttpMock = defineStore('httpMock', () => {
           cancelButtonText: '取消',
           type: 'warning',
         }).then(() => {
-          return deleteTabByIds({
+          return deleteNavByIds({
             ids: [payload.id],
             projectId: payload.projectId,
             force: true,
@@ -190,7 +190,7 @@ export const useHttpMock = defineStore('httpMock', () => {
             cancelButtonText: '取消',
             type: 'warning',
           }).then(() => {
-            deleteTabByIds({
+            deleteNavByIds({
               projectId: payload.projectId,
               ids: [payload.id],
               force: true,
@@ -224,10 +224,10 @@ export const useHttpMock = defineStore('httpMock', () => {
   // 保存HttpMock配置
   const saveHttpMockNode = async (): Promise<void> => {
     const projectId = router.currentRoute.value.query.id as string;
-    const currentTabs = tabs.value[projectId];
-    const currentSelectTab = currentTabs?.find((tab) => tab.selected) || null;
-    if (!currentSelectTab) {
-      logger.warn('缺少tab信息');
+    const currentNavs = navs.value[projectId];
+    const currentSelectNav = currentNavs?.find((nav) => nav.selected) || null;
+    if (!currentSelectNav) {
+      logger.warn('缺少nav信息');
       return;
     }
     saveLoading.value = true;
@@ -235,9 +235,9 @@ export const useHttpMock = defineStore('httpMock', () => {
       const httpMockDetail = cloneDeep(httpMock.value);
       httpMockDetail.updatedAt = new Date().toISOString();
       await apiNodesCache.replaceNode(httpMockDetail);
-      //改变tab请求方法
-      changeTabInfoById({
-        id: currentSelectTab._id,
+      //改变nav请求方法
+      changeNavInfoById({
+        id: currentSelectNav._id,
         field: 'head',
         value: {
           icon: 'httpMock',
@@ -246,15 +246,15 @@ export const useHttpMock = defineStore('httpMock', () => {
       })
       //改变banner请求方法（使用通用方法）
       changeBannerInfoById({
-        id: currentSelectTab._id,
+        id: currentSelectNav._id,
         field: 'method' as any,
         value: httpMockDetail.requestCondition.method,
       })
       //改变origindoc的值
       replaceOriginHttpMockNode();
-      //改变tab未保存小圆点
-      changeTabInfoById({
-        id: currentSelectTab._id,
+      //改变nav未保存小圆点
+      changeNavInfoById({
+        id: currentSelectNav._id,
         field: 'saved',
         value: true,
       })
@@ -280,7 +280,7 @@ export const useHttpMock = defineStore('httpMock', () => {
       // 在线模式保存
       const httpMockDetail = cloneDeep(httpMock.value);
       const params = {
-        _id: currentSelectTab._id,
+        _id: currentSelectNav._id,
         projectId,
         info: {
           type: 'httpMock' as const,
@@ -295,9 +295,9 @@ export const useHttpMock = defineStore('httpMock', () => {
       };
 
       axiosInstance.post('/api/project/fill_doc', params).then(() => {
-        // 改变tab请求方法
-        changeTabInfoById({
-          id: currentSelectTab._id,
+        // 改变nav请求方法
+        changeNavInfoById({
+          id: currentSelectNav._id,
           field: 'head',
           value: {
             icon: 'httpMock',
@@ -306,23 +306,23 @@ export const useHttpMock = defineStore('httpMock', () => {
         });
         // 改变banner请求方法
         changeBannerInfoById({
-          id: currentSelectTab._id,
+          id: currentSelectNav._id,
           field: 'method' as any,
           value: httpMockDetail.requestCondition.method,
         });
         // 改变origindoc的值
         replaceOriginHttpMockNode();
-        // 改变tab未保存小圆点
-        changeTabInfoById({
-          id: currentSelectTab._id,
+        // 改变nav未保存小圆点
+        changeNavInfoById({
+          id: currentSelectNav._id,
           field: 'saved',
           value: true,
         });
         cacheHttpMockNode();
       }).catch((err) => {
-        // 改变tab未保存小圆点
-        changeTabInfoById({
-          id: currentSelectTab._id,
+        // 改变nav未保存小圆点
+        changeNavInfoById({
+          id: currentSelectNav._id,
           field: 'saved',
           value: false,
         });

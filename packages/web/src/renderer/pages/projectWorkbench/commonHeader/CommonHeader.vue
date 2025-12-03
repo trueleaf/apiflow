@@ -50,8 +50,8 @@ import { generateEmptyProperty } from '@/helper';
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import SLoading from '@/components/common/loading/ClLoading.vue'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore';
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
+import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { Switch } from '@element-plus/icons-vue'
 
@@ -63,11 +63,11 @@ type CommonHeaderResponse = {
 
 const headerData = ref<ApidocProperty<'string' | 'file'>[]>([]);
 const projectId = router.currentRoute.value.query.id as string;
-const apidocTabsStore = useApidocTas();
-const apidocBaseInfoStore = useApidocBaseInfo();
-const currentSelectTab = computed(() => { //当前选中的doc
-  const tabs = apidocTabsStore.tabs[projectId];
-  return tabs?.find((tab) => tab.selected) || null;
+const projectNavStore = useProjectNav();
+const commonHeaderStore = useCommonHeader();
+const currentSelectNav = computed(() => { //当前选中的doc
+  const navs = projectNavStore.navs[projectId];
+  return navs?.find((nav) => nav.selected) || null;
 })
 
 //获取公共请求头信息
@@ -103,7 +103,7 @@ const getCommonHeaderInfo = async () => {
   const isOffline = runtimeStore.networkMode === 'offline';
 
   try {
-    if (currentSelectTab.value?._id === projectId) {
+    if (currentSelectNav.value?._id === projectId) {
       if (isOffline) {
         const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
         const commonHeaders = await commonHeaderCache.getCommonHeaders();
@@ -124,7 +124,7 @@ const getCommonHeaderInfo = async () => {
     } else {
       if (isOffline) {
         const { apiNodesCache } = await import('@/cache/nodes/nodesCache');
-        const node = await apiNodesCache.getNodeById(currentSelectTab.value?._id || '');
+        const node = await apiNodesCache.getNodeById(currentSelectNav.value?._id || '');
         if (node && node.info.type === 'folder') {
           const folderNode = node as import('@src/types').FolderNode;
           headerData.value = (folderNode.commonHeaders || []) as ApidocProperty<'string' | 'file'>[];
@@ -135,7 +135,7 @@ const getCommonHeaderInfo = async () => {
       } else {
         const params = {
           projectId,
-          id: currentSelectTab.value?._id
+          id: currentSelectNav.value?._id
         }
         const res = await request.get<CommonResponse<CommonHeaderResponse>, CommonResponse<CommonHeaderResponse>>('/api/project/common_header_by_id', { params });
         headerData.value = (res.data.commonHeaders || []) as ApidocProperty<'string' | 'file'>[];
@@ -158,7 +158,7 @@ const handleEditCommonHeader = async () => {
   const isOffline = runtimeStore.networkMode === 'offline';
 
   try {
-    if (currentSelectTab.value?._id === projectId) {
+    if (currentSelectNav.value?._id === projectId) {
       const commonHeadersData = headerData.value.map(v => ({
         _id: v._id,
         key: v.key,
@@ -175,7 +175,7 @@ const handleEditCommonHeader = async () => {
           required: false,
         })));
         message.success('修改成功');
-        await apidocBaseInfoStore.getGlobalCommonHeaders();
+        await commonHeaderStore.getGlobalCommonHeaders();
       } else {
         const params = {
           projectId,
@@ -183,7 +183,7 @@ const handleEditCommonHeader = async () => {
         }
         await request.put('/api/project/replace_global_common_headers', params);
         message.success('修改成功');
-        await apidocBaseInfoStore.getGlobalCommonHeaders();
+        await commonHeaderStore.getGlobalCommonHeaders();
       }
     } else {
       const commonHeadersData = headerData.value.map(v => ({
@@ -196,7 +196,7 @@ const handleEditCommonHeader = async () => {
 
       if (isOffline) {
         const { apiNodesCache } = await import('@/cache/nodes/nodesCache');
-        await apiNodesCache.updateNodeById(currentSelectTab.value?._id || '', {
+        await apiNodesCache.updateNodeById(currentSelectNav.value?._id || '', {
           commonHeaders: commonHeadersData.map(v => ({
             ...v,
             type: 'string' as const,
@@ -204,16 +204,16 @@ const handleEditCommonHeader = async () => {
           })),
         } as Partial<import('@src/types').FolderNode>);
         message.success('修改成功');
-        await apidocBaseInfoStore.getCommonHeaders();
+        await commonHeaderStore.getCommonHeaders();
       } else {
         const params = {
           projectId,
-          id: currentSelectTab.value?._id,
+          id: currentSelectNav.value?._id,
           commonHeaders: commonHeadersData,
         }
         await request.put('/api/project/common_header', params);
         message.success('修改成功');
-        await apidocBaseInfoStore.getCommonHeaders();
+        await commonHeaderStore.getCommonHeaders();
       }
     }
   } catch (err) {
@@ -222,7 +222,7 @@ const handleEditCommonHeader = async () => {
     loading2.value = false;
   }
 }
-watch(currentSelectTab, (newVal) => {
+watch(currentSelectNav, (newVal) => {
   if (newVal?.tabType === 'commonHeader') {
     getCommonHeaderInfo();
   }

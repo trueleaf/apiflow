@@ -97,7 +97,7 @@ import SsePopover from './components/popover/SsePopover.vue';
 import FilterConfigDialog from './components/filter/FilterConfigDialog.vue';
 import { Loading, Search, Download, Document } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
-import { useApidocTas } from '@/store/httpNode/httpTabsStore';
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { router } from '@/router';
 import type { ClSseViewProps } from '@src/types/components/components';
 
@@ -117,7 +117,7 @@ const props = withDefaults(defineProps<ClSseViewProps>(), {
 |--------------------------------------------------------------------------
 */
 const { t } = useI18n();
-const apidocTabsStore = useApidocTas();
+const projectNavStore = useProjectNav();
 const sseViewContainerRef = ref<HTMLElement | null>(null);
 const lastDataLength = ref(0);
 const lastDataSignature = ref('');
@@ -529,7 +529,7 @@ watch(() => props.isDataComplete, () => {
 watch(activePopoverIndex, () => {
   syncPopoverRef();
 });
-watch(() => apidocTabsStore.currentSelectTab?._id, () => {
+watch(() => projectNavStore.currentSelectNav?._id, () => {
   isFilterDialogVisible.value = false;
 });
 watch(() => router.currentRoute.value.query.id, () => {

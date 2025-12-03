@@ -53,7 +53,7 @@
                 <div class="custom-tree-node" tabindex="0">
                   <!-- file渲染 -->
                   <template v-if="prop.data.type !== 'folder'">
-                    <template v-for="(req) in projectInfo.rules.requestMethods">
+                    <template v-for="(req) in requestMethods">
                       <span v-if="prop.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name"
                         class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
                     </template>
@@ -101,8 +101,10 @@ import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.
 import { request } from '@/api/api'
 import { config } from '@src/config/config'
 import { router } from '@/router'
-import { useApidocBanner } from '@/store/httpNode/httpBannerStore'
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore'
+import { useBanner } from '@/store/projectWorkbench/bannerStore'
+import { requestMethods } from '@/data/data'
+import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore'
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import dayjs from 'dayjs'
 import { message } from '@/helper'
 
@@ -135,8 +137,9 @@ const props = defineProps({
   },
 });
 const emits = defineEmits(['update:modelValue', 'success']);
-const apidocBannerStore = useApidocBanner()
-const apidocBaseInfoStore = useApidocBaseInfo()
+const bannerStore = useBanner()
+const commonHeaderStore = useCommonHeader()
+const projectWorkbenchStore = useProjectWorkbench()
 //=========================================================================//
 //生成链接额外配置信息
 const { t } = useI18n()
@@ -153,7 +156,7 @@ const customExpireDate = ref('');
 //当前选中需要分享的节点信息
 const allCheckedNodes: Ref<ApidocBanner[]> = ref([]);
 const docTree: Ref<TreeNodeOptions['store'] | null> = ref(null);
-const { banner: navTreeData } = storeToRefs(apidocBannerStore)
+const { banner: navTreeData } = storeToRefs(bannerStore)
 const configShare: Ref<{ isEnabled: boolean } | null> = ref(null); //配置组件实例
 onMounted(() => {
   formInfo.value.shareName = props.data.shareName;
@@ -181,12 +184,9 @@ onMounted(() => {
 //=====================================生成链接====================================//
 const projectInfo = computed(() => {
   return {
-    _id: apidocBaseInfoStore._id,
-    layout: apidocBaseInfoStore.layout,
-    mode: apidocBaseInfoStore.mode,
-    commonHeaders: apidocBaseInfoStore.commonHeaders,
-    rules: apidocBaseInfoStore.rules,
-    hosts: apidocBaseInfoStore.hosts,
+    _id: projectWorkbenchStore.projectId,
+    layout: projectWorkbenchStore.layout,
+    commonHeaders: commonHeaderStore.commonHeaders,
   }
 }); //项目基本信息
 const projectId = router.currentRoute.value.query.id as string; //项目id

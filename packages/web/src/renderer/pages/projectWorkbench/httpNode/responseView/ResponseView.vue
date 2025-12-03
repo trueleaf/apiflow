@@ -55,7 +55,7 @@ import SRawBodyView from './rawBody/RawBodyView.vue'
 import SRequestView from './request/RequestView.vue'
 import { useI18n } from 'vue-i18n'
 import { useApidocResponse } from '@/store/httpNode/responseStore'
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore'
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore'
 import SLoading from '@/components/common/loading/ClLoading.vue'
 
@@ -64,7 +64,7 @@ const { t } = useI18n()
 
 const activeName = ref('SBodyView');
 const apidocResponseStore = useApidocResponse();
-const apidocBaseInfoStore = useApidocBaseInfo();
+const projectWorkbenchStore = useProjectWorkbench();
 const httpNodeStore = useHttpNode();
 const cookies = computed(() => apidocResponseStore.responseInfo.headers['set-cookie']);
 const responseInfo = computed(() => apidocResponseStore.responseInfo);
@@ -80,7 +80,7 @@ const headers = computed(() => {
   return result
 })
 
-const layout = computed(() => apidocBaseInfoStore.layout);
+const layout = computed(() => projectWorkbenchStore.layout);
 const requestState = computed(() => apidocResponseStore.requestState); //请求状态
 const responseBodyLoading = computed(() => httpNodeStore.responseBodyLoading); //返回体加载状态
 

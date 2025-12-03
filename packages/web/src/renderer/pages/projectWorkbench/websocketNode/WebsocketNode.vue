@@ -42,8 +42,8 @@ import SResizeY from '@/components/common/resize/ClResizeY.vue'
 import SOperation from './operation/Operation.vue'
 import SParams from './params/Params.vue'
 import SResponse from './response/Response.vue'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import { useWebSocket } from '@/store/websocket/websocketStore'
 import { checkPropertyIsEqual } from '@/helper'
 import { nanoid } from 'nanoid/non-secure'
@@ -54,21 +54,21 @@ import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseC
 import { router } from '@/router'
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import { executeWebSocketAfterScript } from '@/server/websocket/executeAfterScript'
-import { useVariable } from '@/store/apidocProject/variablesStore'
-import { useCookies } from '@/store/httpNode/cookiesStore'
+import { useVariable } from '@/store/projectWorkbench/variablesStore'
+import { useCookies } from '@/store/projectWorkbench/cookiesStore'
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache'
 import { IPC_EVENTS } from '@src/types/ipc'
 
-const apidocTabsStore = useApidocTas()
+const projectNavStore = useProjectNav()
 const websocketStore = useWebSocket()
 const variableStore = useVariable()
 const cookiesStore = useCookies()
-const apidocBaseInfoStore = useApidocBaseInfo()
-const { currentSelectTab } = storeToRefs(apidocTabsStore)
+const projectWorkbenchStore = useProjectWorkbench()
+const { currentSelectNav } = storeToRefs(projectNavStore)
 const { loading, } = storeToRefs(websocketStore)
 const isVerticalDrag = ref(false)
-const layout = computed(() => apidocBaseInfoStore.layout)
-const responseHeight = computed(() => apidocBaseInfoStore.responseHeight)
+const layout = computed(() => projectWorkbenchStore.layout)
+const responseHeight = computed(() => projectWorkbenchStore.responseHeight)
 const debounceWebsocketDataChange = ref(null as (null | DebouncedFunc<(websocket: WebSocketNode) => void>))
 const redoUndoStore = useWsRedoUndo()
 /*
@@ -132,19 +132,19 @@ const checkWebsocketIsEqual = (websocket: WebSocketNode, originWebsocket: WebSoc
 const handleWebsocketDataChange = (websocket: WebSocketNode) => {
   const isEqual = checkWebsocketIsEqual(websocket, websocketStore.originWebsocket)
   if (!isEqual) {
-    apidocTabsStore.changeTabInfoById({
-      id: currentSelectTab.value?._id || "",
+    projectNavStore.changeNavInfoById({
+      id: currentSelectNav.value?._id || "",
       field: 'saved',
       value: false,
     })
-    apidocTabsStore.changeTabInfoById({
-      id: currentSelectTab.value?._id || "",
+    projectNavStore.changeNavInfoById({
+      id: currentSelectNav.value?._id || "",
       field: 'fixed',
       value: true,
     })
   } else {
-    apidocTabsStore.changeTabInfoById({
-      id: currentSelectTab.value?._id || "",
+    projectNavStore.changeNavInfoById({
+      id: currentSelectNav.value?._id || "",
       field: 'saved',
       value: true,
     })
@@ -155,22 +155,22 @@ const handleWebsocketDataChange = (websocket: WebSocketNode) => {
 
 //获取WebSocket数据
 const getWebsocketInfo = () => {
-  if (!currentSelectTab.value) {
+  if (!currentSelectNav.value) {
     return
   }
-  if (currentSelectTab.value.saved) { // 取最新值
+  if (currentSelectNav.value.saved) { // 取最新值
     websocketStore.getWebsocketDetail({
-      id: currentSelectTab.value._id,
+      id: currentSelectNav.value._id,
       projectId: router.currentRoute.value.query.id as string,
     })
   } else { // 取缓存值
-    const cachedWebSocket = websocketStore.getCachedWebSocket(currentSelectTab.value._id)
+    const cachedWebSocket = websocketStore.getCachedWebSocket(currentSelectNav.value._id)
     if (cachedWebSocket) {
       websocketStore.changeWebsocket(cachedWebSocket)
     } else {
       // 如果缓存中也没有，尝试获取最新数据
       websocketStore.getWebsocketDetail({
-        id: currentSelectTab.value._id,
+        id: currentSelectNav.value._id,
         projectId: router.currentRoute.value.query.id as string,
       })
     }
@@ -179,12 +179,12 @@ const getWebsocketInfo = () => {
 
 // 从缓存初始化响应数据
 const initResponseFromCache = () => {
-  if (!currentSelectTab.value) {
+  if (!currentSelectNav.value) {
     return
   }
   websocketStore.setResponseCacheLoading(true)
   try {
-    const nodeId = currentSelectTab.value._id;
+    const nodeId = currentSelectNav.value._id;
     if (nodeId) {
       websocketResponseCache.getResponseByNodeId(nodeId).then(cachedMessages => {
         websocketStore.replaceMessages(cachedMessages);
@@ -206,14 +206,14 @@ const initDebouncDataChange = () => {
 };
 //处理响应区域高度变化
 const handleResponseHeightChange = (height: number) => {
-  apidocBaseInfoStore.changeResponseHeight(height)
+  projectWorkbenchStore.changeResponseHeight(height)
 }
 //检查WebSocket连接状态
 const checkIsConnection = () => {
-  if (!currentSelectTab.value) {
+  if (!currentSelectNav.value) {
     return;
   }
-  window.electronAPI?.websocket.checkNodeConnection(currentSelectTab.value._id).then((result) => {
+  window.electronAPI?.websocket.checkNodeConnection(currentSelectNav.value._id).then((result) => {
     if (result.connected) {
       websocketStore.changeConnectionId(result.connectionId!);
       websocketStore.changeConnectionState('connected');
@@ -230,7 +230,7 @@ const checkIsConnection = () => {
 const initWebSocketEventListeners = () => {
   if (!window.electronAPI) return;
   window.electronAPI.ipcManager.onMain(IPC_EVENTS.websocket.mainToRenderer.opened, (data: { connectionId: string; nodeId: string; url: string }) => {
-    if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
+    if (currentSelectNav.value && data.nodeId === currentSelectNav.value._id) {
       websocketStore.changeConnectionId(data.connectionId);
       websocketStore.changeConnectionState('connected');
 
@@ -247,14 +247,14 @@ const initWebSocketEventListeners = () => {
       websocketStore.addMessage(connectedMessage);
 
       // 缓存连接成功消息到IndexedDB
-      if (currentSelectTab.value._id) {
-        websocketResponseCache.setResponseByNodeId(currentSelectTab.value._id, connectedMessage);
+      if (currentSelectNav.value._id) {
+        websocketResponseCache.setResponseByNodeId(currentSelectNav.value._id, connectedMessage);
       }
     }
   });
   // 监听WebSocket连接关闭事件
   window.electronAPI.ipcManager.onMain(IPC_EVENTS.websocket.mainToRenderer.closed, (data: { connectionId: string; nodeId: string; code: number; reason: string; url: string }) => {
-    if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
+    if (currentSelectNav.value && data.nodeId === currentSelectNav.value._id) {
       websocketStore.changeConnectionId('');
       websocketStore.changeConnectionState('disconnected');
 
@@ -275,14 +275,14 @@ const initWebSocketEventListeners = () => {
       websocketStore.addMessage(disconnectedMessage);
 
       // 缓存断开连接消息到IndexedDB
-      if (currentSelectTab.value._id) {
-        websocketResponseCache.setResponseByNodeId(currentSelectTab.value._id, disconnectedMessage);
+      if (currentSelectNav.value._id) {
+        websocketResponseCache.setResponseByNodeId(currentSelectNav.value._id, disconnectedMessage);
       }
     }
   });
   // 监听WebSocket连接错误事件
   window.electronAPI.ipcManager.onMain(IPC_EVENTS.websocket.mainToRenderer.error, (data: { connectionId: string; nodeId: string; error: string; url: string }) => {
-    if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
+    if (currentSelectNav.value && data.nodeId === currentSelectNav.value._id) {
       websocketStore.changeConnectionId('');
       websocketStore.changeConnectionState('error');
 
@@ -299,8 +299,8 @@ const initWebSocketEventListeners = () => {
       websocketStore.addMessage(wsErrorMessage);
 
       // 缓存错误消息到IndexedDB
-      if (currentSelectTab.value._id) {
-        websocketResponseCache.setResponseByNodeId(currentSelectTab.value._id, wsErrorMessage);
+      if (currentSelectNav.value._id) {
+        websocketResponseCache.setResponseByNodeId(currentSelectNav.value._id, wsErrorMessage);
       }
     }
   });
@@ -314,7 +314,7 @@ const initWebSocketEventListeners = () => {
     contentType: 'text' | 'binary';
     url: string
   }) => {
-    if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
+    if (currentSelectNav.value && data.nodeId === currentSelectNav.value._id) {
       // 将 Uint8Array 转换为 ArrayBuffer
       const arrayBuffer = data.message.buffer.slice(
         data.message.byteOffset,
@@ -337,8 +337,8 @@ const initWebSocketEventListeners = () => {
       websocketStore.addMessage(receiveMessage);
 
       // 缓存接收消息到IndexedDB
-      if (currentSelectTab.value._id) {
-        websocketResponseCache.setResponseByNodeId(currentSelectTab.value._id, receiveMessage);
+      if (currentSelectNav.value._id) {
+        websocketResponseCache.setResponseByNodeId(currentSelectNav.value._id, receiveMessage);
       }
 
       // 执行后置脚本
@@ -396,7 +396,7 @@ const initWebSocketEventListeners = () => {
             }
           };
           websocketStore.addMessage(scriptErrorMessage);
-          websocketResponseCache.setResponseByNodeId(currentSelectTab.value._id, scriptErrorMessage);
+          websocketResponseCache.setResponseByNodeId(currentSelectNav.value._id, scriptErrorMessage);
         } else {
           console.log('WebSocket后置脚本执行成功');
 
@@ -438,7 +438,7 @@ const cleanupWebSocketEventListeners = () => {
   window.electronAPI.ipcManager.removeListener('websocket-message');
 };
 
-watch(currentSelectTab, (val, oldVal) => {
+watch(currentSelectNav, (val, oldVal) => {
   const isWebSocket = val?.tabType === 'websocket'
   if (isWebSocket && val?._id !== oldVal?._id) {
     getWebsocketInfo();
@@ -460,7 +460,7 @@ watch(() => websocketStore.websocket, (websocket: WebSocketNode) => {
 onMounted(() => {
   initDebouncDataChange()
   initWebSocketEventListeners()
-  apidocBaseInfoStore.initResponseHeight()
+  projectWorkbenchStore.initResponseHeight()
 })
 onUnmounted(() => {
   cleanupWebSocketEventListeners()

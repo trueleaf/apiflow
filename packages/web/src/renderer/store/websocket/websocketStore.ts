@@ -8,12 +8,12 @@ import { cloneDeep, debounce } from "lodash-es";
 import { apiNodesCache } from "@/cache/nodes/nodesCache";
 import { webSocketNodeCache } from "@/cache/websocketNode/websocketNodeCache.ts";
 import { ElMessageBox } from 'element-plus';
-import { useApidocTas } from "../httpNode/httpTabsStore.ts";
+import { useProjectNav } from "../projectWorkbench/projectNavStore.ts";
 import { router } from "@/router/index.ts";
-import { useApidocBanner } from "../httpNode/httpBannerStore.ts";
+import { useBanner } from "../projectWorkbench/bannerStore.ts";
 import { getWebSocketUrl } from "@/server/request/request.ts";
-import { useVariable } from "../apidocProject/variablesStore.ts";
-import { useCookies } from "../httpNode/cookiesStore.ts";
+import { useVariable } from "../projectWorkbench/variablesStore.ts";
+import { useCookies } from "../projectWorkbench/cookiesStore.ts";
 import { i18n } from "@/i18n";
 import { webSocketHistoryCache } from "@/cache/websocketNode/websocketHistoryCache";
 import { useRuntime } from '@/store/runtime/runtimeStore';
@@ -439,7 +439,7 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
   */
   // 获取WebSocket详情
   const getWebsocketDetail = async (payload: { id: string, projectId: string }): Promise<void> => {
-    const { deleteTabByIds } = useApidocTas();
+    const { deleteNavByIds } = useProjectNav();
     
     if (isOffline()) {
       const doc = await apiNodesCache.getNodeById(payload.id) as WebSocketNode;
@@ -457,7 +457,7 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
           cancelButtonText: '取消',
           type: 'warning',
         }).then(() => {
-          deleteTabByIds({
+          deleteNavByIds({
             projectId: payload.projectId,
             ids: [payload.id]
           });
@@ -500,7 +500,7 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
             cancelButtonText: '取消',
             type: 'warning',
           }).then(() => {
-            deleteTabByIds({
+            deleteNavByIds({
               projectId: payload.projectId,
               ids: [payload.id]
             });
@@ -532,15 +532,15 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
   */
   // 保存WebSocket配置
   const saveWebsocket = async (): Promise<void> => {
-    const { changeTabInfoById } = useApidocTas();
-    const { changeWebsocketBannerInfoById } = useApidocBanner()
-    const { tabs } = storeToRefs(useApidocTas())
+    const { changeNavInfoById } = useProjectNav();
+    const { changeWebsocketBannerInfoById } = useBanner()
+    const { navs } = storeToRefs(useProjectNav())
     const projectId = router.currentRoute.value.query.id as string;
-    const currentTabs = tabs.value[projectId];
-    const currentSelectTab = currentTabs?.find((tab) => tab.selected) || null;
-    let isSaved = currentSelectTab?.saved
-    if (!currentSelectTab) {
-      logger.warn('缺少tab信息');
+    const currentNavs = navs.value[projectId];
+    const currentSelectNav = currentNavs?.find((nav) => nav.selected) || null;
+    let isSaved = currentSelectNav?.saved
+    if (!currentSelectNav) {
+      logger.warn('缺少nav信息');
       return;
     }
     saveLoading.value = true;
@@ -548,9 +548,9 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
       const websocketDetail = cloneDeep(websocket.value);
       websocketDetail.updatedAt = new Date().toISOString();
       await apiNodesCache.replaceNode(websocketDetail);
-      //改变tab请求方法
-      changeTabInfoById({
-        id: currentSelectTab._id,
+      //改变nav请求方法
+      changeNavInfoById({
+        id: currentSelectNav._id,
         field: 'head',
         value: {
           icon: websocketDetail.item.protocol,
@@ -559,22 +559,22 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
       })
       //改变banner请求方法
       changeWebsocketBannerInfoById({
-        id: currentSelectTab._id,
+        id: currentSelectNav._id,
         field: 'protocol',
         value: websocketDetail.item.protocol,
       })
       //改变origindoc的值
       changeOriginWebsocket();
-      //改变tab未保存小圆点
-      changeTabInfoById({
-        id: currentSelectTab._id,
+      //改变nav未保存小圆点
+      changeNavInfoById({
+        id: currentSelectNav._id,
         field: 'saved',
         value: true,
       })
       cacheWebSocket();
       if (!isSaved) {
         webSocketHistoryCache.addWsHistoryByNodeId(
-          currentSelectTab._id,
+          currentSelectNav._id,
           websocket.value
         );
       }
@@ -586,7 +586,7 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
       // 在线模式保存
       const websocketDetail = cloneDeep(websocket.value);
       const params = {
-        _id: currentSelectTab._id,
+        _id: currentSelectNav._id,
         projectId,
         info: {
           type: 'websocket' as const,
@@ -602,9 +602,9 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
       };
 
       axiosInstance.post('/api/project/fill_doc', params).then(() => {
-        // 改变tab请求方法
-        changeTabInfoById({
-          id: currentSelectTab._id,
+        // 改变nav请求方法
+        changeNavInfoById({
+          id: currentSelectNav._id,
           field: 'head',
           value: {
             icon: websocketDetail.item.protocol,
@@ -613,15 +613,15 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
         });
         // 改变banner请求方法
         changeWebsocketBannerInfoById({
-          id: currentSelectTab._id,
+          id: currentSelectNav._id,
           field: 'protocol',
           value: websocketDetail.item.protocol,
         });
         // 改变origindoc的值
         changeOriginWebsocket();
-        // 改变tab未保存小圆点
-        changeTabInfoById({
-          id: currentSelectTab._id,
+        // 改变nav未保存小圆点
+        changeNavInfoById({
+          id: currentSelectNav._id,
           field: 'saved',
           value: true,
         });
@@ -629,14 +629,14 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
         // 只有当数据发生改变时才添加WebSocket历史记录
         if (!isSaved) {
           webSocketHistoryCache.addWsHistoryByNodeId(
-            currentSelectTab._id,
+            currentSelectNav._id,
             websocket.value
           );
         }
       }).catch((err) => {
-        // 改变tab未保存小圆点
-        changeTabInfoById({
-          id: currentSelectTab._id,
+        // 改变nav未保存小圆点
+        changeNavInfoById({
+          id: currentSelectNav._id,
           field: 'saved',
           value: false,
         });

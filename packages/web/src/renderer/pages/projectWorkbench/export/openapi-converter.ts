@@ -57,8 +57,7 @@ type OpenAPIResponse = {
 export class OpenAPIConverter {
   convertToOpenAPI(
     projectName: string,
-    nodes: HttpNode[],
-    hosts: { _id: string; name: string; url: string }[]
+    nodes: HttpNode[]
   ): OpenAPISpec {
     const apiDocs = nodes.filter(doc => doc.info.type === 'http');
     const openApiSpec: OpenAPISpec = {
@@ -71,10 +70,7 @@ export class OpenAPIConverter {
           name: ''
         }
       },
-      servers: hosts.map(host => ({
-        url: host.url,
-        description: host.name
-      })),
+      servers: [],
       paths: {},
       components: {
         schemas: {},

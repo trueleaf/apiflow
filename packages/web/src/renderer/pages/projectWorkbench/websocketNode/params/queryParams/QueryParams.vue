@@ -8,7 +8,7 @@
 <script lang="ts" setup>
 import { useWebSocket } from '@/store/websocket/websocketStore'
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { storeToRefs } from 'pinia'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { useI18n } from 'vue-i18n'
@@ -17,15 +17,15 @@ import type { ApidocProperty } from '@src/types'
 
 const websocketStore = useWebSocket()
 const redoUndoStore = useWsRedoUndo()
-const apidocTabsStore = useApidocTas()
+const projectNavStore = useProjectNav()
 const { websocket } = storeToRefs(websocketStore)
-const { currentSelectTab } = storeToRefs(apidocTabsStore)
+const { currentSelectNav } = storeToRefs(projectNavStore)
 const { t } = useI18n()
 // 查询参数记录函数
 const recordQueryParamsOperation = (oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
-  if (!currentSelectTab.value) return;
+  if (!currentSelectNav.value) return;
   redoUndoStore.recordOperation({
-    nodeId: currentSelectTab.value._id,
+    nodeId: currentSelectNav.value._id,
     type: "queryParamsOperation",
     operationName: "修改查询参数",
     affectedModuleName: "params",

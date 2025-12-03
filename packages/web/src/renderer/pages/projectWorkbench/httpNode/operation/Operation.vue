@@ -1,33 +1,14 @@
 <template>
   <div class="api-operation">
     <!-- 环境、host、接口前缀 -->
-    <div v-if="showPrefixHelper && hostEnum.length < 5" class="d-flex a-center">
-      <el-popover v-for="(item, index) in hostEnum" :key="index" :show-after="500" placement="top-start" trigger="hover"
-        width="auto" :content="item.url">
-        <template #reference>
-          <el-checkbox v-model="host" :true-value="item.url" false-label="" size="small" border
-            @change="handleChangeHost">{{ item.name }}</el-checkbox>
-        </template>
-      </el-popover>
-      <el-button type="primary" text @click="hostDialogVisible = true;">{{ t("接口前缀") }}</el-button>
-    </div>
-    <div v-else-if="showPrefixHelper" class="d-flex a-center">
-      <el-select v-model="host" placeholder="环境切换" clearable filterable data-testid="operation-env-select" @change="handleChangeHost">
-        <el-option v-for="(item, index) in hostEnum" :key="index" :value="item.url" :label="item.name">
-          <div class="env-item">
-            <div class="w-200">{{ item.name }}</div>
-            <div class="gray-600">{{ item.url }}</div>
-          </div>
-        </el-option>
-      </el-select>
+    <div class="d-flex a-center">
       <el-button type="primary" text data-testid="operation-prefix-btn" @click="hostDialogVisible = true;">{{ t("接口前缀") }}</el-button>
     </div>
     <!-- 请求地址，发送请求 -->
     <div class="op-wrap">
       <div class="request-method">
         <el-select v-model="requestMethod" :size="config.renderConfig.layout.size" value-key="name" data-testid="method-select">
-          <el-option v-for="(item, index) in requestMethodEnum" :key="index" :value="item.value" :label="item.name"
-            :title="disabledTip(item)" :disabled="!item.isEnabled">
+          <el-option v-for="(item, index) in requestMethodEnum" :key="index" :value="item.value" :label="item.name">
           </el-option>
         </el-select>
       </div>
@@ -96,14 +77,14 @@ import getHostPart from './composables/host'
 import { handleFormatUrl, handleChangeUrl } from './composables/url'
 import getMethodPart from './composables/method'
 import getOperationPart from './composables/operation'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore'
 import { useApidocResponse } from '@/store/httpNode/responseStore'
 import { useApidocRequest } from '@/store/httpNode/requestStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useVariable } from '@/store/apidocProject/variablesStore'
+import { useVariable } from '@/store/projectWorkbench/variablesStore'
 
-const apidocTabsStore = useApidocTas()
+const projectNavStore = useProjectNav()
 const variableStore = useVariable()
 const httpNodeStore = useHttpNode()
 const apidocResponseStore = useApidocResponse()
@@ -112,9 +93,9 @@ const httpRedoUndoStore = useHttpRedoUndo()
 const projectId = router.currentRoute.value.query.id as string;
 const { t } = useI18n()
 const urlRichInputRef = ref<InstanceType<typeof ClRichInput> | null>(null)
-const currentSelectTab = computed(() => {
-  const tabs = apidocTabsStore.tabs[projectId];
-  return tabs?.find((tab) => tab.selected) || null;
+const currentSelectNav = computed(() => {
+  const navs = projectNavStore.navs[projectId];
+  return navs?.find((nav) => nav.selected) || null;
 })
 
 const showPrefixHelper = ref(false)
@@ -128,7 +109,7 @@ const getVariableValue = (label: string) => {
 }
 const handleGoToVariableManage = () => {
   urlRichInputRef.value?.hideVariablePopover()
-  apidocTabsStore.addTab({
+  projectNavStore.addNav({
     _id: 'variable',
     projectId,
     tabType: 'variable',
@@ -157,14 +138,14 @@ const urlValidation = reactive<UrlValidationResult>({
 |--------------------------------------------------------------------------
 */
 const hostPart = getHostPart();
-const { hostDialogVisible, host, hostEnum, handleChangeHost } = hostPart;
+const { hostDialogVisible } = hostPart;
 /*
 |--------------------------------------------------------------------------
 | 请求方法
 |--------------------------------------------------------------------------
 */
 const methodPart = getMethodPart();
-const { requestMethod, disabledTip, requestMethodEnum } = methodPart;
+const { requestMethod, requestMethodEnum } = methodPart;
 /*
 |--------------------------------------------------------------------------
 | 发送请求、保存接口、刷新接口
@@ -178,14 +159,14 @@ const saveDocDialogVisible = computed({
   },
   set(val) {
     httpNodeStore.changeSaveDocDialogVisible(val)
-    httpNodeStore.changeSavedDocId(currentSelectTab.value?._id || '');
+    httpNodeStore.changeSavedDocId(currentSelectNav.value?._id || '');
   }
 });
 const operationPart = getOperationPart();
 const encodedFullUrl = computed(() => encodeURI(apidocRequestStore.fullUrl || ''));
 
 const handleSaveApidoc = () => {
-  if (currentSelectTab.value?._id.includes('local_')) {
+  if (currentSelectNav.value?._id.includes('local_')) {
     saveDocDialogVisible.value = true;
   } else {
     httpNodeStore.saveApidoc();
@@ -198,12 +179,12 @@ const requestPath = computed<string>({
     return httpNodeStore.apidoc.item.url.path;
   },
   set(path) {
-    if (!currentSelectTab.value) return;
+    if (!currentSelectNav.value) return;
     const oldValue = httpNodeStore.apidoc.item.url.path;
     if (oldValue !== path) {
       // 记录URL路径变化操作
       httpRedoUndoStore.recordOperation({
-        nodeId: currentSelectTab.value._id,
+        nodeId: currentSelectNav.value._id,
         type: "pathOperation",
         operationName: "修改URL路径",
         affectedModuleName: "path",

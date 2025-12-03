@@ -30,14 +30,14 @@ import Response from './mockResponse/MockResponse.vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMockStore'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 
 const { t } = useI18n()
 const httpMockStore = useHttpMock()
-const apidocTabsStore = useApidocTas()
+const projectNavStore = useProjectNav()
 const runtimeStore = useRuntime()
-const { currentSelectTab } = storeToRefs(apidocTabsStore)
+const { currentSelectNav } = storeToRefs(projectNavStore)
 
 // 保存HttpMock
 const handleSave = () => {
@@ -46,7 +46,7 @@ const handleSave = () => {
 
 // 刷新HttpMock
 const handleRefresh = async () => {
-  if (!currentSelectTab.value) {
+  if (!currentSelectNav.value) {
     return
   }
   httpMockStore.changeRefreshLoading(true)

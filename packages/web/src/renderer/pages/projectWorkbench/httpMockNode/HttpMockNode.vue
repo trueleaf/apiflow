@@ -19,7 +19,7 @@ import MockLog from './mockLog/MockLog.vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMockStore'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { debounce } from "lodash-es"
 import type { HttpMockNode, MockNodeActiveTabType } from '@src/types/mockNode'
 import type { DebouncedFunc } from 'lodash-es'
@@ -29,8 +29,8 @@ import { appState } from '@/cache/appState/appStateCache'
 const { t } = useI18n()
 const activeTab = ref<MockNodeActiveTabType>('config')
 const httpMockStore = useHttpMock()
-const apidocTabsStore = useApidocTas()
-const { currentSelectTab } = storeToRefs(apidocTabsStore)
+const projectNavStore = useProjectNav()
+const { currentSelectNav } = storeToRefs(projectNavStore)
 const { httpMock, originHttpMock } = storeToRefs(httpMockStore)
 const debounceHttpMockDataChange = ref<null | DebouncedFunc<(mock: HttpMockNode) => void>>(null)
 
@@ -41,22 +41,22 @@ const debounceHttpMockDataChange = ref<null | DebouncedFunc<(mock: HttpMockNode)
 */
 // 获取HttpMock数据
 const getHttpMockInfo = () => {
-  if (!currentSelectTab.value) {
+  if (!currentSelectNav.value) {
     return
   }
-  if (currentSelectTab.value.saved) { // 取最新值
+  if (currentSelectNav.value.saved) { // 取最新值
     httpMockStore.getHttpMockNodeDetail({
-      id: currentSelectTab.value._id,
+      id: currentSelectNav.value._id,
       projectId: router.currentRoute.value.query.id as string,
     })
   } else { // 取缓存值
-    const cachedHttpMock = httpMockStore.getCachedHttpMockNodeById(currentSelectTab.value._id)
+    const cachedHttpMock = httpMockStore.getCachedHttpMockNodeById(currentSelectNav.value._id)
     if (cachedHttpMock) {
       httpMockStore.replaceHttpMockNode(cachedHttpMock)
     } else {
       // 如果缓存中也没有，尝试获取最新数据
       httpMockStore.getHttpMockNodeDetail({
-        id: currentSelectTab.value._id,
+        id: currentSelectNav.value._id,
         projectId: router.currentRoute.value.query.id as string,
       })
     }
@@ -66,19 +66,19 @@ const getHttpMockInfo = () => {
 const handleHttpMockDataChange = (mock: HttpMockNode) => {
   const isEqual = httpMockStore.checkHttpMockNodeIsEqual(mock, originHttpMock.value)
   if (!isEqual) {
-    apidocTabsStore.changeTabInfoById({
-      id: currentSelectTab.value?._id || "",
+    projectNavStore.changeNavInfoById({
+      id: currentSelectNav.value?._id || "",
       field: 'saved',
       value: false,
     })
-    apidocTabsStore.changeTabInfoById({
-      id: currentSelectTab.value?._id || "",
+    projectNavStore.changeNavInfoById({
+      id: currentSelectNav.value?._id || "",
       field: 'fixed',
       value: true,
     })
   } else {
-    apidocTabsStore.changeTabInfoById({
-      id: currentSelectTab.value?._id || "",
+    projectNavStore.changeNavInfoById({
+      id: currentSelectNav.value?._id || "",
       field: 'saved',
       value: true,
     })
@@ -94,11 +94,11 @@ const initDebouncDataChange = () => {
 };
 // 初始化激活的tab
 const initActiveTab = (): void => {
-  const cachedTab = appState.getMockNodeActiveTab(currentSelectTab.value?._id || '')
+  const cachedTab = appState.getMockNodeActiveTab(currentSelectNav.value?._id || '')
   activeTab.value = cachedTab
 }
 // 监听tab变化
-watch(currentSelectTab, (val, oldVal) => {
+watch(currentSelectNav, (val, oldVal) => {
   const isHttpMock = val?.tabType === 'httpMock'
   if (isHttpMock && val?._id !== oldVal?._id) {
     getHttpMockInfo();
@@ -110,8 +110,8 @@ watch(currentSelectTab, (val, oldVal) => {
 })
 // 监听activeTab变化，保存到缓存
 watch(activeTab, (val) => {
-  if (currentSelectTab.value?._id) {
-    appState.setMockNodeActiveTab(currentSelectTab.value._id, val)
+  if (currentSelectNav.value?._id) {
+    appState.setMockNodeActiveTab(currentSelectNav.value._id, val)
   }
 })
 

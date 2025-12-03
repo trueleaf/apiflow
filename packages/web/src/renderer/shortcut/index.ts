@@ -1,7 +1,7 @@
 import hotkeys from "hotkeys-js";
 import { useRouter } from "vue-router";
 import { useCopilotStore } from "@/store/ai/copilotStore";
-import { useApidocTas } from "@/store/httpNode/httpTabsStore";
+import { useProjectNav } from "@/store/projectWorkbench/projectNavStore";
 import { useHttpRedoUndo } from "@/store/redoUndo/httpRedoUndoStore";
 import { useWsRedoUndo } from "@/store/redoUndo/wsRedoUndoStore";
 import { useHttpMock } from "@/store/httpMock/httpMockStore";
@@ -17,7 +17,7 @@ class ShortcutManager {
   }
   private initShortcutConfigs() {
     const router = useRouter();
-    const apidocTabsStore = useApidocTas();
+    const projectNavStore = useProjectNav();
     const userSettings = shortcutCache.getUserSettings();
     this.shortcutConfigs = [
       {
@@ -45,12 +45,12 @@ class ShortcutManager {
         },
         handler: () => {
           const currentRoute = router.currentRoute.value?.path || "";
-          const currentTabType = apidocTabsStore.currentSelectTab?.tabType;
-          if (currentRoute !== "/v1/apidoc/doc-edit" || currentTabType !== "http") {
+          const currentNavType = projectNavStore.currentSelectNav?.tabType;
+          if (currentRoute !== "/v1/apidoc/doc-edit" || currentNavType !== "http") {
             return;
           }
           const httpRedoUndoStore = useHttpRedoUndo();
-          const nodeId = apidocTabsStore.currentSelectTab?._id || "";
+          const nodeId = projectNavStore.currentSelectNav?._id || "";
           httpRedoUndoStore.httpUndo(nodeId);
         },
       },
@@ -65,12 +65,12 @@ class ShortcutManager {
         },
         handler: () => {
           const currentRoute = router.currentRoute.value?.path || "";
-          const currentTabType = apidocTabsStore.currentSelectTab?.tabType;
-          if (currentRoute !== "/v1/apidoc/doc-edit" || currentTabType !== "http") {
+          const currentNavType = projectNavStore.currentSelectNav?.tabType;
+          if (currentRoute !== "/v1/apidoc/doc-edit" || currentNavType !== "http") {
             return;
           }
           const httpRedoUndoStore = useHttpRedoUndo();
-          const nodeId = apidocTabsStore.currentSelectTab?._id || "";
+          const nodeId = projectNavStore.currentSelectNav?._id || "";
           httpRedoUndoStore.httpRedo(nodeId);
         },
       },
@@ -85,12 +85,12 @@ class ShortcutManager {
         },
         handler: () => {
           const currentRoute = router.currentRoute.value?.path || "";
-          const currentTabType = apidocTabsStore.currentSelectTab?.tabType;
-          if (currentRoute !== "/v1/apidoc/doc-edit" || currentTabType !== "websocket") {
+          const currentNavType = projectNavStore.currentSelectNav?.tabType;
+          if (currentRoute !== "/v1/apidoc/doc-edit" || currentNavType !== "websocket") {
             return;
           }
           const wsRedoUndoStore = useWsRedoUndo();
-          const nodeId = apidocTabsStore.currentSelectTab?._id || "";
+          const nodeId = projectNavStore.currentSelectNav?._id || "";
           wsRedoUndoStore.wsUndo(nodeId);
         },
       },
@@ -105,12 +105,12 @@ class ShortcutManager {
         },
         handler: () => {
           const currentRoute = router.currentRoute.value?.path || "";
-          const currentTabType = apidocTabsStore.currentSelectTab?.tabType;
-          if (currentRoute !== "/v1/apidoc/doc-edit" || currentTabType !== "websocket") {
+          const currentNavType = projectNavStore.currentSelectNav?.tabType;
+          if (currentRoute !== "/v1/apidoc/doc-edit" || currentNavType !== "websocket") {
             return;
           }
           const wsRedoUndoStore = useWsRedoUndo();
-          const nodeId = apidocTabsStore.currentSelectTab?._id || "";
+          const nodeId = projectNavStore.currentSelectNav?._id || "";
           wsRedoUndoStore.wsRedo(nodeId);
         },
       },
@@ -125,8 +125,8 @@ class ShortcutManager {
         },
         handler: () => {
           const currentRoute = router.currentRoute.value?.path || "";
-          const currentTabType = apidocTabsStore.currentSelectTab?.tabType;
-          if (currentRoute !== "/v1/apidoc/doc-edit" || currentTabType !== "variable") {
+          const currentNavType = projectNavStore.currentSelectNav?.tabType;
+          if (currentRoute !== "/v1/apidoc/doc-edit" || currentNavType !== "variable") {
             return;
           }
           window.dispatchEvent(new CustomEvent("variable:save"));
@@ -143,8 +143,8 @@ class ShortcutManager {
         },
         handler: () => {
           const currentRoute = router.currentRoute.value?.path || "";
-          const currentTabType = apidocTabsStore.currentSelectTab?.tabType;
-          if (currentRoute !== "/v1/apidoc/doc-edit" || currentTabType !== "httpMock") {
+          const currentNavType = projectNavStore.currentSelectNav?.tabType;
+          if (currentRoute !== "/v1/apidoc/doc-edit" || currentNavType !== "httpMock") {
             return;
           }
           const httpMockStore = useHttpMock();
@@ -162,8 +162,8 @@ class ShortcutManager {
         },
         handler: () => {
           const currentRoute = router.currentRoute.value?.path || "";
-          const currentTabType = apidocTabsStore.currentSelectTab?.tabType;
-          if (currentRoute !== "/v1/apidoc/doc-edit" || currentTabType !== "websocketMock") {
+          const currentNavType = projectNavStore.currentSelectNav?.tabType;
+          if (currentRoute !== "/v1/apidoc/doc-edit" || currentNavType !== "websocketMock") {
             return;
           }
           const websocketMockStore = useWebSocketMock();

@@ -114,8 +114,8 @@ import { eventEmitter } from '@/helper'
 import { forEachForest } from '@/helper'
 import { debounce } from "lodash-es"
 import docDetail from './components/DocDetail.vue'
-import { useApidocBanner } from '@/store/httpNode/httpBannerStore'
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore'
+import { useBanner } from '@/store/projectWorkbench/bannerStore'
+import { requestMethods as validRequestMethods } from '@/data/data'
 import { config } from '@src/config/config'
 // import { Delete } from '@element-plus/icons-vue'
 import { apiNodesCache } from '@/cache/nodes/nodesCache'
@@ -162,8 +162,7 @@ const formInfo: Ref<SearchInfo> = ref({
   url: '', //----------请求url
   operators: [], //----操作者信息
 })
-const apidocBannerStore = useApidocBanner()
-const apidocBaseInfoStore = useApidocBaseInfo()
+const bannerStore = useBanner()
 /*
 |--------------------------------------------------------------------------
 | 获取已删除数据信息
@@ -322,8 +321,6 @@ const deletedInfo = computed(() => {
   })
   return result;
 })
-//请求方法
-const validRequestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods)
 
 /*
 |--------------------------------------------------------------------------
@@ -345,7 +342,7 @@ const restoreDocDirectly = (docInfo: DeleteInfo) => {
         const delIndex = deletedList.value.findIndex((val) => val._id === id);
         deletedList.value.splice(delIndex, 1)
       }
-      apidocBannerStore.getDocBanner({ projectId });
+      bannerStore.getDocBanner({ projectId });
       return;
     }
     loading2.value = true;
@@ -360,7 +357,7 @@ const restoreDocDirectly = (docInfo: DeleteInfo) => {
         const delIndex = deletedList.value.findIndex((val) => val._id === id);
         deletedList.value.splice(delIndex, 1)
       }
-      apidocBannerStore.getDocBanner({ projectId });
+      bannerStore.getDocBanner({ projectId });
     }).catch((err) => {
       console.error(err);
     }).finally(() => {
@@ -375,7 +372,7 @@ const restoreDocDirectly = (docInfo: DeleteInfo) => {
 }
 //恢复接口
 const handleRestore = (docInfo: DeleteInfo) => {
-  const banner = apidocBannerStore.banner;
+  const banner = bannerStore.banner;
   const { pid, type } = docInfo;
   let hasParent = false;
   forEachForest(banner, (node) => {

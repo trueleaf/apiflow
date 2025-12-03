@@ -120,21 +120,21 @@ import { appState } from '@/cache/appState/appStateCache.ts'
 import SStatus from './children/Status.vue'
 import SMime from './children/Mime.vue'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { router } from '@/router'
 import { cloneDeep } from 'lodash-es'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 
 const httpNodeStore = useHttpNode();
-const apidocBaseInfoStore = useApidocBaseInfo()
+const projectWorkbenchStore = useProjectWorkbench()
 const httpRedoUndoStore = useHttpRedoUndo()
-const apidocTabsStore = useApidocTas()
+const projectNavStore = useProjectNav()
 const projectId = router.currentRoute.value.query.id as string;
-const currentSelectTab = computed(() => {
-  const tabs = apidocTabsStore.tabs[projectId];
-  return tabs?.find((tab) => tab.selected) || null;
+const currentSelectNav = computed(() => {
+  const navs = projectNavStore.navs[projectId];
+  return navs?.find((nav) => nav.selected) || null;
 });
 /*
 |--------------------------------------------------------------------------
@@ -218,7 +218,7 @@ const { t } = useI18n()
 
 const responseData = computed(() => httpNodeStore.apidoc.item.responseParams);
 //布局
-const layout = computed(() => apidocBaseInfoStore.layout);
+const layout = computed(() => projectWorkbenchStore.layout);
 
 /*
 |--------------------------------------------------------------------------
@@ -346,10 +346,10 @@ onMounted(() => {
 
 //响应参数记录函数
 const recordResponseParamsOperation = (oldValue: HttpNodeResponseParams[], newValue: HttpNodeResponseParams[]) => {
-  if (!currentSelectTab.value) return;
+  if (!currentSelectNav.value) return;
 
   httpRedoUndoStore.recordOperation({
-    nodeId: currentSelectTab.value._id,
+    nodeId: currentSelectNav.value._id,
     type: "responseParamsOperation",
     operationName: "修改响应参数",
     affectedModuleName: "responseParams",

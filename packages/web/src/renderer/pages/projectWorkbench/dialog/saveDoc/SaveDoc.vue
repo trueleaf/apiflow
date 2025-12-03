@@ -43,8 +43,8 @@ import { eventEmitter } from '@/helper';
 import SLoading from '@/components/common/loading/ClLoading.vue'
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore';
-import { useApidocBanner } from '@/store/httpNode/httpBannerStore';
-import { useApidocTas } from '@/store/httpNode/httpTabsStore';
+import { useBanner } from '@/store/projectWorkbench/bannerStore';
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';
@@ -71,8 +71,8 @@ const rules = ref({
   name: [{ required: true, message: '接口名称必填', trigger: 'blur' }],
 });
 const httpNodeStore = useHttpNode();
-const apidocTabsStore = useApidocTas()
-const apidocBannerStore = useApidocBanner();
+const projectNavStore = useProjectNav()
+const bannerStore = useBanner();
 const runtimeStore = useRuntime();
 /*
 |--------------------------------------------------------------------------
@@ -125,21 +125,21 @@ const handleSaveDoc = async () => {
   docInfo.sort = Date.now();
 
   const saveDocCb = (docId: string) => {
-    apidocBannerStore.getDocBanner({ projectId });
+    bannerStore.getDocBanner({ projectId });
     httpNodeStore.changeApidocId(docId);
     httpNodeStore.changeApidocName(formInfo.value.name);
-    apidocTabsStore.changeTabInfoById({
+    projectNavStore.changeNavInfoById({
       id: httpNodeStore.savedDocId,
       field: 'label',
       value: formInfo.value.name,
     })
-    apidocTabsStore.changeTabInfoById({
+    projectNavStore.changeNavInfoById({
       id: httpNodeStore.savedDocId,
       field: '_id',
       value: docId,
     })
     nextTick(() => {
-      apidocTabsStore.changeTabInfoById({
+      projectNavStore.changeNavInfoById({
         id: docId,
         field: 'saved',
         value: true,

@@ -118,7 +118,7 @@
       <SContextmenuItem :label="t('关闭右侧')" @click="handleCloseRightTab"></SContextmenuItem>
       <SContextmenuItem :label="t('关闭其他')" @click="handleCloseOtherTab"></SContextmenuItem>
       <SContextmenuItem :label="t('全部关闭')" @click="handleCloseAllTab"></SContextmenuItem>
-      <SContextmenuItem v-if="!isView" :label="t('强制全部关闭')" @click="handleForceCloseAllTab"></SContextmenuItem>
+      <SContextmenuItem :label="t('强制全部关闭')" @click="handleForceCloseAllTab"></SContextmenuItem>
       <template v-if="currentOperationNode && currentOperationNode.tabType === 'httpMock'">
         <SContextmenuItem type="divider"></SContextmenuItem>
         <SContextmenuItem v-if="!isMockServerRunning" :label="t('启动Mock服务器')" @click="handleStartMockServer"></SContextmenuItem>
@@ -153,13 +153,13 @@ import { Variable, ListTree, ArrowDownToLine, ArrowUpToLine } from 'lucide-vue-n
 import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { router } from '@/router';
-import { useApidocTas } from '@/store/httpNode/httpTabsStore';
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { eventEmitter } from '@/helper';
 import { nanoid } from 'nanoid/non-secure'
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { requestMethods } from '@/data/data';
 import SContextmenu from '@/components/common/contextmenu/ClContextmenu.vue'
 import SContextmenuItem from '@/components/common/contextmenu/ClContextmenuItem.vue'
-import { useApidocBanner } from '@/store/httpNode/httpBannerStore';
+import { useBanner } from '@/store/projectWorkbench/bannerStore';
 import { useApidocRequest } from '@/store/httpNode/requestStore';
 import { useApidocResponse } from '@/store/httpNode/responseStore';
 import { useHttpMock } from '@/store/httpMock/httpMockStore';
@@ -181,31 +181,28 @@ const showContextmenu = ref(false); //是否显示contextmenu
 const contextmenuLeft = ref(0); //鼠标右键x值
 const contextmenuTop = ref(0); //鼠标右键y值
 const currentOperationNode = ref<ApidocTab | null>(null); //当前被操作的节点信息
-const apidocTabsStore = useApidocTas();
-const apidocBaseInfoStore = useApidocBaseInfo()
+const projectNavStore = useProjectNav();
 const tabListWrap = ref<ComponentPublicInstance | null>(null)
 const tabs = computed({
   get() {
     const projectId = router.currentRoute.value.query.id as string;
-    return apidocTabsStore.tabs[projectId]
+    return projectNavStore.navs[projectId]
   },
-  set(tabs: ApidocTab[]) { //拖拽tabs会导致数据写入
-    apidocTabsStore.updateAllTabs({
+  set(tabs: ApidocTab[]) { //拖拻tabs会导致数据写入
+    projectNavStore.updateAllNavs({
       projectId: router.currentRoute.value.query.id as string,
-      tabs,
+      navs: tabs,
     })
   }
 })
 const ipAddress = computed(() => window.electronAPI?.ip)
-const requestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods)
-const isView = computed(() => apidocBaseInfoStore.mode === 'view')
 const currentSelectedTab = computed(() => tabs.value?.find(tab => tab.selected))
 const httpMockStore = useHttpMock()
 const websocketMockStore = useWebSocketMock()
 const isMockServerRunning = ref(false)
 const isWsMockServerRunning = ref(false)
 const addFileDialogVisible = ref(false)
-const apidocBannerStore = useApidocBanner()
+const bannerStore = useBanner()
 /*
 |--------------------------------------------------------------------------
 | 事件绑定
@@ -382,7 +379,7 @@ const handleCloseCurrentTab = (tab?: ApidocTab) => {
     changeRequestState('waiting');
   }
   
-  apidocTabsStore.deleteTabByIds({
+  projectNavStore.deleteNavByIds({
     projectId,
     ids: [tabId]
   });
@@ -411,7 +408,7 @@ const handleCloseOtherTab = () => {
     changeRequestState('waiting');
   }
   
-  apidocTabsStore.deleteTabByIds({
+  projectNavStore.deleteNavByIds({
     projectId,
     ids: delTabs
   })
@@ -439,7 +436,7 @@ const handleCloseLeftTab = () => {
     changeRequestState('waiting');
   }
   
-  apidocTabsStore.deleteTabByIds({
+  projectNavStore.deleteNavByIds({
     projectId,
     ids: delTabs
   })
@@ -464,7 +461,7 @@ const handleCloseRightTab = () => {
     changeRequestState('waiting');
   }
   
-  apidocTabsStore.deleteTabByIds({
+  projectNavStore.deleteNavByIds({
     projectId,
     ids: delTabs
   })
@@ -481,7 +478,7 @@ const handleCloseAllTab = () => {
   }
   
   const projectId: string = router.currentRoute.value.query.id as string;
-  apidocTabsStore.deleteTabByIds({
+  projectNavStore.deleteNavByIds({
     projectId,
     ids: tabs.value.map((v) => v._id)
   })
@@ -498,7 +495,7 @@ const handleForceCloseAllTab = () => {
   }
   
   const projectId: string = router.currentRoute.value.query.id as string;
-  apidocTabsStore.forceDeleteAllTab(projectId);
+  projectNavStore.forceDeleteAllNav(projectId);
 }
 //选中当前tab
 const selectCurrentTab = (element: ApidocTab) => {
@@ -512,9 +509,9 @@ const selectCurrentTab = (element: ApidocTab) => {
     changeRequestState('waiting');
   }
   
-  const { changeExpandItems } = useApidocBanner()
+  const { changeExpandItems } = useBanner()
   const projectId = router.currentRoute.value.query.id as string;
-  apidocTabsStore.selectTabById({
+  projectNavStore.selectNavById({
     projectId,
     id: element._id
   });
@@ -524,14 +521,14 @@ const selectCurrentTab = (element: ApidocTab) => {
 //固定当前tab
 const fixCurrentTab = (element: ApidocTab) => {
   const projectId = router.currentRoute.value.query.id as string;
-  apidocTabsStore.fixedTab({
+  projectNavStore.fixedNav({
     _id: element._id,
     projectId,
   })
 }
 //打开一个新的tab
 const handleAddNewTab = () => {
-  apidocTabsStore.addTab({
+  projectNavStore.addNav({
     _id: `local_${nanoid()}`,
     projectId: router.currentRoute.value.query.id as string,
     tabType: 'http',
@@ -555,14 +552,14 @@ const handleTabListDblclick = (e: MouseEvent) => {
 }
 //新增接口成功回调
 const handleAddFileSuccess = (data: ApidocBanner) => {
-  apidocBannerStore.addExpandItem(data._id);
-  apidocBannerStore.splice({
-    start: apidocBannerStore.banner.length,
+  bannerStore.addExpandItem(data._id);
+  bannerStore.splice({
+    start: bannerStore.banner.length,
     deleteCount: 0,
     item: data,
   });
   if (data.type === 'http') {
-    apidocTabsStore.addTab({
+    projectNavStore.addNav({
       _id: data._id,
       projectId: router.currentRoute.value.query.id as string,
       tabType: 'http',
@@ -576,7 +573,7 @@ const handleAddFileSuccess = (data: ApidocBanner) => {
       },
     });
   } else if (data.type === 'websocket') {
-    apidocTabsStore.addTab({
+    projectNavStore.addNav({
       _id: data._id,
       projectId: router.currentRoute.value.query.id as string,
       tabType: 'websocket',
@@ -590,7 +587,7 @@ const handleAddFileSuccess = (data: ApidocBanner) => {
       },
     });
   } else if (data.type === 'httpMock') {
-    apidocTabsStore.addTab({
+    projectNavStore.addNav({
       _id: data._id,
       projectId: router.currentRoute.value.query.id as string,
       tabType: 'httpMock',
@@ -614,7 +611,7 @@ const handleAddFileSuccess = (data: ApidocBanner) => {
 onMounted(() => {
   document.body.addEventListener('click', bindGlobalClick);
   document.body.addEventListener('contextmenu', bindGlobalClick);
-  apidocTabsStore.initLocalTabs({
+  projectNavStore.initLocalNavs({
     projectId: router.currentRoute.value.query.id as string
   })
   initViewTab();

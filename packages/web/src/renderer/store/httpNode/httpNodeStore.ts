@@ -19,13 +19,13 @@ import { ref, watch } from "vue"
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
 import { router } from "@/router"
-import { useApidocTas } from "./httpTabsStore"
-import { useApidocBanner } from "./httpBannerStore"
+import { useProjectNav } from "../projectWorkbench/projectNavStore"
+import { useBanner } from "../projectWorkbench/bannerStore"
 import { DeepPartial } from "@src/types/index.ts"
-import { useCookies } from "./cookiesStore.ts"
+import { useCookies } from "../projectWorkbench/cookiesStore.ts"
 import { i18n } from "@/i18n"
 import { getUrl } from "@/server/request/request.ts"
-import { useVariable } from "../apidocProject/variablesStore.ts"
+import { useVariable } from "../projectWorkbench/variablesStore.ts"
 import { apiNodesCache } from "@/cache/nodes/nodesCache";
 import { useRuntime } from '../runtime/runtimeStore';
 import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache';
@@ -448,7 +448,7 @@ export const useHttpNode = defineStore('httpNode', () => {
   */
   //获取项目基本信息
   const getApidocDetail = async (payload: { id: string, projectId: string }): Promise<void> => {
-    const { deleteTabByIds } = useApidocTas();
+    const { deleteNavByIds } = useProjectNav();
     httpNodeConfigStore.initHttpNodeConfig(payload.projectId)
 
     if (isOffline()) {
@@ -459,7 +459,7 @@ export const useHttpNode = defineStore('httpNode', () => {
           cancelButtonText: '取消',
           type: 'warning',
         }).then(() => {
-          deleteTabByIds({
+          deleteNavByIds({
             projectId: payload.projectId,
             ids: [payload.id]
           })
@@ -501,7 +501,7 @@ export const useHttpNode = defineStore('httpNode', () => {
             cancelButtonText: '取消',
             type: 'warning',
           }).then(() => {
-            deleteTabByIds({
+            deleteNavByIds({
               projectId: payload.projectId,
               ids: [payload.id]
             })
@@ -526,17 +526,17 @@ export const useHttpNode = defineStore('httpNode', () => {
   }
   //保存接口
   const saveApidoc = (): Promise<void> => {
-    const { tabs } = storeToRefs(useApidocTas());
-    const { changeTabInfoById } = useApidocTas();
-    const { changeHttpBannerInfoById } = useApidocBanner()
+    const { navs } = storeToRefs(useProjectNav());
+    const { changeNavInfoById } = useProjectNav();
+    const { changeHttpBannerInfoById } = useBanner()
     return new Promise(async (resolve, reject) => {
       //todo
       // const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
       const projectId = router.currentRoute.value.query.id as string;
-      const currentTabs = tabs.value[projectId];
-      const currentSelectTab = currentTabs?.find((tab) => tab.selected) || null;
-      if (!currentSelectTab) {
-        logger.warn('缺少tab信息');
+      const currentNavs = navs.value[projectId];
+      const currentSelectNav = currentNavs?.find((nav) => nav.selected) || null;
+      if (!currentSelectNav) {
+        logger.warn('缺少nav信息');
         return;
       }
       changeApidocSaveLoading(true);
@@ -548,7 +548,7 @@ export const useHttpNode = defineStore('httpNode', () => {
         delete v._error;
       })
       const params = {
-        _id: currentSelectTab._id,
+        _id: currentSelectNav._id,
         projectId,
         info: apidocDetail.info,
         item: apidocDetail.item,
@@ -558,9 +558,9 @@ export const useHttpNode = defineStore('httpNode', () => {
       if (isOffline()) {
         apidocDetail.updatedAt = new Date().toISOString();
         await apiNodesCache.replaceNode(apidocDetail);
-        //改变tab请求方法
-        changeTabInfoById({
-          id: currentSelectTab._id,
+        //改变nav请求方法
+        changeNavInfoById({
+          id: currentSelectNav._id,
           field: 'head',
           value: {
             icon: params.item.method,
@@ -569,21 +569,21 @@ export const useHttpNode = defineStore('httpNode', () => {
         })
         //改变banner请求方法
         changeHttpBannerInfoById({
-          id: currentSelectTab._id,
+          id: currentSelectNav._id,
           field: 'method',
           value: params.item.method,
         })
         //改变origindoc的值
         changeOriginApidoc();
-        //改变tab未保存小圆点
-        changeTabInfoById({
-          id: currentSelectTab._id,
+        //改变nav未保存小圆点
+        changeNavInfoById({
+          id: currentSelectNav._id,
           field: 'saved',
           value: true,
         })
         // 添加历史记录
         httpNodeHistoryCache.addHttpHistoryByNodeId(
-          currentSelectTab._id,
+          currentSelectNav._id,
           apidoc.value,
           runtimeStore.userInfo.id,
           runtimeStore.userInfo.realName
@@ -598,9 +598,9 @@ export const useHttpNode = defineStore('httpNode', () => {
       }
 
       axiosInstance.post('/api/project/fill_doc', params).then(() => {
-        //改变tab请求方法
-        changeTabInfoById({
-          id: currentSelectTab._id,
+        //改变nav请求方法
+        changeNavInfoById({
+          id: currentSelectNav._id,
           field: 'head',
           value: {
             icon: params.item.method,
@@ -610,37 +610,37 @@ export const useHttpNode = defineStore('httpNode', () => {
 
         //改变banner请求方法
         changeHttpBannerInfoById({
-          id: currentSelectTab._id,
+          id: currentSelectNav._id,
           field: 'method',
           value: params.item.method,
         })
         //改变origindoc的值
         changeOriginApidoc();
-        //改变tab未保存小圆点
-        changeTabInfoById({
-          id: currentSelectTab._id,
+        //改变nav未保存小圆点
+        changeNavInfoById({
+          id: currentSelectNav._id,
           field: 'saved',
           value: true,
         })
         // 添加历史记录
         httpNodeHistoryCache.addHttpHistoryByNodeId(
-          currentSelectTab._id,
+          currentSelectNav._id,
           apidoc.value,
           runtimeStore.userInfo.id,
           runtimeStore.userInfo.realName
         ).catch(error => {
           logger.error('添加历史记录失败', { error });
         });
-        //   id: currentSelectTab._id,
+        //   id: currentSelectNav._id,
         //   projectId,
         //   url: apidocDetail.item.url.path,
         //   method: apidocDetail.item.method,
         // })
         resolve();
       }).catch((err) => {
-        //改变tab未保存小圆点
-        changeTabInfoById({
-          id: currentSelectTab._id,
+        //改变nav未保存小圆点
+        changeNavInfoById({
+          id: currentSelectNav._id,
           field: 'saved',
           value: false,
         })

@@ -4,10 +4,11 @@ import json5 from 'json5'
 import { HttpNode, ApidocProperty } from '@src/types';
 import { getFormDataFromFormDataParams, getObjectPathParams, getStringFromParams } from '@/helper'
 import { getCompiledTemplate } from '@/helper';
-import { useVariable } from '@/store/apidocProject/variablesStore';
+import { useVariable } from '@/store/projectWorkbench/variablesStore';
 import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/index.ts';
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
-import { useApidocTas } from '@/store/httpNode/httpTabsStore';
+import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore';
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { useApidocResponse } from '@/store/httpNode/responseStore';
 import { useHttpNodeConfig } from '@/store/httpNode/httpNodeConfigStore';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
@@ -19,7 +20,7 @@ import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep } from "lodash-es";
 import { useApidocRequest } from '@/store/httpNode/requestStore';
 import { i18n } from '@/i18n';
-import { useCookies } from '@/store/httpNode/cookiesStore';
+import { useCookies } from '@/store/projectWorkbench/cookiesStore';
 import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/preRequest/types/types.ts';
 import { Method } from 'got';
 import preRequestWorker from '@/worker/preRequest/preRequest.ts?worker&inline';
@@ -123,20 +124,20 @@ export const getWebSocketUrl = async (websocketNode: WebSocketNode) => {
  */
 export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultHeaders: ApidocProperty<'string'>[], fullUrl: string) => {
   const { variables } = useVariable();
-  const apidocBaseInfoStore = useApidocBaseInfo();
-  const apidocTabsStore = useApidocTas();
+  const commonHeaderStore = useCommonHeader();
+  const projectNavStore = useProjectNav();
   const { getMachtedCookies } = useCookies();
   const projectId = websocketNode.projectId;
-  const tabs = apidocTabsStore.tabs[projectId];
-  const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+  const navs = projectNavStore.navs[projectId];
+  const currentSelectNav = navs?.find((nav) => nav.selected) || null;
 
-  if (!currentSelectTab) {
-    console.warn('未匹配到当前选中tab');
+  if (!currentSelectNav) {
+    console.warn('未匹配到当前选中nav');
     return {};
   }
 
-  const defaultCommonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || "");
-  const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab?._id ?? "") || [];
+  const defaultCommonHeaders = commonHeaderStore.getCommonHeadersById(currentSelectNav?._id || "");
+  const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectNav?._id ?? "") || [];
   const commonHeaders = defaultCommonHeaders.filter(header => !ignoreHeaderIds.includes(header._id));
   const headers = websocketNode.item.headers;
   const headersObject: Record<string, string> = {};
@@ -346,18 +347,18 @@ const getBody = async (apidoc: HttpNode): Promise<GotRequestOptions['body']> => 
  */
 const getHeaders = async (apidoc: HttpNode) => {
   const { variables } = useVariable();
-  const apidocBaseInfoStore = useApidocBaseInfo();
+  const commonHeaderStore = useCommonHeader();
   const { defaultHeaders } = useHttpNode();
-  const apidocTabsStore = useApidocTas();
+  const projectNavStore = useProjectNav();
   const projectId = apidoc.projectId;
-  const tabs = apidocTabsStore.tabs[projectId];
-  const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
-  if (!currentSelectTab) {
-    console.warn('未匹配到当前选中tab')
+  const navs = projectNavStore.navs[projectId];
+  const currentSelectNav = navs?.find((nav) => nav.selected) || null;
+  if (!currentSelectNav) {
+    console.warn('未匹配到当前选中nav')
     return {}
   }
-  const defaultCommonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || "");
-  const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab?._id ?? "") || [];
+  const defaultCommonHeaders = commonHeaderStore.getCommonHeadersById(currentSelectNav?._id || "");
+  const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectNav?._id ?? "") || [];
   const commonHeaders = defaultCommonHeaders.filter(header => !ignoreHeaderIds.includes(header._id));
   const headers = apidoc.item.headers;
   const headersObject: Record<string, string | null> = {};
@@ -433,13 +434,13 @@ const convertObjectToProperty = (objectParams: Record<string, any>) => {
 export const sendRequest = async () => {
   const worker = new preRequestWorker();
   const redirectList = ref<ResponseInfo['redirectList']>([]);
-  const apidocBaseInfoStore = useApidocBaseInfo();
+  const projectWorkbenchStore = useProjectWorkbench();
   const { objectVariable } = useVariable();
   const apidocResponseStore = useApidocResponse();
-  const projectId = apidocBaseInfoStore.projectId;
+  const projectId = projectWorkbenchStore.projectId;
   const runtimeStore = useRuntime();
-  const apidocTabsStore = useApidocTas();
-  const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
+  const projectNavStore = useProjectNav();
+  const selectedNav = projectNavStore.getSelectedNav(projectWorkbenchStore.projectId);
   const httpNodeStore = useHttpNode();
   const { updateCookiesBySetCookieHeader, getMachtedCookies } = useCookies();
   const { changeCancelRequestRef } = useApidocRequest()
@@ -598,7 +599,7 @@ export const sendRequest = async () => {
           lastCacheTime = now;
           // 只有在数据大小合理的情况下才进行深拷贝和缓存
           if (apidocResponseStore.responseInfo.bodyByteLength <= config.cacheConfig.httpNodeResponseCache.singleResponseBodySize) {
-            httpResponseCache.setResponse(selectedTab?._id ?? '', apidocResponseStore.responseInfo);
+            httpResponseCache.setResponse(selectedNav?._id ?? '', apidocResponseStore.responseInfo);
           }
         }
       },
@@ -635,11 +636,11 @@ export const sendRequest = async () => {
             ext: ''
           };
           storedResponseInfo.responseData.canApiflowParseType = 'cachedBodyIsTooLarge';
-          changeResponseCacheAllowed(selectedTab?._id ?? '', false);
+          changeResponseCacheAllowed(selectedNav?._id ?? '', false);
         } else {
-          changeResponseCacheAllowed(selectedTab?._id ?? '', true);
+          changeResponseCacheAllowed(selectedNav?._id ?? '', true);
         }
-        httpResponseCache.setResponse(selectedTab?._id ?? '', storedResponseInfo);
+        httpResponseCache.setResponse(selectedNav?._id ?? '', storedResponseInfo);
         cleanup(); // 请求完成后清理 worker
       },
     })

@@ -19,7 +19,7 @@ import MockLog from './mockLog/MockLog.vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useWebSocketMock } from '@/store/websocketMock/websocketMockStore'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { debounce } from "lodash-es"
 import type { WebSocketMockNode, MockNodeActiveTabType } from '@src/types/mockNode'
 import type { DebouncedFunc } from 'lodash-es'
@@ -29,28 +29,28 @@ import { appState } from '@/cache/appState/appStateCache'
 const { t } = useI18n()
 const activeTab = ref<MockNodeActiveTabType>('config')
 const websocketMockStore = useWebSocketMock()
-const apidocTabsStore = useApidocTas()
-const { currentSelectTab } = storeToRefs(apidocTabsStore)
+const projectNavStore = useProjectNav()
+const { currentSelectNav } = storeToRefs(projectNavStore)
 const { websocketMock, originWebSocketMock } = storeToRefs(websocketMockStore)
 const debounceWebSocketMockDataChange = ref<null | DebouncedFunc<(mock: WebSocketMockNode) => void>>(null)
 
 // 获取 WebSocketMock 数据
 const getWebSocketMockInfo = () => {
-  if (!currentSelectTab.value) {
+  if (!currentSelectNav.value) {
     return
   }
-  if (currentSelectTab.value.saved) {
+  if (currentSelectNav.value.saved) {
     websocketMockStore.getWebSocketMockNodeDetail({
-      id: currentSelectTab.value._id,
+      id: currentSelectNav.value._id,
       projectId: router.currentRoute.value.query.id as string,
     })
   } else {
-    const cachedWebSocketMock = websocketMockStore.getCachedWebSocketMockNodeById(currentSelectTab.value._id)
+    const cachedWebSocketMock = websocketMockStore.getCachedWebSocketMockNodeById(currentSelectNav.value._id)
     if (cachedWebSocketMock) {
       websocketMockStore.replaceWebSocketMockNode(cachedWebSocketMock)
     } else {
       websocketMockStore.getWebSocketMockNodeDetail({
-        id: currentSelectTab.value._id,
+        id: currentSelectNav.value._id,
         projectId: router.currentRoute.value.query.id as string,
       })
     }
@@ -60,19 +60,19 @@ const getWebSocketMockInfo = () => {
 const handleWebSocketMockDataChange = (mock: WebSocketMockNode) => {
   const isEqual = websocketMockStore.checkWebSocketMockNodeIsEqual(mock, originWebSocketMock.value)
   if (!isEqual) {
-    apidocTabsStore.changeTabInfoById({
-      id: currentSelectTab.value?._id || "",
+    projectNavStore.changeNavInfoById({
+      id: currentSelectNav.value?._id || "",
       field: 'saved',
       value: false,
     })
-    apidocTabsStore.changeTabInfoById({
-      id: currentSelectTab.value?._id || "",
+    projectNavStore.changeNavInfoById({
+      id: currentSelectNav.value?._id || "",
       field: 'fixed',
       value: true,
     })
   } else {
-    apidocTabsStore.changeTabInfoById({
-      id: currentSelectTab.value?._id || "",
+    projectNavStore.changeNavInfoById({
+      id: currentSelectNav.value?._id || "",
       field: 'saved',
       value: true,
     })
@@ -87,11 +87,11 @@ const initDebouncDataChange = () => {
 };
 // 初始化激活的 tab
 const initActiveTab = (): void => {
-  const cachedTab = appState.getMockNodeActiveTab(currentSelectTab.value?._id || '')
+  const cachedTab = appState.getMockNodeActiveTab(currentSelectNav.value?._id || '')
   activeTab.value = cachedTab
 }
 // 监听 tab 变化
-watch(currentSelectTab, (val, oldVal) => {
+watch(currentSelectNav, (val, oldVal) => {
   const isWebSocketMock = val?.tabType === 'websocketMock'
   if (isWebSocketMock && val?._id !== oldVal?._id) {
     getWebSocketMockInfo();
@@ -103,8 +103,8 @@ watch(currentSelectTab, (val, oldVal) => {
 })
 // 监听 activeTab 变化，保存到缓存
 watch(activeTab, (val) => {
-  if (currentSelectTab.value?._id) {
-    appState.setMockNodeActiveTab(currentSelectTab.value._id, val)
+  if (currentSelectNav.value?._id) {
+    appState.setMockNodeActiveTab(currentSelectNav.value._id, val)
   }
 })
 // 监听 websocketMock 数据变化

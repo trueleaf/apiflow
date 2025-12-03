@@ -216,7 +216,7 @@ import { message } from '@/helper';
 import { useRoute } from 'vue-router';
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import EditDialog from './dialog/Edit.vue'
-import { useVariable } from '@/store/apidocProject/variablesStore';
+import { useVariable } from '@/store/projectWorkbench/variablesStore';
 import { CommonResponse, ApidocVariable } from '@src/types';
 import { request as axiosInstance } from '@/api/api'
 import { nodeVariableCache } from '@/cache/variable/nodeVariableCache';

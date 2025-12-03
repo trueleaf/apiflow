@@ -43,7 +43,7 @@ import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { useWebSocket } from '@/store/websocket/websocketStore';
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
 import { formatDate } from '@/helper';
 import SLabelValue from '@/components/common/labelValue/ClLabelValue.vue';
 import GWebsocketView from '@/components/common/websocketView/ClWebsocketView.vue';
@@ -52,9 +52,9 @@ import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseC
 
 const { t } = useI18n();
 const websocketStore = useWebSocket();
-const apidocBaseInfoStore = useApidocBaseInfo();
+const projectWorkbenchStore = useProjectWorkbench();
 const { websocketFullUrl, websocket, responseMessage: messages, responseCacheLoading } = storeToRefs(websocketStore);
-const layout = computed(() => apidocBaseInfoStore.layout);
+const layout = computed(() => projectWorkbenchStore.layout);
 
 // 基本信息计算属性
 const websocketBaseInfo = computed(() => ({

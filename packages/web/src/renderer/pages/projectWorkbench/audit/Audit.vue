@@ -197,7 +197,7 @@ import { request } from '@/api/api';
 import { router } from '@/router';
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import SLoading from '@/components/common/loading/ClLoading.vue'
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore'
+import { requestMethods as validRequestMethods } from '@/data/data'
 const folderUrl = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href;
 
 
@@ -309,8 +309,6 @@ watch(() => customDateRange.value, (val) => {
 | 列表数据获取
 |--------------------------------------------------------------------------
 */
-const apidocBaseInfoStore = useApidocBaseInfo()
-const validRequestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods); //请求方法
 const loading = ref(false); //数据加载
 const historyList: Ref<ApidocOperationRecord[]> = ref([]); //历史记录数据
 const historyInfo: Ref<Record<string, { title: string, history: ApidocOperationRecord[] }>> = ref({});

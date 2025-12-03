@@ -166,7 +166,7 @@
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { useWebSocket } from '@/store/websocket/websocketStore'
 import {
   Plus,
@@ -183,14 +183,14 @@ import { nanoid } from 'nanoid/non-secure'
 import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache'
 import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache'
 import { message, getCompiledTemplate } from '@/helper'
-import { useVariable } from '@/store/apidocProject/variablesStore'
+import { useVariable } from '@/store/projectWorkbench/variablesStore'
 import { appState } from '@/cache/appState/appStateCache'
 
 const { t } = useI18n()
-const apidocTabsStore = useApidocTas()
+const projectNavStore = useProjectNav()
 const websocketStore = useWebSocket()
 const { connectionState, connectionId } = storeToRefs(websocketStore)
-const { currentSelectTab } = storeToRefs(apidocTabsStore)
+const { currentSelectNav } = storeToRefs(projectNavStore)
 
 const configPopoverVisible = ref(false)
 let configTimer: NodeJS.Timeout | null = null
@@ -232,7 +232,7 @@ const getLanguageByType = (type: WebsocketMessageType): string => {
 
 // 初始化快捷操作配置
 const initQuickOperations = () => {
-  const tab = currentSelectTab.value
+  const tab = currentSelectNav.value
   if (tab) {
     const config = webSocketNodeCache.getWebsocketConfig(tab.projectId)
     quickOperations.value = (config?.quickOperations || []) as 'autoSend'[]
@@ -241,7 +241,7 @@ const initQuickOperations = () => {
 
 // 初始化折叠状态
 const initCollapseState = () => {
-  const nodeId = currentSelectTab.value?._id
+  const nodeId = currentSelectNav.value?._id
   if (!nodeId) return
   const states: Record<string, boolean> = {}
   messageBlocks.value.forEach(block => {
@@ -252,7 +252,7 @@ const initCollapseState = () => {
 
 // 切换折叠状态
 const handleToggleCollapse = (blockId: string) => {
-  const nodeId = currentSelectTab.value?._id
+  const nodeId = currentSelectNav.value?._id
   if (!nodeId) return
   const newState = !collapsedBlocks.value[blockId]
   collapsedBlocks.value[blockId] = newState
@@ -284,7 +284,7 @@ const handleTempQuickOperationChange = (operation: 'autoSend', enabled: boolean 
 
 // 保存配置
 const handleSaveConfig = async () => {
-  const tab = currentSelectTab.value
+  const tab = currentSelectNav.value
   if (!tab) return
 
   websocketStore.changeWebSocketAutoSendInterval(tempAutoSendInterval.value)
@@ -374,11 +374,11 @@ const handleSendBlock = async (block: WebsocketMessageBlock) => {
           timestamp: Date.now(),
           contentType: block.messageType,
           size: new Blob([messageContent]).size,
-          nodeId: currentSelectTab.value?._id || ''
+          nodeId: currentSelectNav.value?._id || ''
         }
       }
       websocketStore.addMessage(sendMessage)
-      const nodeId = currentSelectTab.value!._id
+      const nodeId = currentSelectNav.value!._id
       await websocketResponseCache.setResponseByNodeId(nodeId, sendMessage)
     } else {
       console.error('WebSocket消息发送失败:', result?.msg)
@@ -388,11 +388,11 @@ const handleSendBlock = async (block: WebsocketMessageBlock) => {
           id: nanoid(),
           error: result?.msg || t('消息发送失败'),
           timestamp: Date.now(),
-          nodeId: currentSelectTab.value?._id || ''
+          nodeId: currentSelectNav.value?._id || ''
         }
       }
       websocketStore.addMessage(errorMessage)
-      const nodeId = currentSelectTab.value!._id
+      const nodeId = currentSelectNav.value!._id
       await websocketResponseCache.setResponseByNodeId(nodeId, errorMessage)
     }
   } catch (error) {
@@ -404,11 +404,11 @@ const handleSendBlock = async (block: WebsocketMessageBlock) => {
         id: nanoid(),
         error: error instanceof Error ? error.message : t('消息发送异常'),
         timestamp: Date.now(),
-        nodeId: currentSelectTab.value?._id || ''
+        nodeId: currentSelectNav.value?._id || ''
       }
     }
     websocketStore.addMessage(exceptionMessage)
-    const nodeId = currentSelectTab.value!._id
+    const nodeId = currentSelectNav.value!._id
     await websocketResponseCache.setResponseByNodeId(nodeId, exceptionMessage)
   }
 }
@@ -449,11 +449,11 @@ const startAutoSend = () => {
               id: nanoid(),
               message: autoSendContent,
               timestamp: Date.now(),
-              nodeId: currentSelectTab.value?._id || ''
+              nodeId: currentSelectNav.value?._id || ''
             }
           }
           websocketStore.addMessage(autoSendMessage)
-          const nodeId = currentSelectTab.value!._id
+          const nodeId = currentSelectNav.value!._id
           await websocketResponseCache.setResponseByNodeId(nodeId, autoSendMessage)
         } else {
           console.error(t('自动发送失败'), result?.msg)
@@ -463,11 +463,11 @@ const startAutoSend = () => {
               id: nanoid(),
               error: result?.msg || t('自动发送失败'),
               timestamp: Date.now(),
-              nodeId: currentSelectTab.value?._id || ''
+              nodeId: currentSelectNav.value?._id || ''
             }
           }
           websocketStore.addMessage(errorMessage)
-          const nodeId = currentSelectTab.value!._id
+          const nodeId = currentSelectNav.value!._id
           await websocketResponseCache.setResponseByNodeId(nodeId, errorMessage)
         }
       } catch (error) {
@@ -478,11 +478,11 @@ const startAutoSend = () => {
             id: nanoid(),
             error: error instanceof Error ? error.message : t('自动发送异常'),
             timestamp: Date.now(),
-            nodeId: currentSelectTab.value?._id || ''
+            nodeId: currentSelectNav.value?._id || ''
           }
         }
         websocketStore.addMessage(exceptionMessage)
-        const nodeId = currentSelectTab.value!._id
+        const nodeId = currentSelectNav.value!._id
         await websocketResponseCache.setResponseByNodeId(nodeId, exceptionMessage)
       }
     }
@@ -506,7 +506,7 @@ watch(() => connectionState.value, (newState) => {
 })
 
 // 监听当前选中tab变化
-watch(currentSelectTab, (newTab) => {
+watch(currentSelectNav, (newTab) => {
   if (newTab) {
     stopAutoSend()
     if (connectionState.value === 'connected' && websocketStore.websocket.config.autoSend) {
@@ -516,7 +516,7 @@ watch(currentSelectTab, (newTab) => {
 })
 
 // 初始化快捷操作配置和折叠状态
-watch(currentSelectTab, (tab) => {
+watch(currentSelectNav, (tab) => {
   if (tab) {
     initQuickOperations()
     initCollapseState()

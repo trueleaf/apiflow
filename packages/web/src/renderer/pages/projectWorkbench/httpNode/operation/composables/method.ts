@@ -1,11 +1,12 @@
 import { ComputedRef, computed, WritableComputedRef } from 'vue'
-import { i18n } from '@/i18n'
-import { ApidocRequestMethodRule, HttpNodeRequestMethod } from '@src/types';
+import { HttpNodeRequestMethod } from '@src/types';
 import { useHttpNode } from '@/store/httpNode/httpNodeStore';
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore';
-import { useApidocTas } from '@/store/httpNode/httpTabsStore';
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { router } from '@/router';
+import { requestMethods } from '@/data/data';
+
+type RequestMethodItem = (typeof requestMethods)[number];
 
 type MethodReturn = {
   /**
@@ -15,22 +16,17 @@ type MethodReturn = {
   /**
      * 请求方法枚举
      */
-  requestMethodEnum: ComputedRef<ApidocRequestMethodRule[]>,
-  /**
-     * 禁用请求方法后提示信息
-     */
-  disabledTip: (item: ApidocRequestMethodRule) => void,
+  requestMethodEnum: ComputedRef<RequestMethodItem[]>,
 }
 
 export default (): MethodReturn => {
   const httpNodeStore = useHttpNode()
-  const apidocBaseInfo = useApidocBaseInfo()
   const httpRedoUndoStore = useHttpRedoUndo()
-  const apidocTabsStore = useApidocTas()
+  const projectNavStore = useProjectNav()
   const projectId = router.currentRoute.value.query.id as string;
-  const currentSelectTab = computed(() => {
-    const tabs = apidocTabsStore.tabs[projectId];
-    return tabs?.find((tab) => tab.selected) || null;
+  const currentSelectNav = computed(() => {
+    const navs = projectNavStore.navs[projectId];
+    return navs?.find((nav) => nav.selected) || null;
   });
   //请求方法
   const requestMethod = computed({
@@ -38,12 +34,12 @@ export default (): MethodReturn => {
       return httpNodeStore.apidoc.item.method;
     },
     set(method: HttpNodeRequestMethod) {
-      if (!currentSelectTab.value) return;
+      if (!currentSelectNav.value) return;
       const oldValue = httpNodeStore.apidoc.item.method;
       if (oldValue !== method) {
         // 记录请求方法变化操作
         httpRedoUndoStore.recordOperation({
-          nodeId: currentSelectTab.value._id,
+          nodeId: currentSelectNav.value._id,
           type: "methodOperation",
           operationName: "修改请求方法",
           affectedModuleName: "method",
@@ -55,19 +51,11 @@ export default (): MethodReturn => {
       httpNodeStore.changeApidocMethod(method)
     },
   });
-    //禁用请求方法后提示信息
-  const disabledTip = (item: ApidocRequestMethodRule) => {
-    if (!item.isEnabled) {
-      return i18n.global.t('当前请求方法被禁止，可以在全局配置中进行相关配置');
-    }
-    return '';
-  }
   //请求方法枚举
-  const requestMethodEnum = computed(() => apidocBaseInfo.rules.requestMethods);
+  const requestMethodEnum = computed(() => requestMethods);
 
   return {
     requestMethod,
-    disabledTip,
     requestMethodEnum,
   }
 }

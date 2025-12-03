@@ -38,13 +38,13 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Trash2 } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { IPC_EVENTS } from '@src/types/ipc'
 import type { WebSocketMockLog } from '@src/types/mockNode'
 
 const { t } = useI18n()
-const apidocTabsStore = useApidocTas()
-const { currentSelectTab } = storeToRefs(apidocTabsStore)
+const projectNavStore = useProjectNav()
+const { currentSelectNav } = storeToRefs(projectNavStore)
 const logs = ref<WebSocketMockLog[]>([])
 const loading = ref(false)
 
@@ -127,8 +127,8 @@ const handleClearLogs = () => {
 }
 // 处理收到的日志批次
 const handleLogsBatch = (batchLogs: WebSocketMockLog[]) => {
-  if (!currentSelectTab.value) return
-  const nodeId = currentSelectTab.value._id
+  if (!currentSelectNav.value) return
+  const nodeId = currentSelectNav.value._id
   const nodeLogs = batchLogs.filter(log => log.nodeId === nodeId)
   if (nodeLogs.length > 0) {
     logs.value = [...logs.value, ...nodeLogs]

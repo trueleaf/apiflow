@@ -77,8 +77,8 @@ import { useI18n } from 'vue-i18n'
 import { Search, Loading, Delete } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { useSendHistory } from '@/store/data/sendHistoryStore'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
-import { useApidocBanner } from '@/store/httpNode/httpBannerStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
+import { useBanner } from '@/store/projectWorkbench/bannerStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { router } from '@/router/index'
 import { storeToRefs } from 'pinia'
@@ -88,8 +88,8 @@ import type { ApidocBanner } from '@src/types'
 
 const { t } = useI18n()
 const sendHistoryStore = useSendHistory()
-const apidocTabsStore = useApidocTas()
-const apidocBannerStore = useApidocBanner()
+const projectNavStore = useProjectNav()
+const bannerStore = useBanner()
 const runtimeStore = useRuntime()
 
 const { sendHistoryList, loading, hasMore, hasLoadedMore } = storeToRefs(sendHistoryStore)
@@ -113,7 +113,7 @@ const existingNodeIds = computed(() => {
       }
     })
   }
-  traverse(apidocBannerStore.banner)
+  traverse(bannerStore.banner)
   return nodeIds
 })
 // 带删除状态的历史列表
@@ -238,7 +238,7 @@ const handleClickItem = (item: SendHistoryItemWithStatus) => {
   const projectId = getProjectId()
 
   if (item.nodeType === 'http') {
-    apidocTabsStore.addTab({
+    projectNavStore.addNav({
       _id: item.nodeId,
       projectId,
       tabType: 'http',
@@ -252,7 +252,7 @@ const handleClickItem = (item: SendHistoryItemWithStatus) => {
       }
     })
   } else if (item.nodeType === 'websocket') {
-    apidocTabsStore.addTab({
+    projectNavStore.addNav({
       _id: item.nodeId,
       projectId,
       tabType: 'websocket',

@@ -29,14 +29,14 @@ import Response from './mockResponse/MockResponse.vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useWebSocketMock } from '@/store/websocketMock/websocketMockStore'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 
 const { t } = useI18n()
 const websocketMockStore = useWebSocketMock()
-const apidocTabsStore = useApidocTas()
+const projectNavStore = useProjectNav()
 const runtimeStore = useRuntime()
-const { currentSelectTab } = storeToRefs(apidocTabsStore)
+const { currentSelectNav } = storeToRefs(projectNavStore)
 
 // 保存 WebSocketMock
 const handleSave = () => {
@@ -44,7 +44,7 @@ const handleSave = () => {
 }
 // 刷新 WebSocketMock
 const handleRefresh = async () => {
-  if (!currentSelectTab.value) {
+  if (!currentSelectNav.value) {
     return
   }
   websocketMockStore.refreshLoading = true

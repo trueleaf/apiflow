@@ -87,19 +87,19 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Search, Trash2, RotateCcw, Loader2 } from 'lucide-vue-next'
-import { useProjectStore } from '@/store/project/projectStore'
+import { useProjectManagerStore } from '@/store/projectManager/projectManagerStore'
 import { message } from '@/helper'
 
 const { t } = useI18n()
-const projectStore = useProjectStore()
+const projectManagerStore = useProjectManagerStore()
 const loading = ref(false)
 const searchKeyword = ref('')
 const selectedProjects = ref<string[]>([])
 const filteredProjects = computed(() => {
   if (!searchKeyword.value) {
-    return projectStore.deletedProjects
+    return projectManagerStore.deletedProjects
   }
-  return projectStore.deletedProjects.filter(project =>
+  return projectManagerStore.deletedProjects.filter(project =>
     project.projectName.toLowerCase().includes(searchKeyword.value.toLowerCase())
   )
 })
@@ -117,7 +117,7 @@ const formatDeleteTime = (timestamp?: number): string => {
 const loadDeletedProjects = async (): Promise<void> => {
   loading.value = true
   try {
-    await projectStore.getDeletedProjects()
+    await projectManagerStore.getDeletedProjects()
   } catch {
     message.error(t('加载已删除项目失败'))
   } finally {
@@ -133,13 +133,13 @@ const handleToggleSelect = (projectId: string): void => {
   }
 }
 const handleRecover = async (projectId: string): Promise<void> => {
-  const deletedProject = projectStore.deletedProjects.find(p => p._id === projectId)
+  const deletedProject = projectManagerStore.deletedProjects.find(p => p._id === projectId)
   if (!deletedProject) {
     message.error(t('项目不存在'))
     return
   }
   try {
-    const success = await projectStore.recoverProject(projectId)
+    const success = await projectManagerStore.recoverProject(projectId)
     if (success) {
       message.success(t('项目恢复成功'))
       selectedProjects.value = selectedProjects.value.filter(id => id !== projectId)
@@ -156,7 +156,7 @@ const handleBatchRecover = async (): Promise<void> => {
   }
   loading.value = true
   try {
-    const { successCount, failCount } = await projectStore.batchRecoverProjects(selectedProjects.value)
+    const { successCount, failCount } = await projectManagerStore.batchRecoverProjects(selectedProjects.value)
     if (successCount > 0) {
       const msg = failCount > 0 
         ? `${t('项目恢复成功')} ${successCount} ${t('个')}，${failCount} ${t('个')}${t('项目恢复失败')}`
@@ -172,9 +172,9 @@ const handleBatchRecover = async (): Promise<void> => {
     loading.value = false
   }
 }
-watch(() => projectStore.deletedProjects, () => {
+watch(() => projectManagerStore.deletedProjects, () => {
   selectedProjects.value = selectedProjects.value.filter(id => 
-    projectStore.deletedProjects.some(p => p._id === id)
+    projectManagerStore.deletedProjects.some(p => p._id === id)
   )
 })
 onMounted(() => {

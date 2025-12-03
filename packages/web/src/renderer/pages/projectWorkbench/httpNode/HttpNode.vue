@@ -1,30 +1,25 @@
 <template>
   <div v-loading="loading" class="apidoc" :class="{ vertical: layout === 'vertical' }">
-    <template v-if="mode === 'edit'">
-      <div class="request-layout" :class="{ vertical: layout === 'vertical' }">
-        <SOperation></SOperation>
-        <SParams></SParams>
-      </div>
-      <SResizeY v-if="layout === 'vertical'" class="y-bar" :min="100" :max="750" :height="responseHeight" :default-height="350" name="response-y" tabindex="1"
-        @dragStart="isVerticalDrag = true" @dragEnd="isVerticalDrag = false" @heightChange="handleResponseHeightChange">
-        <SResponse></SResponse>
-      </SResizeY>
-      <SResizeX 
-        v-if="layout === 'horizontal'" 
-        :min="500" 
-        :max="750"
-        :width="500" 
-        name="response" 
-        bar-left
-        class="response-layout" 
-        tabindex="1"
-      >
-        <SResponse></SResponse>
-      </SResizeX>
-    </template>
-    <template v-else>
-      <SView></SView>
-    </template>
+    <div class="request-layout" :class="{ vertical: layout === 'vertical' }">
+      <SOperation></SOperation>
+      <SParams></SParams>
+    </div>
+    <SResizeY v-if="layout === 'vertical'" class="y-bar" :min="100" :max="750" :height="responseHeight" :default-height="350" name="response-y" tabindex="1"
+      @dragStart="isVerticalDrag = true" @dragEnd="isVerticalDrag = false" @heightChange="handleResponseHeightChange">
+      <SResponse></SResponse>
+    </SResizeY>
+    <SResizeX 
+      v-if="layout === 'horizontal'" 
+      :min="500" 
+      :max="750"
+      :width="500" 
+      name="response" 
+      bar-left
+      class="response-layout" 
+      tabindex="1"
+    >
+      <SResponse></SResponse>
+    </SResizeX>
   </div>
 </template>
 
@@ -36,34 +31,32 @@ import { httpResponseCache } from '@/cache/httpNode/httpResponseCache'
 import SOperation from './operation/Operation.vue'
 import SParams from './params/Params.vue'
 import SResponse from './responseView/ResponseView.vue'
-import SView from './view/View.vue'
 import { computed, ref, watch, onMounted } from 'vue'
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import { useRoute } from 'vue-router'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore'
 import { generateHttpNode } from '@/helper'
 import { useApidocResponse } from '@/store/httpNode/responseStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 
-const apidocBaseInfoStore = useApidocBaseInfo();
-const apidocTabsStore = useApidocTas();
+const projectNavStore = useProjectNav();
+const projectWorkbenchStore = useProjectWorkbench();
 const httpNodeStore = useHttpNode();
 const apidocResponseStore = useApidocResponse();
 const httpRedoUndoStore = useHttpRedoUndo();
 const isVerticalDrag = ref(false);
 const route = useRoute()
 
-const mode = computed(() => apidocBaseInfoStore.mode);
-const currentSelectTab = computed(() => {
+const currentSelectNav = computed(() => {
   const projectId = route.query.id as string;
-  const tabs = apidocTabsStore.tabs[projectId];
-  const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
-  return currentSelectTab;
+  const navs = projectNavStore.navs[projectId];
+  const selectedNav = navs?.find((nav) => nav.selected) || null;
+  return selectedNav;
 });
 const loading = computed(() => httpNodeStore.loading);
-const layout = computed(() => apidocBaseInfoStore.layout);
-const responseHeight = computed(() => apidocBaseInfoStore.responseHeight);
+const layout = computed(() => projectWorkbenchStore.layout);
+const responseHeight = computed(() => projectWorkbenchStore.responseHeight);
 
 /*
 |--------------------------------------------------------------------------
@@ -72,26 +65,26 @@ const responseHeight = computed(() => apidocBaseInfoStore.responseHeight);
 */
 //获取api文档数据
 const getApidocInfo = async () => {
-  if (!currentSelectTab.value) {
+  if (!currentSelectNav.value) {
     return
   }
-  if (currentSelectTab.value.saved) { //取最新值
-    if (currentSelectTab.value._id?.startsWith('local_')) {
-      httpNodeStore.changeApidoc(generateHttpNode(currentSelectTab.value._id));
+  if (currentSelectNav.value.saved) { //取最新值
+    if (currentSelectNav.value._id?.startsWith('local_')) {
+      httpNodeStore.changeApidoc(generateHttpNode(currentSelectNav.value._id));
       httpNodeStore.changeOriginApidoc();
       apidocResponseStore.clearResponse();
       apidocResponseStore.changeRequestState('waiting');
       return
     }
     httpNodeStore.getApidocDetail({
-      id: currentSelectTab.value._id,
+      id: currentSelectNav.value._id,
       projectId: route.query.id as string,
     })
   } else { //取缓存值
-    const catchedApidoc = httpNodeCache.getHttpNode(currentSelectTab.value._id);
+    const catchedApidoc = httpNodeCache.getHttpNode(currentSelectNav.value._id);
     if (!catchedApidoc) {
       httpNodeStore.getApidocDetail({
-        id: currentSelectTab.value._id,
+        id: currentSelectNav.value._id,
         projectId: route.query.id as string,
       })
     } else {
@@ -99,9 +92,9 @@ const getApidocInfo = async () => {
     }
   }
   //=====================================获取缓存的返回参数====================================//
-  // const localResponse = await httpResponseCache.getResponse(currentSelectTab.value._id);
+  // const localResponse = await httpResponseCache.getResponse(currentSelectNav.value._id);
   httpNodeStore.changeResponseBodyLoading(true);
-  httpResponseCache.getResponse(currentSelectTab.value._id).then((localResponse) => {
+  httpResponseCache.getResponse(currentSelectNav.value._id).then((localResponse) => {
     apidocResponseStore.clearResponse();
     if (localResponse) {
       const rawBody = localResponse.body;
@@ -126,10 +119,10 @@ const getApidocInfo = async () => {
 }
 // 处理响应区域高度变化
 const handleResponseHeightChange = (height: number) => {
-  apidocBaseInfoStore.changeResponseHeight(height);
+  projectWorkbenchStore.changeResponseHeight(height);
 }
 
-watch(currentSelectTab, (val, oldVal) => {
+watch(currentSelectNav, (val, oldVal) => {
   const isApidoc = val?.tabType === 'http';
   if (isApidoc && val?._id !== oldVal?._id) {
     getApidocInfo();
@@ -141,7 +134,7 @@ watch(currentSelectTab, (val, oldVal) => {
 })
 
 onMounted(() => {
-  apidocBaseInfoStore.initResponseHeight();
+  projectWorkbenchStore.initResponseHeight();
 })
 </script>
 

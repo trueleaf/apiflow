@@ -144,8 +144,8 @@ import SPreScript from './preScript/PreScript.vue'
 import SMessageContent from './message/Message.vue'
 import SAfterScript from './afterScript/AfterScript.vue'
 import { useWebSocket } from '@/store/websocket/websocketStore'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import { appState } from '@/cache/appState/appStateCache.ts'
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import { webSocketHistoryCache } from '@/cache/websocketNode/websocketHistoryCache'
@@ -158,19 +158,19 @@ import { useRoute } from 'vue-router'
 import { message } from '@/helper'
 const { t } = useI18n()
 const websocketStore = useWebSocket()
-const apidocTabsStore = useApidocTas()
-const apidocBaseInfoStore = useApidocBaseInfo()
+const projectNavStore = useProjectNav()
+const projectWorkbenchStore = useProjectWorkbench()
 const redoUndoStore = useWsRedoUndo()
 const route = useRoute()
-const { currentSelectTab } = storeToRefs(apidocTabsStore)
+const { currentSelectNav } = storeToRefs(projectNavStore)
 const { websocket } = storeToRefs(websocketStore)
-const { layout } = storeToRefs(apidocBaseInfoStore)
+const { layout } = storeToRefs(projectWorkbenchStore)
 const currentActiveTab = computed({
   get: () => websocketStore.currentActiveTab,
   set: (val: WebsocketActiveTabType) => {
     websocketStore.setActiveTab(val)
-    if (currentSelectTab.value) {
-      appState.setWsNodeActiveParamsTab(currentSelectTab.value._id, val)
+    if (currentSelectNav.value) {
+      appState.setWsNodeActiveParamsTab(currentSelectNav.value._id, val)
     }
   }
 })
@@ -216,11 +216,11 @@ const handleRedo = (): void => {
 };
 //切换布局
 const handleChangeLayout = (layoutOption: 'vertical' | 'horizontal') => {
-  apidocBaseInfoStore.changeLayout(layoutOption)
+  projectWorkbenchStore.changeLayout(layoutOption)
 }
 //打开变量维护页面
 const handleOpenVariable = () => {
-  apidocTabsStore.addTab({
+  projectNavStore.addNav({
     _id: 'variable',
     projectId: route.query.id as string,
     tabType: 'variable',
@@ -369,12 +369,12 @@ const handleClickOutside = (event: MouseEvent): void => {
 };
 
 const initActiveTab = (): void => {
-  const cachedTab = appState.getWsNodeActiveParamsTab(currentSelectTab.value!._id) || 'messageContent';
+  const cachedTab = appState.getWsNodeActiveParamsTab(currentSelectNav.value!._id) || 'messageContent';
   websocketStore.setActiveTab(cachedTab)
 }
   
 // 监听当前选中tab变化，重新加载activeTab
-watch(currentSelectTab, (newTab) => {
+watch(currentSelectNav, (newTab) => {
   if (newTab) {
     initActiveTab()
   }

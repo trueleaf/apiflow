@@ -91,8 +91,8 @@ import { generateEmptyProperty } from '@/helper';
 import { useI18n } from 'vue-i18n'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore';
-import { useApidocTas } from '@/store/httpNode/httpTabsStore';
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
+import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore';
 import { commonHeaderCache } from '@/cache/project/commonHeadersCache';
 import { storeToRefs } from 'pinia';
 import { CheckboxValueType } from 'element-plus';
@@ -101,15 +101,15 @@ import { cloneDeep } from 'lodash-es';
 import { mindHeaderMetas } from './mind-headers'
 
 const emits = defineEmits(['changeCommonHeaderSendStatus'])
-const apidocTabsStore = useApidocTas()
+const projectNavStore = useProjectNav()
 const httpNodeStore = useHttpNode()
-const apidocBaseInfoStore = useApidocBaseInfo()
+const commonHeaderStore = useCommonHeader()
 const httpRedoUndoStore = useHttpRedoUndo()
-const { commonHeaders: cHeaders, globalCommonHeaders } = storeToRefs(apidocBaseInfoStore)
+const { commonHeaders: cHeaders, globalCommonHeaders } = storeToRefs(commonHeaderStore)
 const projectId = router.currentRoute.value.query.id as string;
-const currentSelectTab = computed(() => { //当前选中的doc
-  const tabs = apidocTabsStore.tabs[projectId];
-  return tabs?.find((tab) => tab.selected) || null;
+const currentSelectNav = computed(() => { //当前选中的doc
+  const navs = projectNavStore.navs[projectId];
+  return navs?.find((nav) => nav.selected) || null;
 })
 const { t } = useI18n()
 const mindHeaders = mindHeaderMetas.map((meta) => {
@@ -163,10 +163,10 @@ const handleHeadersChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
 };
 //请求头记录函数
 const recordHeadersOperation = (oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
-  if (!currentSelectTab.value) return;
+  if (!currentSelectNav.value) return;
 
   httpRedoUndoStore.recordOperation({
-    nodeId: currentSelectTab.value._id,
+    nodeId: currentSelectNav.value._id,
     type: "headersOperation",
     operationName: "修改请求头",
     affectedModuleName: "headers",
@@ -179,25 +179,25 @@ const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<
   if (isSend) {
     commonHeaderCache.deleteIgnoredCommonHeader({
       projectId,
-      tabId: currentSelectTab.value?._id ?? '',
+      tabId: currentSelectNav.value?._id ?? '',
       ignoreHeaderId: header._id
     })
   } else {
     commonHeaderCache.setIgnoredCommonHeader({
       projectId,
-      tabId: currentSelectTab.value?._id ?? '',
+      tabId: currentSelectNav.value?._id ?? '',
       ignoreHeaderId: header._id
     })
   }
   emits('changeCommonHeaderSendStatus')
 }
-watch([currentSelectTab, cHeaders, globalCommonHeaders], () => {
-  if (currentSelectTab.value?.tabType !== 'http') {
+watch([currentSelectNav, cHeaders, globalCommonHeaders], () => {
+  if (currentSelectNav.value?.tabType !== 'http') {
     return
   }
-  const defaultCommonHeader = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab.value?._id || "");
+  const defaultCommonHeader = commonHeaderStore.getCommonHeadersById(currentSelectNav.value?._id || "");
   commonHeaders.value = defaultCommonHeader.map(v => {
-    const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab.value?._id ?? "");
+    const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectNav.value?._id ?? "");
     const isSelect = ignoreHeaderIds?.find(headerId => headerId === v._id) ? false : true
     const property: ApidocProperty<'string'> & { path?: string[] } = generateEmptyProperty();
     property._id = v._id;
@@ -216,7 +216,7 @@ watch([currentSelectTab, cHeaders, globalCommonHeaders], () => {
 
 //跳转公共请求头
 const handleJumpToCommonHeaderConfigPage = ({ nodeId, name }: { nodeId?: string, name?: string } = {}) => {
-    apidocTabsStore.addTab({
+    projectNavStore.addNav({
     _id: nodeId || projectId,
     projectId: projectId,
     tabType: 'commonHeader',
@@ -233,7 +233,7 @@ const handleJumpToCommonHeaderConfigPage = ({ nodeId, name }: { nodeId?: string,
 
 // 公共请求头在单独接口里面可能会取消勾选，所以需要监听，最终发送请求时候以validCommonHeaders为准
 // watch(commonHeaders, () => {
-//   if (currentSelectTab.value?.tabType !== 'http') {
+//   if (currentSelectNav.value?.tabType !== 'http') {
 //     return
 //   }
 //   const validCOmmonHeaders = commonHeaders.value.filter(header => header.select);

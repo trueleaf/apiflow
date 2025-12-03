@@ -1,4 +1,4 @@
-import type { ApidocProjectRules, ApidocProjectInfo } from "./project";
+import type { ApidocProjectInfo } from "./project";
 import type { HttpNode } from "./httpNode/httpNode";
 import type { ApidocProperty } from "./httpNode/types";
 
@@ -15,10 +15,6 @@ export type Standalone = {
    * 全局公共请求头列表
    */
   commonHeaders: ApidocProperty<'string'>[];
-  /**
-   * 项目规则
-   */
-  projectRules: ApidocProjectRules
 };export type StandaloneExportHtmlParams = {
   projectInfo: {
     projectName: string;

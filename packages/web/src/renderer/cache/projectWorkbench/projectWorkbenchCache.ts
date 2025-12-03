@@ -1,4 +1,5 @@
-import type { ApidocTab } from '@src/types';
+import type { ProjectNavItem } from '@src/types/projectWorkbench/nav';
+import type { ApidocTab } from '@src/types/apidoc/tabs';
 import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
 type ProjectWorkbenchPinOperation = {
@@ -12,25 +13,33 @@ type ProjectWorkbenchPinOperation = {
 class ProjectWorkbenchCache {
   constructor() {
   }
-  // 获取项目工作区tabs
-  getProjectWorkbenchTabs(): Record<string, ApidocTab[]> {
+  // 获取项目工作区navs
+  getProjectNavs(): Record<string, ProjectNavItem[]> {
     try {
-      const localData = JSON.parse(localStorage.getItem(cacheKey.projectWorkbench.node.tabs) || '{}');
+      const localData = JSON.parse(localStorage.getItem(cacheKey.projectWorkbench.node.navs) || '{}');
       return localData;
     } catch (error) {
-      logger.error('获取项目工作区页签失败', { error });
-      localStorage.setItem(cacheKey.projectWorkbench.node.tabs, '{}');
+      logger.error('获取项目工作区导航项失败', { error });
+      localStorage.setItem(cacheKey.projectWorkbench.node.navs, '{}');
       return {};
     }
   }
-  // 设置项目工作区tabs
-  setProjectWorkbenchTabs(tabs: Record<string, ApidocTab[]>) {
+  // 设置项目工作区navs
+  setProjectNavs(navs: Record<string, ProjectNavItem[]>) {
     try {
-      localStorage.setItem(cacheKey.projectWorkbench.node.tabs, JSON.stringify(tabs));
+      localStorage.setItem(cacheKey.projectWorkbench.node.navs, JSON.stringify(navs));
     } catch (error) {
-      logger.error('设置项目工作区页签失败', { error });
-      localStorage.setItem(cacheKey.projectWorkbench.node.tabs, '{}');
+      logger.error('设置项目工作区导航项失败', { error });
+      localStorage.setItem(cacheKey.projectWorkbench.node.navs, '{}');
     }
+  }
+  // 兼容 share 目录 - 获取项目工作区tabs
+  getProjectWorkbenchTabs(): Record<string, ApidocTab[]> {
+    return this.getProjectNavs() as unknown as Record<string, ApidocTab[]>;
+  }
+  // 兼容 share 目录 - 设置项目工作区tabs
+  setProjectWorkbenchTabs(tabs: Record<string, ApidocTab[]>) {
+    this.setProjectNavs(tabs as unknown as Record<string, ProjectNavItem[]>);
   }
   // 获取项目工作区固定的工具栏操作
   getProjectWorkbenchPinToolbarOperations(): ProjectWorkbenchPinOperation[] {

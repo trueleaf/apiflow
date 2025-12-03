@@ -128,7 +128,7 @@ import { computed, ref, onMounted, onUnmounted, Ref, watch } from 'vue'
 import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType, ApidocProperty } from '@src/types'
 import { useI18n } from 'vue-i18n'
 import { appState } from '@/cache/appState/appStateCache'
-import { useVariable } from '@/store/apidocProject/variablesStore';
+import { useVariable } from '@/store/projectWorkbench/variablesStore';
 import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 import { config } from '@src/config/config';
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
@@ -140,7 +140,7 @@ import { GripVertical } from 'lucide-vue-next'
 import { getCompiledTemplate } from '@/helper';
 import mime from 'mime';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { router } from '@/router'
 import { cloneDeep } from 'lodash-es'
 import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api'
@@ -156,11 +156,11 @@ const rawEditor = ref<{
 } | null>(null)
 const httpNodeStore = useHttpNode()
 const httpRedoUndoStore = useHttpRedoUndo()
-const apidocTabsStore = useApidocTas()
+const projectNavStore = useProjectNav()
 const projectId = router.currentRoute.value.query.id as string;
-const currentSelectTab = computed(() => {
-  const tabs = apidocTabsStore.tabs[projectId];
-  return tabs?.find((tab) => tab.selected) || null;
+const currentSelectNav = computed(() => {
+  const navs = projectNavStore.navs[projectId];
+  return navs?.find((nav) => nav.selected) || null;
 });
 const jsonComponent: Ref<null | {
   format: () => void,
@@ -257,7 +257,7 @@ const handleJsonChange = (newValue: string) => {
 }
 //处理编辑器undo
 const handleEditorUndo = () => {
-  const nodeId = currentSelectTab.value?._id;
+  const nodeId = currentSelectNav.value?._id;
   if (nodeId) {
     const result = httpRedoUndoStore.httpUndo(nodeId);
     if (result.code === 0 && result.operation?.type === 'rawJsonOperation') {
@@ -269,7 +269,7 @@ const handleEditorUndo = () => {
 }
 //处理编辑器redo
 const handleEditorRedo = () => {
-  const nodeId = currentSelectTab.value?._id;
+  const nodeId = currentSelectNav.value?._id;
   if (nodeId) {
     const result = httpRedoUndoStore.httpRedo(nodeId);
     if (result.code === 0 && result.operation?.type === 'rawJsonOperation') {
@@ -322,7 +322,7 @@ const handleChangeRawData = (newData: string) => {
 }
 //处理raw编辑器undo
 const handleRawEditorUndo = () => {
-  const nodeId = currentSelectTab.value?._id;
+  const nodeId = currentSelectNav.value?._id;
   if (nodeId) {
     const result = httpRedoUndoStore.httpUndo(nodeId);
     if (result.code === 0 && result.operation?.type === 'rawDataOperation') {
@@ -334,7 +334,7 @@ const handleRawEditorUndo = () => {
 }
 //处理raw编辑器redo
 const handleRawEditorRedo = () => {
-  const nodeId = currentSelectTab.value?._id;
+  const nodeId = currentSelectNav.value?._id;
   if (nodeId) {
     const result = httpRedoUndoStore.httpRedo(nodeId);
     if (result.code === 0 && result.operation?.type === 'rawDataOperation') {
@@ -604,12 +604,12 @@ onUnmounted(() => {
 
 //JSON记录函数
 const recordJsonOperation = (oldValue: string, newValue: string) => {
-  if (!currentSelectTab.value || oldValue === newValue) return;
+  if (!currentSelectNav.value || oldValue === newValue) return;
 
   const cursorPosition = jsonComponent.value?.getCursorPosition?.() || undefined;
 
   httpRedoUndoStore.recordOperation({
-    nodeId: currentSelectTab.value._id,
+    nodeId: currentSelectNav.value._id,
     type: "rawJsonOperation",
     operationName: "修改JSON Body",
     affectedModuleName: "rawJson",
@@ -621,10 +621,10 @@ const recordJsonOperation = (oldValue: string, newValue: string) => {
 };
 //请求体记录函数
 const recordBodyOperation = (oldValue: { requestBody: HttpNodeBodyParams, contentType: HttpNodeContentType }, newValue: { requestBody: HttpNodeBodyParams, contentType: HttpNodeContentType }) => {
-  if (!currentSelectTab.value) return;
+  if (!currentSelectNav.value) return;
 
   httpRedoUndoStore.recordOperation({
-    nodeId: currentSelectTab.value._id,
+    nodeId: currentSelectNav.value._id,
     type: "bodyOperation",
     operationName: "修改请求体",
     affectedModuleName: "requestBody",
@@ -635,12 +635,12 @@ const recordBodyOperation = (oldValue: { requestBody: HttpNodeBodyParams, conten
 };
 //Raw数据记录函数
 const recordRawDataOperation = (oldValue: { data: string; dataType: string }, newValue: { data: string; dataType: string }) => {
-  if (!currentSelectTab.value || (oldValue.data === newValue.data && oldValue.dataType === newValue.dataType)) return;
+  if (!currentSelectNav.value || (oldValue.data === newValue.data && oldValue.dataType === newValue.dataType)) return;
 
   const cursorPosition = rawEditor.value?.getCursorPosition?.() || undefined;
 
   httpRedoUndoStore.recordOperation({
-    nodeId: currentSelectTab.value._id,
+    nodeId: currentSelectNav.value._id,
     type: "rawDataOperation",
     operationName: "修改Raw Body",
     affectedModuleName: "rawData",

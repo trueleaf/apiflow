@@ -10,10 +10,10 @@ import { findNodeById, findParentById, findSiblingById, flatTree, forEachForest 
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import { i18n } from '@/i18n'
-import { useApidocBanner } from '@/store/httpNode/httpBannerStore';
-import { useApidocTas } from '@/store/httpNode/httpTabsStore';
+import { useBanner } from '@/store/projectWorkbench/bannerStore';
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { useHttpNode } from '@/store/httpNode/httpNodeStore';
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore.ts';
+import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore';
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';
@@ -31,8 +31,8 @@ const isOffline = () => useRuntime().networkMode === 'offline';
  * 删除某个(多个)节点
  */
 export const deleteNode = (selectNodes: ApidocBannerWithProjectId[], silent?: boolean): void => {
-  const apidocBannerStore = useApidocBanner();
-  const apidocTabsStore = useApidocTas()
+  const bannerStore = useBanner();
+  const projectNavStore = useProjectNav()
   const currentProjectId = router.currentRoute.value.query.id;
   const nodeProjectId = selectNodes[0]?.projectId;
   const deleteIds: string[] = [];
@@ -50,7 +50,7 @@ export const deleteNode = (selectNodes: ApidocBannerWithProjectId[], silent?: bo
   const deleteOperation = async () => {
     if(isOffline()){
       await apiNodesCache.deleteNodes(deleteIds);
-      await apidocBannerStore.getDocBanner({ projectId: nodeProjectId });
+      await bannerStore.getDocBanner({ projectId: nodeProjectId });
       //删除所有nav节点
       const delNodeIds: string[] = [];
       forEachForest(selectNodes, (node) => {
@@ -58,7 +58,7 @@ export const deleteNode = (selectNodes: ApidocBannerWithProjectId[], silent?: bo
           delNodeIds.push(node._id);
         }
       })
-      apidocTabsStore.deleteTabByIds({
+      projectNavStore.deleteNavByIds({
         projectId: nodeProjectId,
         ids: delNodeIds,
         force: true,
@@ -77,18 +77,18 @@ export const deleteNode = (selectNodes: ApidocBannerWithProjectId[], silent?: bo
         selectNodes.forEach((node) => {
           const deletePid = node.pid;
           if (!deletePid) { //不存在pid代表在根元素删除
-            const delIndex = apidocBannerStore.banner.findIndex((val) => val._id === node._id);
-            apidocBannerStore.splice({
+            const delIndex = bannerStore.banner.findIndex((val) => val._id === node._id);
+            bannerStore.splice({
               start: delIndex,
               deleteCount: 1,
             })
           } else {
-            const parentNode = findNodeById(apidocBannerStore.banner, node.pid, {
+            const parentNode = findNodeById(bannerStore.banner, node.pid, {
               idKey: '_id',
             });
             const delIndex = parentNode?.children.findIndex((val) => val._id === node._id);
             if (delIndex != null) {
-              apidocBannerStore.splice({
+              bannerStore.splice({
                 start: delIndex,
                 deleteCount: 1,
                 opData: parentNode?.children,
@@ -104,7 +104,7 @@ export const deleteNode = (selectNodes: ApidocBannerWithProjectId[], silent?: bo
           delNodeIds.push(node._id);
         }
       })
-      apidocTabsStore.deleteTabByIds({
+      projectNavStore.deleteNavByIds({
         projectId: nodeProjectId,
         ids: delNodeIds,
         force: true,
@@ -136,21 +136,21 @@ export const deleteNode = (selectNodes: ApidocBannerWithProjectId[], silent?: bo
  * 新增文件和文件夹回调
  */
 export const addFileAndFolderCb = (currentOperationalNode: Ref<ApidocBanner | null>, data: ApidocBanner): void => {
-  const apidocBannerStore = useApidocBanner();
-  const apidocBaseInfoStore = useApidocBaseInfo();
-  const apidocTabsStore = useApidocTas()
+  const bannerStore = useBanner();
+  const commonHeaderStore = useCommonHeader();
+  const projectNavStore = useProjectNav()
   if (currentOperationalNode.value) { //插入到某个节点下面
     if (data.type === 'folder') {
       const lastFolderIndex = currentOperationalNode.value.children.findIndex((node) => node.type !== 'folder')
       if (lastFolderIndex === -1) {
-        apidocBannerStore.splice({
+        bannerStore.splice({
           start: currentOperationalNode.value.children.length,
           deleteCount: 0,
           item: data,
           opData: currentOperationalNode.value.children,
         })
       } else {
-        apidocBannerStore.splice({
+        bannerStore.splice({
           start: lastFolderIndex,
           deleteCount: 0,
           item: data,
@@ -158,7 +158,7 @@ export const addFileAndFolderCb = (currentOperationalNode: Ref<ApidocBanner | nu
         })
       }
     } else if (data) { //如果是http接口或者websocket接口
-      apidocBannerStore.splice({
+      bannerStore.splice({
         start: currentOperationalNode.value.children.length,
         deleteCount: 0,
         item: data,
@@ -167,23 +167,23 @@ export const addFileAndFolderCb = (currentOperationalNode: Ref<ApidocBanner | nu
     }
   } else { //插入到根节点
     if (data.type === 'folder') {
-      const lastFolderIndex = apidocBannerStore.banner.findIndex((node) => node.type !== 'folder');
+      const lastFolderIndex = bannerStore.banner.findIndex((node) => node.type !== 'folder');
       if (lastFolderIndex === -1) {
-        apidocBannerStore.splice({
-          start: apidocBannerStore.banner.length,
+        bannerStore.splice({
+          start: bannerStore.banner.length,
           deleteCount: 0,
           item: data,
         })
       } else {
-        apidocBannerStore.splice({
+        bannerStore.splice({
           start: lastFolderIndex,
           deleteCount: 0,
           item: data,
         })
       }
     } else { //如果是api
-      apidocBannerStore.splice({
-        start: apidocBannerStore.banner.length,
+      bannerStore.splice({
+        start: bannerStore.banner.length,
         deleteCount: 0,
         item: data,
       })
@@ -191,7 +191,7 @@ export const addFileAndFolderCb = (currentOperationalNode: Ref<ApidocBanner | nu
   }
   if (data.pid) { //查找
     // 变量找出父节点
-    const parentNode = findNodeById(apidocBaseInfoStore.commonHeaders, data.pid, {
+    const parentNode = findNodeById(commonHeaderStore.commonHeaders, data.pid, {
       idKey: '_id',
     });
     parentNode?.children.push({
@@ -202,7 +202,7 @@ export const addFileAndFolderCb = (currentOperationalNode: Ref<ApidocBanner | nu
       children: [],
     });
   } else {
-    apidocBaseInfoStore.commonHeaders.push({
+    commonHeaderStore.commonHeaders.push({
       _id: data._id,
       pid: '',
       type: data.type as 'folder',
@@ -212,7 +212,7 @@ export const addFileAndFolderCb = (currentOperationalNode: Ref<ApidocBanner | nu
   }
   if (data.type === 'http') {
     const projectId = router.currentRoute.value.query.id as string;
-    apidocTabsStore.addTab({
+    projectNavStore.addNav({
       _id: data._id,
       projectId,
       tabType: 'http',
@@ -227,7 +227,7 @@ export const addFileAndFolderCb = (currentOperationalNode: Ref<ApidocBanner | nu
     })
   } else if (data.type === 'websocket') {
     const projectId = router.currentRoute.value.query.id as string;
-    apidocTabsStore.addTab({
+    projectNavStore.addNav({
       _id: data._id,
       projectId,
       tabType: 'websocket',
@@ -242,7 +242,7 @@ export const addFileAndFolderCb = (currentOperationalNode: Ref<ApidocBanner | nu
     })
   } else if (data.type === 'httpMock') {
     const projectId = router.currentRoute.value.query.id as string;
-    apidocTabsStore.addTab({
+    projectNavStore.addNav({
       _id: data._id,
       projectId,
       tabType: 'httpMock',
@@ -257,7 +257,7 @@ export const addFileAndFolderCb = (currentOperationalNode: Ref<ApidocBanner | nu
     })
   } else if (data.type === 'websocketMock') {
     const projectId = router.currentRoute.value.query.id as string;
-    apidocTabsStore.addTab({
+    projectNavStore.addNav({
       _id: data._id,
       projectId,
       tabType: 'websocketMock',
@@ -272,7 +272,7 @@ export const addFileAndFolderCb = (currentOperationalNode: Ref<ApidocBanner | nu
     })
   }
   // const banner = await standaloneCache.getDocTree(currentOperationalNode.value);
-  // apidocBannerStore.changeAllDocBanner(banner);
+  // bannerStore.changeAllDocBanner(banner);
 }
 /**
  * 粘贴某个节点
@@ -434,7 +434,7 @@ export const pasteNodes = (currentOperationalNode: Ref<ApidocBanner | null>, pas
  * 生成文件副本
  */
 export const forkNode = async (currentOperationalNode: ApidocBanner): Promise<void> => {
-  const apidocBannerStore = useApidocBanner();
+  const bannerStore = useBanner();
   const projectId = router.currentRoute.value.query.id as string;
 
   if (isOffline()) {
@@ -446,7 +446,7 @@ export const forkNode = async (currentOperationalNode: ApidocBanner): Promise<vo
         return;
       }
       // 2. 计算副本的 sort 值
-      const nextSibling = findSiblingById<ApidocBanner>(apidocBannerStore.banner, currentOperationalNode._id, 'next', { idKey: '_id' });
+      const nextSibling = findSiblingById<ApidocBanner>(bannerStore.banner, currentOperationalNode._id, 'next', { idKey: '_id' });
       const newSort = nextSibling ? (currentOperationalNode.sort + nextSibling.sort) / 2 : Date.now();
       // 3. 生成副本文档
       const newId = nanoid();
@@ -523,17 +523,17 @@ export const forkNode = async (currentOperationalNode: ApidocBanner): Promise<vo
         };
       }
       // 6. 更新前端界面：找到当前节点的位置并在其后插入副本
-      const pData = findParentById(apidocBannerStore.banner, currentOperationalNode._id, { idKey: '_id' });
+      const pData = findParentById(bannerStore.banner, currentOperationalNode._id, { idKey: '_id' });
       if (!pData) {
-        const currentIndex = apidocBannerStore.banner.findIndex((node) => node._id === currentOperationalNode._id);
-        apidocBannerStore.splice({
+        const currentIndex = bannerStore.banner.findIndex((node) => node._id === currentOperationalNode._id);
+        bannerStore.splice({
           start: currentIndex + 1,
           deleteCount: 0,
           item: bannerData,
         });
       } else {
         const currentIndex = pData.children.findIndex((node) => node._id === currentOperationalNode._id);
-        apidocBannerStore.splice({
+        bannerStore.splice({
           start: currentIndex + 1,
           deleteCount: 0,
           item: bannerData,
@@ -552,17 +552,17 @@ export const forkNode = async (currentOperationalNode: ApidocBanner): Promise<vo
     projectId,
   };
   request.post<CommonResponse<ApidocBanner>, CommonResponse<ApidocBanner>>('/api/project/copy_doc', params).then((res) => {
-    const pData = findParentById(apidocBannerStore.banner, currentOperationalNode._id, { idKey: '_id' });
+    const pData = findParentById(bannerStore.banner, currentOperationalNode._id, { idKey: '_id' });
     if (!pData) {
-      const currentIndex = apidocBannerStore.banner.findIndex((node) => node._id === currentOperationalNode._id);
-      apidocBannerStore.splice({
+      const currentIndex = bannerStore.banner.findIndex((node) => node._id === currentOperationalNode._id);
+      bannerStore.splice({
         start: currentIndex + 1,
         deleteCount: 0,
         item: res.data,
       })
     } else {
       const currentIndex = pData.children.findIndex((node) => node._id === currentOperationalNode._id);
-      apidocBannerStore.splice({
+      bannerStore.splice({
         start: currentIndex + 1,
         deleteCount: 0,
         item: res.data,
@@ -578,7 +578,7 @@ export const forkNode = async (currentOperationalNode: ApidocBanner): Promise<vo
  * 拖拽节点
  */
 export const dragNode = async (dragData: ApidocBanner, dropData: ApidocBanner, type: 'before' | 'after' | 'inner'): Promise<void> => {
-  const apidocBannerStore = useApidocBanner();
+  const bannerStore = useBanner();
   const projectId = router.currentRoute.value.query.id as string;
 
   if (isOffline()) {
@@ -597,10 +597,10 @@ export const dragNode = async (dragData: ApidocBanner, dropData: ApidocBanner, t
         newSort = Date.now();
         dragData.pid = dropData._id;
       } else {
-        const pData = findParentById(apidocBannerStore.banner, dragData._id, { idKey: '_id' });
+        const pData = findParentById(bannerStore.banner, dragData._id, { idKey: '_id' });
         newPid = pData ? pData._id : '';
-        const nextSibling = findSiblingById<ApidocBanner>(apidocBannerStore.banner, dragData._id, 'next', { idKey: '_id' });
-        const previousSibling = findSiblingById<ApidocBanner>(apidocBannerStore.banner, dragData._id, 'previous', { idKey: '_id' });
+        const nextSibling = findSiblingById<ApidocBanner>(bannerStore.banner, dragData._id, 'next', { idKey: '_id' });
+        const previousSibling = findSiblingById<ApidocBanner>(bannerStore.banner, dragData._id, 'previous', { idKey: '_id' });
         const previousSiblingSort = previousSibling ? previousSibling.sort : 0;
         const nextSiblingSort = nextSibling ? nextSibling.sort : Date.now();
         newSort = (nextSiblingSort + previousSiblingSort) / 2;
@@ -631,14 +631,14 @@ export const dragNode = async (dragData: ApidocBanner, dropData: ApidocBanner, t
     sort: 0, //当前节点排序效果
     projectId,
   };
-  const pData = findParentById(apidocBannerStore.banner, dragData._id, { idKey: '_id' });
+  const pData = findParentById(bannerStore.banner, dragData._id, { idKey: '_id' });
   params.pid = pData ? pData._id : '';
   if (type === 'inner') {
     params.sort = Date.now();
     dragData.pid = dropData._id;
   } else {
-    const nextSibling = findSiblingById<ApidocBanner>(apidocBannerStore.banner, dragData._id, 'next', { idKey: '_id' });
-    const previousSibling = findSiblingById<ApidocBanner>(apidocBannerStore.banner, dragData._id, 'previous', { idKey: '_id' });
+    const nextSibling = findSiblingById<ApidocBanner>(bannerStore.banner, dragData._id, 'next', { idKey: '_id' });
+    const previousSibling = findSiblingById<ApidocBanner>(bannerStore.banner, dragData._id, 'previous', { idKey: '_id' });
     const previousSiblingSort = previousSibling ? previousSibling.sort : 0;
     const nextSiblingSort = nextSibling ? nextSibling.sort : Date.now();
     params.sort = (nextSiblingSort + previousSiblingSort) / 2;
@@ -654,10 +654,10 @@ let isRename = false;
  * 重命名节点
  */
 export const renameNode = async (e: FocusEvent | KeyboardEvent, data: ApidocBanner): Promise<void> => {
-  const apidocBannerStore = useApidocBanner();
-  const apidocTabsStore = useApidocTas()
+  const bannerStore = useBanner();
+  const projectNavStore = useProjectNav()
   const httpNodeStore = useHttpNode()
-  const { getCommonHeaders } = useApidocBaseInfo()
+  const { getCommonHeaders } = useCommonHeader()
   if (isRename) {
     return;
   }
@@ -670,13 +670,13 @@ export const renameNode = async (e: FocusEvent | KeyboardEvent, data: ApidocBann
   }
   isRename = true;
   //改变banner中当前节点名称
-  apidocBannerStore.changeBannerInfoById({
+  bannerStore.changeBannerInfoById({
     id: data._id,
     field: 'name',
     value: iptValue,
   })
-  //改变tabs名称
-  apidocTabsStore.changeTabInfoById({
+  //改变navs名称
+  projectNavStore.changeNavInfoById({
     id: data._id,
     field: 'label',
     value: iptValue,
@@ -698,12 +698,12 @@ export const renameNode = async (e: FocusEvent | KeyboardEvent, data: ApidocBann
       console.error('重命名失败:', error);
 
       // 重命名失败时回滚前端状态
-      apidocBannerStore.changeBannerInfoById({
+      bannerStore.changeBannerInfoById({
         id: data._id,
         field: 'name',
         value: originValue,
       });
-      apidocTabsStore.changeTabInfoById({
+      projectNavStore.changeNavInfoById({
         id: data._id,
         field: 'label',
         value: originValue,
@@ -725,7 +725,7 @@ export const renameNode = async (e: FocusEvent | KeyboardEvent, data: ApidocBann
     }
   }).catch((err) => {
     console.error(err);
-    apidocBannerStore.changeBannerInfoById({
+    bannerStore.changeBannerInfoById({
       id: data._id,
       field: 'name',
       value: originValue,

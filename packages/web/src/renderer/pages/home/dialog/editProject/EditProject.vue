@@ -18,7 +18,7 @@ import { config } from '@src/config/config';
 import { FormInstance } from 'element-plus';
 import { useI18n } from 'vue-i18n'
 import { nextTick, ref, watch } from 'vue';
-import { useProjectStore } from '@/store/project/projectStore';
+import { useProjectManagerStore } from '@/store/projectManager/projectManagerStore';
 import { message } from '@/helper'
 
 const props = defineProps({
@@ -42,7 +42,7 @@ const props = defineProps({
 const emits = defineEmits(['update:modelValue', 'success'])
 const { t } = useI18n()
 
-const projectStore = useProjectStore();
+const projectManagerStore = useProjectManagerStore();
 const projectNameInput = ref()
 const formInfo = ref({
   projectName: '',
@@ -90,7 +90,7 @@ const handleEditProject = () => {
     if (valid) {
       loading.value = true;
       try {
-        const success = await projectStore.updateProject(props.projectId, formInfo.value.projectName);
+        const success = await projectManagerStore.updateProject(props.projectId, formInfo.value.projectName);
         if (success) {
           handleClose();
           emits('success', {

@@ -5,24 +5,13 @@ import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts';
 import { parseUrlInfo } from "@/helper";
 import { nanoid } from 'nanoid/non-secure';
 import dayjs from "dayjs";
+import type { ApidocCookie } from '@src/types/projectWorkbench/cookies';
 
-export type ApidocCookie = {
-  id: string;
-  name: string;
-  value: string;
-  domain: string;
-  path: string;
-  expires: string;
-  httpOnly: boolean;
-  secure: boolean;
-  sameSite: string;
-};
-
-function isSameCookie(a: ApidocCookie, b: ApidocCookie) {
+const isSameCookie = (a: ApidocCookie, b: ApidocCookie) => {
   return a.name === b.name && a.domain === b.domain && a.path === b.path;
 }
 
-export const useCookies = defineStore('apidocCookies', () => {
+export const useCookies = defineStore('projectCookies', () => {
   const cookies = ref<ApidocCookie[]>([]);
   // 初始化时从缓存加载
   const initCookies = (projectId: string) => {
@@ -38,7 +27,6 @@ export const useCookies = defineStore('apidocCookies', () => {
     }
     cookies.value = httpNodeCache.getHttpNodeCookies(projectId) || [];
   };
-
   // 通过Set-Cookie头批量更新
   const updateCookiesBySetCookieHeader = (setCookieStrList: string[], defaultDomain = '', projectId = '') => {
     const objCookies = setCookieStrList.map((str) => {
@@ -67,7 +55,6 @@ export const useCookies = defineStore('apidocCookies', () => {
       addCookie(projectId, newCookie);
     });
   };
-
   // 新增cookie
   const addCookie = (projectId: string, cookie: ApidocCookie) => {
     const idx = cookies.value.findIndex(c => isSameCookie(c, cookie));
@@ -78,7 +65,6 @@ export const useCookies = defineStore('apidocCookies', () => {
     }
     httpNodeCache.setHttpNodeCookies(projectId, cookies.value);
   };
-
   // 根据id修改cookie
   const updateCookiesById = (projectId: string, id: string, cookieInfo: Partial<ApidocCookie>) => {
     const idx = cookies.value.findIndex(c => c.id === id);
@@ -87,7 +73,6 @@ export const useCookies = defineStore('apidocCookies', () => {
       httpNodeCache.setHttpNodeCookies(projectId, cookies.value);
     }
   };
-
   // deleteCookiesById 方法
   const deleteCookiesById = (projectId: string, id: string) => {
     const idx = cookies.value.findIndex(c => c.id === id);
@@ -101,15 +86,8 @@ export const useCookies = defineStore('apidocCookies', () => {
     const urlInfo = parseUrlInfo(url);
     const requestDomain = urlInfo.domain;
     const requestPath = urlInfo.path;
-    // console.log(cookies.value)
     const matchedCookies = cookies.value.filter(cookie => {
-      /**
-       * 域名匹配
-       * 如果是.开头的域名则匹配根域名和子域名
-       * 例如：.example.com 可以匹配 example.com 和 sub.example.com
-       * 如果非.开头的域名则只匹配完全相同的域名
-       * 例如：example.com 只匹配 example.com
-       */
+      // 域名匹配：如果是.开头的域名则匹配根域名和子域名，否则只匹配完全相同的域名
       const cookieIsDotDomain = cookie.domain.startsWith('.'); 
       const withoutDotCookieDomain = cookie.domain.replace(/^\./, '');
       const isEmptyDomain = withoutDotCookieDomain === '';
@@ -121,12 +99,7 @@ export const useCookies = defineStore('apidocCookies', () => {
       } else {
         isDomainMatch = requestDomain === cookie.domain;
       }
-      /**
-       * 路径匹配（RFC6265）
-       * 1. 请求路径等于cookie path
-       * 2. 或请求路径以cookie path开头，且下一个字符是/（或cookie path为/）
-       * 例如：cookie path为/api，/api、/api/、/api/v1都匹配，/apix不匹配
-       */
+      // 路径匹配（RFC6265）
       let isPathMatch = false;
       if (cookie.path === '/') {
         isPathMatch = true;
@@ -136,10 +109,7 @@ export const useCookies = defineStore('apidocCookies', () => {
         const nextChar = requestPath.charAt(cookie.path.length);
         isPathMatch = nextChar === '/' || nextChar === '';
       }
-      /**
-       * 过期时间匹配
-       * 如果expires字段不存在则认为不过期
-       */
+      // 过期时间匹配：如果expires字段不存在则认为不过期
       const notExpired = !cookie.expires || dayjs(cookie.expires).isAfter(dayjs());
       return isDomainMatch && isPathMatch && notExpired;
     });

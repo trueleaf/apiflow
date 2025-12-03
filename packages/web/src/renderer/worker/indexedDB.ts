@@ -44,7 +44,6 @@ const storeNameMap: Record<string, string> = {
   "commonHeaders": "公共请求头缓存",
   "httpNodeList": "文档缓存",
   "projects": "项目缓存",
-  "rules": "规则缓存",
   "variables": "变量缓存",
   "histories": "WebSocket历史记录缓存",
 }

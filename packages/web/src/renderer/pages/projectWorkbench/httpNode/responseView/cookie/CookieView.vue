@@ -73,7 +73,7 @@
         </el-table-column>
       </template>
     </el-table>
-    <el-dialog v-model="dialogVisible" :title="`【${currentSelectTab?.label}】节点的 ${$t('cookie值')}`" width="80%"
+    <el-dialog v-model="dialogVisible" :title="`【${currentSelectNav?.label}】节点的 ${$t('cookie值')}`" width="80%"
       :close-on-click-modal="false">
       <el-table :data="cookies"  border height="65vh" size="small">
         <el-table-column align="center" prop="name" label="Name"></el-table-column>
@@ -130,35 +130,35 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
 import { useApidocResponse } from '@/store/httpNode/responseStore';
 import { computed, ref, } from 'vue';
 import { Cookie, Settings } from 'lucide-vue-next';
 import { parse } from 'set-cookie-parser';
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const apidocResponseStore = useApidocResponse();
-const apidocBaseInfoStore = useApidocBaseInfo();
+const projectWorkbenchStore = useProjectWorkbench();
 const { responseInfo } = useApidocResponse();
 const cookies = computed(() => parse(apidocResponseStore.responseInfo.headers['set-cookie'] || []));
-const apidocTabsStore = useApidocTas();
-const currentSelectTab = computed(() => {
+const projectNavStore = useProjectNav();
+const currentSelectNav = computed(() => {
   const projectId = route.query.id as string;
-  const tabs = apidocTabsStore.tabs[projectId];
-  const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
-  return currentSelectTab;
+  const navs = projectNavStore.navs[projectId];
+  const currentSelectNav = navs?.find((nav) => nav.selected) || null;
+  return currentSelectNav;
 });
-const layout = computed(() => apidocBaseInfoStore.layout);
+const layout = computed(() => projectWorkbenchStore.layout);
 const { t } = useI18n()
 
 const dialogVisible = ref(false);
 const handleJumpToCookies = () => {
-  apidocTabsStore.addTab({
+  projectNavStore.addNav({
     _id: 'cookies',
-    projectId: apidocBaseInfoStore.projectId,
+    projectId: projectWorkbenchStore.projectId,
     tabType: 'cookies',
     label: t('Cookies'),
     head: {

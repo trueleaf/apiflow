@@ -81,7 +81,7 @@ const handleAddFolder = () => {
       nodeInfo.info.type = 'folder';
       await apiNodesCache.addNode(nodeInfo)
       // const banner = await apiNodesCache.getDocTree(nodeInfo.projectId);
-      // apidocBannerStore.changeAllDocBanner(banner);
+      // bannerStore.changeAllDocBanner(banner);
       emits('success', {
         _id: nodeInfo._id,
         pid: nodeInfo.pid,

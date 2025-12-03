@@ -92,8 +92,7 @@
       <!-- 固定的工具栏操作 -->
       <SDraggable v-model="pinOperations" animation="150" item-key="name" class="operation" group="operation">
         <template #item="{ element }">
-          <div :title="t(element.name)" class="cursor-pointer"
-            :class="{ 'cursor-not-allowed': isView && !element.viewOnly }">
+          <div :title="t(element.name)" class="cursor-pointer">
             <template v-if="element.icon === 'variable'">
               <Variable :size="20" :stroke-width="1.5" class="lucide-icon" @click="handleEmit(element.op)" />
             </template>
@@ -126,7 +125,7 @@
         </div>
         <SDraggable v-model="operations" animation="150" item-key="name" group="operation2">
           <template #item="{ element }">
-            <div class="dropdown-item cursor-pointer" :class="{ 'cursor-not-allowed': isView && !element.viewOnly }"
+            <div class="dropdown-item cursor-pointer"
               @click="handleEmit(element.op)">
               <template v-if="element.icon === 'variable'">
                 <Variable :size="20" :stroke-width="1.5" class="lucide-icon mr-2" />
@@ -175,12 +174,13 @@ import SAddFileDialog from '../../../dialog/addFile/AddFile.vue'
 import SAddFolderDialog from '../../../dialog/addFolder/AddFolder.vue'
 import { originOperaions } from './operations'
 import { addFileAndFolderCb } from '../composables/curd-node'
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore'
-import { useApidocBanner } from '@/store/httpNode/httpBannerStore'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore'
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
+import { useBanner } from '@/store/projectWorkbench/bannerStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import SLoading from '@/components/common/loading/ClLoading.vue'
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
-import { useProjectStore } from '@/store/project/projectStore'
+import { useProjectManagerStore } from '@/store/projectManager/projectManagerStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { IPC_EVENTS } from '@src/types/ipc'
 
@@ -200,17 +200,17 @@ type Operation = {
   viewOnly?: boolean,
 };
 
-const apidocBaseInfoStore = useApidocBaseInfo();
-const apidocBannerStore = useApidocBanner();
-const apidocTabsStore = useApidocTas();
+const commonHeaderStore = useCommonHeader();
+const projectWorkbenchStore = useProjectWorkbench();
+const bannerStore = useBanner();
+const projectNavStore = useProjectNav();
 const { t } = useI18n()
-const projectStore = useProjectStore();
-const { projectList } = storeToRefs(projectStore);
+const projectManagerStore = useProjectManagerStore();
+const { projectList } = storeToRefs(projectManagerStore);
 const runtimeStore = useRuntime();
 const projectLoading = ref(false);
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
 const emits = defineEmits(['fresh', 'filter', 'changeProject']);
-const isView = computed(() => apidocBaseInfoStore.mode === 'view') //当前工作区状态
 const toggleProjectVisible = ref(false);
 //新增文件或者文件夹成功回调
 const handleAddFileAndFolderCb = (data: ApidocBanner) => {
@@ -218,7 +218,7 @@ const handleAddFileAndFolderCb = (data: ApidocBanner) => {
 };
 //=====================================操作栏数据====================================//
 const bannerData = computed(() => {
-  const originBannerData = apidocBannerStore.banner;
+  const originBannerData = bannerStore.banner;
   return originBannerData
 })
 const operations: Ref<Operation[]> = ref([]);
@@ -226,7 +226,7 @@ const pinOperations: Ref<Operation[]> = ref([]);
 const visible = ref(false);
 const addFileDialogVisible = ref(false);
 const addFolderDialogVisible = ref(false);
-const { projectName } = storeToRefs(apidocBaseInfoStore)
+const { projectName } = storeToRefs(projectWorkbenchStore)
 //=====================================操作相关数据====================================//
 //初始化缓存数据
 const initCacheOperation = () => {
@@ -283,9 +283,6 @@ onUnmounted(() => {
 //点击操作按钮
 const projectId = router.currentRoute.value.query.id as string;
 const handleEmit = (op: ApidocOperations) => {
-  if (isView.value && op !== 'freshBanner' && op !== 'history') {
-    return
-  }
   switch (op) {
     case 'addRootFolder': //新建文件夹
       addFolderDialogVisible.value = true;
@@ -297,7 +294,7 @@ const handleEmit = (op: ApidocOperations) => {
       emits('fresh');
       break;
     case 'generateLink': //项目分享
-      apidocTabsStore.addTab({
+      projectNavStore.addNav({
         _id: 'onlineLink',
         projectId,
         tabType: 'onlineLink',
@@ -312,7 +309,7 @@ const handleEmit = (op: ApidocOperations) => {
       })
       break;
     case 'exportDoc': //导出文档
-      apidocTabsStore.addTab({
+      projectNavStore.addNav({
         _id: 'exportDoc',
         projectId,
         tabType: 'exportDoc',
@@ -327,7 +324,7 @@ const handleEmit = (op: ApidocOperations) => {
       })
       break;
     case 'importDoc': //导入文档
-      apidocTabsStore.addTab({
+      projectNavStore.addNav({
         _id: 'importDoc',
         projectId,
         tabType: 'importDoc',
@@ -342,7 +339,7 @@ const handleEmit = (op: ApidocOperations) => {
       })
       break;
     case 'recycler': //回收站
-      apidocTabsStore.addTab({
+      projectNavStore.addNav({
         _id: 'recycler',
         projectId,
         tabType: 'recycler',
@@ -357,7 +354,7 @@ const handleEmit = (op: ApidocOperations) => {
       })
       break;
     case 'history': //操作审计
-      apidocTabsStore.addTab({
+      projectNavStore.addNav({
         _id: 'history',
         projectId,
         tabType: 'history',
@@ -372,7 +369,7 @@ const handleEmit = (op: ApidocOperations) => {
       })
       break;
     case 'commonHeader': //公共请求头
-      apidocTabsStore.addTab({
+      projectNavStore.addNav({
         _id: 'commonHeader',
         projectId,
         tabType: 'commonHeader',
@@ -387,7 +384,7 @@ const handleEmit = (op: ApidocOperations) => {
       })
       break;
     case 'variable': //接口编排
-      apidocTabsStore.addTab({
+      projectNavStore.addNav({
         _id: 'variable',
         projectId,
         tabType: 'variable',
@@ -402,7 +399,7 @@ const handleEmit = (op: ApidocOperations) => {
       })
       break;
     case 'cookies': //cookies
-      apidocTabsStore.addTab({
+      projectNavStore.addNav({
         _id: 'cookies',
         projectId,
         tabType: 'cookies',
@@ -443,7 +440,7 @@ const hasFilterCondition = computed(() => {
 
 //用户列表
 const maintainerEnum = computed(() => {
-  const { banner } = apidocBannerStore;
+  const { banner } = bannerStore;
   const allBanner: string[] = [];
   forEachForest(banner, (bannerInfo) => {
     if (bannerInfo.maintainer && !allBanner.includes(bannerInfo.maintainer)) {
@@ -610,7 +607,7 @@ const getProjectList = async () => {
   }
   projectLoading.value = true;
   try {
-    await projectStore.getProjectList();
+    await projectManagerStore.getProjectList();
   } catch (err) {
     console.error(err);
   } finally {
@@ -622,7 +619,7 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
   if (item._id === router.currentRoute.value.query.id) {
     return;
   }
-  projectStore.recordVisited(item._id);
+  projectManagerStore.recordVisited(item._id);
 
   // 同步更新header tabs - 发送事件通知header添加或激活对应的项目tab
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.switchProject, {
@@ -637,11 +634,11 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
       mode: router.currentRoute.value.query.mode,
     },
   });
-  apidocBaseInfoStore.initProjectBaseInfo({ projectId: item._id });
-  apidocBaseInfoStore.getCommonHeaders()
-  apidocBannerStore.changeBannerLoading(true)
-  apidocBannerStore.getDocBanner({ projectId: item._id, }).finally(() => {
-    apidocBannerStore.changeBannerLoading(false)
+  projectWorkbenchStore.initProjectBaseInfo({ projectId: item._id });
+  commonHeaderStore.getCommonHeaders()
+  bannerStore.changeBannerLoading(true)
+  bannerStore.getDocBanner({ projectId: item._id, }).finally(() => {
+    bannerStore.changeBannerLoading(false)
   });
   emits('changeProject', item._id)
 }

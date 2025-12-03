@@ -63,7 +63,7 @@ import { storeToRefs } from 'pinia';
 import { Refresh } from '@element-plus/icons-vue';
 import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue';
 import { useWebSocket } from '@/store/websocket/websocketStore';
-import { useApidocTas } from '@/store/httpNode/httpTabsStore';
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { router } from '@/router';
 import { ApidocProperty } from '@src/types';
 import { WebsocketConnectParams } from '@src/types/websocketNode';
@@ -73,32 +73,32 @@ import { getWebSocketHeaders } from '@/server/request/request';
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { executeWebSocketPreScript } from '@/server/websocket/executePreScript';
-import { useVariable } from '@/store/apidocProject/variablesStore';
-import { useCookies } from '@/store/httpNode/cookiesStore';
+import { useVariable } from '@/store/projectWorkbench/variablesStore';
+import { useCookies } from '@/store/projectWorkbench/cookiesStore';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
 import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache';
 
 import { message } from '@/helper'
 const { t } = useI18n();
 const websocketStore = useWebSocket();
-const apidocTabsStore = useApidocTas();
+const projectNavStore = useProjectNav();
 const redoUndoStore = useWsRedoUndo();
 const runtimeStore = useRuntime();
 const variableStore = useVariable();
 const cookiesStore = useCookies();
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
-const { currentSelectTab } = storeToRefs(apidocTabsStore);
+const { currentSelectNav } = storeToRefs(projectNavStore);
 const { saveLoading, refreshLoading, websocketFullUrl: fullUrl, connectionState, connectionId } = storeToRefs(websocketStore);
 
 const protocol = computed({
   get: () => websocketStore.websocket.item.protocol,
   set: (value: 'ws' | 'wss') => {
-    if (!currentSelectTab.value) return;
+    if (!currentSelectNav.value) return;
     const oldValue = websocketStore.websocket.item.protocol;
     if (oldValue !== value) {
       // 记录协议变化操作
       redoUndoStore.recordOperation({
-        nodeId: currentSelectTab.value._id,
+        nodeId: currentSelectNav.value._id,
         type: "protocolOperation",
         operationName: "修改协议",
         affectedModuleName: "operation",
@@ -113,12 +113,12 @@ const protocol = computed({
 const connectionUrl = computed({
   get: () => websocketStore.websocket.item.url.path,
   set: (value: string) => {
-    if (!currentSelectTab.value) return;
+    if (!currentSelectNav.value) return;
     const oldValue = websocketStore.websocket.item.url.path;
     if (oldValue !== value) {
       // 记录URL变化操作
       redoUndoStore.recordOperation({
-        nodeId: currentSelectTab.value._id,
+        nodeId: currentSelectNav.value._id,
         type: "urlOperation",
         operationName: "修改连接地址",
         affectedModuleName: "operation",
@@ -148,11 +148,11 @@ const connectButtonText = computed(() => {
 |--------------------------------------------------------------------------
 */
 const handleConnect = async () => {
-  if (!currentSelectTab.value) {
+  if (!currentSelectNav.value) {
     console.error('未找到当前选中的标签页');
     return;
   }
-  const currentTab = currentSelectTab.value;
+  const currentTab = currentSelectNav.value;
   websocketStore.changeConnectionState('connecting');
 
   // 添加发起连接消息
@@ -320,10 +320,10 @@ const handleConnect = async () => {
 };
 
 const handleDisconnect = async () => {
-  if (!currentSelectTab.value) {
+  if (!currentSelectNav.value) {
     return;
   }
-  const currentTab = currentSelectTab.value;
+  const currentTab = currentSelectNav.value;
   window.electronAPI?.websocket.disconnect(connectionId.value).then((result) => {
     if (result.code !== 0) {
       websocketStore.changeConnectionState('error');
@@ -375,22 +375,22 @@ const handleSave = () => {
   websocketStore.saveWebsocket()
 };
 const handleRefresh = async () => {
-  if (!currentSelectTab.value) {
+  if (!currentSelectNav.value) {
     return;
   }
   websocketStore.refreshLoading = true;
   try {
     websocketStore.clearMessages();
-    const nodeId = currentSelectTab.value._id;
+    const nodeId = currentSelectNav.value._id;
     if (nodeId) {
       redoUndoStore.clearRedoUndoListByNodeId(nodeId);
       await websocketResponseCache.clearResponseByNodeId(nodeId);
     }
     
     if (isStandalone.value) {
-      if (currentSelectTab.value) {
+      if (currentSelectNav.value) {
         websocketStore.getWebsocketDetail({
-          id: currentSelectTab.value._id,
+          id: currentSelectNav.value._id,
           projectId: router.currentRoute.value.query.id as string,
         });
       }

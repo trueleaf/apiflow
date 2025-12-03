@@ -74,7 +74,7 @@
           <div class="custom-tree-node" tabindex="0">
             <!-- file渲染 -->
             <template v-if="scope.data.info.type !== 'folder'">
-              <template v-for="(req) in projectInfo.rules.requestMethods">
+              <template v-for="(req) in requestMethods">
                 <span v-if="scope.data.item.method.toLowerCase() === req.value.toLowerCase()" :key="req.name"
                   class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
               </template>
@@ -166,19 +166,15 @@ import { message } from '@/helper'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 // import OpenApiTranslator from './openapi';
 // import PostmanTranslator from './postman';
-import { ApidocProjectRules } from '@src/types'
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore'
-import { useApidocBanner } from '@/store/httpNode/httpBannerStore'
+import { requestMethods } from '@/data/data'
+import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore'
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
+import { useBanner } from '@/store/projectWorkbench/bannerStore'
 import { apiNodesCache } from '@/cache/nodes/nodesCache'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 
 type FormInfo = {
   moyuData: {
-    hosts?: {
-      _id: string,
-      url: string,
-      name: string,
-    }[],
     docs: (HttpNode & { children?: HttpNode[] })[]
   },
   type: string,
@@ -187,13 +183,7 @@ type FormInfo = {
 
 type ApiflowInfo = {
   type: string,
-  rules: ApidocProjectRules[],
   docs: HttpNode[],
-  hosts: {
-    _id: string,
-    url: string,
-    name: string,
-  }[],
   info: {
     projectName: string,
   }
@@ -215,8 +205,9 @@ defineProps({
 const { t } = useI18n()
 const runtimeStore = useRuntime();
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
-const apidocBaseInfoStore = useApidocBaseInfo();
-const apidocBannerStore = useApidocBanner()
+const commonHeaderStore = useCommonHeader();
+const projectWorkbenchStore = useProjectWorkbench();
+const bannerStore = useBanner()
 const projectId = router.currentRoute.value.query.id as string;
 const folderIcon = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href
 //导入方式类型
@@ -247,12 +238,9 @@ const loading2 = ref(false);
 //项目基本信息
 const projectInfo = computed(() => {
   return {
-    _id: apidocBaseInfoStore._id,
-    layout: apidocBaseInfoStore.layout,
-    mode: apidocBaseInfoStore.mode,
-    commonHeaders: apidocBaseInfoStore.commonHeaders,
-    rules: apidocBaseInfoStore.rules,
-    hosts: apidocBaseInfoStore.hosts,
+    _id: projectWorkbenchStore.projectId,
+    layout: projectWorkbenchStore.layout,
+    commonHeaders: commonHeaderStore.commonHeaders,
   }
 });
 //openapi文件夹格式
@@ -328,7 +316,6 @@ const getImportFileInfo = () => {
     importTypeInfo.value.name = 'apiflow';
     formInfo.value.type = 'apiflow';
     formInfo.value.moyuData.docs = (jsonText.value as ApiflowInfo).docs;
-    formInfo.value.moyuData.hosts = (jsonText.value as ApiflowInfo).hosts;
   } else if ((jsonText.value as OpenAPIV3.Document).openapi) {
     importTypeInfo.value.name = 'openapi';
     importTypeInfo.value.version = (jsonText.value as OpenAPIV3.Document).openapi;
@@ -342,12 +329,8 @@ const getImportFileInfo = () => {
     // formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } else if ((jsonText.value as any)?.info?._postman_id) {
-    // const postmanTranslatorInstance = new PostmanTranslator(projectId, jsonText.value);
-    // const docsInfo = postmanTranslatorInstance.getDocsInfo();
     importTypeInfo.value.name = 'postman';
     formInfo.value.type = 'postman';
-    // formInfo.value.moyuData.docs = (docsInfo as any).docs;
-    // formInfo.value.moyuData.hosts = (docsInfo as any).hosts;
   }
   // postmanTranslatorInstance = new PostmanTranslator($route.query.id);
   // yapiTranslatorInstance = new YAPITranslator($route.query.id);
@@ -537,13 +520,13 @@ const handleSubmit = async () => {
     if (isStandalone.value && formInfo.value.cover) {
       const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[];
       await apiNodesCache.replaceAllNodes(copiedDocs as HttpNode[], projectId);
-      apidocBannerStore.getDocBanner({ projectId });
+      bannerStore.getDocBanner({ projectId });
       message.success(t('导入成功'));
       return
     } else if (isStandalone.value && !formInfo.value.cover) {
       const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[];
       await apiNodesCache.appendNodes(copiedDocs, projectId);
-      apidocBannerStore.getDocBanner({ projectId });
+      bannerStore.getDocBanner({ projectId });
       message.success(t('导入成功'));
       return
     }
@@ -557,7 +540,7 @@ const handleSubmit = async () => {
       },
     };
     request.post('/api/project/import/moyu', params).then(() => {
-      apidocBannerStore.getDocBanner({ projectId });
+      bannerStore.getDocBanner({ projectId });
     }).catch((err) => {
       console.error(err);
     }).finally(() => {

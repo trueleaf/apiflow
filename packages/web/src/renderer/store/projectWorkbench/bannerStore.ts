@@ -13,21 +13,19 @@ type SplicePayload = {
   deleteCount?: number,
   item?: ApidocBanner,
 }
-// 使用条件类型来确保类型安全
 type EditBannerPayload<T extends ApidocBanner, K extends keyof T> = {
   id: string,
   field: K,
   value: T[K],
 };
 
-export const useApidocBanner = defineStore('httpBanner', () => {
+export const useBanner = defineStore('banner', () => {
   const runtimeStore = useRuntime();
   const isOffline = () => runtimeStore.networkMode === 'offline';
-  const loading = ref(false);
+  const bannerLoading = ref(false);
   const banner = ref<ApidocBanner[]>([]);
   const defaultExpandedKeys = ref<string[]>([]);
   const foldersWithRunningMock = ref<Set<string>>(new Set());
-  
   //根据id改变节点属性 - 使用类型断言但更安全
   const changeBannerInfoById = <T extends ApidocBanner, K extends keyof T>(payload: EditBannerPayload<T, K>): void => {
     const { id, field, value } = payload;
@@ -38,15 +36,13 @@ export const useApidocBanner = defineStore('httpBanner', () => {
       editData[field] = value;
     }
   }
-  
-  // 类型安全的 WebSocket banner 更新方法
+  //类型安全的 WebSocket banner 更新方法
   const changeWebsocketBannerInfoById = <K extends keyof ApidocBannerOfWebsocketNode>(
     payload: EditBannerPayload<ApidocBannerOfWebsocketNode, K>
   ): void => {
     changeBannerInfoById<ApidocBannerOfWebsocketNode, K>(payload);
   }
-  
-  // 类型安全的 HTTP banner 更新方法
+  //类型安全的 HTTP banner 更新方法
   const changeHttpBannerInfoById = <K extends keyof ApidocBannerOfHttpNode>(
     payload: EditBannerPayload<ApidocBannerOfHttpNode, K>
   ): void => {
@@ -76,7 +72,7 @@ export const useApidocBanner = defineStore('httpBanner', () => {
   }
   //改变加载状态
   const changeBannerLoading = (state: boolean): void => {
-    loading.value = state
+    bannerLoading.value = state
   }
   //更新Mock节点状态
   const updateMockNodeState = (payload: MockStatusChangedPayload): void => {
@@ -153,15 +149,7 @@ export const useApidocBanner = defineStore('httpBanner', () => {
     });
     foldersWithRunningMock.value = result;
   }
-  /*
-  |--------------------------------------------------------------------------
-  | 接口调用
-  |--------------------------------------------------------------------------
-  |
-  */
-   /**
-   * 获取文档左侧导航数据
-   */
+  //获取文档左侧导航数据
   const getDocBanner = async(payload: { projectId: string }): Promise<ApidocBanner[]> => {
     return new Promise(async (resolve, reject) => {
       if (isOffline()) {
@@ -186,9 +174,7 @@ export const useApidocBanner = defineStore('httpBanner', () => {
       });
     });
   }
-  /**
-   * 获取分享文档左侧导航数据
-   */
+  //获取分享文档左侧导航数据
   const getSharedDocBanner = (payload: { shareId: string, password: string }): Promise<ApidocBanner[]> => {
     return new Promise((resolve, reject) => {
       const params = {
@@ -197,14 +183,6 @@ export const useApidocBanner = defineStore('httpBanner', () => {
       };
       request.get<CommonResponse<ApidocBanner[]>, CommonResponse<ApidocBanner[]>>('/api/project/export/share_banner', { params }).then((res) => {
         if (res.code === 101005) {
-          //todo
-          // shareRouter.replace({
-          //   path: '/check',
-          //   query: {
-          //     share_id: shareRouter.currentRoute.value.query.share_id,
-          //     id: shareRouter.currentRoute.value.query.id,
-          //   },
-          // });
           return;
         }
         const result = res.data;
@@ -216,7 +194,7 @@ export const useApidocBanner = defineStore('httpBanner', () => {
     });
   }
   return {
-    loading,
+    bannerLoading,
     banner,
     defaultExpandedKeys,
     foldersWithRunningMock,

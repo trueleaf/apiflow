@@ -91,14 +91,14 @@ import { CircleHelp } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useWebSocketMock } from '@/store/websocketMock/websocketMockStore'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { router } from '@/router/index'
 
 const { t } = useI18n()
 const websocketMockStore = useWebSocketMock()
 const { websocketMock } = storeToRefs(websocketMockStore)
-const apidocTabsStore = useApidocTas()
-const { currentSelectTab } = storeToRefs(apidocTabsStore)
+const projectNavStore = useProjectNav()
+const { currentSelectNav } = storeToRefs(projectNavStore)
 
 const enabled = ref(false)
 const enabledStatusLoading = ref(false)
@@ -127,7 +127,7 @@ const networkMockUrl = computed(() => {
 })
 // 监听 currentSelectTab 变化，重新加载状态
 watch(
-  () => currentSelectTab.value?._id,
+  () => currentSelectNav.value?._id,
   () => {
     checkEnabledStatus()
     mockError.value = ''
@@ -147,7 +147,7 @@ const handleEnabledToggle = (val: string | number | boolean) => {
   
   return Promise.resolve()
     .then(() => {
-      if (!currentSelectTab.value?._id) {
+      if (!currentSelectNav.value?._id) {
         throw new Error('Mock配置ID不存在')
       }
 
@@ -164,11 +164,11 @@ const handleEnabledToggle = (val: string | number | boolean) => {
             }
           })
       } else {
-        return window.electronAPI!.websocketMock.stopServer(currentSelectTab.value._id)
+        return window.electronAPI!.websocketMock.stopServer(currentSelectNav.value._id)
           .then(async (result) => {
             if (result.code === 0) {
-              if (currentSelectTab.value?._id) {
-                const checkResult = await websocketMockStore.checkMockNodeEnabledStatus(currentSelectTab.value._id)
+              if (currentSelectNav.value?._id) {
+                const checkResult = await websocketMockStore.checkMockNodeEnabledStatus(currentSelectNav.value._id)
                 if (checkResult) {
                   enabled.value = true
                   mockError.value = '服务器关闭验证失败'
@@ -195,9 +195,9 @@ const handleEnabledToggle = (val: string | number | boolean) => {
 }
 // 检查Mock启用状态
 const checkEnabledStatus = () => {
-  if (currentSelectTab.value?._id) {
+  if (currentSelectNav.value?._id) {
     enabledStatusLoading.value = true
-    return websocketMockStore.checkMockNodeEnabledStatus(currentSelectTab.value._id)
+    return websocketMockStore.checkMockNodeEnabledStatus(currentSelectNav.value._id)
       .then((isEnabled) => {
         enabled.value = isEnabled
       })

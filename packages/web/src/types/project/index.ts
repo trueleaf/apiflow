@@ -307,59 +307,7 @@ export type ApidocProjectVariable = {
   value: string,
 }
 
-// 项目host信息
-export type ApidocProjectHost = {
-  /**
-   * 主机名称
-  */
-  name: string,
-  /**
-   * 主机地址
-  */
-  url: string,
-  /**
-   * 主机id
-  */
-  _id: string,
-}
-
-// 请求方法规则
-export type ApidocRequestMethodRule = {
-  /**
-   * 允许请求参数类型
-  */
-  enabledContenTypes: HttpNodeRequestParamTypes,
-  /**
-   * 方法名称
-  */
-  name: string,
-  /**
-   * 值
-  */
-  value: string,
-  /**
-   * 颜色
-  */
-  iconColor: string,
-  /**
-   * 是否启用
-  */
-  isEnabled: boolean,
-};
-
-// 项目规则
-export type ApidocProjectRules = {
-  /**
-   * 单个文件夹允许最大文件个数
-  */
-  fileInFolderLimit: number,
-  /**
-   * 请求方法
-  */
-  requestMethods: ApidocRequestMethodRule[],
-}
-
-// Cookie信息
+// 请求方法规则信息
 export type ApidocCookieInfo = {
   /**
      * cookie键
@@ -441,14 +389,6 @@ export type ApidocProjectBaseInfoState = {
      * 临时变量，主要用于脚本中
      */
   tempVariables: Omit<ApidocVariable, '_id'>[],
-  /**
-     * 项目host信息
-     */
-  hosts: ApidocProjectHost[],
-  /**
-     * 项目规则
-     */
-  rules: ApidocProjectRules,
   /**
      * 布局
      */

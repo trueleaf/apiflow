@@ -22,7 +22,7 @@
             <div class="custom-tree-node" tabindex="0">
               <!-- file渲染 -->
               <template v-if="scope.data.type !== 'folder'">
-                <template v-for="(req) in projectRules.requestMethods">
+                <template v-for="(req) in requestMethods">
                   <span
                     v-if="scope.data && scope.data.method && scope.data.method.toLowerCase() === req.value.toLowerCase()"
                     :key="req.name" class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
@@ -70,7 +70,7 @@
                 <div class="custom-tree-node" tabindex="0">
                   <!-- file渲染 -->
                   <template v-if="scope.data.type !== 'folder'">
-                    <template v-for="(req) in projectRules.requestMethods">
+                    <template v-for="(req) in requestMethods">
                       <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name"
                         class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
                     </template>
@@ -107,8 +107,9 @@ import { request } from '@/api/api'
 import { findParentById, findSiblingById, forEachForest } from '@/helper'
 import { nanoid } from 'nanoid/non-secure'
 import { useI18n } from 'vue-i18n'
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
-import { useApidocBanner } from '@/store/httpNode/httpBannerStore';
+import { requestMethods } from '@/data/data'
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
+import { useBanner } from '@/store/projectWorkbench/bannerStore';
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import SLoading from '@/components/common/loading/ClLoading.vue'
 import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
@@ -131,10 +132,9 @@ type TreeInstance = DragState & TreeStore & ComponentPublicInstance
 | 全局参数，生命周期
 |--------------------------------------------------------------------------
 */
-const apidocBaseInfoStore = useApidocBaseInfo();
-const apidocBannerStore = useApidocBanner();
-const projectId = computed(() => apidocBaseInfoStore.projectId);
-const projectRules = computed(() => apidocBaseInfoStore.rules);
+const projectWorkbenchStore = useProjectWorkbench();
+const bannerStore = useBanner();
+const projectId = computed(() => projectWorkbenchStore.projectId);
 //目标树数据加载
 const { t } = useI18n()
 //目标数实例
@@ -206,7 +206,7 @@ onMounted(() => {
 */
 //源树数据
 const sourceTreeData = computed(() => {
-  const copyData: (ApidocBanner & { _isSource?: boolean })[] = JSON.parse(JSON.stringify(apidocBannerStore.banner));
+  const copyData: (ApidocBanner & { _isSource?: boolean })[] = JSON.parse(JSON.stringify(bannerStore.banner));
   forEachForest(copyData, (data) => {
     data._isSource = true;
   });

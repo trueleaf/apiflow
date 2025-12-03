@@ -306,10 +306,11 @@ import SPreRequestParams from './preRequest/PreRequest.vue';
 import SAfterRequestParams from './afterRequest/AfterRequest.vue';
 import SRemark from './remarks/Remarks.vue';
 import SSettings from './settings/Settings.vue';
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore'
+import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore'
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore'
 import { useRoute } from 'vue-router'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { ElMessageBox } from 'element-plus'
 import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache'
@@ -317,9 +318,10 @@ import { message } from '@/helper'
 import { router } from '@/router'
 import type { HttpHistory } from '@src/types/history/httpHistory'
 type ActiceName = 'SParams' | 'SRequestBody' | 'SResponseParams' | 'SRequestHeaders' | 'SRemarks' | 'SPreRequest' | 'SAfterRequest' | 'SSettings'
-const apidocBaseInfoStore = useApidocBaseInfo()
+const commonHeaderStore = useCommonHeader()
+const projectWorkbenchStore = useProjectWorkbench()
 const httpNodeStore = useHttpNode()
-const apidocTabsStore = useApidocTas()
+const projectNavStore = useProjectNav()
 const httpRedoUndoStore = useHttpRedoUndo()
 const activeName = ref<ActiceName>('SParams');
 const { t } = useI18n()
@@ -341,7 +343,6 @@ const hoverTimer = ref<number | null>(null)
 const hideTimer = ref<number | null>(null)
 const historyDetailRef = ref<HTMLElement>()
 const detailPanelPosition = ref<{ left: string; top: string }>({ left: '0px', top: '0px' })
-// const mode = computed(() => apidocBaseInfoStore.mode)
 const hasQueryOrPathsParams = computed(() => {
   const { queryParams, paths } = httpNodeStore.apidoc.item;
   const hasQueryParams = queryParams.filter(p => p.select).some((data) => data.key);
@@ -384,19 +385,19 @@ const responseNum = computed(() => {
   });
   return resNum;
 })
-const currentSelectTab = computed(() => {
+const currentSelectNav = computed(() => {
   const projectId = route.query.id as string;
-  const tabs = apidocTabsStore.tabs[projectId];
-  const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
-  return currentSelectTab;
+  const navs = projectNavStore.navs[projectId];
+  const selectedNav = navs?.find((nav) => nav.selected) || null;
+  return selectedNav;
 })
 const hasHeaders = ref(false);
 const freshHasHeaders = () => {
   const { headers } = httpNodeStore.apidoc.item;
-  const commonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab.value?._id || "");
+  const commonHeaders = commonHeaderStore.getCommonHeadersById(currentSelectNav.value?._id || "");
   const cpCommonHeaders = JSON.parse(JSON.stringify(commonHeaders)) as (typeof commonHeaders);
   cpCommonHeaders.forEach(header => {
-    const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab.value?._id ?? "");
+    const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectNav.value?._id ?? "");
     const isSelect = ignoreHeaderIds?.find(headerId => headerId === header._id) ? false : true;
     header.select = isSelect;
   })
@@ -407,17 +408,17 @@ const freshHasHeaders = () => {
 }
 watchEffect(freshHasHeaders, {
 });
-const { layout } = storeToRefs(apidocBaseInfoStore)
+const { layout } = storeToRefs(projectWorkbenchStore)
 const { apidoc } = storeToRefs(httpNodeStore)
 // 撤销/重做相关计算属性
 const canUndo = computed(() => {
-  if (!currentSelectTab.value) return false;
-  const undoList = httpRedoUndoStore.httpUndoList[currentSelectTab.value._id];
+  if (!currentSelectNav.value) return false;
+  const undoList = httpRedoUndoStore.httpUndoList[currentSelectNav.value._id];
   return undoList && undoList.length > 0;
 });
 const canRedo = computed(() => {
-  if (!currentSelectTab.value) return false;
-  const redoList = httpRedoUndoStore.httpRedoList[currentSelectTab.value._id];
+  if (!currentSelectNav.value) return false;
+  const redoList = httpRedoUndoStore.httpRedoList[currentSelectNav.value._id];
   return redoList && redoList.length > 0;
 });
 /*
@@ -446,8 +447,8 @@ const getComponent = () => {
 }
 //初始化tab缓存
 const initTabCache = () => {
-  if (currentSelectTab) {
-    const cachedTab = appState.getHttpNodeActiveParamsTab(currentSelectTab.value?._id || "");
+  if (currentSelectNav) {
+    const cachedTab = appState.getHttpNodeActiveParamsTab(currentSelectNav.value?._id || "");
     const allowedTabs: ActiceName[] = [
       'SParams',
       'SRequestBody',
@@ -467,26 +468,26 @@ const initTabCache = () => {
 }
 //切换布局
 const handleChangeLayout = (layout: 'vertical' | 'horizontal') => {
-  apidocBaseInfoStore.changeLayout(layout);
+  projectWorkbenchStore.changeLayout(layout);
 }
 // 撤销/重做事件处理
 const handleUndo = (): void => {
-  if (!currentSelectTab.value) return;
+  if (!currentSelectNav.value) return;
   if (!canUndo.value) {
     return; // 按钮已禁用时不显示提示
   }
-  const result = httpRedoUndoStore.httpUndo(currentSelectTab.value._id);
+  const result = httpRedoUndoStore.httpUndo(currentSelectNav.value._id);
   if (result.code !== 0) {
     message.error(result.msg);
   }
   // 成功时不显示提示，避免干扰用户操作
 };
 const handleRedo = (): void => {
-  if (!currentSelectTab.value) return;
+  if (!currentSelectNav.value) return;
   if (!canRedo.value) {
     return; // 按钮已禁用时不显示提示
   }
-  const result = httpRedoUndoStore.httpRedo(currentSelectTab.value._id);
+  const result = httpRedoUndoStore.httpRedo(currentSelectNav.value._id);
   if (result.code !== 0) {
     message.error(result.msg);
   }
@@ -554,10 +555,10 @@ const handleToggleHistory = (): void => {
 };
 
 const getHistoryList = (): Promise<void> => {
-  if (!currentSelectTab.value) return Promise.resolve();
+  if (!currentSelectNav.value) return Promise.resolve();
 
   historyLoading.value = true;
-  return httpNodeHistoryCache.getHttpHistoryListByNodeId(currentSelectTab.value._id)
+  return httpNodeHistoryCache.getHttpHistoryListByNodeId(currentSelectNav.value._id)
     .then((histories) => {
       historyList.value = histories;
     })
@@ -601,8 +602,8 @@ const handleDeleteHistory = (history: HttpHistory): void => {
       type: 'warning'
     }
   ).then(() => {
-    if (!currentSelectTab.value) return;
-    httpNodeHistoryCache.deleteHttpHistoryByNode(currentSelectTab.value._id, [history._id])
+    if (!currentSelectNav.value) return;
+    httpNodeHistoryCache.deleteHttpHistoryByNode(currentSelectNav.value._id, [history._id])
       .then((success) => {
         if (success) {
           // 从列表中移除已删除的记录
@@ -634,10 +635,10 @@ const handleClearAllHistory = (): void => {
       type: 'warning'
     }
   ).then(() => {
-    if (!currentSelectTab.value) return;
+    if (!currentSelectNav.value) return;
     // 获取所有历史记录的ID
     const allHistoryIds = historyList.value.map(h => h._id);
-    httpNodeHistoryCache.deleteHttpHistoryByNode(currentSelectTab.value._id, allHistoryIds)
+    httpNodeHistoryCache.deleteHttpHistoryByNode(currentSelectNav.value._id, allHistoryIds)
       .then((success) => {
         if (success) {
           // 清空列表
@@ -875,13 +876,9 @@ const checkApidocIsEqual = (apidoc: HttpNode, originApidoc: HttpNode) => {
   return true;
 }
 //=========================================================================//
-// //切换工作模式
-// const toggleMode = (mode: 'edit' | 'view') => {
-//   apidocBaseInfoStore.changeMode(mode);
-// }
 //打开变量维护页面
 const handleOpenVariable = () => {
-  apidocTabsStore.addTab({
+  projectNavStore.addNav({
     _id: 'variable',
     projectId: route.query.id as string,
     tabType: 'variable',
@@ -917,11 +914,11 @@ const handleOpenVariable = () => {
 |--------------------------------------------------------------------------
 */
 watch(() => activeName.value, (val: string) => {
-  if (currentSelectTab.value) {
-    appState.setHttpNodeActiveParamsTab(currentSelectTab.value._id, val);
+  if (currentSelectNav.value) {
+    appState.setHttpNodeActiveParamsTab(currentSelectNav.value._id, val);
   }
 })
-watch(() => currentSelectTab.value, () => {
+watch(() => currentSelectNav.value, () => {
   initTabCache();
 })
 watch(() => apidoc.value, (apidoc: HttpNode) => {
@@ -940,19 +937,19 @@ onMounted(() => {
   debounceFn.value = debounce((apidoc: HttpNode) => {
     const isEqual = checkApidocIsEqual(apidoc, httpNodeStore.originApidoc);
     if (!isEqual) {
-      apidocTabsStore.changeTabInfoById({
-        id: currentSelectTab.value?._id || "",
+      projectNavStore.changeNavInfoById({
+        id: currentSelectNav.value?._id || "",
         field: 'saved',
         value: false,
       })
-      apidocTabsStore.changeTabInfoById({
-        id: currentSelectTab.value?._id || "",
+      projectNavStore.changeNavInfoById({
+        id: currentSelectNav.value?._id || "",
         field: 'fixed',
         value: true,
       })
     } else {
-      apidocTabsStore.changeTabInfoById({
-        id: currentSelectTab.value?._id || "",
+      projectNavStore.changeNavInfoById({
+        id: currentSelectNav.value?._id || "",
         field: 'saved',
         value: true,
       })

@@ -8,7 +8,7 @@ import type { ApidocProjectInfo, ApidocProjectListInfo, CommonResponse, ApiNode 
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
-export const useProjectStore = defineStore('project', () => {
+export const useProjectManagerStore = defineStore('projectManager', () => {
   const runtimeStore = useRuntime();
   const projectList = ref<ApidocProjectInfo[]>([]);
   const deletedProjects = ref<ApidocProjectInfo[]>([]);

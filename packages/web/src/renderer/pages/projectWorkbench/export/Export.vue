@@ -60,7 +60,7 @@
                 >
                   <!-- file渲染 -->
                   <template v-if="scope.data.type !== 'folder'">
-                    <template v-for="(req) in projectInfo.rules.requestMethods">
+                    <template v-for="(req) in requestMethods">
                       <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
                     </template>
                     <div class="node-label-wrap">
@@ -97,9 +97,11 @@ import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.
 import { ApidocBanner, HttpNode, WebSocketNode } from '@src/types';
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
-import { useApidocBanner } from '@/store/httpNode/httpBannerStore';
-import { useVariable } from '@/store/apidocProject/variablesStore';
+import { requestMethods } from '@/data/data'
+import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore';
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
+import { useBanner } from '@/store/projectWorkbench/bannerStore';
+import { useVariable } from '@/store/projectWorkbench/variablesStore';
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import SConfig from '@/components/common/config/ClConfig.vue'
 import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
@@ -114,8 +116,9 @@ import { FileJson } from 'lucide-vue-next';
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 
 const appSettingsStore = useAppSettings()
-const apidocBaseInfoStore = useApidocBaseInfo();
-const apidocBannerStore = useApidocBanner();
+const commonHeaderStore = useCommonHeader();
+const projectWorkbenchStore = useProjectWorkbench();
+const bannerStore = useBanner();
 const variableStore = useVariable();
 const route = useRoute()
 const runtimeStore = useRuntime();
@@ -123,17 +126,14 @@ const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
 const selectedType: Ref<'html' | 'pdf' | 'word' | 'moyu' | 'openapi' | 'otherProject'> = ref('html')
 const projectInfo = computed(() => {
   return {
-    _id: apidocBaseInfoStore._id,
-    layout: apidocBaseInfoStore.layout,
-    mode: apidocBaseInfoStore.mode,
+    _id: projectWorkbenchStore.projectId,
+    layout: projectWorkbenchStore.layout,
     variables: variableStore.variables,
     tempVariables: [], // tempVariables 在当前实现中为空数组
-    commonHeaders: apidocBaseInfoStore.commonHeaders,
-    rules: apidocBaseInfoStore.rules,
-    hosts: apidocBaseInfoStore.hosts,
+    commonHeaders: commonHeaderStore.commonHeaders,
   }
 });
-const { banner: bannerData } = storeToRefs(apidocBannerStore)
+const { banner: bannerData } = storeToRefs(bannerStore)
 //当前选中节点
 const allCheckedNodes: Ref<ApidocBanner[]> = ref([]);
 //节点选中
@@ -154,7 +154,7 @@ const config: Ref<{ isEnabled: boolean } | null> = ref(null)
 const handleExportAsHTML = async () => {
   if (isStandalone.value) {
     const selectedIds = allCheckedNodes.value.map((val) => val._id);
-    const allDocs = await apiNodesCache.getNodesByProjectId(apidocBaseInfoStore._id);
+    const allDocs = await apiNodesCache.getNodesByProjectId(projectWorkbenchStore.projectId);
     const selectedDocs = allDocs.filter((doc) => {
       if (selectedIds.length === 0) {
         return true;
@@ -164,13 +164,13 @@ const handleExportAsHTML = async () => {
     loading.value = true;
     const exportHtmlParams: StandaloneExportHtmlParams = {
       projectInfo: {
-        projectName: apidocBaseInfoStore.projectName,
-        projectId: apidocBaseInfoStore._id,
+        projectName: projectWorkbenchStore.projectName,
+        projectId: projectWorkbenchStore.projectId,
       },
       nodes: selectedDocs.map((val) => ({
         _id: val._id,
         pid: val.pid,
-        projectId: apidocBaseInfoStore._id,
+        projectId: projectWorkbenchStore.projectId,
         sort: val.sort,
         info: val.info,
         item: (val as HttpNode).item || (val as WebSocketNode).item,
@@ -181,7 +181,7 @@ const handleExportAsHTML = async () => {
     const cpExportHtmlParams = JSON.parse(JSON.stringify(exportHtmlParams));
     (window.electronAPI?.exportHtml(cpExportHtmlParams) as Promise<string>)
       .then((htmlContent: string) => {
-        downloadStringAsText(htmlContent, `${apidocBaseInfoStore.projectName}.html`, 'text/html');
+        downloadStringAsText(htmlContent, `${projectWorkbenchStore.projectName}.html`, 'text/html');
       })
       .catch((err: Error) => {
         console.error(err);
@@ -213,7 +213,7 @@ const handleExportAsHTML = async () => {
 const handleExportAsApiflow = async () => {
   if (isStandalone.value) {
     const selectedIds = allCheckedNodes.value.map((val) => val._id);
-    const allDocs = await apiNodesCache.getNodesByProjectId(apidocBaseInfoStore._id);
+    const allDocs = await apiNodesCache.getNodesByProjectId(projectWorkbenchStore.projectId);
     const selectedDocs = allDocs.filter((doc) => {
       if (selectedIds.length === 0) {
         return true;
@@ -223,11 +223,11 @@ const handleExportAsApiflow = async () => {
     const result = {
       type: 'apiflow',
       info: {
-        projectName: apidocBaseInfoStore.projectName,
+        projectName: projectWorkbenchStore.projectName,
       },
       docs: selectedDocs,
     };    
-    downloadStringAsText(JSON.stringify(result), `${apidocBaseInfoStore.projectName}.json`, 'application/json');
+    downloadStringAsText(JSON.stringify(result), `${projectWorkbenchStore.projectName}.json`, 'application/json');
     return;
   }
   const selectedIds = allCheckedNodes.value.map((val) => val._id);
@@ -270,7 +270,7 @@ const handleExportAsPdf = () => {
 const handleExportAsWord = async () => {
   if (isStandalone.value) {
     const selectedIds = allCheckedNodes.value.map((val) => val._id);
-    const allDocs = await apiNodesCache.getNodesByProjectId(apidocBaseInfoStore._id);
+    const allDocs = await apiNodesCache.getNodesByProjectId(projectWorkbenchStore.projectId);
     const selectedDocs = allDocs.filter((doc) => {
       if (selectedIds.length === 0) {
         return true;
@@ -280,13 +280,13 @@ const handleExportAsWord = async () => {
     loading.value = true;
     const exportHtmlParams: StandaloneExportHtmlParams = {
       projectInfo: {
-        projectName: apidocBaseInfoStore.projectName,
-        projectId: apidocBaseInfoStore._id,
+        projectName: projectWorkbenchStore.projectName,
+        projectId: projectWorkbenchStore.projectId,
       },
       nodes: selectedDocs.map((val) => ({
         _id: val._id,
         pid: val.pid,
-        projectId: apidocBaseInfoStore._id,
+        projectId: projectWorkbenchStore.projectId,
 
         sort: val.sort,
         info: val.info,
@@ -302,7 +302,7 @@ const handleExportAsWord = async () => {
         const blobUrl = URL.createObjectURL(blob);
         const downloadElement = document.createElement('a');
         downloadElement.href = blobUrl;
-        downloadElement.download = `${apidocBaseInfoStore.projectName}.docx`;
+        downloadElement.download = `${projectWorkbenchStore.projectName}.docx`;
         document.body.appendChild(downloadElement);
         downloadElement.click();
         document.body.removeChild(downloadElement);
@@ -340,7 +340,7 @@ const handleExportAsOpenAPI = async () => {
     return;
   }
   const selectedIds = allCheckedNodes.value.map((val) => val._id);
-  const allDocs = await apiNodesCache.getNodesByProjectId(apidocBaseInfoStore._id);
+  const allDocs = await apiNodesCache.getNodesByProjectId(projectWorkbenchStore.projectId);
   const selectedDocs = allDocs.filter((doc) => {
     if (selectedIds.length === 0) {
       return true;
@@ -349,13 +349,12 @@ const handleExportAsOpenAPI = async () => {
   }) as HttpNode[];
   const converter = new OpenAPIConverter();
   const openApiSpec = converter.convertToOpenAPI(
-    apidocBaseInfoStore.projectName,
-    selectedDocs,
-    apidocBaseInfoStore.hosts
+    projectWorkbenchStore.projectName,
+    selectedDocs
   );
   downloadStringAsText(
     JSON.stringify(openApiSpec, null, 2),
-    `${apidocBaseInfoStore.projectName}.openapi.json`,
+    `${projectWorkbenchStore.projectName}.openapi.json`,
     'application/json'
   );
 }

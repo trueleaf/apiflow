@@ -52,7 +52,7 @@ export const cacheKey = {
   },
   projectWorkbench: {
     node: {
-      tabs: 'projectWorkbench/node/tabs',
+      navs: 'projectWorkbench/node/navs',
     },
     pinToolbarOperations: 'projectWorkbench/pinToolbarOperations',
     layout: 'projectWorkbench/layout',

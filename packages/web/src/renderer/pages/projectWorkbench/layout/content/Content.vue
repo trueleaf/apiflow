@@ -1,25 +1,25 @@
 <template>
   <keep-alive>
-    <SGuide v-if="!currentSelectTab || currentSelectTab?.tabType === 'guide'"></SGuide>
-    <SVariable v-else-if="currentSelectTab.tabType === 'variable'"></SVariable>
-    <SExportDoc v-else-if="currentSelectTab.tabType === 'exportDoc'"></SExportDoc>
-    <SImportDoc v-else-if="currentSelectTab.tabType === 'importDoc'"></SImportDoc>
-    <SOnlineLink v-else-if="currentSelectTab.tabType === 'onlineLink'"></SOnlineLink>
-    <SRecycler v-else-if="currentSelectTab.tabType === 'recycler'" :key="recyclerKey.toString()"></SRecycler>
-    <SHistory v-else-if="currentSelectTab.tabType === 'history'"></SHistory>
-    <SCommonHeader v-else-if="currentSelectTab.tabType === 'commonHeader'"></SCommonHeader>
-    <SApidoc v-else-if="currentSelectTab.tabType === 'http'"></SApidoc>
-    <SCookies v-else-if="currentSelectTab.tabType === 'cookies'"></SCookies>
-    <SHttpMock v-else-if="currentSelectTab.tabType === 'httpMock'"></SHttpMock>
-    <SWebsocket v-else-if="currentSelectTab.tabType === 'websocket'"></SWebsocket>
-    <SWebSocketMock v-else-if="currentSelectTab.tabType === 'websocketMock'"></SWebSocketMock>
+    <SGuide v-if="!currentSelectNav || currentSelectNav?.tabType === 'guide'"></SGuide>
+    <SVariable v-else-if="currentSelectNav.tabType === 'variable'"></SVariable>
+    <SExportDoc v-else-if="currentSelectNav.tabType === 'exportDoc'"></SExportDoc>
+    <SImportDoc v-else-if="currentSelectNav.tabType === 'importDoc'"></SImportDoc>
+    <SOnlineLink v-else-if="currentSelectNav.tabType === 'onlineLink'"></SOnlineLink>
+    <SRecycler v-else-if="currentSelectNav.tabType === 'recycler'" :key="recyclerKey.toString()"></SRecycler>
+    <SHistory v-else-if="currentSelectNav.tabType === 'history'"></SHistory>
+    <SCommonHeader v-else-if="currentSelectNav.tabType === 'commonHeader'"></SCommonHeader>
+    <SApidoc v-else-if="currentSelectNav.tabType === 'http'"></SApidoc>
+    <SCookies v-else-if="currentSelectNav.tabType === 'cookies'"></SCookies>
+    <SHttpMock v-else-if="currentSelectNav.tabType === 'httpMock'"></SHttpMock>
+    <SWebsocket v-else-if="currentSelectNav.tabType === 'websocket'"></SWebsocket>
+    <SWebSocketMock v-else-if="currentSelectNav.tabType === 'websocketMock'"></SWebSocketMock>
   </keep-alive>
 
 </template>
 
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
-import { useApidocTas } from '@/store/httpNode/httpTabsStore';
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { eventEmitter } from '@/helper';
 import { useRoute } from 'vue-router';
 import SApidoc from '../../httpNode/HttpNode.vue';
@@ -38,12 +38,12 @@ import SCommonHeader from '../../commonHeader/CommonHeader.vue'
 import SWebsocket from '../../websocketNode/WebsocketNode.vue'
 
 const route = useRoute();
-const apidocTabsStore = useApidocTas()
-const currentSelectTab = computed(() => {
+const projectNavStore = useProjectNav()
+const currentSelectNav = computed(() => {
   const projectId = route.query.id as string;
-  const tabs = apidocTabsStore.tabs[projectId];
-  const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
-  return currentSelectTab;
+  const navs = projectNavStore.navs[projectId];
+  const selectedNav = navs?.find((nav) => nav.selected) || null;
+  return selectedNav;
 })
 const recyclerKey = ref(0);
 onMounted(() => {
@@ -52,3 +52,4 @@ onMounted(() => {
   })
 })
 </script>
+

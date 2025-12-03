@@ -34,7 +34,7 @@
             @dblclick="handleDbclickNode(scope.data)">
             <!-- http -->
             <template v-if="scope.data.type === 'http'">
-              <template v-for="(req) in projectInfo.rules.requestMethods">
+              <template v-for="(req) in requestMethods">
                 <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name"
                   class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
               </template>
@@ -129,7 +129,7 @@
                 class="folder-mock-indicator"
                 :title="t('此目录包含正在运行的Mock接口')"
               ></span>
-              <div v-if="!isView" class="more" @click.stop="handleShowContextmenu($event, scope.data)">
+              <div class="more" @click.stop="handleShowContextmenu($event, scope.data)">
                 <el-icon class="more-op" :title="t('更多操作')" :size="16">
                   <more-filled />
                 </el-icon>
@@ -218,7 +218,7 @@
     <!-- 鼠标右键 -->
     <teleport to="body">
       <!-- 单个节点操作 -->
-      <SContextmenu v-if="!isView && showContextmenu && selectNodes.length <= 1" :left="contextmenuLeft"
+      <SContextmenu v-if="showContextmenu && selectNodes.length <= 1" :left="contextmenuLeft"
         :top="contextmenuTop">
         <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.type === 'folder'" :label="t('新建接口')"
           @click="handleOpenAddFileDialog"></SContextmenuItem>
@@ -244,7 +244,7 @@
         </SContextmenuItem>
       </SContextmenu>
       <!-- 多个节点操作 -->
-      <SContextmenu v-if="!isView && showContextmenu && selectNodes.length > 1" :left="contextmenuLeft"
+      <SContextmenu v-if="showContextmenu && selectNodes.length > 1" :left="contextmenuLeft"
         :top="contextmenuTop">
         <SContextmenuItem :label="t('批量剪切')" hot-key="Ctrl + X" @click="handleCutNode"></SContextmenuItem>
         <SContextmenuItem :label="t('批量复制')" hot-key="Ctrl + C" @click="handleCopyNode"></SContextmenuItem>
@@ -280,9 +280,11 @@ import SendHistory from './sendHistory/SendHistory.vue'
 import { useBannerData } from './composables/banner-data'
 import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode, renameNode } from './composables/curd-node'
 import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore'
-import { useApidocBanner } from '@/store/httpNode/httpBannerStore'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { requestMethods } from '@/data/data'
+import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore'
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
+import { useBanner } from '@/store/projectWorkbench/bannerStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { getAllAncestorIds, findNodeById } from '@/helper'
 
@@ -312,27 +314,23 @@ const selectNodes: Ref<ApidocBannerWithProjectId[]> = ref([]); //当前选中节
 const editNode: Ref<ApidocBanner | null> = ref(null); //正在编辑的节点
 const showMoreNodeInfo = ref(false); //banner是否显示更多内容
 const enableDrag = ref(true);//是否允许拖拽
-const apidocBaseInfoStore = useApidocBaseInfo();
-const apidocBannerStore = useApidocBanner();
-const apidocTabsStore = useApidocTas();
-//当前工作区状态
-const isView = computed(() => apidocBaseInfoStore.mode === 'view')
-const { loading, defaultExpandedKeys, foldersWithRunningMock } = storeToRefs(apidocBannerStore)
+const commonHeaderStore = useCommonHeader();
+const projectWorkbenchStore = useProjectWorkbench();
+const bannerStore = useBanner();
+const projectNavStore = useProjectNav();
+const { bannerLoading: loading, defaultExpandedKeys, foldersWithRunningMock } = storeToRefs(bannerStore)
 const { getBannerData } = useBannerData();
 
 const projectInfo = computed(() => {
   return {
-    _id: apidocBaseInfoStore._id,
-    layout: apidocBaseInfoStore.layout,
-    mode: apidocBaseInfoStore.mode,
-    commonHeaders: apidocBaseInfoStore.commonHeaders,
-    rules: apidocBaseInfoStore.rules,
-    hosts: apidocBaseInfoStore.hosts,
+    _id: projectWorkbenchStore.projectId,
+    layout: projectWorkbenchStore.layout,
+    commonHeaders: commonHeaderStore.commonHeaders,
   }
 });
-const activeNode = computed(() => apidocTabsStore.tabs[projectId.value]?.find((v) => v.selected));
+const activeNode = computed(() => projectNavStore.navs[projectId.value]?.find((v) => v.selected));
 const bannerData = computed(() => {
-  const originBannerData = apidocBannerStore.banner;
+  const originBannerData = bannerStore.banner;
   return originBannerData
 })
 /*
@@ -422,7 +420,7 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
       projectId: projectId.value,
     }];
     if (data.type === 'http') {
-      apidocTabsStore.addTab({
+      projectNavStore.addNav({
         _id: data._id,
         projectId: projectId.value,
         tabType: 'http',
@@ -436,7 +434,7 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
         },
       })
     } else if (data.type === 'httpMock') {
-      apidocTabsStore.addTab({
+      projectNavStore.addNav({
         _id: data._id,
         projectId: projectId.value,
         tabType: 'httpMock',
@@ -450,7 +448,7 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
         },
       })
     } else if (data.type === 'websocket') {
-      apidocTabsStore.addTab({
+      projectNavStore.addNav({
         _id: data._id,
         projectId: projectId.value,
         tabType: 'websocket',
@@ -464,7 +462,7 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
         },
       })
     } else if (data.type === 'websocketMock') {
-      apidocTabsStore.addTab({
+      projectNavStore.addNav({
         _id: data._id,
         projectId: projectId.value,
         tabType: 'websocketMock',
@@ -485,7 +483,7 @@ const handleDbclickNode = (data: ApidocBanner) => {
   if (data.type === 'folder') {
     return;
   }
-  apidocTabsStore.fixedTab({
+  projectNavStore.fixedNav({
     _id: data._id,
     projectId: projectId.value,
   })
@@ -497,12 +495,13 @@ const handleNodeHover = (e: MouseEvent) => {
   }
 }
 //打开新增文件弹窗
+const FILE_IN_FOLDER_LIMIT = 255; //单个文件夹允许最大文件个数
 const handleOpenAddFileDialog = () => {
   const childFileNodeNum = currentOperationalNode.value?.children.filter((v) => v.type !== 'folder').length || 0;
   if (!currentOperationalNode.value) { //在根节点操作,不作限制
     addFileDialogVisible.value = true;
-  } else if (childFileNodeNum >= projectInfo.value.rules.fileInFolderLimit) {
-    message.warning(`${t('单个文件夹里面文档个数不超过')} ${childFileNodeNum}${t('个')} ${t('全局设置中可配置')}`);
+  } else if (childFileNodeNum >= FILE_IN_FOLDER_LIMIT) {
+    message.warning(`${t('单个文件夹里面文档个数不超过')} ${childFileNodeNum}${t('个')}`);
   } else {
     addFileDialogVisible.value = true;
   }
@@ -514,13 +513,13 @@ const handleOpenAddFolderDialog = () => {
 //添加文件夹或文档成功回调函数
 const handleAddFileAndFolderCb = (data: ApidocBanner) => {
   addFileAndFolderCb.call(this, currentOperationalNode, data);
-  apidocBannerStore.addExpandItem(data._id);
+  bannerStore.addExpandItem(data._id);
 };
 //添加公共请求头
 const handleJumpToCommonHeader = (e: MouseEvent) => {
   e.stopPropagation();
   showContextmenu.value = false;
-  apidocTabsStore.addTab({
+  projectNavStore.addNav({
     _id: currentOperationalNode.value?._id || projectId.value,
     projectId: projectId.value,
     tabType: 'commonHeader',
@@ -580,7 +579,7 @@ const handlePasteNode = async () => {
         cutNodes.value = [];
       }
       if (currentOperationalNode.value) {
-        apidocBannerStore.changeExpandItems([currentOperationalNode.value._id])
+        bannerStore.changeExpandItems([currentOperationalNode.value._id])
       }
     })
   } catch{}
@@ -609,7 +608,7 @@ const handleCheckNodeCouldDrop = (draggingNode: any, dropNode: any, type: 'inner
 const handleNodeDropSuccess = (draggingNode: any, dropNode: any, type: 'before' | 'after' | 'inner') => {
   dragNode.call(this, draggingNode.data as ApidocBanner, dropNode.data as ApidocBanner, type);
   if (type === 'inner') {
-    apidocBannerStore.changeExpandItems([dropNode.data._id])
+    bannerStore.changeExpandItems([dropNode.data._id])
   }
 };
 //重命名节点
@@ -688,7 +687,7 @@ const locateAndHighlightDoc = async (docId: string) => {
   if (allAncestorIds.length === 0 && !findNodeById(bannerData.value, docId, { idKey: '_id' })) {
     return;
   }
-  apidocBannerStore.changeExpandItems(allAncestorIds);
+  bannerStore.changeExpandItems(allAncestorIds);
   await nextTick();
   await nextTick();
   const treeEl = (docTree.value as any)?.$el as HTMLElement;
@@ -764,11 +763,11 @@ watch(() => router.currentRoute.value.query.docId, async (newDocId) => {
 }, { immediate: false });
 //监听Mock状态变更
 const handleMockStatusChanged = (payload: any) => {
-  apidocBannerStore.updateMockNodeState(payload);
+  bannerStore.updateMockNodeState(payload);
 }
 //监听WebSocket Mock状态变更
 const handleWebSocketMockStatusChanged = (payload: any) => {
-  apidocBannerStore.updateMockNodeState(payload);
+  bannerStore.updateMockNodeState(payload);
 }
 
 onMounted(async () => {

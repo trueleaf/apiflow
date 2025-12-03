@@ -67,7 +67,7 @@ import { useI18n } from 'vue-i18n'
 import { computed, nextTick, ref } from 'vue';
 import RemoteSelector from '@/components/common/remoteSelect/ClRemoteSelect.vue';
 import RemoteSelectorItem from '@/components/common/remoteSelect/ClRemoteSelectItem.vue';
-import { useProjectStore } from '@/store/project/projectStore';
+import { useProjectManagerStore } from '@/store/projectManager/projectManagerStore';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { message } from '@/helper'
 
@@ -87,7 +87,7 @@ const emits = defineEmits(['update:modelValue', 'success'])
 const { t } = useI18n()
 
 const runtimeStore = useRuntime();
-const projectStore = useProjectStore();
+const projectManagerStore = useProjectManagerStore();
 
 const formInfo = ref({
   projectName: '', //-------------------------项目名称
@@ -156,7 +156,7 @@ const handleAddProject = () => {
             groupName: val.name,
           })),
         };
-        const result = await projectStore.addProject(formInfo.value.projectName, members);
+        const result = await projectManagerStore.addProject(formInfo.value.projectName, members);
         if (result) {
           emits('success', result);
         }

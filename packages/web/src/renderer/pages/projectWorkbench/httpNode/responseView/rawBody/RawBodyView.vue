@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
 import { useApidocResponse } from '@/store/httpNode/responseStore';
 import { computed, ref, watch, onMounted } from 'vue';
 import { downloadStringAsText } from '@/helper'
@@ -33,7 +33,7 @@ import { useI18n } from 'vue-i18n'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { useHttpNodeConfig } from '@/store/httpNode/httpNodeConfigStore';
 
-const apidocBaseInfoStore = useApidocBaseInfo();
+const projectWorkbenchStore = useProjectWorkbench();
 const apidocResponseStore = useApidocResponse();
 const httpNodeConfigStore = useHttpNodeConfig();
 const { t } = useI18n()
@@ -47,7 +47,7 @@ watch(() => apidocResponseStore.responseInfo.bodyByteLength, () => {
   deep: true,
 })
 //布局
-const layout = computed(() => apidocBaseInfoStore.layout);
+const layout = computed(() => projectWorkbenchStore.layout);
 const handleCheckRawSize = () => {
   if (apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'cachedBodyIsTooLarge') {
     return

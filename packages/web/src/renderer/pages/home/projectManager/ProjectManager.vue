@@ -219,23 +219,23 @@ import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
 import { formatDate } from '@/helper';
 import { debounce } from "lodash-es";
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore'
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import { apiNodesCache } from '@/cache/nodes/nodesCache'
-import { useProjectStore } from '@/store/project/projectStore'
+import { useProjectManagerStore } from '@/store/projectManager/projectManagerStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
 import { IPC_EVENTS } from '@src/types/ipc';
 
 //变量
 const { t } = useI18n()
-const projectStore = useProjectStore();
+const projectManagerStore = useProjectManagerStore();
 const runtimeStore = useRuntime();
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
 const projectLoading = ref(false);
 const starProjectIds = ref<string[]>([]);
 const projectName = ref('');
 const projectListCopy = ref<ApidocProjectInfo[]>([]);
-watch(() => projectStore.projectList, (list) => {
+watch(() => projectManagerStore.projectList, (list) => {
   projectListCopy.value = list.slice();
   starProjectIds.value = list.filter((item) => item.isStared).map((item) => item._id);
 }, { deep: true, immediate: true });
@@ -313,7 +313,7 @@ const isEmptyState = computed(() => {
   const hasSearchCondition = projectName.value.trim().length > 0;
   return !hasSearchCondition && projectList.value.length === 0;
 });
-const apidocBaseInfo = useApidocBaseInfo()
+const projectWorkbenchStore = useProjectWorkbench()
 //获取项目列表
 const getProjectList = async () => {
   if (projectLoading.value) {
@@ -321,7 +321,7 @@ const getProjectList = async () => {
   }
   projectLoading.value = true;
   try {
-    await projectStore.getProjectList();
+    await projectManagerStore.getProjectList();
   } catch (err) {
     console.error(err);
   } finally {
@@ -358,13 +358,13 @@ const deleteProject = (_id: string) => {
     };
     if (isStandalone.value) {
       try {
-        const project = projectStore.projectList.find((p) => p._id === _id);
+        const project = projectManagerStore.projectList.find((p) => p._id === _id);
         if (!project) {
           console.error('项目不存在');
           return;
         }
         const projectName = project.projectName;
-        const backupData = await projectStore.deleteProject(_id);
+        const backupData = await projectManagerStore.deleteProject(_id);
         if (backupData) {
           deletedProjectData.value = backupData;
         }
@@ -384,7 +384,7 @@ const deleteProject = (_id: string) => {
       }
       return;
     }
-    await projectStore.deleteProject(_id);
+    await projectManagerStore.deleteProject(_id);
     await cleanupMockLogs();
     notifyProjectDeleted();
   }).catch((err: Error | string) => {
@@ -405,7 +405,7 @@ const handleUndoDelete = async () => {
   }
   showUndoNotification.value = false;
   try {
-    await projectStore.restoreProjectFromBackup(deletedProjectData.value);
+    await projectManagerStore.restoreProjectFromBackup(deletedProjectData.value);
     deletedProjectData.value = null;
   } catch (err) {
     console.error('撤回删除失败:', err);
@@ -435,7 +435,7 @@ const handleStar = async (item: ApidocProjectInfo) => {
   }
   starLoading.value = true;
   try {
-    await projectStore.starProject(item._id);
+    await projectManagerStore.starProject(item._id);
   } catch (err) {
     console.error(err);
   } finally {
@@ -449,7 +449,7 @@ const handleUnStar = async (item: ApidocProjectInfo) => {
   }
   unStarLoading.value = true;
   try {
-    await projectStore.unstarProject(item._id);
+    await projectManagerStore.unstarProject(item._id);
   } catch (err) {
     console.error(err);
   } finally {
@@ -462,7 +462,7 @@ const initCahce = () => {
 }
 //跳转到编辑
 const handleJumpToProject = (item: ApidocProjectInfo) => {
-  projectStore.recordVisited(item._id);
+  projectManagerStore.recordVisited(item._id);
   router.push({
     path: '/v1/apidoc/doc-edit',
     query: {
@@ -471,7 +471,7 @@ const handleJumpToProject = (item: ApidocProjectInfo) => {
       mode: 'edit',
     },
   });
-  apidocBaseInfo.changeProjectId(item._id);
+  projectWorkbenchStore.changeProjectId(item._id);
 }
 // (已删除) 跳转到预览逻辑已移除
 //新增项目成功

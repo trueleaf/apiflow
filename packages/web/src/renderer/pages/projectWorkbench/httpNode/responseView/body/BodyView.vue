@@ -1,6 +1,6 @@
 <template>
   <div class="body-view" :class="{ vertical: layout === 'vertical' }">
-    <div v-if="selectedTab && apidocResponseStore.responseCacheAllowedMap[selectedTab._id] === false" class="response-tip">
+    <div v-if="selectedNav && apidocResponseStore.responseCacheAllowedMap[selectedNav._id] === false" class="response-tip">
       <!-- 返回数据大小超过单个允许缓存数据，数据无法被缓存，切换tab或者刷新页面缓存值将会清空 -->
       <div class="mb-1">
         <span class="mr-1">返回数据大小为</span>
@@ -310,7 +310,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
 import { useApidocResponse } from '@/store/httpNode/responseStore';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n'
@@ -319,7 +319,7 @@ import { formatHeader, formatUnit } from '@/helper'
 import { config } from '@src/config/config'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import SSseView from '@/components/common/sseView/ClSseView.vue'
-import { useApidocTas } from '@/store/httpNode/httpTabsStore';
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 import { useHttpNodeConfig } from '@/store/httpNode/httpNodeConfigStore';
 import { ElDialog } from 'element-plus';
@@ -338,7 +338,7 @@ let pendingWorkerType: WorkerFormatType | null = null;
 let lastFormattedSource: string | null = null;
 let lastFormattedType: WorkerFormatType | null = null;
 const apidocResponseStore = useApidocResponse();
-const apidocBaseInfoStore = useApidocBaseInfo();
+const projectWorkbenchStore = useProjectWorkbench();
 const httpNodeStore = useHttpNode();
 const httpNodeConfigStore = useHttpNodeConfig();
 const loadingProcess = computed(() => apidocResponseStore.loadingProcess);
@@ -352,8 +352,8 @@ const videoRef = ref<HTMLVideoElement>();
 const { t } = useI18n()
 
 const formatedText = ref('');
-const apidocTabsStore = useApidocTas();
-const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
+const projectNavStore = useProjectNav();
+const selectedNav = computed(() => projectNavStore.getSelectedNav(projectWorkbenchStore.projectId));
 const showRedirectDialog = ref(false);
 /*
 |--------------------------------------------------------------------------
@@ -379,7 +379,7 @@ const showProcess = computed(() => {
   return !isError && !isText && !isUnknow && !isHtml && !isCes && !isJs && !isXml && !isTooLargeBody && !isJson && !isTextEventSteam;
 })
 //布局
-const layout = computed(() => apidocBaseInfoStore.layout);
+const layout = computed(() => projectWorkbenchStore.layout);
 const resolveFormatPayload = (): FormatPayload | null => {
   const { responseData, contentType } = apidocResponseStore.responseInfo;
   const safeContentType = contentType || '';
@@ -515,7 +515,7 @@ watch(() => [
 });
 //切换重定向开关
 const handleToggleRedirect = (value: string | number | boolean) => {
-  const projectId = apidocBaseInfoStore.projectId;
+  const projectId = projectWorkbenchStore.projectId;
   httpNodeConfigStore.setHttpNodeConfig(projectId, { followRedirect: Boolean(value) });
 }
 //下载文件

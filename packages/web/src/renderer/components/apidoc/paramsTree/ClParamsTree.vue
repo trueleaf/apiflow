@@ -324,8 +324,8 @@ import { useAiChatStore } from '@/store/ai/aiChatStore';
 import type { OpenAiRequestBody } from '@src/types/ai/agent.type';
 import { useRouter } from 'vue-router';
 import { appState } from '@/cache/appState/appStateCache';
-import { useVariable } from '@/store/apidocProject/variablesStore';
-import { useApidocTas } from '@/store/httpNode/httpTabsStore';
+import { useVariable } from '@/store/projectWorkbench/variablesStore';
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { isEqual } from 'lodash-es';
 /*
 |--------------------------------------------------------------------------
@@ -342,7 +342,7 @@ const { t } = useI18n();
 const router = useRouter();
 const aiChatStore = useAiChatStore();
 const variableStore = useVariable();
-const apidocTabsStore = useApidocTas();
+const projectNavStore = useProjectNav();
 const projectId = router.currentRoute.value.query.id as string;
 
 const tipPlaceholder = `username=admin //Username
@@ -388,7 +388,7 @@ const getVariableValue = (label: string) => {
 };
 const handleGoToVariableManage = () => {
   valueRichInputRefs.value.forEach(ref => ref?.hideVariablePopover());
-  apidocTabsStore.addTab({
+  projectNavStore.addNav({
     _id: 'variable',
     projectId,
     tabType: 'variable',

@@ -23,15 +23,15 @@ import { useI18n } from 'vue-i18n'
 import { ApidocBanner } from '@src/types'
 import { forEachForest } from '@/helper'
 import { config } from '@src/config/config'
-import { useApidocBanner } from '@/store/httpNode/httpBannerStore'
+import { useBanner } from '@/store/projectWorkbench/bannerStore'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 
-const apidocBannerStore = useApidocBanner()
+const bannerStore = useBanner()
 const appSettingsStore = useAppSettings()
 const { t } = useI18n()
 
 const allNodes = computed(() => {
-  const allBanner = apidocBannerStore.banner;
+  const allBanner = bannerStore.banner;
   const docs: ApidocBanner[] = [];
   forEachForest(allBanner, (v) => {
     const data = {

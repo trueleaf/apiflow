@@ -35,22 +35,20 @@
 
 <script lang="ts" setup>
 import { useHttpNode } from '@/store/httpNode/httpNodeStore';
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue';
 import { formatDate } from '@/helper'
 import SLabelValue from '@/components/common/labelValue/ClLabelValue.vue'
 import { useApidocRequest } from '@/store/httpNode/requestStore';
+import { requestMethods as validRequestMethods } from '@/data/data';
 
 
 
 const httpNodeStore = useHttpNode();
-const apidocBaseInfoStore = useApidocBaseInfo();
 const { t } = useI18n()
 
 const apidocInfo = computed(() => httpNodeStore.apidoc);
 const apidocRequestStore = useApidocRequest();
-const validRequestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods?.filter((val) => val.isEnabled));
 </script>
 
 <style lang='scss' scoped>

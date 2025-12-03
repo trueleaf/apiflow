@@ -73,7 +73,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
 import { useApidocResponse } from '@/store/httpNode/responseStore';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
@@ -81,7 +81,7 @@ import { Maximize2 } from 'lucide-vue-next';
 import { useHttpNodeConfig } from '@/store/httpNode/httpNodeConfigStore';
 
 const apidocResponseStore = useApidocResponse();
-const apidocBaseInfoStore = useApidocBaseInfo();
+const projectWorkbenchStore = useProjectWorkbench();
 const httpNodeConfigStore = useHttpNodeConfig();
 const headers = computed(() => {
   const result: { key: string, value: string }[] = [];
@@ -102,7 +102,7 @@ const headers = computed(() => {
   })
   return result
 });
-const layout = computed(() => apidocBaseInfoStore.layout);
+const layout = computed(() => projectWorkbenchStore.layout);
 const { t } = useI18n()
 
 const dialogVisible = ref(false);

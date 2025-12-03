@@ -24,7 +24,7 @@ import AddProjectDialog from '@/pages/home/dialog/addProject/AddProject.vue';
 import Ai from '@/pages/ai/Ai.vue';
 import { projectCache } from '@/cache/project/projectCache';
 import { ElMessageBox, ElMessage } from 'element-plus';
-import { useApidocBaseInfo } from './store/apidocProject/baseInfoStore';
+import { useProjectWorkbench } from './store/projectWorkbench/projectWorkbenchStore';
 import { Language } from '@src/types';
 import LanguageMenu from '@/components/common/language/Language.vue';
 import NetworkModeBanner from '@/components/common/networkMode/NetworkModeBanner.vue';
@@ -43,7 +43,7 @@ import { useTheme } from '@/hooks/useTheme';
 
 const router = useRouter();
 const dialogVisible = ref(false);
-const apidocBaseInfoStore = useApidocBaseInfo()
+const projectWorkbenchStore = useProjectWorkbench()
 const runtimeStore = useRuntime();
 const appSettingsStore = useAppSettings();
 const copilotStore = useCopilotStore();
@@ -194,7 +194,7 @@ const initAppHeaderEvent = () => {
         projectName: matchedProject.projectName
       })
     }
-    await apidocBaseInfoStore.initProjectBaseInfo({ projectId: data.projectId })
+    await projectWorkbenchStore.initProjectBaseInfo({ projectId: data.projectId })
     router.push({
       path: '/v1/apidoc/doc-edit',
       query: {
