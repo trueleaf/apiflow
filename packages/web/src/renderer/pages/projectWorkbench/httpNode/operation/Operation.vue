@@ -1,9 +1,5 @@
 <template>
   <div class="api-operation">
-    <!-- 环境、host、接口前缀 -->
-    <div class="d-flex a-center">
-      <el-button type="primary" text data-testid="operation-prefix-btn" @click="hostDialogVisible = true;">{{ t("接口前缀") }}</el-button>
-    </div>
     <!-- 请求地址，发送请求 -->
     <div class="op-wrap">
       <div class="request-method">

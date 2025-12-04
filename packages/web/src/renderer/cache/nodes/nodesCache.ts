@@ -100,11 +100,11 @@ export class ApiNodesCache {
     }
   }
   // 根据节点id获取节点信息
-  async getNodeById(nodeId: string): Promise<ApiNode | null> {
+  async getNodeById(nodeId: string, includeDeleted = false): Promise<ApiNode | null> {
     try {
       const db = await this.getDB();
       const doc = await db.get(this.storeName, nodeId);
-      if (doc && !doc.isDeleted) {
+      if (doc && (includeDeleted || !doc.isDeleted)) {
         return doc;
       }
       return null;

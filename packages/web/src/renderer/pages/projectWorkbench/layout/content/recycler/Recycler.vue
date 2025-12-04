@@ -75,18 +75,45 @@
                 </div>
                 <div class="operator mr-1">{{ docInfo.deletePerson }}</div>
                 <div class="mr-2">删除了</div>
-                <div v-if="docInfo.type === 'folder'" class="d-flex a-center">
-                  <img :src="folderUrl" width="16" height="16" class="mr-1" />
-                  <span>{{ docInfo.name }}</span>
-                </div>
-                <div v-else class="d-flex a-center">
-                  <img :src="fileUrl" width="16" height="16" class="mr-1" />
-                  <span class="mr-2">{{ docInfo.name }}</span>
-                  <template v-for="(req) in validRequestMethods">
-                    <span v-if="docInfo.method === req.value.toLowerCase()" :key="req.value" class="mr-1"
-                      :style="{ color: req.iconColor }">{{ req.name }}</span>
+                <!-- 节点图标和名称展示 -->
+                <div class="node-info">
+                  <!-- folder 类型 -->
+                  <template v-if="docInfo.type === 'folder'">
+                    <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
+                    <span>{{ docInfo.name }}</span>
                   </template>
-                  <span>{{ docInfo.path }}</span>
+                  <!-- http 类型 -->
+                  <template v-else-if="docInfo.type === 'http'">
+                    <template v-for="(req) in validRequestMethods">
+                      <span v-if="docInfo.method?.toLowerCase() === req.value.toLowerCase()" :key="req.value"
+                        class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
+                    </template>
+                    <span class="mr-2">{{ docInfo.name }}</span>
+                    <span class="node-path">{{ docInfo.path }}</span>
+                  </template>
+                  <!-- httpMock 类型 -->
+                  <template v-else-if="docInfo.type === 'httpMock'">
+                    <span class="mock-icon">mock</span>
+                    <span class="mr-2">{{ docInfo.name }}</span>
+                    <span class="node-path">{{ docInfo.path }}</span>
+                  </template>
+                  <!-- websocket 类型 -->
+                  <template v-else-if="docInfo.type === 'websocket'">
+                    <span class="ws-icon">{{ (docInfo.protocol || 'ws').toUpperCase() }}</span>
+                    <span class="mr-2">{{ docInfo.name }}</span>
+                    <span class="node-path">{{ docInfo.path }}</span>
+                  </template>
+                  <!-- websocketMock 类型 -->
+                  <template v-else-if="docInfo.type === 'websocketMock'">
+                    <Radio class="ws-mock-icon" :size="14" />
+                    <span class="mr-2">{{ docInfo.name }}</span>
+                    <span class="node-path">{{ docInfo.path }}</span>
+                  </template>
+                  <!-- markdown 类型 -->
+                  <template v-else-if="docInfo.type === 'markdown'">
+                    <span class="md-icon">MD</span>
+                    <span>{{ docInfo.name }}</span>
+                  </template>
                 </div>
               </div>
             </div>
@@ -105,7 +132,7 @@ import isYesterday from 'dayjs/plugin/isYesterday'
 import 'dayjs/locale/zh-cn'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
-import type { HttpNodeRequestMethod, ApidocType, ResponseTable } from '@src/types'
+import type { HttpNodeRequestMethod, ApidocType, ResponseTable, ApiNode, HttpNode, WebSocketNode, HttpMockNode, WebSocketMockNode } from '@src/types'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import SLoading from '@/components/common/loading/ClLoading.vue'
@@ -120,6 +147,7 @@ import { config } from '@src/config/config'
 // import { Delete } from '@element-plus/icons-vue'
 import { apiNodesCache } from '@/cache/nodes/nodesCache'
 import { useRuntime } from '@/store/runtime/runtimeStore'
+import { Radio } from 'lucide-vue-next'
 
 
 dayjs.extend(isYesterday)
@@ -131,12 +159,12 @@ type DeleteInfo = {
   _id: string, //项目id
   deletePerson: string, //删除人
   deletePersonId: string, //删除人id
-
   method: HttpNodeRequestMethod, //请求方法
   name: string, //文件名称
   path: string, //请求路径
   pid: string, //父元素id
   type: ApidocType, //文档类型
+  protocol?: 'ws' | 'wss', //websocket协议类型
   updatedAt: string, //更新时间
   _visible?: boolean,
 };
@@ -150,8 +178,6 @@ type SearchInfo = {
 }
 
 const projectId = router.currentRoute.value.query.id as string; //项目id
-const folderUrl = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href;
-const fileUrl = new URL('@/assets/imgs/apidoc/file.png', import.meta.url).href;
 const runtimeStore = useRuntime();
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
 const formInfo: Ref<SearchInfo> = ref({
@@ -163,6 +189,54 @@ const formInfo: Ref<SearchInfo> = ref({
   operators: [], //----操作者信息
 })
 const bannerStore = useBanner()
+//将 ApiNode 转换为 DeleteInfo 格式
+const convertNodeToDeleteInfo = (node: ApiNode): DeleteInfo => {
+  const base = {
+    _id: node._id,
+    pid: node.pid,
+    name: node.info.name,
+    type: node.info.type,
+    deletePerson: node.info.deletePerson || '',
+    deletePersonId: '',
+    updatedAt: node.updatedAt,
+    _visible: false,
+  };
+  switch (node.info.type) {
+    case 'http':
+      return {
+        ...base,
+        method: (node as HttpNode).item.method,
+        path: (node as HttpNode).item.url.path,
+      };
+    case 'websocket':
+      return {
+        ...base,
+        method: 'GET',
+        path: (node as WebSocketNode).item.url.path,
+        protocol: (node as WebSocketNode).item.protocol,
+      };
+    case 'httpMock': {
+      const mockMethod = (node as HttpMockNode).requestCondition.method[0];
+      return {
+        ...base,
+        method: mockMethod === 'ALL' ? 'GET' : (mockMethod || 'GET'),
+        path: (node as HttpMockNode).requestCondition.url,
+      };
+    }
+    case 'websocketMock':
+      return {
+        ...base,
+        method: 'GET',
+        path: (node as WebSocketMockNode).requestCondition.path,
+      };
+    default:
+      return {
+        ...base,
+        method: 'GET',
+        path: '',
+      };
+  }
+};
 /*
 |--------------------------------------------------------------------------
 | 获取已删除数据信息
@@ -172,7 +246,8 @@ const loading = ref(false); //获取数据加载状态
 const deletedList: Ref<DeleteInfo[]> = ref([]); //已删除数据列表
 const getData = async () => {
   if (isStandalone.value) {
-    deletedList.value = await apiNodesCache.getDeletedNodesList(projectId) as any;
+    const nodes = await apiNodesCache.getDeletedNodesList(projectId);
+    deletedList.value = nodes.map((node) => convertNodeToDeleteInfo(node as ApiNode));
     return;
   }
   loading.value = true;
@@ -478,6 +553,43 @@ const handleShowDetail = (docInfo: DeleteInfo) => {
           height: 30px;
           &:hover {
             background: var(--bg-hover);
+          }
+          .node-info {
+            display: flex;
+            align-items: center;
+          }
+          .file-icon {
+            font-size: 14px;
+            margin-right: 5px;
+          }
+          .mock-icon {
+            font-size: 10px;
+            margin-right: 5px;
+            color: var(--blue);
+          }
+          .ws-icon {
+            font-size: 14px;
+            margin-right: 5px;
+            color: var(--red);
+          }
+          .ws-mock-icon {
+            margin-right: 5px;
+            color: var(--purple);
+            flex-shrink: 0;
+          }
+          .folder-icon {
+            color: var(--yellow);
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
+          }
+          .md-icon {
+            font-size: 12px;
+            margin-right: 5px;
+            color: var(--text-tertiary);
+          }
+          .node-path {
+            color: var(--text-tertiary);
           }
         }
       }

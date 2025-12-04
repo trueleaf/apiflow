@@ -4,30 +4,80 @@
       <Close />
     </el-icon>
     <div class="params-view">
-      <SFieldset v-if="apidocInfo?.item.url" :title="t('基本信息')">
-        <SLableValue v-if="apidocInfo?.info.type !== 'folder'" label="请求方式：" class="w-50">
-          <template v-for="(req) in validRequestMethods">
-            <span v-if="apidocInfo?.item.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="label"
-              :style="{ color: req.iconColor }">{{ req.name.toUpperCase() }}</span>
-          </template>
-        </SLableValue>
-        <SLableValue v-if="apidocInfo?.info?.type !== 'folder'" label="接口名称：" class="w-50">
-          <div>{{ apidocInfo?.info.name }}</div>
-        </SLableValue>
-        <SLableValue v-if="apidocInfo?.info?.type !== 'folder'" label="请求地址：" class="w-50 mt-2">
-          <span class="text-ellipsis">{{ httpNodeRequestStore.fullUrl }}</span>
-        </SLableValue>
-        <SLableValue v-if="apidocInfo?.info?.type === 'folder'" label="目录名称：" class="w-50">
-          <div>{{ apidocInfo?.info.name }}</div>
-        </SLableValue>
-        <div v-if="apidocInfo" class="base-info">
+      <!-- 基本信息 -->
+      <SFieldset v-if="apidocInfo" :title="t('基本信息')">
+        <!-- HTTP 类型 -->
+        <template v-if="apidocInfo.info.type === 'http'">
+          <SLableValue label="请求方式：" class="w-50">
+            <template v-for="(req) in validRequestMethods">
+              <span v-if="httpItem?.method?.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="label"
+                :style="{ color: req.iconColor }">{{ req.name.toUpperCase() }}</span>
+            </template>
+          </SLableValue>
+          <SLableValue label="接口名称：" class="w-50">
+            <div>{{ apidocInfo.info.name }}</div>
+          </SLableValue>
+          <SLableValue label="请求地址：" class="w-50 mt-2">
+            <span class="text-ellipsis">{{ httpItem?.url?.prefix }}{{ httpItem?.url?.path }}</span>
+          </SLableValue>
+        </template>
+        <!-- 文件夹类型 -->
+        <template v-else-if="apidocInfo.info.type === 'folder'">
+          <SLableValue label="目录名称：" class="w-50">
+            <div>{{ apidocInfo.info.name }}</div>
+          </SLableValue>
+        </template>
+        <!-- WebSocket 类型 -->
+        <template v-else-if="apidocInfo.info.type === 'websocket'">
+          <SLableValue label="协议类型：" class="w-50">
+            <span>{{ wsItem?.protocol?.toUpperCase() }}</span>
+          </SLableValue>
+          <SLableValue label="接口名称：" class="w-50">
+            <div>{{ apidocInfo.info.name }}</div>
+          </SLableValue>
+          <SLableValue label="请求地址：" class="w-50 mt-2">
+            <span class="text-ellipsis">{{ wsItem?.url?.prefix }}{{ wsItem?.url?.path }}</span>
+          </SLableValue>
+        </template>
+        <!-- HTTP Mock 类型 -->
+        <template v-else-if="apidocInfo.info.type === 'httpMock'">
+          <SLableValue label="接口名称：" class="w-50">
+            <div>{{ apidocInfo.info.name }}</div>
+          </SLableValue>
+          <SLableValue label="Mock地址：" class="w-50 mt-2">
+            <span class="text-ellipsis">{{ httpMockItem?.requestCondition?.url }}</span>
+          </SLableValue>
+          <SLableValue label="端口：" class="w-50 mt-2">
+            <span>{{ httpMockItem?.requestCondition?.port }}</span>
+          </SLableValue>
+        </template>
+        <!-- WebSocket Mock 类型 -->
+        <template v-else-if="apidocInfo.info.type === 'websocketMock'">
+          <SLableValue label="接口名称：" class="w-50">
+            <div>{{ apidocInfo.info.name }}</div>
+          </SLableValue>
+          <SLableValue label="Mock路径：" class="w-50 mt-2">
+            <span class="text-ellipsis">{{ wsMockItem?.requestCondition?.path }}</span>
+          </SLableValue>
+          <SLableValue label="端口：" class="w-50 mt-2">
+            <span>{{ wsMockItem?.requestCondition?.port }}</span>
+          </SLableValue>
+        </template>
+        <!-- Markdown 类型 -->
+        <template v-else-if="apidocInfo.info.type === 'markdown'">
+          <SLableValue label="文档名称：" class="w-50">
+            <div>{{ apidocInfo.info.name }}</div>
+          </SLableValue>
+        </template>
+        <!-- 通用信息 -->
+        <div class="base-info">
           <SLableValue label="维护人员：" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto"
             class="w-50">
             <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
           </SLableValue>
-          <SLableValue label="创建人员：" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto"
+          <SLableValue label="创建人员：" :title="apidocInfo.info.creator" label-width="auto"
             class="w-50">
-            <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
+            <span class="text-ellipsis">{{ apidocInfo.info.creator }}</span>
           </SLableValue>
           <SLableValue label="更新日期：" :title="formatDate(apidocInfo.updatedAt)" label-width="auto" class="w-50">
             <span class="text-ellipsis">{{ formatDate(apidocInfo.updatedAt) }}</span>
@@ -37,37 +87,115 @@
           </SLableValue>
         </div>
       </SFieldset>
-      <SFieldset v-if="apidocInfo?.info?.type !== 'folder'" :title="t('请求参数')" class="mb-5">
+      <!-- HTTP 请求参数 -->
+      <SFieldset v-if="apidocInfo?.info?.type === 'http'" :title="t('请求参数')" class="mb-5">
         <template v-if="hasQueryParams">
           <div class="title">{{ t("Query参数") }}</div>
-          <SParamsView :data="apidocInfo?.item.queryParams" plain class="mb-3"></SParamsView>
+          <table class="params-table mb-3">
+            <thead>
+              <tr>
+                <th>{{ t('参数名') }}</th>
+                <th>{{ t('参数值') }}</th>
+                <th>{{ t('类型') }}</th>
+                <th>{{ t('必填') }}</th>
+                <th>{{ t('描述') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="param in httpItem?.queryParams?.filter(p => p.select && p.key)" :key="param._id">
+                <td>{{ param.key }}</td>
+                <td>{{ param.value }}</td>
+                <td>{{ param.type }}</td>
+                <td><span :class="['required-badge', param.required ? 'required' : 'optional']">{{ param.required ? t('是') : t('否') }}</span></td>
+                <td>{{ param.description || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
         </template>
         <template v-if="hasPathsParams">
           <div class="title">{{ t("Path参数") }}</div>
-          <SParamsView :data="apidocInfo?.item.paths" plain class="mb-3"></SParamsView>
+          <table class="params-table mb-3">
+            <thead>
+              <tr>
+                <th>{{ t('参数名') }}</th>
+                <th>{{ t('参数值') }}</th>
+                <th>{{ t('类型') }}</th>
+                <th>{{ t('必填') }}</th>
+                <th>{{ t('描述') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="param in httpItem?.paths?.filter(p => p.key)" :key="param._id">
+                <td>{{ param.key }}</td>
+                <td>{{ param.value }}</td>
+                <td>{{ param.type }}</td>
+                <td><span :class="['required-badge', param.required ? 'required' : 'optional']">{{ param.required ? t('是') : t('否') }}</span></td>
+                <td>{{ param.description || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
         </template>
         <template v-if="hasJsonBodyParams">
           <div class="title">{{ t("Body参数") }}(application/json)</div>
-          <SJsonEditor :value="apidocInfo?.item.requestBody.rawJson" read-only></SJsonEditor>
+          <SJsonEditor :value="httpItem?.requestBody?.rawJson" read-only></SJsonEditor>
         </template>
         <template v-if="hasFormDataParams">
           <div class="title">{{ t("Body参数") }}(multipart/formdata)</div>
-          <SParamsView :data="apidocInfo?.item.requestBody.formdata" plain></SParamsView>
+          <table class="params-table">
+            <thead>
+              <tr>
+                <th>{{ t('参数名') }}</th>
+                <th>{{ t('参数值') }}</th>
+                <th>{{ t('类型') }}</th>
+                <th>{{ t('必填') }}</th>
+                <th>{{ t('描述') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="param in httpItem?.requestBody?.formdata?.filter(p => p.select && p.key)" :key="param._id">
+                <td>{{ param.key }}</td>
+                <td>{{ param.value }}</td>
+                <td>{{ param.type }}</td>
+                <td><span :class="['required-badge', param.required ? 'required' : 'optional']">{{ param.required ? t('是') : t('否') }}</span></td>
+                <td>{{ param.description || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
         </template>
         <template v-if="hasUrlEncodedParams">
           <div class="title">{{ t("Body参数") }}(x-www-form-urlencoded)</div>
-          <SParamsView :data="apidocInfo?.item.requestBody.urlencoded" plain></SParamsView>
+          <table class="params-table">
+            <thead>
+              <tr>
+                <th>{{ t('参数名') }}</th>
+                <th>{{ t('参数值') }}</th>
+                <th>{{ t('类型') }}</th>
+                <th>{{ t('必填') }}</th>
+                <th>{{ t('描述') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="param in httpItem?.requestBody?.urlencoded?.filter(p => p.select && p.key)" :key="param._id">
+                <td>{{ param.key }}</td>
+                <td>{{ param.value }}</td>
+                <td>{{ param.type }}</td>
+                <td><span :class="['required-badge', param.required ? 'required' : 'optional']">{{ param.required ? t('是') : t('否') }}</span></td>
+                <td>{{ param.description || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
         </template>
         <template v-if="hasRawParams">
-          <div class="title">{{ t("Body参数") }}({{ apidocInfo?.item.requestBody.raw.dataType }})</div>
-          <pre class="pre">{{ apidocInfo?.item.requestBody.raw.data }}</pre>
+          <div class="title">{{ t("Body参数") }}({{ httpItem?.requestBody?.raw?.dataType }})</div>
+          <pre class="pre">{{ httpItem?.requestBody?.raw?.data }}</pre>
         </template>
         <div
           v-if="!hasQueryParams && !hasPathsParams && !hasJsonBodyParams && !hasFormDataParams && !hasUrlEncodedParams && !hasRawParams">
           {{ t("暂无数据") }}</div>
       </SFieldset>
-      <SFieldset v-if="apidocInfo?.info?.type !== 'folder'" :title="t('返回参数')">
-        <div v-for="(item, index) in apidocInfo?.item.responseParams" :key="index" class="title">
+      <!-- HTTP 返回参数 -->
+      <SFieldset v-if="apidocInfo?.info?.type === 'http'" :title="t('返回参数')">
+        <div v-for="(item, index) in httpItem?.responseParams" :key="index" class="title">
           <div class="mb-2">
             <span>{{ t("名称") }}：</span>
             <span>{{ item.title }}</span>
@@ -85,10 +213,31 @@
             <SJsonEditor :model-value="item.value.strJson" :config="{ language: getLanguageFromMime(item.value.dataType) }" read-only></SJsonEditor>
           </div>
         </div>
+        <div v-if="!httpItem?.responseParams?.length">{{ t("暂无数据") }}</div>
       </SFieldset>
-      <SFieldset v-if="apidocInfo?.info?.type !== 'folder'" :title="t('请求头')">
+      <!-- HTTP 请求头 -->
+      <SFieldset v-if="apidocInfo?.info?.type === 'http'" :title="t('请求头')">
         <template v-if="hasHeaders">
-          <SParamsView :data="apidocInfo?.item.headers" plain class="mb-3"></SParamsView>
+          <table class="params-table mb-3">
+            <thead>
+              <tr>
+                <th>{{ t('参数名') }}</th>
+                <th>{{ t('参数值') }}</th>
+                <th>{{ t('类型') }}</th>
+                <th>{{ t('必填') }}</th>
+                <th>{{ t('描述') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="param in httpItem?.headers?.filter(p => p.select && p.key)" :key="param._id">
+                <td>{{ param.key }}</td>
+                <td>{{ param.value }}</td>
+                <td>{{ param.type }}</td>
+                <td><span :class="['required-badge', param.required ? 'required' : 'optional']">{{ param.required ? t('是') : t('否') }}</span></td>
+                <td>{{ param.description || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
         </template>
         <div v-else>{{ t("暂无数据") }}</div>
       </SFieldset>
@@ -99,18 +248,16 @@
 <script lang="ts" setup>
 import { ref, Ref, onMounted, computed } from 'vue'
 import { Close } from '@element-plus/icons-vue'
-import { HttpNode, CommonResponse } from '@src/types';
+import type { ApiNode, HttpNode, WebSocketNode, HttpMockNode, WebSocketMockNode, CommonResponse } from '@src/types';
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
 import SLoading from '@/components/common/loading/ClLoading.vue'
 import SLableValue from '@/components/common/labelValue/ClLabelValue.vue'
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
-import SParamsView from '@/components/apidoc/paramsView/ClParamsView.vue'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { formatDate } from '@/helper'
 import { requestMethods as validRequestMethods } from '@/data/data'
-import { useHttpNodeRequest } from '@/store/httpNode/httpNodeRequestStore';
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 
@@ -122,24 +269,22 @@ const props = defineProps({
   },
 });
 
-const httpNodeRequestStore = useHttpNodeRequest()
 const runtimeStore = useRuntime()
 /*
 |--------------------------------------------------------------------------
 | 获取文档详情
 |--------------------------------------------------------------------------
 */
-const docDetail: Ref<HttpNode | null> = ref(null); //文档详情
+const docDetail: Ref<ApiNode | null> = ref(null);
 const projectId = router.currentRoute.value.query.id as string;
 const { t } = useI18n()
 
-const loading = ref(false); //数据加载
+const loading = ref(false);
 const isOffline = () => runtimeStore.networkMode === 'offline';
-
 //获取文档详情
 const getDocDetail = async () => {
   if (isOffline()) {
-    docDetail.value = await apiNodesCache.getNodeById(props.id) as HttpNode;
+    docDetail.value = await apiNodesCache.getNodeById(props.id, true) as ApiNode;
     return
   }
   loading.value = true;
@@ -164,62 +309,86 @@ onMounted(() => {
 |--------------------------------------------------------------------------
 */
 const apidocInfo = computed(() => docDetail.value);
+//类型转换的 computed 属性
+const httpItem = computed(() => {
+  if (docDetail.value?.info.type === 'http') {
+    return (docDetail.value as HttpNode).item;
+  }
+  return null;
+});
+const wsItem = computed(() => {
+  if (docDetail.value?.info.type === 'websocket') {
+    return (docDetail.value as WebSocketNode).item;
+  }
+  return null;
+});
+const httpMockItem = computed(() => {
+  if (docDetail.value?.info.type === 'httpMock') {
+    return docDetail.value as HttpMockNode;
+  }
+  return null;
+});
+const wsMockItem = computed(() => {
+  if (docDetail.value?.info.type === 'websocketMock') {
+    return docDetail.value as WebSocketMockNode;
+  }
+  return null;
+});
 //是否存在查询参数
 const hasQueryParams = computed(() => {
-  if (!docDetail.value) {
+  if (!httpItem.value) {
     return false;
   }
-  const { queryParams } = docDetail.value.item;
-  return queryParams.filter(p => p.select).some((data) => data.key);
+  const { queryParams } = httpItem.value;
+  return queryParams?.filter(p => p.select).some((data) => data.key) ?? false;
 })
 //是否存在path参数
 const hasPathsParams = computed(() => {
-  if (!docDetail.value) {
+  if (!httpItem.value) {
     return false;
   }
-  const { paths } = docDetail.value.item;
-  return paths.some((data) => data.key);
+  const { paths } = httpItem.value;
+  return paths?.some((data) => data.key) ?? false;
 })
 //是否存在body参数
 const hasJsonBodyParams = computed(() => {
-  if (!docDetail.value) {
+  if (!httpItem.value) {
     return false;
   }
-  const { contentType } = docDetail.value.item;
-  const { mode } = docDetail.value.item.requestBody;
-  return contentType === 'application/json' && mode === 'json';
+  const { contentType, requestBody } = httpItem.value;
+  return contentType === 'application/json' && requestBody?.mode === 'json';
 })
 //是否存在formData参数
 const hasFormDataParams = computed(() => {
-  if (!docDetail.value) {
+  if (!httpItem.value) {
     return false;
   }
-  const { contentType } = docDetail.value.item;
+  const { contentType } = httpItem.value;
   return contentType === 'multipart/form-data';
 })
-//是否存在formData参数
+//是否存在urlencoded参数
 const hasUrlEncodedParams = computed(() => {
-  if (!docDetail.value) {
+  if (!httpItem.value) {
     return false;
   }
-  const { contentType } = docDetail.value.item;
+  const { contentType } = httpItem.value;
   return contentType === 'application/x-www-form-urlencoded';
 })
 //raw类型返回参数
 const hasRawParams = computed(() => {
-  if (!docDetail.value) {
+  if (!httpItem.value) {
     return false;
   }
-  const { mode, raw } = docDetail.value.item.requestBody;
-  return mode === 'raw' && raw.data;
+  const { requestBody } = httpItem.value;
+  return requestBody?.mode === 'raw' && requestBody?.raw?.data;
 })
 //是否存在headers
 const hasHeaders = computed(() => {
-  if (!docDetail.value) {
+  if (!httpItem.value) {
     return false;
   }
-  const { headers } = docDetail.value.item;
-  return headers.filter(p => p.select).some((data) => data.key);
+  const { headers } = httpItem.value;
+  return headers?.filter(p => p.select).some((data) => data.key) ?? false;
 })
 
 /*
@@ -282,6 +451,50 @@ const getLanguageFromMime = (mimeType: string): string => {
     border-radius: 50%;
     &:hover {
       background: #dee2e6;
+    }
+  }
+
+  .params-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+
+    th,
+    td {
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--el-border-color-lighter);
+    }
+
+    th {
+      background-color: var(--el-fill-color-light);
+      font-weight: 500;
+      color: var(--el-text-color-primary);
+    }
+
+    td {
+      color: var(--el-text-color-regular);
+      word-break: break-all;
+    }
+
+    tbody tr:hover {
+      background-color: var(--el-fill-color-lighter);
+    }
+
+    .required-badge {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+
+      &.required {
+        background-color: var(--el-color-danger-light-9);
+        color: var(--el-color-danger);
+      }
+
+      &.optional {
+        background-color: var(--el-fill-color);
+        color: var(--el-text-color-secondary);
+      }
     }
   }
 }
