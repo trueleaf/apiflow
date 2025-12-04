@@ -7,8 +7,8 @@
         <RemoteSelectorItem v-for="(item, index) in remoteUserOrGroupList" :key="index">
           <div class="d-flex a-center j-between w-100 h-100" @click="handleAddMember(item)">
             <span>{{ item.name }}</span>
-            <el-tag v-if="item.type === 'user'">用户</el-tag>
-            <el-tag v-if="item.type === 'group'" type="success">组</el-tag>
+            <el-tag v-if="item.type === 'user'">{{ t('用户') }}</el-tag>
+            <el-tag v-if="item.type === 'group'" type="success">{{ t('组') }}</el-tag>
           </div>
         </RemoteSelectorItem>
         <div v-if="remoteUserOrGroupList.length === 0" class="d-flex a-center j-center w-100 h-40px gray-500">{{ t('暂无数据')
@@ -22,8 +22,8 @@
         <el-table-column prop="name" :label="t('名称')" align="center"></el-table-column>
         <el-table-column prop="type" :label="t('类型')" sortable align="center">
           <template #default="{ row }">
-            <el-tag v-if="row.type === 'user'">用户</el-tag>
-            <el-tag v-if="row.type === 'group'" type="success">组</el-tag>
+            <el-tag v-if="row.type === 'user'">{{ t('用户') }}</el-tag>
+            <el-tag v-if="row.type === 'group'" type="success">{{ t('组') }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column :label="t('角色(权限)')" align="center">

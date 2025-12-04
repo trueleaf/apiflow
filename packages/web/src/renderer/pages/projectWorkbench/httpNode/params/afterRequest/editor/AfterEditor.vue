@@ -1,10 +1,11 @@
 <template>
   <div ref="afterEditor" class="s-monaco-editor"></div>
-  <el-button type="primary" text class="format-btn" @click="handleFormat">格式化</el-button>
+  <el-button type="primary" text class="format-btn" @click="handleFormat">{{ t('格式化') }}</el-button>
 </template>
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import beautify from 'js-beautify'
 import { useCompletionItem } from './registerCompletionItem'
 import { useHoverProvider } from './registerHoverProvider'
@@ -27,6 +28,7 @@ const props = defineProps({
   }
 });
 const emits = defineEmits(['update:modelValue', 'undo', 'redo'])
+const { t } = useI18n()
 
 const afterEditor: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;

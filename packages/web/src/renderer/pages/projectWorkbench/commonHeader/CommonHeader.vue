@@ -1,14 +1,14 @@
 <template>
   <SLoading :loading="loading" class="common-header">
-    <SFieldset title="说明">
+    <SFieldset :title="t('说明')">
       <p>{{ t('1. 公共请求头针对目录内所有接口生效') }}</p>
       <p>{{ t('2. 针对嵌套目录，子目录优先级高于父目录') }}</p>
       <p>{{ t('3. 接口本身请求头优先级高于公共请求头') }}</p>
     </SFieldset>
-    <SFieldset title="公共请求头">
+    <SFieldset :title="t('公共请求头')">
       <template #title>
         <div class="d-flex a-center">
-          <span>公共请求头</span>
+          <span>{{ t('公共请求头') }}</span>
           <span
             class="mode-toggle-icon ml-2"
             role="button"
@@ -31,8 +31,8 @@
         :edit-mode="isMultiline ? 'multiline' : 'table'"
       ></SParamsTree>
       <div class="d-flex a-center j-center mt-5">
-        <el-button type="success" :loading="loading2" @click="handleEditCommonHeader">确认修改</el-button>
-        <el-button type="primary" :loading="loading" @click="getCommonHeaderInfo">刷新</el-button>
+        <el-button type="success" :loading="loading2" @click="handleEditCommonHeader">{{ t('确认修改') }}</el-button>
+        <el-button type="primary" :loading="loading" @click="getCommonHeaderInfo">{{ t('刷新') }}</el-button>
       </div>
     </SFieldset>
   </SLoading>
@@ -174,7 +174,7 @@ const handleEditCommonHeader = async () => {
           type: 'string' as const,
           required: false,
         })));
-        message.success('修改成功');
+        message.success(t('修改成功'));
         await commonHeaderStore.getGlobalCommonHeaders();
       } else {
         const params = {
@@ -182,7 +182,7 @@ const handleEditCommonHeader = async () => {
           commonHeaders: commonHeadersData,
         }
         await request.put('/api/project/replace_global_common_headers', params);
-        message.success('修改成功');
+        message.success(t('修改成功'));
         await commonHeaderStore.getGlobalCommonHeaders();
       }
     } else {
@@ -203,7 +203,7 @@ const handleEditCommonHeader = async () => {
             required: false,
           })),
         } as Partial<import('@src/types').FolderNode>);
-        message.success('修改成功');
+        message.success(t('修改成功'));
         await commonHeaderStore.getCommonHeaders();
       } else {
         const params = {
@@ -212,7 +212,7 @@ const handleEditCommonHeader = async () => {
           commonHeaders: commonHeadersData,
         }
         await request.put('/api/project/common_header', params);
-        message.success('修改成功');
+        message.success(t('修改成功'));
         await commonHeaderStore.getCommonHeaders();
       }
     }

@@ -31,8 +31,8 @@
               <User />
             </el-icon>
           </div>
-          <h2 class="prompt-title">开始创建您的第一个团队</h2>
-          <p class="prompt-subtitle">点击下方按钮立即创建团队，开启协作之旅</p>
+          <h2 class="prompt-title">{{ t('开始创建您的第一个团队') }}</h2>
+          <p class="prompt-subtitle">{{ t('点击下方按钮立即创建团队，开启协作之旅') }}</p>
           <el-button :icon="Plus" @click="dialogVisible = true" type="success">{{ t('创建团队') }}</el-button>
         </div>
         <!-- 配置界面 -->
@@ -44,14 +44,14 @@
             <el-input type="textarea" v-model="groupInfo.description" class="w-40" show-word-limit maxlength="255" />
           </el-form-item>
           <el-form-item :label="t('团队邀请限制')">
-            <el-checkbox v-model="groupInfo.isAllowInvite" label="允许被非项目成员邀请到项目中"/>
+            <el-checkbox v-model="groupInfo.isAllowInvite">{{ t('允许被非项目成员邀请到项目中') }}</el-checkbox>
             <div class="d-flex flex-column">
             </div>
           </el-form-item>
           <el-form-item :label="t('团队信息')">
             <div class="ml-2 gray-600">
-              <div>{{ `${t('由')}【${groupInfo.creator.userName}】${'创建于'} ${dayjs(groupInfo.createdAt).format('YYYY-MM-DD HH:mm')}` }}</div>
-              <div v-if="groupInfo.updator">{{ `${t('由')}【${groupInfo.updator.userName}】${'更新于'} ${dayjs(groupInfo.updatedAt).format('YYYY-MM-DD HH:mm')}` }}</div>
+              <div>{{ `${t('由')}【${groupInfo.creator.userName}】${t('创建于')} ${dayjs(groupInfo.createdAt).format('YYYY-MM-DD HH:mm')}` }}</div>
+              <div v-if="groupInfo.updator">{{ `${t('由')}【${groupInfo.updator.userName}】${t('更新于')} ${dayjs(groupInfo.updatedAt).format('YYYY-MM-DD HH:mm')}` }}</div>
             </div>
           </el-form-item>
           <el-form-item>
@@ -72,9 +72,9 @@
                 <el-popover :visible="(popoverVisibleId === member.userId)" placement="bottom-start" :popper-style="{ padding: '0' }" :hide-after="0" :width="200" >
                   <template #reference>
                     <div class="permission" @click.stop="() => {popoverVisibleId  === member.userId ? (popoverVisibleId = '') : popoverVisibleId = member.userId, popoverVisible = false}">
-                      <span v-if="member.permission === 'readOnly'" class="f-xs">只读</span>
-                      <span v-if="member.permission === 'readAndWrite'" class="f-xs">可编辑</span>
-                      <span v-if="member.permission === 'admin'" class="f-xs">管理员</span>
+                      <span v-if="member.permission === 'readOnly'" class="f-xs">{{ t('只读') }}</span>
+                      <span v-if="member.permission === 'readAndWrite'" class="f-xs">{{ t('可编辑') }}</span>
+                      <span v-if="member.permission === 'admin'" class="f-xs">{{ t('管理员') }}</span>
                       <el-icon class="icon">
                         <ArrowDown />
                       </el-icon>
@@ -84,21 +84,21 @@
                     <div class="permission-list">
                       <div class="permission-item" :class="{ active: member.permission === 'readOnly' }"
                         @click="() => handleChangePermission(groupInfo!._id, member.userId, 'readOnly')">
-                        <span>只读</span>
+                        <span>{{ t('只读') }}</span>
                         <el-icon v-if="member.permission === 'readOnly'">
                           <Check />
                         </el-icon>
                       </div>
                       <div class="permission-item" :class="{ active: member.permission === 'readAndWrite' }"
                         @click="() => handleChangePermission(groupInfo!._id, member.userId, 'readAndWrite')">
-                        <span>可编辑</span>
+                        <span>{{ t('可编辑') }}</span>
                         <el-icon v-if="member.permission === 'readAndWrite'">
                           <Check />
                         </el-icon>
                       </div>
                       <div class="permission-item" :class="{ active: member.permission === 'admin' }"
                         @click="() => handleChangePermission(groupInfo!._id, member.userId, 'admin')">
-                        <span>管理员</span>
+                        <span>{{ t('管理员') }}</span>
                         <el-icon v-if="member.permission === 'admin'">
                           <Check />
                         </el-icon>
@@ -111,15 +111,15 @@
             <!-- 列表形式权限修改 -->
             <div v-if="memberMode === 'list'">
               <el-table :data="groupInfo.members" border max-height="400px" >
-                <el-table-column prop="userName" label="成员名称" width="180" sortable/>
-                <el-table-column prop="permission" label="权限" width="180" sortable>
+                <el-table-column prop="userName" :label="t('成员名称')" width="180" sortable/>
+                <el-table-column prop="permission" :label="t('权限')" width="180" sortable>
                   <template #default="{ row }">
                     <el-popover :visible="(popoverVisibleId === row.userId)" placement="bottom-start" :popper-style="{ padding: '0' }" :hide-after="0" :width="200" >
                       <template #reference>
                         <div class="permission d-flex a-center" @click.stop="() => {popoverVisibleId  === row.userId ? (popoverVisibleId = '') : popoverVisibleId = row.userId, popoverVisible = false}">
-                          <span v-if="row.permission === 'readOnly'" class="f-xs cursor-pointer">只读</span>
-                          <span v-if="row.permission === 'readAndWrite'" class="f-xs cursor-pointer">可编辑</span>
-                          <span v-if="row.permission === 'admin'" class="f-xs cursor-pointer">管理员</span>
+                          <span v-if="row.permission === 'readOnly'" class="f-xs cursor-pointer">{{ t('只读') }}</span>
+                          <span v-if="row.permission === 'readAndWrite'" class="f-xs cursor-pointer">{{ t('可编辑') }}</span>
+                          <span v-if="row.permission === 'admin'" class="f-xs cursor-pointer">{{ t('管理员') }}</span>
                           <el-icon class="ml-1 cursor-pointer">
                             <ArrowDown />
                           </el-icon>
@@ -129,21 +129,21 @@
                         <div class="permission-list">
                           <div class="permission-item" :class="{ active: row.permission === 'readOnly' }"
                             @click="() => handleChangePermission(groupInfo!._id, row.userId, 'readOnly')">
-                            <span>只读</span>
+                            <span>{{ t('只读') }}</span>
                             <el-icon v-if="row.permission === 'readOnly'">
                               <Check />
                             </el-icon>
                           </div>
                           <div class="permission-item" :class="{ active: row.permission === 'readAndWrite' }"
                             @click="() => handleChangePermission(groupInfo!._id, row.userId, 'readAndWrite')">
-                            <span>可编辑</span>
+                            <span>{{ t('可编辑') }}</span>
                             <el-icon v-if="row.permission === 'readAndWrite'">
                               <Check />
                             </el-icon>
                           </div>
                           <div class="permission-item" :class="{ active: row.permission === 'admin' }"
                             @click="() => handleChangePermission(groupInfo!._id, row.userId, 'admin')">
-                            <span>管理员</span>
+                            <span>{{ t('管理员') }}</span>
                             <el-icon v-if="row.permission === 'admin'">
                               <Check />
                             </el-icon>
@@ -153,10 +153,10 @@
                     </el-popover>
                   </template>
                 </el-table-column>
-                <el-table-column prop="expireAt" label="操作" width="70" align="center">
+                <el-table-column prop="expireAt" :label="t('操作')" width="70" align="center">
                   <template #default="{ row }">
-                    <el-button v-if="row.userId === runtimeStore.userInfo.id" link type="primary" @click="() => handleRemoveMember(groupInfo!._id, row.userId)">退出</el-button>
-                    <el-button v-else link type="primary" @click="() => handleRemoveMember(groupInfo!._id, row.userId)">删除</el-button>
+                    <el-button v-if="row.userId === runtimeStore.userInfo.id" link type="primary" @click="() => handleRemoveMember(groupInfo!._id, row.userId)">{{ t('退出') }}</el-button>
+                    <el-button v-else link type="primary" @click="() => handleRemoveMember(groupInfo!._id, row.userId)">{{ t('删除') }}</el-button>
                   </template>
                 </el-table-column>
             </el-table>
@@ -205,7 +205,7 @@
             </el-button>
           </el-form-item>
           <el-form-item>
-            <el-button type="danger" class="w-40" @click="() => handleDeleteGroup(groupInfo!._id)">删除团队</el-button>
+            <el-button type="danger" class="w-40" @click="() => handleDeleteGroup(groupInfo!._id)">{{ t('删除团队') }}</el-button>
           </el-form-item>
 
         </el-form>
@@ -326,7 +326,7 @@ const handleRemoveMember = (groupId: string, userId: string) => {
       if (delIndex !== undefined) {
         groupInfo.value?.members.splice(delIndex, 1);
       }
-      message.success('移除成功');
+      message.success(t('移除成功'));
     }).catch(err => {
       console.error(err)
     })
@@ -375,7 +375,7 @@ const handleSaveGroupInfo = () => {
     description,
     isAllowInvite
   }).then(() => {
-    message.success('保存成功')
+    message.success(t('保存成功'))
     changeGroupInfo()
     originGroupInfo.value = cloneDeep(groupInfo.value);
   }).catch(err => {
@@ -390,7 +390,7 @@ const handleChangePermission = (groupId: string, userId: string, permission: "ad
     permission
   }
   request.put<CommonResponse<ApidocGroupItem>, CommonResponse<ApidocGroupItem>>('/api/group/member/permission', params).then(() => {
-    message.success('修改成功');
+    message.success(t('修改成功'));
     changeGroupInfo()
     getGroupList();
     groupInfo.value?.members.forEach(member => {
@@ -410,7 +410,7 @@ const handleDeleteGroup = (groupId: string) => {
     type: 'warning',
   }).then(() => {
     request.delete<CommonResponse<void>, CommonResponse<void>>('/api/group/remove', { data: { ids: [groupId] } }).then(() => {
-      message.success('删除成功');
+      message.success(t('删除成功'));
       getGroupList();
     }).catch(err => {
       console.error(err)

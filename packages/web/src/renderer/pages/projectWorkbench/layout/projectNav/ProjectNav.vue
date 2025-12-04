@@ -98,7 +98,7 @@
         </SDraggable>
       </div>
       <div class="add-tab">
-        <el-icon :size="16" title="新增一个空白接口" data-testid="project-nav-add-tab-btn" @click="handleAddNewTab">
+        <el-icon :size="16" :title="t('新增一个空白接口')" data-testid="project-nav-add-tab-btn" @click="handleAddNewTab">
           <IconPlus />
         </el-icon>
       </div>

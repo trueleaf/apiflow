@@ -39,20 +39,20 @@
         <el-upload ref="uploadInstance" class="upload-demo" @change="handleSelectFile" @exceed="handleExceed" :limit="1"
           :auto-upload="false" :show-file-list="false">
           <template #trigger>
-            <el-button size='small'>选择文件</el-button>
+            <el-button size='small'>{{ t('选择文件') }}</el-button>
           </template>
           <template #default>
             <div v-if="formInfo.fileValue.name">
               <div class="d-flex a-center">
-                <span class="flex0 theme-color">文件名称：</span>
+                <span class="flex0 theme-color">{{ t('文件名称') }}：</span>
                 <span :title="formInfo.fileValue.name" class="text-ellipsis">{{ formInfo.fileValue.name }}</span>
               </div>
               <div class="d-flex a-center">
-                <span class="flex0 theme-color">文件路径：</span>
+                <span class="flex0 theme-color">{{ t('文件路径') }}：</span>
                 <span :title="formInfo.fileValue.path" class="text-ellipsis">{{ formInfo.fileValue.path }}</span>
               </div>
               <div class="d-flex a-center">
-                <span class="flex0 theme-color">mime类型：</span>
+                <span class="flex0 theme-color">{{ t('mime类型') }}：</span>
                 <span :title="formInfo.fileValue.fileType" class="text-ellipsis">{{ formInfo.fileValue.fileType
                 }}</span>
               </div>
@@ -223,11 +223,11 @@ const handleEditVariable = () => {
             fileValue: params.fileValue
           });
           if (response.code === 0) {
-            message.success('修改成功');
+            message.success(t('修改成功'));
             handleClose();
             emits('success');
           } else {
-            message.error(response.msg || '修改失败');
+            message.error(response.msg || t('修改失败'));
           }
         } else {
           // 在线模式
@@ -237,7 +237,7 @@ const handleEditVariable = () => {
         }
       } catch (err) {
         console.error(err);
-        message.error('操作失败');
+        message.error(t('操作失败'));
       } finally {
         loading.value = false;
       }

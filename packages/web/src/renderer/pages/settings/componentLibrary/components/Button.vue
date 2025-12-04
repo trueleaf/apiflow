@@ -1,19 +1,20 @@
 <template>
   <div class="component-demo">
-    <h3 class="component-title">按钮组件</h3>
+    <h3 class="component-title">{{ t('按钮组件') }}</h3>
     <div class="component-description">
-      <p>提供多种样式、状态和尺寸的按钮组件</p>
+      <p>{{ t('提供多种样式、状态和尺寸的按钮组件') }}</p>
     </div>
     <div class="component-showcase">
-      <button class="demo-button primary">主要按钮</button>
-      <button class="demo-button secondary">次要按钮</button>
-      <button class="demo-button text">文本按钮</button>
+      <button class="demo-button primary">{{ t('主要按钮') }}</button>
+      <button class="demo-button secondary">{{ t('次要按钮') }}</button>
+      <button class="demo-button text">{{ t('文本按钮') }}</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// 按钮组件实现
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 </script>
 
 <style lang="scss" scoped>

@@ -22,7 +22,7 @@
       <el-input v-model="userInfo.password2" :size="config.renderConfig.layout.size" show-password name="password2" type="text" :placeholder="`${$t('请再次输入密码')}...`"></el-input>
     </el-form-item>
     <el-form-item>
-      <el-button :loading="loading" type="primary" native-type="submit" class="w-100">重置密码</el-button>
+      <el-button :loading="loading" type="primary" native-type="submit" class="w-100">{{ $t('重置密码') }}</el-button>
     </el-form-item>
   </el-form>
 </template>

@@ -108,7 +108,7 @@ const handleEditUser = () => {
       });
     } else {
       nextTick(() => (document.querySelector('.el-form-item.is-error input') as HTMLInputElement)?.focus());
-      message.warning('请完善必填信息');
+      message.warning(t('请完善必填信息'));
       loading.value = false;
     }
   });

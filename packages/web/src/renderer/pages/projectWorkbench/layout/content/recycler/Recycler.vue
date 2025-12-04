@@ -3,53 +3,53 @@
     <!-- 头部 -->
     <div class="recycler-header">
       <div class="header-title mr-4 d-flex a-center">
-        <span class="title-text">接口回收站</span>
+        <span class="title-text">{{ t('接口回收站') }}</span>
       </div>
     </div>
     <!-- 过滤条件 -->
     <div class="search">
       <!-- 操作人员 -->
       <div v-if="!isStandalone" class="op-item">
-        <div>操作人员：</div>
+        <div>{{ t('操作人员') }}：</div>
         <el-checkbox-group v-model="formInfo.operators">
           <el-checkbox v-for="(item, index) in memberEnum" :key="index" :value="item._id">{{ item.realName }}</el-checkbox>
         </el-checkbox-group>
-        <el-button link type="primary" text @click="handleClearOperator">清空</el-button>
+        <el-button link type="primary" text @click="handleClearOperator">{{ t('清空') }}</el-button>
       </div>
       <!-- 日期范围 -->
       <div class="op-item">
         <div class="flex0">
-          <span>日期范围&nbsp;</span>
+          <span>{{ t('日期范围') }}&nbsp;</span>
           <span>：</span>
         </div>
         <el-radio-group v-model="dateRange">
-          <el-radio value="1d">今天</el-radio>
-          <el-radio value="yesterday">昨天</el-radio>
-          <el-radio value="2d">近两天</el-radio>
-          <el-radio value="3d">近三天</el-radio>
-          <el-radio value="7d">近七天</el-radio>
-          <el-radio value="自定义">自定义</el-radio>
-          <el-date-picker v-if="dateRange === '自定义'" v-model="customDateRange" type="datetimerange" range-separator="至"
-            value-format="x" start-placeholder="开始日期" class="mr-1" end-placeholder="结束日期">
+          <el-radio value="1d">{{ t('今天') }}</el-radio>
+          <el-radio value="yesterday">{{ t('昨天') }}</el-radio>
+          <el-radio value="2d">{{ t('近两天') }}</el-radio>
+          <el-radio value="3d">{{ t('近三天') }}</el-radio>
+          <el-radio value="7d">{{ t('近七天') }}</el-radio>
+          <el-radio value="自定义">{{ t('自定义') }}</el-radio>
+          <el-date-picker v-if="dateRange === '自定义'" v-model="customDateRange" type="datetimerange" :range-separator="t('至')"
+            value-format="x" :start-placeholder="t('开始日期')" class="mr-1" :end-placeholder="t('结束日期')">
           </el-date-picker>
-          <el-button link type="primary" text @click="handleClearDate">清空</el-button>
+          <el-button link type="primary" text @click="handleClearDate">{{ t('清空') }}</el-button>
         </el-radio-group>
       </div>
       <!-- 接口名称和接口url -->
       <div class="op-item">
         <div class="d-flex a-center mr-5">
-          <div class="flex0">接口名称：</div>
-          <el-input v-model="formInfo.docName" :size="config.renderConfig.layout.size" placeholder="通过接口名称匹配"
+          <div class="flex0">{{ t('接口名称') }}：</div>
+          <el-input v-model="formInfo.docName" :size="config.renderConfig.layout.size" :placeholder="t('通过接口名称匹配')"
             maxlength="100" clearable></el-input>
         </div>
         <div class="d-flex a-center mr-5">
-          <div class="flex0">接口url：</div>
-          <el-input v-model="formInfo.url" :size="config.renderConfig.layout.size" placeholder="通过接口url匹配"
+          <div class="flex0">{{ t('接口url') }}：</div>
+          <el-input v-model="formInfo.url" :size="config.renderConfig.layout.size" :placeholder="t('通过接口url匹配')"
             maxlength="100" clearable></el-input>
         </div>
         <div>
-          <el-button type="info" @click="clearAll">全部清空</el-button>
-          <el-button :loading="loading" type="success" @click="getData">刷新</el-button>
+          <el-button type="info" @click="clearAll">{{ t('全部清空') }}</el-button>
+          <el-button :loading="loading" type="success" @click="getData">{{ t('刷新') }}</el-button>
         </div>
       </div>
     </div>
@@ -63,18 +63,18 @@
             <div class="date-list-wrap">
               <div v-for="(docInfo, index3) in chunkDeleteInfo" :key="index3" class="docinfo">
                 <div class="op-area mr-4">
-                  <el-button link type="primary" text :loading="loading2" @click="handleRestore(docInfo)">恢复</el-button>
+                  <el-button link type="primary" text :loading="loading2" @click="handleRestore(docInfo)">{{ t('恢复') }}</el-button>
                   <el-divider direction="vertical"></el-divider>
                   <el-popover :visible="docInfo._visible" placement="right" width="auto" transition="none" trigger="click">
                     <doc-detail v-if="docInfo._visible" :id="docInfo._id"
                       @close="docInfo._visible = false;"></doc-detail>
                     <template #reference>
-                      <el-button link type="primary" text @click.stop="handleShowDetail(docInfo)">详情</el-button>
+                      <el-button link type="primary" text @click.stop="handleShowDetail(docInfo)">{{ t('详情') }}</el-button>
                     </template>
                   </el-popover>
                 </div>
                 <div class="operator mr-1">{{ docInfo.deletePerson }}</div>
-                <div class="mr-2">删除了</div>
+                <div class="mr-2">{{ t('删除了') }}</div>
                 <!-- 节点图标和名称展示 -->
                 <div class="node-info">
                   <!-- folder 类型 -->
@@ -126,6 +126,7 @@
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted, onUnmounted, watch, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
 import isYesterday from 'dayjs/plugin/isYesterday'
@@ -143,6 +144,8 @@ import { debounce } from "lodash-es"
 import docDetail from './components/DocDetail.vue'
 import { useBanner } from '@/store/projectWorkbench/bannerStore'
 import { requestMethods as validRequestMethods } from '@/data/data'
+
+const { t } = useI18n()
 import { config } from '@src/config/config'
 // import { Delete } from '@element-plus/icons-vue'
 import { apiNodesCache } from '@/cache/nodes/nodesCache'

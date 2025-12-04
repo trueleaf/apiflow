@@ -1,49 +1,49 @@
 <template>
   <div class="history">
-    <SFieldset title="过滤条件" class="search">
+    <SFieldset :title="t('过滤条件')" class="search">
       <!-- 操作人员 -->
       <div class="op-item">
-        <div>操作人员：</div>
+        <div>{{ t('操作人员') }}：</div>
         <el-checkbox-group v-model="formInfo.operators">
           <el-checkbox v-for="(item, index) in memberEnum" :key="index" :value="item.name"></el-checkbox>
-          <el-button link type="primary" text @click="handleClearOperator">清空</el-button>
+          <el-button link type="primary" text @click="handleClearOperator">{{ t('清空') }}</el-button>
         </el-checkbox-group>
       </div>
       <!-- 日期范围 -->
       <div class="op-item">
         <div class="flex0">
-          <span>日期范围&nbsp;</span>
+          <span>{{ t('日期范围') }}&nbsp;</span>
           <span>：</span>
         </div>
         <el-radio-group v-model="dateRange">
-          <el-radio value="1d">今天</el-radio>
-          <el-radio value="yesterday">昨天</el-radio>
-          <el-radio value="2d">近两天</el-radio>
-          <el-radio value="3d">近三天</el-radio>
-          <el-radio value="7d">近七天</el-radio>
-          <el-radio value="自定义">自定义</el-radio>
-          <el-date-picker v-if="dateRange === '自定义'" v-model="customDateRange" type="datetimerange" range-separator="至"
-            value-format="x" start-placeholder="开始日期" class="mr-1" end-placeholder="结束日期">
+          <el-radio value="1d">{{ t('今天') }}</el-radio>
+          <el-radio value="yesterday">{{ t('昨天') }}</el-radio>
+          <el-radio value="2d">{{ t('近两天') }}</el-radio>
+          <el-radio value="3d">{{ t('近三天') }}</el-radio>
+          <el-radio value="7d">{{ t('近七天') }}</el-radio>
+          <el-radio value="自定义">{{ t('自定义') }}</el-radio>
+          <el-date-picker v-if="dateRange === '自定义'" v-model="customDateRange" type="datetimerange" :range-separator="t('至')"
+            value-format="x" :start-placeholder="t('开始日期')" class="mr-1" :end-placeholder="t('结束日期')">
           </el-date-picker>
-          <el-button link type="primary" text @click="handleClearDate">清空</el-button>
+          <el-button link type="primary" text @click="handleClearDate">{{ t('清空') }}</el-button>
         </el-radio-group>
       </div>
       <!-- 日志类型 -->
       <div class="op-item">
-        <div class="flex0">日志类型：</div>
+        <div class="flex0">{{ t('日志类型') }}：</div>
         <el-checkbox-group v-model="formInfo.operationTypes">
-          <el-checkbox value="deleteDoc">删除单个文档</el-checkbox>
-          <el-checkbox value="deleteFolder">删除单个目录</el-checkbox>
-          <el-checkbox value="deleteMany">批量删除</el-checkbox>
-          <el-checkbox value="editDoc">编辑文档</el-checkbox>
-          <el-checkbox value="addDoc">新建接口</el-checkbox>
-          <el-checkbox value="addFolder">新建文件夹</el-checkbox>
-          <el-checkbox value="copyDoc">复制文档</el-checkbox>
-          <el-checkbox value="position">改变位置</el-checkbox>
-          <el-checkbox value="rename">重命名</el-checkbox>
-          <el-checkbox value="import">导入</el-checkbox>
-          <el-checkbox value="export">导出</el-checkbox>
-          <el-button link type="primary" text @click="handleClearType">清空</el-button>
+          <el-checkbox value="deleteDoc">{{ t('删除单个文档') }}</el-checkbox>
+          <el-checkbox value="deleteFolder">{{ t('删除单个目录') }}</el-checkbox>
+          <el-checkbox value="deleteMany">{{ t('批量删除') }}</el-checkbox>
+          <el-checkbox value="editDoc">{{ t('编辑文档') }}</el-checkbox>
+          <el-checkbox value="addDoc">{{ t('新建接口') }}</el-checkbox>
+          <el-checkbox value="addFolder">{{ t('新建文件夹') }}</el-checkbox>
+          <el-checkbox value="copyDoc">{{ t('复制文档') }}</el-checkbox>
+          <el-checkbox value="position">{{ t('改变位置') }}</el-checkbox>
+          <el-checkbox value="rename">{{ t('重命名') }}</el-checkbox>
+          <el-checkbox value="import">{{ t('导入') }}</el-checkbox>
+          <el-checkbox value="export">{{ t('导出') }}</el-checkbox>
+          <el-button link type="primary" text @click="handleClearType">{{ t('清空') }}</el-button>
         </el-checkbox-group>
       </div>
       <!-- 接口名称和接口url -->
@@ -57,8 +57,8 @@
                     <el-input v-model="formInfo.url" placeholder="通过接口url匹配" maxlength="100" clearable></el-input>
                 </div> -->
         <div>
-          <el-button type="info" @click="clearAll">全部清空</el-button>
-          <el-button :loading="loading" type="success" @click="getData">刷新</el-button>
+          <el-button type="info" @click="clearAll">{{ t('全部清空') }}</el-button>
+          <el-button :loading="loading" type="success" @click="getData">{{ t('刷新') }}</el-button>
         </div>
       </div>
     </SFieldset>
@@ -69,22 +69,22 @@
           <div class="head">{{ formatDate(item2.createdAt, "a HH:mm") }}</div>
           <div class="operator mr-2">{{ item2.operator }}</div>
           <div class="operation mr-1">
-            <div v-if="item2.operation === 'addFolder'">新建文件夹</div>
-            <div v-if="item2.operation === 'addDoc'">新建接口</div>
-            <div v-if="item2.operation === 'copyDoc'">复制文档</div>
-            <div v-if="item2.operation === 'copyFolder'">复制文件夹</div>
-            <div v-if="item2.operation === 'deleteFolder'">删除文件夹</div>
+            <div v-if="item2.operation === 'addFolder'">{{ t('新建文件夹') }}</div>
+            <div v-if="item2.operation === 'addDoc'">{{ t('新建接口') }}</div>
+            <div v-if="item2.operation === 'copyDoc'">{{ t('复制文档') }}</div>
+            <div v-if="item2.operation === 'copyFolder'">{{ t('复制文件夹') }}</div>
+            <div v-if="item2.operation === 'deleteFolder'">{{ t('删除文件夹') }}</div>
             <div v-if="item2.operation === 'deleteMany'" class="d-flex a-center">
-              <div>删除</div>
+              <div>{{ t('删除') }}</div>
               <div class="orange">&nbsp;{{ item2.recordInfo.deleteNodes?.length }}&nbsp;</div>
-              <div>个文档</div>
+              <div>{{ t('个文档') }}</div>
             </div>
-            <div v-if="item2.operation === 'deleteDoc'">删除单个文档</div>
-            <div v-if="item2.operation === 'editDoc'">编辑文档</div>
-            <div v-if="item2.operation === 'position'">改变文档位置</div>
-            <div v-if="item2.operation === 'rename'">重命名文档</div>
-            <div v-if="item2.operation === 'import'">导入文档</div>
-            <div v-if="item2.operation === 'export'">导出文档</div>
+            <div v-if="item2.operation === 'deleteDoc'">{{ t('删除单个文档') }}</div>
+            <div v-if="item2.operation === 'editDoc'">{{ t('编辑文档') }}</div>
+            <div v-if="item2.operation === 'position'">{{ t('改变文档位置') }}</div>
+            <div v-if="item2.operation === 'rename'">{{ t('重命名文档') }}</div>
+            <div v-if="item2.operation === 'import'">{{ t('导入文档') }}</div>
+            <div v-if="item2.operation === 'export'">{{ t('导出文档') }}</div>
           </div>
           <div class="doc-wrap">
             <!-- 新建接口 -->
@@ -153,20 +153,20 @@
               <div class="doc-info">
                 <span>{{ item2.recordInfo.nodeName }}</span>
               </div>
-              <span>拖拽到</span>
+              <span>{{ t('拖拽到') }}</span>
               <div class="ml-2 doc-info">
                 <span>{{ item2.recordInfo.dropNodeName }}</span>
               </div>
-              <span v-if="item2.recordInfo.dropType === 'before'">之前</span>
-              <span v-else-if="item2.recordInfo.dropType === 'after'">之后</span>
-              <span v-else-if="item2.recordInfo.dropType === 'inner'">里面</span>
+              <span v-if="item2.recordInfo.dropType === 'before'">{{ t('之前') }}</span>
+              <span v-else-if="item2.recordInfo.dropType === 'after'">{{ t('之后') }}</span>
+              <span v-else-if="item2.recordInfo.dropType === 'inner'">{{ t('里面') }}</span>
             </div>
             <!-- 重命名文档 -->
             <div v-if="item2.operation === 'rename'" class="doc-info">
               <div class="doc-info">
                 <span>{{ item2.recordInfo.orginNodeName }}</span>
               </div>
-              <span>重命名为</span>
+              <span>{{ t('重命名为') }}</span>
               <div class="ml-2 doc-info">
                 <span>{{ item2.recordInfo.nodeName }}</span>
               </div>
@@ -187,6 +187,7 @@
 
 <script lang="ts" setup>
 import { ref, Ref, watch, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
 import isYesterday from 'dayjs/plugin/isYesterday'
@@ -198,6 +199,8 @@ import { router } from '@/router';
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import SLoading from '@/components/common/loading/ClLoading.vue'
 import { requestMethods as validRequestMethods } from '@/data/data'
+
+const { t } = useI18n()
 const folderUrl = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href;
 
 

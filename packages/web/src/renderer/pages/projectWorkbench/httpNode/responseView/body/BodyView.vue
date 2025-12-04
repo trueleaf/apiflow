@@ -3,12 +3,12 @@
     <div v-if="selectedNav && httpNodeResponseStore.responseCacheAllowedMap[selectedNav._id] === false" class="response-tip">
       <!-- 返回数据大小超过单个允许缓存数据，数据无法被缓存，切换tab或者刷新页面缓存值将会清空 -->
       <div class="mb-1">
-        <span class="mr-1">返回数据大小为</span>
+        <span class="mr-1">{{ t('返回数据大小为') }}</span>
         <span class="text-bold">{{ formatUnit(loadingProcess.total, 'bytes') }}</span>
-        <span class="mx-1">超过单个允许缓存数据大小</span>
+        <span class="mx-1">{{ t('超过单个允许缓存数据大小') }}</span>
         <span class="text-bold">{{ formatUnit(config.cacheConfig.httpNodeResponseCache.singleResponseBodySize, 'bytes') }}</span>
       </div>
-      <span class="">数据无法被缓存，切换tab或者刷新页面缓存值将会清空</span>
+      <span class="">{{ t('数据无法被缓存，切换tab或者刷新页面缓存值将会清空') }}</span>
     </div>
     <div v-if="redirectList.length > 0 || isRedirectStatusCode" class="mb-1 ml-5 redirect-control">
       <div v-if="redirectList.length > 0" class="redirect-info">
@@ -36,7 +36,7 @@
     >
       <div v-for="(item, idx) in (redirectList)" :key="idx" class="mb-2 redirect-item">
         <div class="mb-1">
-          <h3 class="mt-0">第{{ idx + 1 }}次重定向</h3>
+          <h3 class="mt-0">{{ t('第{0}次重定向', [idx + 1]) }}</h3>
         </div>
         <div class="redirect-content">
           <div class="mb-1">
@@ -84,7 +84,7 @@
           :preview-src-list="[httpNodeResponseStore.responseInfo.responseData.fileData.url]" 
           fit="contain">
         </el-image>
-        <div v-else class="img-view-empty">图片加载中</div>
+        <div v-else class="img-view-empty">{{ t('图片加载中') }}</div>
         <div class="text-center">{{ httpNodeResponseStore.responseInfo.contentType }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
@@ -250,7 +250,7 @@
           controls
           class="audio-view"
         ></audio>
-        <div v-else class="text-center">音频加载中</div>
+        <div v-else class="text-center">{{ t('音频加载中') }}</div>
         <div class="text-center">{{ httpNodeResponseStore.responseInfo.contentType }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t('下载文件') }}</el-button>
       </div>

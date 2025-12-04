@@ -114,25 +114,16 @@ export const useReactAgentStore = defineStore('reactAgent', () => {
     if (!providerSettings) {
       throw new Error('未配置 LLM 提供商');
     }
+    if (!window.electronAPI?.aiManager) {
+      throw new Error('AI Manager 未初始化');
+    }
     const requestBody = {
       model: providerSettings.model,
       messages: messages.value as LLMessage[],
       tools: agentToolsStore.getToolDefinitions(),
       stream: false,
     };
-    const response = await fetch(providerSettings.baseURL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${providerSettings.apiKey}`,
-      },
-      body: JSON.stringify(requestBody),
-    });
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`LLM 请求失败: ${response.status} ${errorText}`);
-    }
-    return response.json();
+    return window.electronAPI.aiManager.chat(requestBody);
   };
   // 处理工具调用
   const handleToolCalls = async (toolCalls: LLMessageWithToolCalls['tool_calls']) => {

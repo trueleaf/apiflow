@@ -8,7 +8,7 @@
           <SFormItem :label="t('备注')" prop="remark" required one-line></SFormItem>
         </SForm>
       </SFieldset>
-      <SFieldset title="权限选择">
+      <SFieldset :title="t('权限选择')">
         <el-tabs v-model="activeName">
           <!-- 前端路由 -->
           <el-tab-pane name="clientRoute" :label="t('前端路由')">

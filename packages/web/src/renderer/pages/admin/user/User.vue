@@ -6,12 +6,12 @@
       <SSearchItem :label="$t('昵称')" prop="realName"></SSearchItem>
       <SSearchItem :label="$t('手机号')" prop="phone"></SSearchItem>
       <template #operation>
-        <el-button type="success" @click="addUserDialog = true">新增用户</el-button>
+        <el-button type="success" @click="addUserDialog = true">{{ $t('新增用户') }}</el-button>
         <SDownload class="ml-2" url="/api/security/user_excel_template" @finish="handleDownloadFinish">
-          <el-button :loading="loading" type="primary" @click="loading = true">下载模板</el-button>
+          <el-button :loading="loading" type="primary" @click="loading = true">{{ $t('下载模板') }}</el-button>
         </SDownload>
         <SUploadPlain url="/api/security/add_user_by_excel" excel @success="handleImportSuccess" @upload="loading2 = true" @finish="loading2 = false">
-          <el-button :loading="loading2" type="primary">导入用户</el-button>
+          <el-button :loading="loading2" type="primary">{{ $t('导入用户') }}</el-button>
         </SUploadPlain>
       </template>
     </SSearch>
@@ -45,7 +45,7 @@
       <el-table-column :label="$t('操作')" align="center" width="300px">
         <template #default="scope">
           <el-button link type="primary" text @click="handleOpenEditUser(scope.row)">{{ $t('修改') }}</el-button>
-          <el-button link type="primary" text @click="handleResetPassword(scope.row)">重置密码</el-button>
+          <el-button link type="primary" text @click="handleResetPassword(scope.row)">{{ $t('重置密码') }}</el-button>
           <el-button link type="primary" text @click="handleForbidRole(scope.row._id, scope.row.isEnabled)">
             {{ scope.row.isEnabled ? $t("禁用") : $t("启用") }}
           </el-button>
@@ -96,8 +96,8 @@ const handleChange = (params: Record<string, unknown>) => {
 }
 //禁用角色
 const handleForbidRole = (_id: string, isEnabled: boolean) => {
-  const tipLabel = isEnabled ? '禁用' : '启用';
-  ElMessageBox.confirm(t(`确实要${tipLabel}该用户吗`), t('提示'), {
+  const tipLabel = isEnabled ? t('禁用') : t('启用');
+  ElMessageBox.confirm(t('确实要{action}该用户吗', { action: tipLabel }), t('提示'), {
     confirmButtonText: t('确定'),
     cancelButtonText: t('取消'),
     type: 'warning',
@@ -134,8 +134,8 @@ const handleDownloadFinish = () => {
 //导入成功弹窗
 const handleImportSuccess = (data: { total: number, success: number }) => {
   getData();
-  ElMessageBox.alert(`共导入 ${data.total} 个，成功 ${data.success} 个`, {
-    confirmButtonText: '确定',
+  ElMessageBox.alert(t('共导入 {total} 个，成功 {success} 个', { total: data.total, success: data.success }), {
+    confirmButtonText: t('确定'),
     type: 'warning'
   }).then(() => {
     //console.log(222)

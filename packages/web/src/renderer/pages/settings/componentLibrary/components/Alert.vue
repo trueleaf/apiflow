@@ -1,39 +1,39 @@
 <template>
   <div class="component-demo">
-    <h3 class="component-title">Alert 提示组件</h3>
+    <h3 class="component-title">{{ t('Alert 提示组件') }}</h3>
     <div class="component-description">
-      <p>循环展示内容的轮播组件</p>
+      <p>{{ t('循环展示内容的轮播组件') }}</p>
     </div>
     <div class="component-showcase">
       <div class="alert success">
         <div class="alert-icon">✓</div>
         <div class="alert-content">
-          <div class="alert-title">成功提示</div>
-          <div class="alert-message">操作已成功完成</div>
+          <div class="alert-title">{{ t('成功提示') }}</div>
+          <div class="alert-message">{{ t('操作已成功完成') }}</div>
         </div>
       </div>
       
       <div class="alert info">
         <div class="alert-icon">i</div>
         <div class="alert-content">
-          <div class="alert-title">信息提示</div>
-          <div class="alert-message">这是一条信息提示</div>
+          <div class="alert-title">{{ t('信息提示') }}</div>
+          <div class="alert-message">{{ t('这是一条信息提示') }}</div>
         </div>
       </div>
       
       <div class="alert warning">
         <div class="alert-icon">!</div>
         <div class="alert-content">
-          <div class="alert-title">警告提示</div>
-          <div class="alert-message">请注意此操作的风险</div>
+          <div class="alert-title">{{ t('警告提示') }}</div>
+          <div class="alert-message">{{ t('请注意此操作的风险') }}</div>
         </div>
       </div>
       
       <div class="alert error">
         <div class="alert-icon">×</div>
         <div class="alert-content">
-          <div class="alert-title">错误提示</div>
-          <div class="alert-message">操作失败，请重试</div>
+          <div class="alert-title">{{ t('错误提示') }}</div>
+          <div class="alert-message">{{ t('操作失败，请重试') }}</div>
         </div>
       </div>
     </div>
@@ -41,7 +41,8 @@
 </template>
 
 <script setup lang="ts">
-// Alert 提示组件实现
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 </script>
 
 <style lang="scss" scoped>

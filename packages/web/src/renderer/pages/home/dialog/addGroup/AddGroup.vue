@@ -25,7 +25,7 @@
           </RemoteSelectorItem>
           <div v-if="remoteMembers.length === 0" class="d-flex a-center j-center w-100 h-40px gray-500">{{ t('暂无数据') }}</div>
         </RemoteSelector>
-        <div class="f-sm gray-500">用户必须开启允许邀请才能检索到，可以在个人设置中开启被检索功能</div>
+        <div class="f-sm gray-500">{{ t('用户必须开启允许邀请才能检索到，可以在个人设置中开启被检索功能') }}</div>
       </el-form-item>
       
     </el-form>
@@ -148,7 +148,7 @@ const handleAddGroup = () => {
           input.focus();
         }
       });
-      message.warning('请完善必填信息');
+      message.warning(t('请完善必填信息'));
       loading.value = false;
     }
   });

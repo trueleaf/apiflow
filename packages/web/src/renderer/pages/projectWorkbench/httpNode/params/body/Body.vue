@@ -44,14 +44,14 @@
         @change="handleUrlencodedChange"
       ></SParamsTree>
       <div v-show="bodyType === 'json'" class="body-op">
-        <span class="btn" @click="handleFormat">格式化</span>
+        <span class="btn" @click="handleFormat">{{ t('格式化') }}</span>
         <!-- <span class="btn" @click="handleOpenSaveDialog">保存用例</span>
                 <span class="btn" @click="handleFormat">切换用例</span> -->
       </div>
       <div v-if="bodyType === 'json' && !rawJsonData && jsonBodyVisible" class="json-tip">
         <img class="w-100 h-100" :src="bodyTipUrl" draggable="false"
           oncontextmenu="return false" />
-        <div class="no-tip" @click="handleHideTip">不再提示</div>
+        <div class="no-tip" @click="handleHideTip">{{ t('不再提示') }}</div>
       </div>
     </div>
     <div v-else-if="bodyType === 'raw'" class="raw-wrap">
@@ -79,8 +79,8 @@
     </div>
     <div v-else-if="bodyType === 'binary'" class="binary-wrap">
       <el-radio-group :model-value="requestBody?.binary?.mode" @update:model-value="handleChangeBinaryMode">
-        <el-radio value="var">变量模式</el-radio>
-        <el-radio value="file">文件模式</el-radio>
+        <el-radio value="var">{{ t('变量模式') }}</el-radio>
+        <el-radio value="file">{{ t('文件模式') }}</el-radio>
       </el-radio-group>
       <div v-if="requestBody?.binary?.mode === 'var'" class="var-mode">
         <el-input

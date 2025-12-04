@@ -1532,4 +1532,23 @@ export default {
   已恢复默认顺序: 'Default order restored',
   标签页显示顺序: 'Tab Display Order',
   拖拽调整标签页的显示顺序: 'Drag to adjust the display order of tabs',
+  // AI related messages
+  'AI功能不可用': 'AI feature is not available',
+  // Common operation messages
+  移除成功: 'Removed successfully',
+  保存成功: 'Saved successfully',
+  重置成功: 'Reset successfully',
+  修改失败: 'Modification failed',
+  '数据量计算失败': 'Failed to calculate data size',
+  '导出启动失败': 'Failed to start export',
+  '正在计算数据量...': 'Calculating data size...',
+  '正在启动导出...': 'Starting export...',
+  '选择路径失败': 'Failed to select path',
+  '正在准备导出数据...': 'Preparing export data...',
+  '确实要{action}该用户吗': 'Are you sure to {action} this user?',
+  '共导入 {total} 个，成功 {success} 个': 'Imported {total} total, {success} successful',
+  '正在读取IndexedDB数据...': 'Reading IndexedDB data...',
+  '正在导出数据...': 'Exporting data...',
+  '数据读取完成，正在打包...': 'Data read complete, packaging...',
+  '数据发送失败': 'Failed to send data',
 }

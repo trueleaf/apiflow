@@ -104,7 +104,7 @@
             <el-radio value="none">none</el-radio>
           </el-radio-group>
         </SConfig>
-        <SConfig :has-check="false" label="导入方式" :description="$t('请谨慎选择导入方式')">
+        <SConfig :has-check="false" :label="$t('导入方式')" :description="$t('请谨慎选择导入方式')">
           <el-radio-group v-model="formInfo.cover" @change="handleChangeIsCover">
             <el-radio :value="false">{{ $t("追加方式") }}</el-radio>
             <el-radio :value="true">{{ $t("覆盖方式") }}</el-radio>

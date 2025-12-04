@@ -22,8 +22,8 @@
       >
         <template #variable="{ label }">
           <div v-if="getVariableValue(label)" class="variable-popover">
-            <div class="variable-name">变量名称：{{ label }}</div>
-            <div class="variable-value">变量值：{{ getVariableValue(label) }}</div>
+            <div class="variable-name">{{ t('变量名称') }}：{{ label }}</div>
+            <div class="variable-value">{{ t('变量值') }}：{{ getVariableValue(label) }}</div>
           </div>
           <div v-else class="variable-popover">
             <div class="variable-warning">{{ t('变量未定义', { name: label }) }}</div>

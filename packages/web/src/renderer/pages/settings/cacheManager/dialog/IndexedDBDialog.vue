@@ -1,35 +1,35 @@
 <template>
-  <el-dialog v-model="visible" :title="`${currentStoreInfo?.description || '详情信息'} - 数据详情`" width="80%"
+  <el-dialog v-model="visible" :title="`${currentStoreInfo?.description || t('详情信息')} - ${t('数据详情')}`" width="80%"
     :before-close="handleClose">
     <div class="detail-content">
       <div v-if="currentStoreInfo" class="store-info">
         <div class="info-item">
-          <span class="label">数据库名称：</span>
+          <span class="label">{{ t('数据库名称') }}：</span>
           <span class="value">{{ currentStoreInfo.dbName }}</span>
         </div>
         <div class="info-item">
-          <span class="label">存储名称：</span>
+          <span class="label">{{ t('存储名称') }}：</span>
           <span class="value">{{ currentStoreInfo.storeName }}</span>
         </div>
         <div class="info-item">
-          <span class="label">总大小：</span>
+          <span class="label">{{ t('总大小') }}：</span>
           <span class="value">{{ formatUnit(currentStoreInfo.size, 'bytes') }}</span>
         </div>
       </div>
 
       <div v-if="!tableLoading && storeDetailData" class="data-table">
         <div class="table-header">
-          <span>数据列表 (共 {{ storeDetailData.total }} 条记录)</span>
+          <span>{{ t('数据列表') }} ({{ t('共') }} {{ storeDetailData.total }} {{ t('条记录') }})</span>
         </div>
 
         <el-table :data="storeDetailData.data" border max-height="400">
-          <el-table-column prop="key" label="键名" width="200" />
-          <el-table-column prop="size" label="大小" width="100">
+          <el-table-column prop="key" :label="t('键名')" width="200" />
+          <el-table-column prop="size" :label="t('大小')" width="100">
             <template #default="scope">
               {{ formatUnit(scope.row.size, 'bytes') }}
             </template>
           </el-table-column>
-          <el-table-column prop="value" label="值">
+          <el-table-column prop="value" :label="t('值')">
             <template #default="scope">
               <div class="value-content">
                 <div class="value-preview clickable" @click="handleValueClick(scope.row, $event)">
@@ -38,10 +38,10 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="100" fixed="right">
+          <el-table-column :label="t('操作')" width="100" fixed="right">
             <template #default="scope">
               <el-button link type="danger" size="small" @click="handleDeleteItem(scope.row)">
-                删除
+                {{ t('删除') }}
               </el-button>
             </template>
           </el-table-column>
@@ -55,7 +55,7 @@
         </div>
       </div>
       <div v-if="!storeDetailData && !tableLoading" class="empty-detail">
-        <div class="empty-text">暂无数据</div>
+        <div class="empty-text">{{ t('暂无数据') }}</div>
       </div>
       <el-skeleton v-if="tableLoading" :rows="12" animated />
       <el-popover :visible="isShowPopover" placement="right" :width="600"
@@ -65,9 +65,9 @@
         </template>
         <div class="json-popover-content">
           <div class="popover-header">
-            <span class="popover-title">JSON数据详情</span>
+            <span class="popover-title">{{ t('JSON数据详情') }}</span>
             <el-button link type="primary" @click="closePopover">
-              关闭
+              {{ t('关闭') }}
             </el-button>
           </div>
           <div class="json-editor-container">
@@ -82,11 +82,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { IndexedDBItem, StoreDetailResponse, StoreDetailItem } from '@src/types/apidoc/cache'
 import { formatUnit } from '@/helper'
 import { ElMessageBox } from 'element-plus'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { message } from '@/helper'
+
+const { t } = useI18n()
 
 /*
 |--------------------------------------------------------------------------
@@ -139,7 +142,7 @@ const detailMessageHandler = (event: MessageEvent) => {
       break
     case 'error':
       console.error('操作失败:', data.error)
-      message.error('操作失败: ' + (data.error?.message || '未知错误'))
+      message.error(t('操作失败') + ': ' + (data.error?.message || t('未知错误')))
       tableLoading.value = false
       break
   }

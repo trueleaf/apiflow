@@ -6,21 +6,21 @@
       <el-popover :visible="toggleProjectVisible" transition="none" placement="right"
         width="500px">
         <template #reference>
-          <div class="toggle-btn" title="切换项目" data-testid="banner-toggle-project-btn" @click.stop="handleToggleProjectModel">
+          <div class="toggle-btn" :title="t('切换项目')" data-testid="banner-toggle-project-btn" @click.stop="handleToggleProjectModel">
             <el-icon>
               <Switch></Switch>
             </el-icon>
           </div>
         </template>
         <SLoading :loading="projectLoading" class="tool-toggle-project">
-          <h3 v-if="startProjectList.length > 0">收藏的项目</h3>
+          <h3 v-if="startProjectList.length > 0">{{ t('收藏的项目') }}</h3>
           <div class="project-wrap">
             <div v-for="(item, index) in startProjectList" :key="index" class="item" @click="handleChangeProject(item)">
               <span class="item-title">{{ item.projectName }}</span>
               <span class="item-content gray-600">{{ item.owner.name }}</span>
             </div>
           </div>
-          <h3>项目列表</h3>
+          <h3>{{ t('项目列表') }}</h3>
           <div class="project-wrap">
             <div v-for="(item, index) in projectList" :key="index" class="item" @click="handleChangeProject(item)">
               <span class="item-title">{{ item.projectName }}</span>
@@ -40,7 +40,7 @@
               <i class="iconfont icongaojishaixuan"></i>
             </div>
           </template>
-          <SFieldset title="过滤条件" class="search-panel">
+          <SFieldset :title="t('过滤条件')" class="search-panel">
             <!-- 操作人员 -->
             <div class="op-item a-center">
               <div class="flex0">{{ t("操作人员") }}：</div>

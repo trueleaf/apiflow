@@ -1,17 +1,17 @@
 <template>
   <div class="component-demo">
-    <h3 class="component-title">Dropdown 组件</h3>
+    <h3 class="component-title">{{ t('Dropdown 组件') }}</h3>
     <div class="component-description">
-      <p>展示和管理数据的高级表格组件</p>
+      <p>{{ t('展示和管理数据的高级表格组件') }}</p>
     </div>
     <div class="component-showcase">
       <div class="dropdown">
-        <button class="dropdown-toggle">下拉菜单 <span class="caret">▼</span></button>
+        <button class="dropdown-toggle">{{ t('下拉菜单') }} <span class="caret">▼</span></button>
         <div class="dropdown-menu">
-          <div class="dropdown-item">选项 1</div>
-          <div class="dropdown-item">选项 2</div>
-          <div class="dropdown-item">选项 3</div>
-          <div class="dropdown-item">选项 4</div>
+          <div class="dropdown-item">{{ t('选项') }} 1</div>
+          <div class="dropdown-item">{{ t('选项') }} 2</div>
+          <div class="dropdown-item">{{ t('选项') }} 3</div>
+          <div class="dropdown-item">{{ t('选项') }} 4</div>
         </div>
       </div>
     </div>
@@ -19,7 +19,8 @@
 </template>
 
 <script setup lang="ts">
-// Dropdown 组件实现
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 </script>
 
 <style lang="scss" scoped>

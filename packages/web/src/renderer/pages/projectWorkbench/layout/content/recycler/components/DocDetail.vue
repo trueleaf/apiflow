@@ -8,81 +8,81 @@
       <SFieldset v-if="apidocInfo" :title="t('基本信息')">
         <!-- HTTP 类型 -->
         <template v-if="apidocInfo.info.type === 'http'">
-          <SLableValue label="请求方式：" class="w-50">
+          <SLableValue :label="t('请求方式') + '：'" class="w-50">
             <template v-for="(req) in validRequestMethods">
               <span v-if="httpItem?.method?.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="label"
                 :style="{ color: req.iconColor }">{{ req.name.toUpperCase() }}</span>
             </template>
           </SLableValue>
-          <SLableValue label="接口名称：" class="w-50">
+          <SLableValue :label="t('接口名称') + '：'" class="w-50">
             <div>{{ apidocInfo.info.name }}</div>
           </SLableValue>
-          <SLableValue label="请求地址：" class="w-50 mt-2">
+          <SLableValue :label="t('请求地址') + '：'" class="w-50 mt-2">
             <span class="text-ellipsis">{{ httpItem?.url?.prefix }}{{ httpItem?.url?.path }}</span>
           </SLableValue>
         </template>
         <!-- 文件夹类型 -->
         <template v-else-if="apidocInfo.info.type === 'folder'">
-          <SLableValue label="目录名称：" class="w-50">
+          <SLableValue :label="t('目录名称') + '：'" class="w-50">
             <div>{{ apidocInfo.info.name }}</div>
           </SLableValue>
         </template>
         <!-- WebSocket 类型 -->
         <template v-else-if="apidocInfo.info.type === 'websocket'">
-          <SLableValue label="协议类型：" class="w-50">
+          <SLableValue :label="t('协议类型') + '：'" class="w-50">
             <span>{{ wsItem?.protocol?.toUpperCase() }}</span>
           </SLableValue>
-          <SLableValue label="接口名称：" class="w-50">
+          <SLableValue :label="t('接口名称') + '：'" class="w-50">
             <div>{{ apidocInfo.info.name }}</div>
           </SLableValue>
-          <SLableValue label="请求地址：" class="w-50 mt-2">
+          <SLableValue :label="t('请求地址') + '：'" class="w-50 mt-2">
             <span class="text-ellipsis">{{ wsItem?.url?.prefix }}{{ wsItem?.url?.path }}</span>
           </SLableValue>
         </template>
         <!-- HTTP Mock 类型 -->
         <template v-else-if="apidocInfo.info.type === 'httpMock'">
-          <SLableValue label="接口名称：" class="w-50">
+          <SLableValue :label="t('接口名称') + '：'" class="w-50">
             <div>{{ apidocInfo.info.name }}</div>
           </SLableValue>
-          <SLableValue label="Mock地址：" class="w-50 mt-2">
+          <SLableValue :label="t('Mock地址') + '：'" class="w-50 mt-2">
             <span class="text-ellipsis">{{ httpMockItem?.requestCondition?.url }}</span>
           </SLableValue>
-          <SLableValue label="端口：" class="w-50 mt-2">
+          <SLableValue :label="t('端口') + '：'" class="w-50 mt-2">
             <span>{{ httpMockItem?.requestCondition?.port }}</span>
           </SLableValue>
         </template>
         <!-- WebSocket Mock 类型 -->
         <template v-else-if="apidocInfo.info.type === 'websocketMock'">
-          <SLableValue label="接口名称：" class="w-50">
+          <SLableValue :label="t('接口名称') + '：'" class="w-50">
             <div>{{ apidocInfo.info.name }}</div>
           </SLableValue>
-          <SLableValue label="Mock路径：" class="w-50 mt-2">
+          <SLableValue :label="t('Mock路径') + '：'" class="w-50 mt-2">
             <span class="text-ellipsis">{{ wsMockItem?.requestCondition?.path }}</span>
           </SLableValue>
-          <SLableValue label="端口：" class="w-50 mt-2">
+          <SLableValue :label="t('端口') + '：'" class="w-50 mt-2">
             <span>{{ wsMockItem?.requestCondition?.port }}</span>
           </SLableValue>
         </template>
         <!-- Markdown 类型 -->
         <template v-else-if="apidocInfo.info.type === 'markdown'">
-          <SLableValue label="文档名称：" class="w-50">
+          <SLableValue :label="t('文档名称') + '：'" class="w-50">
             <div>{{ apidocInfo.info.name }}</div>
           </SLableValue>
         </template>
         <!-- 通用信息 -->
         <div class="base-info">
-          <SLableValue label="维护人员：" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto"
+          <SLableValue :label="t('维护人员') + '：'" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto"
             class="w-50">
             <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
           </SLableValue>
-          <SLableValue label="创建人员：" :title="apidocInfo.info.creator" label-width="auto"
+          <SLableValue :label="t('创建人员') + '：'" :title="apidocInfo.info.creator" label-width="auto"
             class="w-50">
             <span class="text-ellipsis">{{ apidocInfo.info.creator }}</span>
           </SLableValue>
-          <SLableValue label="更新日期：" :title="formatDate(apidocInfo.updatedAt)" label-width="auto" class="w-50">
+          <SLableValue :label="t('更新日期') + '：'" :title="formatDate(apidocInfo.updatedAt)" label-width="auto" class="w-50">
             <span class="text-ellipsis">{{ formatDate(apidocInfo.updatedAt) }}</span>
           </SLableValue>
-          <SLableValue label="创建日期：" :title="formatDate(apidocInfo.createdAt)" label-width="auto" class="w-50">
+          <SLableValue :label="t('创建日期') + '：'" :title="formatDate(apidocInfo.createdAt)" label-width="auto" class="w-50">
             <span class="text-ellipsis">{{ formatDate(apidocInfo.createdAt) }}</span>
           </SLableValue>
         </div>

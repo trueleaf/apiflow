@@ -1,24 +1,25 @@
 <template>
   <div class="component-demo">
-    <h3 class="component-title">输入框组件</h3>
+    <h3 class="component-title">{{ t('输入框组件') }}</h3>
     <div class="component-description">
-      <p>用于创建交互式表单的组件集合</p>
+      <p>{{ t('用于创建交互式表单的组件集合') }}</p>
     </div>
     <div class="component-showcase">
       <div class="input-group">
-        <label for="demo-input">标准输入框</label>
-        <input id="demo-input" type="text" placeholder="请输入内容">
+        <label for="demo-input">{{ t('标准输入框') }}</label>
+        <input id="demo-input" type="text" :placeholder="t('请输入内容')">
       </div>
       <div class="input-group">
-        <label for="demo-textarea">文本域</label>
-        <textarea id="demo-textarea" placeholder="请输入多行内容"></textarea>
+        <label for="demo-textarea">{{ t('文本域') }}</label>
+        <textarea id="demo-textarea" :placeholder="t('请输入多行内容')"></textarea>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// 输入框组件实现
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 </script>
 
 <style lang="scss" scoped>

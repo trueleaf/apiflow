@@ -165,20 +165,20 @@ const handleSelectPath = async () => {
     }
   } catch (error) {
     console.error('选择路径失败:', error);
-    statusMessage.value = '选择路径失败';
+    statusMessage.value = t('选择路径失败');
   }
 };
 // 计算需要导出的数据量
 const calculateDataCount = async () => {
   try {
-    statusMessage.value = '正在计算数据量...';
+    statusMessage.value = t('正在计算数据量...');
     estimatedDataCount.value = await getIndexedDBItemCount([exportConfig.includeResponseCache ? '' : 'httpNodeResponseCache']);
     exportStatus.itemNum = estimatedDataCount.value;
     statusMessage.value = '';
   } catch (error) {
     console.error('计算数据量失败:', error);
-    statusMessage.value = '数据量计算失败';
-    message.error('数据量计算失败');
+    statusMessage.value = t('数据量计算失败');
+    message.error(t('数据量计算失败'));
   }
 };
 // 开始导出
@@ -195,7 +195,7 @@ const handleStartExport = async () => {
   }
   try {
     isStartingExport.value = true;
-    statusMessage.value = '正在启动导出...';
+    statusMessage.value = t('正在启动导出...');
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.export.rendererNotifyMain.start, {
       itemNum: exportStatus.itemNum,
       config: {
@@ -204,12 +204,12 @@ const handleStartExport = async () => {
     });
     exportStatus.status = 'inProgress';
     exportStatus.progress = 0;
-    statusMessage.value = '正在准备导出数据...';
+    statusMessage.value = t('正在准备导出数据...');
   } catch (error) {
     console.error('开始导出失败:', error);
     exportStatus.status = 'error';
-    statusMessage.value = '导出启动失败';
-    message.error('导出启动失败');
+    statusMessage.value = t('导出启动失败');
+    message.error(t('导出启动失败'));
   } finally {
     isStartingExport.value = false;
   }
@@ -217,7 +217,7 @@ const handleStartExport = async () => {
 // 发送数据到主进程
 const sendDataToMain = async () => {
   try {
-    statusMessage.value = '正在读取IndexedDB数据...';
+    statusMessage.value = t('正在读取IndexedDB数据...');
     const databases = await indexedDB.databases();
     let processedCount = 0;
     // 用于存储打开的数据库连接，确保最后关闭
@@ -266,7 +266,7 @@ const sendDataToMain = async () => {
                 processedCount++;
                 const progress = Math.round((processedCount / exportStatus.itemNum) * 100);
                 exportStatus.progress = Math.min(progress, 95); // 预留5%给最后的完成步骤
-                statusMessage.value = `正在导出数据... ${processedCount}/${exportStatus.itemNum}`;
+                statusMessage.value = t('正在导出数据...') + ` ${processedCount}/${exportStatus.itemNum}`;
               }
             } catch (storeError) {
               console.warn(`处理存储 ${storeName} 时出错:`, storeError);
@@ -293,7 +293,7 @@ const sendDataToMain = async () => {
       openDatabases.length = 0;
     }
     
-    statusMessage.value = '数据读取完成，正在打包...';
+    statusMessage.value = t('数据读取完成，正在打包...');
 
     // 通知主进程数据发送完毕
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.export.rendererNotifyMain.rendererDataFinish);
@@ -301,8 +301,8 @@ const sendDataToMain = async () => {
   } catch (error) {
     console.error('发送数据失败:', error);
     exportStatus.status = 'error';
-    statusMessage.value = '数据发送失败';
-    message.error(`数据发送失败: ${(error as Error).message}`);
+    statusMessage.value = t('数据发送失败');
+    message.error(t('数据发送失败') + `: ${(error as Error).message}`);
   }
 };
 // 检查是否统计当前数据库

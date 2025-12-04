@@ -11,9 +11,9 @@
           {{ log.data.statusCode }}
         </span>
         <span class="meta-item">IP: {{ log.data.ip }}</span>
-        <span class="meta-item">响应时间: {{ log.data.responseTime ?? 0 }}ms</span>
+        <span class="meta-item">{{ t('响应时间') }}: {{ log.data.responseTime ?? 0 }}ms</span>
         <ElButton size="small" @click="$emit('showFullData', log)" class="full-data-btn">
-          完整数据
+          {{ t('完整数据') }}
         </ElButton>
         <template v-if="getConsoleLogStats(log).total > 0">
           <span 
@@ -33,7 +33,7 @@
     <div class="custom-collapse">
       <div class="collapse-header" @click="isHeadersExpanded = !isHeadersExpanded">
         <ChevronRight :size="16" class="arrow-icon" :class="{ 'is-expanded': isHeadersExpanded }" />
-        <span>请求头</span>
+        <span>{{ t('请求头') }}</span>
       </div>
       <div v-show="isHeadersExpanded" class="collapse-content">
         <div class="headers-grid">
@@ -48,7 +48,7 @@
     <div class="custom-collapse">
       <div class="collapse-header" @click="isBodyExpanded = !isBodyExpanded">
         <ChevronRight :size="16" class="arrow-icon" :class="{ 'is-expanded': isBodyExpanded }" />
-        <span>请求体</span>
+        <span>{{ t('请求体') }}</span>
         <span v-if="log.data.contentType" class="content-type-hint">
           ({{ log.data.contentType.split(';')[0] }})
         </span>

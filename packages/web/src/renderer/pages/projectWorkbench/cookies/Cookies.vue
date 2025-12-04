@@ -83,7 +83,7 @@
             {{ getCookieSize(scope.row) }}
           </template>
         </el-table-column>
-        <el-table-column align="center" label="操作" width="120">
+        <el-table-column align="center" :label="t('操作')" width="120">
           <template #default="scope">
             <el-button type="primary" link size="small" @click="handleOpenEditDialog(scope.row)">{{ t('编辑') }}</el-button>
             <el-button type="danger" link size="small" @click="handleRemoveCookie(scope.row.id)">{{ t('删除') }}</el-button>

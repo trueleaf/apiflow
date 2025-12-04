@@ -1,24 +1,24 @@
 <template>
   <div class="component-demo">
-    <h3 class="component-title">对话框组件</h3>
+    <h3 class="component-title">{{ t('对话框组件') }}</h3>
     <div class="component-description">
-      <p>模态对话框，用于确认操作或展示重要信息</p>
+      <p>{{ t('模态对话框，用于确认操作或展示重要信息') }}</p>
     </div>
     <div class="component-showcase">
-      <button class="demo-button" @click="showDialog = true">打开对话框</button>
+      <button class="demo-button" @click="showDialog = true">{{ t('打开对话框') }}</button>
       
       <div v-if="showDialog" class="dialog-overlay">
         <div class="dialog">
           <div class="dialog-header">
-            <h4>对话框标题</h4>
+            <h4>{{ t('对话框标题') }}</h4>
             <button class="close-button" @click="showDialog = false">×</button>
           </div>
           <div class="dialog-body">
-            <p>这是一个模态对话框示例，用于展示重要信息或确认用户操作。</p>
+            <p>{{ t('这是一个模态对话框示例，用于展示重要信息或确认用户操作。') }}</p>
           </div>
           <div class="dialog-footer">
-            <button class="cancel-button" @click="showDialog = false">取消</button>
-            <button class="confirm-button" @click="showDialog = false">确认</button>
+            <button class="cancel-button" @click="showDialog = false">{{ t('取消') }}</button>
+            <button class="confirm-button" @click="showDialog = false">{{ t('确认') }}</button>
           </div>
         </div>
       </div>
@@ -28,7 +28,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 const showDialog = ref(false)
 </script>
 

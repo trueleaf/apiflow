@@ -31,7 +31,7 @@
       </div>
     </SFieldset>
     <SFieldset v-if="selectedType !== 'otherProject'" :title="t('额外配置')">
-      <SConfig ref="config" label="选择导出" :description="t('开启后可以自由选择需要导出的文档')" @change="handleConfigChange">
+      <SConfig ref="config" :label="t('选择导出')" :description="t('开启后可以自由选择需要导出的文档')" @change="handleConfigChange">
         <template #default="prop">
           <div v-if="prop.isEnabled" class="doc-nav">
             <div>

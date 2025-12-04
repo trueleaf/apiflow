@@ -1,8 +1,8 @@
 
 <template>
-  <el-dialog :model-value="modelValue" title="重置密码" :before-close="handleClose">
+  <el-dialog :model-value="modelValue" :title="t('重置密码')" :before-close="handleClose">
     <SForm ref="form" v-loading="loading2" :edit-data="formInfo">
-      <SFormItem label="新密码" prop="password" required :min-length="6" one-line></SFormItem>
+      <SFormItem :label="t('新密码')" prop="password" required :min-length="6" one-line></SFormItem>
     </SForm>
     <template #footer>
       <div>
@@ -60,7 +60,7 @@ const handleEditUser = () => {
       loading.value = true;
       request.put('/api/security/reset_password', params).then(() => {
         emits('success');
-        message.success('重置成功')
+        message.success(t('重置成功'))
         handleClose();
       }).catch((err) => {
         console.error(err);
@@ -69,7 +69,7 @@ const handleEditUser = () => {
       });
     } else {
       nextTick(() => (document.querySelector('.el-form-item.is-error input') as HTMLInputElement)?.focus());
-      message.warning('请完善必填信息');
+      message.warning(t('请完善必填信息'));
       loading.value = false;
     }
   });

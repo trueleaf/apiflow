@@ -3,16 +3,16 @@
     <div class="filters">
       <div class="filters-grid">
         <div class="filter-group">
-          <label class="filter-label">关键字</label>
+          <label class="filter-label">{{ t('关键字') }}</label>
           <el-input
             v-model="filters.keyword"
-            placeholder="搜索 IP、路径、UA、Referer"
+            :placeholder="t('搜索 IP、路径、UA、Referer')"
             clearable
           />
         </div>
         <div class="filter-group">
-          <label class="filter-label">请求方法</label>
-          <el-select v-model="filters.method" placeholder="全部" clearable>
+          <label class="filter-label">{{ t('请求方法') }}</label>
+          <el-select v-model="filters.method" :placeholder="t('全部')" clearable>
             <el-option
               v-for="method in methodOptions"
               :key="method"
@@ -22,13 +22,13 @@
           </el-select>
         </div>
         <div class="filter-group">
-          <label class="filter-label">状态码</label>
-          <el-input v-model="filters.status" placeholder="例如：200" clearable />
+          <label class="filter-label">{{ t('状态码') }}</label>
+          <el-input v-model="filters.status" :placeholder="t('例如：200')" clearable />
         </div>
         <div class="filter-actions">
-          <el-button @click="handleResetFilters">重置条件</el-button>
+          <el-button @click="handleResetFilters">{{ t('重置条件') }}</el-button>
           <el-button type="primary" :loading="loading" @click="fetchLogs">
-            刷新日志
+            {{ t('刷新日志') }}
           </el-button>
         </div>
       </div>
@@ -38,17 +38,17 @@
       <div class="operation">
         <div class="operation-btn" @click="handleClearLogs">
           <Trash2 :size="16" />
-          <span>清除</span>
+          <span>{{ t('清除') }}</span>
         </div>
         <div class="operation-btn" @click="openFormatDialog">
           <FileText :size="16" />
-          <span>模板</span>
+          <span>{{ t('模板') }}</span>
         </div>
         <div class="view-toggle-group">
           <div 
             class="view-toggle-btn" 
             :class="{ active: viewMode === 'compact' }"
-            :title="'简洁视图'"
+            :title="t('简洁视图')"
             @click="viewMode = 'compact'"
           >
             <List :size="16" />
@@ -56,19 +56,19 @@
           <div 
             class="view-toggle-btn" 
             :class="{ active: viewMode === 'detailed' }"
-            :title="'详细视图'"
+            :title="t('详细视图')"
             @click="viewMode = 'detailed'"
           >
             <LayoutList :size="16" />
           </div>
         </div>
       </div>
-      <div v-if="loading" class="log-loading">正在加载日志...</div>
+      <div v-if="loading" class="log-loading">{{ t('正在加载日志...') }}</div>
       <div v-else-if="errorMessage" class="log-error">{{ errorMessage }}</div>
       <template v-else>
         <ElEmpty
           v-if="!filteredLogs.length"
-          description="暂无符合条件的日志"
+          :description="t('暂无符合条件的日志')"
           class="log-empty"
         />
         <div v-else-if="viewMode === 'compact'" class="plain-log-list">
@@ -101,7 +101,7 @@
             </div>
             <div class="log-actions">
               <el-button size="small" @click="showLogDetail(log)">
-                完整数据
+                {{ t('完整数据') }}
               </el-button>
             </div>
           </div>
@@ -121,7 +121,7 @@
 
   <el-dialog
     v-model="detailDialogVisible"
-    title="完整日志数据"
+    :title="t('完整日志数据')"
     width="800px"
     destroy-on-close
   >
@@ -135,13 +135,13 @@
 
   <el-dialog
     v-model="formatDialogVisible"
-    title="日志格式模板"
+    :title="t('日志格式模板')"
     width="900px"
     destroy-on-close
   >
     <div class="format-dialog-content">
       <div class="format-hint" v-if="unknownTemplateVariables.length">
-        未识别变量：
+        {{ t('未识别变量') }}：
         <span v-for="item in unknownTemplateVariables" :key="item" class="format-hint-token">${{ item }}</span>
       </div>
       <textarea
@@ -150,16 +150,16 @@
         spellcheck="false"
       ></textarea>
       <div class="format-actions">
-        <el-button @click="resetFormatTemplate">重置为默认</el-button>
-        <el-button type="primary" @click="saveFormatTemplate">保存</el-button>
+        <el-button @click="resetFormatTemplate">{{ t('重置为默认') }}</el-button>
+        <el-button type="primary" @click="saveFormatTemplate">{{ t('保存') }}</el-button>
       </div>
       <div class="format-variables">
-        <div class="format-variables-title">可用变量</div>
+        <div class="format-variables-title">{{ t('可用变量') }}</div>
         <div class="format-variables-grid">
           <div v-for="variable in templateVariables" :key="variable.key" class="format-variable-item">
             <div class="variable-key">${{ variable.key }}</div>
             <div class="variable-desc">{{ variable.label }}</div>
-            <div class="variable-example">示例：{{ variable.example }}</div>
+            <div class="variable-example">{{ t('示例') }}：{{ variable.example }}</div>
           </div>
         </div>
       </div>
@@ -168,7 +168,7 @@
 
   <el-dialog
     v-model="consoleDialogVisible"
-    title="Console 日志详情"
+    :title="t('Console 日志详情')"
     width="800px"
     destroy-on-close
   >
@@ -197,6 +197,7 @@
 
 <script lang="ts" setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { ElEmpty, ElButton, ElInput, ElSelect, ElOption, ElDialog, ElMessageBox } from 'element-plus'
@@ -207,6 +208,8 @@ import { Trash2, FileText, AlertCircle, AlertTriangle, Info, List, LayoutList } 
 import { IPC_EVENTS } from '@src/types/ipc'
 import { appState } from '@/cache/appState/appStateCache'
 import MockLogItem from './MockLogItem.vue'
+
+const { t } = useI18n()
 
 
 const defaultTemplate = '[$time_local] $remote_addr - $remote_user "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $response_time_ms ms'

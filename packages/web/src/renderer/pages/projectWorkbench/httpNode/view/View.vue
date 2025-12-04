@@ -65,7 +65,7 @@
         <div v-else class="ml-2 gray-500">{{ t('暂无数据') }}</div>
       </div>
     </div>
-    <div class="view-block mt-5">请求头</div>
+    <div class="view-block mt-5">{{ t('请求头') }}</div>
     <template v-if="hasHeaders">
       <SParamsView :data="httpNodeInfo.item.headers" plain class="mb-3" />
     </template>
