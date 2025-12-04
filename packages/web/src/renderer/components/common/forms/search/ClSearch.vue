@@ -12,13 +12,13 @@
     <template #operation>
       <div class="d-flex a-center">
         <el-button :size="config.renderConfig.layout.size" type="primary" :disabled="loading"
-          @click="handleSearch">搜索</el-button>
+          @click="handleSearch">{{ t('搜索') }}</el-button>
         <el-button :size="config.renderConfig.layout.size" type="warning" :disabled="loading"
-          @click="handleReset">重置</el-button>
+          @click="handleReset">{{ t('重置') }}</el-button>
         <!-- <el-button v-show="couldShowLoadMore" :size="config.renderConfig.layout.size" type="primary" :disabled="loading"
           @click="toggleExpand">
-          <span v-if="isFold">更多筛选</span>
-          <span v-else>折叠筛选</span>
+          <span v-if="isFold">{{ t('更多筛选') }}</span>
+          <span v-else>{{ t('折叠筛选') }}</span>
         </el-button> -->
         <slot name="operation" />
       </div>
@@ -28,11 +28,14 @@
 
 <script lang="ts" setup>
 import { onMounted, onUnmounted, provide, ref, useSlots, VNode, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { config } from '@src/config/config'
 import { FormInstance } from 'element-plus';
 import { getTextWidth } from '@/helper'
 import { forEachForest } from '@/helper';
 import Card from '@/components/common/card/ClCard.vue'
+
+const { t } = useI18n()
 
 const props = defineProps({
   editData: {

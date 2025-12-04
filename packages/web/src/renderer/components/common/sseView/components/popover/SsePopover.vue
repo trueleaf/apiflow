@@ -14,23 +14,23 @@
     <template #default>
       <div v-if="message" class="sse-message-detail">
         <div class="detail-header">
-          <div class="header">消息详情</div>
+          <div class="header">{{ t('消息详情') }}</div>
           <div class="close-btn" @click="handleClose">
-            <i class="iconfont iconguanbi" title="关闭"></i>
+            <i class="iconfont iconguanbi" :title="t('关闭')"></i>
           </div>
         </div>
         <div class="detail-content-wrap">
           <div class="detail-row">
             <div class="row-item w-20">
-              <label>序号:</label>
+              <label>{{ t('序号') }}:</label>
               <span>{{ messageIndex + 1 }}</span>
             </div>
             <div v-if="message.event" class="row-item w-30">
-              <label>事件类型:</label>
+              <label>{{ t('事件类型') }}:</label>
               <span>{{ message.event }}</span>
             </div>
             <div class="row-item w-50">
-              <label>接受时间:</label>
+              <label>{{ t('接受时间') }}:</label>
               <span>{{ formatFullTimestamp(message.timestamp) }}</span>
             </div>
           </div>
@@ -42,7 +42,7 @@
                   :class="{ active: activeTab === 'content' }"
                   @click="setActiveTab('content')"
                 >
-                  完整内容
+                  {{ t('完整内容') }}
                 </div>
                 <div 
                   v-if="message.rawBlock && message.dataType !== 'binary'" 
@@ -50,7 +50,7 @@
                   :class="{ active: activeTab === 'raw' }"
                   @click="setActiveTab('raw')"
                 >
-                  原始数据块
+                  {{ t('原始数据块') }}
                 </div>
               </div>
               <div class="tab-content">
@@ -90,10 +90,13 @@
 
 <script lang="ts" setup>
 import { ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { isJsonString } from '@/helper';
 import dayjs from 'dayjs';
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue';
 import type { SsePopoverProps, SsePopoverEmits } from '@src/types/components/components';
+
+const { t } = useI18n();
 
 /*
 |--------------------------------------------------------------------------

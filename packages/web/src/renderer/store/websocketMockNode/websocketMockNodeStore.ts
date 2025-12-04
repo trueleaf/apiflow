@@ -10,6 +10,7 @@ import { useRuntime } from '@/store/runtime/runtimeStore';
 import { logger, generateEmptyWebSocketMockNode } from '@/helper';
 import { apiNodesCache } from "@/cache/nodes/nodesCache";
 import { nanoid } from 'nanoid/non-secure';
+import { i18n } from "@/i18n";
 
 // WebSocket Mock 节点缓存
 const websocketMockNodeCacheMap = new Map<string, WebSocketMockNode>();
@@ -99,9 +100,9 @@ export const useWebSocketMockNode = defineStore('websocketMockNode', () => {
           replaceOriginWebSocketMockNode();
           return;
         }
-        ElMessageBox.confirm('当前 WebSocket Mock 不存在，可能已经被删除!', '提示', {
-          confirmButtonText: '关闭接口',
-          cancelButtonText: '取消',
+        ElMessageBox.confirm(i18n.global.t('当前 WebSocket Mock 不存在，可能已经被删除'), i18n.global.t('提示'), {
+          confirmButtonText: i18n.global.t('关闭接口'),
+          cancelButtonText: i18n.global.t('取消'),
           type: 'warning',
         }).then(() => {
           return deleteNavByIds({

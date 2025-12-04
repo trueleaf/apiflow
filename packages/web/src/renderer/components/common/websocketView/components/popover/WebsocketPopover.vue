@@ -14,27 +14,27 @@
     <template #default>
       <div v-if="message" class="websocket-message-detail" @click.stop @mousedown.stop>
         <div class="detail-header">
-          <div class="header">消息详情</div>
+          <div class="header">{{ t('消息详情') }}</div>
           <div class="close-btn" @click="handleClose">
-            <i class="iconfont iconguanbi" title="关闭"></i>
+            <i class="iconfont iconguanbi" :title="t('关闭')"></i>
           </div>
         </div>
         <div class="detail-content-wrap">
           <div class="detail-row">
             <div class="row-item w-15">
-              <label>序号:</label>
+              <label>{{ t('序号') }}:</label>
               <span>{{ messageIndex }}</span>
             </div>
             <div class="row-item w-20">
-              <label>类型:</label>
+              <label>{{ t('类型') }}:</label>
               <span class="message-type" :class="`type-${message.type}`">{{ getTypeDisplayName(message.type) }}</span>
             </div>
             <div v-if="getMessageSize(message)" class="row-item w-20">
-              <label>大小:</label>
+              <label>{{ t('大小') }}:</label>
               <span>{{ formatSize(getMessageSize(message)) }}</span>
             </div>
             <div class="row-item w-45">
-              <label>接收时间:</label>
+              <label>{{ t('接收时间') }}:</label>
               <span>{{ formatFullTimestamp(message.data.timestamp) }}</span>
             </div>
           </div>

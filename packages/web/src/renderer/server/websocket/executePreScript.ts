@@ -2,6 +2,7 @@ import { WebSocketNode } from '@src/types/websocketNode';
 import { WS, WorkerMessage } from '@/worker/websocketPreRequest/types/types';
 import WebSocketPreRequestWorker from '@/worker/websocketPreRequest/websocketPreRequest.ts?worker';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
+import { i18n } from '@/i18n';
 
 type ExecutePreScriptResult = {
   success: boolean;
@@ -48,7 +49,7 @@ export async function executeWebSocketPreScript(
         resolve({
           success: false,
           error: {
-            message: '前置脚本执行超时（10秒）',
+            message: i18n.global.t('前置脚本执行超时（10秒）'),
           },
         });
       }

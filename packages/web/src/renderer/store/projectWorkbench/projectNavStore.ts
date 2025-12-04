@@ -193,9 +193,9 @@ export const useProjectNav = defineStore('projectNav', () => {
       const unsavedNav = unsavedNavs[i];
       try {
         // eslint-disable-next-line no-await-in-loop
-        await ElMessageBox.confirm(i18n.global.t('是否要保存对内容的修改', { msg: unsavedNav.label }), '提示', {
-          confirmButtonText: '保存',
-          cancelButtonText: '不保存',
+        await ElMessageBox.confirm(i18n.global.t('是否要保存对内容的修改', { msg: unsavedNav.label }), i18n.global.t('提示'), {
+          confirmButtonText: i18n.global.t('保存'),
+          cancelButtonText: i18n.global.t('不保存'),
           type: 'warning',
           distinguishCancelAndClose: true,
         })

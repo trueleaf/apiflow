@@ -52,7 +52,7 @@
       <el-icon class="loading-icon">
         <Loading />
       </el-icon>
-      <span>等待数据返回中</span>
+      <span>{{ t('等待数据返回中') }}</span>
     </div>
     <!-- 原始数据视图 -->
     <div v-else-if="isRawView" class="raw-content">

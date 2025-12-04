@@ -1551,4 +1551,45 @@ export default {
   '正在导出数据...': 'Exporting data...',
   '数据读取完成，正在打包...': 'Data read complete, packaging...',
   '数据发送失败': 'Failed to send data',
+  // Form search component
+  更多筛选: 'More Filters',
+  折叠筛选: 'Collapse Filters',
+  // SSE and WebSocket message details
+  等待数据返回中: 'Waiting for data...',
+  事件类型: 'Event Type',
+  接受时间: 'Received Time',
+  完整内容: 'Full Content',
+  原始数据块: 'Raw Data Block',
+  接收时间: 'Received Time',
+  // Store message boxes
+  '当前接口不存在，可能已经被删除': 'The current API does not exist, it may have been deleted!',
+  '当前 WebSocket 不存在，可能已经被删除': 'The current WebSocket does not exist, it may have been deleted!',
+  '当前 HttpMock 不存在，可能已经被删除': 'The current HttpMock does not exist, it may have been deleted!',
+  '当前 WebSocket Mock 不存在，可能已经被删除': 'The current WebSocket Mock does not exist, it may have been deleted!',
+  不保存: "Don't Save",
+  // Image processing errors
+  '文件大小超过限制。最大支持: {size}MB': 'File size exceeds limit. Maximum: {size}MB',
+  无法创建Canvas上下文: 'Unable to create Canvas context',
+  图片压缩失败: 'Image compression failed',
+  图片加载失败: 'Image loading failed',
+  文件读取失败: 'File reading failed',
+  // URL validation errors
+  'URL中包含未解析的变量：{variables}': 'URL contains unresolved variables: {variables}',
+  'URL中包含非法字符（空格），请使用%20代替空格': 'URL contains illegal characters (spaces), please use %20 instead',
+  主机名不能为空: 'Hostname cannot be empty',
+  '端口号必须在1-65535之间': 'Port number must be between 1-65535',
+  仅支持http和https协议: 'Only http and https protocols are supported',
+  'URL路径中包含连续的斜杠(//)': 'URL path contains consecutive slashes (//), please check the path format',
+  URL格式不正确: 'Invalid URL format',
+  // Script execution timeout
+  '前置脚本执行超时（10秒）': 'Pre-script execution timeout (10 seconds)',
+  '后置脚本执行超时（10秒）': 'Post-script execution timeout (10 seconds)',
+  // IndexedDB cache descriptions
+  'HTTP返回值缓存': 'HTTP Response Cache',
+  公共请求头缓存: 'Common Headers Cache',
+  文档缓存: 'Document Cache',
+  项目缓存: 'Project Cache',
+  变量缓存: 'Variable Cache',
+  'WebSocket历史记录缓存': 'WebSocket History Cache',
+  未知类型缓存: 'Unknown Type Cache',
 }

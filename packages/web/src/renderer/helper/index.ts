@@ -2903,13 +2903,13 @@ export const validateUrl = (url: string): UrlValidationResult => {
     const variables = matches.map((m) => m).join(', ');
     return {
       isValid: false,
-      errorMessage: `URL中包含未解析的变量：${variables}`,
+      errorMessage: i18n.global.t('URL中包含未解析的变量：{variables}', { variables }),
     };
   }
   if (trimmedUrl.includes(' ')) {
     return {
       isValid: false,
-      errorMessage: 'URL中包含非法字符（空格），请使用%20代替空格',
+      errorMessage: i18n.global.t('URL中包含非法字符（空格），请使用%20代替空格'),
     };
   }
   try {
@@ -2917,7 +2917,7 @@ export const validateUrl = (url: string): UrlValidationResult => {
     if (!urlObj.hostname || urlObj.hostname.trim() === '') {
       return {
         isValid: false,
-        errorMessage: '主机名不能为空',
+        errorMessage: i18n.global.t('主机名不能为空'),
       };
     }
     if (urlObj.port) {
@@ -2925,20 +2925,20 @@ export const validateUrl = (url: string): UrlValidationResult => {
       if (isNaN(port) || port < 1 || port > 65535) {
         return {
           isValid: false,
-          errorMessage: '端口号必须在1-65535之间',
+          errorMessage: i18n.global.t('端口号必须在1-65535之间'),
         };
       }
     }
     if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
       return {
         isValid: false,
-        errorMessage: '仅支持http和https协议',
+        errorMessage: i18n.global.t('仅支持http和https协议'),
       };
     }
     if (urlObj.pathname.includes('//')) {
       return {
         isValid: false,
-        errorMessage: 'URL路径中包含连续的斜杠(//)，请检查路径格式',
+        errorMessage: i18n.global.t('URL路径中包含连续的斜杠(//)'),
       };
     }
     return {
@@ -2948,7 +2948,7 @@ export const validateUrl = (url: string): UrlValidationResult => {
   } catch (error) {
     return {
       isValid: false,
-      errorMessage: 'URL格式不正确',
+      errorMessage: i18n.global.t('URL格式不正确'),
     };
   }
 }

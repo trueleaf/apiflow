@@ -2,6 +2,7 @@ import { WebSocketNode } from '@src/types/websocketNode';
 import { WSAfter, WorkerMessage } from '@/worker/websocketAfterRequest/types/types';
 import WebSocketAfterRequestWorker from '@/worker/websocketAfterRequest/websocketAfterRequest.ts?worker';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
+import { i18n } from '@/i18n';
 
 type ExecuteAfterScriptResult = {
   success: boolean;
@@ -60,7 +61,7 @@ export async function executeWebSocketAfterScript(
         resolve({
           success: false,
           error: {
-            message: '后置脚本执行超时（10秒）',
+            message: i18n.global.t('后置脚本执行超时（10秒）'),
           },
         });
       }

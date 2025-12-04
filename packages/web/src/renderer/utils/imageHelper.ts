@@ -2,6 +2,7 @@
  * 图片处理工具函数
  * 用于处理头像和Logo图片的上传、转换和验证
  */
+import { i18n } from "@/i18n";
 
 /**
  * 支持的图片格式
@@ -31,7 +32,7 @@ export function validateImageType(file: File): { valid: boolean; message?: strin
   if (!SUPPORTED_IMAGE_FORMATS.includes(file.type)) {
     return {
       valid: false,
-      message: `不支持的文件格式。支持的格式: JPG, PNG, GIF`,
+      message: i18n.global.t('不支持的文件格式。支持的格式: JPG, PNG, GIF'),
     };
   }
   return { valid: true };
@@ -45,7 +46,7 @@ export function validateImageSize(file: File, maxSize: number): { valid: boolean
     const maxSizeMB = (maxSize / (1024 * 1024)).toFixed(1);
     return {
       valid: false,
-      message: `文件大小超过限制。最大支持: ${maxSizeMB}MB`,
+      message: i18n.global.t('文件大小超过限制。最大支持: {size}MB', { size: maxSizeMB }),
     };
   }
   return { valid: true };
@@ -90,7 +91,7 @@ export function compressImage(
 
         const ctx = canvas.getContext('2d');
         if (!ctx) {
-          reject(new Error('无法创建Canvas上下文'));
+          reject(new Error(i18n.global.t('无法创建Canvas上下文')));
           return;
         }
 
@@ -101,17 +102,17 @@ export function compressImage(
             if (blob) {
               resolve(blob);
             } else {
-              reject(new Error('图片压缩失败'));
+              reject(new Error(i18n.global.t('图片压缩失败')));
             }
           },
           file.type,
           quality
         );
       };
-      img.onerror = () => reject(new Error('图片加载失败'));
+      img.onerror = () => reject(new Error(i18n.global.t('图片加载失败')));
       img.src = e.target?.result as string;
     };
-    reader.onerror = () => reject(new Error('文件读取失败'));
+    reader.onerror = () => reject(new Error(i18n.global.t('文件读取失败')));
     reader.readAsDataURL(file);
   });
 }
@@ -127,7 +128,7 @@ export function fileToBase64(file: File | Blob): Promise<string> {
     reader.onload = () => {
       resolve(reader.result as string);
     };
-    reader.onerror = () => reject(new Error('文件读取失败'));
+    reader.onerror = () => reject(new Error(i18n.global.t('文件读取失败')));
     reader.readAsDataURL(file);
   });
 }
@@ -165,7 +166,7 @@ export async function processImageUpload(
     return { success: true, data: base64String };
   } catch (error) {
     console.error('图片处理失败:', error);
-    return { success: false, message: error instanceof Error ? error.message : '图片处理失败' };
+    return { success: false, message: error instanceof Error ? error.message : i18n.global.t('图片处理失败') };
   }
 }
 

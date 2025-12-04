@@ -179,7 +179,11 @@ const handleMessage = (event: MessageEvent) => {
     cacheInfo.value.indexedDBSize = data.data.size;
   } else if (data.type === 'finish') {
     indexedDBLoading.value = false;
-    cacheInfo.value.indexedDBDetails = data.data;
+    // 翻译 Worker 返回的 description
+    cacheInfo.value.indexedDBDetails = data.data.map((item: IndexedDBItem) => ({
+      ...item,
+      description: t(item.description)
+    }));
     saveCacheData() // 保存本地数据
   } else if (data.type === 'deleteStoreResult') {
     if (data.data.success) {

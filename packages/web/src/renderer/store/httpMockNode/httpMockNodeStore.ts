@@ -15,6 +15,7 @@ import { logger } from '@/helper';
 import axios, { Canceler } from 'axios';
 import { request as axiosInstance } from '@/api/api';
 import { CommonResponse } from '@src/types';
+import { i18n } from "@/i18n";
 
 
 export const useHttpMockNode = defineStore('httpMockNode', () => {
@@ -135,9 +136,9 @@ export const useHttpMockNode = defineStore('httpMockNode', () => {
           return;
         }
         
-        ElMessageBox.confirm('当前HttpMock不存在，可能已经被删除!', '提示', {
-          confirmButtonText: '关闭接口',
-          cancelButtonText: '取消',
+        ElMessageBox.confirm(i18n.global.t('当前 HttpMock 不存在，可能已经被删除'), i18n.global.t('提示'), {
+          confirmButtonText: i18n.global.t('关闭接口'),
+          cancelButtonText: i18n.global.t('取消'),
           type: 'warning',
         }).then(() => {
           return deleteNavByIds({
@@ -179,9 +180,9 @@ export const useHttpMockNode = defineStore('httpMockNode', () => {
         }),
       }).then((res) => {
         if (res.data === null) {
-          ElMessageBox.confirm('当前HttpMock不存在，可能已经被删除!', '提示', {
-            confirmButtonText: '关闭接口',
-            cancelButtonText: '取消',
+          ElMessageBox.confirm(i18n.global.t('当前 HttpMock 不存在，可能已经被删除'), i18n.global.t('提示'), {
+            confirmButtonText: i18n.global.t('关闭接口'),
+            cancelButtonText: i18n.global.t('取消'),
             type: 'warning',
           }).then(() => {
             deleteNavByIds({
