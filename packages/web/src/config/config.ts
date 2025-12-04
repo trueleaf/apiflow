@@ -29,6 +29,11 @@ export const config: Config = {
     importProjectConfig: {
       maxSize: 1024 * 1024 * 5,
     },
+    //Agent相关配置
+    agentConfig: {
+      maxReactIterations: 10, //ReAct循环最大迭代次数
+      requireConfirmation: true, //敏感操作是否需要用户确认
+    },
   },
   //主进程配置
   mainConfig,

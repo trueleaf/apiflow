@@ -81,6 +81,19 @@ export type Config = {
        */
       maxSize: number,
     },
+    /**
+     * Agent相关配置
+     */
+    agentConfig: {
+      /**
+       * ReAct循环最大迭代次数
+       */
+      maxReactIterations: number,
+      /**
+       * 敏感操作是否需要用户确认
+       */
+      requireConfirmation: boolean,
+    },
   },
   /**
    * 主进程配置

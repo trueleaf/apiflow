@@ -73,13 +73,92 @@ export interface OpenAiStreamChunk {
 }
 /*
 |--------------------------------------------------------------------------
+| Agent 工具调用相关类型
+|--------------------------------------------------------------------------
+*/
+// DeepSeek function call 格式的工具定义
+export type ToolDefinition = {
+  type: 'function';
+  function: {
+    name: string;
+    description?: string;
+    parameters: Record<string, unknown>;
+  };
+};
+// 工具调用结果
+export type ToolExecuteResult = {
+  success: boolean;
+  data?: Record<string, unknown>;
+  error?: string;
+  needConfirmation?: boolean;
+};
+// Agent 工具定义
+export type AgentTool = {
+  name: string;
+  description: string;
+  parameters: {
+    type: 'object';
+    properties: Record<string, unknown>;
+    required: string[];
+  };
+  requireConfirmation: boolean;
+  execute: (args: Record<string, unknown>) => Promise<ToolExecuteResult>;
+};
+// LLM 响应中的工具调用
+export type ToolCall = {
+  id: string;
+  type: 'function';
+  function: {
+    name: string;
+    arguments: string;
+  };
+};
+// 带工具调用的 LLM 消息
+export type LLMessageWithToolCalls = {
+  role: 'assistant';
+  content: string | null;
+  tool_calls?: ToolCall[];
+};
+// 工具响应消息
+export type ToolMessage = {
+  role: 'tool';
+  tool_call_id: string;
+  content: string;
+};
+// 扩展的 OpenAI 响应体（支持 tool_calls）
+export type OpenAiResponseBodyWithTools = {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: Array<{
+    index: number;
+    message: LLMessageWithToolCalls;
+    finish_reason: 'stop' | 'tool_calls' | 'length' | null;
+  }>;
+};
+// Agent 步骤执行状态
+export type AgentStepStatus = 'pending' | 'running' | 'completed' | 'error';
+// Agent 执行步骤
+export type AgentStep = {
+  id: string;
+  type: 'working' | 'thinking' | 'tool_call' | 'tool_result' | 'final_answer';
+  content: string;
+  toolName?: string;
+  toolArgs?: Record<string, unknown>;
+  toolResult?: ToolExecuteResult;
+  timestamp: string;
+  needConfirmation?: boolean;
+  status?: AgentStepStatus;
+};
+// Agent 执行状态
+export type AgentStatus = 'idle' | 'thinking' | 'calling' | 'waiting_confirmation' | 'finished' | 'error';
+/*
+|--------------------------------------------------------------------------
 | 大模型统一配置类型
 |--------------------------------------------------------------------------
 */
 export type PromptItem = {
-  /**
-   * 提示词应用场景描述
-   */
   description: string;
   role: 'system' | 'user' | 'assistant';
   content: string;

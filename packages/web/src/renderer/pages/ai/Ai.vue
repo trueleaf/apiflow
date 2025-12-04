@@ -57,10 +57,24 @@
             <ArrowRight :size="14" class="config-icon"/>
           </button>
         </div>
-        <div v-else-if="copilotStore.copilotMessageList.length === 0" class="ai-empty-state">
+        <div v-else-if="mode === 'agent' && reactAgentStore.steps.length === 0" class="ai-empty-state">
+          <Bot class="ai-empty-icon" :size="48" />
+          <p class="ai-empty-text">{{ t('Agent模式，我可以帮你执行操作') }}</p>
+        </div>
+        <div v-else-if="mode === 'ask' && copilotStore.copilotMessageList.length === 0" class="ai-empty-state">
           <Bot class="ai-empty-icon" :size="48" />
           <p class="ai-empty-text">{{ t('问我任何问题') }}</p>
         </div>
+        <template v-else-if="mode === 'agent'">
+          <template v-for="step in reactAgentStore.steps" :key="step.id">
+            <AgentStepItem
+              :step="step"
+              :is-waiting-confirmation="reactAgentStore.status === 'waiting_confirmation' && step === reactAgentStore.steps[reactAgentStore.steps.length - 1]"
+              @confirm="handleAgentConfirm"
+              @reject="handleAgentReject"
+            />
+          </template>
+        </template>
         <template v-else>
           <template v-for="message in copilotStore.copilotMessageList" :key="message.id">
             <AskMessageItem v-if="message.type === 'ask'" :message="message" />
@@ -96,8 +110,6 @@
                   type="button"
                   class="ai-dropdown-item"
                   @click="handleSelectMode(item)"
-                  :disabled="item === 'agent'"
-                  :title="item === 'agent' ? t('敬请期待') : ''"
                 >
                   <span class="ai-dropdown-icon">
                     <Check v-if="mode === item" :size="14" />
@@ -193,9 +205,11 @@ import { llmProviderCache } from '@/cache/ai/llmProviderCache'
 import { useCopilotStore } from '@/store/ai/copilotStore'
 import { useLLMProvider } from '@/store/ai/llmProviderStore'
 import { useAiChatStore } from '@/store/ai/aiChatStore'
+import { useReactAgentStore } from '@/store/ai/reactAgentStore'
 import AskMessageItem from './components/AskMessageItem.vue'
 import LoadingMessageItem from './components/LoadingMessageItem.vue'
 import TextResponseMessageItem from './components/TextResponseMessageItem.vue'
+import AgentStepItem from './components/AgentStepItem.vue'
 import ConversationHistory from './components/ConversationHistory.vue'
 import './ai.css'
 
@@ -204,6 +218,7 @@ const visible = defineModel<boolean>('visible', { default: false })
 const copilotStore = useCopilotStore()
 const llmProviderStore = useLLMProvider()
 const aiChatStore = useAiChatStore()
+const reactAgentStore = useReactAgentStore()
 const messagesRef = ref<HTMLElement | null>(null)
 const inputMessage = ref('')
 const currentView = ref<'chat' | 'history'>('chat')
@@ -270,6 +285,9 @@ watch(() => copilotStore.copilotDialogVisible, (newValue) => {
 watch(() => copilotStore.copilotMessageList.length, () => {
   scrollToBottom()
 })
+watch(() => reactAgentStore.steps.length, () => {
+  scrollToBottom()
+})
 
 const buildOpenAIRequestBody = (userMessage: string): OpenAiRequestBody & { stream: true } => {
   const messages: LLMessage[] = []
@@ -331,8 +349,14 @@ const handleClose = () => {
 }
 const handleCreateConversation = async () => {
   await stopCurrentConversation()
-  if (copilotStore.copilotMessageList.length > 0) {
-    copilotStore.createNewSession()
+  if (mode.value === 'agent') {
+    if (reactAgentStore.steps.length > 0) {
+      reactAgentStore.reset()
+    }
+  } else {
+    if (copilotStore.copilotMessageList.length > 0) {
+      copilotStore.createNewSession()
+    }
   }
   currentView.value = 'chat'
 }
@@ -576,9 +600,23 @@ const handleSend = async () => {
   if (!isAiConfigValid()) return
   const message = inputMessage.value.trim()
   if (!message) return
-  if (isStreaming.value) return
   
   inputMessage.value = ''
+  
+  // Agent 模式
+  if (mode.value === 'agent') {
+    if (reactAgentStore.status !== 'idle' && reactAgentStore.status !== 'finished' && reactAgentStore.status !== 'error') {
+      return
+    }
+    copilotStore.setWorkingStatus('working')
+    await reactAgentStore.runAgent(message)
+    copilotStore.setWorkingStatus('finish')
+    scrollToBottom()
+    return
+  }
+  
+  // Ask 模式
+  if (isStreaming.value) return
   
   const timestamp = new Date().toISOString()
   const askMessageId = nanoid()
@@ -788,6 +826,18 @@ const handleOpenAiSettings = () => {
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab)
   // visible.value = false
   router.push('/settings')
+}
+const handleAgentConfirm = async () => {
+  copilotStore.setWorkingStatus('working')
+  await reactAgentStore.confirmToolExecution()
+  copilotStore.setWorkingStatus('finish')
+  scrollToBottom()
+}
+const handleAgentReject = async () => {
+  copilotStore.setWorkingStatus('working')
+  await reactAgentStore.rejectToolExecution()
+  copilotStore.setWorkingStatus('finish')
+  scrollToBottom()
 }
 const clampPositionToBounds = (pos: { x: number, y: number }, width: number, height: number): { x: number, y: number } => {
   const maxX = window.innerWidth - width
