@@ -4,7 +4,7 @@
     <div class="send-history-search">
       <el-input
         v-model="searchValue"
-        :placeholder="t('搜索历史记录')"
+        :placeholder="t('过滤历史记录')"
         clearable
         size="small"
         @input="handleSearchInput"
@@ -83,6 +83,7 @@ import { useRuntime } from '@/store/runtime/runtimeStore'
 import { router } from '@/router/index'
 import { storeToRefs } from 'pinia'
 import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache'
+import { appState } from '@/cache/appState/appStateCache'
 import type { SendHistoryItem, SendHistoryItemWithStatus } from '@src/types/history/sendHistory'
 import type { ApidocBanner } from '@src/types'
 
@@ -94,9 +95,12 @@ const runtimeStore = useRuntime()
 
 const { sendHistoryList, loading, hasMore, hasLoadedMore } = storeToRefs(sendHistoryStore)
 
-const searchValue = ref('')
+const searchValue = ref(appState.getHistoryFilterText())
 const listRef = ref<HTMLElement | null>(null)
 const searchTimer = ref<number | null>(null)
+watch(searchValue, (newVal) => {
+  appState.setHistoryFilterText(newVal)
+})
 
 // 获取项目ID
 const getProjectId = () => {
@@ -276,7 +280,11 @@ watch(() => runtimeStore.networkMode, () => {
 })
 
 onMounted(() => {
-  sendHistoryStore.loadSendHistory()
+  if (searchValue.value) {
+    sendHistoryStore.search(searchValue.value)
+  } else {
+    sendHistoryStore.loadSendHistory()
+  }
 })
 
 onUnmounted(() => {

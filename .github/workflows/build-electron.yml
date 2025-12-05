@@ -364,7 +364,7 @@ jobs:
           echo "标签创建成功"
 
   # 创建 GitHub Release
-  create-release:
+ create-release:
     needs: 
       - test-web
       - build-windows
@@ -375,35 +375,61 @@ jobs:
     if: ${{ always() && (needs.build-windows.result == 'success' || needs.build-linux.result == 'success' || needs.build-macos.result == 'success') }}
     
     steps:
+      - name: 检出代码（仅用于获取 tag 信息）
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
       - name: 下载所有构建产物
+        uses: actions/download-artifact@v4
+        with:
+          pattern: electron-app-*
+          merge-multiple: true
+          path: release_assets/
+
+      - name: 查看下载的文件
         run: |
-          mkdir -p release_assets
-          echo "准备下载构建产物..."
+          echo "下载的文件列表:"
+          find release_assets/ -type f 2>/dev/null || echo "没有找到文件"
+          echo "目录结构:"
+          ls -la release_assets/
+
+      - name: 重命名和组织文件
+        run: |
+          # 创建发布目录
+          mkdir -p publish
           
-          # 下载 Windows 构建产物
-          if [ "${{ needs.build-windows.result }}" = "success" ]; then
-            echo "下载 Windows 构建产物: ${{ needs.build-windows.outputs.artifact_name }}"
-            # 这里实际上在GitHub Release步骤中会直接上传文件
-          else
-            echo "Windows 构建失败，跳过"
+          # 移动并重命名 Windows 文件
+          if find release_assets/ -name "*.exe" -type f | head -1 | grep -q .; then
+            WIN_EXE=$(find release_assets/ -name "*.exe" -type f | head -1)
+            if [ -f "$WIN_EXE" ]; then
+              mv "$WIN_EXE" "publish/${{ needs.build-windows.outputs.asset_name }}"
+              echo "Windows 文件已准备: publish/${{ needs.build-windows.outputs.asset_name }}"
+            fi
           fi
           
-          # 下载 Linux 构建产物
-          if [ "${{ needs.build-linux.result }}" = "success" ]; then
-            echo "下载 Linux 构建产物: ${{ needs.build-linux.outputs.artifact_name }}"
-          else
-            echo "Linux 构建失败，跳过"
+          # 移动并重命名 Linux 文件
+          if find release_assets/ -name "*.AppImage" -type f | head -1 | grep -q .; then
+            LINUX_APPIMAGE=$(find release_assets/ -name "*.AppImage" -type f | head -1)
+            if [ -f "$LINUX_APPIMAGE" ]; then
+              mv "$LINUX_APPIMAGE" "publish/${{ needs.build-linux.outputs.asset_name }}"
+              echo "Linux 文件已准备: publish/${{ needs.build-linux.outputs.asset_name }}"
+            fi
           fi
           
-          # 下载 macOS 构建产物
-          if [ "${{ needs.build-macos.result }}" = "success" ]; then
-            echo "下载 macOS 构建产物: ${{ needs.build-macos.outputs.artifact_name }}"
-          else
-            echo "macOS 构建失败，跳过"
+          # 移动并重命名 macOS 文件
+          if find release_assets/ -name "*.dmg" -type f | head -1 | grep -q .; then
+            MAC_DMG=$(find release_assets/ -name "*.dmg" -type f | head -1)
+            if [ -f "$MAC_DMG" ]; then
+              mv "$MAC_DMG" "publish/${{ needs.build-macos.outputs.asset_name }}"
+              echo "macOS 文件已准备: publish/${{ needs.build-macos.outputs.asset_name }}"
+            fi
           fi
+          
+          echo "最终发布文件:"
+          ls -la publish/
 
       - name: 创建 GitHub Release
-        id: create_release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ needs.test-web.outputs.tag_name }}
@@ -421,6 +447,11 @@ jobs:
             - Linux: ${{ needs.build-linux.result }}
             - macOS: ${{ needs.build-macos.result }}
             
+            **下载链接:**
+            ${{ needs.build-windows.result == 'success' && '- Windows: ' + needs.build-windows.outputs.asset_name || '' }}
+            ${{ needs.build-linux.result == 'success' && '- Linux: ' + needs.build-linux.outputs.asset_name || '' }}
+            ${{ needs.build-macos.result == 'success' && '- macOS: ' + needs.build-macos.outputs.asset_name || '' }}
+            
             **使用说明:**
             1. 下载对应平台的安装程序
             2. 运行安装程序
@@ -429,51 +460,7 @@ jobs:
           prerelease: ${{ needs.test-web.outputs.is_pre_release == 'true' }}
           draft: false
           generate_release_notes: true
-          # 这里不指定files，让action自动从当前目录上传
+          files: publish/*
           fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 上传 Windows 构建文件到 Release
-        if: needs.build-windows.result == 'success'
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ needs.test-web.outputs.tag_name }}
-          files: |
-            **/*.exe
-            !node_modules/**/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 上传 Linux 构建文件到 Release
-        if: needs.build-linux.result == 'success'
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ needs.test-web.outputs.tag_name }}
-          files: |
-            *.AppImage
-            dist/*.AppImage
-            release/*.AppImage
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 上传 macOS 构建文件到 Release
-        if: needs.build-macos.result == 'success'
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ needs.test-web.outputs.tag_name }}
-          files: |
-            *.dmg
-            dist/*.dmg
-            release/*.dmg
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 输出发布信息
-        if: steps.create_release.outputs.url
-        run: |
-          echo "Release created successfully!"
-          echo "URL: ${{ steps.create_release.outputs.url }}"
-          echo "Version: ${{ needs.test-web.outputs.version }}"
-          echo "Pre-release: ${{ needs.test-web.outputs.is_pre_release }}"
-          echo "Tag created: ${{ needs.test-web.outputs.create_tag }}"

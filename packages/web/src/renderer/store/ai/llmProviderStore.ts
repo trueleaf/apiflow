@@ -5,15 +5,16 @@ import { generateDeepSeekProvider } from '@/helper';
 import { llmProviderCache } from '@/cache/ai/llmProviderCache';
 
 export const useLLMProvider = defineStore('llmProvider', () => {
-  const activeProvider = ref<LLMProviderSettings>(generateDeepSeekProvider());
-
+  // 优先从缓存加载，如果缓存为空则使用默认配置
+  const cached = llmProviderCache.getLLMProvider();
+  const activeProvider = ref<LLMProviderSettings>(cached || generateDeepSeekProvider());
 
   watch(() => activeProvider.value,
     (newVal) => {
       window.electronAPI!.aiManager.updateConfig(JSON.parse(JSON.stringify(newVal)));
       llmProviderCache.setLLMProvider(newVal);
     },
-    { deep: true }
+    { deep: true, immediate: true }
   );
   // 更新 Provider 类型
   const changeProviderType = (providerType: LLMProviderType) => {

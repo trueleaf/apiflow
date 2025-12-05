@@ -48,7 +48,6 @@ export class ApiNodesCache {
     if (this.apiNodesDB) {
       return this.apiNodesDB;
     }
-    console.time('Init ApiNodesCache DB');
     this.apiNodesDB = await openDB(
       config.cacheConfig.apiNodesCache.dbName,
       config.cacheConfig.apiNodesCache.version,
@@ -65,7 +64,6 @@ export class ApiNodesCache {
         },
       }
     );
-    console.timeEnd('Init ApiNodesCache DB');
     return this.apiNodesDB;
   }
   // 获取所有节点

@@ -49,6 +49,10 @@ export const cacheKey = {
       hideJsonBodyTip: 'appState/hint/hideJsonBodyTip',
       networkModeBannerHidden: 'appState/hint/networkModeBannerHidden',
     },
+    banner: {
+      viewMode: 'appState/banner/viewMode',
+      historyFilterText: 'appState/banner/historyFilterText',
+    },
   },
   projectWorkbench: {
     node: {

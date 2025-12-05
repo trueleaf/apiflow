@@ -241,7 +241,10 @@ const handleResetCorner = () => {
   appState.setAiDialogHeight(dialogHeight.value)
 }
 const handleSend = async () => {
-  if (!isAiConfigValid()) return
+  if (!isAiConfigValid()) {
+    ElMessage.warning(t('请先配置 AI API Key'))
+    return
+  }
   const message = inputMessage.value.trim()
   if (!message) return
   
@@ -250,10 +253,15 @@ const handleSend = async () => {
   // Agent 模式
   if (mode.value === 'agent') {
     if (reactAgentStore.status !== 'idle' && reactAgentStore.status !== 'finished' && reactAgentStore.status !== 'error') {
+      ElMessage.warning(t('Agent 正在执行中，请稍候'))
       return
     }
     copilotStore.setWorkingStatus('working')
-    await reactAgentStore.runAgent(message)
+    try {
+      await reactAgentStore.runAgent(message)
+    } catch (error) {
+      ElMessage.error(error instanceof Error ? error.message : String(error))
+    }
     copilotStore.setWorkingStatus('finish')
     scrollToBottom()
     return

@@ -498,6 +498,41 @@ class AppState {
       localStorage.setItem(cacheKey.appState.websocketNode.messageBlockCollapse, JSON.stringify(data));
     }
   }
+  // 获取Banner视图模式
+  getBannerViewMode(): 'list' | 'history' {
+    try {
+      const mode = localStorage.getItem(cacheKey.appState.banner.viewMode);
+      return (mode === 'list' || mode === 'history') ? mode : 'list';
+    } catch (error) {
+      logger.error('获取Banner视图模式失败', { error });
+      return 'list';
+    }
+  }
+  // 设置Banner视图模式
+  setBannerViewMode(mode: 'list' | 'history') {
+    try {
+      localStorage.setItem(cacheKey.appState.banner.viewMode, mode);
+    } catch (error) {
+      logger.error('设置Banner视图模式失败', { error });
+    }
+  }
+  // 获取历史记录过滤文案
+  getHistoryFilterText(): string {
+    try {
+      return localStorage.getItem(cacheKey.appState.banner.historyFilterText) || '';
+    } catch (error) {
+      logger.error('获取历史记录过滤文案失败', { error });
+      return '';
+    }
+  }
+  // 设置历史记录过滤文案
+  setHistoryFilterText(text: string) {
+    try {
+      localStorage.setItem(cacheKey.appState.banner.historyFilterText, text);
+    } catch (error) {
+      logger.error('设置历史记录过滤文案失败', { error });
+    }
+  }
   // 获取垂直布局下响应区域高度
   getResponseHeight(): number {
     try {

@@ -16,6 +16,9 @@ export class LLMClient {
   }
   // 非流式聊天
   async chat(body: OpenAiRequestBody): Promise<OpenAiResponseBody> {
+    if (!this.config) {
+      throw new Error('LLM 配置未初始化，请先配置 API Key 和 Base URL');
+    }
     const { apiKey, baseURL } = this.config;
     const requestBody = { ...body, stream: false };
     const response = await got.post<OpenAiResponseBody>(

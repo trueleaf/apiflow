@@ -1469,7 +1469,7 @@ export default {
   'AI解析失败': 'AI parsing failed',
   '接口列表': 'API List',
   '调用历史': 'Call History',
-  '搜索历史记录': 'Search history',
+  '过滤历史记录': 'Filter history',
   '没有更多了': 'No more',
   '暂无历史记录': 'No history',
   '确定要清空所有历史记录吗？': 'Are you sure you want to clear all history?',
@@ -1534,6 +1534,20 @@ export default {
   拖拽调整标签页的显示顺序: 'Drag to adjust the display order of tabs',
   // AI related messages
   'AI功能不可用': 'AI feature is not available',
+  // AI Agent related
+  '思考中': 'Thinking',
+  '调用工具': 'Calling Tool',
+  '执行结果': 'Result',
+  '回答': 'Answer',
+  '允许': 'Allow',
+  '拒绝': 'Reject',
+  '正在执行...': 'Executing...',
+  '执行过程': 'Execution Process',
+  '个步骤': 'steps',
+  'Agent模式，我可以帮你执行操作': 'Agent mode, I can help you perform operations',
+  // Project operation related
+  '切换项目': 'Switch Project',
+  '新增一个空白接口': 'Add a New Blank API',
   // Common operation messages
   移除成功: 'Removed successfully',
   保存成功: 'Saved successfully',
@@ -1592,4 +1606,6 @@ export default {
   变量缓存: 'Variable Cache',
   'WebSocket历史记录缓存': 'WebSocket History Cache',
   未知类型缓存: 'Unknown Type Cache',
+  '请先配置 AI API Key': 'Please configure AI API Key first',
+  'Agent 正在执行中，请稍候': 'Agent is executing, please wait',
 }

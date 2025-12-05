@@ -1,75 +1,78 @@
 <template>
-  <div class="agent-step-item" :class="[stepTypeClass, stepStatusClass]">
-    <!-- Working 步骤 - 特殊样式 -->
-    <template v-if="step.type === 'working'">
-      <div class="step-header step-header-working">
-        <div class="step-status-icon">
-          <LoaderCircle v-if="isRunning" :size="16" class="icon-spinning" />
-          <CheckCircle v-else-if="isCompleted" :size="16" class="icon-success" />
-          <XCircle v-else-if="isError" :size="16" class="icon-error" />
-          <Circle v-else :size="16" class="icon-pending" />
-        </div>
-        <span class="step-title">{{ isRunning ? t('Working...') : t('已完成') }}</span>
+  <!-- User Message Bubble (Working Step) -->
+  <div v-if="step.type === 'working'" class="message-item message-user">
+    <div class="message-content">
+      <div class="message-bubble">
+        {{ step.content }}
       </div>
-      <div class="step-content step-content-working">
-        <span class="working-message">{{ step.content }}</span>
-      </div>
-    </template>
-    <!-- 其他步骤 - 可折叠卡片 -->
-    <template v-else>
-      <div class="step-header step-header-collapsible" @click="handleToggleExpand">
-        <div class="step-status-icon">
-          <LoaderCircle v-if="isRunning" :size="16" class="icon-spinning" />
-          <CheckCircle v-else-if="isCompleted && step.type !== 'final_answer'" :size="16" class="icon-success" />
-          <XCircle v-else-if="isError" :size="16" class="icon-error" />
-          <component v-else :is="stepIcon" :size="16" class="icon-default" />
+    </div>
+  </div>
+
+  <!-- Agent Message Bubble (Final Answer) -->
+  <div v-else-if="step.type === 'final_answer'" class="message-item message-agent">
+    <div class="message-avatar">
+      <Bot :size="20" />
+    </div>
+    <div class="message-content">
+      <div class="message-bubble">
+        <div class="markdown-content">
+          <VueMarkdownRender :source="step.content" :options="markdownOptions" />
         </div>
-        <span class="step-title">{{ stepTitle }}</span>
-        <span v-if="step.type === 'tool_call' && step.toolName" class="step-tool-name">{{ step.toolName }}</span>
-        <ChevronRight :size="14" class="step-expand-icon" :class="{ expanded: isExpanded }" />
       </div>
-      <Transition name="collapse">
-        <div v-show="isExpanded" class="step-content">
-          <!-- Thinking 内容 -->
-          <template v-if="step.type === 'thinking'">
-            <div class="thinking-content">{{ step.content }}</div>
-          </template>
-          <!-- Tool Call 内容 -->
-          <template v-else-if="step.type === 'tool_call'">
-            <div class="tool-call-info">
-              <pre v-if="step.toolArgs && Object.keys(step.toolArgs).length > 0" class="tool-args">{{ formatArgs(step.toolArgs) }}</pre>
-            </div>
-            <div v-if="step.needConfirmation && isWaitingConfirmation" class="confirmation-actions">
-              <button class="confirm-btn" type="button" @click.stop="handleConfirm">
-                <Check :size="14" />
-                <span>{{ t('确认执行') }}</span>
-              </button>
-              <button class="reject-btn" type="button" @click.stop="handleReject">
-                <X :size="14" />
-                <span>{{ t('拒绝') }}</span>
-              </button>
-            </div>
-          </template>
-          <!-- Tool Result 内容 -->
-          <template v-else-if="step.type === 'tool_result'">
-            <div class="tool-result" :class="{ success: step.toolResult?.success, error: !step.toolResult?.success }">
-              <pre class="result-content">{{ step.content }}</pre>
-            </div>
-          </template>
-          <!-- Final Answer 内容 -->
-          <template v-else-if="step.type === 'final_answer'">
-            <div class="final-answer">{{ step.content }}</div>
-          </template>
-        </div>
-      </Transition>
-    </template>
+    </div>
+  </div>
+
+  <!-- Timeline Item (Intermediate Steps) -->
+  <div v-else class="timeline-item">
+    <div class="timeline-icon">
+      <LoaderCircle v-if="isRunning" :size="14" class="icon-spinning" />
+      <CheckCircle v-else-if="isCompleted" :size="14" class="icon-success" />
+      <XCircle v-else-if="isError" :size="14" class="icon-error" />
+      <component v-else :is="stepIcon" :size="14" class="icon-default" />
+    </div>
+    
+    <div class="timeline-content">
+      <div class="timeline-header" @click="handleToggleExpand">
+        <span class="timeline-title">{{ stepTitle }}</span>
+        <span v-if="step.type === 'tool_call' && step.toolName" class="tool-badge">{{ step.toolName }}</span>
+        <ChevronRight :size="14" class="expand-icon" :class="{ expanded: isExpanded }" />
+      </div>
+      
+      <div v-show="isExpanded" class="timeline-body">
+        <!-- Thinking -->
+        <div v-if="step.type === 'thinking'" class="text-content">{{ step.content }}</div>
+        
+        <!-- Tool Call -->
+        <template v-else-if="step.type === 'tool_call'">
+          <div class="code-block" v-if="step.toolArgs && Object.keys(step.toolArgs).length > 0">
+            <pre>{{ formatArgs(step.toolArgs) }}</pre>
+          </div>
+          <div v-if="step.needConfirmation && isWaitingConfirmation" class="action-buttons">
+            <button class="btn-confirm" @click.stop="handleConfirm">
+              <Check :size="14" /> {{ t('允许') }}
+            </button>
+            <button class="btn-reject" @click.stop="handleReject">
+              <X :size="14" /> {{ t('拒绝') }}
+            </button>
+          </div>
+        </template>
+        
+        <!-- Tool Result -->
+        <template v-else-if="step.type === 'tool_result'">
+          <div class="code-block" :class="step.toolResult?.success ? 'success' : 'error'">
+            <pre>{{ step.content }}</pre>
+          </div>
+        </template>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Brain, Wrench, CheckCircle, MessageSquare, Check, X, LoaderCircle, ChevronRight, Circle, XCircle } from 'lucide-vue-next'
+import { Bot, Brain, Wrench, CheckCircle, MessageSquare, Check, X, LoaderCircle, ChevronRight, XCircle } from 'lucide-vue-next'
+import VueMarkdownRender from 'vue-markdown-render'
 import type { AgentStep } from '@src/types/ai/agent.type'
 
 const props = defineProps<{
@@ -82,21 +85,17 @@ const emit = defineEmits<{
 }>()
 const { t } = useI18n()
 const isExpanded = ref(true)
+
+const markdownOptions = {
+  html: false,
+  breaks: true,
+  linkify: true
+}
+
 const isRunning = computed(() => props.step.status === 'running')
 const isCompleted = computed(() => props.step.status === 'completed')
 const isError = computed(() => props.step.status === 'error')
-const stepTypeClass = computed(() => ({
-  working: props.step.type === 'working',
-  thinking: props.step.type === 'thinking',
-  'tool-call': props.step.type === 'tool_call',
-  'tool-result': props.step.type === 'tool_result',
-  'final-answer': props.step.type === 'final_answer',
-}))
-const stepStatusClass = computed(() => ({
-  'status-running': isRunning.value,
-  'status-completed': isCompleted.value,
-  'status-error': isError.value,
-}))
+
 const stepIcon = computed(() => {
   switch (props.step.type) {
     case 'thinking': return Brain
@@ -134,198 +133,244 @@ const handleReject = () => {
 </script>
 
 <style scoped lang="scss">
-.agent-step-item {
-  margin: 4px 0;
-  border-radius: 6px;
-  background-color: var(--el-fill-color-lighter);
-  overflow: hidden;
-  transition: background-color 0.2s;
-  &:hover {
-    background-color: var(--el-fill-color-light);
-  }
-  &.working {
-    background-color: var(--el-color-primary-light-9);
-    border: 1px solid var(--el-color-primary-light-7);
-  }
-  &.status-running {
-    border-left: 3px solid var(--el-color-primary);
-  }
-  &.status-completed:not(.working) {
-    border-left: 3px solid var(--el-color-success);
-  }
-  &.status-error {
-    border-left: 3px solid var(--el-color-danger);
+/* Message Bubbles */
+.message-item {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.message-user {
+  justify-content: flex-end;
+  
+  .message-bubble {
+    background-color: var(--theme-color);
+    color: #fff;
+    border-radius: 12px 12px 0 12px;
   }
 }
-.step-header {
+
+.message-agent {
+  justify-content: flex-start;
+  
+  .message-bubble {
+    background-color: var(--gray-100);
+    color: var(--gray-800);
+    border-radius: 0 12px 12px 12px;
+  }
+}
+
+.message-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--gray-200);
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  font-size: 13px;
-  color: var(--el-text-color-primary);
+  justify-content: center;
+  color: var(--theme-color);
+  flex-shrink: 0;
 }
-.step-header-collapsible {
-  cursor: pointer;
-  user-select: none;
-  &:hover {
-    background-color: var(--el-fill-color);
+
+.message-content {
+  max-width: 85%;
+}
+
+.message-bubble {
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* Timeline Items */
+.timeline-item {
+  display: flex;
+  gap: 10px;
+  padding: 4px 0;
+  position: relative;
+  
+  &:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 24px;
+    bottom: -4px;
+    width: 1px;
+    background-color: var(--gray-200);
   }
 }
-.step-header-working {
-  padding: 12px;
-}
-.step-status-icon {
+
+.timeline-icon {
+  width: 16px;
+  height: 16px;
+  margin-top: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  z-index: 1;
+  background: var(--white);
 }
-.icon-spinning {
-  color: var(--el-color-primary);
-  animation: spin 1s linear infinite;
+
+.timeline-content {
+  flex: 1;
+  min-width: 0;
 }
-.icon-success {
-  color: var(--el-color-success);
+
+.timeline-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 2px 0;
+  
+  &:hover .timeline-title {
+    color: var(--theme-color);
+  }
 }
-.icon-error {
-  color: var(--el-color-danger);
-}
-.icon-pending {
-  color: var(--el-text-color-placeholder);
-}
-.icon-default {
-  color: var(--el-text-color-secondary);
-}
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-.step-title {
+
+.timeline-title {
+  font-size: 13px;
   font-weight: 500;
-  flex-shrink: 0;
+  color: var(--gray-700);
 }
-.step-tool-name {
+
+.tool-badge {
   font-family: monospace;
-  font-size: 12px;
-  color: var(--el-color-warning);
-  background-color: var(--el-color-warning-light-9);
-  padding: 2px 6px;
+  font-size: 11px;
+  color: var(--gray-600);
+  background-color: var(--gray-100);
+  padding: 1px 6px;
   border-radius: 4px;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  border: 1px solid var(--gray-200);
 }
-.step-expand-icon {
+
+.expand-icon {
   margin-left: auto;
-  color: var(--el-text-color-placeholder);
+  color: var(--gray-400);
   transition: transform 0.2s;
-  flex-shrink: 0;
+  
   &.expanded {
     transform: rotate(90deg);
   }
 }
-.step-content {
-  padding: 0 12px 12px 36px;
+
+.timeline-body {
+  margin-top: 8px;
   font-size: 13px;
+  color: var(--gray-600);
+}
+
+.text-content {
+  white-space: pre-wrap;
   line-height: 1.5;
-  color: var(--el-text-color-regular);
 }
-.step-content-working {
-  padding: 0 12px 12px 12px;
-}
-.working-message {
-  color: var(--el-text-color-secondary);
-  font-size: 13px;
-}
-.collapse-enter-active,
-.collapse-leave-active {
-  transition: all 0.2s ease;
-  overflow: hidden;
-}
-.collapse-enter-from,
-.collapse-leave-to {
-  opacity: 0;
-  max-height: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-.collapse-enter-to,
-.collapse-leave-from {
-  opacity: 1;
-  max-height: 500px;
-}
-.thinking-content {
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-.tool-call-info {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.tool-args {
-  margin: 0;
+
+.code-block {
+  background-color: var(--gray-050);
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
   padding: 8px;
-  background-color: var(--el-fill-color);
-  border-radius: 4px;
-  font-size: 12px;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: break-all;
-  font-family: monospace;
-}
-.confirmation-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-}
-.confirm-btn,
-.reject-btn {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-.confirm-btn {
-  background-color: var(--el-color-success);
-  color: #fff;
-  &:hover {
-    background-color: var(--el-color-success-dark-2);
+  margin-top: 4px;
+  
+  pre {
+    margin: 0;
+    font-family: monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-all;
   }
-}
-.reject-btn {
-  background-color: var(--el-color-danger);
-  color: #fff;
-  &:hover {
-    background-color: var(--el-color-danger-dark-2);
-  }
-}
-.tool-result {
-  padding: 8px;
-  border-radius: 4px;
+  
   &.success {
-    background-color: var(--el-color-success-light-9);
+    background-color: var(--success-light-9);
+    border-color: var(--success-light-7);
   }
+  
   &.error {
-    background-color: var(--el-color-danger-light-9);
+    background-color: var(--danger-light-9);
+    border-color: var(--danger-light-7);
   }
 }
-.result-content {
-  margin: 0;
-  font-size: 12px;
-  white-space: pre-wrap;
-  word-break: break-all;
-  font-family: monospace;
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  
+  button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+  
+  .btn-confirm {
+    background-color: var(--success-color);
+    color: white;
+  }
+  
+  .btn-reject {
+    background-color: var(--danger-color);
+    color: white;
+  }
 }
-.final-answer {
-  white-space: pre-wrap;
-  word-break: break-word;
+
+.icon-spinning {
+  animation: spin 1s linear infinite;
+  color: var(--theme-color);
+}
+
+.icon-success { color: var(--success-color); }
+.icon-error { color: var(--danger-color); }
+.icon-default { color: var(--gray-400); }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Markdown Styles */
+.markdown-content {
+  :deep(p) {
+    margin: 0 0 8px 0;
+    &:last-child { margin-bottom: 0; }
+  }
+  
+  :deep(pre) {
+    background-color: var(--gray-800);
+    color: var(--gray-100);
+    padding: 12px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 8px 0;
+  }
+  
+  :deep(code) {
+    font-family: monospace;
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+  
+  :deep(pre code) {
+    background-color: transparent;
+    padding: 0;
+  }
 }
 </style>

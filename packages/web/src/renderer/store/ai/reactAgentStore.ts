@@ -117,10 +117,11 @@ export const useReactAgentStore = defineStore('reactAgent', () => {
     if (!window.electronAPI?.aiManager) {
       throw new Error('AI Manager 未初始化');
     }
+    // 使用 JSON 序列化去除 Vue Proxy，避免 IPC 结构化克隆错误
     const requestBody = {
       model: providerSettings.model,
-      messages: messages.value as LLMessage[],
-      tools: agentToolsStore.getToolDefinitions(),
+      messages: JSON.parse(JSON.stringify(messages.value)) as LLMessage[],
+      tools: JSON.parse(JSON.stringify(agentToolsStore.getToolDefinitions())),
       stream: false,
     };
     return window.electronAPI.aiManager.chat(requestBody);

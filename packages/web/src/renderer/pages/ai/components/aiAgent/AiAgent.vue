@@ -14,10 +14,16 @@
         <p class="ai-empty-text">{{ t('Agent模式，我可以帮你执行操作') }}</p>
       </div>
       <template v-else>
-        <template v-for="step in reactAgentStore.steps" :key="step.id">
+        <template v-for="(item, index) in groupedSteps" :key="item.type === 'single' ? item.step.id : item.id">
           <AgentStepItem
-            :step="step"
-            :is-waiting-confirmation="reactAgentStore.status === 'waiting_confirmation' && step === reactAgentStore.steps[reactAgentStore.steps.length - 1]"
+            v-if="item.type === 'single'"
+            :step="item.step"
+            :is-waiting-confirmation="false"
+          />
+          <AgentProcessGroup
+            v-else
+            :steps="item.steps"
+            :is-waiting-confirmation="reactAgentStore.status === 'waiting_confirmation' && index === groupedSteps.length - 1"
             @confirm="emit('confirm')"
             @reject="emit('reject')"
           />
@@ -28,11 +34,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Bot, AlertTriangle, ArrowRight } from 'lucide-vue-next'
 import { useReactAgentStore } from '@/store/ai/reactAgentStore'
+import type { AgentStep } from '@src/types/ai/agent.type'
 import AgentStepItem from '../AgentStepItem.vue'
+import AgentProcessGroup from './AgentProcessGroup.vue'
 
 defineProps<{
   isConfigValid: boolean
@@ -45,6 +53,46 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const reactAgentStore = useReactAgentStore()
 const messagesRef = ref<HTMLElement | null>(null)
+
+type GroupedStep = {
+  type: 'single'
+  step: AgentStep
+} | {
+  type: 'group'
+  id: string
+  steps: AgentStep[]
+}
+
+const groupedSteps = computed(() => {
+  const groups: GroupedStep[] = []
+  let currentGroup: AgentStep[] = []
+  
+  const flushGroup = () => {
+    if (currentGroup.length > 0) {
+      groups.push({
+        type: 'group',
+        id: `group-${currentGroup[0].id}`,
+        steps: [...currentGroup]
+      })
+      currentGroup = []
+    }
+  }
+  
+  for (const step of reactAgentStore.steps) {
+    if (step.type === 'working' || step.type === 'final_answer') {
+      flushGroup()
+      groups.push({
+        type: 'single',
+        step
+      })
+    } else {
+      currentGroup.push(step)
+    }
+  }
+  flushGroup()
+  
+  return groups
+})
 
 const scrollToBottom = () => {
   nextTick(() => {
