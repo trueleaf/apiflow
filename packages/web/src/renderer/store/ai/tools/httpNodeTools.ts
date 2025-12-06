@@ -1,9 +1,138 @@
 import { useSkill } from '../skillStore'
+import { useAiChatStore } from '../aiChatStore'
+import { useLLMProvider } from '../llmProviderStore'
 import { AgentTool } from '@src/types/ai'
 import { HttpNodeRequestMethod, ApidocProperty, HttpNodeContentType, HttpNodeBodyMode, HttpNodeBodyRawType, HttpNodeResponseParams } from '@src/types'
 import { CreateHttpNodeOptions } from '@src/types/ai/tools.type'
+import { nanoid } from 'nanoid'
+
+type LLMInferredParam = {
+  key?: string
+  value?: string
+  description?: string
+  required?: boolean
+}
+type LLMInferredParams = {
+  name?: string
+  method?: string
+  urlPath?: string
+  description?: string
+  bodyMode?: string
+  rawJson?: string
+  queryParams?: LLMInferredParam[]
+  headers?: LLMInferredParam[]
+}
+//将LLM返回的简化JSON转换为完整的CreateHttpNodeOptions
+const buildCreateHttpNodeOptions = (projectId: string, params: LLMInferredParams): CreateHttpNodeOptions => {
+  const options: CreateHttpNodeOptions = {
+    projectId,
+    name: params.name || '未命名接口',
+    description: params.description || '',
+  }
+  options.item = {
+    method: (params.method as HttpNodeRequestMethod) || 'GET',
+    url: { path: params.urlPath || '/' },
+  }
+  if (Array.isArray(params.queryParams) && params.queryParams.length > 0) {
+    options.item.queryParams = params.queryParams.map(p => ({
+      _id: nanoid(),
+      key: p.key || '',
+      value: p.value || '',
+      type: 'string' as const,
+      required: p.required ?? true,
+      description: p.description || '',
+      select: true,
+    }))
+  }
+  if (Array.isArray(params.headers) && params.headers.length > 0) {
+    options.item.headers = params.headers.map(h => ({
+      _id: nanoid(),
+      key: h.key || '',
+      value: h.value || '',
+      type: 'string' as const,
+      required: h.required ?? false,
+      description: h.description || '',
+      select: true,
+    }))
+  }
+  if (params.bodyMode && params.bodyMode !== 'none') {
+    options.item.requestBody = { mode: params.bodyMode as HttpNodeBodyMode }
+    if (params.bodyMode === 'json' && params.rawJson) {
+      options.item.requestBody.rawJson = params.rawJson
+    }
+  }
+  return options
+}
 
 export const httpNodeTools: AgentTool[] = [
+  {
+    name: 'simpleCreateHttpNode',
+    description: '根据用户的简单描述创建httpNode节点（推荐）。当用户没有提供完整的method、url、body等参数时，使用此工具自动推断',
+    type: 'httpNode',
+    parameters: {
+      type: 'object',
+      properties: {
+        projectId: {
+          type: 'string',
+          description: '项目id',
+        },
+        description: {
+          type: 'string',
+          description: '接口的自然语言描述，例如"创建一个用户登录接口，需要用户名和密码"',
+        },
+      },
+      required: ['projectId', 'description'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const aiChatStore = useAiChatStore()
+      const llmProvider = useLLMProvider()
+      const projectId = args.projectId as string
+      const description = args.description as string
+      const systemPrompt = `你是一个API设计专家。根据用户的自然语言描述，推断出完整的HTTP接口参数。
+返回严格的JSON格式，不要有任何其他内容。
+
+JSON结构：
+{
+  "name": "接口名称",
+  "method": "GET|POST|PUT|DELETE|PATCH",
+  "urlPath": "/api/xxx",
+  "description": "接口描述",
+  "bodyMode": "json|formdata|urlencoded|none",
+  "rawJson": "JSON body字符串（如果有body的话）",
+  "queryParams": [{ "key": "xxx", "value": "", "description": "xxx" }],
+  "headers": [{ "key": "xxx", "value": "xxx", "description": "xxx" }]
+}
+
+规则：
+1. GET请求通常不需要body，使用queryParams
+2. POST/PUT/PATCH通常需要body，优先使用json格式
+3. 登录/注册类接口使用POST
+4. 获取列表/详情使用GET
+5. 删除使用DELETE
+6. urlPath使用RESTful风格，如/api/users, /api/users/{id}
+7. 如果不需要body则bodyMode为none，不要设置rawJson
+8. queryParams和headers如果没有则返回空数组`
+      try {
+        const response = await aiChatStore.chat({
+          model: llmProvider.activeProvider.model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: description }
+          ],
+          response_format: { type: 'json_object' }
+        })
+        const content = response.choices[0]?.message?.content || '{}'
+        const inferredParams: LLMInferredParams = JSON.parse(content)
+        const options = buildCreateHttpNodeOptions(projectId, inferredParams)
+        const node = await skillStore.createHttpNode(options)
+        return { code: node ? 0 : 1, data: node }
+      } catch (error) {
+        return { code: 1, data: { error: error instanceof Error ? error.message : '创建失败' } }
+      }
+    },
+  },
   {
     name: 'createHttpNode',
     description: '创建一个新的httpNode节点',

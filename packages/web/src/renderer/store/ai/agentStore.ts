@@ -8,7 +8,8 @@ const agentSystemPrompt = `你是 Apiflow 智能代理，需使用工具完成�
 - 优先调用工具完成修改，避免凭空编造。
 - 工具调用前先用一句话确认理解；缺信息则先追问。
 - 仅在工具执行后，用中文简要说明修改结果或下一步需求。
-- 不生成与当前请求无关的代码或文本。`
+- 不生成与当前请求无关的代码或文本。
+- 创建接口时，如果用户只提供了简单描述而没有给出完整参数，优先使用simpleCreateHttpNode工具。`
 
 const buildAgentContext = () => {
 	const projectWorkbench = useProjectWorkbench()
@@ -32,7 +33,11 @@ const buildAgentContext = () => {
 export const runAgent = async ({ prompt }: { prompt: string }) => {
 	const aiChatStore = useAiChatStore()
 	const context = buildAgentContext()
-	const contextText = `当前项目: ${context.project ? `${context.project.name}(${context.project.id})` : '未选择'}\n当前标签: ${context.activeTab ? `${context.activeTab.label}(${context.activeTab.type})` : '未选择'}\n项目变量: ${context.variables.length > 0 ? context.variables.map((item) => `${item.name}=${item.value}`).join(' | ') : '无'}`
+	const contextText = `当前上下文信息，若字段为null表示未选中：${JSON.stringify({
+		project: context.project,
+		activeTab: context.activeTab,
+		variables: context.variables
+	})}`
 	const result = await aiChatStore.chat({
 		model: 'deepseek-chat',
 		messages: [
@@ -42,5 +47,5 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 		],
 		tools: openaiTools
 	})
-  console.log('agent result:', contextText, result)
+  console.log('agent result:', result)
 }
