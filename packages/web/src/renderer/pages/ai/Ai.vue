@@ -71,6 +71,7 @@ import { llmProviderCache } from '@/cache/ai/llmProviderCache'
 import { useCopilotStore } from '@/store/ai/copilotStore'
 import { useLLMProvider } from '@/store/ai/llmProviderStore'
 import { useAiChatStore } from '@/store/ai/aiChatStore'
+import { runAgent } from '@/store/ai/agentStore'
 import AiHistory from './components/aiHistory/AiHistory.vue'
 import ClDrag from '@/components/ui/cleanDesign/clDrag/ClDrag.vue'
 import AiHeader from './components/aiHeader/AiHeader.vue'
@@ -224,6 +225,12 @@ const handleSend = async () => {
   
   inputMessage.value = ''
   
+  // Agent 模式
+  if (mode.value === 'agent') {
+    await runAgent({ prompt: message })
+    return
+  }
+
   // Ask 模式
   if (isStreaming.value) return
   

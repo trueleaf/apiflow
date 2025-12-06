@@ -1504,6 +1504,33 @@ export const generateEmptyHttpNode = (_id: string): HttpNode => {
     updatedAt: '',
   }
 }
+// 根据requestBody推断contentType
+export const inferContentTypeFromBody = (requestBody: HttpNode['item']['requestBody']): HttpNode['item']['contentType'] => {
+  const { mode, formdata, urlencoded, raw, rawJson, binary } = requestBody;
+  const hasJsonData = rawJson?.length > 0;
+  const hasFormData = formdata.filter(p => p.select).some((data) => data.key);
+  const hasUrlencodedData = urlencoded.filter(p => p.select).some((data) => data.key);
+  const hasBinaryVarValue = !!(binary.mode === 'var' && binary.varValue);
+  const hasBinaryFileValue = !!(binary.mode === 'file' && binary.binaryValue.path);
+  const hasBinaryData = hasBinaryVarValue || hasBinaryFileValue;
+  const hasRawData = raw.data;
+  if (mode === 'json' && hasJsonData) {
+    return 'application/json';
+  }
+  if (mode === 'formdata' && hasFormData) {
+    return 'multipart/form-data';
+  }
+  if (mode === 'urlencoded' && hasUrlencodedData) {
+    return 'application/x-www-form-urlencoded';
+  }
+  if (mode === 'raw' && hasRawData) {
+    return raw.dataType || 'text/plain';
+  }
+  if (mode === 'binary' && hasBinaryData) {
+    return 'application/octet-stream';
+  }
+  return '';
+}
 
 /**
  * 生成一份空的WebSocket节点默认值
