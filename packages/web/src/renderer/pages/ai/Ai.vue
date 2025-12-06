@@ -32,18 +32,10 @@
         @select="handleSelectSession"
       />
       <AiAsk
-        v-if="currentView === 'chat'"
+        v-if="currentView === 'chat' || currentView === 'agent'"
         ref="aiAskRef"
         :is-config-valid="isAiConfigValid()"
         @open-settings="handleOpenAiSettings"
-      />
-      <AiAgent
-        v-if="currentView === 'agent'"
-        ref="aiAgentRef"
-        :is-config-valid="isAiConfigValid()"
-        @open-settings="handleOpenAiSettings"
-        @confirm="handleAgentConfirm"
-        @reject="handleAgentReject"
       />
       <AiConfig
         v-if="currentView === 'config'"
@@ -66,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onUnmounted, onMounted, watch, nextTick } from 'vue'
+import { ref, onMounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { nanoid } from 'nanoid/non-secure'
@@ -79,12 +71,10 @@ import { llmProviderCache } from '@/cache/ai/llmProviderCache'
 import { useCopilotStore } from '@/store/ai/copilotStore'
 import { useLLMProvider } from '@/store/ai/llmProviderStore'
 import { useAiChatStore } from '@/store/ai/aiChatStore'
-import { useReactAgentStore } from '@/store/ai/reactAgentStore'
 import AiHistory from './components/aiHistory/AiHistory.vue'
 import ClDrag from '@/components/ui/cleanDesign/clDrag/ClDrag.vue'
 import AiHeader from './components/aiHeader/AiHeader.vue'
 import AiAsk from './components/aiAsk/AiAsk.vue'
-import AiAgent from './components/aiAgent/AiAgent.vue'
 import AiConfig from './components/aiConfig/AiConfig.vue'
 import AiFooter from './components/aiFooter/AiFooter.vue'
 
@@ -92,9 +82,7 @@ const visible = defineModel<boolean>('visible', { default: false })
 const copilotStore = useCopilotStore()
 const llmProviderStore = useLLMProvider()
 const aiChatStore = useAiChatStore()
-const reactAgentStore = useReactAgentStore()
 const aiAskRef = ref<InstanceType<typeof AiAsk> | null>(null)
-const aiAgentRef = ref<InstanceType<typeof AiAgent> | null>(null)
 const aiFooterRef = ref<InstanceType<typeof AiFooter> | null>(null)
 const { t } = useI18n()
 const inputMessage = ref('')
@@ -158,13 +146,6 @@ const buildOpenAIRequestBody = (userMessage: string): OpenAiRequestBody & { stre
     temperature: 0.7
   }
 }
-const scrollToBottom = () => {
-  if (currentView.value === 'chat') {
-    aiAskRef.value?.scrollToBottom()
-  } else if (currentView.value === 'agent') {
-    aiAgentRef.value?.scrollToBottom()
-  }
-}
 const stopCurrentConversation = async () => {
   if (!isStreaming.value) return
   if (cancelCurrentStream.value) {
@@ -186,27 +167,20 @@ const handleClose = () => {
 }
 const handleCreateConversation = async () => {
   await stopCurrentConversation()
-  if (mode.value === 'agent') {
-    if (reactAgentStore.steps.length > 0) {
-      reactAgentStore.reset()
-    }
-    currentView.value = 'agent'
-  } else {
-    if (copilotStore.copilotMessageList.length > 0) {
-      copilotStore.createNewSession()
-    }
-    currentView.value = 'chat'
+  if (copilotStore.copilotMessageList.length > 0) {
+    copilotStore.createNewSession()
   }
+  currentView.value = 'chat'
 }
 const handleOpenHistory = () => {
   currentView.value = 'history'
 }
 const handleBackToChat = () => {
-  currentView.value = mode.value === 'agent' ? 'agent' : 'chat'
+  currentView.value = 'chat'
 }
 const handleSelectSession = async (sessionId: string) => {
   await copilotStore.loadMessagesForSession(sessionId)
-  currentView.value = mode.value === 'agent' ? 'agent' : 'chat'
+  currentView.value = 'chat'
 }
 const isAiConfigValid = () => {
   const provider = llmProviderCache.getLLMProvider()
@@ -249,23 +223,6 @@ const handleSend = async () => {
   if (!message) return
   
   inputMessage.value = ''
-  
-  // Agent 模式
-  if (mode.value === 'agent') {
-    if (reactAgentStore.status !== 'idle' && reactAgentStore.status !== 'finished' && reactAgentStore.status !== 'error') {
-      ElMessage.warning(t('Agent 正在执行中，请稍候'))
-      return
-    }
-    copilotStore.setWorkingStatus('working')
-    try {
-      await reactAgentStore.runAgent(message)
-    } catch (error) {
-      ElMessage.error(error instanceof Error ? error.message : String(error))
-    }
-    copilotStore.setWorkingStatus('finish')
-    scrollToBottom()
-    return
-  }
   
   // Ask 模式
   if (isStreaming.value) return
@@ -464,24 +421,12 @@ const handleOpenAiSettings = () => {
   currentView.value = 'config'
 }
 const handleBackFromConfig = () => {
-  currentView.value = mode.value === 'agent' ? 'agent' : 'chat'
+  currentView.value = 'chat'
 }
 const handleGoToFullSettings = () => {
   appState.setActiveLocalDataMenu('ai-settings')
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab)
   router.push('/settings')
-}
-const handleAgentConfirm = async () => {
-  copilotStore.setWorkingStatus('working')
-  await reactAgentStore.confirmToolExecution()
-  copilotStore.setWorkingStatus('finish')
-  scrollToBottom()
-}
-const handleAgentReject = async () => {
-  copilotStore.setWorkingStatus('working')
-  await reactAgentStore.rejectToolExecution()
-  copilotStore.setWorkingStatus('finish')
-  scrollToBottom()
 }
 const clampPositionToBounds = (pos: { x: number, y: number }, width: number, height: number): { x: number, y: number } => {
   const maxX = window.innerWidth - width

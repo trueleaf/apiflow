@@ -101,9 +101,9 @@ const modelLabelMap: Record<AiModel, string> = {
 const props = defineProps<{
   isWorking: boolean
 }>()
-const inputMessage = defineModel<string>('inputMessage', { default: '' })
-const mode = defineModel<AiMode>('mode', { default: 'ask' })
-const model = defineModel<AiModel>('model', { default: 'deepseek' })
+const inputMessage = defineModel<string>('inputMessage', { required: true })
+const mode = defineModel<AiMode>('mode', { required: true })
+const model = defineModel<AiModel>('model', { required: true })
 const emit = defineEmits<{
   'send': []
   'stop': []

@@ -9,7 +9,7 @@ import type { StandaloneExportHtmlParams } from '../standalone';
 import { WebsocketConnectParams } from '../websocketNode';
 import { HttpMockNode, MockLog, MockStatusChangedPayload, WebSocketMockNode, WebSocketMockStatusChangedPayload } from '../mockNode';
 import { ChatStreamCallbacks } from '@src/main/ai/agent.ts';
-import { LLMProviderSettings, OpenAiRequestBody, OpenAiResponseBodyWithTools } from '../ai/agent.type.ts';
+import { LLMProviderSettings, OpenAiRequestBody, OpenAiResponseBody } from '../ai/agent.type.ts';
 import type { CheckUpdateResult, DownloadResult, UpdateStatus, UpdateProgress, VersionInfo } from '@src/types/updater';
 
 // ============================================================================
@@ -92,7 +92,7 @@ export type ElectronAPI = {
   };
   aiManager: {
     updateConfig: (config: LLMProviderSettings) => void;
-    chat: (body: OpenAiRequestBody) => Promise<OpenAiResponseBodyWithTools>;
+    chat: (body: OpenAiRequestBody) => Promise<OpenAiResponseBody>;
     chatStream: (body: OpenAiRequestBody, callbacks: ChatStreamCallbacks) => {
       abort: () => void;
     };
