@@ -196,11 +196,15 @@ export const httpNodeTools: AgentTool[] = [
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
       const skillStore = useSkill()
+      const projectId = typeof args.projectId === 'string' ? args.projectId : ''
+      const name = typeof args.name === 'string' ? args.name : ''
+      const pid = typeof args.pid === 'string' ? args.pid : ''
+      const description = typeof args.description === 'string' ? args.description : ''
       const options: CreateHttpNodeOptions = {
-        projectId: args.projectId as string,
-        name: args.name as string,
-        pid: typeof args.pid === 'string' ? args.pid : '',
-        description: typeof args.description === 'string' ? args.description : '',
+        projectId,
+        name,
+        pid,
+        description,
       }
       if (typeof args.version === 'string') {
         options.version = args.version
@@ -217,11 +221,14 @@ export const httpNodeTools: AgentTool[] = [
       if (typeof args.afterRequest === 'string') {
         options.afterRequest = { raw: args.afterRequest }
       }
+      let method = typeof args.method === 'string' ? args.method as HttpNodeRequestMethod : 'GET'
+      const urlPath = typeof args.urlPath === 'string' && args.urlPath.trim() !== '' ? args.urlPath : '/'
+      const urlPrefix = typeof args.urlPrefix === 'string' ? args.urlPrefix : ''
       options.item = {
-        method: typeof args.method === 'string' ? args.method as HttpNodeRequestMethod : undefined,
+        method,
         url: {
-          path: typeof args.urlPath === 'string' ? args.urlPath : '',
-          prefix: typeof args.urlPrefix === 'string' ? args.urlPrefix : '',
+          path: urlPath,
+          prefix: urlPrefix,
         },
       }
       if (typeof args.contentType === 'string') {
@@ -240,6 +247,10 @@ export const httpNodeTools: AgentTool[] = [
         options.item.responseParams = args.responseParams as HttpNodeResponseParams[]
       }
       if (typeof args.bodyMode === 'string' || typeof args.rawJson === 'string' || Array.isArray(args.formdata) || Array.isArray(args.urlencoded) || args.rawBody) {
+        if (!args.method && options.item.method === 'GET') {
+          method = 'POST'
+          options.item.method = method
+        }
         options.item.requestBody = {}
         if (typeof args.bodyMode === 'string') {
           options.item.requestBody.mode = args.bodyMode as HttpNodeBodyMode
