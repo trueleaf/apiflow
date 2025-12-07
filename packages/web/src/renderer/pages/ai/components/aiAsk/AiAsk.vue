@@ -18,6 +18,7 @@
           <AskMessageItem v-if="message.type === 'ask'" :message="message" />
           <LoadingMessageItem v-else-if="message.type === 'loading'" :message="message" />
           <TextResponseMessageItem v-else-if="message.type === 'textResponse'" :message="message" />
+          <AgentExecutionMessageItem v-else-if="message.type === 'agentExecution'" :message="message" />
         </template>
       </template>
     </div>
@@ -32,6 +33,7 @@ import { useCopilotStore } from '@/store/ai/copilotStore'
 import AskMessageItem from './components/AskMessageItem.vue'
 import LoadingMessageItem from './components/LoadingMessageItem.vue'
 import TextResponseMessageItem from './components/TextResponseMessageItem.vue'
+import AgentExecutionMessageItem from './components/AgentExecutionMessageItem.vue'
 
 defineProps<{
   isConfigValid: boolean

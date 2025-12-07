@@ -25,7 +25,30 @@ export type LoadingMessage = {
   timestamp: string;
   sessionId: string;
 }
-export type CopilotMessage = AskMessage | LoadingMessage | TextResponseMessage;
+export type AgentToolCallStatus = 'pending' | 'running' | 'success' | 'error' | 'waiting-confirm' | 'cancelled'
+export type AgentToolCallInfo = {
+  id: string;
+  name: string;
+  arguments: Record<string, unknown>;
+  status: AgentToolCallStatus;
+  result?: {
+    code: number;
+    data: unknown;
+  };
+  error?: string;
+  startTime?: number;
+  endTime?: number;
+}
+export type AgentExecutionMessage = {
+  id: string;
+  type: "agentExecution";
+  sessionId: string;
+  timestamp: string;
+  status: 'pending' | 'running' | 'success' | 'error';
+  toolCalls: AgentToolCallInfo[];
+  thinkingContent?: string;
+}
+export type CopilotMessage = AskMessage | LoadingMessage | TextResponseMessage | AgentExecutionMessage;
 
 export type ToolExecuteResult = {
   code: number;
