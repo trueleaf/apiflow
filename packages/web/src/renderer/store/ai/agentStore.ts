@@ -51,8 +51,12 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 		tools: openaiTools
 	});
 	for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-    console.log('Current response:  ', currentResponse)
+    // console.log('Current response:  ', currentResponse)
 		const { message, finish_reason } = currentResponse.choices[0];
+    console.log('finish_reason:', finish_reason, message.content)
+    if (finish_reason === 'tool_calls' && message.tool_calls?.length) {
+        console.log('调用的函数:', message.tool_calls.map(t => t.function.name).join(', '))
+    }
 		if (finish_reason !== 'tool_calls' || !message.tool_calls?.length) {
 			return message.content;
 		}

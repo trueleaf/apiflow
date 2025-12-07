@@ -1,5 +1,5 @@
 import { cloneDeep, assign, merge } from "lodash-es"
-import { HttpNode, ApidocProperty, ApidocProjectInfo, HttpNodeRequestMethod, HttpNodeContentType, HttpNodeBodyMode } from '@src/types'
+import { HttpNode, ApidocProperty, ApidocProjectInfo, HttpNodeRequestMethod, HttpNodeContentType, HttpNodeBodyMode, FolderNode } from '@src/types'
 import { CreateHttpNodeOptions } from '@src/types/ai/tools.type'
 import { defineStore } from "pinia"
 import { DeepPartial } from "@src/types/index.ts"
@@ -769,6 +769,34 @@ export const useSkill = defineStore('skill', () => {
     const projectManagerStore = useProjectManagerStore();
     return await projectManagerStore.unstarProject(projectId);
   }
+  //获取项目下所有文件夹列表
+  const getFolderList = async (projectId: string): Promise<FolderNode[]> => {
+    const allNodes = await apiNodesCache.getNodesByProjectId(projectId);
+    return allNodes.filter(node => node.info.type === 'folder') as FolderNode[];
+  }
+  //重命名文件夹
+  const renameFolder = async (folderId: string, newName: string): Promise<boolean> => {
+    const node = await apiNodesCache.getNodeById(folderId);
+    if (!node || node.info.type !== 'folder') {
+      logger.warn('文件夹不存在或类型不匹配', { folderId });
+      return false;
+    }
+    return await apiNodesCache.updateNodeName(folderId, newName);
+  }
+  //批量重命名文件夹
+  const batchRenameFolders = async (items: { folderId: string; newName: string }[]): Promise<{ success: string[]; failed: string[] }> => {
+    const success: string[] = [];
+    const failed: string[] = [];
+    for (const item of items) {
+      const result = await renameFolder(item.folderId, item.newName);
+      if (result) {
+        success.push(item.folderId);
+      } else {
+        failed.push(item.folderId);
+      }
+    }
+    return { success, failed };
+  }
   return {
     searchHttpNodes,
     getHttpNodeById,
@@ -802,5 +830,8 @@ export const useSkill = defineStore('skill', () => {
     deleteProject,
     starProject,
     unstarProject,
+    getFolderList,
+    renameFolder,
+    batchRenameFolders,
   }
 })

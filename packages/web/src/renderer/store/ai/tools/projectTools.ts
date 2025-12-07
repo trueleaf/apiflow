@@ -176,4 +176,103 @@ export const projectTools: AgentTool[] = [
       }
     },
   },
+  {
+    name: 'getFolderList',
+    description: '获取项目下所有文件夹（目录）列表，包括子文件夹',
+    type: 'projectManager',
+    parameters: {
+      type: 'object',
+      properties: {
+        projectId: {
+          type: 'string',
+          description: '项目ID',
+        },
+      },
+      required: ['projectId'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const projectId = args.projectId as string
+      const result = await skillStore.getFolderList(projectId)
+      return {
+        code: 0,
+        data: result.map(folder => ({
+          _id: folder._id,
+          pid: folder.pid,
+          name: folder.info.name,
+          description: folder.info.description,
+        })),
+      }
+    },
+  },
+  {
+    name: 'renameFolder',
+    description: '重命名单个文件夹（目录）',
+    type: 'projectManager',
+    parameters: {
+      type: 'object',
+      properties: {
+        folderId: {
+          type: 'string',
+          description: '文件夹ID',
+        },
+        newName: {
+          type: 'string',
+          description: '新的文件夹名称',
+        },
+      },
+      required: ['folderId', 'newName'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const folderId = args.folderId as string
+      const newName = args.newName as string
+      const result = await skillStore.renameFolder(folderId, newName)
+      return {
+        code: result ? 0 : 1,
+        data: result,
+      }
+    },
+  },
+  {
+    name: 'batchRenameFolders',
+    description: '批量重命名多个文件夹（目录）',
+    type: 'projectManager',
+    parameters: {
+      type: 'object',
+      properties: {
+        items: {
+          type: 'array',
+          description: '重命名项列表',
+          items: {
+            type: 'object',
+            properties: {
+              folderId: {
+                type: 'string',
+                description: '文件夹ID',
+              },
+              newName: {
+                type: 'string',
+                description: '新的文件夹名称',
+              },
+            },
+            required: ['folderId', 'newName'],
+          },
+        },
+      },
+      required: ['items'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const items = args.items as { folderId: string; newName: string }[]
+      const result = await skillStore.batchRenameFolders(items)
+      return {
+        code: result.failed.length === 0 ? 0 : 1,
+        data: result,
+      }
+    },
+  },
 ]
