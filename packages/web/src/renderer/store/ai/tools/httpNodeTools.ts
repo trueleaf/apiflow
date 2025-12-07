@@ -1584,4 +1584,35 @@ JSON结构：
       }
     },
   },
+  {
+    name: 'moveHttpNode',
+    description: '移动httpNode节点到新的父文件夹。可以将节点移动到其他文件夹下或移动到根目录',
+    type: 'httpNode',
+    parameters: {
+      type: 'object',
+      properties: {
+        nodeId: {
+          type: 'string',
+          description: '要移动的节点id',
+        },
+        newPid: {
+          type: 'string',
+          description: '新的父节点id，移动到根目录则传空字符串',
+        },
+      },
+      required: ['nodeId', 'newPid'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const result = await skillStore.moveHttpNode(
+        args.nodeId as string,
+        args.newPid as string
+      )
+      return {
+        code: result ? 0 : 1,
+        data: result,
+      }
+    },
+  },
 ]

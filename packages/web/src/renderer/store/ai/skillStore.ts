@@ -1,12 +1,16 @@
 import { cloneDeep, assign, merge } from "lodash-es"
-import { HttpNode, ApidocProperty, ApidocProjectInfo, HttpNodeRequestMethod, HttpNodeContentType, HttpNodeBodyMode, FolderNode } from '@src/types'
+import { HttpNode, ApidocProperty, ApidocProjectInfo, HttpNodeRequestMethod, HttpNodeContentType, HttpNodeBodyMode, FolderNode, ApidocBannerOfHttpNode, ApidocBanner } from '@src/types'
 import { CreateHttpNodeOptions } from '@src/types/ai/tools.type'
 import { defineStore } from "pinia"
 import { DeepPartial } from "@src/types/index.ts"
 import { apiNodesCache } from "@/cache/nodes/nodesCache";
-import { logger, generateEmptyHttpNode, generateHttpNode, inferContentTypeFromBody } from '@/helper';
+import { logger, generateEmptyHttpNode, generateHttpNode, inferContentTypeFromBody, findNodeById, findParentById } from '@/helper';
 import { useHttpNode } from "../httpNode/httpNodeStore";
 import { useProjectManagerStore } from "../projectManager/projectManagerStore";
+import { useBanner } from "../projectWorkbench/bannerStore";
+import { useProjectNav } from "../projectWorkbench/projectNavStore";
+import { router } from "@/router";
+import { IPC_EVENTS } from "@src/types/ipc";
 import { nanoid } from "nanoid";
 
 export const useSkill = defineStore('skill', () => {
@@ -99,6 +103,43 @@ export const useSkill = defineStore('skill', () => {
       logger.error('新增http节点失败', { projectId: options.projectId });
       return null;
     }
+    // 同步更新banner和nav
+    const currentProjectId = router.currentRoute.value.query.id as string;
+    if (currentProjectId === options.projectId) {
+      const bannerStore = useBanner();
+      const projectNavStore = useProjectNav();
+      const bannerNode: ApidocBannerOfHttpNode = {
+        _id: node._id,
+        updatedAt: node.updatedAt,
+        type: 'http',
+        sort: node.sort,
+        pid: node.pid,
+        name: node.info.name,
+        maintainer: node.info.maintainer,
+        method: node.item.method,
+        url: node.item.url.path,
+        readonly: false,
+        children: [],
+      };
+      if (!node.pid) {
+        bannerStore.splice({ start: bannerStore.banner.length, deleteCount: 0, item: bannerNode });
+      } else {
+        const parentNode = findNodeById(bannerStore.banner, node.pid, { idKey: '_id' }) as ApidocBanner | null;
+        if (parentNode && parentNode.children) {
+          bannerStore.splice({ start: parentNode.children.length, deleteCount: 0, item: bannerNode, opData: parentNode.children });
+        }
+      }
+      projectNavStore.addNav({
+        _id: node._id,
+        projectId: options.projectId,
+        tabType: 'http',
+        label: node.info.name,
+        saved: true,
+        fixed: true,
+        selected: true,
+        head: { icon: node.item.method, color: '' },
+      });
+    }
     return node;
   }
   //删除httpNode
@@ -116,6 +157,27 @@ export const useSkill = defineStore('skill', () => {
     if (nodeIds.includes(httpNodeStore.httpNodeInfo._id)) {
       httpNodeStore.changeHttpNodeInfo(generateHttpNode());
       httpNodeStore.changeOriginHttpNodeInfo();
+    }
+    // 同步更新banner和nav
+    const currentProjectId = router.currentRoute.value.query.id as string;
+    if (currentProjectId) {
+      const bannerStore = useBanner();
+      const projectNavStore = useProjectNav();
+      nodeIds.forEach(nodeId => {
+        const parentNode = findParentById(bannerStore.banner, nodeId, { idKey: '_id' }) as ApidocBanner | null;
+        if (!parentNode) {
+          const index = bannerStore.banner.findIndex(n => n._id === nodeId);
+          if (index !== -1) {
+            bannerStore.splice({ start: index, deleteCount: 1 });
+          }
+        } else if (parentNode.children) {
+          const index = parentNode.children.findIndex(n => n._id === nodeId);
+          if (index !== -1) {
+            bannerStore.splice({ start: index, deleteCount: 1, opData: parentNode.children });
+          }
+        }
+      });
+      projectNavStore.deleteNavByIds({ projectId: currentProjectId, ids: nodeIds, force: true });
     }
     return true;
   }
@@ -203,6 +265,13 @@ export const useSkill = defineStore('skill', () => {
       merge(httpNodeStore.httpNodeInfo, updates);
       httpNodeStore.httpNodeInfo.updatedAt = updatedNode.updatedAt;
       httpNodeStore.changeOriginHttpNodeInfo();
+    }
+    // 如果更新了名称，同步banner和nav
+    if (updates.info?.name) {
+      const bannerStore = useBanner();
+      const projectNavStore = useProjectNav();
+      bannerStore.changeBannerInfoById({ id: nodeId, field: 'name', value: updates.info.name });
+      projectNavStore.changeNavInfoById({ id: nodeId, field: 'label', value: updates.info.name });
     }
     return updatedNode;
   }
@@ -726,6 +795,54 @@ export const useSkill = defineStore('skill', () => {
     }
     return existingNode;
   }
+  //移动httpNode到新的父节点
+  const moveHttpNode = async (nodeId: string, newPid: string): Promise<HttpNode | null> => {
+    const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
+    if (!existingNode) {
+      logger.warn('节点不存在', { nodeId });
+      return null;
+    }
+    const oldPid = existingNode.pid;
+    existingNode.pid = newPid;
+    existingNode.sort = Date.now();
+    existingNode.updatedAt = new Date().toISOString();
+    const success = await apiNodesCache.replaceNode(existingNode);
+    if (!success) {
+      logger.error('更新节点缓存失败', { nodeId });
+      return null;
+    }
+    // 同步更新banner
+    const bannerStore = useBanner();
+    const node = findNodeById(bannerStore.banner, nodeId, { idKey: '_id' }) as ApidocBanner | null;
+    if (node) {
+      // 从原位置删除
+      const oldParent = oldPid ? findNodeById(bannerStore.banner, oldPid, { idKey: '_id' }) as ApidocBanner | null : null;
+      if (!oldParent) {
+        const index = bannerStore.banner.findIndex(n => n._id === nodeId);
+        if (index !== -1) bannerStore.splice({ start: index, deleteCount: 1 });
+      } else if (oldParent.children) {
+        const index = oldParent.children.findIndex(n => n._id === nodeId);
+        if (index !== -1) bannerStore.splice({ start: index, deleteCount: 1, opData: oldParent.children });
+      }
+      // 添加到新位置
+      node.pid = newPid;
+      node.sort = existingNode.sort;
+      const newParent = newPid ? findNodeById(bannerStore.banner, newPid, { idKey: '_id' }) as ApidocBanner | null : null;
+      if (!newParent) {
+        bannerStore.splice({ start: bannerStore.banner.length, deleteCount: 0, item: node });
+      } else if (newParent.children) {
+        bannerStore.splice({ start: newParent.children.length, deleteCount: 0, item: node, opData: newParent.children });
+      }
+    }
+    // 同步httpNodeStore（如果是当前编辑的节点）
+    const httpNodeStore = useHttpNode();
+    if (httpNodeStore.httpNodeInfo._id === nodeId) {
+      httpNodeStore.httpNodeInfo.pid = newPid;
+      httpNodeStore.httpNodeInfo.updatedAt = existingNode.updatedAt;
+      httpNodeStore.changeOriginHttpNodeInfo();
+    }
+    return existingNode;
+  }
   /*
   |--------------------------------------------------------------------------
   | project相关逻辑
@@ -751,12 +868,19 @@ export const useSkill = defineStore('skill', () => {
   //更新项目名称
   const updateProjectName = async (projectId: string, projectName: string): Promise<boolean> => {
     const projectManagerStore = useProjectManagerStore();
-    return await projectManagerStore.updateProject(projectId, projectName);
+    const result = await projectManagerStore.updateProject(projectId, projectName);
+    if (result) {
+      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectRenamed, { projectId, projectName });
+    }
+    return result;
   }
   //删除项目
   const deleteProject = async (projectId: string): Promise<boolean> => {
     const projectManagerStore = useProjectManagerStore();
     const result = await projectManagerStore.deleteProject(projectId);
+    if (result !== null) {
+      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectDeleted, projectId);
+    }
     return result !== null;
   }
   //收藏项目
@@ -823,6 +947,7 @@ export const useSkill = defineStore('skill', () => {
     setUrlencodedByNodeId,
     createHttpNode,
     deleteHttpNodes,
+    moveHttpNode,
     getProjectList,
     getProjectById,
     createProject,
