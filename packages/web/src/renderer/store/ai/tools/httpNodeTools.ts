@@ -1465,7 +1465,7 @@ JSON结构：
     },
   },
   {
-    name: 'llmGenerateHttpNodeNameById',
+    name: 'autoGenerateHttpNodeNameById',
     description: '根据接口详情使用AI自动生成简洁的接口名称（不超过10个字）',
     type: 'httpNode',
     parameters: {

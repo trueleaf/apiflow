@@ -921,6 +921,56 @@ export const useSkill = defineStore('skill', () => {
     }
     return { success, failed };
   }
+  //获取文件夹及其所有子节点内容，用于生成命名建议
+  const getFolderChildrenForRename = async (folderId: string, projectId: string) => {
+    const allNodes = await apiNodesCache.getNodesByProjectId(projectId);
+    const targetFolder = allNodes.find(n => n._id === folderId && n.info.type === 'folder') as FolderNode | undefined;
+    if (!targetFolder) {
+      return null;
+    }
+    const collectDescendants = (parentId: string): typeof allNodes => {
+      const children = allNodes.filter(n => n.pid === parentId);
+      const descendants = [...children];
+      for (const child of children) {
+        if (child.info.type === 'folder') {
+          descendants.push(...collectDescendants(child._id));
+        }
+      }
+      return descendants;
+    };
+    const descendants = collectDescendants(folderId);
+    const childFolders = descendants.filter(n => n.info.type === 'folder');
+    const otherNodes = descendants.filter(n => n.info.type !== 'folder');
+    return {
+      folder: {
+        _id: targetFolder._id,
+        name: targetFolder.info.name,
+        description: targetFolder.info.description,
+      },
+      childFolders: childFolders.map(f => ({
+        _id: f._id,
+        pid: f.pid,
+        name: f.info.name,
+        type: f.info.type,
+        description: f.info.description,
+      })),
+      childNodes: otherNodes.map(n => {
+        const base = {
+          _id: n._id,
+          pid: n.pid,
+          name: n.info.name,
+          type: n.info.type,
+          description: n.info.description,
+        };
+        if (n.info.type === 'http') {
+          const httpNode = n as HttpNode;
+          return { ...base, method: httpNode.item.method, url: httpNode.item.url.path };
+        }
+        return base;
+      }),
+    };
+  }
+
   return {
     searchHttpNodes,
     getHttpNodeById,
@@ -958,5 +1008,6 @@ export const useSkill = defineStore('skill', () => {
     getFolderList,
     renameFolder,
     batchRenameFolders,
+    getFolderChildrenForRename,
   }
 })

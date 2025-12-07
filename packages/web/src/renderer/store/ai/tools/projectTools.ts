@@ -1,4 +1,6 @@
 import { useSkill } from '../skillStore'
+import { useAiChatStore } from '../aiChatStore'
+import { useLLMProvider } from '../llmProviderStore'
 import { AgentTool } from '@src/types/ai'
 
 export const projectTools: AgentTool[] = [
@@ -272,6 +274,113 @@ export const projectTools: AgentTool[] = [
       return {
         code: result.failed.length === 0 ? 0 : 1,
         data: result,
+      }
+    },
+  },
+  {
+    name: 'getFolderChildrenForRename',
+    description: '获取指定文件夹及其所有子节点内容，用于根据子节点内容生成有意义的文件夹命名。返回目标文件夹、所有子文件夹和所有类型的子节点信息。',
+    type: 'projectManager',
+    parameters: {
+      type: 'object',
+      properties: {
+        folderId: {
+          type: 'string',
+          description: '目标文件夹ID',
+        },
+        projectId: {
+          type: 'string',
+          description: '项目ID',
+        },
+      },
+      required: ['folderId', 'projectId'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const folderId = args.folderId as string
+      const projectId = args.projectId as string
+      const result = await skillStore.getFolderChildrenForRename(folderId, projectId)
+      if (!result) {
+        return {
+          code: 1,
+          data: '文件夹不存在',
+        }
+      }
+      return {
+        code: 0,
+        data: result,
+      }
+    },
+  },
+  {
+    name: 'autoRenameFoldersByContent',
+    description: '根据文件夹下所有子节点内容，自动调用AI生成有意义的文件夹命名并执行重命名。适用于用户希望批量重命名目录但未指定具体名称的场景。',
+    type: 'projectManager',
+    parameters: {
+      type: 'object',
+      properties: {
+        folderId: {
+          type: 'string',
+          description: '目标文件夹ID',
+        },
+        projectId: {
+          type: 'string',
+          description: '项目ID',
+        },
+      },
+      required: ['folderId', 'projectId'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const aiChatStore = useAiChatStore()
+      const llmProvider = useLLMProvider()
+      const folderId = args.folderId as string
+      const projectId = args.projectId as string
+      const folderData = await skillStore.getFolderChildrenForRename(folderId, projectId)
+      if (!folderData) {
+        return { code: 1, data: { success: false, message: '文件夹不存在' } }
+      }
+      const foldersToRename = [
+        { _id: folderData.folder._id, name: folderData.folder.name },
+        ...folderData.childFolders.map(f => ({ _id: f._id, name: f.name })),
+      ]
+      if (foldersToRename.length === 0) {
+        return { code: 0, data: { success: true, message: '没有需要重命名的文件夹', renamed: [] } }
+      }
+      const systemPrompt = '你是一个命名助手，根据内容生成简洁有意义的文件夹名称。只返回JSON数据，不要包含任何其他内容。'
+      const userMessage = `根据以下文件夹及其子节点内容，为每个文件夹生成一个有意义的名称（不超过10个字）。
+
+文件夹结构：
+${JSON.stringify(folderData, null, 2)}
+
+请严格按以下JSON格式返回，不要包含任何其他内容：
+[{"_id": "文件夹ID", "newName": "新名称"}]`
+      try {
+        const response = await aiChatStore.chat({
+          model: llmProvider.activeProvider.model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage },
+          ],
+        })
+        const content = response.choices[0]?.message?.content || ''
+        const jsonMatch = content.match(/\[.*\]/s)
+        if (!jsonMatch) {
+          return { code: 1, data: { success: false, message: 'AI返回格式错误', raw: content } }
+        }
+        const renameItems = JSON.parse(jsonMatch[0]) as { _id: string; newName: string }[]
+        const result = await skillStore.batchRenameFolders(renameItems.map(item => ({ folderId: item._id, newName: item.newName })))
+        return {
+          code: result.failed.length === 0 ? 0 : 1,
+          data: { success: result.failed.length === 0, renamed: renameItems, result },
+        }
+      } catch (error) {
+        return {
+          code: 1,
+          data: { success: false, message: error instanceof Error ? error.message : '重命名失败' },
+        }
       }
     },
   },
