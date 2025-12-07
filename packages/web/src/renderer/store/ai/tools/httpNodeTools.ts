@@ -1465,6 +1465,76 @@ JSON结构：
     },
   },
   {
+    name: 'llmGenerateHttpNodeNameById',
+    description: '根据接口详情使用AI自动生成简洁的接口名称（不超过10个字）',
+    type: 'httpNode',
+    parameters: {
+      type: 'object',
+      properties: {
+        nodeId: {
+          type: 'string',
+          description: '节点id',
+        },
+      },
+      required: ['nodeId'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const aiChatStore = useAiChatStore()
+      const llmProvider = useLLMProvider()
+      const nodeId = args.nodeId as string
+      const node = await skillStore.getHttpNodeById(nodeId)
+      if (!node) {
+        return { code: 1, data: { error: '节点不存在' } }
+      }
+      const apiDetail = {
+        method: node.item.method,
+        url: node.item.url.path,
+        description: node.info.description,
+        queryParams: node.item.queryParams.map(p => ({ key: p.key, description: p.description })),
+        bodyMode: node.item.requestBody.mode,
+        rawJson: node.item.requestBody.rawJson,
+      }
+      const systemPrompt = `你是一个API命名专家。根据接口信息生成简洁准确的中文接口名称。
+要求：
+1. 名称长度不超过10个字
+2. 使用常见动词开头，如：获取、创建、更新、删除、查询等
+3. 只返回名称，不要有任何其他内容`
+      const userMessage = `请求方法：${apiDetail.method}
+URL路径：${apiDetail.url}
+描述：${apiDetail.description || '无'}
+查询参数：${JSON.stringify(apiDetail.queryParams)}
+请求体模式：${apiDetail.bodyMode}
+请求体内容：${apiDetail.rawJson || '无'}`
+      try {
+        const response = await aiChatStore.chat({
+          model: llmProvider.activeProvider.model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage }
+          ],
+        })
+        let generatedName = response.choices[0]?.message?.content?.trim() || ''
+        if (generatedName.length > 10) {
+          generatedName = generatedName.slice(0, 10)
+        }
+        const result = await skillStore.patchHttpNodeInfoById(nodeId, {
+          info: { name: generatedName }
+        })
+        return {
+          code: result ? 0 : 1,
+          data: { name: generatedName, node: result },
+        }
+      } catch (error) {
+        return {
+          code: 1,
+          data: { error: error instanceof Error ? error.message : '生成名称失败' }
+        }
+      }
+    },
+  },
+  {
     name: 'patchHttpNodeDescriptionById',
     description: '根据ID更改httpNode节点的描述',
     type: 'httpNode',
