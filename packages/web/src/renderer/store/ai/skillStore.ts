@@ -905,7 +905,14 @@ export const useSkill = defineStore('skill', () => {
       logger.warn('文件夹不存在或类型不匹配', { folderId });
       return false;
     }
-    return await apiNodesCache.updateNodeName(folderId, newName);
+    const result = await apiNodesCache.updateNodeName(folderId, newName);
+    if (result) {
+      const bannerStore = useBanner();
+      const projectNavStore = useProjectNav();
+      bannerStore.changeBannerInfoById({ id: folderId, field: 'name', value: newName });
+      projectNavStore.changeNavInfoById({ id: folderId, field: 'label', value: newName });
+    }
+    return result;
   }
   //批量重命名文件夹
   const batchRenameFolders = async (items: { folderId: string; newName: string }[]): Promise<{ success: string[]; failed: string[] }> => {

@@ -1608,4 +1608,5 @@ export default {
   未知类型缓存: 'Unknown Type Cache',
   '请先配置 AI API Key': 'Please configure AI API Key first',
   'Agent 正在执行中，请稍候': 'Agent is executing, please wait',
+  '描述你的问题...（{shortcut} 换行）': 'Describe your question... ({shortcut} for new line)',
 }

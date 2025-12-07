@@ -8,6 +8,9 @@ import { router } from '@/router/index'
 import { nanoid } from 'nanoid'
 import { HttpNode, FolderNode, HttpMockNode } from '@src/types'
 import { WebSocketNode } from '@src/types/websocketNode'
+import { useSkill } from '../skillStore'
+import { useAiChatStore } from '../aiChatStore'
+import { useLLMProvider } from '../llmProviderStore'
 
 type ApidocBannerWithProjectId = ApidocBanner & { projectId: string }
 type NodeMoveDropType = 'before' | 'after' | 'inner'
@@ -56,6 +59,78 @@ const nodeToBanner = (node: HttpNode | WebSocketNode | HttpMockNode | FolderNode
 }
 
 export const nodeOperationTools: AgentTool[] = [
+  {
+    name: 'getChildNodes',
+    description: '获取指定文件夹下的子节点列表。可以获取根目录或任意文件夹下的直接子节点，支持按节点类型过滤。常用于查看项目结构、统计节点、批量操作前的信息收集等场景',
+    type: 'nodeOperation',
+    parameters: {
+      type: 'object',
+      properties: {
+        folderId: {
+          type: 'string',
+          description: '文件夹ID。传空字符串或不传表示获取根目录下的节点',
+        },
+        filterType: {
+          type: 'string',
+          enum: ['folder', 'http', 'httpMock', 'websocket', 'websocketMock', 'markdown'],
+          description: '可选，按节点类型过滤。不传则返回所有类型的节点',
+        },
+      },
+      required: [],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const folderId = (args.folderId as string) || ''
+      const filterType = args.filterType as ApidocType | undefined
+      const bannerStore = useBanner()
+      let children: ApidocBanner[] = []
+      if (!folderId) {
+        children = bannerStore.banner
+      } else {
+        const folder = findNodeById(bannerStore.banner, folderId, { idKey: '_id' }) as ApidocBanner | null
+        if (!folder) {
+          return { code: 1, data: { error: '文件夹不存在' } }
+        }
+        if (folder.type !== 'folder') {
+          return { code: 1, data: { error: '指定的节点不是文件夹' } }
+        }
+        children = folder.children || []
+      }
+      if (filterType) {
+        children = children.filter(node => node.type === filterType)
+      }
+      const result = children.map(node => {
+        const base = {
+          _id: node._id,
+          type: node.type,
+          name: node.name,
+          sort: node.sort,
+          pid: node.pid,
+        }
+        if (node.type === 'http') {
+          return { ...base, method: node.method, url: node.url }
+        }
+        if (node.type === 'websocket') {
+          return { ...base, protocol: node.protocol, url: node.url }
+        }
+        if (node.type === 'httpMock') {
+          return { ...base, method: node.method, url: node.url, port: node.port }
+        }
+        if (node.type === 'folder') {
+          return { ...base, childrenCount: node.children?.length || 0 }
+        }
+        return base
+      })
+      return {
+        code: 0,
+        data: {
+          folderId: folderId || 'root',
+          count: result.length,
+          nodes: result,
+        },
+      }
+    },
+  },
   {
     name: 'copyNodes',
     description: '复制节点到剪贴板。可以复制单个或多个节点，复制后可以使用pasteNodes粘贴到目标位置',
@@ -567,6 +642,390 @@ export const nodeOperationTools: AgentTool[] = [
         force: true,
       })
       return { code: 0, data: { deletedCount: deleteIds.length, deletedIds: deleteIds } }
+    },
+  },
+  {
+    name: 'changeNodeSort',
+    description: '改变节点的排序值。sort值越小越靠前，越大越靠后',
+    type: 'nodeOperation',
+    parameters: {
+      type: 'object',
+      properties: {
+        nodeId: {
+          type: 'string',
+          description: '要改变排序的节点ID',
+        },
+        sort: {
+          type: 'number',
+          description: '新的排序值',
+        },
+      },
+      required: ['nodeId', 'sort'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const nodeId = args.nodeId as string
+      const sort = args.sort as number
+      const bannerStore = useBanner()
+      const node = findNodeById(bannerStore.banner, nodeId, { idKey: '_id' }) as ApidocBanner | null
+      if (!node) {
+        return { code: 1, data: { error: '未找到要修改排序的节点' } }
+      }
+      await apiNodesCache.updateNodeById(nodeId, { sort })
+      node.sort = sort
+      return { code: 0, data: { nodeId, sort } }
+    },
+  },
+  {
+    name: 'changeNodesSort',
+    description: '批量改变多个节点的排序值。sort值越小越靠前，越大越靠后',
+    type: 'nodeOperation',
+    parameters: {
+      type: 'object',
+      properties: {
+        nodes: {
+          type: 'array',
+          description: '要修改排序的节点列表',
+          items: {
+            type: 'object',
+            properties: {
+              nodeId: { type: 'string', description: '节点ID' },
+              sort: { type: 'number', description: '新的排序值' },
+            },
+            required: ['nodeId', 'sort'],
+          },
+        },
+      },
+      required: ['nodes'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const nodes = args.nodes as { nodeId: string; sort: number }[]
+      if (!nodes || nodes.length === 0) {
+        return { code: 1, data: { error: '节点列表不能为空' } }
+      }
+      const bannerStore = useBanner()
+      const results: { nodeId: string; sort: number; success: boolean }[] = []
+      for (const item of nodes) {
+        const node = findNodeById(bannerStore.banner, item.nodeId, { idKey: '_id' }) as ApidocBanner | null
+        if (!node) {
+          results.push({ nodeId: item.nodeId, sort: item.sort, success: false })
+          continue
+        }
+        await apiNodesCache.updateNodeById(item.nodeId, { sort: item.sort })
+        node.sort = item.sort
+        results.push({ nodeId: item.nodeId, sort: item.sort, success: true })
+      }
+      const successCount = results.filter(r => r.success).length
+      const failCount = results.filter(r => !r.success).length
+      return { code: 0, data: { total: nodes.length, successCount, failCount, results } }
+    },
+  },
+  {
+    name: 'searchNodes',
+    description: '搜索节点。支持按名称、类型、关键词等条件搜索项目中的所有节点（包括folder、http、websocket、httpMock等类型），返回匹配的节点列表',
+    type: 'nodeOperation',
+    parameters: {
+      type: 'object',
+      properties: {
+        keyword: {
+          type: 'string',
+          description: '通用关键词，同时搜索名称和URL（模糊匹配）',
+        },
+        type: {
+          type: 'string',
+          enum: ['folder', 'http', 'httpMock', 'websocket', 'websocketMock', 'markdown'],
+          description: '节点类型（精确匹配）',
+        },
+        name: {
+          type: 'string',
+          description: '节点名称（模糊匹配）',
+        },
+        maintainer: {
+          type: 'string',
+          description: '维护人员（模糊匹配）',
+        },
+        limit: {
+          type: 'number',
+          description: '返回结果数量限制，默认50',
+        },
+        includeDeleted: {
+          type: 'boolean',
+          description: '是否包含已删除的节点，默认false',
+        },
+      },
+      required: [],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const keyword = args.keyword as string | undefined
+      const nodeType = args.type as ApidocType | undefined
+      const name = args.name as string | undefined
+      const maintainer = args.maintainer as string | undefined
+      const limit = (args.limit as number) || 50
+      const includeDeleted = (args.includeDeleted as boolean) || false
+      const projectId = router.currentRoute.value.query.id as string
+      if (!projectId) {
+        return { code: 1, data: { error: '未找到当前项目ID' } }
+      }
+      const allNodes = await apiNodesCache.getNodesByProjectId(projectId)
+      const filteredNodes = allNodes.filter(node => {
+        if (!includeDeleted && (node as HttpNode).isDeleted) return false
+        if (nodeType && node.info.type !== nodeType) return false
+        if (name && !node.info.name.toLowerCase().includes(name.toLowerCase())) return false
+        if (maintainer && !node.info.maintainer.toLowerCase().includes(maintainer.toLowerCase())) return false
+        if (keyword) {
+          const kw = keyword.toLowerCase()
+          const matchName = node.info.name.toLowerCase().includes(kw)
+          let matchUrl = false
+          if (node.info.type === 'http') {
+            matchUrl = (node as HttpNode).item.url.path.toLowerCase().includes(kw)
+          } else if (node.info.type === 'websocket') {
+            matchUrl = (node as WebSocketNode).item.url.path.toLowerCase().includes(kw)
+          } else if (node.info.type === 'httpMock') {
+            matchUrl = (node as HttpMockNode).requestCondition.url.toLowerCase().includes(kw)
+          }
+          if (!matchName && !matchUrl) return false
+        }
+        return true
+      })
+      const limitedNodes = filteredNodes.slice(0, limit)
+      const result = limitedNodes.map(node => {
+        const base = {
+          _id: node._id,
+          type: node.info.type,
+          name: node.info.name,
+          pid: node.pid,
+          maintainer: node.info.maintainer,
+        }
+        if (node.info.type === 'http') {
+          const httpNode = node as HttpNode
+          return { ...base, method: httpNode.item.method, url: httpNode.item.url.path }
+        }
+        if (node.info.type === 'websocket') {
+          const wsNode = node as WebSocketNode
+          return { ...base, protocol: wsNode.item.protocol, url: wsNode.item.url.path }
+        }
+        if (node.info.type === 'httpMock') {
+          const mockNode = node as HttpMockNode
+          return { ...base, method: 'ALL', url: mockNode.requestCondition.url, port: mockNode.requestCondition.port }
+        }
+        return base
+      })
+      return {
+        code: 0,
+        data: {
+          count: result.length,
+          total: filteredNodes.length,
+          nodes: result,
+        },
+      }
+    },
+  },
+  {
+    name: 'getFolderList',
+    description: '获取项目下所有文件夹（目录）列表，包括子文件夹',
+    type: 'nodeOperation',
+    parameters: {
+      type: 'object',
+      properties: {
+        projectId: {
+          type: 'string',
+          description: '项目ID',
+        },
+      },
+      required: ['projectId'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const projectId = args.projectId as string
+      const result = await skillStore.getFolderList(projectId)
+      return {
+        code: 0,
+        data: result.map(folder => ({
+          _id: folder._id,
+          pid: folder.pid,
+          name: folder.info.name,
+          description: folder.info.description,
+        })),
+      }
+    },
+  },
+  {
+    name: 'renameFolder',
+    description: '重命名单个文件夹（目录）',
+    type: 'nodeOperation',
+    parameters: {
+      type: 'object',
+      properties: {
+        folderId: {
+          type: 'string',
+          description: '文件夹ID',
+        },
+        newName: {
+          type: 'string',
+          description: '新的文件夹名称',
+        },
+      },
+      required: ['folderId', 'newName'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const folderId = args.folderId as string
+      const newName = args.newName as string
+      const result = await skillStore.renameFolder(folderId, newName)
+      return {
+        code: result ? 0 : 1,
+        data: result,
+      }
+    },
+  },
+  {
+    name: 'batchRenameFolders',
+    description: '批量重命名多个文件夹（目录）',
+    type: 'nodeOperation',
+    parameters: {
+      type: 'object',
+      properties: {
+        items: {
+          type: 'array',
+          description: '重命名项列表',
+          items: {
+            type: 'object',
+            properties: {
+              folderId: {
+                type: 'string',
+                description: '文件夹ID',
+              },
+              newName: {
+                type: 'string',
+                description: '新的文件夹名称',
+              },
+            },
+            required: ['folderId', 'newName'],
+          },
+        },
+      },
+      required: ['items'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const items = args.items as { folderId: string; newName: string }[]
+      const result = await skillStore.batchRenameFolders(items)
+      return {
+        code: result.failed.length === 0 ? 0 : 1,
+        data: result,
+      }
+    },
+  },
+  {
+    name: 'getFolderChildrenForRename',
+    description: '获取指定文件夹及其所有子节点内容，用于根据子节点内容生成有意义的文件夹命名。返回目标文件夹、所有子文件夹和所有类型的子节点信息。',
+    type: 'nodeOperation',
+    parameters: {
+      type: 'object',
+      properties: {
+        folderId: {
+          type: 'string',
+          description: '目标文件夹ID',
+        },
+        projectId: {
+          type: 'string',
+          description: '项目ID',
+        },
+      },
+      required: ['folderId', 'projectId'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const folderId = args.folderId as string
+      const projectId = args.projectId as string
+      const result = await skillStore.getFolderChildrenForRename(folderId, projectId)
+      if (!result) {
+        return {
+          code: 1,
+          data: '文件夹不存在',
+        }
+      }
+      return {
+        code: 0,
+        data: result,
+      }
+    },
+  },
+  {
+    name: 'autoRenameFoldersByContent',
+    description: '根据文件夹下所有子节点内容，自动调用AI生成有意义的文件夹命名并执行重命名。适用于用户希望批量重命名目录但未指定具体名称的场景。',
+    type: 'nodeOperation',
+    parameters: {
+      type: 'object',
+      properties: {
+        folderId: {
+          type: 'string',
+          description: '目标文件夹ID',
+        },
+        projectId: {
+          type: 'string',
+          description: '项目ID',
+        },
+      },
+      required: ['folderId', 'projectId'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const aiChatStore = useAiChatStore()
+      const llmProvider = useLLMProvider()
+      const folderId = args.folderId as string
+      const projectId = args.projectId as string
+      const folderData = await skillStore.getFolderChildrenForRename(folderId, projectId)
+      if (!folderData) {
+        return { code: 1, data: { success: false, message: '文件夹不存在' } }
+      }
+      const foldersToRename = [
+        { _id: folderData.folder._id, name: folderData.folder.name },
+        ...folderData.childFolders.map(f => ({ _id: f._id, name: f.name })),
+      ]
+      if (foldersToRename.length === 0) {
+        return { code: 0, data: { success: true, message: '没有需要重命名的文件夹', renamed: [] } }
+      }
+      const systemPrompt = '你是一个命名助手，根据内容生成简洁有意义的文件夹名称。只返回JSON数据，不要包含任何其他内容。'
+      const userMessage = `根据以下文件夹及其子节点内容，为每个文件夹生成一个有意义的名称（不超过10个字）。
+
+文件夹结构：
+${JSON.stringify(folderData, null, 2)}
+
+请严格按以下JSON格式返回，不要包含任何其他内容：
+[{"_id": "文件夹ID", "newName": "新名称"}]`
+      try {
+        const response = await aiChatStore.chat({
+          model: llmProvider.activeProvider.model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage },
+          ],
+        })
+        const content = response.choices[0]?.message?.content || ''
+        const jsonMatch = content.match(/\[.*\]/s)
+        if (!jsonMatch) {
+          return { code: 1, data: { success: false, message: 'AI返回格式错误', raw: content } }
+        }
+        const renameItems = JSON.parse(jsonMatch[0]) as { _id: string; newName: string }[]
+        const result = await skillStore.batchRenameFolders(renameItems.map(item => ({ folderId: item._id, newName: item.newName })))
+        return {
+          code: result.failed.length === 0 ? 0 : 1,
+          data: { success: result.failed.length === 0, renamed: renameItems, result },
+        }
+      } catch (error) {
+        return {
+          code: 1,
+          data: { success: false, message: error instanceof Error ? error.message : '重命名失败' },
+        }
+      }
     },
   },
 ]

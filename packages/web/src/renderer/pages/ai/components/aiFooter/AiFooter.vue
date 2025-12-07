@@ -4,7 +4,7 @@
       <textarea
         v-model="localInputMessage"
         class="ai-input"
-        :placeholder="t('输入消息...')"
+        :placeholder="inputPlaceholder"
         @keydown="handleKeydown"
         @focus="handleInputFocus"
       ></textarea>
@@ -87,6 +87,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Send, ChevronDown, Check, Square } from 'lucide-vue-next'
 
+const isMacOS = navigator.platform.toUpperCase().includes('MAC')
 const modeOptions = ['agent', 'ask'] as const
 type AiMode = typeof modeOptions[number]
 const modeLabelMap: Record<AiMode, string> = {
@@ -118,6 +119,10 @@ const localInputMessage = computed({
 })
 
 const modelDisplayName = computed(() => t(modelLabelMap[model.value]))
+const inputPlaceholder = computed(() => {
+  const shortcutKey = isMacOS ? 'Shift+Return' : 'Shift+Enter'
+  return t('描述你的问题...（{shortcut} 换行）', { shortcut: shortcutKey })
+})
 const handleToggleModeMenu = (event: MouseEvent) => {
   event.stopPropagation()
   isModeMenuVisible.value = !isModeMenuVisible.value

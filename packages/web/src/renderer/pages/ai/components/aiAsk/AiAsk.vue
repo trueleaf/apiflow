@@ -29,9 +29,9 @@ import { ref, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Bot, AlertTriangle, ArrowRight } from 'lucide-vue-next'
 import { useCopilotStore } from '@/store/ai/copilotStore'
-import AskMessageItem from '../AskMessageItem.vue'
-import LoadingMessageItem from '../LoadingMessageItem.vue'
-import TextResponseMessageItem from '../TextResponseMessageItem.vue'
+import AskMessageItem from './components/AskMessageItem.vue'
+import LoadingMessageItem from './components/LoadingMessageItem.vue'
+import TextResponseMessageItem from './components/TextResponseMessageItem.vue'
 
 defineProps<{
   isConfigValid: boolean
