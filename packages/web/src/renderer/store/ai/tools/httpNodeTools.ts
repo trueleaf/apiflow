@@ -1495,4 +1495,93 @@ JSON结构：
       }
     },
   },
+  {
+    name: 'searchHttpNodes',
+    description: '根据名称、URL路径、描述等条件搜索httpNode节点，支持模糊匹配。当需要通过接口名称或URL查找节点时使用此工具',
+    type: 'httpNode',
+    parameters: {
+      type: 'object',
+      properties: {
+        projectId: {
+          type: 'string',
+          description: '项目ID',
+        },
+        keyword: {
+          type: 'string',
+          description: '通用关键词，同时搜索名称、描述、URL路径（模糊匹配）',
+        },
+        name: {
+          type: 'string',
+          description: '节点名称（模糊匹配）',
+        },
+        description: {
+          type: 'string',
+          description: '接口描述（模糊匹配）',
+        },
+        urlPath: {
+          type: 'string',
+          description: 'URL路径（模糊匹配）',
+        },
+        urlPrefix: {
+          type: 'string',
+          description: 'URL前缀（模糊匹配）',
+        },
+        method: {
+          type: 'string',
+          enum: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
+          description: '请求方法（精确匹配）',
+        },
+        contentType: {
+          type: 'string',
+          enum: ['', 'application/json', 'application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain', 'application/xml', 'text/html', 'text/javascript', 'application/octet-stream'],
+          description: 'Content-Type（精确匹配）',
+        },
+        bodyMode: {
+          type: 'string',
+          enum: ['json', 'raw', 'formdata', 'urlencoded', 'binary', 'none'],
+          description: '请求body模式（精确匹配）',
+        },
+        creator: {
+          type: 'string',
+          description: '创建者（模糊匹配）',
+        },
+        maintainer: {
+          type: 'string',
+          description: '维护人员（模糊匹配）',
+        },
+        version: {
+          type: 'string',
+          description: '版本号（精确匹配）',
+        },
+        includeDeleted: {
+          type: 'boolean',
+          description: '是否包含已删除的节点，默认false',
+        },
+      },
+      required: ['projectId'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const result = await skillStore.searchHttpNodes({
+        projectId: args.projectId as string,
+        keyword: args.keyword as string | undefined,
+        name: args.name as string | undefined,
+        description: args.description as string | undefined,
+        urlPath: args.urlPath as string | undefined,
+        urlPrefix: args.urlPrefix as string | undefined,
+        method: args.method as HttpNodeRequestMethod | undefined,
+        contentType: args.contentType as HttpNodeContentType | undefined,
+        bodyMode: args.bodyMode as HttpNodeBodyMode | undefined,
+        creator: args.creator as string | undefined,
+        maintainer: args.maintainer as string | undefined,
+        version: args.version as string | undefined,
+        includeDeleted: args.includeDeleted as boolean | undefined,
+      })
+      return {
+        code: 0,
+        data: result,
+      }
+    },
+  },
 ]

@@ -2,7 +2,8 @@ import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchSt
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { useVariable } from '@/store/projectWorkbench/variablesStore'
 import { useAiChatStore } from './aiChatStore'
-import { openaiTools } from './tools/tools.ts'
+import { openaiTools, rawTools } from './tools/tools.ts'
+import { LLMessage } from '@src/types/ai/agent.type.ts'
 
 const agentSystemPrompt = `你是 Apiflow 智能代理，需使用工具完成用户意图。
 - 优先调用工具完成修改，避免凭空编造。
@@ -37,15 +38,62 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 		project: context.project,
 		activeTab: context.activeTab,
 		variables: context.variables
-	})}`
-	const result = await aiChatStore.chat({
+	})}`;
+  const messages: LLMessage[] = [
+    { role: 'system', content: agentSystemPrompt },
+    { role: 'system', content: contextText },
+    { role: 'user', content: prompt }
+  ];
+	const MAX_ITERATIONS = 10;
+	let currentResponse = await aiChatStore.chat({
 		model: 'deepseek-chat',
-		messages: [
-			{ role: 'system', content: agentSystemPrompt },
-			{ role: 'system', content: contextText },
-			{ role: 'user', content: prompt }
-		],
+		messages,
 		tools: openaiTools
-	})
-  console.log('agent result:', result)
+	});
+	for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+    console.log('Current response:  ', currentResponse)
+		const { message, finish_reason } = currentResponse.choices[0];
+		if (finish_reason !== 'tool_calls' || !message.tool_calls?.length) {
+			return message.content;
+		}
+		messages.push({
+			role: 'assistant',
+			content: message.content || '',
+			tool_calls: message.tool_calls
+		});
+		for (const toolCall of message.tool_calls) {
+			const tool = rawTools.find(t => t.name === toolCall.function.name);
+			if (!tool) {
+				messages.push({
+					role: 'tool',
+					content: `工具 ${toolCall.function.name} 不存在`,
+					tool_call_id: toolCall.id
+				});
+				continue;
+			}
+			try {
+				const args = JSON.parse(toolCall.function.arguments);
+				const result = await tool.execute(args);
+				messages.push({
+					role: 'tool',
+					content: result.code === 0
+						? `执行成功：${JSON.stringify(result.data)}`
+						: `执行失败：${JSON.stringify(result.data)}`,
+					tool_call_id: toolCall.id
+				});
+			} catch (err) {
+				messages.push({
+					role: 'tool',
+					content: `工具执行异常：${err instanceof Error ? err.message : String(err)}`,
+					tool_call_id: toolCall.id
+				});
+			}
+		}
+		currentResponse = await aiChatStore.chat({
+			model: 'deepseek-chat',
+			messages,
+			tools: openaiTools
+		});
+	}
+	return currentResponse.choices[0]?.message?.content || '';
 }

@@ -42,7 +42,7 @@ export type AgentTool = {
     required: string[];
   };
   needConfirm: boolean;
-  execute?: (args: Record<string, unknown>) => Promise<ToolExecuteResult>;
+  execute: (args: Record<string, unknown>) => Promise<ToolExecuteResult>;
 }
 export type OpenAiToolDefinition = {
   type: 'function';

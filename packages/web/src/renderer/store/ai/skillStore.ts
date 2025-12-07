@@ -1,5 +1,5 @@
 import { cloneDeep, assign, merge } from "lodash-es"
-import { HttpNode, ApidocProperty, ApidocProjectInfo } from '@src/types'
+import { HttpNode, ApidocProperty, ApidocProjectInfo, HttpNodeRequestMethod, HttpNodeContentType, HttpNodeBodyMode } from '@src/types'
 import { CreateHttpNodeOptions } from '@src/types/ai/tools.type'
 import { defineStore } from "pinia"
 import { DeepPartial } from "@src/types/index.ts"
@@ -118,6 +118,67 @@ export const useSkill = defineStore('skill', () => {
       httpNodeStore.changeOriginHttpNodeInfo();
     }
     return true;
+  }
+  //根据名称或URL搜索httpNode节点
+  const searchHttpNodes = async (options: {
+    projectId: string;
+    keyword?: string;
+    name?: string;
+    description?: string;
+    urlPath?: string;
+    urlPrefix?: string;
+    method?: HttpNodeRequestMethod;
+    contentType?: HttpNodeContentType;
+    bodyMode?: HttpNodeBodyMode;
+    creator?: string;
+    maintainer?: string;
+    version?: string;
+    includeDeleted?: boolean;
+  }): Promise<HttpNode[]> => {
+    const allNodes = await apiNodesCache.getNodesByProjectId(options.projectId);
+    return allNodes.filter(node => {
+      if (node.info.type !== 'http') return false;
+      const httpNode = node as HttpNode;
+      if (!options.includeDeleted && httpNode.isDeleted) return false;
+      if (options.keyword) {
+        const kw = options.keyword.toLowerCase();
+        const matchName = httpNode.info.name.toLowerCase().includes(kw);
+        const matchDesc = httpNode.info.description.toLowerCase().includes(kw);
+        const matchPath = httpNode.item.url.path.toLowerCase().includes(kw);
+        if (!matchName && !matchDesc && !matchPath) return false;
+      }
+      if (options.name && !httpNode.info.name.toLowerCase().includes(options.name.toLowerCase())) {
+        return false;
+      }
+      if (options.description && !httpNode.info.description.toLowerCase().includes(options.description.toLowerCase())) {
+        return false;
+      }
+      if (options.urlPath && !httpNode.item.url.path.toLowerCase().includes(options.urlPath.toLowerCase())) {
+        return false;
+      }
+      if (options.urlPrefix && !httpNode.item.url.prefix.toLowerCase().includes(options.urlPrefix.toLowerCase())) {
+        return false;
+      }
+      if (options.method && httpNode.item.method !== options.method) {
+        return false;
+      }
+      if (options.contentType && httpNode.item.contentType !== options.contentType) {
+        return false;
+      }
+      if (options.bodyMode && httpNode.item.requestBody.mode !== options.bodyMode) {
+        return false;
+      }
+      if (options.creator && !httpNode.info.creator.toLowerCase().includes(options.creator.toLowerCase())) {
+        return false;
+      }
+      if (options.maintainer && !httpNode.info.maintainer.toLowerCase().includes(options.maintainer.toLowerCase())) {
+        return false;
+      }
+      if (options.version && httpNode.info.version !== options.version) {
+        return false;
+      }
+      return true;
+    }) as HttpNode[];
   }
   //根据节点ID获取HttpNode信息
   const getHttpNodeById = async (nodeId: string): Promise<HttpNode | null> => {
@@ -709,6 +770,7 @@ export const useSkill = defineStore('skill', () => {
     return await projectManagerStore.unstarProject(projectId);
   }
   return {
+    searchHttpNodes,
     getHttpNodeById,
     patchHttpNodeInfoById,
     addQueryParamByNodeId,

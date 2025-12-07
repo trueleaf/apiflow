@@ -20,45 +20,60 @@ export type LLMProviderSettings = {
   customHeaders: CustomHeader[];
 }
 
-export interface LLMessage {
+export type OpenAiToolCall = {
+  id: string;
+  type: 'function';
+  function: {
+    name: string;
+    arguments: string;
+  };
+}
+export type LLMessage = {
   role: 'system' | 'user' | 'assistant' | 'tool';
   content: string;
+  tool_calls?: OpenAiToolCall[];
+  tool_call_id?: string;
 }
-export interface OpenAiRequestBody {
+export type OpenAiRequestBody = {
   model: string;
   messages: LLMessage[];
   max_tokens?: number;
   temperature?: number;
   top_p?: number;
   stream?: boolean;
-
-  // 支持工具调用 (OpenAI format)
   tools?: Array<{
     type: 'function';
     function: {
       name: string;
       description?: string;
-      parameters: Record<string, any>;
+      parameters: Record<string, unknown>;
     };
   }>;
-
   response_format?: {
     type: 'json_object' | 'text';
   };
 }
-export interface OpenAiResponseBody {
+export type OpenAiResponseBody = {
   id: string;
   object: string;
   created: number;
   model: string;
-
   choices: Array<{
     index: number;
     message: LLMessage;
-    finish_reason: string | null;
+    finish_reason: 'stop' | 'tool_calls' | 'length' | 'content_filter' | null;
   }>;
 }
-export interface OpenAiStreamChunk {
+export type ToolCallChunk = {
+  index: number;
+  id?: string;
+  type?: 'function';
+  function?: {
+    name?: string;
+    arguments?: string;
+  };
+}
+export type OpenAiStreamChunk = {
   id?: string;
   model?: string;
   choices: Array<{
@@ -67,8 +82,9 @@ export interface OpenAiStreamChunk {
       role?: string;
       content?: string;
       reasoning_content?: string;
+      tool_calls?: ToolCallChunk[];
     };
-    finish_reason?: string | null;
+    finish_reason?: 'stop' | 'tool_calls' | 'length' | 'content_filter' | null;
   }>;
 }
 /*

@@ -98,7 +98,7 @@ export const handleFormatUrl = ():void => {
   let formatPath = requestPath.value;
   // 如果URL不为空且不以http://或https://开头，且不是以变量开头，则添加http://前缀
   if (formatPath.trim() !== '' && !formatPath.startsWith('http://') && !formatPath.startsWith('https://') && !formatPath.startsWith('{{')) {
-    formatPath = `http://${formatPath}`;
+    formatPath = `http://${formatPath.replace(/^\/+/, '')}`;
   }
   const queryReg = /(\?.*$)/;
   formatPath = formatPath.replace(queryReg, '');
