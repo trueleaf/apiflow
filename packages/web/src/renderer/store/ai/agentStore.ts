@@ -5,8 +5,9 @@ import { useLLMClientStore } from './llmClientStore'
 import { useAgentViewStore } from './agentViewStore'
 import { openaiTools, rawTools } from './tools/tools.ts'
 import { LLMessage } from '@src/types/ai/agent.type.ts'
-import type { AgentExecutionMessage, AgentToolCallInfo, TextResponseMessage } from '@src/types/ai'
-import { nanoid } from 'nanoid/non-secure'
+import type { AgentToolCallInfo } from '@src/types/ai'
+import { generateAgentExecutionMessage, generateCompletionMessage } from '@/helper'
+import { config } from '@src/config/config'
 
 const agentSystemPrompt = `你是 Apiflow 智能代理，需使用工具完成用户意图。
 - 优先调用工具完成修改，避免凭空编造。
@@ -36,25 +37,6 @@ const buildAgentContext = () => {
 		activeTab: activeNav ? { id: activeNav._id, label: activeNav.label, type: activeNav.tabType } : null,
 	}
 }
-// 创建 Agent 执行消息
-const createAgentExecutionMessage = (sessionId: string): AgentExecutionMessage => ({
-	id: nanoid(),
-	type: 'agentExecution',
-	sessionId,
-	timestamp: new Date().toISOString(),
-	status: 'running',
-	toolCalls: [],
-	mode: 'agent'
-})
-// 创建结束消息
-const createCompletionMessage = (sessionId: string, content: string): TextResponseMessage => ({
-	id: nanoid(),
-	type: 'textResponse',
-	content: content || '任务已完成',
-	timestamp: new Date().toISOString(),
-	sessionId,
-	mode: 'agent'
-})
 export const runAgent = async ({ prompt }: { prompt: string }) => {
 	const llmClientStore = useLLMClientStore()
 	const agentViewStore = useAgentViewStore()
@@ -69,16 +51,15 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 		{ role: 'system', content: contextText },
 		{ role: 'user', content: prompt }
 	];
-	const agentMessage = createAgentExecutionMessage(agentViewStore.currentSessionId)
+	const agentMessage = generateAgentExecutionMessage(agentViewStore.currentSessionId)
 	const messageId = agentMessage.id
 	let currentToolCalls: AgentToolCallInfo[] = []
 	agentViewStore.agentViewMessageList.push(agentMessage)
-	const MAX_ITERATIONS = 10;
 	let currentResponse = await llmClientStore.chat({
 		messages,
 		tools: openaiTools
 	});
-	for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+	for (let iteration = 0; iteration < config.renderConfig.agentConfig.maxIterations; iteration++) {
 		const { message, finish_reason } = currentResponse.choices[0];
 		if (message.content) {
 			agentViewStore.updateMessageInList(messageId, { thinkingContent: message.content })
@@ -89,7 +70,7 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 			if (finalMessage) {
 				await agentViewStore.updateAgentViewMessage(finalMessage)
 			}
-			const completionMessage = createCompletionMessage(agentViewStore.currentSessionId, message.content || '')
+			const completionMessage = generateCompletionMessage(agentViewStore.currentSessionId, message.content || '')
 			await agentViewStore.addAgentViewMessage(completionMessage)
 			return message.content;
 		}
@@ -165,7 +146,7 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 		await agentViewStore.updateAgentViewMessage(finalMessage)
 	}
 	const finalContent = currentResponse.choices[0]?.message?.content || ''
-	const completionMessage = createCompletionMessage(agentViewStore.currentSessionId, finalContent)
+	const completionMessage = generateCompletionMessage(agentViewStore.currentSessionId, finalContent)
 	await agentViewStore.addAgentViewMessage(completionMessage)
 	return finalContent
 }

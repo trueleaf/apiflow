@@ -19,6 +19,10 @@ export const config: Config = {
       minHeight: 400,
       maxHeight: 900,
     },
+    //Agent相关配置
+    agentConfig: {
+      maxIterations: 10,
+    },
     //http请求相关
     httpRequest: {
       url: isDev ? 'http://127.0.0.1:7001' : 'https://online.jobtool.cn',

@@ -135,6 +135,25 @@ export const generateDeepSeekProvider = (): LLMProviderSettings => ({
   model: 'deepseek-chat',
   customHeaders: [],
 })
+// 生成 Agent 执行消息
+export const generateAgentExecutionMessage = (sessionId: string): import('@src/types/ai').AgentExecutionMessage => ({
+  id: nanoid(),
+  type: 'agentExecution',
+  sessionId,
+  timestamp: new Date().toISOString(),
+  status: 'running',
+  toolCalls: [],
+  mode: 'agent'
+})
+// 生成完成消息
+export const generateCompletionMessage = (sessionId: string, content: string): import('@src/types/ai').TextResponseMessage => ({
+  id: nanoid(),
+  type: 'textResponse',
+  content: content || '任务已完成',
+  timestamp: new Date().toISOString(),
+  sessionId,
+  mode: 'agent'
+})
 /*
 |--------------------------------------------------------------------------
 | 日志工具 (logger.ts)

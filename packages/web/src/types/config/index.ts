@@ -56,6 +56,15 @@ export type Config = {
       maxHeight: number,
     },
     /**
+     * Agent相关配置
+     */
+    agentConfig: {
+      /**
+       * 最大迭代次数
+       */
+      maxIterations: number,
+    },
+    /**
      * http请求相关
      */
     httpRequest: {
