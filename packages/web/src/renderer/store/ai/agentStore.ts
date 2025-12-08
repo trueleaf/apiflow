@@ -61,7 +61,7 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 	});
 	for (let iteration = 0; iteration < config.renderConfig.agentConfig.maxIterations; iteration++) {
 		const { message, finish_reason } = currentResponse.choices[0];
-		if (message.content) {
+		if (message.content && finish_reason === 'tool_calls' && message.tool_calls?.length) {
 			agentViewStore.updateMessageInList(messageId, { thinkingContent: message.content })
 		}
 		if (finish_reason !== 'tool_calls' || !message.tool_calls?.length) {
@@ -79,14 +79,16 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 			content: message.content || '',
 			tool_calls: message.tool_calls
 		});
-		for (const toolCall of message.tool_calls) {
-			console.log(1, toolCall)
+		const responseUsage = currentResponse.usage
+		for (let i = 0; i < message.tool_calls.length; i++) {
+			const toolCall = message.tool_calls[i]
 			const args = JSON.parse(toolCall.function.arguments || '{}')
 			const toolCallInfo: AgentToolCallInfo = {
 				id: toolCall.id,
 				name: toolCall.function.name,
 				arguments: args,
 				status: 'running',
+				tokenUsage: i === 0 && responseUsage ? responseUsage : undefined,
 			}
 			currentToolCalls = [...currentToolCalls, toolCallInfo]
 			agentViewStore.updateMessageInList(messageId, { toolCalls: currentToolCalls })

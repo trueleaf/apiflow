@@ -65,6 +65,11 @@ export type OpenAiResponseBody = {
     message: LLMessage;
     finish_reason: 'stop' | 'tool_calls' | 'length' | 'content_filter' | null;
   }>;
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
 }
 export type ToolCallChunk = {
   index: number;

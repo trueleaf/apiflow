@@ -62,14 +62,14 @@
           </div>
         </div>
       </div>
-      <div v-if="message.thinkingContent" class="thinking-section">
+      <div v-if="message.thinkingContent && message.toolCalls.length > 0" class="thinking-section">
         <div class="agent-thinking-item">
           <div class="thinking-header">
             <Brain :size="14" class="thinking-icon" />
             <span class="thinking-label">{{ t('思考过程') }}</span>
           </div>
-          <div class="thinking-content">
-            <p class="thinking-text">{{ message.thinkingContent }}</p>
+          <div class="thinking-content thinking-markdown">
+            <VueMarkdownRender :source="displayedThinkingContent" />
           </div>
         </div>
       </div>
@@ -78,9 +78,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Bot, ChevronDown, ChevronRight, Loader2, CheckCircle2, XCircle, Clock, AlertCircle, Check, X, Brain } from 'lucide-vue-next'
+import VueMarkdownRender from 'vue-markdown-render'
 import type { AgentExecutionMessage, AgentToolCallStatus } from '@src/types/ai'
 
 const props = defineProps<{
@@ -89,6 +90,47 @@ const props = defineProps<{
 const { t } = useI18n()
 const isExpanded = ref(true)
 const expandedToolCalls = ref(new Set<string>())
+const displayedThinkingContent = ref('')
+let typewriterTimer: ReturnType<typeof setTimeout> | null = null
+// 打字效果：逐字显示思考内容
+watch(() => props.message.thinkingContent, (newContent) => {
+  if (typewriterTimer) {
+    clearTimeout(typewriterTimer)
+    typewriterTimer = null
+  }
+  if (!newContent) {
+    displayedThinkingContent.value = ''
+    return
+  }
+  const currentDisplayed = displayedThinkingContent.value
+  if (newContent.startsWith(currentDisplayed)) {
+    let index = currentDisplayed.length
+    const typeNextChar = () => {
+      if (index < newContent.length) {
+        displayedThinkingContent.value = newContent.slice(0, index + 1)
+        index++
+        typewriterTimer = setTimeout(typeNextChar, 20)
+      }
+    }
+    typeNextChar()
+  } else {
+    displayedThinkingContent.value = ''
+    let index = 0
+    const typeNextChar = () => {
+      if (index < newContent.length) {
+        displayedThinkingContent.value = newContent.slice(0, index + 1)
+        index++
+        typewriterTimer = setTimeout(typeNextChar, 20)
+      }
+    }
+    typeNextChar()
+  }
+}, { immediate: true })
+onUnmounted(() => {
+  if (typewriterTimer) {
+    clearTimeout(typewriterTimer)
+  }
+})
 const statusIcon = computed(() => {
   const icons = {
     pending: Clock,
@@ -121,7 +163,12 @@ const getToolStatusIcon = (status: AgentToolCallStatus) => {
   return icons[status]
 }
 const getTokenUsage = (toolCall: { tokenUsage?: { total_tokens: number } }) => {
-  return toolCall.tokenUsage?.total_tokens || null
+  const totalTokens = toolCall.tokenUsage?.total_tokens
+  if (!totalTokens) return null
+  if (totalTokens > 1000) {
+    return `${(totalTokens / 1000).toFixed(1)}k`
+  }
+  return totalTokens
 }
 </script>
 
@@ -145,7 +192,7 @@ const getTokenUsage = (toolCall: { tokenUsage?: { total_tokens: number } }) => {
   justify-content: flex-start;
 }
 .message-agent-execution .message-content {
-  max-width: 85%;
+  width: 85%;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -431,6 +478,34 @@ const getTokenUsage = (toolCall: { tokenUsage?: { total_tokens: number } }) => {
 }
 .thinking-content {
   padding: 0 12px 12px;
+}
+.thinking-markdown {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ai-text-primary);
+}
+.thinking-markdown :deep(p) {
+  margin: 0 0 8px;
+}
+.thinking-markdown :deep(p:last-child) {
+  margin-bottom: 0;
+}
+.thinking-markdown :deep(code) {
+  background: var(--ai-code-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+.thinking-markdown :deep(pre) {
+  background: var(--ai-code-bg);
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 8px 0;
+}
+.thinking-markdown :deep(pre code) {
+  background: none;
+  padding: 0;
 }
 .thinking-text {
   margin: 0;
