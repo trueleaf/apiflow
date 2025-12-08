@@ -37,6 +37,21 @@ const buildAgentContext = () => {
 		activeTab: activeNav ? { id: activeNav._id, label: activeNav.label, type: activeNav.tabType } : null,
 	}
 }
+// 构建历史对话消息
+const buildHistoryMessages = (agentViewStore: ReturnType<typeof useAgentViewStore>): LLMessage[] => {
+	const recentMessages = agentViewStore.getLatestMessages(10)
+	const historyMessages: LLMessage[] = []
+	for (const msg of recentMessages) {
+		if (msg.type === 'ask') {
+			historyMessages.push({ role: 'user', content: msg.content })
+		} else if (msg.type === 'textResponse') {
+			historyMessages.push({ role: 'assistant', content: msg.content })
+		} else if (msg.type === 'agentExecution' && msg.status === 'success' && msg.thinkingContent) {
+			historyMessages.push({ role: 'assistant', content: msg.thinkingContent })
+		}
+	}
+	return historyMessages
+}
 export const runAgent = async ({ prompt }: { prompt: string }) => {
 	const llmClientStore = useLLMClientStore()
 	const agentViewStore = useAgentViewStore()
@@ -46,9 +61,11 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 		activeTab: context.activeTab,
 		variables: context.variables
 	})}`;
+	const historyMessages = buildHistoryMessages(agentViewStore)
 	const messages: LLMessage[] = [
 		{ role: 'system', content: agentSystemPrompt },
 		{ role: 'system', content: contextText },
+		...historyMessages,
 		{ role: 'user', content: prompt }
 	];
 	const agentMessage = generateAgentExecutionMessage(agentViewStore.currentSessionId)
@@ -79,7 +96,7 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 			content: message.content || '',
 			tool_calls: message.tool_calls
 		});
-		const responseUsage = currentResponse.usage
+		const responseUsage = currentResponse.usage;
 		for (let i = 0; i < message.tool_calls.length; i++) {
 			const toolCall = message.tool_calls[i]
 			const args = JSON.parse(toolCall.function.arguments || '{}')
