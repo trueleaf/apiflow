@@ -9,7 +9,7 @@ import { nanoid } from 'nanoid'
 import { HttpNode, FolderNode, HttpMockNode } from '@src/types'
 import { WebSocketNode } from '@src/types/websocketNode'
 import { useSkill } from '../skillStore'
-import { useAiChatStore } from '../aiChatStore'
+import { useLLMClientStore } from '../llmClientStore'
 import { useLLMProvider } from '../llmProviderStore'
 
 type ApidocBannerWithProjectId = ApidocBanner & { projectId: string }
@@ -978,7 +978,7 @@ export const nodeOperationTools: AgentTool[] = [
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
       const skillStore = useSkill()
-      const aiChatStore = useAiChatStore()
+      const llmClientStore = useLLMClientStore()
       const llmProvider = useLLMProvider()
       const folderId = args.folderId as string
       const projectId = args.projectId as string
@@ -1002,7 +1002,7 @@ ${JSON.stringify(folderData, null, 2)}
 请严格按以下JSON格式返回，不要包含任何其他内容：
 [{"_id": "文件夹ID", "newName": "新名称"}]`
       try {
-        const response = await aiChatStore.chat({
+        const response = await llmClientStore.chat({
           model: llmProvider.activeProvider.model,
           messages: [
             { role: 'system', content: systemPrompt },

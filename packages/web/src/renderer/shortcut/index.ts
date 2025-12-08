@@ -1,6 +1,6 @@
 import hotkeys from "hotkeys-js";
 import { useRouter } from "vue-router";
-import { useCopilotStore } from "@/store/ai/copilotStore";
+import { useAgentViewStore } from "@/store/ai/agentViewStore";
 import { useProjectNav } from "@/store/projectWorkbench/projectNavStore";
 import { useHttpRedoUndo } from "@/store/redoUndo/httpRedoUndoStore";
 import { useWsRedoUndo } from "@/store/redoUndo/wsRedoUndoStore";
@@ -30,8 +30,8 @@ class ShortcutManager {
           tabType: "",
         },
         handler: (event: KeyboardEvent) => {
-          const copilotStore = useCopilotStore();
-          copilotStore.handleCopilotShortcut(event);
+          const agentViewStore = useAgentViewStore();
+          agentViewStore.handleAgentViewShortcut(event);
         },
       },
       {

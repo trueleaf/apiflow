@@ -35,13 +35,13 @@ import { useI18n } from 'vue-i18n'
 import ProviderConfigPanel from './ConfigPanel.vue'
 import DebugPanel from './DebugPanel.vue'
 import { useLLMProvider } from '@/store/ai/llmProviderStore'
-import { useAiChatStore } from '@/store/ai/aiChatStore'
+import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { message } from '@/helper'
 import type { OpenAiRequestBody } from '@src/types/ai/agent.type'
 
 const { t } = useI18n()
 const llmProviderStore = useLLMProvider()
-const aiChatStore = useAiChatStore()
+const llmClientStore = useLLMClientStore()
 
 const responseContent = ref('')
 const reasoningContent = ref('')
@@ -77,7 +77,7 @@ const handleSend = async () => {
   requestBody.value = body
   const startTime = Date.now()
   try {
-    const response = await aiChatStore.chat(body)
+    const response = await llmClientStore.chat(body)
     responseTime.value = Date.now() - startTime
     responseContent.value = response.choices?.[0]?.message?.content || t('无响应内容')
   } catch (error) {
@@ -109,7 +109,7 @@ const handleStreamSend = () => {
   requestBody.value = body
   const startTime = Date.now()
   const decoder = new TextDecoder()
-  cancelStreamFn = aiChatStore.chatStream(
+  cancelStreamFn = llmClientStore.chatStream(
     body,
     {
       onData: (chunk: Uint8Array) => {

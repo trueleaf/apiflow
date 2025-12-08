@@ -97,8 +97,8 @@ export const config: Config = {
       storeName: 'logs',
       maxLogsPerNode: 1000
     },
-    copilotMessageCache: {
-      dbName: 'copilotMessageCache',
+    agentViewMessageCache: {
+      dbName: 'agentViewMessageCache',
       version: 1,
       storeName: 'messages'
     },

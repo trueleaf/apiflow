@@ -7,7 +7,7 @@ type StreamCallbacks = {
   onError: (err: Error | string) => void;
 };
 
-export const useAiChatStore = defineStore('aiChatStore', () => {
+export const useLLMClientStore = defineStore('llmClientStore', () => {
   // 非流式聊天
   const chat = async (body: OpenAiRequestBody): Promise<OpenAiResponseBody> => {
     if (!window.electronAPI?.aiManager) {

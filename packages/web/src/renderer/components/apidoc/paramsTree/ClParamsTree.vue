@@ -320,7 +320,7 @@ import { config } from '@src/config/config';
 import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue';
 import type { ClParamsTreeProps, ClParamsTreeEmits } from '@src/types/components/components';
 import { llmProviderCache } from '@/cache/ai/llmProviderCache';
-import { useAiChatStore } from '@/store/ai/aiChatStore';
+import { useLLMClientStore } from '@/store/ai/llmClientStore';
 import type { OpenAiRequestBody } from '@src/types/ai/agent.type';
 import { useRouter } from 'vue-router';
 import { appState } from '@/cache/appState/appStateCache';
@@ -340,7 +340,7 @@ const props = withDefaults(defineProps<ClParamsTreeProps>(), {
 const emits = defineEmits<ClParamsTreeEmits>();
 const { t } = useI18n();
 const router = useRouter();
-const aiChatStore = useAiChatStore();
+const llmClientStore = useLLMClientStore();
 const variableStore = useVariable();
 const projectNavStore = useProjectNav();
 const projectId = router.currentRoute.value.query.id as string;
@@ -1022,7 +1022,7 @@ const handleAiParse = async () => {
       ],
       max_tokens: 2000
     };
-    const result = await aiChatStore.chat(requestBody);
+    const result = await llmClientStore.chat(requestBody);
     const content = result?.choices?.[0]?.message?.content || '';
     if (content) {
       multilineText.value = content.trim();

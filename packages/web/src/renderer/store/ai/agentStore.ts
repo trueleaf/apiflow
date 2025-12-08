@@ -1,8 +1,8 @@
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { useVariable } from '@/store/projectWorkbench/variablesStore'
-import { useAiChatStore } from './aiChatStore'
-import { useCopilotStore } from './copilotStore'
+import { useLLMClientStore } from './llmClientStore'
+import { useAgentViewStore } from './agentViewStore'
 import { openaiTools, rawTools } from './tools/tools.ts'
 import { LLMessage } from '@src/types/ai/agent.type.ts'
 import type { AgentExecutionMessage, AgentToolCallInfo } from '@src/types/ai'
@@ -57,8 +57,8 @@ const updateToolCallStatus = (
 	}
 }
 export const runAgent = async ({ prompt }: { prompt: string }) => {
-	const aiChatStore = useAiChatStore()
-	const copilotStore = useCopilotStore()
+	const llmClientStore = useLLMClientStore()
+	const agentViewStore = useAgentViewStore()
 	const context = buildAgentContext()
 	const contextText = `当前上下文信息，若字段为null表示未选中：${JSON.stringify({
 		project: context.project,
@@ -70,10 +70,10 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
     { role: 'system', content: contextText },
     { role: 'user', content: prompt }
   ];
-	const agentMessage = createAgentExecutionMessage(copilotStore.currentSessionId)
-	copilotStore.copilotMessageList.push(agentMessage)
+	const agentMessage = createAgentExecutionMessage(agentViewStore.currentSessionId)
+	agentViewStore.agentViewMessageList.push(agentMessage)
 	const MAX_ITERATIONS = 10;
-	let currentResponse = await aiChatStore.chat({
+	let currentResponse = await llmClientStore.chat({
 		model: 'deepseek-chat',
 		messages,
 		tools: openaiTools
@@ -143,7 +143,7 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 				});
 			}
 		}
-		currentResponse = await aiChatStore.chat({
+		currentResponse = await llmClientStore.chat({
 			model: 'deepseek-chat',
 			messages,
 			tools: openaiTools

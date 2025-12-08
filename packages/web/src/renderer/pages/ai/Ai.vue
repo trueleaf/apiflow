@@ -32,8 +32,12 @@
         @select="handleSelectSession"
       />
       <AiAsk
-        v-if="currentView === 'chat' || currentView === 'agent'"
-        ref="aiAskRef"
+        v-if="currentView === 'chat'"
+        :is-config-valid="isAiConfigValid()"
+        @open-settings="handleOpenAiSettings"
+      />
+      <AiAgent
+        v-if="currentView === 'agent'"
         :is-config-valid="isAiConfigValid()"
         @open-settings="handleOpenAiSettings"
       />
@@ -48,7 +52,7 @@
         v-model:input-message="inputMessage"
         v-model:mode="mode"
         v-model:model="model"
-        :is-working="copilotStore.workingStatus === 'working'"
+        :is-working="agentViewStore.workingStatus === 'working'"
         @send="handleSend"
         @stop="stopCurrentConversation"
         @update:mode="handleModeChange"
@@ -68,22 +72,22 @@ import { IPC_EVENTS } from '@src/types/ipc'
 import { config } from '@src/config/config'
 import { appState } from '@/cache/appState/appStateCache'
 import { llmProviderCache } from '@/cache/ai/llmProviderCache'
-import { useCopilotStore } from '@/store/ai/copilotStore'
+import { useAgentViewStore } from '@/store/ai/agentViewStore'
 import { useLLMProvider } from '@/store/ai/llmProviderStore'
-import { useAiChatStore } from '@/store/ai/aiChatStore'
+import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { runAgent } from '@/store/ai/agentStore'
 import AiHistory from './components/aiHistory/AiHistory.vue'
 import ClDrag from '@/components/ui/cleanDesign/clDrag/ClDrag.vue'
 import AiHeader from './components/aiHeader/AiHeader.vue'
 import AiAsk from './components/aiAsk/AiAsk.vue'
+import AiAgent from './components/aiAgent/AiAgent.vue'
 import AiConfig from './components/aiConfig/AiConfig.vue'
 import AiFooter from './components/aiFooter/AiFooter.vue'
 
 const visible = defineModel<boolean>('visible', { default: false })
-const copilotStore = useCopilotStore()
+const agentViewStore = useAgentViewStore()
 const llmProviderStore = useLLMProvider()
-const aiChatStore = useAiChatStore()
-const aiAskRef = ref<InstanceType<typeof AiAsk> | null>(null)
+const llmClientStore = useLLMClientStore()
 const aiFooterRef = ref<InstanceType<typeof AiFooter> | null>(null)
 const { t } = useI18n()
 const inputMessage = ref('')
@@ -107,7 +111,7 @@ watch(visible, value => {
     currentView.value = mode.value === 'agent' ? 'agent' : 'chat'
   }
 })
-watch(() => copilotStore.copilotDialogVisible, (newValue) => {
+watch(() => agentViewStore.agentViewDialogVisible, (newValue) => {
   if (newValue) {
     nextTick(() => {
       const inputNode = document.querySelector<HTMLTextAreaElement>('.ai-input');
@@ -118,7 +122,7 @@ watch(() => copilotStore.copilotDialogVisible, (newValue) => {
 
 const buildOpenAIRequestBody = (userMessage: string): OpenAiRequestBody & { stream: true } => {
   const messages: LLMessage[] = []
-  const recentMessages = copilotStore.getLatestMessages(10)
+  const recentMessages = agentViewStore.getLatestMessages(10)
 
   for (const msg of recentMessages) {
     if (msg.type === 'ask') {
@@ -154,22 +158,22 @@ const stopCurrentConversation = async () => {
     cancelCurrentStream.value = null
   }
   if (loadingMessageId.value) {
-    copilotStore.deleteCopilotMessageById(loadingMessageId.value)
+    agentViewStore.deleteAgentViewMessageById(loadingMessageId.value)
     loadingMessageId.value = null
   }
   isStreaming.value = false
   currentStreamRequestId.value = null
   streamingMessageId.value = null
   isFirstChunk.value = false
-  copilotStore.setWorkingStatus('finish')
+  agentViewStore.setWorkingStatus('finish')
 }
 const handleClose = () => {
   visible.value = false
 }
 const handleCreateConversation = async () => {
   await stopCurrentConversation()
-  if (copilotStore.copilotMessageList.length > 0) {
-    copilotStore.createNewSession()
+  if (agentViewStore.agentViewMessageList.length > 0) {
+    agentViewStore.createNewSession()
   }
   currentView.value = 'chat'
 }
@@ -180,7 +184,7 @@ const handleBackToChat = () => {
   currentView.value = 'chat'
 }
 const handleSelectSession = async (sessionId: string) => {
-  await copilotStore.loadMessagesForSession(sessionId)
+  await agentViewStore.loadMessagesForSession(sessionId)
   currentView.value = 'chat'
 }
 const isAiConfigValid = () => {
@@ -244,7 +248,7 @@ const handleSend = async () => {
     type: 'ask',
     content: message,
     timestamp,
-    sessionId: copilotStore.currentSessionId
+    sessionId: agentViewStore.currentSessionId
   }
   
   const loadingMessage: LoadingMessage = {
@@ -252,24 +256,24 @@ const handleSend = async () => {
     type: 'loading',
     content: '',
     timestamp,
-    sessionId: copilotStore.currentSessionId
+    sessionId: agentViewStore.currentSessionId
   }
   
-  await copilotStore.addCopilotMessage(askMessage)
-  await copilotStore.addCopilotMessage(loadingMessage)
+  await agentViewStore.addAgentViewMessage(askMessage)
+  await agentViewStore.addAgentViewMessage(loadingMessage)
   
   isStreaming.value = true
   currentStreamRequestId.value = requestId
   loadingMessageId.value = loadingMsgId
   isFirstChunk.value = true
   streamingMessageId.value = null
-  copilotStore.setWorkingStatus('working')
+  agentViewStore.setWorkingStatus('working')
   
   const requestBody = buildOpenAIRequestBody(message)
   
-  if (!aiChatStore.isAvailable()) {
+  if (!llmClientStore.isAvailable()) {
     if (loadingMessageId.value) {
-      copilotStore.deleteCopilotMessageById(loadingMessageId.value)
+      agentViewStore.deleteAgentViewMessageById(loadingMessageId.value)
       loadingMessageId.value = null
     }
     
@@ -280,21 +284,21 @@ const handleSend = async () => {
       type: 'textResponse',
       content: `${t('错误')}: ${t('AI功能不可用')}`,
       timestamp,
-      sessionId: copilotStore.currentSessionId
+      sessionId: agentViewStore.currentSessionId
     }
     
-    copilotStore.addCopilotMessage(errorMessage)
+    agentViewStore.addAgentViewMessage(errorMessage)
     isStreaming.value = false
     currentStreamRequestId.value = null
     streamingMessageId.value = null
     isFirstChunk.value = false
-    copilotStore.setWorkingStatus('finish')
+    agentViewStore.setWorkingStatus('finish')
     return
   }
   
   try {
     const textDecoder = new TextDecoder('utf-8')
-    const streamController = aiChatStore.chatStream(
+    const streamController = llmClientStore.chatStream(
       requestBody,
       {
         onData: (chunk: Uint8Array) => {
@@ -315,7 +319,7 @@ const handleSend = async () => {
     }
   } catch (error) {
     if (loadingMessageId.value) {
-      copilotStore.deleteCopilotMessageById(loadingMessageId.value)
+      agentViewStore.deleteAgentViewMessageById(loadingMessageId.value)
       loadingMessageId.value = null
     }
     
@@ -326,15 +330,15 @@ const handleSend = async () => {
       type: 'textResponse',
       content: `${t('错误')}: ${error instanceof Error ? error.message : t('未知错误')}`,
       timestamp,
-      sessionId: copilotStore.currentSessionId
+      sessionId: agentViewStore.currentSessionId
     }
     
-    copilotStore.addCopilotMessage(errorMessage)
+    agentViewStore.addAgentViewMessage(errorMessage)
     isStreaming.value = false
     currentStreamRequestId.value = null
     streamingMessageId.value = null
     isFirstChunk.value = false
-    copilotStore.setWorkingStatus('finish')
+    agentViewStore.setWorkingStatus('finish')
   }
 }
 const handleStreamData = (requestId: string, chunk: string) => {
@@ -353,7 +357,7 @@ const handleStreamData = (requestId: string, chunk: string) => {
       
       if (content) {
         if (isFirstChunk.value && loadingMessageId.value) {
-          copilotStore.deleteCopilotMessageById(loadingMessageId.value)
+          agentViewStore.deleteAgentViewMessageById(loadingMessageId.value)
           
           const timestamp = new Date().toISOString()
           const responseMessageId = nanoid()
@@ -362,18 +366,18 @@ const handleStreamData = (requestId: string, chunk: string) => {
             type: 'textResponse',
             content,
             timestamp,
-            sessionId: copilotStore.currentSessionId
+            sessionId: agentViewStore.currentSessionId
           }
           
-          copilotStore.addCopilotMessage(responseMessage)
+          agentViewStore.addAgentViewMessage(responseMessage)
           streamingMessageId.value = responseMessageId
           loadingMessageId.value = null
           isFirstChunk.value = false
         } else if (streamingMessageId.value) {
-          const message = copilotStore.getMessageById(streamingMessageId.value)
+          const message = agentViewStore.getMessageById(streamingMessageId.value)
           if (message && message.type === 'textResponse') {
             message.content += content
-            copilotStore.updateCopilotMessage(message)
+            agentViewStore.updateAgentViewMessage(message)
           }
         }
       }
@@ -386,7 +390,7 @@ const handleStreamEnd = (requestId: string) => {
   if (currentStreamRequestId.value !== requestId) return
   
   if (loadingMessageId.value) {
-    copilotStore.deleteCopilotMessageById(loadingMessageId.value)
+    agentViewStore.deleteAgentViewMessageById(loadingMessageId.value)
     loadingMessageId.value = null
   }
   
@@ -395,13 +399,13 @@ const handleStreamEnd = (requestId: string) => {
   streamingMessageId.value = null
   isFirstChunk.value = false
   cancelCurrentStream.value = null
-  copilotStore.setWorkingStatus('finish')
+  agentViewStore.setWorkingStatus('finish')
 }
 const handleStreamError = (requestId: string, error: string) => {
   if (currentStreamRequestId.value !== requestId) return
 
   if (loadingMessageId.value) {
-    copilotStore.deleteCopilotMessageById(loadingMessageId.value)
+    agentViewStore.deleteAgentViewMessageById(loadingMessageId.value)
     loadingMessageId.value = null
   }
 
@@ -412,17 +416,17 @@ const handleStreamError = (requestId: string, error: string) => {
     type: 'textResponse',
     content: `${t('错误')}: ${error}`,
     timestamp,
-    sessionId: copilotStore.currentSessionId
+    sessionId: agentViewStore.currentSessionId
   }
 
-  copilotStore.addCopilotMessage(errorMessage)
+  agentViewStore.addAgentViewMessage(errorMessage)
 
   isStreaming.value = false
   currentStreamRequestId.value = null
   streamingMessageId.value = null
   isFirstChunk.value = false
   cancelCurrentStream.value = null
-  copilotStore.setWorkingStatus('finish')
+  agentViewStore.setWorkingStatus('finish')
 }
 const handleOpenAiSettings = () => {
   currentView.value = 'config'
@@ -477,9 +481,9 @@ const initDialogState = () => {
     return
   }
 
-  if (copilotStore.copilotAnchorRect) {
-    const anchorCenterX = copilotStore.copilotAnchorRect.x + copilotStore.copilotAnchorRect.width / 2 - dialogWidth.value / 2
-    const anchorTop = config.mainConfig.topbarViewHeight + copilotStore.copilotAnchorRect.y + copilotStore.copilotAnchorRect.height + 12
+  if (agentViewStore.agentViewAnchorRect) {
+    const anchorCenterX = agentViewStore.agentViewAnchorRect.x + agentViewStore.agentViewAnchorRect.width / 2 - dialogWidth.value / 2
+    const anchorTop = config.mainConfig.topbarViewHeight + agentViewStore.agentViewAnchorRect.y + agentViewStore.agentViewAnchorRect.height + 12
     const anchoredPosition = clampPositionToBounds({ x: anchorCenterX, y: anchorTop }, dialogWidth.value, dialogHeight.value)
     position.value = anchoredPosition
     appState.setAiDialogPosition(anchoredPosition)
@@ -488,7 +492,7 @@ const initDialogState = () => {
 
 onMounted(() => {
   initDialogState()
-  copilotStore.initStore()
+  agentViewStore.initStore()
   llmProviderStore.initFromCache()
 })
 

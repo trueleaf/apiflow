@@ -161,7 +161,7 @@ export type Config = {
       storeName: string,
       maxLogsPerNode: number,
     },
-    copilotMessageCache: {
+    agentViewMessageCache: {
       dbName: string,
       version: number,
       storeName: string,

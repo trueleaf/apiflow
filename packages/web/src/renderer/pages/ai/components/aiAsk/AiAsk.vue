@@ -9,16 +9,15 @@
           <ArrowRight :size="14" class="config-icon"/>
         </button>
       </div>
-      <div v-else-if="copilotStore.copilotMessageList.length === 0" class="ai-empty-state">
+      <div v-else-if="agentViewStore.agentViewMessageList.length === 0" class="ai-empty-state">
         <Bot class="ai-empty-icon" :size="48" />
         <p class="ai-empty-text">{{ t('问我任何问题') }}</p>
       </div>
       <template v-else>
-        <template v-for="message in copilotStore.copilotMessageList" :key="message.id">
+        <template v-for="message in agentViewStore.agentViewMessageList" :key="message.id">
           <AskMessageItem v-if="message.type === 'ask'" :message="message" />
           <LoadingMessageItem v-else-if="message.type === 'loading'" :message="message" />
           <TextResponseMessageItem v-else-if="message.type === 'textResponse'" :message="message" />
-          <AgentExecutionMessageItem v-else-if="message.type === 'agentExecution'" :message="message" />
         </template>
       </template>
     </div>
@@ -29,11 +28,10 @@
 import { ref, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Bot, AlertTriangle, ArrowRight } from 'lucide-vue-next'
-import { useCopilotStore } from '@/store/ai/copilotStore'
+import { useAgentViewStore } from '@/store/ai/agentViewStore'
 import AskMessageItem from './components/AskMessageItem.vue'
 import LoadingMessageItem from './components/LoadingMessageItem.vue'
 import TextResponseMessageItem from './components/TextResponseMessageItem.vue'
-import AgentExecutionMessageItem from './components/AgentExecutionMessageItem.vue'
 
 defineProps<{
   isConfigValid: boolean
@@ -42,7 +40,7 @@ const emit = defineEmits<{
   'open-settings': []
 }>()
 const { t } = useI18n()
-const copilotStore = useCopilotStore()
+const agentViewStore = useAgentViewStore()
 const messagesRef = ref<HTMLElement | null>(null)
 
 const scrollToBottom = () => {
@@ -52,7 +50,7 @@ const scrollToBottom = () => {
     }
   })
 }
-watch(() => copilotStore.copilotMessageList.length, () => {
+watch(() => agentViewStore.agentViewMessageList.length, () => {
   scrollToBottom()
 })
 defineExpose({

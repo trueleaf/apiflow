@@ -103,7 +103,7 @@ import { useI18n } from 'vue-i18n'
 import { Loader2, Send } from 'lucide-vue-next'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { appState } from '@/cache/appState/appStateCache'
-import { useAiChatStore } from '@/store/ai/aiChatStore'
+import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import type { HttpMockNode } from '@src/types'
 import type { OpenAiRequestBody, OpenAiResponseBody } from '@src/types/ai/agent.type'
 import { message } from '@/helper'
@@ -116,7 +116,7 @@ type Props = {
 
 const props = defineProps<Props>()
 const { t } = useI18n()
-const aiChatStore = useAiChatStore()
+const llmClientStore = useLLMClientStore()
 
 const showRandomSizeHint = ref(true)
 const aiGenerating = ref(false)
@@ -167,7 +167,7 @@ const handleGeneratePreview = async () => {
       response_format: { type: 'json_object' }
     }
 
-    const result = await aiChatStore.chat(requestBody)
+    const result = await llmClientStore.chat(requestBody)
     const content = getMessageContent(result || null)
     if (content) {
       try {

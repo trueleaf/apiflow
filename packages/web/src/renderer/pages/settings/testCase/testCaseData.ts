@@ -556,7 +556,7 @@ export const testCase = [
                   { id: '1', name: '应用已启动' },
                   { id: '2', name: '已配置AI助理相关设置（可选）' },
                   { id: '3', name: 'Header导航栏已渲染' },
-                  { id: '4', name: 'copilotStore正常工作' },
+                  { id: '4', name: 'agentViewStore正常工作' },
                 ],
                 operationSteps: [
                   { id: '1', name: '场景1：第一次打开AI助理' },
@@ -586,8 +586,8 @@ export const testCase = [
                   { id: '3', name: '使用aiButtonRef.value.getBoundingClientRect()获取按钮的DOMRect（x, y, width, height）' },
                   { id: '4', name: '构造AnchorRect对象：{x: rect.left, y: rect.top, width: rect.width, height: rect.height}' },
                   { id: '5', name: '发送IPC事件：window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.showAiDialog, { position })' },
-                  { id: '6', name: 'App.vue监听事件并调用copilotStore.showCopilotDialog(payload?.position)' },
-                  { id: '7', name: 'copilotStore负责管理AI助理弹窗的显示/隐藏状态和位置记忆' },
+                  { id: '6', name: 'App.vue监听事件并调用agentViewStore.showAgentViewDialog(payload?.position)' },
+                  { id: '7', name: 'agentViewStore负责管理AI助理弹窗的显示/隐藏状态和位置记忆' },
                   { id: '8', name: '弹窗位置通过localStorage或类似机制持久化保存' },
                   { id: '9', name: 'showCopilotDialog方法判断是否传入position参数，决定使用锚点位置还是记忆位置' },
                   { id: '10', name: '多次点击不关闭通过只调用show方法实现，不toggle状态' },
@@ -597,7 +597,7 @@ export const testCase = [
                   { id: '2', name: 'AnchorRect类型用于传递锚点位置信息' },
                   { id: '3', name: 'getBoundingClientRect()返回元素相对视口的位置和尺寸' },
                   { id: '4', name: 'AI助理弹窗是可拖拽对话框组件，支持位置记忆功能' },
-                  { id: '5', name: 'copilotStore是专门管理AI助理状态的Pinia store' },
+                  { id: '5', name: 'agentViewStore是专门管理AI助理状态的Pinia store' },
                 ],
               },
               {
@@ -3973,7 +3973,7 @@ export const testCase = [
                               { id: '7', name: 'handleOpenAiSettings方法打开AI设置页面（router.push到AI settings）' },
                               { id: '8', name: 'ArrowRight图标来自lucide-vue-next库（AddFile.vue第75行）' },
                               { id: '9', name: 'llmProviderCache用于获取LLM配置信息（AddFile.vue第76行）' },
-                              { id: '10', name: 'useAiChatStore用于管理AI对话状态（AddFile.vue第77行）' },
+                              { id: '10', name: 'useLLMClientStore用于调用LLM API（AddFile.vue第77行）' },
                             ],
                             notes: [
                               { id: '1', name: 'AI功能仅在独立模式（offline模式）下可用，通过isStandalone判断' },

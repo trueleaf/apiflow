@@ -74,7 +74,7 @@ import type { OpenAiRequestBody } from '@src/types/ai/agent.type';
 import type { HttpNode, WebSocketNode, HttpMockNode } from '@src/types';
 import { ArrowRight } from 'lucide-vue-next';
 import { llmProviderCache } from '@/cache/ai/llmProviderCache';
-import { useAiChatStore } from '@/store/ai/aiChatStore'
+import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { appState } from '@/cache/appState/appStateCache';
 import { IPC_EVENTS } from '@src/types/ipc';
 
@@ -93,7 +93,7 @@ const emits = defineEmits(['update:modelValue', 'success']);
 const { t } = useI18n()
 
 const runtimeStore = useRuntime();
-const aiChatStore = useAiChatStore()
+const llmClientStore = useLLMClientStore()
 const router = useRouter();
 const loading = ref(false);
 const form = ref<FormInstance>();
@@ -182,7 +182,7 @@ const callAiToGenerateNodeData = async (nodeType: 'http' | 'websocket' | 'httpMo
   }
 
   try {
-  const response = await aiChatStore.chat(requestBody)
+  const response = await llmClientStore.chat(requestBody)
 
     const aiContent = response.choices?.[0]?.message?.content
     if (!aiContent) {

@@ -2,7 +2,7 @@
   <NetworkModeBanner />
   <router-view></router-view>
   <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
-  <Ai v-if="copilotDialogVisible" v-model:visible="copilotDialogVisible" />
+  <Ai v-if="agentViewDialogVisible" v-model:visible="agentViewDialogVisible" />
   <LanguageMenu
     :visible="languageMenuVisible"
     :position="languageMenuPosition"
@@ -37,7 +37,7 @@ import { IPC_EVENTS } from '@src/types/ipc';
 import type { AnchorRect } from '@src/types/common';
 import { useAppSettings } from '@/store/appSettings/appSettingsStore';
 import { shortcutManager } from '@/shortcut/index.ts';
-import { useCopilotStore } from '@/store/ai/copilotStore';
+import { useAgentViewStore } from '@/store/ai/agentViewStore';
 import { storeToRefs } from 'pinia';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -46,8 +46,8 @@ const dialogVisible = ref(false);
 const projectWorkbenchStore = useProjectWorkbench()
 const runtimeStore = useRuntime();
 const appSettingsStore = useAppSettings();
-const copilotStore = useCopilotStore();
-const { copilotDialogVisible } = storeToRefs(copilotStore);
+const agentViewStore = useAgentViewStore();
+const { agentViewDialogVisible } = storeToRefs(agentViewStore);
 const { t } = useI18n()
 // 语言菜单相关状态
 const languageMenuVisible = ref(false)
@@ -143,7 +143,7 @@ const initAppHeaderEvent = () => {
     dialogVisible.value = true;
   });
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.showAiDialog, (payload?: { position?: AnchorRect }) => {
-    copilotStore.showCopilotDialog(payload?.position);
+    agentViewStore.showAgentViewDialog(payload?.position);
   });
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.changeRoute, (path: string) => {
     router.push(path)

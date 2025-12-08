@@ -1,136 +1,126 @@
 <template>
-  <div class="agent-execution-container">
-    <div class="agent-execution-header" @click="toggleExpand">
-      <div class="agent-header-left">
-        <component :is="statusIcon" :size="16" class="agent-status-icon" :class="statusClass" />
-        <span class="agent-title">{{ t('Agent执行') }}</span>
-        <span class="agent-tool-count">{{ toolCalls.length }} {{ t('个工具调用') }}</span>
+  <div class="ai-chat-view">
+    <div class="ai-messages" ref="messagesRef">
+      <div v-if="!isConfigValid" class="ai-empty-state ai-empty-state-setup">
+        <AlertTriangle class="ai-empty-icon" :size="48" />
+        <p class="ai-empty-text mb-2">{{ t('请先前往AI设置配置apiKey与apiUrl') }}</p>
+        <button class="ai-config-btn" type="button" @click="emit('open-settings')">
+          <span>{{ t('配置ApiKey') }}</span>
+          <ArrowRight :size="14" class="config-icon"/>
+        </button>
       </div>
-      <div class="agent-header-right">
-        <ChevronDown :size="16" class="agent-expand-icon" :class="{ 'is-expanded': isExpanded }" />
+      <div v-else-if="agentViewStore.agentViewMessageList.length === 0" class="ai-empty-state">
+        <Sparkles class="ai-empty-icon" :size="48" />
+        <p class="ai-empty-text">{{ t('Agent模式可以自动执行工具调用') }}</p>
       </div>
-    </div>
-    <div v-show="isExpanded" class="agent-execution-body">
-      <div class="agent-timeline">
-        <AgentToolCallItem
-          v-for="(call, index) in toolCalls"
-          :key="call.id"
-          :tool-call="call"
-          :is-last="index === toolCalls.length - 1"
-          @confirm="handleConfirm"
-          @cancel="handleCancel"
-        />
-      </div>
+      <template v-else>
+        <template v-for="message in agentViewStore.agentViewMessageList" :key="message.id">
+          <AskMessageItem v-if="message.type === 'ask'" :message="message" />
+          <LoadingMessageItem v-else-if="message.type === 'loading'" :message="message" />
+          <TextResponseMessageItem v-else-if="message.type === 'textResponse'" :message="message" />
+          <AgentExecutionMessageItem v-else-if="message.type === 'agentExecution'" :message="message" />
+        </template>
+      </template>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ChevronDown, Loader2, CheckCircle2, XCircle, Clock } from 'lucide-vue-next'
-import AgentToolCallItem from './components/AgentToolCallItem.vue'
-import type { AgentToolCallInfo } from '@src/types/ai'
+import { Sparkles, AlertTriangle, ArrowRight } from 'lucide-vue-next'
+import { useAgentViewStore } from '@/store/ai/agentViewStore'
+import AskMessageItem from '../aiAsk/components/AskMessageItem.vue'
+import LoadingMessageItem from '../aiAsk/components/LoadingMessageItem.vue'
+import TextResponseMessageItem from '../aiAsk/components/TextResponseMessageItem.vue'
+import AgentExecutionMessageItem from './components/AgentExecutionMessageItem.vue'
 
-const props = defineProps<{
-  toolCalls: AgentToolCallInfo[]
-  status: 'pending' | 'running' | 'success' | 'error'
+defineProps<{
+  isConfigValid: boolean
 }>()
 const emit = defineEmits<{
-  confirm: [toolCallId: string]
-  cancel: [toolCallId: string]
+  'open-settings': []
 }>()
 const { t } = useI18n()
-const isExpanded = ref(true)
-const statusIcon = computed(() => {
-  const icons = {
-    pending: Clock,
-    running: Loader2,
-    success: CheckCircle2,
-    error: XCircle
-  }
-  return icons[props.status]
+const agentViewStore = useAgentViewStore()
+const messagesRef = ref<HTMLElement | null>(null)
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (messagesRef.value) {
+      messagesRef.value.scrollTop = messagesRef.value.scrollHeight
+    }
+  })
+}
+watch(() => agentViewStore.agentViewMessageList.length, () => {
+  scrollToBottom()
 })
-const statusClass = computed(() => `status-${props.status}`)
-const toggleExpand = () => {
-  isExpanded.value = !isExpanded.value
-}
-const handleConfirm = (toolCallId: string) => {
-  emit('confirm', toolCallId)
-}
-const handleCancel = (toolCallId: string) => {
-  emit('cancel', toolCallId)
-}
+defineExpose({
+  scrollToBottom
+})
 </script>
 
 <style scoped>
-.agent-execution-container {
-  background: var(--ai-bubble-ai-bg);
-  border-radius: 12px;
-  border: 1px solid var(--ai-tool-border);
+.ai-chat-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
-.agent-execution-header {
+.ai-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.ai-messages::-webkit-scrollbar {
+  width: 8px;
+}
+.ai-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ai-messages::-webkit-scrollbar-thumb {
+  background: var(--ai-scrollbar-thumb);
+  border-radius: 4px;
+}
+.ai-messages::-webkit-scrollbar-thumb:hover {
+  background: var(--ai-scrollbar-hover);
+}
+.ai-empty-state {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--ai-text-secondary);
+}
+.ai-empty-icon {
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+.ai-empty-text {
+  font-size: 14px;
+  margin: 0;
+}
+.ai-config-btn {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
+  gap: 6px;
+  padding: 3px 12px;
+  background: var(--ai-button-bg);
+  border: 1px solid var(--ai-button-border);
+  border-radius: 4px;
   cursor: pointer;
-  user-select: none;
-  transition: background 0.2s ease;
-}
-.agent-execution-header:hover {
-  background: var(--ai-action-hover-bg);
-}
-.agent-header-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.agent-status-icon {
-  flex-shrink: 0;
-}
-.agent-status-icon.status-pending {
-  color: var(--ai-text-secondary);
-}
-.agent-status-icon.status-running {
-  color: var(--theme-color);
-  animation: spin 1s linear infinite;
-}
-.agent-status-icon.status-success {
-  color: #10b981;
-}
-.agent-status-icon.status-error {
-  color: #ef4444;
-}
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-.agent-title {
+  transition: all 0.2s ease;
   font-size: 13px;
-  font-weight: 500;
-  color: var(--ai-bubble-ai-text);
+  color: var(--ai-text-primary);
+  white-space: nowrap;
 }
-.agent-tool-count {
-  font-size: 12px;
-  color: var(--ai-text-secondary);
+.config-icon {
+  margin-top: 4px;
 }
-.agent-header-right {
-  display: flex;
-  align-items: center;
-}
-.agent-expand-icon {
-  color: var(--ai-text-secondary);
-  transition: transform 0.2s ease;
-}
-.agent-expand-icon.is-expanded {
-  transform: rotate(180deg);
-}
-.agent-execution-body {
-  border-top: 1px solid var(--ai-tool-border);
-}
-.agent-timeline {
-  padding: 12px 14px;
+.ai-config-btn:hover {
+  background: var(--ai-button-hover-bg);
 }
 </style>

@@ -1,5 +1,5 @@
 import { useSkill } from '../skillStore'
-import { useAiChatStore } from '../aiChatStore'
+import { useLLMClientStore } from '../llmClientStore'
 import { useLLMProvider } from '../llmProviderStore'
 import { AgentTool } from '@src/types/ai'
 import { HttpNodeRequestMethod, ApidocProperty, HttpNodeContentType, HttpNodeBodyMode, HttpNodeBodyRawType, HttpNodeResponseParams } from '@src/types'
@@ -86,7 +86,7 @@ export const httpNodeTools: AgentTool[] = [
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
       const skillStore = useSkill()
-      const aiChatStore = useAiChatStore()
+      const llmClientStore = useLLMClientStore()
       const llmProvider = useLLMProvider()
       const projectId = args.projectId as string
       const description = args.description as string
@@ -115,7 +115,7 @@ JSON结构：
 7. 如果不需要body则bodyMode为none，不要设置rawJson
 8. queryParams和headers如果没有则返回空数组`
       try {
-        const response = await aiChatStore.chat({
+        const response = await llmClientStore.chat({
           model: llmProvider.activeProvider.model,
           messages: [
             { role: 'system', content: systemPrompt },
@@ -1481,7 +1481,7 @@ JSON结构：
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
       const skillStore = useSkill()
-      const aiChatStore = useAiChatStore()
+      const llmClientStore = useLLMClientStore()
       const llmProvider = useLLMProvider()
       const nodeId = args.nodeId as string
       const node = await skillStore.getHttpNodeById(nodeId)
@@ -1508,7 +1508,7 @@ URL路径：${apiDetail.url}
 请求体模式：${apiDetail.bodyMode}
 请求体内容：${apiDetail.rawJson || '无'}`
       try {
-        const response = await aiChatStore.chat({
+        const response = await llmClientStore.chat({
           model: llmProvider.activeProvider.model,
           messages: [
             { role: 'system', content: systemPrompt },

@@ -1,5 +1,5 @@
 import { openDB, IDBPDatabase } from 'idb';
-import { CopilotMessage } from '@src/types/ai';
+import { AgentViewMessage } from '@src/types/ai';
 import { config } from '@src/config/config';
 import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
@@ -8,16 +8,18 @@ type SessionInfo = {
   lastMessageTime: string;
   messageCount: number;
 };
-class CopilotCache {
-  private dbName = config.cacheConfig.copilotMessageCache.dbName;
-  private storeName = config.cacheConfig.copilotMessageCache.storeName;
-  private version = config.cacheConfig.copilotMessageCache.version;
+// AgentView消息缓存类
+class AgentViewCache {
+  private dbName = config.cacheConfig.agentViewMessageCache.dbName;
+  private storeName = config.cacheConfig.agentViewMessageCache.storeName;
+  private version = config.cacheConfig.agentViewMessageCache.version;
   private db: IDBPDatabase | null = null;
   constructor() {
     this.initDB().catch(error => {
-      logger.error('初始化Copilot对话数据库失败', { error });
+      logger.error('初始化AgentView对话数据库失败', { error });
     });
   }
+  // 初始化数据库
   private async initDB(): Promise<void> {
     if (this.db) {
       return;
@@ -33,20 +35,22 @@ class CopilotCache {
         }
       });
     } catch (error) {
-      logger.error('初始化Copilot对话数据库失败', { error });
+      logger.error('初始化AgentView对话数据库失败', { error });
       this.db = null;
     }
   }
+  // 获取数据库连接
   private async getDB(): Promise<IDBPDatabase> {
     if (!this.db) {
       await this.initDB();
     }
     if (!this.db) {
-      throw new Error('无法初始化Copilot对话数据库');
+      throw new Error('无法初始化AgentView对话数据库');
     }
     return this.db;
   }
-  async addMessage(message: CopilotMessage): Promise<boolean> {
+  // 添加消息
+  async addMessage(message: AgentViewMessage): Promise<boolean> {
     try {
       const db = await this.getDB();
       const messageCopy = JSON.parse(JSON.stringify(message));
@@ -55,11 +59,12 @@ class CopilotCache {
       await tx.done;
       return true;
     } catch (error) {
-      logger.error('添加Copilot消息失败', { error });
+      logger.error('添加AgentView消息失败', { error });
       return false;
     }
   }
-  async updateMessage(message: CopilotMessage): Promise<boolean> {
+  // 更新消息
+  async updateMessage(message: AgentViewMessage): Promise<boolean> {
     try {
       const db = await this.getDB();
       const messageCopy = JSON.parse(JSON.stringify(message));
@@ -68,11 +73,12 @@ class CopilotCache {
       await tx.done;
       return true;
     } catch (error) {
-      logger.error('更新Copilot消息失败', { error });
+      logger.error('更新AgentView消息失败', { error });
       return false;
     }
   }
-  async getMessagesBySessionId(sessionId: string): Promise<CopilotMessage[]> {
+  // 根据会话ID获取消息列表
+  async getMessagesBySessionId(sessionId: string): Promise<AgentViewMessage[]> {
     try {
       const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readonly');
@@ -87,6 +93,7 @@ class CopilotCache {
       return [];
     }
   }
+  // 根据会话ID删除消息
   async deleteMessagesBySessionId(sessionId: string): Promise<boolean> {
     try {
       const db = await this.getDB();
@@ -104,6 +111,7 @@ class CopilotCache {
       return false;
     }
   }
+  // 清空所有消息
   async clearAllMessages(): Promise<boolean> {
     try {
       const db = await this.getDB();
@@ -116,6 +124,7 @@ class CopilotCache {
       return false;
     }
   }
+  // 获取会话列表
   async getSessionList(): Promise<SessionInfo[]> {
     try {
       const db = await this.getDB();
@@ -147,6 +156,7 @@ class CopilotCache {
       return [];
     }
   }
+  // 获取最后会话ID
   getLastSessionId(): string | null {
     try {
       return localStorage.getItem(cacheKey.ai.lastSessionId);
@@ -155,6 +165,7 @@ class CopilotCache {
       return null;
     }
   }
+  // 设置最后会话ID
   setLastSessionId(sessionId: string): boolean {
     try {
       localStorage.setItem(cacheKey.ai.lastSessionId, sessionId);
@@ -165,4 +176,4 @@ class CopilotCache {
     }
   }
 }
-export const copilotCache = new CopilotCache();
+export const agentViewCache = new AgentViewCache();

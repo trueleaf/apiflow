@@ -1,6 +1,6 @@
 /*
 |--------------------------------------------------------------------------
-| Copilot 消息类型（用于 UI）
+| AgentView 消息类型（用于 UI）
 |--------------------------------------------------------------------------
 */
 // export type Tool
@@ -48,7 +48,7 @@ export type AgentExecutionMessage = {
   toolCalls: AgentToolCallInfo[];
   thinkingContent?: string;
 }
-export type CopilotMessage = AskMessage | LoadingMessage | TextResponseMessage | AgentExecutionMessage;
+export type AgentViewMessage = AskMessage | LoadingMessage | TextResponseMessage | AgentExecutionMessage;
 
 export type ToolExecuteResult = {
   code: number;
