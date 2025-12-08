@@ -171,7 +171,7 @@ const handleCreateConversation = async () => {
   if (agentViewStore.agentViewMessageList.length > 0) {
     agentViewStore.createNewSession()
   }
-  currentView.value = 'chat'
+  currentView.value = mode.value === 'agent' ? 'agent' : 'chat'
 }
 const handleOpenHistory = () => {
   currentView.value = 'history'
@@ -325,7 +325,7 @@ const handleSend = async () => {
       }
     )
     cancelCurrentStream.value = async () => {
-      streamController.abort()
+      streamController?.abort()
     }
   } catch (error) {
     if (loadingMessageId.value) {

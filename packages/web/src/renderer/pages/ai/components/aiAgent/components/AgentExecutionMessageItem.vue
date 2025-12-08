@@ -17,20 +17,65 @@
         </div>
         <div v-show="isExpanded" class="agent-execution-body">
           <div class="agent-timeline">
-            <AgentToolCallItem
-              v-for="(call, index) in message.toolCalls"
-              :key="call.id"
-              :tool-call="call"
-              :is-last="index === message.toolCalls.length - 1"
-            />
+            <div v-for="(toolCall, index) in message.toolCalls" :key="toolCall.id" class="tool-call-item" :class="{ 'is-last': index === message.toolCalls.length - 1 }">
+              <div class="tool-call-timeline">
+                <div class="timeline-dot" :class="`status-${toolCall.status}`" />
+                <div v-if="index !== message.toolCalls.length - 1" class="timeline-line" />
+              </div>
+              <div class="tool-call-content">
+                <div class="tool-call-header" @click="toggleToolCallExpand(toolCall.id)">
+                  <div class="tool-header-left">
+                    <component :is="getToolStatusIcon(toolCall.status)" :size="14" class="tool-status-icon" :class="`status-${toolCall.status}`" />
+                    <span class="tool-name">{{ toolCall.name }}</span>
+                    <span v-if="getToolDuration(toolCall)" class="tool-duration">{{ getToolDuration(toolCall) }}ms</span>
+                  </div>
+                  <div class="tool-header-right">
+                    <ChevronRight :size="14" class="tool-expand-icon" :class="{ 'is-expanded': expandedToolCalls.has(toolCall.id) }" />
+                  </div>
+                </div>
+                <div v-if="toolCall.status === 'waiting-confirm'" class="tool-confirm-actions">
+                  <button class="confirm-btn confirm-yes">
+                    <Check :size="14" />
+                    <span>{{ t('确认执行') }}</span>
+                  </button>
+                  <button class="confirm-btn confirm-no">
+                    <X :size="14" />
+                    <span>{{ t('取消') }}</span>
+                  </button>
+                </div>
+                <div v-show="expandedToolCalls.has(toolCall.id)" class="tool-call-details">
+                  <div v-if="Object.keys(toolCall.arguments).length > 0" class="tool-section">
+                    <div class="section-label">{{ t('参数') }}</div>
+                    <pre class="section-content"><code>{{ JSON.stringify(toolCall.arguments, null, 2) }}</code></pre>
+                  </div>
+                  <div v-if="toolCall.result" class="tool-section">
+                    <div class="section-label">{{ t('结果') }}</div>
+                    <pre class="section-content" :class="{ 'is-error': toolCall.result.code !== 0 }"><code>{{ JSON.stringify(toolCall.result.data, null, 2) }}</code></pre>
+                  </div>
+                  <div v-if="toolCall.error" class="tool-section">
+                    <div class="section-label">{{ t('错误') }}</div>
+                    <pre class="section-content is-error"><code>{{ toolCall.error }}</code></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <AgentThinkingItem
-        v-if="message.thinkingContent"
-        :content="message.thinkingContent"
-        class="thinking-section"
-      />
+      <div v-if="message.thinkingContent" class="thinking-section">
+        <div class="agent-thinking-item">
+          <div class="thinking-header" @click="toggleThinkingExpand">
+            <div class="thinking-header-left">
+              <Brain :size="14" class="thinking-icon" />
+              <span class="thinking-label">{{ t('思考过程') }}</span>
+            </div>
+            <ChevronRight :size="14" class="thinking-expand-icon" :class="{ 'is-expanded': isThinkingExpanded }" />
+          </div>
+          <div v-show="isThinkingExpanded" class="thinking-content">
+            <p class="thinking-text">{{ message.thinkingContent }}</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -38,16 +83,16 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Bot, ChevronDown, Loader2, CheckCircle2, XCircle, Clock } from 'lucide-vue-next'
-import AgentToolCallItem from './AgentToolCallItem.vue'
-import AgentThinkingItem from './AgentThinkingItem.vue'
-import type { AgentExecutionMessage } from '@src/types/ai'
+import { Bot, ChevronDown, ChevronRight, Loader2, CheckCircle2, XCircle, Clock, AlertCircle, Check, X, Brain } from 'lucide-vue-next'
+import type { AgentExecutionMessage, AgentToolCallStatus } from '@src/types/ai'
 
 const props = defineProps<{
   message: AgentExecutionMessage
 }>()
 const { t } = useI18n()
 const isExpanded = ref(true)
+const expandedToolCalls = ref(new Set<string>())
+const isThinkingExpanded = ref(false)
 const statusIcon = computed(() => {
   const icons = {
     pending: Clock,
@@ -60,6 +105,33 @@ const statusIcon = computed(() => {
 const statusClass = computed(() => `status-${props.message.status}`)
 const toggleExpand = () => {
   isExpanded.value = !isExpanded.value
+}
+const toggleToolCallExpand = (toolCallId: string) => {
+  if (expandedToolCalls.value.has(toolCallId)) {
+    expandedToolCalls.value.delete(toolCallId)
+  } else {
+    expandedToolCalls.value.add(toolCallId)
+  }
+}
+const toggleThinkingExpand = () => {
+  isThinkingExpanded.value = !isThinkingExpanded.value
+}
+const getToolStatusIcon = (status: AgentToolCallStatus) => {
+  const icons = {
+    pending: Clock,
+    running: Loader2,
+    success: CheckCircle2,
+    error: XCircle,
+    'waiting-confirm': AlertCircle,
+    cancelled: XCircle
+  }
+  return icons[status]
+}
+const getToolDuration = (toolCall: { startTime?: number; endTime?: number }) => {
+  if (toolCall.startTime && toolCall.endTime) {
+    return toolCall.endTime - toolCall.startTime
+  }
+  return null
 }
 </script>
 
@@ -170,5 +242,227 @@ const toggleExpand = () => {
 }
 .agent-timeline {
   padding: 12px 14px;
+}
+.tool-call-item {
+  display: flex;
+  gap: 12px;
+}
+.tool-call-timeline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 12px;
+  flex-shrink: 0;
+}
+.timeline-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+.timeline-dot.status-pending {
+  background: var(--ai-text-secondary);
+}
+.timeline-dot.status-running {
+  background: var(--theme-color);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+.timeline-dot.status-success {
+  background: #10b981;
+}
+.timeline-dot.status-error,
+.timeline-dot.status-cancelled {
+  background: #ef4444;
+}
+.timeline-dot.status-waiting-confirm {
+  background: #f59e0b;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.2); }
+}
+.timeline-line {
+  flex: 1;
+  width: 2px;
+  background: var(--ai-tool-border);
+  margin-top: 4px;
+  min-height: 20px;
+}
+.tool-call-content {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: 12px;
+}
+.tool-call-item.is-last .tool-call-content {
+  padding-bottom: 0;
+}
+.tool-call-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 4px 0;
+}
+.tool-call-header:hover .tool-name {
+  color: var(--theme-color);
+}
+.tool-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tool-status-icon {
+  flex-shrink: 0;
+}
+.tool-status-icon.status-pending {
+  color: var(--ai-text-secondary);
+}
+.tool-status-icon.status-running {
+  color: var(--theme-color);
+  animation: spin 1s linear infinite;
+}
+.tool-status-icon.status-success {
+  color: #10b981;
+}
+.tool-status-icon.status-error,
+.tool-status-icon.status-cancelled {
+  color: #ef4444;
+}
+.tool-status-icon.status-waiting-confirm {
+  color: #f59e0b;
+}
+.tool-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ai-bubble-ai-text);
+  transition: color 0.2s ease;
+}
+.tool-duration {
+  font-size: 11px;
+  color: var(--ai-text-secondary);
+  background: var(--ai-action-hover-bg);
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+.tool-header-right {
+  display: flex;
+  align-items: center;
+}
+.tool-expand-icon {
+  color: var(--ai-text-secondary);
+  transition: transform 0.2s ease;
+}
+.tool-expand-icon.is-expanded {
+  transform: rotate(90deg);
+}
+.tool-confirm-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.confirm-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+.confirm-btn.confirm-yes {
+  background: var(--theme-color);
+  color: #ffffff;
+}
+.confirm-btn.confirm-yes:hover {
+  opacity: 0.9;
+}
+.confirm-btn.confirm-no {
+  background: var(--ai-action-hover-bg);
+  color: var(--ai-text-primary);
+}
+.confirm-btn.confirm-no:hover {
+  background: var(--ai-history-delete-hover-bg);
+  color: var(--ai-history-delete-hover-text);
+}
+.tool-call-details {
+  margin-top: 8px;
+}
+.tool-section {
+  margin-bottom: 8px;
+}
+.tool-section:last-child {
+  margin-bottom: 0;
+}
+.section-label {
+  font-size: 11px;
+  color: var(--ai-text-secondary);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.section-content {
+  margin: 0;
+  padding: 8px 10px;
+  background: var(--ai-code-bg);
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-x: auto;
+  color: var(--ai-bubble-ai-text);
+}
+.section-content.is-error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+.section-content code {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+.agent-thinking-item {
+  background: var(--ai-action-hover-bg);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.thinking-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.thinking-header:hover {
+  background: var(--ai-tool-border);
+}
+.thinking-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.thinking-icon {
+  color: var(--ai-text-secondary);
+}
+.thinking-label {
+  font-size: 12px;
+  color: var(--ai-text-secondary);
+}
+.thinking-expand-icon {
+  color: var(--ai-text-secondary);
+  transition: transform 0.2s ease;
+}
+.thinking-expand-icon.is-expanded {
+  transform: rotate(90deg);
+}
+.thinking-content {
+  padding: 0 12px 12px;
+}
+.thinking-text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ai-text-primary);
+  white-space: pre-wrap;
 }
 </style>

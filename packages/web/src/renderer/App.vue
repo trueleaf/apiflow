@@ -1,23 +1,29 @@
 <template>
-  <!-- 浏览器环境：单视图架构，内嵌 Header -->
-  <BrowserHeader 
-    v-if="!isElectronEnv" 
-    ref="browserHeaderRef"
-    @create-project="handleBrowserCreateProject" 
-  />
-  <NetworkModeBanner />
-  <router-view></router-view>
-  <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
-  <Ai v-if="agentViewDialogVisible" v-model:visible="agentViewDialogVisible" />
-  <!-- Electron 环境：语言菜单由 IPC 控制显示 -->
-  <LanguageMenu
-    v-if="isElectronEnv"
-    :visible="languageMenuVisible"
-    :position="languageMenuPosition"
-    :current-language="runtimeStore.language"
-    @language-select="handleLanguageSelect"
-    @close="hideLanguageMenu"
-  />
+  <div class="app-layout">
+    <!-- 浏览器环境：单视图架构，内嵌 Header -->
+    <BrowserHeader 
+      v-if="!isElectronEnv" 
+      ref="browserHeaderRef"
+      @create-project="handleBrowserCreateProject" 
+    />
+    <div class="app-main">
+      <NetworkModeBanner />
+      <div class="app-content">
+        <router-view></router-view>
+      </div>
+    </div>
+    <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
+    <Ai v-if="agentViewDialogVisible" v-model:visible="agentViewDialogVisible" />
+    <!-- Electron 环境：语言菜单由 IPC 控制显示 -->
+    <LanguageMenu
+      v-if="isElectronEnv"
+      :visible="languageMenuVisible"
+      :position="languageMenuPosition"
+      :current-language="runtimeStore.language"
+      @language-select="handleLanguageSelect"
+      @close="hideLanguageMenu"
+    />
+  </div>
 </template>
 
 
@@ -414,5 +420,21 @@ onMounted(() => {
 #app {
   width: 100%;
   height: 100%;
+}
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+}
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.app-content {
+  flex: 1;
+  min-height: 0;
 }
 </style>
