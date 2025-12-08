@@ -65,7 +65,7 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 			agentViewStore.updateMessageInList(messageId, { thinkingContent: message.content })
 		}
 		if (finish_reason !== 'tool_calls' || !message.tool_calls?.length) {
-			agentViewStore.updateMessageInList(messageId, { status: 'success' })
+			agentViewStore.updateMessageInList(messageId, { status: 'success', isStreaming: false })
 			const finalMessage = agentViewStore.getMessageById(messageId)
 			if (finalMessage) {
 				await agentViewStore.updateAgentViewMessage(finalMessage)
@@ -142,7 +142,7 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 			tools: openaiTools
 		});
 	}
-	agentViewStore.updateMessageInList(messageId, { status: 'success' })
+	agentViewStore.updateMessageInList(messageId, { status: 'success', isStreaming: false })
 	const finalMessage = agentViewStore.getMessageById(messageId)
 	if (finalMessage) {
 		await agentViewStore.updateAgentViewMessage(finalMessage)

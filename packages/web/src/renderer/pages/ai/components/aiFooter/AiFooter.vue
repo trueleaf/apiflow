@@ -1,6 +1,12 @@
 <template>
   <div class="ai-dialog-footer">
     <div class="ai-input-wrapper" ref="inputWrapperRef">
+      <div v-if="isProjectEditPage && projectName" class="ai-context-area">
+        <div class="ai-context-tag">
+          <FolderKanban :size="14" />
+          <span class="ai-context-name">{{ projectName }}</span>
+        </div>
+      </div>
       <textarea
         v-model="localInputMessage"
         class="ai-input"
@@ -60,6 +66,14 @@
       </div>
       <div class="ai-input-toolbar">
         <button
+          class="ai-new-chat-btn"
+          type="button"
+          @click="emit('create-conversation')"
+          :title="t('新建对话')"
+        >
+          <Plus :size="20" />
+        </button>
+        <button
           v-if="isWorking"
           class="ai-stop-btn"
           type="button"
@@ -84,8 +98,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { Send, ChevronDown, Check, Square } from 'lucide-vue-next'
+import { Send, ChevronDown, Check, Square, Plus, FolderKanban } from 'lucide-vue-next'
+import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 
 const isMacOS = navigator.platform.toUpperCase().includes('MAC')
 const modeOptions = ['agent', 'ask'] as const
@@ -108,10 +124,15 @@ const model = defineModel<AiModel>('model', { required: true })
 const emit = defineEmits<{
   'send': []
   'stop': []
+  'create-conversation': []
 }>()
 const { t } = useI18n()
+const route = useRoute()
+const projectWorkbench = useProjectWorkbench()
 const inputWrapperRef = ref<HTMLElement | null>(null)
 const isModeMenuVisible = ref(false)
+const isProjectEditPage = computed(() => route.path.includes('/v1/apidoc/doc-edit'))
+const projectName = computed(() => projectWorkbench.projectName)
 const isModelMenuVisible = ref(false)
 const localInputMessage = computed({
   get: () => inputMessage.value,
@@ -184,6 +205,7 @@ defineExpose({
 <style scoped>
 .ai-input-wrapper {
   position: relative;
+  border-top: 1px solid var(--ai-input-border);
 }
 .ai-input {
   width: 100%;
@@ -192,7 +214,6 @@ defineExpose({
   padding: 10px 12px;
   padding-bottom: 56px;
   border: none;
-  border-top: 1px solid var(--ai-input-border);
   color: var(--ai-text-primary);
   font-size: 13px;
   font-family: inherit;
@@ -220,6 +241,47 @@ defineExpose({
   bottom: 16px;
   display: flex;
   align-items: center;
+  gap: 8px;
+}
+.ai-new-chat-btn {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  background: var(--ai-button-bg);
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.ai-new-chat-btn:hover {
+  background: var(--gray-200);
+  color: var(--theme-color);
+}
+.ai-context-area {
+  padding: 8px 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ai-context-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--gray-100);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--gray-600);
+}
+.ai-context-name {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .ai-input-trigger-group {
   position: relative;

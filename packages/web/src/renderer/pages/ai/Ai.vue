@@ -56,6 +56,7 @@
         @send="handleSend"
         @stop="stopCurrentConversation"
         @update:mode="handleModeChange"
+        @create-conversation="handleCreateConversation"
       />
     </div>
   </ClDrag>

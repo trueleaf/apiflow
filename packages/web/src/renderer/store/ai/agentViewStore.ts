@@ -101,6 +101,10 @@ export const useAgentViewStore = defineStore('agentView', () => {
       agentViewMessageList.value[index] = { ...agentViewMessageList.value[index], ...updates } as AgentViewMessage;
     }
   };
+  // 更新消息的流式状态
+  const updateMessageStreaming = (messageId: string, isStreaming: boolean): void => {
+    updateMessageInList(messageId, { isStreaming } as Partial<AgentViewMessage>);
+  };
   // 获取最近的消息
   const getLatestMessages = (count: number): AgentViewMessage[] => {
     const filteredMessages = agentViewMessageList.value.filter(msg => msg.type !== 'loading');
@@ -149,6 +153,7 @@ export const useAgentViewStore = defineStore('agentView', () => {
     addAgentViewMessage,
     updateAgentViewMessage,
     updateMessageInList,
+    updateMessageStreaming,
     setAgentViewMessageList,
     clearAgentViewMessageList,
     deleteAgentViewMessageById,

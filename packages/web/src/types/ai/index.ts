@@ -54,6 +54,7 @@ export type AgentExecutionMessage = {
   toolCalls: AgentToolCallInfo[];
   thinkingContent?: string;
   mode: 'agent' | 'ask';
+  isStreaming?: boolean;
 }
 export type AgentViewMessage = AskMessage | LoadingMessage | TextResponseMessage | AgentExecutionMessage;
 

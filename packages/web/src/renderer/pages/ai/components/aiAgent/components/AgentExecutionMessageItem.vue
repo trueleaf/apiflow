@@ -64,11 +64,14 @@
       </div>
       <div v-if="message.thinkingContent && message.toolCalls.length > 0" class="thinking-section">
         <div class="agent-thinking-item">
-          <div class="thinking-header">
-            <Brain :size="14" class="thinking-icon" />
-            <span class="thinking-label">{{ t('思考过程') }}</span>
+          <div class="thinking-header" @click="toggleThinkingExpand">
+            <div class="thinking-header-left">
+              <Brain :size="14" class="thinking-icon" />
+              <span class="thinking-label">{{ t('思考过程') }}</span>
+            </div>
+            <ChevronDown :size="14" class="thinking-expand-icon" :class="{ 'is-expanded': isThinkingExpanded }" />
           </div>
-          <div class="thinking-content thinking-markdown">
+          <div v-show="isThinkingExpanded" class="thinking-content thinking-markdown">
             <VueMarkdownRender :source="displayedThinkingContent" />
           </div>
         </div>
@@ -90,9 +93,10 @@ const props = defineProps<{
 const { t } = useI18n()
 const isExpanded = ref(true)
 const expandedToolCalls = ref(new Set<string>())
+const isThinkingExpanded = ref(true)
 const displayedThinkingContent = ref('')
 let typewriterTimer: ReturnType<typeof setTimeout> | null = null
-// 打字效果：逐字显示思考内容
+// 打字效果：逐字显示思考内容，仅在流式生成时启用
 watch(() => props.message.thinkingContent, (newContent) => {
   if (typewriterTimer) {
     clearTimeout(typewriterTimer)
@@ -100,6 +104,11 @@ watch(() => props.message.thinkingContent, (newContent) => {
   }
   if (!newContent) {
     displayedThinkingContent.value = ''
+    return
+  }
+  // 如果不是流式生成中（历史消息），直接显示完整内容
+  if (props.message.isStreaming === false) {
+    displayedThinkingContent.value = newContent
     return
   }
   const currentDisplayed = displayedThinkingContent.value
@@ -126,6 +135,12 @@ watch(() => props.message.thinkingContent, (newContent) => {
     typeNextChar()
   }
 }, { immediate: true })
+// 当流式状态变为false时，如果有思考内容，默认折叠思考过程
+watch(() => props.message.isStreaming, (isStreaming) => {
+  if (isStreaming === false && props.message.thinkingContent) {
+    isThinkingExpanded.value = false
+  }
+})
 onUnmounted(() => {
   if (typewriterTimer) {
     clearTimeout(typewriterTimer)
@@ -143,6 +158,9 @@ const statusIcon = computed(() => {
 const statusClass = computed(() => `status-${props.message.status}`)
 const toggleExpand = () => {
   isExpanded.value = !isExpanded.value
+}
+const toggleThinkingExpand = () => {
+  isThinkingExpanded.value = !isThinkingExpanded.value
 }
 const toggleToolCallExpand = (toolCallId: string) => {
   if (expandedToolCalls.value.has(toolCallId)) {
@@ -465,8 +483,19 @@ const getTokenUsage = (toolCall: { tokenUsage?: { total_tokens: number } }) => {
 .thinking-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
   padding: 8px 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease;
+}
+.thinking-header:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+.thinking-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .thinking-icon {
   color: var(--ai-text-secondary);
@@ -475,6 +504,14 @@ const getTokenUsage = (toolCall: { tokenUsage?: { total_tokens: number } }) => {
 .thinking-label {
   font-size: 12px;
   color: var(--ai-text-secondary);
+}
+.thinking-expand-icon {
+  color: var(--ai-text-secondary);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+.thinking-expand-icon.is-expanded {
+  transform: rotate(180deg);
 }
 .thinking-content {
   padding: 0 12px 12px;

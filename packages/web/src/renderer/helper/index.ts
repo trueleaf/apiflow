@@ -143,7 +143,8 @@ export const generateAgentExecutionMessage = (sessionId: string): import('@src/t
   timestamp: new Date().toISOString(),
   status: 'running',
   toolCalls: [],
-  mode: 'agent'
+  mode: 'agent',
+  isStreaming: true
 })
 // 生成完成消息
 export const generateCompletionMessage = (sessionId: string, content: string): import('@src/types/ai').TextResponseMessage => ({
