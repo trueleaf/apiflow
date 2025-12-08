@@ -36,7 +36,7 @@ import ProviderConfigPanel from './ConfigPanel.vue'
 import DebugPanel from './DebugPanel.vue'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { message } from '@/helper'
-import type { OpenAiRequestBody } from '@src/types/ai/agent.type'
+import type { ChatRequestBody } from '@src/types/ai/agent.type'
 
 const { t } = useI18n()
 const llmClientStore = useLLMClientStore()
@@ -48,7 +48,7 @@ const isStreaming = ref(false)
 const hasError = ref(false)
 const responseTime = ref<number | null>(null)
 const useMarkdown = ref(false)
-const requestBody = ref<OpenAiRequestBody | null>(null)
+const requestBody = ref<ChatRequestBody | null>(null)
 let cancelStreamFn: { abort: () => void } | null = null
 // 判断配置是否有效
 const isConfigValid = computed(() => {
@@ -67,8 +67,7 @@ const handleSend = async () => {
   responseContent.value = ''
   reasoningContent.value = ''
   responseTime.value = null
-  const body: OpenAiRequestBody = {
-    model: llmClientStore.activeProvider.model,
+  const body: ChatRequestBody = {
     messages: [{ role: 'user', content: t('你的模型') }],
     max_tokens: 1000,
   }
@@ -99,8 +98,7 @@ const handleStreamSend = () => {
   responseContent.value = ''
   reasoningContent.value = ''
   responseTime.value = null
-  const body: OpenAiRequestBody = {
-    model: llmClientStore.activeProvider.model,
+  const body: ChatRequestBody = {
     messages: [{ role: 'user', content: t('你的模型') }],
     max_tokens: 1000,
   }

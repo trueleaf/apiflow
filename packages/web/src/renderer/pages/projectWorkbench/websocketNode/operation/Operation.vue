@@ -1,5 +1,14 @@
 <template>
   <div class="ws-operation">
+    <!-- 浏览器环境提示 -->
+    <el-alert 
+      v-if="!isElectronEnv" 
+      :title="t('浏览器环境不支持WebSocket连接功能，请使用Electron客户端')" 
+      type="warning" 
+      show-icon 
+      :closable="false"
+      class="browser-warning"
+    />
     <div class="op-wrap">
       <div class="protocol-select">
         <el-select v-model="protocol" size="default">
@@ -26,6 +35,7 @@
         <el-button 
           v-if="connectionState === 'disconnected' || connectionState === 'error'" 
           type="success" 
+          :disabled="!isElectronEnv"
           @click="handleConnect"
         >
           {{ connectButtonText }}
@@ -33,6 +43,7 @@
         <el-button 
           v-if="connectionState === 'connected'" 
           type="danger" 
+          :disabled="!isElectronEnv"
           @click="handleDisconnect"
         >
           {{ t("断开连接") }}
@@ -77,6 +88,7 @@ import { useVariable } from '@/store/projectWorkbench/variablesStore';
 import { useCookies } from '@/store/projectWorkbench/cookiesStore';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
 import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache';
+import { isElectron } from '@/helper';
 
 import { message } from '@/helper'
 const { t } = useI18n();
@@ -89,6 +101,9 @@ const cookiesStore = useCookies();
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
 const { currentSelectNav } = storeToRefs(projectNavStore);
 const { saveLoading, refreshLoading, websocketFullUrl: fullUrl, connectionState, connectionId } = storeToRefs(websocketStore);
+
+// 平台环境检测
+const isElectronEnv = isElectron();
 
 const protocol = computed({
   get: () => websocketStore.websocket.item.protocol,
@@ -482,6 +497,10 @@ const handleFormatUrl = () => {
   z-index: var(--zIndex-request-info-wrap);
   height: var(--apiflow-apidoc-operation-height);
 
+  .browser-warning {
+    margin-bottom: 10px;
+  }
+
   .op-wrap {
     display: flex;
     margin-top: 10px;
@@ -530,6 +549,7 @@ const handleFormatUrl = () => {
         margin-left: 0;
       }
     }
+    
   }
 
   .status-wrap {

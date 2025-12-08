@@ -1001,7 +1001,6 @@ ${JSON.stringify(folderData, null, 2)}
 [{"_id": "文件夹ID", "newName": "新名称"}]`
       try {
         const response = await llmClientStore.chat({
-          model: llmClientStore.activeProvider.model,
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userMessage },

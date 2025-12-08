@@ -75,7 +75,6 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 	agentViewStore.agentViewMessageList.push(agentMessage)
 	const MAX_ITERATIONS = 10;
 	let currentResponse = await llmClientStore.chat({
-		model: 'deepseek-chat',
 		messages,
 		tools: openaiTools
 	});
@@ -156,7 +155,6 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 			}
 		}
 		currentResponse = await llmClientStore.chat({
-			model: 'deepseek-chat',
 			messages,
 			tools: openaiTools
 		});

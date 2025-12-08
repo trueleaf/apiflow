@@ -10,10 +10,13 @@ import Components from 'unplugin-vue-components/rolldown'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineConfig(({ mode, command }) => {
+  // 检测是否为纯 Web 构建模式
+  const isWebOnly = process.env.BUILD_TARGET === 'web'
   return {
     base: './',
     plugins: [
-      viteElectronPlugin(mode, command),
+      // 仅在非 Web 模式下加载 Electron 插件
+      !isWebOnly && viteElectronPlugin(mode, command),
       vue(),
       vueJsx({
         // 配置JSX选项
@@ -31,7 +34,7 @@ export default defineConfig(({ mode, command }) => {
         resolvers: [ElementPlusResolver()],
         dts: 'src/types/components.d.ts',
       })
-    ],
+    ].filter(Boolean),
     server: {
       host: 'localhost',
       port: 4000
@@ -75,14 +78,15 @@ export default defineConfig(({ mode, command }) => {
     build: {
       minify: false,
       target: 'esnext',
-      outDir: 'dist/renderer',
+      outDir: isWebOnly ? 'dist/web' : 'dist/renderer',
       emptyOutDir: true,
-      // root: path.resolve(__dirname, 'dist/renderer'),
       rollupOptions: {
-        input: {
-          header: resolve(__dirname, './header.html'),
-          index: resolve(__dirname, './index.html'),
-        },
+        input: isWebOnly
+          ? { index: resolve(__dirname, './index.html') }
+          : {
+              header: resolve(__dirname, './header.html'),
+              index: resolve(__dirname, './index.html'),
+            },
       },
     }
   }

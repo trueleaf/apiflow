@@ -114,7 +114,6 @@ JSON结构：
 8. queryParams和headers如果没有则返回空数组`
       try {
         const response = await llmClientStore.chat({
-          model: llmClientStore.activeProvider.model,
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: description }
@@ -1506,7 +1505,6 @@ URL路径：${apiDetail.url}
 请求体内容：${apiDetail.rawJson || '无'}`
       try {
         const response = await llmClientStore.chat({
-          model: llmClientStore.activeProvider.model,
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userMessage }

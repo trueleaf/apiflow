@@ -321,7 +321,7 @@ import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue';
 import type { ClParamsTreeProps, ClParamsTreeEmits } from '@src/types/components/components';
 import { llmProviderCache } from '@/cache/ai/llmProviderCache';
 import { useLLMClientStore } from '@/store/ai/llmClientStore';
-import type { OpenAiRequestBody } from '@src/types/ai/agent.type';
+import type { ChatRequestBody } from '@src/types/ai/agent.type';
 import { useRouter } from 'vue-router';
 import { appState } from '@/cache/appState/appStateCache';
 import { useVariable } from '@/store/projectWorkbench/variablesStore';
@@ -1008,8 +1008,7 @@ const handleAiParse = async () => {
   aiParsing.value = true;
   parseError.value = '';
   try {
-    const requestBody: OpenAiRequestBody = {
-      model: 'deepseek-chat',
+    const requestBody: ChatRequestBody = {
       messages: [
         {
           role: 'system',

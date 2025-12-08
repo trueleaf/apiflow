@@ -105,7 +105,7 @@ import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { appState } from '@/cache/appState/appStateCache'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import type { HttpMockNode } from '@src/types'
-import type { OpenAiRequestBody, OpenAiResponseBody } from '@src/types/ai/agent.type'
+import type { ChatRequestBody, OpenAiResponseBody } from '@src/types/ai/agent.type'
 import { message } from '@/helper'
 
 type ResponseItem = HttpMockNode['response'][0]
@@ -151,8 +151,7 @@ const handleGeneratePreview = async () => {
   aiPreviewJson.value = ''
   try {
     const maxTokens = 2000
-    const requestBody: OpenAiRequestBody = {
-      model: 'deepseek-chat',
+    const requestBody: ChatRequestBody = {
       messages: [
         {
           role: 'system',

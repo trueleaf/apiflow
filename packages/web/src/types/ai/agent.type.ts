@@ -53,6 +53,8 @@ export type OpenAiRequestBody = {
     type: 'json_object' | 'text';
   };
 }
+// chat/chatStream 方法入参类型，排除 model 和 stream（从 LLMClient.config 读取）
+export type ChatRequestBody = Omit<OpenAiRequestBody, 'model' | 'stream'>;
 export type OpenAiResponseBody = {
   id: string;
   object: string;

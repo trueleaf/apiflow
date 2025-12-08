@@ -26,6 +26,7 @@ import { Method } from 'got';
 import preRequestWorker from '@/worker/preRequest/preRequest.ts?worker&inline';
 import { WebSocketNode } from '@src/types/websocketNode';
 import { useRuntime } from '@/store/runtime/runtimeStore';
+import { isElectron } from '@/helper';
 /*
 |--------------------------------------------------------------------------
 | 发送请求
@@ -432,6 +433,19 @@ const convertObjectToProperty = (objectParams: Record<string, any>) => {
 }
 
 export const sendRequest = async () => {
+  // 浏览器环境禁止发送请求
+  if (!isElectron()) {
+    const { changeResponseInfo, changeRequestState } = useHttpNodeResponse()
+    changeResponseInfo({
+      responseData: {
+        canApiflowParseType: 'error',
+        errorData: i18n.global.t('浏览器环境不支持发送HTTP请求，请使用Electron客户端')
+      }
+    })
+    changeRequestState('finish')
+    return
+  }
+
   const worker = new preRequestWorker();
   const redirectList = ref<ResponseInfo['redirectList']>([]);
   const projectWorkbenchStore = useProjectWorkbench();

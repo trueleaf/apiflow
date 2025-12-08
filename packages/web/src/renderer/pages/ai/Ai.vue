@@ -66,7 +66,7 @@ import { ref, onMounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { nanoid } from 'nanoid/non-secure'
-import type { OpenAiRequestBody, LLMessage } from '@src/types/ai/agent.type'
+import type { ChatRequestBody, LLMessage } from '@src/types/ai/agent.type'
 import type { AskMessage, TextResponseMessage, LoadingMessage } from '@src/types/ai'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { config } from '@src/config/config'
@@ -118,7 +118,7 @@ watch(() => agentViewStore.agentViewDialogVisible, (newValue) => {
   }
 });
 
-const buildOpenAIRequestBody = (userMessage: string): OpenAiRequestBody & { stream: true } => {
+const buildOpenAIRequestBody = (userMessage: string): ChatRequestBody => {
   const messages: LLMessage[] = []
   const recentMessages = agentViewStore.getLatestMessages(10)
 
@@ -142,9 +142,7 @@ const buildOpenAIRequestBody = (userMessage: string): OpenAiRequestBody & { stre
   })
 
   return {
-    model: 'deepseek-chat',
     messages,
-    stream: true,
     max_tokens: 4096,
     temperature: 0.7
   }

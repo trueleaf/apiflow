@@ -5,7 +5,7 @@ import { gotRequest } from './sendRequest'
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts'
 import { WindowState } from '@src/types/index.ts'
 import { IPC_EVENTS } from '@src/types/ipc'
-import type { OpenAiRequestBody, LLMProviderSettings, OpenAiResponseBody } from '@src/types/ai/agent.type'
+import type { ChatRequestBody, LLMProviderSettings, OpenAiResponseBody } from '@src/types/ai/agent.type'
 import { globalLLMClient } from './ai/agent.ts'
 
 type ChatStreamCallbacks = {
@@ -152,10 +152,10 @@ const websocketMockGetAllStates = (projectId: string) => {
 const aiUpdateConfig = (config: LLMProviderSettings): void => {
   globalLLMClient.updateConfig(config);
 }
-const aiChat = async (body: OpenAiRequestBody): Promise<OpenAiResponseBody> => {
+const aiChat = async (body: ChatRequestBody): Promise<OpenAiResponseBody> => {
  return globalLLMClient.chat(body);
 }
-const aiChatStream = (body: OpenAiRequestBody, callbacks: ChatStreamCallbacks) => {
+const aiChatStream = (body: ChatRequestBody, callbacks: ChatStreamCallbacks) => {
   return globalLLMClient.chatStream(body, callbacks);
 }
 

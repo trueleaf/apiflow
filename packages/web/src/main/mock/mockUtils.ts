@@ -818,7 +818,6 @@ export class MockUtils {
 
           try {
             const aiResult = await globalLLMClient.chat({
-              model: 'deepseek-chat',
               messages: [
                 {
                   role: 'system',
@@ -919,7 +918,6 @@ export class MockUtils {
             }
             
             const aiResult = await globalLLMClient.chat({
-              model: 'deepseek-chat',
               messages: [
                 {
                   role: 'system',

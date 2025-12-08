@@ -77,8 +77,12 @@
               v-model="enabled" 
               @change="handleEnabledToggle"
               :loading="enabledStatusLoading"
+              :disabled="!isElectronEnv"
             />
-            <div v-if="mockError" class="mock-error">
+            <div v-if="!isElectronEnv" class="mock-warning">
+              {{ t('浏览器环境不支持启用Mock服务') }}
+            </div>
+            <div v-else-if="mockError" class="mock-error">
               {{ mockError }}
             </div>
           </div>
@@ -98,12 +102,16 @@ import { storeToRefs } from 'pinia'
 import { useHttpMockNode } from '@/store/httpMockNode/httpMockNodeStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { router } from '@/router/index.ts'
+import { isElectron } from '@/helper'
 
 const { t } = useI18n()
 const httpMockNodeStore = useHttpMockNode()
 const { httpMock } = storeToRefs(httpMockNodeStore)
 const projectNavStore = useProjectNav()
 const { currentSelectNav } = storeToRefs(projectNavStore)
+
+// 平台环境检测
+const isElectronEnv = isElectron()
 
 // 触发条件相关状态
 const enabled = ref(false)
@@ -363,6 +371,16 @@ onMounted(() => {
   padding: 6px 8px;
   border-radius: var(--border-radius-sm);
   border-left: 3px solid var(--el-color-danger);
+}
+
+.mock-warning {
+  font-size: var(--font-size-xs);
+  color: var(--el-color-warning);
+  line-height: 1.4;
+  background: var(--bg-warning-10);
+  padding: 6px 8px;
+  border-radius: var(--border-radius-sm);
+  border-left: 3px solid var(--el-color-warning);
 }
 
 .help-icon {

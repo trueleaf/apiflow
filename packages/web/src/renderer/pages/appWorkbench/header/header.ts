@@ -4,6 +4,8 @@ import '@/assets/font/iconfont.css'
 import '@/assets/font/iconfont.js'
 import '@/assets/css/theme/default.css'
 import '@/assets/css/theme/dark.css'
+import "@/assets/css/reset.css";
+import "@/assets/css/global.css";
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import ElementPlus from 'element-plus';
 import { i18n } from '@/i18n';

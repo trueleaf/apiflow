@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { OpenAiRequestBody, OpenAiResponseBody, LLMProviderSettings, LLMProviderType } from '@src/types/ai/agent.type';
+import type { ChatRequestBody, OpenAiResponseBody, LLMProviderSettings, LLMProviderType } from '@src/types/ai/agent.type';
 import { generateDeepSeekProvider } from '@/helper';
 import { llmProviderCache } from '@/cache/ai/llmProviderCache';
 
@@ -49,14 +49,14 @@ export const useLLMClientStore = defineStore('llmClientStore', () => {
     }
   };
   // 非流式聊天
-  const chat = async (body: OpenAiRequestBody): Promise<OpenAiResponseBody> => {
+  const chat = async (body: ChatRequestBody): Promise<OpenAiResponseBody> => {
     if (!window.electronAPI?.aiManager) {
       throw new Error('AI Manager 未初始化');
     }
     return await window.electronAPI.aiManager.chat(body);
   };
   // 流式聊天
-  const chatStream = (body: OpenAiRequestBody, callbacks: StreamCallbacks) => {
+  const chatStream = (body: ChatRequestBody, callbacks: StreamCallbacks) => {
     if (!window.electronAPI?.aiManager) {
       throw new Error('AI Manager 未初始化');
     }

@@ -1,5 +1,5 @@
 import { got } from 'got';
-import type { OpenAiRequestBody, OpenAiResponseBody, LLMProviderSettings } from '@src/types/ai/agent.type';
+import type { ChatRequestBody, OpenAiResponseBody, LLMProviderSettings } from '@src/types/ai/agent.type';
 
 export type ChatStreamCallbacks = {
   onData: (chunk: Uint8Array) => void;
@@ -15,19 +15,25 @@ export class LLMClient {
     this.config = newConfig;
   }
   // 非流式聊天
-  async chat(body: OpenAiRequestBody): Promise<OpenAiResponseBody> {
+  async chat(body: ChatRequestBody): Promise<OpenAiResponseBody> {
     if (!this.config) {
       throw new Error('LLM 配置未初始化，请先配置 API Key 和 Base URL');
     }
-    const { apiKey, baseURL } = this.config;
-    const requestBody = { ...body, stream: false };
+    const { apiKey, baseURL, model, customHeaders } = this.config;
+    const requestBody = { ...body, model, stream: false };
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    };
+    customHeaders?.forEach(h => {
+      if (h.key) {
+        headers[h.key] = h.value;
+      }
+    });
     const response = await got.post<OpenAiResponseBody>(
       baseURL,
       {
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
+        headers,
         json: requestBody,
         responseType: 'json'
       }
@@ -35,16 +41,22 @@ export class LLMClient {
     return response.body;
   }
   // 流式聊天(原始方法)
-  chatStream(body: OpenAiRequestBody, callbacks: ChatStreamCallbacks) {
-    const { apiKey, baseURL } = this.config;
-    const requestBody = { ...body, stream: true };
+  chatStream(body: ChatRequestBody, callbacks: ChatStreamCallbacks) {
+    const { apiKey, baseURL, model, customHeaders } = this.config;
+    const requestBody = { ...body, model, stream: true };
     const abortController = new AbortController();
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    };
+    customHeaders?.forEach(h => {
+      if (h.key) {
+        headers[h.key] = h.value;
+      }
+    });
     try {
       const stream = got.stream.post(baseURL, {
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
+        headers,
         json: requestBody,
         signal: abortController.signal
       });

@@ -61,7 +61,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import VueMarkdownRender from 'vue-markdown-render'
-import type { OpenAiRequestBody } from '@src/types/ai/agent.type'
+import type { ChatRequestBody } from '@src/types/ai/agent.type'
 
 const props = defineProps<{
   responseContent: string
@@ -71,7 +71,7 @@ const props = defineProps<{
   hasError: boolean
   responseTime: number | null
   useMarkdown: boolean
-  requestBody: OpenAiRequestBody | null
+  requestBody: ChatRequestBody | null
 }>()
 const formattedRequestBody = computed(() => {
   if (!props.requestBody) return ''

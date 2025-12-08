@@ -1,9 +1,17 @@
 <template>
+  <!-- 浏览器环境：单视图架构，内嵌 Header -->
+  <BrowserHeader 
+    v-if="!isElectronEnv" 
+    ref="browserHeaderRef"
+    @create-project="handleBrowserCreateProject" 
+  />
   <NetworkModeBanner />
   <router-view></router-view>
   <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
   <Ai v-if="agentViewDialogVisible" v-model:visible="agentViewDialogVisible" />
+  <!-- Electron 环境：语言菜单由 IPC 控制显示 -->
   <LanguageMenu
+    v-if="isElectronEnv"
     :visible="languageMenuVisible"
     :position="languageMenuPosition"
     :current-language="runtimeStore.language"
@@ -28,6 +36,7 @@ import { useProjectWorkbench } from './store/projectWorkbench/projectWorkbenchSt
 import { Language } from '@src/types';
 import LanguageMenu from '@/components/common/language/Language.vue';
 import NetworkModeBanner from '@/components/common/networkMode/NetworkModeBanner.vue';
+import BrowserHeader from '@/components/common/browserHeader/BrowserHeader.vue';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import { useRuntime } from './store/runtime/runtimeStore.ts';
 import { appWorkbenchCache } from '@/cache/appWorkbench/appWorkbenchCache';
@@ -40,6 +49,7 @@ import { shortcutManager } from '@/shortcut/index.ts';
 import { useAgentViewStore } from '@/store/ai/agentViewStore';
 import { storeToRefs } from 'pinia';
 import { useTheme } from '@/hooks/useTheme';
+import { isElectron } from '@/helper';
 
 const router = useRouter();
 const dialogVisible = ref(false);
@@ -49,16 +59,26 @@ const appSettingsStore = useAppSettings();
 const agentViewStore = useAgentViewStore();
 const { agentViewDialogVisible } = storeToRefs(agentViewStore);
 const { t } = useI18n()
-// 语言菜单相关状态
+// 平台环境检测
+const isElectronEnv = isElectron()
+// 浏览器 Header 引用
+const browserHeaderRef = ref<InstanceType<typeof BrowserHeader> | null>(null)
+// 语言菜单相关状态（仅 Electron 环境使用）
 const languageMenuVisible = ref(false)
 const languageMenuPosition = ref({ x: 0, y: 0, width: 0, height: 0 })
 
 const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
   dialogVisible.value = false;
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectCreated, {
-    projectId: data.projectId,
-    projectName: data.projectName
-  });
+  // Electron 环境：通过 IPC 通知 Header
+  if (isElectronEnv) {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectCreated, {
+      projectId: data.projectId,
+      projectName: data.projectName
+    });
+  } else {
+    // 浏览器环境：直接调用 BrowserHeader 方法
+    browserHeaderRef.value?.addProjectTab(data.projectId, data.projectName)
+  }
   router.push({
     path: '/v1/apidoc/doc-edit',
     query: {
@@ -67,6 +87,10 @@ const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
       mode: 'edit'
     }
   });
+}
+// 浏览器环境：处理 Header 创建项目事件
+const handleBrowserCreateProject = () => {
+  dialogVisible.value = true
 }
 
 /*
@@ -281,8 +305,9 @@ const initTheme = () => {
 const initAppTitle = () => {
   document.title = `${config.isDev ? `${config.appConfig.appTitle}(${t('本地')})` : config.appConfig.appTitle}`;
 }
-// 监听主进程推送的批量 Mock 日志
+// 监听主进程推送的批量 Mock 日志（仅 Electron 环境）
 const initMockLogsListener = () => {
+  if (!isElectronEnv) return
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.logsBatch, async (logs: MockLog[]) => {
     if (!logs || !Array.isArray(logs)) {
       console.error('接收到的日志数据格式错误:', logs);
@@ -293,11 +318,30 @@ const initMockLogsListener = () => {
     }
   });
 }
-// 发送 content 就绪信号到主进程
+// 发送 content 就绪信号到主进程（仅 Electron 环境）
 const sendContentReadySignal = () => {
+  if (!isElectronEnv) return
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.contentReady);
 }
+// 初始化浏览器环境
+const initBrowserEnv = async () => {
+  await router.isReady()
+  // 从缓存读取上次的路由状态
+  const cachedActiveTabId = appWorkbenchCache.getAppWorkbenchHeaderActiveTab()
+  if (!cachedActiveTabId) {
+    await router.push('/home')
+  }
+  // 监听网络模式变化
+  watch(() => runtimeStore.networkMode, async (mode, prevMode) => {
+    if (mode === prevMode) return
+    if (router.currentRoute.value.path !== '/home') {
+      await router.push('/home')
+    }
+  })
+}
+// 初始化 Electron Header 通信（仅 Electron 环境）
 const initAppHeader = () => {
+  if (!isElectronEnv) return
   // 等待 topBar 就绪后再初始化和绑定事件
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.topBarIsReady, async () => {
     initAppHeaderEvent();
@@ -351,9 +395,16 @@ onMounted(() => {
   initLanguage();
   initTheme();
   initAppTitle();
-  initMockLogsListener();
-  initAppHeader();
-  sendContentReadySignal();
+  
+  if (isElectronEnv) {
+    // Electron 环境初始化
+    initMockLogsListener();
+    initAppHeader();
+    sendContentReadySignal();
+  } else {
+    // 浏览器环境初始化
+    initBrowserEnv();
+  }
 
   shortcutManager.initAppShortcuts();
 })
