@@ -94,6 +94,13 @@ export const useAgentViewStore = defineStore('agentView', () => {
   const getMessageById = (messageId: string): AgentViewMessage | null => {
     return agentViewMessageList.value.find(msg => msg.id === messageId) || null;
   };
+  // 根据ID更新消息（通过替换数组元素触发响应式）
+  const updateMessageInList = (messageId: string, updates: Partial<AgentViewMessage>): void => {
+    const index = agentViewMessageList.value.findIndex(msg => msg.id === messageId);
+    if (index !== -1) {
+      agentViewMessageList.value[index] = { ...agentViewMessageList.value[index], ...updates } as AgentViewMessage;
+    }
+  };
   // 获取最近的消息
   const getLatestMessages = (count: number): AgentViewMessage[] => {
     const filteredMessages = agentViewMessageList.value.filter(msg => msg.type !== 'loading');
@@ -141,6 +148,7 @@ export const useAgentViewStore = defineStore('agentView', () => {
     agentViewAnchorRect,
     addAgentViewMessage,
     updateAgentViewMessage,
+    updateMessageInList,
     setAgentViewMessageList,
     clearAgentViewMessageList,
     deleteAgentViewMessageById,

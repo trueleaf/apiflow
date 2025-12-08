@@ -34,13 +34,11 @@ import { ref, computed, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ProviderConfigPanel from './ConfigPanel.vue'
 import DebugPanel from './DebugPanel.vue'
-import { useLLMProvider } from '@/store/ai/llmProviderStore'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { message } from '@/helper'
 import type { OpenAiRequestBody } from '@src/types/ai/agent.type'
 
 const { t } = useI18n()
-const llmProviderStore = useLLMProvider()
 const llmClientStore = useLLMClientStore()
 
 const responseContent = ref('')
@@ -54,7 +52,7 @@ const requestBody = ref<OpenAiRequestBody | null>(null)
 let cancelStreamFn: { abort: () => void } | null = null
 // 判断配置是否有效
 const isConfigValid = computed(() => {
-  const p = llmProviderStore.activeProvider
+  const p = llmClientStore.activeProvider
   return p.apiKey.trim() !== '' && p.baseURL.trim() !== '' && p.model.trim() !== ''
 })
 // 发送测试请求（非流式）
@@ -70,7 +68,7 @@ const handleSend = async () => {
   reasoningContent.value = ''
   responseTime.value = null
   const body: OpenAiRequestBody = {
-    model: llmProviderStore.activeProvider.model,
+    model: llmClientStore.activeProvider.model,
     messages: [{ role: 'user', content: t('你的模型') }],
     max_tokens: 1000,
   }
@@ -102,7 +100,7 @@ const handleStreamSend = () => {
   reasoningContent.value = ''
   responseTime.value = null
   const body: OpenAiRequestBody = {
-    model: llmProviderStore.activeProvider.model,
+    model: llmClientStore.activeProvider.model,
     messages: [{ role: 'user', content: t('你的模型') }],
     max_tokens: 1000,
   }

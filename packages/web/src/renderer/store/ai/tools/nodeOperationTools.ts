@@ -10,7 +10,6 @@ import { HttpNode, FolderNode, HttpMockNode } from '@src/types'
 import { WebSocketNode } from '@src/types/websocketNode'
 import { useSkill } from '../skillStore'
 import { useLLMClientStore } from '../llmClientStore'
-import { useLLMProvider } from '../llmProviderStore'
 
 type ApidocBannerWithProjectId = ApidocBanner & { projectId: string }
 type NodeMoveDropType = 'before' | 'after' | 'inner'
@@ -979,7 +978,6 @@ export const nodeOperationTools: AgentTool[] = [
     execute: async (args: Record<string, unknown>) => {
       const skillStore = useSkill()
       const llmClientStore = useLLMClientStore()
-      const llmProvider = useLLMProvider()
       const folderId = args.folderId as string
       const projectId = args.projectId as string
       const folderData = await skillStore.getFolderChildrenForRename(folderId, projectId)
@@ -1003,7 +1001,7 @@ ${JSON.stringify(folderData, null, 2)}
 [{"_id": "文件夹ID", "newName": "新名称"}]`
       try {
         const response = await llmClientStore.chat({
-          model: llmProvider.activeProvider.model,
+          model: llmClientStore.activeProvider.model,
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userMessage },

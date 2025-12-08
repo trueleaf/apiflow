@@ -114,7 +114,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useDebounceFn } from '@vueuse/core'
-import { useLLMProvider } from '@/store/ai/llmProviderStore'
+import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import type { LLMProviderType, CustomHeader } from '@src/types/ai/agent.type'
 import { message } from '@/helper'
 
@@ -130,7 +130,7 @@ defineEmits<{
 }>()
 
 const { t } = useI18n()
-const llmProviderStore = useLLMProvider()
+const llmClientStore = useLLMClientStore()
 
 const providerType = ref<LLMProviderType>('DeepSeek')
 const localApiKey = ref('')
@@ -150,7 +150,7 @@ const isConfigValid = computed(() => {
 const autoSave = useDebounceFn(() => {
   if (!isConfigValid.value) return
   const validHeaders = localCustomHeaders.value.filter(h => h.key.trim() !== '')
-  llmProviderStore.updateConfig({
+  llmClientStore.updateConfig({
     provider: providerType.value,
     apiKey: localApiKey.value,
     baseURL: providerType.value === 'DeepSeek' ? 'https://api.deepseek.com/chat/completions' : localBaseURL.value,
@@ -160,7 +160,7 @@ const autoSave = useDebounceFn(() => {
 }, 300)
 // 从 store 同步数据到本地状态
 const syncFromStore = () => {
-  const provider = llmProviderStore.activeProvider
+  const provider = llmClientStore.activeProvider
   providerType.value = provider.provider
   localApiKey.value = provider.apiKey
   localBaseURL.value = provider.baseURL
@@ -169,7 +169,7 @@ const syncFromStore = () => {
 }
 // 处理 Provider 类型变更
 const handleProviderChange = (type: LLMProviderType) => {
-  llmProviderStore.changeProviderType(type)
+  llmClientStore.changeProviderType(type)
   syncFromStore()
 }
 // 添加自定义请求头
@@ -182,7 +182,7 @@ const removeHeader = (index: number) => {
 }
 // 重置配置
 const handleReset = () => {
-  llmProviderStore.resetConfig()
+  llmClientStore.resetConfig()
   syncFromStore()
   message.success(t('配置已重置'))
 }
@@ -191,12 +191,12 @@ watch([providerType, localApiKey, localBaseURL, localModel, localCustomHeaders],
   autoSave()
 }, { deep: true })
 // 监听 store 变化
-watch(() => llmProviderStore.activeProvider, () => {
+watch(() => llmClientStore.activeProvider, () => {
   syncFromStore()
 }, { deep: true })
 
 onMounted(() => {
-  llmProviderStore.initFromCache()
+  llmClientStore.initFromCache()
   syncFromStore()
 })
 </script>

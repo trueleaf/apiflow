@@ -5,7 +5,7 @@ import { useLLMClientStore } from './llmClientStore'
 import { useAgentViewStore } from './agentViewStore'
 import { openaiTools, rawTools } from './tools/tools.ts'
 import { LLMessage } from '@src/types/ai/agent.type.ts'
-import type { AgentExecutionMessage, AgentToolCallInfo } from '@src/types/ai'
+import type { AgentExecutionMessage, AgentToolCallInfo, TextResponseMessage } from '@src/types/ai'
 import { nanoid } from 'nanoid/non-secure'
 
 const agentSystemPrompt = `你是 Apiflow 智能代理，需使用工具完成用户意图。
@@ -45,17 +45,14 @@ const createAgentExecutionMessage = (sessionId: string): AgentExecutionMessage =
 	status: 'running',
 	toolCalls: []
 })
-// 更新工具调用状态
-const updateToolCallStatus = (
-	message: AgentExecutionMessage,
-	toolCallId: string,
-	updates: Partial<AgentToolCallInfo>
-) => {
-	const toolCall = message.toolCalls.find(tc => tc.id === toolCallId)
-	if (toolCall) {
-		Object.assign(toolCall, updates)
-	}
-}
+// 创建结束消息
+const createCompletionMessage = (sessionId: string, content: string): TextResponseMessage => ({
+	id: nanoid(),
+	type: 'textResponse',
+	content: content || '任务已完成',
+	timestamp: new Date().toISOString(),
+	sessionId
+})
 export const runAgent = async ({ prompt }: { prompt: string }) => {
 	const llmClientStore = useLLMClientStore()
 	const agentViewStore = useAgentViewStore()
@@ -65,12 +62,14 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 		activeTab: context.activeTab,
 		variables: context.variables
 	})}`;
-  const messages: LLMessage[] = [
-    { role: 'system', content: agentSystemPrompt },
-    { role: 'system', content: contextText },
-    { role: 'user', content: prompt }
-  ];
+	const messages: LLMessage[] = [
+		{ role: 'system', content: agentSystemPrompt },
+		{ role: 'system', content: contextText },
+		{ role: 'user', content: prompt }
+	];
 	const agentMessage = createAgentExecutionMessage(agentViewStore.currentSessionId)
+	const messageId = agentMessage.id
+	let currentToolCalls: AgentToolCallInfo[] = []
 	agentViewStore.agentViewMessageList.push(agentMessage)
 	const MAX_ITERATIONS = 10;
 	let currentResponse = await llmClientStore.chat({
@@ -81,10 +80,16 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 	for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
 		const { message, finish_reason } = currentResponse.choices[0];
 		if (message.content) {
-			agentMessage.thinkingContent = message.content
+			agentViewStore.updateMessageInList(messageId, { thinkingContent: message.content })
 		}
 		if (finish_reason !== 'tool_calls' || !message.tool_calls?.length) {
-			agentMessage.status = 'success'
+			agentViewStore.updateMessageInList(messageId, { status: 'success' })
+			const finalMessage = agentViewStore.getMessageById(messageId)
+			if (finalMessage) {
+				await agentViewStore.updateAgentViewMessage(finalMessage)
+			}
+			const completionMessage = createCompletionMessage(agentViewStore.currentSessionId, message.content || '')
+			await agentViewStore.addAgentViewMessage(completionMessage)
 			return message.content;
 		}
 		messages.push({
@@ -101,14 +106,16 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 				status: 'running',
 				startTime: Date.now()
 			}
-			agentMessage.toolCalls.push(toolCallInfo)
+			currentToolCalls = [...currentToolCalls, toolCallInfo]
+			agentViewStore.updateMessageInList(messageId, { toolCalls: currentToolCalls })
 			const tool = rawTools.find(t => t.name === toolCall.function.name);
 			if (!tool) {
-				updateToolCallStatus(agentMessage, toolCall.id, {
-					status: 'error',
-					error: `工具 ${toolCall.function.name} 不存在`,
-					endTime: Date.now()
-				})
+				currentToolCalls = currentToolCalls.map(tc =>
+					tc.id === toolCall.id
+						? { ...tc, status: 'error' as const, error: `工具 ${toolCall.function.name} 不存在`, endTime: Date.now() }
+						: tc
+				)
+				agentViewStore.updateMessageInList(messageId, { toolCalls: currentToolCalls })
 				messages.push({
 					role: 'tool',
 					content: `工具 ${toolCall.function.name} 不存在`,
@@ -118,11 +125,13 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 			}
 			try {
 				const result = await tool.execute(args);
-				updateToolCallStatus(agentMessage, toolCall.id, {
-					status: result.code === 0 ? 'success' : 'error',
-					result,
-					endTime: Date.now()
-				})
+				const newStatus = result.code === 0 ? 'success' : 'error' as AgentToolCallInfo['status']
+				currentToolCalls = currentToolCalls.map(tc =>
+					tc.id === toolCall.id
+						? { ...tc, status: newStatus, result, endTime: Date.now() }
+						: tc
+				)
+				agentViewStore.updateMessageInList(messageId, { toolCalls: currentToolCalls })
 				messages.push({
 					role: 'tool',
 					content: result.code === 0
@@ -131,11 +140,12 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 					tool_call_id: toolCall.id
 				});
 			} catch (err) {
-				updateToolCallStatus(agentMessage, toolCall.id, {
-					status: 'error',
-					error: err instanceof Error ? err.message : String(err),
-					endTime: Date.now()
-				})
+				currentToolCalls = currentToolCalls.map(tc =>
+					tc.id === toolCall.id
+						? { ...tc, status: 'error' as const, error: err instanceof Error ? err.message : String(err), endTime: Date.now() }
+						: tc
+				)
+				agentViewStore.updateMessageInList(messageId, { toolCalls: currentToolCalls })
 				messages.push({
 					role: 'tool',
 					content: `工具执行异常：${err instanceof Error ? err.message : String(err)}`,
@@ -149,6 +159,13 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 			tools: openaiTools
 		});
 	}
-	agentMessage.status = 'success'
-	return currentResponse.choices[0]?.message?.content || '';
+	agentViewStore.updateMessageInList(messageId, { status: 'success' })
+	const finalMessage = agentViewStore.getMessageById(messageId)
+	if (finalMessage) {
+		await agentViewStore.updateAgentViewMessage(finalMessage)
+	}
+	const finalContent = currentResponse.choices[0]?.message?.content || ''
+	const completionMessage = createCompletionMessage(agentViewStore.currentSessionId, finalContent)
+	await agentViewStore.addAgentViewMessage(completionMessage)
+	return finalContent
 }

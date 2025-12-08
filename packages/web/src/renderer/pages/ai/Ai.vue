@@ -73,7 +73,6 @@ import { config } from '@src/config/config'
 import { appState } from '@/cache/appState/appStateCache'
 import { llmProviderCache } from '@/cache/ai/llmProviderCache'
 import { useAgentViewStore } from '@/store/ai/agentViewStore'
-import { useLLMProvider } from '@/store/ai/llmProviderStore'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { runAgent } from '@/store/ai/agentStore'
 import AiHistory from './components/aiHistory/AiHistory.vue'
@@ -86,7 +85,6 @@ import AiFooter from './components/aiFooter/AiFooter.vue'
 
 const visible = defineModel<boolean>('visible', { default: false })
 const agentViewStore = useAgentViewStore()
-const llmProviderStore = useLLMProvider()
 const llmClientStore = useLLMClientStore()
 const aiFooterRef = ref<InstanceType<typeof AiFooter> | null>(null)
 const { t } = useI18n()
@@ -493,7 +491,7 @@ const initDialogState = () => {
 onMounted(() => {
   initDialogState()
   agentViewStore.initStore()
-  llmProviderStore.initFromCache()
+  llmClientStore.initFromCache()
 })
 
 </script>

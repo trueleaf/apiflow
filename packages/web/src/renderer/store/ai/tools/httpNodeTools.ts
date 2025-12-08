@@ -1,6 +1,5 @@
 import { useSkill } from '../skillStore'
 import { useLLMClientStore } from '../llmClientStore'
-import { useLLMProvider } from '../llmProviderStore'
 import { AgentTool } from '@src/types/ai'
 import { HttpNodeRequestMethod, ApidocProperty, HttpNodeContentType, HttpNodeBodyMode, HttpNodeBodyRawType, HttpNodeResponseParams } from '@src/types'
 import { CreateHttpNodeOptions } from '@src/types/ai/tools.type'
@@ -87,7 +86,6 @@ export const httpNodeTools: AgentTool[] = [
     execute: async (args: Record<string, unknown>) => {
       const skillStore = useSkill()
       const llmClientStore = useLLMClientStore()
-      const llmProvider = useLLMProvider()
       const projectId = args.projectId as string
       const description = args.description as string
       const systemPrompt = `你是一个API设计专家。根据用户的自然语言描述，推断出完整的HTTP接口参数。
@@ -116,7 +114,7 @@ JSON结构：
 8. queryParams和headers如果没有则返回空数组`
       try {
         const response = await llmClientStore.chat({
-          model: llmProvider.activeProvider.model,
+          model: llmClientStore.activeProvider.model,
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: description }
@@ -1482,7 +1480,6 @@ JSON结构：
     execute: async (args: Record<string, unknown>) => {
       const skillStore = useSkill()
       const llmClientStore = useLLMClientStore()
-      const llmProvider = useLLMProvider()
       const nodeId = args.nodeId as string
       const node = await skillStore.getHttpNodeById(nodeId)
       if (!node) {
@@ -1509,7 +1506,7 @@ URL路径：${apiDetail.url}
 请求体内容：${apiDetail.rawJson || '无'}`
       try {
         const response = await llmClientStore.chat({
-          model: llmProvider.activeProvider.model,
+          model: llmClientStore.activeProvider.model,
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userMessage }
