@@ -1,7 +1,7 @@
 <template>
   <div class="ai-settings-container">
     <div class="page-header">
-      <h2>{{ $t('AI 设置') }}</h2>
+      <h2>{{ t('AI 设置') }}</h2>
     </div>
     <div class="ai-settings-content">
       <div class="config-section">

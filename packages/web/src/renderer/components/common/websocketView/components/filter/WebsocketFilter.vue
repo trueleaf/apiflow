@@ -5,7 +5,7 @@
         <el-input 
           ref="filterInputRef" 
           v-model="filterText"
-          :placeholder="isRegexMode ? $t('支持正则表达式') : $t('输入关键词筛选')"
+          :placeholder="isRegexMode ? t('支持正则表达式') : t('输入关键词筛选')"
           size="small"
           class="compact-filter-input" 
           @input="handleFilterChange" 
@@ -16,7 +16,7 @@
               class="compact-regex-toggle-btn" 
               :class="{ active: isRegexMode }" 
               @click="handleToggleRegexMode"
-              :title="$t('切换正则表达式模式')"
+              :title="t('切换正则表达式模式')"
             >
               .*
             </div>
@@ -31,7 +31,7 @@
           collapse-tags
           collapse-tags-tooltip
           :max-collapse-tags="1"
-          :placeholder="$t('全部消息')"
+          :placeholder="t('全部消息')"
           size="small"
           class="message-type-filter"
           @change="handleMessageTypeChange"
@@ -43,13 +43,13 @@
             :value="option.value"
           />
         </el-select>
-        <el-icon class="icon clear-icon" @click="handleClearData" :title="$t('清空历史')">
+        <el-icon class="icon clear-icon" @click="handleClearData" :title="t('清空历史')">
           <Delete />
         </el-icon>
         <el-icon class="icon search-icon" :class="{ active: isSearchInputVisible }" @click="handleToggleSearchInput">
           <Search />
         </el-icon>
-        <el-icon class="icon download-icon" @click="handleDownloadData" :title="$t('下载WebSocket数据')">
+        <el-icon class="icon download-icon" @click="handleDownloadData" :title="t('下载WebSocket数据')">
           <Download />
         </el-icon>
       </div>
@@ -60,10 +60,10 @@
           {{ filterError }}
         </div>
         <div v-else-if="filteredCount > 0" class="filter-stats">
-          {{ $t('找到') }} {{ filteredCount }} {{ $t('条匹配结果') }}
+          {{ t('找到') }} {{ filteredCount }} {{ t('条匹配结果') }}
         </div>
         <div v-else class="filter-stats no-result">
-          {{ $t('未找到匹配结果') }}
+          {{ t('未找到匹配结果') }}
         </div>
       </div>
     </div>

@@ -2,28 +2,28 @@
   <div class="localstorage-detail">
     <!-- localStorage 详情表格 -->
     <div class="table-title">
-      <h3>{{ $t('localStorage 数据详情') }}</h3>
+      <h3>{{ t('localStorage 数据详情') }}</h3>
       <el-button 
         type="danger" 
         plain 
         @click="handleClearAllLocalStorage"
         :disabled="props.localStorageDetails.length === 0"
       >
-        {{ $t('清空所有数据') }}
+        {{ t('清空所有数据') }}
       </el-button>
     </div>
     <el-table :data="props.localStorageDetails" border>
-      <el-table-column prop="description" :label="$t('描述')" />
-      <el-table-column prop="key" :label="$t('键名')" show-overflow-tooltip />
-      <el-table-column prop="size" :label="$t('大小')">
+      <el-table-column prop="description" :label="t('描述')" />
+      <el-table-column prop="key" :label="t('键名')" show-overflow-tooltip />
+      <el-table-column prop="size" :label="t('大小')">
         <template #default="scope">
           {{ formatUnit(scope.row.size, 'bytes') }}
         </template>
       </el-table-column>
-      <el-table-column :label="$t('操作')" width="150" fixed="right">
+      <el-table-column :label="t('操作')" width="150" fixed="right">
         <template #default="scope">
-          <el-button link @click="handleOpenLocalStorageDetail(scope.row)">{{ $t('详情') }}</el-button>
-          <el-button link type="danger" @click="handleDeleteLocalStorage(scope.row)">{{ $t('删除') }}</el-button>
+          <el-button link @click="handleOpenLocalStorageDetail(scope.row)">{{ t('详情') }}</el-button>
+          <el-button link type="danger" @click="handleDeleteLocalStorage(scope.row)">{{ t('删除') }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -31,8 +31,8 @@
     <!-- 空数据提示 -->
     <div v-if="!props.localStorageLoading && props.localStorageDetails.length === 0" class="empty-data">
       <div class="empty-text">
-        <span>{{ $t('暂无数据') }}</span>
-        <el-button link type="primary" :loading="props.localStorageLoading" @click="emit('refresh')">{{ $t('点击计算') }}</el-button>
+        <span>{{ t('暂无数据') }}</span>
+        <el-button link type="primary" :loading="props.localStorageLoading" @click="emit('refresh')">{{ t('点击计算') }}</el-button>
       </div>
     </div>
 

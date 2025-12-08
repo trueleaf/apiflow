@@ -2,8 +2,8 @@
   <section class="panel">
     <div class="panel-header">
       <div>
-        <h3>{{ $t('个人信息') }}</h3>
-        <p>{{ $t('更新您的个人信息和头像') }}</p>
+        <h3>{{ t('个人信息') }}</h3>
+        <p>{{ t('更新您的个人信息和头像') }}</p>
       </div>
     </div>
     <div class="panel-body">
@@ -15,13 +15,13 @@
           @mouseleave="isAvatarHover = false"
           @click="triggerAvatarUpload"
         >
-          <img :src="displayAvatar" :alt="$t('用户头像')" class="image-preview">
+          <img :src="displayAvatar" :alt="t('用户头像')" class="image-preview">
           <div class="image-overlay" v-if="isAvatarHover || isAvatarUploading">
             <div v-if="isAvatarUploading" class="loading-indicator">
               <span class="loading-spinner"></span>
             </div>
             <div v-else class="overlay-text">
-              {{ $t('点击更换') }}
+              {{ t('点击更换') }}
             </div>
           </div>
         </div>
@@ -43,11 +43,11 @@
           <div class="form-item">
             <div class="form-label">
               <User :size="18" class="label-icon" />
-              {{ $t('用户名称') }}
+              {{ t('用户名称') }}
             </div>
             <el-input
               v-model="localUserName"
-              :placeholder="$t('请输入用户名称')"
+              :placeholder="t('请输入用户名称')"
               clearable
               class="form-input"
             />
@@ -56,11 +56,11 @@
           <div class="form-item">
             <div class="form-label">
               <Mail :size="18" class="label-icon" />
-              {{ $t('邮箱地址') }}
+              {{ t('邮箱地址') }}
             </div>
             <el-input
               v-model="localEmail"
-              :placeholder="$t('请输入邮箱地址')"
+              :placeholder="t('请输入邮箱地址')"
               :class="{ 'is-error': emailError, 'is-success': emailSuccess }"
               clearable
               class="form-input"
@@ -73,10 +73,10 @@
           <div class="form-item">
             <div class="form-label">
               <Users :size="18" class="label-icon" />
-              {{ $t('所属团队') }}
+              {{ t('所属团队') }}
             </div>
             <div class="readonly-field">
-              <span v-if="isLocalMode" class="field-disabled">{{ $t('离线模式下不可用') }}</span>
+              <span v-if="isLocalMode" class="field-disabled">{{ t('离线模式下不可用') }}</span>
               <span v-else class="field-value">{{ teamDisplay }}</span>
             </div>
           </div>
@@ -84,10 +84,10 @@
           <div class="form-item">
             <div class="form-label">
               <Calendar :size="18" class="label-icon" />
-              {{ $t('注册时间') }}
+              {{ t('注册时间') }}
             </div>
             <div class="readonly-field">
-              <span v-if="isLocalMode" class="field-disabled">{{ $t('离线模式下不可用') }}</span>
+              <span v-if="isLocalMode" class="field-disabled">{{ t('离线模式下不可用') }}</span>
               <span v-else class="field-value">{{ registerTimeDisplay }}</span>
             </div>
           </div>
@@ -95,10 +95,10 @@
           <div class="form-item full-row">
             <div class="form-label">
               <Clock :size="18" class="label-icon" />
-              {{ $t('最后登录') }}
+              {{ t('最后登录') }}
             </div>
             <div class="readonly-field">
-              <span v-if="isLocalMode" class="field-disabled">{{ $t('离线模式下不可用') }}</span>
+              <span v-if="isLocalMode" class="field-disabled">{{ t('离线模式下不可用') }}</span>
               <span v-else class="field-value">{{ lastLoginTimeDisplay }}</span>
             </div>
           </div>
@@ -107,10 +107,10 @@
     </div>
     <div class="panel-actions">
       <el-button @click="handleReset">
-        {{ $t('重置') }}
+        {{ t('重置') }}
       </el-button>
       <el-button type="primary" @click="handleConfirm" :disabled="!hasChanges">
-        {{ $t('确认修改') }}
+        {{ t('确认修改') }}
       </el-button>
     </div>
   </section>

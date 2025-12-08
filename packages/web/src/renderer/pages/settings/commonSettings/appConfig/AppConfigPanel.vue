@@ -2,8 +2,8 @@
   <section class="panel">
     <div class="panel-header">
       <div>
-        <h3>{{ $t('应用配置') }}</h3>
-        <p>{{ $t('自定义应用品牌与主题') }}</p>
+        <h3>{{ t('应用配置') }}</h3>
+        <p>{{ t('自定义应用品牌与主题') }}</p>
       </div>
     </div>
     <div class="panel-body">
@@ -17,7 +17,7 @@
         >
           <img 
             :src="appSettingsStore.appLogo" 
-            :alt="$t('应用Logo')" 
+            :alt="t('应用Logo')" 
             class="image-preview"
           >
           <div class="image-overlay" v-if="isLogoHover || isLogoUploading">
@@ -25,7 +25,7 @@
               <span class="loading-spinner"></span>
             </div>
             <div v-else class="overlay-text">
-              {{ $t('点击更换') }}
+              {{ t('点击更换') }}
             </div>
           </div>
         </div>
@@ -47,11 +47,11 @@
           <div class="form-item">
             <div class="form-label">
               <AppWindow :size="18" class="label-icon" />
-              {{ $t('应用名称') }}
+              {{ t('应用名称') }}
             </div>
             <el-input
               v-model="appTitle"
-              :placeholder="$t('请输入应用名称')"
+              :placeholder="t('请输入应用名称')"
               clearable
               class="form-input"
               @blur="handleTitleBlur"
@@ -61,15 +61,15 @@
           <div class="form-item">
             <div class="form-label">
               <Palette :size="18" class="label-icon" />
-              {{ $t('应用主题') }}
+              {{ t('应用主题') }}
             </div>
             <div class="theme-placeholder" aria-disabled="true">
               <el-radio-group v-model="appTheme" class="theme-radio-group" :disabled="true">
-                <el-radio value="light" class="theme-radio" :disabled="true">{{ $t('浅色') }}</el-radio>
-                <el-radio value="dark" class="theme-radio" :disabled="true">{{ $t('深色') }}</el-radio>
-                <el-radio value="auto" class="theme-radio" :disabled="true">{{ $t('跟随系统') }}</el-radio>
+                <el-radio value="light" class="theme-radio" :disabled="true">{{ t('浅色') }}</el-radio>
+                <el-radio value="dark" class="theme-radio" :disabled="true">{{ t('深色') }}</el-radio>
+                <el-radio value="auto" class="theme-radio" :disabled="true">{{ t('跟随系统') }}</el-radio>
               </el-radio-group>
-              <div class="coming-soon">{{ $t('敬请期待') }}</div>
+              <div class="coming-soon">{{ t('敬请期待') }}</div>
             </div>
           </div>
         </div>
@@ -77,7 +77,7 @@
     </div>
     <div class="panel-actions">
       <el-button @click="handleReset">
-        {{ $t('重置') }}
+        {{ t('重置') }}
       </el-button>
     </div>
   </section>

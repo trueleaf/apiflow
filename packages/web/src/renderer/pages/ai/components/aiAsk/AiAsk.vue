@@ -9,12 +9,12 @@
           <ArrowRight :size="14" class="config-icon"/>
         </button>
       </div>
-      <div v-else-if="agentViewStore.agentViewMessageList.length === 0" class="ai-empty-state">
+      <div v-else-if="filteredMessages.length === 0" class="ai-empty-state">
         <Bot class="ai-empty-icon" :size="48" />
         <p class="ai-empty-text">{{ t('问我任何问题') }}</p>
       </div>
       <template v-else>
-        <template v-for="message in agentViewStore.agentViewMessageList" :key="message.id">
+        <template v-for="message in filteredMessages" :key="message.id">
           <AskMessageItem v-if="message.type === 'ask'" :message="message" />
           <LoadingMessageItem v-else-if="message.type === 'loading'" :message="message" />
           <TextResponseMessageItem v-else-if="message.type === 'textResponse'" :message="message" />
@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Bot, AlertTriangle, ArrowRight } from 'lucide-vue-next'
 import { useAgentViewStore } from '@/store/ai/agentViewStore'
@@ -42,6 +42,7 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const agentViewStore = useAgentViewStore()
 const messagesRef = ref<HTMLElement | null>(null)
+const filteredMessages = computed(() => agentViewStore.agentViewMessageList.filter(msg => msg.mode === 'ask'))
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -50,7 +51,7 @@ const scrollToBottom = () => {
     }
   })
 }
-watch(() => agentViewStore.agentViewMessageList.length, () => {
+watch(() => filteredMessages.value.length, () => {
   scrollToBottom()
 })
 defineExpose({

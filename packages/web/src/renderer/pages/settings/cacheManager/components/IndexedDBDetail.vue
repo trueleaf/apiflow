@@ -2,37 +2,37 @@
   <div class="indexeddb-detail">
     <!-- IndexedDB 详情表格 -->
     <div class="table-title">
-      <h3>{{ $t('IndexedDB 本地数据详情') }}</h3>
+      <h3>{{ t('IndexedDB 本地数据详情') }}</h3>
       <el-button 
         type="danger" 
         plain 
         @click="handleClearAllIndexedDB"
         :disabled="props.indexedDBDetails.length === 0"
       >
-        {{ $t('清空所有数据') }}
+        {{ t('清空所有数据') }}
       </el-button>
     </div>
     <el-table :data="props.indexedDBDetails" border>
-      <el-table-column prop="description" :label="$t('描述')" />
-      <el-table-column prop="dbName" :label="$t('数据库名称')" />
-      <el-table-column prop="storeName" :label="$t('存储名称')" />
-      <el-table-column prop="size" :label="$t('大小')">
+      <el-table-column prop="description" :label="t('描述')" />
+      <el-table-column prop="dbName" :label="t('数据库名称')" />
+      <el-table-column prop="storeName" :label="t('存储名称')" />
+      <el-table-column prop="size" :label="t('大小')">
         <template #default="scope">
           {{ formatUnit(scope.row.size, 'bytes') }}
         </template>
       </el-table-column>
-      <el-table-column :label="$t('操作')" width="150" fixed="right">
+      <el-table-column :label="t('操作')" width="150" fixed="right">
         <template #default="scope">
-          <el-button link @click="handleOpenIndexedDBDetail(scope.row)">{{ $t('详情') }}</el-button>
-          <el-button link type="danger" @click="handleDelete(scope.row)">{{ $t('删除') }}</el-button>
+          <el-button link @click="handleOpenIndexedDBDetail(scope.row)">{{ t('详情') }}</el-button>
+          <el-button link type="danger" @click="handleDelete(scope.row)">{{ t('删除') }}</el-button>
         </template>
       </el-table-column>
     </el-table>
     <!-- 空数据提示 -->
     <div v-if="!props.indexedDBLoading && props.indexedDBDetails.length === 0 && props.indexedDBSize !== -1" class="empty-data">
       <div class="empty-text">
-        {{ $t('暂无数据，') }}
-        <el-button link type="primary" @click="emit('refresh')">{{ $t('点击刷新') }}</el-button>
+        {{ t('暂无数据，') }}
+        <el-button link type="primary" @click="emit('refresh')">{{ t('点击刷新') }}</el-button>
       </div>
     </div>
     <!-- IndexedDB 本地数据详情组件 -->

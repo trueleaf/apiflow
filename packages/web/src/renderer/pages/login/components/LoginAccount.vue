@@ -2,41 +2,41 @@
   <el-form ref="form" class="login-account" :model="userInfo" :rules="rules" data-testid="login-form" @submit.stop.prevent="handleLogin">
     <el-form-item prop="loginName">
       <el-input v-model="userInfo.loginName" :prefix-icon="User" name="loginName" type="text"
-        :placeholder="`${$t('请输入用户名')}...`" data-testid="login-username-input"></el-input>
+        :placeholder="`${t('请输入用户名')}...`" data-testid="login-username-input"></el-input>
     </el-form-item>
     <el-form-item prop="password">
       <el-input v-model="userInfo.password" :prefix-icon="Lock" name="password" type="password"
-        :placeholder="`${$t('请输入密码')}...`" show-password data-testid="login-password-input"></el-input>
+        :placeholder="`${t('请输入密码')}...`" show-password data-testid="login-password-input"></el-input>
     </el-form-item>
     <el-form-item v-if="isShowCapture" prop="captcha">
       <div class="captcha">
         <el-input v-model="userInfo.captcha" :size="config.renderConfig.layout.size" name="captcha" type="text"
-          :placeholder="$t('验证码')" data-testid="login-captcha-input"></el-input>
+          :placeholder="t('验证码')" data-testid="login-captcha-input"></el-input>
         <img :src="captchaUrl" data-testid="login-captcha-img" @click="freshCapchaUrl" />
       </div>
     </el-form-item>
     <el-form-item class="mb-1">
       <el-button :loading="loading" type="primary" native-type="submit"
-        class="w-100" data-testid="login-submit-btn">{{ $t("登录") }}</el-button>
+        class="w-100" data-testid="login-submit-btn">{{ t("登录") }}</el-button>
     </el-form-item>
     <div class="mt-2 d-flex j-around">
       <a href="https://github.com/trueleaf/apiflow" target="_blank" class="d-flex flex-column j-center a-center">
-        <svg class="svg-icon" aria-hidden="true" :title="$t('跳转github')">
+        <svg class="svg-icon" aria-hidden="true" :title="t('跳转github')">
           <use xlink:href="#icongithub"></use>
         </svg>
         <div class="mt-1">GitHub</div>
       </a>
       <a href="https://gitee.com/shuzhikai/apiflow" target="_blank" class="d-flex flex-column j-center a-center">
-        <svg class="svg-icon" aria-hidden="true" :title="$t('跳转码云')">
+        <svg class="svg-icon" aria-hidden="true" :title="t('跳转码云')">
           <use xlink:href="#icongitee"></use>
         </svg>
-        <div class="mt-1">{{ $t('码云') }}</div>
+        <div class="mt-1">{{ t('码云') }}</div>
       </a>
       <a href="https://www.yuque.com/happymoyu/as0gig" target="_blank" class="d-flex flex-column j-center a-center">
-        <svg class="svg-icon" aria-hidden="true" :title="$t('跳转文档')">
+        <svg class="svg-icon" aria-hidden="true" :title="t('跳转文档')">
           <use xlink:href="#iconyuque"></use>
         </svg>
-        <div class="mt-1">{{ $t("完整文档") }}</div>
+        <div class="mt-1">{{ t("完整文档") }}</div>
       </a>
     </div>
   </el-form>

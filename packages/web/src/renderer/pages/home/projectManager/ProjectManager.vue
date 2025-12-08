@@ -2,21 +2,21 @@
   <div class="project-manager">
     <!-- 搜索条件 -->
     <div class="search-item d-flex a-center mb-3">
-      <el-input v-model="projectName" :placeholder="$t('搜索项目名称')" :prefix-icon="SearchIcon"
+      <el-input v-model="projectName" :placeholder="t('搜索项目名称')" :prefix-icon="SearchIcon"
         class="w-200px mr-3" data-testid="home-project-search-input" @input="debounceSearch" @change="debounceSearch" @keyup.enter="debounceSearch">
         <template #suffix>
           <div class="d-flex a-center" style="gap: 8px;">
-            <el-icon v-show="projectName.trim().length > 0" :title="$t('清空')" class="cursor-pointer"
+            <el-icon v-show="projectName.trim().length > 0" :title="t('清空')" class="cursor-pointer"
               data-testid="home-search-clear-btn" @click.stop="handleClearSearch">
               <CircleCloseIcon />
             </el-icon>
-            <el-icon :title="$t('高级搜索')" class="cursor-pointer" color="var(--gray-400)" data-testid="home-advanced-search-btn" @click.stop="toggleAdvancedSearch">
+            <el-icon :title="t('高级搜索')" class="cursor-pointer" color="var(--gray-400)" data-testid="home-advanced-search-btn" @click.stop="toggleAdvancedSearch">
               <Tools />
             </el-icon>
           </div>
         </template>
       </el-input>
-      <el-button :icon="PlusIcon" data-testid="home-add-project-btn" @click="dialogVisible = true">{{ $t("新建项目") }}</el-button>
+      <el-button :icon="PlusIcon" data-testid="home-add-project-btn" @click="dialogVisible = true">{{ t("新建项目") }}</el-button>
     </div>
     <!-- 高级搜索面板 -->
     <AdvancedSearchPanel
@@ -47,17 +47,17 @@
               <Emphasize :value="item.projectName" :keyword="projectName"></Emphasize>
             </div>
             <div class="operator">
-              <div :title="$t('编辑')" @click="handleOpenEditDialog(item)">
+              <div :title="t('编辑')" @click="handleOpenEditDialog(item)">
                 <el-icon :size="16">
                   <EditIcon></EditIcon>
                 </el-icon>
               </div>
-              <div v-if="!isStandalone" :title="$t('成员管理')" @click="handleOpenPermissionDialog(item)">
+              <div v-if="!isStandalone" :title="t('成员管理')" @click="handleOpenPermissionDialog(item)">
                 <el-icon :size="16">
                   <UserIcon></UserIcon>
                 </el-icon>
               </div>
-              <div v-if="!item.isStared" :title="$t('收藏')" data-testid="home-star-project-star-btn" @click="handleStar(item)">
+              <div v-if="!item.isStared" :title="t('收藏')" data-testid="home-star-project-star-btn" @click="handleStar(item)">
                 <el-icon v-if="!starLoading" :size="16">
                   <star-icon></star-icon>
                 </el-icon>
@@ -65,7 +65,7 @@
                   <LoadingIcon></LoadingIcon>
                 </el-icon>
               </div>
-              <div v-if="item.isStared" :title="$t('取消收藏')" data-testid="home-star-project-unstar-btn" @click="handleUnStar(item)">
+              <div v-if="item.isStared" :title="t('取消收藏')" data-testid="home-star-project-unstar-btn" @click="handleUnStar(item)">
                 <el-icon v-if="!unStarLoading" :size="19" class="yellow">
                   <StarFilledIcon></StarFilledIcon>
                 </el-icon>
@@ -73,7 +73,7 @@
                   <LoadingIcon></LoadingIcon>
                 </el-icon>
               </div>
-              <div :title="$t('删除')" data-testid="home-star-project-delete-btn" @click="deleteProject(item._id)">
+              <div :title="t('删除')" data-testid="home-star-project-delete-btn" @click="deleteProject(item._id)">
                 <el-icon :size="16">
                   <DeleteIcon></DeleteIcon>
                 </el-icon>
@@ -81,20 +81,20 @@
             </div>
           </div>
           <div class="d-flex j-end a-center gray-500 mt-2">
-            <span>{{ $t("创建者") }}:</span>
+            <span>{{ t("创建者") }}:</span>
             <span class="project-creator">{{ item.owner.name }}</span>&nbsp;&nbsp;
           </div>
           <div class="d-flex j-end a-center gray-500">
-            <span>{{ $t("最新更新") }}:</span>
+            <span>{{ t("最新更新") }}:</span>
             <span class="project-update-time">{{ formatDate(item.updatedAt) }}</span>&nbsp;&nbsp;
           </div>
           <div class="project-bottom d-flex">
             <div class="project-api-count">
-              <span class="f-sm">{{ $t("接口数") }}:</span>
+              <span class="f-sm">{{ t("接口数") }}:</span>
               <span class="teal">{{ item.docNum || 0 }}</span>
             </div>
             <div class="ml-auto">
-              <el-button type="default" data-testid="home-star-project-enter-btn" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
+              <el-button type="default" data-testid="home-star-project-enter-btn" @click="handleJumpToProject(item)">{{ t("编辑") }}</el-button>
             </div>
           </div>
         </div>
@@ -107,12 +107,12 @@
           <el-icon v-if="isFold" class="mr-1" :size="16">
             <CaretRightIcon />
           </el-icon>
-          <span>{{ $t("全部项目") }}({{ projectList.length }})</span>
+          <span>{{ t("全部项目") }}({{ projectList.length }})</span>
         </span>
       </h2>
       <!-- 空状态 -->
       <div v-if="isEmptyState && !isFold" class="empty-container">
-        <el-empty :description="$t('暂无项目，点击上方按钮创建第一个项目')"></el-empty>
+        <el-empty :description="t('暂无项目，点击上方按钮创建第一个项目')"></el-empty>
       </div>
       <!-- 项目列表 -->
       <div v-show="!isFold && !isEmptyState" class="project-wrap" data-testid="home-projects-wrap">
@@ -122,17 +122,17 @@
               <Emphasize :value="item.projectName" :keyword="projectName"></Emphasize>
             </div>
             <div class="operator">
-              <div :title="$t('编辑')" @click="handleOpenEditDialog(item)">
+              <div :title="t('编辑')" @click="handleOpenEditDialog(item)">
                 <el-icon :size="16">
                   <EditIcon></EditIcon>
                 </el-icon>
               </div>
-              <div v-if="!isStandalone" :title="$t('成员管理')" @click="handleOpenPermissionDialog(item)">
+              <div v-if="!isStandalone" :title="t('成员管理')" @click="handleOpenPermissionDialog(item)">
                 <el-icon :size="16">
                   <UserIcon></UserIcon>
                 </el-icon>
               </div>
-              <div v-if="!item.isStared" :title="$t('收藏')" @click="handleStar(item)">
+              <div v-if="!item.isStared" :title="t('收藏')" @click="handleStar(item)">
                 <el-icon v-if="!starLoading" :size="16">
                   <star-icon></star-icon>
                 </el-icon>
@@ -140,7 +140,7 @@
                   <LoadingIcon></LoadingIcon>
                 </el-icon>
               </div>
-              <div v-if="item.isStared" :title="$t('取消收藏')" data-testid="home-project-unstar-btn" @click="handleUnStar(item)">
+              <div v-if="item.isStared" :title="t('取消收藏')" data-testid="home-project-unstar-btn" @click="handleUnStar(item)">
                 <el-icon v-if="!unStarLoading" :size="19" class="yellow">
                   <StarFilledIcon></StarFilledIcon>
                 </el-icon>
@@ -148,7 +148,7 @@
                   <LoadingIcon></LoadingIcon>
                 </el-icon>
               </div>
-              <div :title="$t('删除')" data-testid="home-project-delete-btn" @click="deleteProject(item._id)">
+              <div :title="t('删除')" data-testid="home-project-delete-btn" @click="deleteProject(item._id)">
                 <el-icon :size="16">
                   <DeleteIcon></DeleteIcon>
                 </el-icon>
@@ -156,20 +156,20 @@
             </div>
           </div>
           <div class="d-flex j-end a-center gray-600 mt-2">
-            <span>{{ $t("创建者") }}:</span>
+            <span>{{ t("创建者") }}:</span>
             <span class="project-creator">{{ item.owner.name }}</span>&nbsp;&nbsp;
           </div>
           <div class="d-flex j-end a-center gray-600">
-            <span>{{ $t("最新更新") }}:</span>
+            <span>{{ t("最新更新") }}:</span>
             <span class="project-update-time">{{ formatDate(item.updatedAt) }}</span>&nbsp;&nbsp;
           </div>
           <div class="project-bottom d-flex">
             <div class="project-api-count">
-              <span class="f-sm">{{ $t("接口数") }}:</span>
+              <span class="f-sm">{{ t("接口数") }}:</span>
               <span class="teal">{{ item.docNum || 0 }}</span>
             </div>
             <div class="ml-auto">
-              <el-button type="default" data-testid="home-project-enter-btn" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
+              <el-button type="default" data-testid="home-project-enter-btn" @click="handleJumpToProject(item)">{{ t("编辑") }}</el-button>
             </div>
           </div>
         </div>

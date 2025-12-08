@@ -73,7 +73,7 @@
         </el-table-column>
       </template>
     </el-table>
-    <el-dialog v-model="dialogVisible" :title="`【${currentSelectNav?.label}】节点的 ${$t('cookie值')}`" width="80%"
+    <el-dialog v-model="dialogVisible" :title="`【${currentSelectNav?.label}】节点的 ${t('cookie值')}`" width="80%"
       :close-on-click-modal="false">
       <el-table :data="cookies"  border height="65vh" size="small">
         <el-table-column align="center" prop="name" label="Name"></el-table-column>
@@ -89,7 +89,7 @@
             </span>
             <div v-else class="orange">
               <div>{{ scope.row.domain }}</div>
-              <div>{{ $t('已忽略，非本域名') }}</div>
+              <div>{{ t('已忽略，非本域名') }}</div>
             </div>
           </template>
         </el-table-column>

@@ -1,7 +1,7 @@
 <template>
   <div class="cache-management">
     <div class="page-title">
-      <h2>{{ $t('本地数据管理') }}</h2>
+      <h2>{{ t('本地数据管理') }}</h2>
     </div>
     <div class="statistics">
       <!-- localStorage 本地数据卡片 -->
@@ -14,7 +14,7 @@
           <div class="card-icon">
             <i class="iconfont iconcipan"></i>
           </div>
-          <div class="card-title">{{ $t('localStorage 数据') }}</div>
+          <div class="card-title">{{ t('localStorage 数据') }}</div>
           <div class="card-refresh">
             <div
               class="refresh-btn"
@@ -41,7 +41,7 @@
           <div class="card-icon">
             <i class="iconfont iconodbc"></i>
           </div>
-          <div class="card-title">{{ $t('IndexedDB 本地数据') }}</div>
+          <div class="card-title">{{ t('IndexedDB 本地数据') }}</div>
           <div class="card-refresh">
             <div
               class="refresh-btn"
@@ -58,8 +58,8 @@
         <div class="card-body">
           <div class="cache-size">{{ formatUnit(cacheInfo.indexedDBSize === -1 ? 0 : cacheInfo.indexedDBSize, 'bytes') }}</div>
         </div>
-        <div v-if="!indexedDBLoading && cacheInfo.indexedDBSize === -1" class="gray-500" @click.stop="getIndexedDB">{{ $t('点击计算本地数据大小') }}</div>
-        <div v-if="indexedDBLoading" class="gray-500">{{ $t('计算中...') }}</div>
+        <div v-if="!indexedDBLoading && cacheInfo.indexedDBSize === -1" class="gray-500" @click.stop="getIndexedDB">{{ t('点击计算本地数据大小') }}</div>
+        <div v-if="indexedDBLoading" class="gray-500">{{ t('计算中...') }}</div>
       </div>
       <!-- 数据备份卡片 -->
       <div 
@@ -71,11 +71,11 @@
           <div class="card-icon">
             <i class="iconfont iconexport"></i>
           </div>
-          <div class="card-title">{{ $t('数据备份/导出') }}</div>
+          <div class="card-title">{{ t('数据备份/导出') }}</div>
         </div>
         <div class="card-body">
           <div class="card-description">
-            <div>{{ $t('备份所有本地数据 | 导出本地数据') }}</div>
+            <div>{{ t('备份所有本地数据 | 导出本地数据') }}</div>
           </div>
         </div>
       </div>
@@ -89,10 +89,10 @@
           <div class="card-icon">
             <i class="iconfont iconimport"></i>
           </div>
-          <div class="card-title">{{ $t('数据恢复/导入') }}</div>
+          <div class="card-title">{{ t('数据恢复/导入') }}</div>
         </div>
         <div class="card-body">
-          <div class="card-description">{{ $t('从备份中恢复数据') }}</div>
+          <div class="card-description">{{ t('从备份中恢复数据') }}</div>
         </div>
       </div>
     </div>

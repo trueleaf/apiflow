@@ -190,7 +190,7 @@
         </div>
         <div v-else-if="formatedText.length === 0 && httpNodeResponseStore.requestState === 'response'" class="json-loading">
           <el-icon size="16"><Loading /></el-icon>
-          <span>{{ $t('等待数据返回') }}</span>
+          <span>{{ t('等待数据返回') }}</span>
         </div>
       </div>
       <!-- excel -->

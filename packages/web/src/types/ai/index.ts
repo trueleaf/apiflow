@@ -10,6 +10,7 @@ export type AskMessage = {
   content: string;
   timestamp: string;
   sessionId: string;
+  mode: 'agent' | 'ask';
 }
 export type TextResponseMessage = {
   id: string;
@@ -17,6 +18,7 @@ export type TextResponseMessage = {
   content: string;
   timestamp: string;
   sessionId: string;
+  mode: 'agent' | 'ask';
 }
 export type LoadingMessage = {
   id: string;
@@ -24,6 +26,7 @@ export type LoadingMessage = {
   content: string;
   timestamp: string;
   sessionId: string;
+  mode: 'agent' | 'ask';
 }
 export type AgentToolCallStatus = 'pending' | 'running' | 'success' | 'error' | 'waiting-confirm' | 'cancelled'
 export type AgentToolCallInfo = {
@@ -47,6 +50,7 @@ export type AgentExecutionMessage = {
   status: 'pending' | 'running' | 'success' | 'error';
   toolCalls: AgentToolCallInfo[];
   thinkingContent?: string;
+  mode: 'agent' | 'ask';
 }
 export type AgentViewMessage = AskMessage | LoadingMessage | TextResponseMessage | AgentExecutionMessage;
 

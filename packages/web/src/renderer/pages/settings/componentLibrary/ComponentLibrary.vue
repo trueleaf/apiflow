@@ -1,12 +1,12 @@
 <template>
   <div class="component-library">
     <div class="page-title">
-      <h2>{{ $t('组件库') }}</h2>
+      <h2>{{ t('组件库') }}</h2>
     </div>
 
     <div class="library-container">
       <div class="search-bar">
-        <input type="text" v-model="searchTerm" :placeholder="$t('搜索组件...')" />
+        <input type="text" v-model="searchTerm" :placeholder="t('搜索组件...')" />
       </div>
       
       <div class="components-grid">
@@ -19,20 +19,20 @@
             <p>{{ component.description }}</p>
           </div>
           <div class="component-actions">
-            <button @click="viewComponentDetails(component)">{{ $t('查看详情') }}</button>
+            <button @click="viewComponentDetails(component)">{{ t('查看详情') }}</button>
           </div>
         </div>
       </div>
       
       <div v-if="filteredComponents.length === 0" class="no-results">
-        {{ $t('未找到匹配的组件') }}
+        {{ t('未找到匹配的组件') }}
       </div>
       
       <!-- 组件详情区域 -->
       <div v-if="selectedComponent" class="component-detail-container">
         <div class="detail-header">
-          <h3 class="detail-title">{{ selectedComponent.name }} {{ $t('组件演示') }}</h3>
-          <button class="close-btn" @click="closeDetail">{{ $t('关闭') }}</button>
+          <h3 class="detail-title">{{ selectedComponent.name }} {{ t('组件演示') }}</h3>
+          <button class="close-btn" @click="closeDetail">{{ t('关闭') }}</button>
         </div>
         <div class="detail-content">
           <CardComponent v-if="selectedComponent.name === 'Card'" />

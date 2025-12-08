@@ -229,6 +229,17 @@ const handleSend = async () => {
   
   // Agent 模式
   if (mode.value === 'agent') {
+    const timestamp = new Date().toISOString()
+    const askMessageId = nanoid()
+    const askMessage: AskMessage = {
+      id: askMessageId,
+      type: 'ask',
+      content: message,
+      timestamp,
+      sessionId: agentViewStore.currentSessionId,
+      mode: 'agent'
+    }
+    await agentViewStore.addAgentViewMessage(askMessage)
     await runAgent({ prompt: message })
     return
   }
@@ -246,7 +257,8 @@ const handleSend = async () => {
     type: 'ask',
     content: message,
     timestamp,
-    sessionId: agentViewStore.currentSessionId
+    sessionId: agentViewStore.currentSessionId,
+    mode: 'ask'
   }
   
   const loadingMessage: LoadingMessage = {
@@ -254,7 +266,8 @@ const handleSend = async () => {
     type: 'loading',
     content: '',
     timestamp,
-    sessionId: agentViewStore.currentSessionId
+    sessionId: agentViewStore.currentSessionId,
+    mode: 'ask'
   }
   
   await agentViewStore.addAgentViewMessage(askMessage)
@@ -282,7 +295,8 @@ const handleSend = async () => {
       type: 'textResponse',
       content: `${t('错误')}: ${t('AI功能不可用')}`,
       timestamp,
-      sessionId: agentViewStore.currentSessionId
+      sessionId: agentViewStore.currentSessionId,
+      mode: 'ask'
     }
     
     agentViewStore.addAgentViewMessage(errorMessage)
@@ -328,7 +342,8 @@ const handleSend = async () => {
       type: 'textResponse',
       content: `${t('错误')}: ${error instanceof Error ? error.message : t('未知错误')}`,
       timestamp,
-      sessionId: agentViewStore.currentSessionId
+      sessionId: agentViewStore.currentSessionId,
+      mode: 'ask'
     }
     
     agentViewStore.addAgentViewMessage(errorMessage)
@@ -364,7 +379,8 @@ const handleStreamData = (requestId: string, chunk: string) => {
             type: 'textResponse',
             content,
             timestamp,
-            sessionId: agentViewStore.currentSessionId
+            sessionId: agentViewStore.currentSessionId,
+            mode: 'ask'
           }
           
           agentViewStore.addAgentViewMessage(responseMessage)
@@ -414,7 +430,8 @@ const handleStreamError = (requestId: string, error: string) => {
     type: 'textResponse',
     content: `${t('错误')}: ${error}`,
     timestamp,
-    sessionId: agentViewStore.currentSessionId
+    sessionId: agentViewStore.currentSessionId,
+    mode: 'ask'
   }
 
   agentViewStore.addAgentViewMessage(errorMessage)

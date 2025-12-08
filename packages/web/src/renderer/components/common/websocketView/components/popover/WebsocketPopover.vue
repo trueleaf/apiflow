@@ -46,7 +46,7 @@
                   :class="{ active: activeTab === 'content' }"
                   @click="setActiveTab('content')"
                 >
-                  {{ $t('消息内容') }}
+                  {{ t('消息内容') }}
                 </div>
               </div>
               <div class="tab-content">

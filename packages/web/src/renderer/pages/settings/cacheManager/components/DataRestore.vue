@@ -3,12 +3,12 @@
     <!-- 数据导入配置 -->
     <div class="step-container">
       <div class="step-header">
-        <div class="section-title">{{ $t('数据导入') }}</div>
-        <div class="gray-600">{{ $t('从备份文件中恢复数据，支持导入离线版本或在线版本导出的数据') }}</div>
+        <div class="section-title">{{ t('数据导入') }}</div>
+        <div class="gray-600">{{ t('从备份文件中恢复数据，支持导入离线版本或在线版本导出的数据') }}</div>
       </div>
       <!-- 文件选择配置 -->
       <div class="file-config">
-        <div class="config-title required">{{ $t('选择备份文件') }}</div>
+        <div class="config-title required">{{ t('选择备份文件') }}</div>
           <div class="file-selector d-flex a-center" style="gap: 12px;">
             <el-button 
               v-if="importStatus.status === 'notStarted' || importStatus.status === 'fileSelected'"
@@ -16,7 +16,7 @@
               size="small"
               @click="handleSelectFile"
             >
-              {{ importStatus.filePath ? $t('重新选择') : $t('选择文件') }}
+              {{ importStatus.filePath ? t('重新选择') : t('选择文件') }}
             </el-button>
             <span v-if="importStatus.filePath" class="selected-path" style="color: var(--primary); font-size: 13px; word-break: break-all;">
               {{ importStatus.filePath }}
@@ -26,21 +26,21 @@
 
       <!-- 高级选项 -->
       <div class="advanced-options">
-        <div class="config-title">{{ $t('导入选项') }}</div>
+        <div class="config-title">{{ t('导入选项') }}</div>
         <div class="option-group">
           <el-radio-group v-model="importConfig.importMode">
-            <el-radio value="merge">{{ $t('合并模式') }}</el-radio>
-            <el-radio value="override">{{ $t('覆盖模式') }}</el-radio>
+            <el-radio value="merge">{{ t('合并模式') }}</el-radio>
+            <el-radio value="override">{{ t('覆盖模式') }}</el-radio>
           </el-radio-group>
           <el-alert 
             v-if="importConfig.importMode === 'merge'"
-            :title="$t('合并模式：新数据将与现有数据合并，相同key的数据将被覆盖')"
+            :title="t('合并模式：新数据将与现有数据合并，相同key的数据将被覆盖')"
             type="info"
             :closable="false"
           />
           <el-alert 
             v-if="importConfig.importMode === 'override'"
-            :title="$t('覆盖模式：清空现有数据后导入新数据')"
+            :title="t('覆盖模式：清空现有数据后导入新数据')"
             type="warning"
             :closable="false"
           />
@@ -50,12 +50,12 @@
       <!-- 导入操作 -->
       <div class="import-actions">
         <div class="data-summary d-flex a-center" v-if="importStatus.status === 'fileSelected' && estimatedDataCount > 0">
-          <span class="data-label">{{ $t('预计导入数据量：') }}</span>
+          <span class="data-label">{{ t('预计导入数据量：') }}</span>
           <span class="data-count">{{ estimatedDataCount }}</span>
-          <span class="data-unit">{{ $t('项') }}</span>
+          <span class="data-unit">{{ t('项') }}</span>
         </div>
         <div class="data-summary" v-else-if="importStatus.status === 'fileSelected'">
-          <span class="data-label">{{ $t('正在分析文件...') }}</span>
+          <span class="data-label">{{ t('正在分析文件...') }}</span>
         </div>
         <!-- 文件错误提示 -->
         <el-alert v-if="fileErrorMessage" :title="fileErrorMessage" type="warning" :closable="false" class="mb-1" />
@@ -67,7 +67,7 @@
           :loading="isStartingImport"
           :disabled="!importStatus.filePath"
         >
-          {{ $t('开始导入') }}
+          {{ t('开始导入') }}
         </el-button>
       </div>
     </div>
@@ -77,7 +77,7 @@
       <div class="progress-wrap">
         <el-progress :percentage="importStatus.progress" />
         <div class="progress-info">
-          <span>{{ $t('已处理：') }}{{ importStatus.processedNum }} / {{ importStatus.itemNum }}</span>
+          <span>{{ t('已处理：') }}{{ importStatus.processedNum }} / {{ importStatus.itemNum }}</span>
         </div>
         <div class="status-text text-center" v-if="statusMessage">{{ statusMessage }}</div>
       </div>
@@ -86,20 +86,20 @@
     <!-- 导入完成 -->
     <div class="step-container" v-if="importStatus.status === 'completed'">
       <div class="result-content">
-        <div class="result-count">{{ $t('导入成功：共导入 {count} 项数据', { count: importStatus.itemNum }) }}</div>
-        <el-button type="primary" @click="handleResetImport">{{ $t('再次导入') }}</el-button>
+        <div class="result-count">{{ t('导入成功：共导入 {count} 项数据', { count: importStatus.itemNum }) }}</div>
+        <el-button type="primary" @click="handleResetImport">{{ t('再次导入') }}</el-button>
       </div>
     </div>
 
     <!-- 导入错误 -->
     <div class="step-container" v-if="importStatus.status === 'error'">
       <div class="step-header">
-        <div class="section-title">{{ $t('导入失败') }}</div>
+        <div class="section-title">{{ t('导入失败') }}</div>
       </div>
 
       <div class="result-content text-center">
         <div class="error-message" v-if="statusMessage">{{ statusMessage }}</div>
-        <el-button type="primary" @click="handleResetImport">{{ $t('重试') }}</el-button>
+        <el-button type="primary" @click="handleResetImport">{{ t('重试') }}</el-button>
       </div>
     </div>
   </div>

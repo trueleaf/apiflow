@@ -1,7 +1,7 @@
 <template>
   <div class="about-container">
     <div class="page-header">
-      <h2>{{ $t('关于') }}</h2>
+      <h2>{{ t('关于') }}</h2>
     </div>
 
     <div class="about-grid">
@@ -44,7 +44,7 @@
           <div class="card-header">
             <div class="header-title">
               <RefreshCw :size="18" class="header-icon" />
-              <h3>{{ $t('软件更新') }}</h3>
+              <h3>{{ t('软件更新') }}</h3>
             </div>
             <el-tag v-if="hasUpdate" type="danger" size="small" effect="dark">New</el-tag>
           </div>
@@ -53,39 +53,39 @@
             <div class="update-status-row">
               <div class="status-text">
                 <p class="main-text">
-                  {{ updateState === 'idle' ? $t('当前已是最新版本') : 
-                     updateState === 'checking' ? $t('正在检查更新...') :
-                     updateState === 'available' ? $t('发现新版本') :
-                     updateState === 'downloading' ? $t('正在下载更新...') :
-                     updateState === 'downloaded' ? $t('更新已就绪') : '' }}
+                  {{ updateState === 'idle' ? t('当前已是最新版本') : 
+                     updateState === 'checking' ? t('正在检查更新...') :
+                     updateState === 'available' ? t('发现新版本') :
+                     updateState === 'downloading' ? t('正在下载更新...') :
+                     updateState === 'downloaded' ? t('更新已就绪') : '' }}
                 </p>
-                <p class="sub-text" v-if="updateState === 'idle'">{{ $t('检查是否有可用的更新版本') }}</p>
+                <p class="sub-text" v-if="updateState === 'idle'">{{ t('检查是否有可用的更新版本') }}</p>
               </div>
 
               <div class="action-area">
                 <el-button v-if="updateState === 'idle'" @click="handleCheckUpdate">
-                  {{ $t('检查更新') }}
+                  {{ t('检查更新') }}
                 </el-button>
                 
                 <el-button v-else-if="updateState === 'checking'" loading disabled>
-                  {{ $t('检查中') }}
+                  {{ t('检查中') }}
                 </el-button>
                 
                 <el-button v-else-if="updateState === 'available'" type="primary" @click="handleDownloadUpdate">
                   <template #icon><Download :size="14" /></template>
-                  {{ $t('下载更新') }}
+                  {{ t('下载更新') }}
                 </el-button>
                 
                 <div v-else-if="updateState === 'downloading'" class="download-progress">
                   <el-progress :percentage="downloadProgress" :stroke-width="6" :width="120" />
                   <el-button link type="info" size="small" @click="handleCancelDownload">
-                    {{ $t('取消') }}
+                    {{ t('取消') }}
                   </el-button>
                 </div>
                 
                 <el-button v-else-if="updateState === 'downloaded'" type="success" @click="handleInstallUpdate">
                   <template #icon><PackageCheck :size="14" /></template>
-                  {{ $t('立即重启') }}
+                  {{ t('立即重启') }}
                 </el-button>
               </div>
             </div>
@@ -93,17 +93,17 @@
             <div class="divider"></div>
 
             <div class="update-source-config">
-              <span class="config-label">{{ $t('更新源') }}</span>
+              <span class="config-label">{{ t('更新源') }}</span>
               <div class="config-control">
                 <el-radio-group v-model="updateSourceType" @change="handleUpdateSourceChange" size="small">
                   <el-radio value="github" label="github">GitHub</el-radio>
-                  <el-radio value="custom" label="custom">{{ $t('自定义') }}</el-radio>
+                  <el-radio value="custom" label="custom">{{ t('自定义') }}</el-radio>
                 </el-radio-group>
                 
                 <div v-if="updateSourceType === 'custom'" class="custom-url-input">
                   <el-input
                     v-model="customUpdateUrl"
-                    :placeholder="$t('请输入自定义更新服务器地址')"
+                    :placeholder="t('请输入自定义更新服务器地址')"
                     size="small"
                     @blur="handleSaveUpdateSource"
                   >

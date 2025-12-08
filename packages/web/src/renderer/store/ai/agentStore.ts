@@ -43,7 +43,8 @@ const createAgentExecutionMessage = (sessionId: string): AgentExecutionMessage =
 	sessionId,
 	timestamp: new Date().toISOString(),
 	status: 'running',
-	toolCalls: []
+	toolCalls: [],
+	mode: 'agent'
 })
 // 创建结束消息
 const createCompletionMessage = (sessionId: string, content: string): TextResponseMessage => ({
@@ -51,7 +52,8 @@ const createCompletionMessage = (sessionId: string, content: string): TextRespon
 	type: 'textResponse',
 	content: content || '任务已完成',
 	timestamp: new Date().toISOString(),
-	sessionId
+	sessionId,
+	mode: 'agent'
 })
 export const runAgent = async ({ prompt }: { prompt: string }) => {
 	const llmClientStore = useLLMClientStore()

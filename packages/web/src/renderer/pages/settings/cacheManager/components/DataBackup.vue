@@ -3,12 +3,12 @@
     <!-- 数据导出配置 -->
     <div class="step-container">
       <div class="step-header">
-        <div class="section-title">{{ $t('数据导出') }}</div>
-        <div class="gray-600">{{ $t('导出数据可用于备份，也可以导入到在线版本或离线版本中') }}</div>
+        <div class="section-title">{{ t('数据导出') }}</div>
+        <div class="gray-600">{{ t('导出数据可用于备份，也可以导入到在线版本或离线版本中') }}</div>
       </div>
       <!-- 保存路径配置 -->
       <div class="path-config">
-        <div class="config-title required">{{ $t('保存路径') }}</div>
+        <div class="config-title required">{{ t('保存路径') }}</div>
           <div class="path-selector d-flex a-center" style="gap: 12px;">
             <el-button 
               v-if="exportStatus.status === 'notStarted' || exportStatus.status === 'pathSelected' || exportStatus.status === 'error' || exportStatus.status === 'completed'"
@@ -16,7 +16,7 @@
               size="small"
               @click="handleSelectPath"
             >
-              {{ exportStatus.filePath ? $t('重新选择') : $t('选择路径') }}
+              {{ exportStatus.filePath ? t('重新选择') : t('选择路径') }}
             </el-button>
             <span v-if="exportStatus.filePath" class="selected-path" style="color: var(--primary); font-size: 13px; word-break: break-all;">
               {{ exportStatus.filePath }}
@@ -26,24 +26,24 @@
 
       <!-- 高级选项 -->
       <div class="advanced-options">
-        <div class="config-title">{{ $t('高级选项') }}</div>
+        <div class="config-title">{{ t('高级选项') }}</div>
         <div>
           <el-checkbox v-model="exportConfig.includeResponseCache">
-            {{ $t('导出返回值缓存') }}
+            {{ t('导出返回值缓存') }}
           </el-checkbox>
         </div>
-        <el-alert v-if="exportConfig.includeResponseCache" :title="$t('导出返回值缓存会花费更长时间，')" type="warning" :closable="false" />
+        <el-alert v-if="exportConfig.includeResponseCache" :title="t('导出返回值缓存会花费更长时间，')" type="warning" :closable="false" />
       </div>
 
       <!-- 导出操作 -->
       <div class="export-actions">
         <div class="data-summary d-flex a-center" v-if="exportStatus.status === 'pathSelected' && estimatedDataCount > 0">
-          <span class="data-label">{{ $t('预计数据量：') }}</span>
+          <span class="data-label">{{ t('预计数据量：') }}</span>
           <span class="data-count">{{ estimatedDataCount }}</span>
-          <span class="data-unit">{{ $t('项') }}</span>
+          <span class="data-unit">{{ t('项') }}</span>
         </div>
         <div class="data-summary" v-else-if="exportStatus.status === 'pathSelected'">
-          <span class="data-label">{{ $t('正在计算数据量...') }}</span>
+          <span class="data-label">{{ t('正在计算数据量...') }}</span>
         </div>
         <!-- 路径错误提示 -->
         <el-alert v-if="pathErrorMessage" :title="pathErrorMessage" type="warning" :closable="false" class="mb-1" />
@@ -54,7 +54,7 @@
           @click="handleStartExport"
           :loading="isStartingExport"
         >
-          {{ $t('开始导出') }}
+          {{ t('开始导出') }}
         </el-button>
       </div>
     </div>
@@ -70,20 +70,20 @@
     <!-- 导出完成 -->
     <div class="step-container" v-if="exportStatus.status === 'completed'">
       <div class="result-content">
-        <div class="result-count">{{ $t('导出成功：共导出 {count} 项数据', { count: exportStatus.itemNum }) }}</div>
-        <el-button type="primary" @click="handleStartExport">{{ $t('再次导出') }}</el-button>
+        <div class="result-count">{{ t('导出成功：共导出 {count} 项数据', { count: exportStatus.itemNum }) }}</div>
+        <el-button type="primary" @click="handleStartExport">{{ t('再次导出') }}</el-button>
       </div>
     </div>
 
     <!-- 导出错误 -->
     <div class="step-container" v-if="exportStatus.status === 'error'">
       <div class="step-header">
-        <div class="section-title">{{ $t('导出失败') }}</div>
+        <div class="section-title">{{ t('导出失败') }}</div>
       </div>
 
       <div class="result-content text-center">
         <div class="error-message" v-if="statusMessage">{{ statusMessage }}</div>
-        <el-button type="primary" @click="handleStartExport">{{ $t('重试') }}</el-button>
+        <el-button type="primary" @click="handleStartExport">{{ t('重试') }}</el-button>
       </div>
     </div>
   </div>

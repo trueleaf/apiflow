@@ -10,7 +10,7 @@
       <ClRichInput
         v-model="connectionUrl"
         class="url-rich-input"
-        :placeholder="$t('请输入WebSocket连接地址')"
+        :placeholder="t('请输入WebSocket连接地址')"
         :trim-on-paste="true"
         :min-height="30"
         disable-history

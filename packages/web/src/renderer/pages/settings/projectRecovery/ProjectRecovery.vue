@@ -1,14 +1,14 @@
 <template>
   <div class="project-recovery">
     <div class="page-title">
-      <h2>{{ $t('项目回收站') }}</h2>
-      <p class="subtitle">{{ $t('管理已删除的项目，可以恢复到项目列表') }}</p>
+      <h2>{{ t('项目回收站') }}</h2>
+      <p class="subtitle">{{ t('管理已删除的项目，可以恢复到项目列表') }}</p>
     </div>
 
     <div class="search-toolbar">
       <el-input
         v-model="searchKeyword"
-        :placeholder="$t('搜索项目名称')"
+        :placeholder="t('搜索项目名称')"
         clearable
         class="search-input"
       >
@@ -21,19 +21,19 @@
         type="primary"
         @click="handleBatchRecover"
       >
-        {{ $t('恢复选中') }} ({{ selectedProjects.length }})
+        {{ t('恢复选中') }} ({{ selectedProjects.length }})
       </el-button>
     </div>
 
     <div v-if="loading" class="loading-state">
       <Loader2 :size="40" class="loading-icon" />
-      <p>{{ $t('加载中...') }}</p>
+      <p>{{ t('加载中...') }}</p>
     </div>
 
     <div v-else-if="filteredProjects.length === 0" class="empty-state">
       <Trash2 :size="64" :stroke-width="1.5" />
-      <p class="empty-text">{{ $t('回收站为空') }}</p>
-      <p class="empty-description">{{ $t('已删除的项目将在此处保留') }}</p>
+      <p class="empty-text">{{ t('回收站为空') }}</p>
+      <p class="empty-description">{{ t('已删除的项目将在此处保留') }}</p>
     </div>
 
     <div v-else class="project-wrap">
@@ -56,7 +56,7 @@
             </div>
           </div>
           <div class="operator">
-            <div :title="$t('恢复')" @click="handleRecover(project._id)">
+            <div :title="t('恢复')" @click="handleRecover(project._id)">
               <el-icon :size="16">
                 <RotateCcw :size="16" />
               </el-icon>
@@ -64,18 +64,18 @@
           </div>
         </div>
         <div class="project-meta">
-          <span>{{ $t("删除时间") }}: {{ formatDeleteTime(project.deletedAt) }}</span>
+          <span>{{ t("删除时间") }}: {{ formatDeleteTime(project.deletedAt) }}</span>
         </div>
         <div class="project-meta">
-          <span>{{ $t("创建者") }}: {{ project.owner?.name || '-' }}</span>
+          <span>{{ t("创建者") }}: {{ project.owner?.name || '-' }}</span>
         </div>
         <div class="project-bottom">
           <div class="project-api-count">
-            <span class="f-sm">{{ $t("接口数") }}:</span>
+            <span class="f-sm">{{ t("接口数") }}:</span>
             <span class="teal">{{ project.docNum || 0 }}</span>
           </div>
           <div class="ml-auto">
-            <el-button type="primary" @click="handleRecover(project._id)">{{ $t("恢复") }}</el-button>
+            <el-button type="primary" @click="handleRecover(project._id)">{{ t("恢复") }}</el-button>
           </div>
         </div>
       </div>

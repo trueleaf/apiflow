@@ -1,7 +1,7 @@
 <template>
   <div class="shortcuts-settings">
     <div class="page-header">
-      <h2>{{ $t('快捷键') }}</h2>
+      <h2>{{ t('快捷键') }}</h2>
     </div>
 
     <div class="search-bar">
@@ -9,16 +9,16 @@
         <Search class="search-icon" />
         <input
           v-model="searchQuery"
-          :placeholder="$t('搜索快捷键...')"
+          :placeholder="t('搜索快捷键...')"
           class="search-input"
         />
-        <button v-if="searchQuery" class="clear-btn" @click="searchQuery = ''" :title="$t('清空搜索')">
+        <button v-if="searchQuery" class="clear-btn" @click="searchQuery = ''" :title="t('清空搜索')">
           <X class="clear-icon" />
         </button>
       </div>
       <button class="reset-all-btn" @click="handleResetAll" :disabled="!hasAnyCustomKeys">
         <RotateCcw class="btn-icon" />
-        {{ $t('重置所有') }}
+        {{ t('重置所有') }}
       </button>
     </div>
 
@@ -40,7 +40,7 @@
             <div class="shortcut-keys-cell" v-if="editingShortcutId !== shortcut.id">
               <div class="keys-wrapper">
                 <div class="keys-group">
-                  <span v-if="shortcut.userSetKeys" class="keys-label">{{ $t('自定义') }}</span>
+                  <span v-if="shortcut.userSetKeys" class="keys-label">{{ t('自定义') }}</span>
                   <div class="keys-display" :class="{ custom: Boolean(shortcut.userSetKeys) }">
                     <div v-if="shortcut.userSetKeys" class="custom-icon">
                       <Sparkles class="icon" />
@@ -54,7 +54,7 @@
                   </div>
                 </div>
                 <div class="keys-group default-keys" v-if="shortcut.userSetKeys">
-                  <span class="keys-label">{{ $t('默认') }}</span>
+                  <span class="keys-label">{{ t('默认') }}</span>
                   <div class="keys-display">
                     <template v-for="(key, index) in parseKeys(shortcut.defaultKeys)" :key="index">
                       <kbd v-if="key !== '+'" class="key">{{ key }}</kbd>
@@ -68,31 +68,31 @@
             <div class="shortcut-keys-cell editing" v-else>
               <KeyRecorder
                 v-model="editingKeys"
-                :placeholder="$t('按下新快捷键')"
+                :placeholder="t('按下新快捷键')"
                 :conflict-message="conflictMessage"
                 @change="handleKeysChange"
               />
             </div>
 
             <div class="shortcut-actions-cell" v-if="editingShortcutId !== shortcut.id">
-              <button class="action-btn edit-btn" @click="handleEditShortcut(shortcut)" :title="$t('编辑')">
+              <button class="action-btn edit-btn" @click="handleEditShortcut(shortcut)" :title="t('编辑')">
                 <Pencil class="btn-icon" />
               </button>
               <button 
                 v-if="shortcut.userSetKeys" 
                 class="action-btn reset-btn" 
                 @click="handleResetSingle(shortcut)" 
-                :title="$t('重置为默认')"
+                :title="t('重置为默认')"
               >
                 <RotateCcw class="btn-icon" />
               </button>
             </div>
 
             <div class="shortcut-actions-cell editing" v-else>
-              <button class="action-btn save-btn" @click="handleSaveEdit" :disabled="!canSave" :title="$t('保存')">
+              <button class="action-btn save-btn" @click="handleSaveEdit" :disabled="!canSave" :title="t('保存')">
                 <Check class="btn-icon" />
               </button>
-              <button class="action-btn cancel-btn" @click="handleCancelEdit" :title="$t('取消')">
+              <button class="action-btn cancel-btn" @click="handleCancelEdit" :title="t('取消')">
                 <X class="btn-icon" />
               </button>
             </div>
@@ -102,7 +102,7 @@
 
       <div v-if="filteredShortcuts.length === 0" class="empty-state">
         <Search class="empty-icon" />
-        <div class="empty-text">{{ $t('未找到匹配的快捷键') }}</div>
+        <div class="empty-text">{{ t('未找到匹配的快捷键') }}</div>
       </div>
     </div>
   </div>

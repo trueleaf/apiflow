@@ -8,44 +8,44 @@
       <el-icon :size="18">
         <Back />
       </el-icon>
-      <span>{{ $t('返回上级') }}</span>
+      <span>{{ t('返回上级') }}</span>
     </div>
     <Card v-loading="loading" element-loading-background="var(--el-mask-color)">
       <div class="base-info px-3">
         <div class="w-50 flex0">
           <div class="d-flex a-center">
             <h2>{{ userInfo.realName || userInfo.loginName }}</h2>
-            <el-button link type="primary" text class="ml-3" @click="dialogVisible = true">{{ $t('修改密码') }}</el-button>
+            <el-button link type="primary" text class="ml-3" @click="dialogVisible = true">{{ t('修改密码') }}</el-button>
           </div>
           <div class="px-3">
-            <SLabelValue :label="$t('登录名称') + '：'" :value="userInfo.loginName" class="w-45" />
-            <SLabelValue :label="$t('手机号') + '：'" :value="userInfo.phone" class="w-45" />
-            <SLabelValue :label="$t('最后登录') + '：'" class="w-45">
+            <SLabelValue :label="t('登录名称') + '：'" :value="userInfo.loginName" class="w-45" />
+            <SLabelValue :label="t('手机号') + '：'" :value="userInfo.phone" class="w-45" />
+            <SLabelValue :label="t('最后登录') + '：'" class="w-45">
               <span class="orange">{{ formatDate(userInfo.lastLogin) }}</span>
             </SLabelValue>
           </div>
         </div>
       </div>
     </Card>
-    <el-dialog v-model="dialogVisible" :title="$t('修改密码')">
+    <el-dialog v-model="dialogVisible" :title="t('修改密码')">
       <el-form v-if="dialogVisible" ref="form" :model="formInfo" :rules="rules" label-width="150px">
-        <el-form-item :label="$t('原密码')" prop="oldPassword">
+        <el-form-item :label="t('原密码')" prop="oldPassword">
           <el-input v-model="formInfo.oldPassword" :size="config.renderConfig.layout.size" show-password
-            :placeholder="$t('请输入原密码')" class="w-100" maxlength="100"></el-input>
+            :placeholder="t('请输入原密码')" class="w-100" maxlength="100"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('新密码')" prop="newPassword">
+        <el-form-item :label="t('新密码')" prop="newPassword">
           <el-input v-model="formInfo.newPassword" :size="config.renderConfig.layout.size" show-password
-            :placeholder="$t('请输入新密码')" class="w-100" maxlength="100"></el-input>
+            :placeholder="t('请输入新密码')" class="w-100" maxlength="100"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('确认密码')" prop="newPassword2">
+        <el-form-item :label="t('确认密码')" prop="newPassword2">
           <el-input v-model="formInfo.newPassword2" :size="config.renderConfig.layout.size" show-password
-            :placeholder="$t('请再次输入新密码')" class="w-100" maxlength="100"></el-input>
+            :placeholder="t('请再次输入新密码')" class="w-100" maxlength="100"></el-input>
         </el-form-item>
       </el-form>
       <template #footer>
         <div>
-          <el-button @click="dialogVisible = false">{{ $t('取消') }}</el-button>
-          <el-button :loading="loading2" type="primary" @click="handleChangePassword">{{ $t('确定') }}</el-button>
+          <el-button @click="dialogVisible = false">{{ t('取消') }}</el-button>
+          <el-button :loading="loading2" type="primary" @click="handleChangePassword">{{ t('确定') }}</el-button>
         </div>
       </template>
     </el-dialog>

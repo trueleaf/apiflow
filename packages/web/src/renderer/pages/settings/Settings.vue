@@ -3,7 +3,7 @@
     <div class="tab-container">
       <div class="vertical-tabs">
         <div class="sidebar-title">
-          <span>{{ $t('基本设置') }}</span>
+          <span>{{ t('基本设置') }}</span>
         </div>
 
         <div class="menu-group">
@@ -15,7 +15,7 @@
         </div>
 
         <div class="sidebar-title sidebar-settings-title">
-          <span>{{ $t('其他设置') }}</span>
+          <span>{{ t('其他设置') }}</span>
         </div>
 
         <div class="menu-group">

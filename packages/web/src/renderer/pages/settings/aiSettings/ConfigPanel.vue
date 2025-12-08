@@ -2,8 +2,8 @@
   <section class="panel">
     <div class="panel-header">
       <div>
-        <h3>{{ $t('API Provider 配置') }}</h3>
-        <p>{{ $t('配置大语言模型服务提供商') }}</p>
+        <h3>{{ t('API Provider 配置') }}</h3>
+        <p>{{ t('配置大语言模型服务提供商') }}</p>
       </div>
     </div>
     <div class="panel-body">
@@ -11,7 +11,7 @@
         <div class="form-grid">
           <div class="form-item full-row">
             <div class="form-label">
-              {{ $t('API Provider') }}
+              {{ t('API Provider') }}
             </div>
             <el-select v-model="providerType" class="form-input" @change="handleProviderChange">
               <el-option label="DeepSeek" value="DeepSeek" />
@@ -22,20 +22,20 @@
           <template v-if="providerType === 'DeepSeek'">
             <div class="form-item">
               <div class="form-label">
-                {{ $t('API Key') }}
+                {{ t('API Key') }}
               </div>
               <el-input v-model="localApiKey" :type="showApiKey ? 'text' : 'password'"
-                :placeholder="$t('请输入 DeepSeek API Key')" clearable class="form-input">
+                :placeholder="t('请输入 DeepSeek API Key')" clearable class="form-input">
                 <template #suffix>
                   <span class="password-toggle" @click="showApiKey = !showApiKey">
-                    {{ showApiKey ? $t('隐藏') : $t('显示') }}
+                    {{ showApiKey ? t('隐藏') : t('显示') }}
                   </span>
                 </template>
               </el-input>
             </div>
             <div class="form-item">
               <div class="form-label">
-                {{ $t('Model') }}
+                {{ t('Model') }}
               </div>
               <el-select v-model="localModel" class="form-input">
                 <el-option label="deepseek-chat" value="deepseek-chat" />
@@ -47,45 +47,45 @@
           <template v-else>
             <div class="form-item full-row">
               <div class="form-label">
-                {{ $t('Base URL') }}
+                {{ t('Base URL') }}
               </div>
-              <el-input v-model="localBaseURL" :placeholder="$t('请输入 API Base URL')" clearable class="form-input" />
+              <el-input v-model="localBaseURL" :placeholder="t('请输入 API Base URL')" clearable class="form-input" />
             </div>
             <div class="form-item">
               <div class="form-label">
-                {{ $t('API Key') }}
+                {{ t('API Key') }}
               </div>
-              <el-input v-model="localApiKey" :type="showApiKey ? 'text' : 'password'" :placeholder="$t('请输入 API Key')"
+              <el-input v-model="localApiKey" :type="showApiKey ? 'text' : 'password'" :placeholder="t('请输入 API Key')"
                 clearable class="form-input">
                 <template #suffix>
                   <span class="password-toggle" @click="showApiKey = !showApiKey">
-                    {{ showApiKey ? $t('隐藏') : $t('显示') }}
+                    {{ showApiKey ? t('隐藏') : t('显示') }}
                   </span>
                 </template>
               </el-input>
             </div>
             <div class="form-item">
               <div class="form-label">
-                {{ $t('Model ID') }}
+                {{ t('Model ID') }}
               </div>
-              <el-input v-model="localModel" :placeholder="$t('请输入模型 ID')" clearable class="form-input" />
+              <el-input v-model="localModel" :placeholder="t('请输入模型 ID')" clearable class="form-input" />
             </div>
 
             <div class="form-item full-row">
               <div class="form-label">
-                {{ $t('Custom Headers') }}
-                <span class="label-hint">{{ $t('(可选)') }}</span>
+                {{ t('Custom Headers') }}
+                <span class="label-hint">{{ t('(可选)') }}</span>
               </div>
               <div class="custom-headers">
                 <div v-for="(header, index) in localCustomHeaders" :key="index" class="header-row">
-                  <el-input v-model="header.key" :placeholder="$t('Header Key')" class="header-key" />
-                  <el-input v-model="header.value" :placeholder="$t('Header Value')" class="header-value" />
+                  <el-input v-model="header.key" :placeholder="t('Header Key')" class="header-key" />
+                  <el-input v-model="header.value" :placeholder="t('Header Value')" class="header-value" />
                   <el-button type="danger" text class="header-remove" @click="removeHeader(index)">
-                    {{ $t('删除') }}
+                    {{ t('删除') }}
                   </el-button>
                 </div>
                 <el-button type="primary" text class="add-header-btn" @click="addHeader">
-                  {{ $t('添加请求头') }}
+                  {{ t('添加请求头') }}
                 </el-button>
               </div>
             </div>
@@ -95,23 +95,23 @@
     </div>
     <div class="panel-actions">
       <el-button type="primary" :loading="isLoading && !isStreaming" :disabled="!isConfigValid" @click="$emit('send')">
-        {{ isLoading && !isStreaming ? $t('发送中...') : $t('发送') }}
+        {{ isLoading && !isStreaming ? t('发送中...') : t('发送') }}
       </el-button>
       <el-button type="primary" :loading="isStreaming" :disabled="!isConfigValid" @click="$emit('streamSend')">
-        {{ isStreaming ? $t('接收中...') : $t('流式发送') }}
+        {{ isStreaming ? t('接收中...') : t('流式发送') }}
       </el-button>
       <el-button v-if="isLoading" type="danger" @click="$emit('cancel')">
-            {{ $t('取消') }}
+            {{ t('取消') }}
           </el-button>
       <el-button @click="handleReset">
-        {{ $t('重置') }}
+        {{ t('重置') }}
       </el-button>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useDebounceFn } from '@vueuse/core'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
@@ -146,8 +146,11 @@ const isConfigValid = computed(() => {
   }
   return hasApiKey && localModel.value.trim() !== ''
 })
+// 标记是否正在从 store 同步数据
+let isSyncingFromStore = false
 // 自动保存函数（防抖 300ms）
 const autoSave = useDebounceFn(() => {
+  if (isSyncingFromStore) return
   if (!isConfigValid.value) return
   const validHeaders = localCustomHeaders.value.filter(h => h.key.trim() !== '')
   llmClientStore.updateConfig({
@@ -160,12 +163,16 @@ const autoSave = useDebounceFn(() => {
 }, 300)
 // 从 store 同步数据到本地状态
 const syncFromStore = () => {
+  isSyncingFromStore = true
   const provider = llmClientStore.activeProvider
   providerType.value = provider.provider
   localApiKey.value = provider.apiKey
   localBaseURL.value = provider.baseURL
   localModel.value = provider.model
   localCustomHeaders.value = [...provider.customHeaders.map(h => ({ ...h }))]
+  nextTick(() => {
+    isSyncingFromStore = false
+  })
 }
 // 处理 Provider 类型变更
 const handleProviderChange = (type: LLMProviderType) => {
@@ -190,10 +197,10 @@ const handleReset = () => {
 watch([providerType, localApiKey, localBaseURL, localModel, localCustomHeaders], () => {
   autoSave()
 }, { deep: true })
-// 监听 store 变化
+// 监听 store 变化（禁用深度监听，避免循环触发）
 watch(() => llmClientStore.activeProvider, () => {
   syncFromStore()
-}, { deep: true })
+})
 
 onMounted(() => {
   llmClientStore.initFromCache()
