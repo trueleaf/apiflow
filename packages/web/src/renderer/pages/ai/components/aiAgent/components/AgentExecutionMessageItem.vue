@@ -62,6 +62,12 @@
           </div>
         </div>
       </div>
+      <div v-if="message.status === 'running' && !message.thinkingContent && message.toolCalls.length === 0" class="thinking-section">
+        <div class="thinking-loading">
+          <Loader2 :size="16" class="thinking-loading-icon" />
+          <span class="thinking-loading-text">{{ t('思考中') }}...</span>
+        </div>
+      </div>
       <div v-if="message.thinkingContent && message.toolCalls.length > 0" class="thinking-section">
         <div class="agent-thinking-item">
           <div class="thinking-header" @click="toggleThinkingExpand">
@@ -228,6 +234,23 @@ const getTokenUsage = (toolCall: { tokenUsage?: { total_tokens: number } }) => {
 }
 .thinking-section {
   margin-top: 4px;
+}
+.thinking-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--ai-action-hover-bg);
+  border-radius: 8px;
+}
+.thinking-loading-icon {
+  color: var(--theme-color);
+  animation: spin 1s linear infinite;
+  flex-shrink: 0;
+}
+.thinking-loading-text {
+  font-size: 13px;
+  color: var(--ai-text-secondary);
 }
 .agent-execution-container {
   background: var(--ai-bubble-ai-bg);

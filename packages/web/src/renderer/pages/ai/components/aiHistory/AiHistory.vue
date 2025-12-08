@@ -42,6 +42,7 @@
             <div class="ai-history-item-title">
               <MessageSquare :size="16" class="ai-history-item-icon" />
               <span>{{ getSessionTitle(session.sessionId) }}</span>
+              <span class="ai-history-item-mode" :class="`mode-${getSessionMode(session.sessionId)}`">{{ getSessionMode(session.sessionId) === 'agent' ? 'Agent' : 'Ask' }}</span>
               <span v-if="session.sessionId === agentViewStore.currentSessionId" class="ai-history-item-badge">{{ t('当前') }}</span>
             </div>
             <div class="ai-history-item-meta">
@@ -84,12 +85,13 @@ const { t } = useI18n()
 const agentViewStore = useAgentViewStore()
 const emit = defineEmits<{
   (event: 'back'): void
-  (event: 'select', sessionId: string): void
+  (event: 'select', sessionId: string, mode: 'agent' | 'ask'): void
 }>()
 
 const sessionList = ref<SessionInfo[]>([])
 const loading = ref(false)
 const sessionTitles = ref<Map<string, string>>(new Map())
+const sessionModes = ref<Map<string, 'agent' | 'ask'>>(new Map())
 
 const loadSessionList = async () => {
   loading.value = true
@@ -111,9 +113,15 @@ const loadSessionTitle = async (sessionId: string) => {
       ? firstAskMessage.content.substring(0, 30) + '...'
       : firstAskMessage.content
     sessionTitles.value.set(sessionId, title)
+    sessionModes.value.set(sessionId, firstAskMessage.mode)
   } else {
     sessionTitles.value.set(sessionId, t('新对话'))
+    const firstMessage = messages[0]
+    sessionModes.value.set(sessionId, firstMessage?.mode || 'ask')
   }
+}
+const getSessionMode = (sessionId: string): 'agent' | 'ask' => {
+  return sessionModes.value.get(sessionId) || 'ask'
 }
 const getSessionTitle = (sessionId: string): string => {
   return sessionTitles.value.get(sessionId) || t('新对话')
@@ -143,7 +151,7 @@ const handleSelectSession = (sessionId: string) => {
   if (sessionId === agentViewStore.currentSessionId) {
     emit('back')
   } else {
-    emit('select', sessionId)
+    emit('select', sessionId, getSessionMode(sessionId))
   }
 }
 const handleDeleteSession = async (sessionId: string) => {
@@ -367,6 +375,22 @@ onUnmounted(() => {
   border-radius: 3px;
   white-space: nowrap;
   flex-shrink: 0;
+}
+.ai-history-item-mode {
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 500;
+  border-radius: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.ai-history-item-mode.mode-agent {
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+}
+.ai-history-item-mode.mode-ask {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
 }
 .ai-history-item-icon {
   flex-shrink: 0;

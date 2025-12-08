@@ -178,11 +178,15 @@ const handleOpenHistory = () => {
   currentView.value = 'history'
 }
 const handleBackToChat = () => {
-  currentView.value = 'chat'
+  const firstMessage = agentViewStore.agentViewMessageList[0]
+  const sessionMode = firstMessage?.mode || mode.value
+  mode.value = sessionMode
+  currentView.value = sessionMode === 'agent' ? 'agent' : 'chat'
 }
-const handleSelectSession = async (sessionId: string) => {
+const handleSelectSession = async (sessionId: string, sessionMode: 'agent' | 'ask') => {
   await agentViewStore.loadMessagesForSession(sessionId)
-  currentView.value = 'chat'
+  mode.value = sessionMode
+  currentView.value = sessionMode === 'agent' ? 'agent' : 'chat'
 }
 const isAiConfigValid = () => {
   const provider = llmProviderCache.getLLMProvider()
