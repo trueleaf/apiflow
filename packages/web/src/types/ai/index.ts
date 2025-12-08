@@ -39,8 +39,11 @@ export type AgentToolCallInfo = {
     data: unknown;
   };
   error?: string;
-  startTime?: number;
-  endTime?: number;
+  tokenUsage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
 }
 export type AgentExecutionMessage = {
   id: string;

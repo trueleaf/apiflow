@@ -80,13 +80,13 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 			tool_calls: message.tool_calls
 		});
 		for (const toolCall of message.tool_calls) {
+			console.log(1, toolCall)
 			const args = JSON.parse(toolCall.function.arguments || '{}')
 			const toolCallInfo: AgentToolCallInfo = {
 				id: toolCall.id,
 				name: toolCall.function.name,
 				arguments: args,
 				status: 'running',
-				startTime: Date.now()
 			}
 			currentToolCalls = [...currentToolCalls, toolCallInfo]
 			agentViewStore.updateMessageInList(messageId, { toolCalls: currentToolCalls })

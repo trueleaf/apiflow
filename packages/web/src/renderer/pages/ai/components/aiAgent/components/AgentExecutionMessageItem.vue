@@ -27,7 +27,7 @@
                   <div class="tool-header-left">
                     <component :is="getToolStatusIcon(toolCall.status)" :size="14" class="tool-status-icon" :class="`status-${toolCall.status}`" />
                     <span class="tool-name">{{ toolCall.name }}</span>
-                    <span v-if="getToolDuration(toolCall)" class="tool-duration">{{ getToolDuration(toolCall) }}ms</span>
+                    <span v-if="getTokenUsage(toolCall)" class="tool-token">{{ getTokenUsage(toolCall) }} {{ t('tokens') }}</span>
                   </div>
                   <div class="tool-header-right">
                     <ChevronRight :size="14" class="tool-expand-icon" :class="{ 'is-expanded': expandedToolCalls.has(toolCall.id) }" />
@@ -64,14 +64,11 @@
       </div>
       <div v-if="message.thinkingContent" class="thinking-section">
         <div class="agent-thinking-item">
-          <div class="thinking-header" @click="toggleThinkingExpand">
-            <div class="thinking-header-left">
-              <Brain :size="14" class="thinking-icon" />
-              <span class="thinking-label">{{ t('思考过程') }}</span>
-            </div>
-            <ChevronRight :size="14" class="thinking-expand-icon" :class="{ 'is-expanded': isThinkingExpanded }" />
+          <div class="thinking-header">
+            <Brain :size="14" class="thinking-icon" />
+            <span class="thinking-label">{{ t('思考过程') }}</span>
           </div>
-          <div v-show="isThinkingExpanded" class="thinking-content">
+          <div class="thinking-content">
             <p class="thinking-text">{{ message.thinkingContent }}</p>
           </div>
         </div>
@@ -92,7 +89,6 @@ const props = defineProps<{
 const { t } = useI18n()
 const isExpanded = ref(true)
 const expandedToolCalls = ref(new Set<string>())
-const isThinkingExpanded = ref(false)
 const statusIcon = computed(() => {
   const icons = {
     pending: Clock,
@@ -113,9 +109,6 @@ const toggleToolCallExpand = (toolCallId: string) => {
     expandedToolCalls.value.add(toolCallId)
   }
 }
-const toggleThinkingExpand = () => {
-  isThinkingExpanded.value = !isThinkingExpanded.value
-}
 const getToolStatusIcon = (status: AgentToolCallStatus) => {
   const icons = {
     pending: Clock,
@@ -127,11 +120,8 @@ const getToolStatusIcon = (status: AgentToolCallStatus) => {
   }
   return icons[status]
 }
-const getToolDuration = (toolCall: { startTime?: number; endTime?: number }) => {
-  if (toolCall.startTime && toolCall.endTime) {
-    return toolCall.endTime - toolCall.startTime
-  }
-  return null
+const getTokenUsage = (toolCall: { tokenUsage?: { total_tokens: number } }) => {
+  return toolCall.tokenUsage?.total_tokens || null
 }
 </script>
 
@@ -338,7 +328,7 @@ const getToolDuration = (toolCall: { startTime?: number; endTime?: number }) => 
   color: var(--ai-bubble-ai-text);
   transition: color 0.2s ease;
 }
-.tool-duration {
+.tool-token {
   font-size: 11px;
   color: var(--ai-text-secondary);
   background: var(--ai-action-hover-bg);
@@ -428,32 +418,16 @@ const getToolDuration = (toolCall: { startTime?: number; endTime?: number }) => 
 .thinking-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  cursor: pointer;
-  user-select: none;
-}
-.thinking-header:hover {
-  background: var(--ai-tool-border);
-}
-.thinking-header-left {
-  display: flex;
-  align-items: center;
   gap: 6px;
+  padding: 8px 12px;
 }
 .thinking-icon {
   color: var(--ai-text-secondary);
+  flex-shrink: 0;
 }
 .thinking-label {
   font-size: 12px;
   color: var(--ai-text-secondary);
-}
-.thinking-expand-icon {
-  color: var(--ai-text-secondary);
-  transition: transform 0.2s ease;
-}
-.thinking-expand-icon.is-expanded {
-  transform: rotate(90deg);
 }
 .thinking-content {
   padding: 0 12px 12px;
@@ -464,5 +438,10 @@ const getToolDuration = (toolCall: { startTime?: number; endTime?: number }) => 
   line-height: 1.6;
   color: var(--ai-text-primary);
   white-space: pre-wrap;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

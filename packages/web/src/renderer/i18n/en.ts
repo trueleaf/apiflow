@@ -1188,6 +1188,7 @@ export default {
     'Agent执行': 'Agent Execution',
     '个工具调用': ' tool calls',
     '思考过程': 'Thinking Process',
+    'tokens': 'tokens',
     '参数': 'Arguments',
     '结果': 'Result',
 

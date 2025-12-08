@@ -1,7 +1,6 @@
 <template>
   <div class="ai-chat-view">
     <div class="ai-messages" ref="messagesRef">
-      {{ filteredMessages }}
       <div v-if="!isConfigValid" class="ai-empty-state ai-empty-state-setup">
         <AlertTriangle class="ai-empty-icon" :size="48" />
         <p class="ai-empty-text mb-2">{{ t('请先前往AI设置配置apiKey与apiUrl') }}</p>
