@@ -29,6 +29,14 @@ export type LoadingMessage = {
   mode: 'agent' | 'ask';
 }
 export type AgentToolCallStatus = 'pending' | 'running' | 'success' | 'error' | 'waiting-confirm' | 'cancelled'
+export type TodoItemStatus = 'pending' | 'running' | 'success' | 'error' | 'skipped'
+export type TodoItem = {
+  id: string;
+  stepNumber: number;
+  title: string;
+  description?: string;
+  status: TodoItemStatus;
+}
 export type AgentToolCallInfo = {
   id: string;
   name: string;
@@ -55,6 +63,8 @@ export type AgentExecutionMessage = {
   thinkingContent?: string;
   mode: 'agent' | 'ask';
   isStreaming?: boolean;
+  todoList?: TodoItem[];
+  currentTodoId?: string;
 }
 export type AgentViewMessage = AskMessage | LoadingMessage | TextResponseMessage | AgentExecutionMessage;
 

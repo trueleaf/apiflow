@@ -494,7 +494,6 @@ export const sendRequest = async () => {
   const copiedApidoc = cloneDeep(toRaw(httpNodeStore.$state.httpNodeInfo));
   const preSendMethod = getMethod(copiedApidoc);
   const preSendUrl = await getUrl(copiedApidoc);
-  console.log(123, preSendUrl)
   const preSendBody = await getBody(copiedApidoc);
   const preSendHeaders = await getHeaders(copiedApidoc);
   const objUrlencoded = await convertPropertyToObject(copiedApidoc.item.requestBody.urlencoded);

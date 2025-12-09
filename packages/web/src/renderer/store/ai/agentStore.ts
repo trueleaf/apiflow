@@ -5,9 +5,10 @@ import { useLLMClientStore } from './llmClientStore'
 import { useAgentViewStore } from './agentViewStore'
 import { openaiTools, rawTools, toolSummaries, getToolsByNames } from './tools/tools.ts'
 import { LLMessage } from '@src/types/ai/agent.type.ts'
-import type { AgentToolCallInfo, OpenAiToolDefinition } from '@src/types/ai'
+import type { AgentToolCallInfo, OpenAiToolDefinition, TodoItem } from '@src/types/ai'
 import { generateAgentExecutionMessage, generateCompletionMessage } from '@/helper'
 import { config } from '@src/config/config'
+import { nanoid } from 'nanoid'
 
 const agentSystemPrompt = `你是 Apiflow 智能代理，需使用工具完成用户意图。
 - 优先调用工具完成修改，避免凭空编造。
@@ -16,6 +17,22 @@ const agentSystemPrompt = `你是 Apiflow 智能代理，需使用工具完成�
 - 不生成与当前请求无关的代码或文本。
 - 创建接口时，如果用户只提供了简单描述而没有给出完整参数，优先使用simpleCreateHttpNode工具。
 - 重命名文件夹时，若用户未指定具体名称，优先使用autoRenameFoldersByContent工具，它会根据子节点内容自动生成不超过10个字的有意义命名并执行重命名。
+
+【任务计划规则】
+对于需要超过2个步骤完成的复杂任务，你必须在第一次响应时输出任务计划。
+任务计划格式要求：
+1. 在响应开头用 <todo_plan> 标签包裹JSON数组
+2. 每个步骤包含 stepNumber(步骤编号) 和 title(步骤标题，不超过15字)
+3. 步骤应该简洁明了，描述要执行的操作
+4. 完成每个步骤后，在响应中用 <current_step>步骤编号</current_step> 标记当前完成的步骤
+
+示例：
+<todo_plan>[{"stepNumber":1,"title":"查询现有接口"},{"stepNumber":2,"title":"创建新接口"},{"stepNumber":3,"title":"设置请求参数"}]</todo_plan>
+我来帮你完成这个任务。首先我需要查询现有接口...
+
+完成一个步骤后：
+<current_step>1</current_step>
+已完成接口查询，接下来创建新接口...
 `
 const toolSelectionSystemPrompt = `你是工具选择助手。根据用户意图从工具列表中选择所有可能用到的工具。
 返回格式必须是纯JSON数组，只包含工具名称，不要有其他内容。
@@ -46,6 +63,51 @@ const buildAgentContext = () => {
 		variables,
 		activeTab: activeNav ? { id: activeNav._id, label: activeNav.label, type: activeNav.tabType } : null,
 	}
+}
+// 从 LLM 响应中解析任务计划
+const parseTodoPlan = (content: string): TodoItem[] | null => {
+	const todoPlanMatch = content.match(/<todo_plan>([\s\S]*?)<\/todo_plan>/)
+	if (!todoPlanMatch) return null
+	try {
+		const planData = JSON.parse(todoPlanMatch[1]) as Array<{ stepNumber: number; title: string }>
+		if (!Array.isArray(planData) || planData.length <= 2) return null
+		return planData.map((item) => ({
+			id: nanoid(),
+			stepNumber: item.stepNumber,
+			title: item.title,
+			status: 'pending' as const,
+		}))
+	} catch {
+		return null
+	}
+}
+// 从 LLM 响应中解析当前完成的步骤编号
+const parseCurrentStep = (content: string): number | null => {
+	const stepMatch = content.match(/<current_step>(\d+)<\/current_step>/)
+	if (!stepMatch) return null
+	return parseInt(stepMatch[1], 10)
+}
+// 更新 todoList 中指定步骤的状态
+const updateTodoItemStatus = (
+	todoList: TodoItem[],
+	stepNumber: number,
+	status: TodoItem['status']
+): TodoItem[] => {
+	return todoList.map((item) =>
+		item.stepNumber === stepNumber ? { ...item, status } : item
+	)
+}
+// 标记当前步骤为进行中
+const markStepAsRunning = (
+	todoList: TodoItem[],
+	stepNumber: number
+): TodoItem[] => {
+	return todoList.map((item) => {
+		if (item.stepNumber === stepNumber) {
+			return { ...item, status: 'running' as const }
+		}
+		return item
+	})
 }
 // 构建历史对话消息
 const buildHistoryMessages = (agentViewStore: ReturnType<typeof useAgentViewStore>): LLMessage[] => {
@@ -97,21 +159,59 @@ const executeAgentLoop = async (
 ): Promise<{ content: string; needFallback: boolean; hasToolCalls: boolean }> => {
 	let currentToolCalls: AgentToolCallInfo[] = []
 	let hasToolCalls = false
+	let todoList: TodoItem[] = []
+	let lastCompletedStep = 0
 	let currentResponse = await llmClientStore.chat({ messages, tools })
 	for (let iteration = 0; iteration < config.renderConfig.agentConfig.maxIterations; iteration++) {
 		const { message, finish_reason } = currentResponse.choices[0]
-		if (message.content && finish_reason === 'tool_calls' && message.tool_calls?.length) {
-			agentViewStore.updateMessageInList(messageId, { thinkingContent: message.content })
+		const messageContent = message.content || ''
+		// 解析任务计划（仅在第一次迭代时）
+		if (iteration === 0 && todoList.length === 0) {
+			const parsedTodoList = parseTodoPlan(messageContent)
+			if (parsedTodoList) {
+				todoList = parsedTodoList
+				// 标记第一个步骤为进行中
+				todoList = markStepAsRunning(todoList, 1)
+				agentViewStore.updateMessageInList(messageId, { todoList, currentTodoId: todoList[0]?.id })
+			}
+		}
+		// 解析当前完成的步骤
+		const completedStep = parseCurrentStep(messageContent)
+		if (completedStep && completedStep > lastCompletedStep && todoList.length > 0) {
+			// 标记已完成的步骤
+			todoList = updateTodoItemStatus(todoList, completedStep, 'success')
+			lastCompletedStep = completedStep
+			// 标记下一个步骤为进行中
+			const nextStep = completedStep + 1
+			const nextTodoItem = todoList.find(item => item.stepNumber === nextStep)
+			if (nextTodoItem) {
+				todoList = markStepAsRunning(todoList, nextStep)
+				agentViewStore.updateMessageInList(messageId, { todoList, currentTodoId: nextTodoItem.id })
+			} else {
+				agentViewStore.updateMessageInList(messageId, { todoList, currentTodoId: undefined })
+			}
+		}
+		if (messageContent && finish_reason === 'tool_calls' && message.tool_calls?.length) {
+			agentViewStore.updateMessageInList(messageId, { thinkingContent: messageContent })
 		}
 		if (finish_reason !== 'tool_calls' || !message.tool_calls?.length) {
-			const content = message.content || ''
+			const content = messageContent
 			const needFallback = !hasToolCalls && content.length < 10
+			// 任务结束时，将所有剩余 pending 步骤标记为完成
+			if (todoList.length > 0) {
+				todoList = todoList.map(item =>
+					item.status === 'pending' || item.status === 'running'
+						? { ...item, status: 'success' as const }
+						: item
+				)
+				agentViewStore.updateMessageInList(messageId, { todoList, currentTodoId: undefined })
+			}
 			return { content, needFallback, hasToolCalls }
 		}
 		hasToolCalls = true
 		messages.push({
 			role: 'assistant',
-			content: message.content || '',
+			content: messageContent,
 			tool_calls: message.tool_calls
 		})
 		const responseUsage = currentResponse.usage

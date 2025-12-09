@@ -1182,6 +1182,7 @@ export default {
     'AI设置': 'AI Settings',
     '完整的AI配置请前往设置页面': 'For complete AI configuration, please go to settings page',
     '前往设置': 'Go to Settings',
+    '更多设置': 'More Settings',
     '停止': 'Stop',
     '新建对话': 'New Conversation',
     '历史记录': 'History',
@@ -1191,6 +1192,7 @@ export default {
     'tokens': 'tokens',
     '参数': 'Arguments',
     '结果': 'Result',
+    '任务计划': 'Task Plan',
 
     // User Settings
     '请输入原密码': 'Please enter original password',
