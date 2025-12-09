@@ -93,7 +93,12 @@ export const getUrl = async (httpNode: HttpNode) => {
   const pathString = await getCompiledTemplate(replacedPathParamsString, variables);
   let fullUrl = pathString + queryString;
   if (!fullUrl.startsWith('http') && !fullUrl.startsWith('https')) {
-    fullUrl = `http://${fullUrl}`
+    // 如果以/开头，需要去掉开头的/再添加http://，避免出现http:///
+    if (fullUrl.startsWith('/')) {
+      fullUrl = `http:/${fullUrl}`
+    } else {
+      fullUrl = `http://${fullUrl}`
+    }
   }
   if (fullUrl.includes('localhost')) {
     fullUrl = fullUrl.replace('localhost', '127.0.0.1')
@@ -107,7 +112,12 @@ export const getWebSocketUrl = async (websocketNode: WebSocketNode) => {
   const queryString = await getStringFromParams(queryParams, objectVariable, { checkSelect: true, addQuestionMark: true });
   let fullUrl = url.path + queryString;
   if (!fullUrl.startsWith('ws') && !fullUrl.startsWith('wss')) {
-    fullUrl = `ws://${fullUrl}`
+    // 如果以/开头，需要只添加一个/，避免出现ws:///
+    if (fullUrl.startsWith('/')) {
+      fullUrl = `ws:/${fullUrl}`
+    } else {
+      fullUrl = `ws://${fullUrl}`
+    }
   }
   if (fullUrl.includes('localhost')) {
     fullUrl = fullUrl.replace('localhost', '127.0.0.1')
@@ -484,6 +494,7 @@ export const sendRequest = async () => {
   const copiedApidoc = cloneDeep(toRaw(httpNodeStore.$state.httpNodeInfo));
   const preSendMethod = getMethod(copiedApidoc);
   const preSendUrl = await getUrl(copiedApidoc);
+  console.log(123, preSendUrl)
   const preSendBody = await getBody(copiedApidoc);
   const preSendHeaders = await getHeaders(copiedApidoc);
   const objUrlencoded = await convertPropertyToObject(copiedApidoc.item.requestBody.urlencoded);
