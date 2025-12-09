@@ -144,7 +144,7 @@ const router = createRouter(routerConfig);
 router.beforeEach(async (to, _, next) => {
   const runtimeStore = useRuntime();
   // 需要数据库的页面路径
-  const dbRequiredPaths = ['/v1/apidoc/doc-edit', '/home', '/settings'];
+  const dbRequiredPaths = ['/v1/apidoc/doc-edit', '/home'];
   if (dbRequiredPaths.some(path => to.path.startsWith(path))) {
     await initDatabases();
   }

@@ -226,6 +226,107 @@ const node: ModelNode = {
         "name": "Logo更新会通过IPC事件appSettingsChanged同步到contentView"
       }
     ]
+  },
+  {
+    "purpose": "点击重置后，图标恢复为默认",
+    "precondition": [
+      {
+        "id": "1",
+        "name": "应用已启动"
+      },
+      {
+        "id": "2",
+        "name": "已进入设置页面的应用配置Tab"
+      },
+      {
+        "id": "3",
+        "name": "已上传自定义Logo图标"
+      },
+      {
+        "id": "4",
+        "name": "localStorage中存储了自定义Logo(settings/app/logo)"
+      }
+    ],
+    "operationSteps": [
+      {
+        "id": "1",
+        "name": "在应用配置页面找到重置按钮(.panel-actions .el-button)"
+      },
+      {
+        "id": "2",
+        "name": "点击重置按钮"
+      },
+      {
+        "id": "3",
+        "name": "在弹出的确认对话框中点击确定按钮"
+      },
+      {
+        "id": "4",
+        "name": "观察Logo是否恢复为默认图标"
+      }
+    ],
+    "expectedResults": [
+      {
+        "id": "1",
+        "name": "设置页面的Logo预览恢复为默认图标(非base64格式)"
+      },
+      {
+        "id": "2",
+        "name": "顶部Header的Logo同步恢复为默认图标"
+      },
+      {
+        "id": "3",
+        "name": "localStorage中的settings/app/logo被清除"
+      },
+      {
+        "id": "4",
+        "name": "刷新页面后Logo仍为默认图标"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "1",
+        "name": "handleReset方法被调用触发ElMessageBox.confirm确认弹窗"
+      },
+      {
+        "id": "2",
+        "name": "用户点击确定后appSettingsStore.resetAllSettings方法被调用"
+      },
+      {
+        "id": "3",
+        "name": "resetAppLogo方法调用appSettingsCache.resetAppLogo清除localStorage"
+      },
+      {
+        "id": "4",
+        "name": "_appLogo响应式变量被重置,appLogo计算属性返回defaultLogoImg"
+      },
+      {
+        "id": "5",
+        "name": "notifyWindowIconChanged通过IPC同步图标变更到topBarView"
+      },
+      {
+        "id": "6",
+        "name": "Header.vue中的img标签src自动更新为默认图标路径"
+      }
+    ],
+    "notes": [
+      {
+        "id": "1",
+        "name": "重置操作会同时重置标题、Logo和主题等所有应用设置"
+      },
+      {
+        "id": "2",
+        "name": "重置前需要用户在确认对话框中点击确定"
+      },
+      {
+        "id": "3",
+        "name": "默认Logo图标路径: src/renderer/assets/imgs/logo.png"
+      },
+      {
+        "id": "4",
+        "name": "重置操作会触发notifyAppSettingsChanged同步所有设置变更"
+      }
+    ]
   }
 ],
 }
