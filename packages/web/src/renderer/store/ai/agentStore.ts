@@ -3,9 +3,9 @@ import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { useVariable } from '@/store/projectWorkbench/variablesStore'
 import { useLLMClientStore } from './llmClientStore'
 import { useAgentViewStore } from './agentViewStore'
-import { openaiTools, rawTools } from './tools/tools.ts'
+import { openaiTools, rawTools, toolSummaries, getToolsByNames } from './tools/tools.ts'
 import { LLMessage } from '@src/types/ai/agent.type.ts'
-import type { AgentToolCallInfo } from '@src/types/ai'
+import type { AgentToolCallInfo, OpenAiToolDefinition } from '@src/types/ai'
 import { generateAgentExecutionMessage, generateCompletionMessage } from '@/helper'
 import { config } from '@src/config/config'
 
@@ -17,6 +17,16 @@ const agentSystemPrompt = `你是 Apiflow 智能代理，需使用工具完成�
 - 创建接口时，如果用户只提供了简单描述而没有给出完整参数，优先使用simpleCreateHttpNode工具。
 - 重命名文件夹时，若用户未指定具体名称，优先使用autoRenameFoldersByContent工具，它会根据子节点内容自动生成不超过10个字的有意义命名并执行重命名。
 `
+const toolSelectionSystemPrompt = `你是工具选择助手。根据用户意图从工具列表中选择所有可能用到的工具。
+返回格式必须是纯JSON数组，只包含工具名称，不要有其他内容。
+例如：["toolName1", "toolName2", "toolName3"]
+选择原则：
+- 宁多勿少，确保覆盖用户可能需要的所有操作
+- 如果是创建接口相关，包含simpleCreateHttpNode和createHttpNode
+- 如果涉及查询/获取，包含相应的get/search工具
+- 如果涉及修改/更新，包含相应的patch/update/set工具
+- 如果涉及文件夹操作，包含folder相关工具
+- 如果不确定具体操作类型，选择该类别的所有相关工具`
 
 const buildAgentContext = () => {
 	const projectWorkbench = useProjectWorkbench()
@@ -52,51 +62,59 @@ const buildHistoryMessages = (agentViewStore: ReturnType<typeof useAgentViewStor
 	}
 	return historyMessages
 }
-export const runAgent = async ({ prompt }: { prompt: string }) => {
-	const llmClientStore = useLLMClientStore()
-	const agentViewStore = useAgentViewStore()
-	const context = buildAgentContext()
-	const contextText = `当前上下文信息，若字段为null表示未选中：${JSON.stringify({
-		project: context.project,
-		activeTab: context.activeTab,
-		variables: context.variables
-	})}`;
-	const historyMessages = buildHistoryMessages(agentViewStore)
+// 使用 LLM 从工具摘要中筛选相关工具
+const selectToolsByLLM = async (prompt: string, contextText: string, llmClientStore: ReturnType<typeof useLLMClientStore>): Promise<OpenAiToolDefinition[]> => {
+	const toolListText = JSON.stringify(toolSummaries)
 	const messages: LLMessage[] = [
-		{ role: 'system', content: agentSystemPrompt },
+		{ role: 'system', content: toolSelectionSystemPrompt },
+		{ role: 'system', content: `可用工具列表：${toolListText}` },
 		{ role: 'system', content: contextText },
-		...historyMessages,
-		{ role: 'user', content: prompt }
-	];
-	const agentMessage = generateAgentExecutionMessage(agentViewStore.currentSessionId)
-	const messageId = agentMessage.id
+		{ role: 'user', content: `用户意图：${prompt}` }
+	]
+	try {
+		const response = await llmClientStore.chat({ messages, response_format: { type: 'json_object' } })
+		const content = response.choices[0]?.message?.content?.trim() || ''
+		const toolNames: string[] = JSON.parse(content)
+		if (!Array.isArray(toolNames) || toolNames.length === 0) {
+			return openaiTools
+		}
+		const selectedTools = getToolsByNames(toolNames)
+		if (selectedTools.length === 0) {
+			return openaiTools
+		}
+		return selectedTools
+	} catch {
+		return openaiTools
+	}
+}
+// 执行 Agent 循环，返回最终响应内容和是否需要 fallback
+const executeAgentLoop = async (
+	messages: LLMessage[],
+	tools: OpenAiToolDefinition[],
+	messageId: string,
+	agentViewStore: ReturnType<typeof useAgentViewStore>,
+	llmClientStore: ReturnType<typeof useLLMClientStore>
+): Promise<{ content: string; needFallback: boolean; hasToolCalls: boolean }> => {
 	let currentToolCalls: AgentToolCallInfo[] = []
-	agentViewStore.agentViewMessageList.push(agentMessage)
-	let currentResponse = await llmClientStore.chat({
-		messages,
-		tools: openaiTools
-	});
+	let hasToolCalls = false
+	let currentResponse = await llmClientStore.chat({ messages, tools })
 	for (let iteration = 0; iteration < config.renderConfig.agentConfig.maxIterations; iteration++) {
-		const { message, finish_reason } = currentResponse.choices[0];
+		const { message, finish_reason } = currentResponse.choices[0]
 		if (message.content && finish_reason === 'tool_calls' && message.tool_calls?.length) {
 			agentViewStore.updateMessageInList(messageId, { thinkingContent: message.content })
 		}
 		if (finish_reason !== 'tool_calls' || !message.tool_calls?.length) {
-			agentViewStore.updateMessageInList(messageId, { status: 'success', isStreaming: false })
-			const finalMessage = agentViewStore.getMessageById(messageId)
-			if (finalMessage) {
-				await agentViewStore.updateAgentViewMessage(finalMessage)
-			}
-			const completionMessage = generateCompletionMessage(agentViewStore.currentSessionId, message.content || '')
-			await agentViewStore.addAgentViewMessage(completionMessage)
-			return message.content;
+			const content = message.content || ''
+			const needFallback = !hasToolCalls && content.length < 10
+			return { content, needFallback, hasToolCalls }
 		}
+		hasToolCalls = true
 		messages.push({
 			role: 'assistant',
 			content: message.content || '',
 			tool_calls: message.tool_calls
-		});
-		const responseUsage = currentResponse.usage;
+		})
+		const responseUsage = currentResponse.usage
 		for (let i = 0; i < message.tool_calls.length; i++) {
 			const toolCall = message.tool_calls[i]
 			const args = JSON.parse(toolCall.function.arguments || '{}')
@@ -109,7 +127,7 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 			}
 			currentToolCalls = [...currentToolCalls, toolCallInfo]
 			agentViewStore.updateMessageInList(messageId, { toolCalls: currentToolCalls })
-			const tool = rawTools.find(t => t.name === toolCall.function.name);
+			const tool = rawTools.find(t => t.name === toolCall.function.name)
 			if (!tool) {
 				currentToolCalls = currentToolCalls.map(tc =>
 					tc.id === toolCall.id
@@ -121,11 +139,11 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 					role: 'tool',
 					content: `工具 ${toolCall.function.name} 不存在`,
 					tool_call_id: toolCall.id
-				});
-				continue;
+				})
+				continue
 			}
 			try {
-				const result = await tool.execute(args);
+				const result = await tool.execute(args)
 				const newStatus = result.code === 0 ? 'success' : 'error' as AgentToolCallInfo['status']
 				currentToolCalls = currentToolCalls.map(tc =>
 					tc.id === toolCall.id
@@ -139,7 +157,7 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 						? `执行成功：${JSON.stringify(result.data)}`
 						: `执行失败：${JSON.stringify(result.data)}`,
 					tool_call_id: toolCall.id
-				});
+				})
 			} catch (err) {
 				currentToolCalls = currentToolCalls.map(tc =>
 					tc.id === toolCall.id
@@ -151,21 +169,50 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 					role: 'tool',
 					content: `工具执行异常：${err instanceof Error ? err.message : String(err)}`,
 					tool_call_id: toolCall.id
-				});
+				})
 			}
 		}
-		currentResponse = await llmClientStore.chat({
-			messages,
-			tools: openaiTools
-		});
+		currentResponse = await llmClientStore.chat({ messages, tools })
+	}
+	const finalContent = currentResponse.choices[0]?.message?.content || ''
+	return { content: finalContent, needFallback: false, hasToolCalls }
+}
+export const runAgent = async ({ prompt }: { prompt: string }) => {
+	const llmClientStore = useLLMClientStore()
+	const agentViewStore = useAgentViewStore()
+	const context = buildAgentContext()
+	const contextText = `当前上下文信息，若字段为null表示未选中：${JSON.stringify({
+		project: context.project,
+		activeTab: context.activeTab,
+		variables: context.variables
+	})}`
+	const historyMessages = buildHistoryMessages(agentViewStore)
+	const baseMessages: LLMessage[] = [
+		{ role: 'system', content: agentSystemPrompt },
+		{ role: 'system', content: contextText },
+		...historyMessages,
+		{ role: 'user', content: prompt }
+	]
+	const agentMessage = generateAgentExecutionMessage(agentViewStore.currentSessionId)
+	const messageId = agentMessage.id
+	agentViewStore.agentViewMessageList.push(agentMessage)
+	// 第一阶段：使用 LLM 筛选相关工具
+	const selectedTools = await selectToolsByLLM(prompt, contextText, llmClientStore);
+	const isUsingSubset = selectedTools.length < openaiTools.length
+	// 第二阶段：使用筛选后的工具执行 Agent 循环
+	const messages = [...baseMessages]
+	let result = await executeAgentLoop(messages, selectedTools, messageId, agentViewStore, llmClientStore)
+	// 第三阶段：如果使用子集且需要 fallback，用完整工具集重试
+	if (isUsingSubset && result.needFallback) {
+		const retryMessages: LLMessage[] = [...baseMessages]
+		result = await executeAgentLoop(retryMessages, openaiTools, messageId, agentViewStore, llmClientStore)
 	}
 	agentViewStore.updateMessageInList(messageId, { status: 'success', isStreaming: false })
 	const finalMessage = agentViewStore.getMessageById(messageId)
 	if (finalMessage) {
 		await agentViewStore.updateAgentViewMessage(finalMessage)
 	}
-	const finalContent = currentResponse.choices[0]?.message?.content || ''
-	const completionMessage = generateCompletionMessage(agentViewStore.currentSessionId, finalContent)
+	const completionMessage = generateCompletionMessage(agentViewStore.currentSessionId, result.content)
 	await agentViewStore.addAgentViewMessage(completionMessage)
-	return finalContent
+	return result.content
 }

@@ -69,7 +69,6 @@ import { validateUrl, type UrlValidationResult } from '@/helper'
 import { router } from '@/router/index'
 import SSaveDocDialog from '@/pages/projectWorkbench/dialog/saveDoc/SaveDoc.vue'
 import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue'
-import getHostPart from './composables/host'
 import { handleFormatUrl, handleChangeUrl } from './composables/url'
 import getMethodPart from './composables/method'
 import getOperationPart from './composables/operation'
@@ -131,8 +130,6 @@ const urlValidation = reactive<UrlValidationResult>({
 | host相关
 |--------------------------------------------------------------------------
 */
-const hostPart = getHostPart();
-const { hostDialogVisible } = hostPart;
 /*
 |--------------------------------------------------------------------------
 | 请求方法

@@ -644,6 +644,83 @@ export const nodeOperationTools: AgentTool[] = [
     },
   },
   {
+    name: 'getAllNodeIds',
+    description: '获取当前项目下的所有节点ID列表（包括文件夹和所有子节点）。常用于批量删除、批量操作等场景。如需删除全部节点，推荐直接使用 deleteAllNodes 工具',
+    type: 'nodeOperation',
+    parameters: {
+      type: 'object',
+      properties: {
+        filterType: {
+          type: 'string',
+          enum: ['folder', 'http', 'httpMock', 'websocket', 'websocketMock', 'markdown'],
+          description: '可选，按节点类型过滤。不传则返回所有类型的节点',
+        },
+      },
+      required: [],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const filterType = args.filterType as ApidocType | undefined
+      const bannerStore = useBanner()
+      const allNodes: { _id: string; type: ApidocType; name: string; pid: string }[] = []
+      forEachForest(bannerStore.banner, (node) => {
+        if (!filterType || node.type === filterType) {
+          allNodes.push({
+            _id: node._id,
+            type: node.type,
+            name: node.name,
+            pid: node.pid,
+          })
+        }
+      })
+      return {
+        code: 0,
+        data: {
+          count: allNodes.length,
+          nodes: allNodes,
+        },
+      }
+    },
+  },
+  {
+    name: 'deleteAllNodes',
+    description: '删除当前项目下的所有节点（清空项目）。这是一个危险操作，会删除项目中的全部文件夹和接口节点',
+    type: 'nodeOperation',
+    parameters: {
+      type: 'object',
+      properties: {},
+      required: [],
+    },
+    needConfirm: true,
+    execute: async () => {
+      const bannerStore = useBanner()
+      const projectNavStore = useProjectNav()
+      const projectId = router.currentRoute.value.query.id as string
+      if (!projectId) {
+        return { code: 1, data: { error: '未找到当前项目ID' } }
+      }
+      const allIds: string[] = []
+      const nonFolderIds: string[] = []
+      forEachForest(bannerStore.banner, (node) => {
+        allIds.push(node._id)
+        if (node.type !== 'folder') {
+          nonFolderIds.push(node._id)
+        }
+      })
+      if (allIds.length === 0) {
+        return { code: 0, data: { message: '项目已为空，无需删除', deletedCount: 0 } }
+      }
+      await apiNodesCache.deleteNodes(allIds)
+      bannerStore.banner = []
+      projectNavStore.deleteNavByIds({
+        projectId,
+        ids: nonFolderIds,
+        force: true,
+      })
+      return { code: 0, data: { deletedCount: allIds.length, deletedIds: allIds } }
+    },
+  },
+  {
     name: 'changeNodeSort',
     description: '改变节点的排序值。sort值越小越靠前，越大越靠后',
     type: 'nodeOperation',
@@ -746,7 +823,7 @@ export const nodeOperationTools: AgentTool[] = [
         },
         limit: {
           type: 'number',
-          description: '返回结果数量限制，默认50',
+          description: '返回结果数量限制，默认50。传 -1 或 0 可获取全部节点',
         },
         includeDeleted: {
           type: 'boolean',
@@ -761,7 +838,8 @@ export const nodeOperationTools: AgentTool[] = [
       const nodeType = args.type as ApidocType | undefined
       const name = args.name as string | undefined
       const maintainer = args.maintainer as string | undefined
-      const limit = (args.limit as number) || 50
+      const limitArg = args.limit as number | undefined
+      const limit = limitArg === undefined ? 50 : limitArg
       const includeDeleted = (args.includeDeleted as boolean) || false
       const projectId = router.currentRoute.value.query.id as string
       if (!projectId) {
@@ -788,7 +866,7 @@ export const nodeOperationTools: AgentTool[] = [
         }
         return true
       })
-      const limitedNodes = filteredNodes.slice(0, limit)
+      const limitedNodes = limit <= 0 ? filteredNodes : filteredNodes.slice(0, limit)
       const result = limitedNodes.map(node => {
         const base = {
           _id: node._id,
