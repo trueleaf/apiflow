@@ -328,6 +328,11 @@ const initMockLogsListener = () => {
 const sendContentReadySignal = () => {
   if (!isElectronEnv) return
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.contentReady);
+  // 初始化窗口图标（从缓存读取自定义 Logo）
+  const cachedLogo = appSettingsStore.appLogo
+  if (cachedLogo) {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.setWindowIcon, cachedLogo)
+  }
 }
 // 初始化浏览器环境
 const initBrowserEnv = async () => {
@@ -353,6 +358,12 @@ const initAppHeader = () => {
     initAppHeaderEvent();
     await router.isReady();
     await initAppHeaderTabs();
+    // 主动推送应用设置给 topBarView，确保刷新后 topBarView 能获取最新设置
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.appSettingsChanged, {
+      appTitle: appSettingsStore.appTitle,
+      appLogo: appSettingsStore.appLogo,
+      appTheme: appSettingsStore.appTheme
+    });
     watch(
       () => ({
         path: router.currentRoute.value.path,

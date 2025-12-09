@@ -1,10 +1,14 @@
-import { app, ipcMain, IpcMainInvokeEvent, WebContentsView } from 'electron';
+import { app, ipcMain, IpcMainInvokeEvent, WebContentsView, nativeImage } from 'electron';
 import { BrowserWindow } from 'electron';
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
+import { fileURLToPath } from 'url';
 import { exportHtml, exportWord, setMainWindow, setContentView, startExport, receiveRendererData, finishRendererData, getExportStatus, resetExport, selectExportPath } from './export/export.ts';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import { selectImportFile, analyzeImportFile, startImport, resetImport, setMainWindow as setImportMainWindow, setContentView as setImportContentView } from './import/import.ts';
 import { getWindowState, execCodeInContext } from '../utils/index.ts';
 // import { IPCProjectData, WindowState } from '@src/types/index.ts';
@@ -347,8 +351,26 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.projectRenamed, payload)
   })
 
-  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.appSettingsChanged, () => {
-    topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.appSettingsChanged)
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.appSettingsChanged, (_, data?: { appTitle: string, appLogo: string, appTheme: string }) => {
+    topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.appSettingsChanged, data)
+  })
+  // 设置窗口图标
+  ipcMain.on(IPC_EVENTS.apiflow.rendererToMain.setWindowIcon, (_, iconDataUrl: string) => {
+    // 如果iconDataUrl为空或非dataURL格式，恢复默认图标
+    if (!iconDataUrl || !iconDataUrl.startsWith('data:')) {
+      const defaultIconPath = app.isPackaged
+        ? path.join(process.resourcesPath, 'icons', '256x256.png')
+        : path.join(__dirname, '../../public/icons/256x256.png')
+      const defaultIcon = nativeImage.createFromPath(defaultIconPath)
+      if (!defaultIcon.isEmpty()) {
+        mainWindow.setIcon(defaultIcon)
+      }
+      return
+    }
+    const icon = nativeImage.createFromDataURL(iconDataUrl)
+    if (!icon.isEmpty()) {
+      mainWindow.setIcon(icon)
+    }
   })
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.confirmDownloadUpdate, () => {
     topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.confirmDownloadUpdate)

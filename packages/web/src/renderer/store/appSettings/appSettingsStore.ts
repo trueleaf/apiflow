@@ -14,7 +14,17 @@ export const useAppSettings = defineStore('appSettings', () => {
 
   const notifyAppSettingsChanged = (): void => {
     if (window.electronAPI?.ipcManager) {
-      window.electronAPI.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.appSettingsChanged)
+      window.electronAPI.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.appSettingsChanged, {
+        appTitle: appTitle.value,
+        appLogo: appLogo.value,
+        appTheme: appTheme.value
+      })
+    }
+  }
+  // 通知主进程更新窗口图标
+  const notifyWindowIconChanged = (iconDataUrl: string): void => {
+    if (window.electronAPI?.ipcManager) {
+      window.electronAPI.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.setWindowIcon, iconDataUrl)
     }
   }
 
@@ -30,6 +40,7 @@ export const useAppSettings = defineStore('appSettings', () => {
     _appLogo.value = logo
     appSettingsCache.setAppLogo(logo)
     notifyAppSettingsChanged()
+    notifyWindowIconChanged(logo)
   }
 
   // 设置应用主题
@@ -49,6 +60,7 @@ export const useAppSettings = defineStore('appSettings', () => {
   const resetAppLogo = (): void => {
     appSettingsCache.resetAppLogo()
     _appLogo.value = appSettingsCache.getAppLogo()
+    notifyWindowIconChanged(appLogo.value)
   }
 
   // 重置应用主题
@@ -71,6 +83,14 @@ export const useAppSettings = defineStore('appSettings', () => {
     _appLogo.value = appSettingsCache.getAppLogo()
     appTheme.value = appSettingsCache.getAppTheme()
   }
+  // 从IPC数据直接更新设置（用于topBarView接收contentView的设置变更）
+  const updateFromIPC = (data: { appTitle: string, appLogo: string, appTheme: AppTheme }): void => {
+    appTitle.value = data.appTitle
+    // 如果传入的logo是默认logo，则将_appLogo设为空字符串，让computed使用默认值
+    // 否则直接设置传入的logo
+    _appLogo.value = data.appLogo === defaultLogoImg ? '' : data.appLogo
+    appTheme.value = data.appTheme
+  }
 
   return {
     appTitle,
@@ -81,5 +101,6 @@ export const useAppSettings = defineStore('appSettings', () => {
     setAppTheme,
     resetAllSettings,
     refreshSettings,
+    updateFromIPC,
   }
 })

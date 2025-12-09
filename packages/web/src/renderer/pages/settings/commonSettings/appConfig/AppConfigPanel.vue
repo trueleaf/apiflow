@@ -130,7 +130,6 @@ const handleLogoChange = async (uploadFile: UploadFile) => {
   isLogoUploading.value = false
   if (result.success && result.data) {
     appSettingsStore.setAppLogo(result.data)
-    message.success(t('Logo已更新'))
   } else {
     message.error(result.message || t('图片上传失败'))
   }
@@ -154,7 +153,6 @@ const handleReset = async () => {
     return
   }
   appSettingsStore.resetAllSettings()
-  message.success(t('已恢复默认配置'))
 }
 </script>
 

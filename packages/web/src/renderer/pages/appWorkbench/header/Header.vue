@@ -363,8 +363,12 @@ const bindEvent = () => {
     networkMode.value = mode;
   });
 
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.appSettingsChanged, () => {
-    appSettingsStore.refreshSettings()
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.appSettingsChanged, (data?: { appTitle: string, appLogo: string, appTheme: string }) => {
+    if (data) {
+      appSettingsStore.updateFromIPC(data)
+    } else {
+      appSettingsStore.refreshSettings()
+    }
     const { applyTheme } = useTheme()
     applyTheme(appSettingsStore.appTheme)
   });

@@ -35,7 +35,7 @@ export let websocketMockManager = new WebSocketMockManager();
 export let webSocketManager = new WebSocketManager();
 export let updateManager: UpdateManager | null = null;
 export let contentViewInstance: WebContentsView | null = null;
-let mainWindowInstance: BrowserWindow | null = null;
+export let mainWindowInstance: BrowserWindow | null = null;
 /*
 |--------------------------------------------------------------------------
 | 创建窗口

@@ -302,7 +302,6 @@ const handleReset = async () => {
   syncLocalForm()
   emailError.value = ''
   emailSuccess.value = false
-  message.success(t('已恢复默认配置'))
 }
 
 onMounted(() => {

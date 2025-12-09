@@ -119,6 +119,8 @@ export const IPC_EVENTS = {
       refreshContentView: 'apiflow:renderer:to:main:refresh-content-view',
       /** 以Blob格式读取文件 */
       readFileAsBlob: 'apiflow:renderer:to:main:read-file-as-blob',
+      /** 设置窗口图标 */
+      setWindowIcon: 'apiflow:renderer:to:main:set-window-icon',
     },
   },
 
