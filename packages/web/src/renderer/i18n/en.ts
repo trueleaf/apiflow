@@ -1551,6 +1551,9 @@ export default {
   拖拽调整标签页的显示顺序: 'Drag to adjust the display order of tabs',
   // AI related messages
   'AI功能不可用': 'AI feature is not available',
+  '网络请求失败': 'Network request failed',
+  'API调用失败': 'API call failed',
+  '重试': 'Retry',
   // AI Agent related
   '思考中': 'Thinking',
   '调用工具': 'Calling Tool',

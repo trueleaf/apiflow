@@ -277,7 +277,7 @@ const executeAgentLoop = async (
 	const finalContent = currentResponse.choices[0]?.message?.content || ''
 	return { content: finalContent, needFallback: false, hasToolCalls }
 }
-export const runAgent = async ({ prompt }: { prompt: string }) => {
+export const runAgent = async ({ prompt }: { prompt: string }): Promise<{ success: true; content: string } | { success: false; error: string }> => {
 	const llmClientStore = useLLMClientStore()
 	const agentViewStore = useAgentViewStore()
 	const context = buildAgentContext()
@@ -296,23 +296,30 @@ export const runAgent = async ({ prompt }: { prompt: string }) => {
 	const agentMessage = generateAgentExecutionMessage(agentViewStore.currentSessionId)
 	const messageId = agentMessage.id
 	agentViewStore.agentViewMessageList.push(agentMessage)
-	// 第一阶段：使用 LLM 筛选相关工具
-	const selectedTools = await selectToolsByLLM(prompt, contextText, llmClientStore);
-	const isUsingSubset = selectedTools.length < openaiTools.length
-	// 第二阶段：使用筛选后的工具执行 Agent 循环
-	const messages = [...baseMessages]
-	let result = await executeAgentLoop(messages, selectedTools, messageId, agentViewStore, llmClientStore)
-	// 第三阶段：如果使用子集且需要 fallback，用完整工具集重试
-	if (isUsingSubset && result.needFallback) {
-		const retryMessages: LLMessage[] = [...baseMessages]
-		result = await executeAgentLoop(retryMessages, openaiTools, messageId, agentViewStore, llmClientStore)
+	try {
+		// 第一阶段：使用 LLM 筛选相关工具
+		const selectedTools = await selectToolsByLLM(prompt, contextText, llmClientStore);
+		const isUsingSubset = selectedTools.length < openaiTools.length
+		// 第二阶段：使用筛选后的工具执行 Agent 循环
+		const messages = [...baseMessages]
+		let result = await executeAgentLoop(messages, selectedTools, messageId, agentViewStore, llmClientStore)
+		// 第三阶段：如果使用子集且需要 fallback，用完整工具集重试
+		if (isUsingSubset && result.needFallback) {
+			const retryMessages: LLMessage[] = [...baseMessages]
+			result = await executeAgentLoop(retryMessages, openaiTools, messageId, agentViewStore, llmClientStore)
+		}
+		agentViewStore.updateMessageInList(messageId, { status: 'success', isStreaming: false })
+		const finalMessage = agentViewStore.getMessageById(messageId)
+		if (finalMessage) {
+			await agentViewStore.updateAgentViewMessage(finalMessage)
+		}
+		const completionMessage = generateCompletionMessage(agentViewStore.currentSessionId, result.content)
+		await agentViewStore.addAgentViewMessage(completionMessage)
+		return { success: true, content: result.content }
+	} catch (err) {
+		// 删除 agentExecution 消息
+		agentViewStore.deleteAgentViewMessageById(messageId)
+		const errorMessage = err instanceof Error ? err.message : String(err)
+		return { success: false, error: errorMessage }
 	}
-	agentViewStore.updateMessageInList(messageId, { status: 'success', isStreaming: false })
-	const finalMessage = agentViewStore.getMessageById(messageId)
-	if (finalMessage) {
-		await agentViewStore.updateAgentViewMessage(finalMessage)
-	}
-	const completionMessage = generateCompletionMessage(agentViewStore.currentSessionId, result.content)
-	await agentViewStore.addAgentViewMessage(completionMessage)
-	return result.content
 }

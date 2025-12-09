@@ -19,6 +19,7 @@
           <LoadingMessageItem v-else-if="message.type === 'loading'" :message="message" />
           <TextResponseMessageItem v-else-if="message.type === 'textResponse'" :message="message" />
           <AgentExecutionMessageItem v-else-if="message.type === 'agentExecution'" :message="message" />
+          <ErrorMessageItem v-else-if="message.type === 'error'" :message="message" @retry="handleRetry" />
         </template>
       </template>
     </div>
@@ -33,6 +34,7 @@ import { useAgentViewStore } from '@/store/ai/agentViewStore'
 import AskMessageItem from '../aiAsk/components/AskMessageItem.vue'
 import LoadingMessageItem from '../aiAsk/components/LoadingMessageItem.vue'
 import TextResponseMessageItem from '../aiAsk/components/TextResponseMessageItem.vue'
+import ErrorMessageItem from '../aiAsk/components/ErrorMessageItem.vue'
 import AgentExecutionMessageItem from './components/AgentExecutionMessageItem.vue'
 
 defineProps<{
@@ -40,6 +42,7 @@ defineProps<{
 }>()
 const emit = defineEmits<{
   'open-settings': []
+  'retry': [originalPrompt: string, mode: 'agent' | 'ask', messageId: string]
 }>()
 const { t } = useI18n()
 const agentViewStore = useAgentViewStore()
@@ -55,6 +58,9 @@ const scrollToBottom = () => {
 watch(() => filteredMessages.value.length, () => {
   scrollToBottom()
 })
+const handleRetry = (originalPrompt: string, mode: 'agent' | 'ask', messageId: string) => {
+  emit('retry', originalPrompt, mode, messageId)
+}
 defineExpose({
   scrollToBottom
 })

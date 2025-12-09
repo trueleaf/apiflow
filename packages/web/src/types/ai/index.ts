@@ -66,7 +66,18 @@ export type AgentExecutionMessage = {
   todoList?: TodoItem[];
   currentTodoId?: string;
 }
-export type AgentViewMessage = AskMessage | LoadingMessage | TextResponseMessage | AgentExecutionMessage;
+export type ErrorMessage = {
+  id: string;
+  type: "error";
+  errorType: 'network' | 'api' | 'unknown';
+  content: string;
+  errorDetail?: string;
+  originalPrompt: string;
+  timestamp: string;
+  sessionId: string;
+  mode: 'agent' | 'ask';
+}
+export type AgentViewMessage = AskMessage | LoadingMessage | TextResponseMessage | AgentExecutionMessage | ErrorMessage;
 
 export type ToolExecuteResult = {
   code: number;

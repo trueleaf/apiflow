@@ -35,11 +35,13 @@
         v-if="currentView === 'chat'"
         :is-config-valid="isAiConfigValid()"
         @open-settings="handleOpenAiSettings"
+        @retry="handleRetry"
       />
       <AiAgent
         v-if="currentView === 'agent'"
         :is-config-valid="isAiConfigValid()"
         @open-settings="handleOpenAiSettings"
+        @retry="handleRetry"
       />
       <AiConfig
         v-if="currentView === 'config'"
@@ -68,7 +70,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { nanoid } from 'nanoid/non-secure'
 import type { ChatRequestBody, LLMessage } from '@src/types/ai/agent.type'
-import type { AskMessage, TextResponseMessage, LoadingMessage } from '@src/types/ai'
+import type { AskMessage, TextResponseMessage, LoadingMessage, ErrorMessage } from '@src/types/ai'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { config } from '@src/config/config'
 import { appState } from '@/cache/appState/appStateCache'
@@ -98,11 +100,25 @@ const dialogWidth = ref(config.renderConfig.aiDialog.defaultWidth)
 const dialogHeight = ref(config.renderConfig.aiDialog.defaultHeight)
 const isStreaming = ref(false)
 const currentStreamRequestId = ref<string | null>(null)
+const lastAskPrompt = ref('')
 const streamingMessageId = ref<string | null>(null)
 const loadingMessageId = ref<string | null>(null)
 const isFirstChunk = ref(false)
 const cancelCurrentStream = ref<(() => Promise<void>) | null>(null)
 const router = useRouter()
+
+// 根据错误信息判断错误类型
+const detectErrorType = (errorMsg: string): 'network' | 'api' | 'unknown' => {
+  const networkKeywords = ['fetch', 'network', 'ECONNREFUSED', 'timeout', 'ETIMEDOUT', 'ENOTFOUND', 'connection', 'socket', 'net::']
+  const lowerError = errorMsg.toLowerCase()
+  if (networkKeywords.some(keyword => lowerError.includes(keyword.toLowerCase()))) {
+    return 'network'
+  }
+  if (lowerError.includes('api') || lowerError.includes('401') || lowerError.includes('403') || lowerError.includes('429')) {
+    return 'api'
+  }
+  return 'unknown'
+}
 
 watch(visible, value => {
   if (!value) {
@@ -229,6 +245,7 @@ const handleSend = async () => {
   if (!message) return
   
   inputMessage.value = ''
+  lastAskPrompt.value = message
   
   // Agent 模式
   if (mode.value === 'agent') {
@@ -243,7 +260,24 @@ const handleSend = async () => {
       mode: 'agent'
     }
     await agentViewStore.addAgentViewMessage(askMessage)
-    await runAgent({ prompt: message })
+    agentViewStore.setWorkingStatus('working')
+    const result = await runAgent({ prompt: message })
+    agentViewStore.setWorkingStatus('finish')
+    if (!result.success) {
+      const errorMessageId = nanoid()
+      const errorMessage: ErrorMessage = {
+        id: errorMessageId,
+        type: 'error',
+        errorType: detectErrorType(result.error),
+        content: result.error,
+        errorDetail: result.error,
+        originalPrompt: message,
+        timestamp: new Date().toISOString(),
+        sessionId: agentViewStore.currentSessionId,
+        mode: 'agent'
+      }
+      agentViewStore.addAgentViewMessage(errorMessage)
+    }
     return
   }
 
@@ -293,10 +327,12 @@ const handleSend = async () => {
     
     const timestamp = new Date().toISOString()
     const errorMessageId = nanoid()
-    const errorMessage: TextResponseMessage = {
+    const errorMessage: ErrorMessage = {
       id: errorMessageId,
-      type: 'textResponse',
-      content: `${t('错误')}: ${t('AI功能不可用')}`,
+      type: 'error',
+      errorType: 'api',
+      content: t('AI功能不可用'),
+      originalPrompt: message,
       timestamp,
       sessionId: agentViewStore.currentSessionId,
       mode: 'ask'
@@ -340,10 +376,14 @@ const handleSend = async () => {
     
     const timestamp = new Date().toISOString()
     const errorMessageId = nanoid()
-    const errorMessage: TextResponseMessage = {
+    const errorDetail = error instanceof Error ? error.message : t('未知错误')
+    const errorMessage: ErrorMessage = {
       id: errorMessageId,
-      type: 'textResponse',
-      content: `${t('错误')}: ${error instanceof Error ? error.message : t('未知错误')}`,
+      type: 'error',
+      errorType: detectErrorType(errorDetail),
+      content: errorDetail,
+      errorDetail,
+      originalPrompt: message,
       timestamp,
       sessionId: agentViewStore.currentSessionId,
       mode: 'ask'
@@ -428,10 +468,13 @@ const handleStreamError = (requestId: string, error: string) => {
 
   const timestamp = new Date().toISOString()
   const errorMessageId = nanoid()
-  const errorMessage: TextResponseMessage = {
+  const errorMessage: ErrorMessage = {
     id: errorMessageId,
-    type: 'textResponse',
-    content: `${t('错误')}: ${error}`,
+    type: 'error',
+    errorType: detectErrorType(error),
+    content: error,
+    errorDetail: error,
+    originalPrompt: lastAskPrompt.value,
     timestamp,
     sessionId: agentViewStore.currentSessionId,
     mode: 'ask'
@@ -445,6 +488,20 @@ const handleStreamError = (requestId: string, error: string) => {
   isFirstChunk.value = false
   cancelCurrentStream.value = null
   agentViewStore.setWorkingStatus('finish')
+}
+// 处理重试
+const handleRetry = async (originalPrompt: string, retryMode: 'agent' | 'ask', messageId: string) => {
+  // 删除错误消息
+  agentViewStore.deleteAgentViewMessageById(messageId)
+  // 设置输入框内容并触发发送
+  inputMessage.value = originalPrompt
+  // 确保模式正确
+  if (mode.value !== retryMode) {
+    mode.value = retryMode
+    currentView.value = retryMode === 'agent' ? 'agent' : 'chat'
+  }
+  await nextTick()
+  await handleSend()
 }
 const handleOpenAiSettings = () => {
   currentView.value = 'config'

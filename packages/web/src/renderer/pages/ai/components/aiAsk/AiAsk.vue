@@ -18,6 +18,7 @@
           <AskMessageItem v-if="message.type === 'ask'" :message="message" />
           <LoadingMessageItem v-else-if="message.type === 'loading'" :message="message" />
           <TextResponseMessageItem v-else-if="message.type === 'textResponse'" :message="message" />
+          <ErrorMessageItem v-else-if="message.type === 'error'" :message="message" @retry="handleRetry" />
         </template>
       </template>
     </div>
@@ -32,12 +33,14 @@ import { useAgentViewStore } from '@/store/ai/agentViewStore'
 import AskMessageItem from './components/AskMessageItem.vue'
 import LoadingMessageItem from './components/LoadingMessageItem.vue'
 import TextResponseMessageItem from './components/TextResponseMessageItem.vue'
+import ErrorMessageItem from './components/ErrorMessageItem.vue'
 
 defineProps<{
   isConfigValid: boolean
 }>()
 const emit = defineEmits<{
   'open-settings': []
+  'retry': [originalPrompt: string, mode: 'agent' | 'ask', messageId: string]
 }>()
 const { t } = useI18n()
 const agentViewStore = useAgentViewStore()
@@ -54,6 +57,9 @@ const scrollToBottom = () => {
 watch(() => filteredMessages.value.length, () => {
   scrollToBottom()
 })
+const handleRetry = (originalPrompt: string, mode: 'agent' | 'ask', messageId: string) => {
+  emit('retry', originalPrompt, mode, messageId)
+}
 defineExpose({
   scrollToBottom
 })
