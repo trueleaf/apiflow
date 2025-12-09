@@ -1629,4 +1629,16 @@ export default {
   '请先配置 AI API Key': 'Please configure AI API Key first',
   'Agent 正在执行中，请稍候': 'Agent is executing, please wait',
   '描述你的问题...（{shortcut} 换行）': 'Describe your question... ({shortcut} for new line)',
+  // AI common tools
+  '当前未打开任何项目': 'No project is currently open',
+  '未找到指定的Tab': 'The specified tab was not found',
+  'Tab已关闭': 'Tab closed',
+  '所有Tab已关闭': 'All tabs closed',
+  '已切换到指定Tab': 'Switched to the specified tab',
+  '当前没有选中的Tab': 'No tab is currently selected',
+  '已导航到项目': 'Navigated to project',
+  '已导航到首页': 'Navigated to home',
+  '已导航到设置页面': 'Navigated to settings page',
+  '恢复节点失败': 'Failed to restore node',
+  '节点已恢复': 'Node restored',
 }

@@ -1,9 +1,10 @@
 import { cloneDeep, assign, merge } from "lodash-es"
-import { HttpNode, ApidocProperty, ApidocProjectInfo, HttpNodeRequestMethod, HttpNodeContentType, HttpNodeBodyMode, FolderNode, ApidocBannerOfHttpNode, ApidocBanner } from '@src/types'
+import { HttpNode, ApidocProperty, ApidocProjectInfo, HttpNodeRequestMethod, HttpNodeContentType, HttpNodeBodyMode, FolderNode, ApidocBannerOfHttpNode, ApidocBanner, ApidocVariable } from '@src/types'
 import { CreateHttpNodeOptions } from '@src/types/ai/tools.type'
 import { defineStore } from "pinia"
 import { DeepPartial } from "@src/types/index.ts"
 import { apiNodesCache } from "@/cache/nodes/nodesCache";
+import { nodeVariableCache } from "@/cache/variable/nodeVariableCache";
 import { logger, generateEmptyHttpNode, generateHttpNode, inferContentTypeFromBody, findNodeById, findParentById } from '@/helper';
 import { useHttpNode } from "../httpNode/httpNodeStore";
 import { useProjectManagerStore } from "../projectManager/projectManagerStore";
@@ -978,6 +979,58 @@ export const useSkill = defineStore('skill', () => {
     };
   }
 
+  /*
+  |--------------------------------------------------------------------------
+  | 变量相关逻辑
+  |--------------------------------------------------------------------------
+  */
+  // 获取项目的所有变量
+  const getVariablesByProjectId = async (projectId: string): Promise<ApidocVariable[]> => {
+    const result = await nodeVariableCache.getVariableByProjectId(projectId);
+    if (result.code === 0) {
+      return result.data;
+    }
+    return [];
+  }
+  // 根据ID获取单个变量
+  const getVariableById = async (variableId: string): Promise<ApidocVariable | null> => {
+    const result = await nodeVariableCache.getVariableById(variableId);
+    if (result.code === 0) {
+      return result.data;
+    }
+    return null;
+  }
+  // 创建变量
+  const createVariable = async (variable: Omit<ApidocVariable, '_id'>): Promise<ApidocVariable | null> => {
+    const result = await nodeVariableCache.addVariable(variable);
+    if (result.code === 0) {
+      return result.data;
+    }
+    return null;
+  }
+  // 更新变量
+  const updateVariableById = async (variableId: string, updates: Partial<ApidocVariable>): Promise<ApidocVariable | null> => {
+    const result = await nodeVariableCache.updateVariableById(variableId, updates);
+    if (result.code === 0) {
+      return result.data;
+    }
+    return null;
+  }
+  // 删除变量
+  const deleteVariableByIds = async (ids: string[]): Promise<boolean> => {
+    const result = await nodeVariableCache.deleteVariableByIds(ids);
+    return result.code === 0;
+  }
+  // 按名称搜索变量
+  const searchVariablesByName = async (projectId: string, keyword: string): Promise<ApidocVariable[]> => {
+    const result = await nodeVariableCache.getVariableByProjectId(projectId);
+    if (result.code === 0) {
+      const lowerKeyword = keyword.toLowerCase();
+      return result.data.filter(v => v.name.toLowerCase().includes(lowerKeyword));
+    }
+    return [];
+  }
+
   return {
     searchHttpNodes,
     getHttpNodeById,
@@ -1016,5 +1069,11 @@ export const useSkill = defineStore('skill', () => {
     renameFolder,
     batchRenameFolders,
     getFolderChildrenForRename,
+    getVariablesByProjectId,
+    getVariableById,
+    createVariable,
+    updateVariableById,
+    deleteVariableByIds,
+    searchVariablesByName,
   }
 })

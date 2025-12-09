@@ -5,7 +5,6 @@
         <ArrowLeft :size="16" />
         <span>{{ t('返回') }}</span>
       </button>
-      <span class="ai-config-title">{{ t('AI设置') }}</span>
     </div>
     <div class="ai-config-content">
       <div class="config-form">

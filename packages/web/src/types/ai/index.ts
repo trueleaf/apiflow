@@ -83,7 +83,7 @@ export type ToolExecuteResult = {
   code: number;
   data: unknown;
 }
-export type AgentToolType = 'httpNode' | 'websocketNode' | 'httpMockNode' | 'websocketMockNode' | 'projectManager' | 'history' | 'undoRedo' | 'sendRequest' | 'nodeOperation'
+export type AgentToolType = 'httpNode' | 'websocketNode' | 'httpMockNode' | 'websocketMockNode' | 'projectManager' | 'history' | 'undoRedo' | 'sendRequest' | 'nodeOperation' | 'variable' | 'common'
 export type AgentTool = {
   name: string;
   description: string;

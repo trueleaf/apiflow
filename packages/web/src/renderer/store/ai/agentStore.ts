@@ -17,6 +17,7 @@ const agentSystemPrompt = `你是 Apiflow 智能代理，需使用工具完成�
 - 不生成与当前请求无关的代码或文本。
 - 创建接口时，如果用户只提供了简单描述而没有给出完整参数，优先使用simpleCreateHttpNode工具。
 - 重命名文件夹时，若用户未指定具体名称，优先使用autoRenameFoldersByContent工具，它会根据子节点内容自动生成不超过10个字的有意义命名并执行重命名。
+- 操作变量时，使用getVariables获取变量列表，createVariable创建变量，updateVariable更新变量，deleteVariables删除变量。变量可在请求URL、Header、Body中通过{{ variableName }}方式引用。
 
 【任务计划规则】
 对于需要超过2个步骤完成的复杂任务，你必须在第一次响应时输出任务计划。
