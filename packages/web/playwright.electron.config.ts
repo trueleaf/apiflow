@@ -15,6 +15,12 @@ dotenv.config({ path: path.resolve(__dirname, '.env.test') });
  * 参考文档: https://playwright.dev/docs/api/class-electron
  */
 export default defineConfig({
+  // 全局 setup/teardown（启动/关闭 mock 服务器）
+  globalSetup: './tests/mock-server/index.ts',
+  globalTeardown: async () => {
+    const { globalTeardown } = await import('./tests/mock-server/index.js');
+    await globalTeardown();
+  },
   // 测试文件目录
   testDir: './tests/e2e',
   

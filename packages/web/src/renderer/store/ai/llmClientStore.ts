@@ -34,10 +34,11 @@ const webChat = async (body: ChatRequestBody, config: LLMProviderSettings): Prom
   return await response.json();
 };
 // Web 模式下使用 fetch + ReadableStream 实现流式调用
-const webChatStream = async (body: ChatRequestBody, config: LLMProviderSettings, callbacks: StreamCallbacks) => {
+const webChatStream = (body: ChatRequestBody, config: LLMProviderSettings, callbacks: StreamCallbacks) => {
+  const abortController = new AbortController();
   if (!config.apiKey || !config.baseURL) {
     callbacks.onError(new Error('请先配置 API Key 和 Base URL'));
-    return;
+    return { abort: () => abortController.abort() };
   }
   const headers: Record<string, string> = {
     'Authorization': `Bearer ${config.apiKey}`,
@@ -46,35 +47,43 @@ const webChatStream = async (body: ChatRequestBody, config: LLMProviderSettings,
   config.customHeaders?.forEach(h => {
     if (h.key) headers[h.key] = h.value;
   });
-  try {
-    const response = await fetch(config.baseURL, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ ...body, model: config.model, stream: true })
-    });
-    if (!response.ok) {
-      const errorText = await response.text();
-      callbacks.onError(new Error(`API 请求失败: ${response.status} - ${errorText}`));
-      return;
-    }
-    const reader = response.body?.getReader();
-    if (!reader) {
-      callbacks.onError(new Error('无法获取响应流'));
-      return;
-    }
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
+  (async () => {
+    try {
+      const response = await fetch(config.baseURL, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ ...body, model: config.model, stream: true }),
+        signal: abortController.signal
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        callbacks.onError(new Error(`API 请求失败: ${response.status} - ${errorText}`));
+        return;
+      }
+      const reader = response.body?.getReader();
+      if (!reader) {
+        callbacks.onError(new Error('无法获取响应流'));
+        return;
+      }
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          callbacks.onEnd();
+          break;
+        }
+        if (value) {
+          callbacks.onData(value);
+        }
+      }
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
         callbacks.onEnd();
-        break;
+        return;
       }
-      if (value) {
-        callbacks.onData(value);
-      }
+      callbacks.onError(err instanceof Error ? err : new Error(String(err)));
     }
-  } catch (err) {
-    callbacks.onError(err instanceof Error ? err : new Error(String(err)));
-  }
+  })();
+  return { abort: () => abortController.abort() };
 };
 
 export const useLLMClientStore = defineStore('llmClientStore', () => {
@@ -129,7 +138,7 @@ export const useLLMClientStore = defineStore('llmClientStore', () => {
     if (isElectron() && window.electronAPI?.aiManager) {
       return window.electronAPI.aiManager.chatStream(body, callbacks);
     }
-    webChatStream(body, activeProvider.value, callbacks);
+    return webChatStream(body, activeProvider.value, callbacks);
   };
   // 检查 AI 功能是否可用
   const isAvailable = () => {

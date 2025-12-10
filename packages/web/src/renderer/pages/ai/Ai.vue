@@ -1,6 +1,6 @@
 <template>
   <ClDrag
-    v-if="visible"
+    v-show="visible"
     class="ai-dialog"
     :width="dialogWidth"
     :height="dialogHeight"
@@ -77,7 +77,7 @@ import { appState } from '@/cache/appState/appStateCache'
 import { llmProviderCache } from '@/cache/ai/llmProviderCache'
 import { useAgentViewStore } from '@/store/ai/agentViewStore'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
-import { runAgent } from '@/store/ai/agentStore'
+import { runAgent, stopAgent } from '@/store/ai/agentStore'
 import AiHistory from './components/aiHistory/AiHistory.vue'
 import ClDrag from '@/components/ui/cleanDesign/clDrag/ClDrag.vue'
 import AiHeader from './components/aiHeader/AiHeader.vue'
@@ -165,6 +165,11 @@ const buildOpenAIRequestBody = (userMessage: string): ChatRequestBody => {
   }
 }
 const stopCurrentConversation = async () => {
+  if (mode.value === 'agent') {
+    stopAgent()
+    agentViewStore.setWorkingStatus('finish')
+    return
+  }
   if (!isStreaming.value) return
   if (cancelCurrentStream.value) {
     await cancelCurrentStream.value()

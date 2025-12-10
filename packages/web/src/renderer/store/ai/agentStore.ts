@@ -10,6 +10,19 @@ import { generateAgentExecutionMessage, generateCompletionMessage } from '@/help
 import { config } from '@src/config/config'
 import { nanoid } from 'nanoid'
 
+let agentAbortController: AbortController | null = null
+export const stopAgent = () => {
+	if (agentAbortController) {
+		agentAbortController.abort()
+		agentAbortController = null
+	}
+}
+const checkAborted = (signal: AbortSignal | undefined) => {
+	if (signal?.aborted) {
+		throw new Error('AGENT_ABORTED')
+	}
+}
+
 const agentSystemPrompt = `你是 Apiflow 智能代理，需使用工具完成用户意图。
 - 优先调用工具完成修改，避免凭空编造。
 - 工具调用前先用一句话确认理解；缺信息则先追问。
@@ -126,7 +139,8 @@ const buildHistoryMessages = (agentViewStore: ReturnType<typeof useAgentViewStor
 	return historyMessages
 }
 // 使用 LLM 从工具摘要中筛选相关工具
-const selectToolsByLLM = async (prompt: string, contextText: string, llmClientStore: ReturnType<typeof useLLMClientStore>): Promise<OpenAiToolDefinition[]> => {
+const selectToolsByLLM = async (prompt: string, contextText: string, llmClientStore: ReturnType<typeof useLLMClientStore>, signal?: AbortSignal): Promise<OpenAiToolDefinition[]> => {
+	checkAborted(signal)
 	const toolListText = JSON.stringify(toolSummaries)
 	const messages: LLMessage[] = [
 		{ role: 'system', content: toolSelectionSystemPrompt },
@@ -136,6 +150,7 @@ const selectToolsByLLM = async (prompt: string, contextText: string, llmClientSt
 	]
 	try {
 		const response = await llmClientStore.chat({ messages, response_format: { type: 'json_object' } })
+		checkAborted(signal)
 		const content = response.choices[0]?.message?.content?.trim() || ''
 		const toolNames: string[] = JSON.parse(content)
 		if (!Array.isArray(toolNames) || toolNames.length === 0) {
@@ -146,7 +161,10 @@ const selectToolsByLLM = async (prompt: string, contextText: string, llmClientSt
 			return openaiTools
 		}
 		return selectedTools
-	} catch {
+	} catch (err) {
+		if (err instanceof Error && err.message === 'AGENT_ABORTED') {
+			throw err
+		}
 		return openaiTools
 	}
 }
@@ -156,13 +174,16 @@ const executeAgentLoop = async (
 	tools: OpenAiToolDefinition[],
 	messageId: string,
 	agentViewStore: ReturnType<typeof useAgentViewStore>,
-	llmClientStore: ReturnType<typeof useLLMClientStore>
+	llmClientStore: ReturnType<typeof useLLMClientStore>,
+	signal?: AbortSignal
 ): Promise<{ content: string; needFallback: boolean; hasToolCalls: boolean }> => {
 	let currentToolCalls: AgentToolCallInfo[] = []
 	let hasToolCalls = false
 	let todoList: TodoItem[] = []
 	let lastCompletedStep = 0
+	checkAborted(signal)
 	let currentResponse = await llmClientStore.chat({ messages, tools })
+	checkAborted(signal)
 	for (let iteration = 0; iteration < config.renderConfig.agentConfig.maxIterations; iteration++) {
 		const { message, finish_reason } = currentResponse.choices[0]
 		const messageContent = message.content || ''
@@ -217,6 +238,7 @@ const executeAgentLoop = async (
 		})
 		const responseUsage = currentResponse.usage
 		for (let i = 0; i < message.tool_calls.length; i++) {
+			checkAborted(signal)
 			const toolCall = message.tool_calls[i]
 			const args = JSON.parse(toolCall.function.arguments || '{}')
 			const toolCallInfo: AgentToolCallInfo = {
@@ -245,6 +267,7 @@ const executeAgentLoop = async (
 			}
 			try {
 				const result = await tool.execute(args)
+				checkAborted(signal)
 				const newStatus = result.code === 0 ? 'success' : 'error' as AgentToolCallInfo['status']
 				currentToolCalls = currentToolCalls.map(tc =>
 					tc.id === toolCall.id
@@ -260,6 +283,9 @@ const executeAgentLoop = async (
 					tool_call_id: toolCall.id
 				})
 			} catch (err) {
+				if (err instanceof Error && err.message === 'AGENT_ABORTED') {
+					throw err
+				}
 				currentToolCalls = currentToolCalls.map(tc =>
 					tc.id === toolCall.id
 						? { ...tc, status: 'error' as const, error: err instanceof Error ? err.message : String(err), endTime: Date.now() }
@@ -273,12 +299,16 @@ const executeAgentLoop = async (
 				})
 			}
 		}
+		checkAborted(signal)
 		currentResponse = await llmClientStore.chat({ messages, tools })
+		checkAborted(signal)
 	}
 	const finalContent = currentResponse.choices[0]?.message?.content || ''
 	return { content: finalContent, needFallback: false, hasToolCalls }
 }
-export const runAgent = async ({ prompt }: { prompt: string }): Promise<{ success: true; content: string } | { success: false; error: string }> => {
+export const runAgent = async ({ prompt }: { prompt: string }): Promise<{ success: true; content: string } | { success: false; error: string; aborted?: boolean }> => {
+	agentAbortController = new AbortController()
+	const signal = agentAbortController.signal
 	const llmClientStore = useLLMClientStore()
 	const agentViewStore = useAgentViewStore()
 	const context = buildAgentContext()
@@ -299,15 +329,15 @@ export const runAgent = async ({ prompt }: { prompt: string }): Promise<{ succes
 	agentViewStore.agentViewMessageList.push(agentMessage)
 	try {
 		// 第一阶段：使用 LLM 筛选相关工具
-		const selectedTools = await selectToolsByLLM(prompt, contextText, llmClientStore);
+		const selectedTools = await selectToolsByLLM(prompt, contextText, llmClientStore, signal);
 		const isUsingSubset = selectedTools.length < openaiTools.length
 		// 第二阶段：使用筛选后的工具执行 Agent 循环
 		const messages = [...baseMessages]
-		let result = await executeAgentLoop(messages, selectedTools, messageId, agentViewStore, llmClientStore)
+		let result = await executeAgentLoop(messages, selectedTools, messageId, agentViewStore, llmClientStore, signal)
 		// 第三阶段：如果使用子集且需要 fallback，用完整工具集重试
 		if (isUsingSubset && result.needFallback) {
 			const retryMessages: LLMessage[] = [...baseMessages]
-			result = await executeAgentLoop(retryMessages, openaiTools, messageId, agentViewStore, llmClientStore)
+			result = await executeAgentLoop(retryMessages, openaiTools, messageId, agentViewStore, llmClientStore, signal)
 		}
 		agentViewStore.updateMessageInList(messageId, { status: 'success', isStreaming: false })
 		const finalMessage = agentViewStore.getMessageById(messageId)
@@ -316,11 +346,21 @@ export const runAgent = async ({ prompt }: { prompt: string }): Promise<{ succes
 		}
 		const completionMessage = generateCompletionMessage(agentViewStore.currentSessionId, result.content)
 		await agentViewStore.addAgentViewMessage(completionMessage)
+		agentAbortController = null
 		return { success: true, content: result.content }
 	} catch (err) {
-		// 删除 agentExecution 消息
-		agentViewStore.deleteAgentViewMessageById(messageId)
+		const isAborted = err instanceof Error && err.message === 'AGENT_ABORTED'
+		if (isAborted) {
+			agentViewStore.updateMessageInList(messageId, { status: 'aborted', isStreaming: false })
+			const finalMessage = agentViewStore.getMessageById(messageId)
+			if (finalMessage) {
+				await agentViewStore.updateAgentViewMessage(finalMessage)
+			}
+		} else {
+			agentViewStore.deleteAgentViewMessageById(messageId)
+		}
+		agentAbortController = null
 		const errorMessage = err instanceof Error ? err.message : String(err)
-		return { success: false, error: errorMessage }
+		return { success: false, error: errorMessage, aborted: isAborted }
 	}
 }

@@ -75,7 +75,8 @@
         </div>
         <!-- 操作按钮 -->
         <div class="search-actions">
-          <el-button size="small" @click="handleReset">{{ $t('重置') }}</el-button>
+          <el-button size="small" @click="handleToggleSelectAll">{{ isAllSelected ? t('取消全选') : t('全选') }}</el-button>
+          <el-button size="small" @click="handleReset">{{ t('重置') }}</el-button>
         </div>
       </el-card>
     </div>
@@ -83,7 +84,9 @@
 </template>
 <script lang="ts" setup>
 import type { AdvancedSearchConditions } from '@src/types/advancedSearch';
-defineProps<{
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
+const props = defineProps<{
   isStandalone: boolean;
   isVisible: boolean;
 }>();
@@ -109,6 +112,29 @@ const handleDateChange = (value: [Date, Date] | null) => {
     localConditions.value.dateRange.customStart = undefined;
     localConditions.value.dateRange.customEnd = undefined;
   }
+};
+// 判断是否全选（仅检查checkbox，不包含日期范围radio）
+const isAllSelected = computed(() => {
+  const scope = localConditions.value.searchScope;
+  const checkboxKeys: Array<keyof typeof scope> = [
+    'projectName', 'docName', 'url', 'method', 'remark',
+    'folder', 'http', 'websocket', 'httpMock',
+    'query', 'path', 'headers', 'body', 'response', 'preScript', 'afterScript', 'wsMessage'
+  ];
+  if (!props.isStandalone) {
+    checkboxKeys.push('creator', 'maintainer');
+  }
+  return checkboxKeys.every(key => scope[key]);
+});
+// 切换全选/取消全选
+const handleToggleSelectAll = () => {
+  const newValue = !isAllSelected.value;
+  const scope = localConditions.value.searchScope;
+  const keys = Object.keys(scope) as Array<keyof typeof scope>;
+  keys.forEach(key => {
+    if (props.isStandalone && (key === 'creator' || key === 'maintainer')) return;
+    scope[key] = newValue;
+  });
 };
 const handleReset = () => {
   emit('reset');

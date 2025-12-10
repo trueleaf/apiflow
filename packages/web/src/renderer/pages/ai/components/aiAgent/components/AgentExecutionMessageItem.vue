@@ -88,7 +88,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Bot, ChevronDown, ChevronRight, Loader2, CheckCircle2, XCircle, Clock, AlertCircle, Check, X, Brain } from 'lucide-vue-next'
+import { Bot, ChevronDown, ChevronRight, Loader2, CheckCircle2, XCircle, Clock, AlertCircle, Check, X, Brain, StopCircle } from 'lucide-vue-next'
 import VueMarkdownRender from 'vue-markdown-render'
 import AgentTodoList from './AgentTodoList.vue'
 import type { AgentExecutionMessage, AgentToolCallStatus } from '@src/types/ai'
@@ -157,7 +157,8 @@ const statusIcon = computed(() => {
     pending: Clock,
     running: Loader2,
     success: CheckCircle2,
-    error: XCircle
+    error: XCircle,
+    aborted: StopCircle
   }
   return icons[props.message.status]
 })
@@ -273,6 +274,9 @@ const getTokenUsage = (toolCall: { tokenUsage?: { total_tokens: number } }) => {
 }
 .agent-status-icon.status-error {
   color: #ef4444;
+}
+.agent-status-icon.status-aborted {
+  color: #f59e0b;
 }
 @keyframes spin {
   from { transform: rotate(0deg); }

@@ -58,7 +58,7 @@ export type AgentExecutionMessage = {
   type: "agentExecution";
   sessionId: string;
   timestamp: string;
-  status: 'pending' | 'running' | 'success' | 'error';
+  status: 'pending' | 'running' | 'success' | 'error' | 'aborted';
   toolCalls: AgentToolCallInfo[];
   thinkingContent?: string;
   mode: 'agent' | 'ask';

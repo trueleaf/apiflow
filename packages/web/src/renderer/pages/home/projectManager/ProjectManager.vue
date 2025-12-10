@@ -515,16 +515,13 @@ const debounceSearch = debounce(() => {
     debouncedAdvancedSearch();
   }
 }, 300)
-// 检查是否有任何搜索条件
-const hasAnyCondition = (conditions: AdvancedSearchConditions): boolean => {
-  const hasKeyword = conditions.keyword.trim().length > 0;
-  const hasAnyScope = Object.values(conditions.searchScope).some(v => v === true);
-  const hasDateRange = conditions.dateRange.type !== 'unlimited';
-  return hasKeyword && hasAnyScope && (hasDateRange || true);
+// 检查是否有关键字
+const hasKeyword = (conditions: AdvancedSearchConditions): boolean => {
+  return conditions.keyword.trim().length > 0;
 };
 // 执行高级搜索
 const debouncedAdvancedSearch = debounce(async () => {
-  if (!hasAnyCondition(searchConditions.value)) {
+  if (!hasKeyword(searchConditions.value)) {
     searchResults.value = [];
     searchMode.value = 'simple';
     return;
@@ -569,8 +566,9 @@ const toggleAdvancedSearch = () => {
 };
 // 重置搜索
 const handleResetSearch = () => {
+  const currentKeyword = searchConditions.value.keyword;
   searchConditions.value = {
-    keyword: '',
+    keyword: currentKeyword,
     searchScope: {
       projectName: true,
       docName: true,
@@ -596,8 +594,6 @@ const handleResetSearch = () => {
       type: 'unlimited'
     }
   };
-  searchResults.value = [];
-  searchMode.value = 'simple';
   expandedProjects.value.clear();
   allSearchResults.value.clear();
 };

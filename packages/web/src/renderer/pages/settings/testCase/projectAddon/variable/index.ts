@@ -306,6 +306,403 @@ const node: ModelNode = {
         "name": "测试所有类型变量可以覆盖变量系统的核心功能"
       }
     ]
+  },
+  {
+    "purpose": "编辑已存在的变量,修改变量名称和变量值",
+    "precondition": [
+      {
+        "id": "1",
+        "name": "已登录并打开任意项目工作区"
+      },
+      {
+        "id": "2",
+        "name": "已有至少一个变量存在于变量列表中"
+      }
+    ],
+    "operationSteps": [
+      {
+        "id": "1",
+        "name": "打开变量管理页面"
+      },
+      {
+        "id": "2",
+        "name": "在变量列表中找到已存在的变量,点击\"编辑\"按钮"
+      },
+      {
+        "id": "3",
+        "name": "在弹出的编辑弹窗中修改变量名称为新名称"
+      },
+      {
+        "id": "4",
+        "name": "修改变量值为新值"
+      },
+      {
+        "id": "5",
+        "name": "点击\"确定\"按钮保存修改"
+      }
+    ],
+    "expectedResults": [
+      {
+        "id": "1",
+        "name": "点击编辑按钮后弹出编辑弹窗"
+      },
+      {
+        "id": "2",
+        "name": "编辑弹窗中显示当前变量的名称和值"
+      },
+      {
+        "id": "3",
+        "name": "修改后点击确定,弹窗关闭"
+      },
+      {
+        "id": "4",
+        "name": "变量列表中该变量的名称和值更新为新值"
+      },
+      {
+        "id": "5",
+        "name": "如果修改的变量名与其他变量重复,显示错误提示"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "1",
+        "name": "EditDialog组件负责变量编辑功能"
+      },
+      {
+        "id": "2",
+        "name": "编辑时调用nodeVariableCache.updateVariableById方法(离线模式)"
+      },
+      {
+        "id": "3",
+        "name": "编辑成功后调用getData刷新变量列表"
+      },
+      {
+        "id": "4",
+        "name": "变量名称重复校验在保存时进行"
+      }
+    ],
+    "notes": [
+      {
+        "id": "1",
+        "name": "编辑变量不会改变变量的_id"
+      },
+      {
+        "id": "2",
+        "name": "编辑变量后会同步到主进程用于mock服务"
+      }
+    ]
+  },
+  {
+    "purpose": "在请求URL中使用变量,验证变量被正确替换",
+    "precondition": [
+      {
+        "id": "1",
+        "name": "已登录并打开任意项目工作区"
+      },
+      {
+        "id": "2",
+        "name": "已新增变量baseUrl(string:\"http://127.0.0.1:3456\")"
+      },
+      {
+        "id": "3",
+        "name": "本地mock server已启动"
+      }
+    ],
+    "operationSteps": [
+      {
+        "id": "1",
+        "name": "新建一个HTTP GET请求节点"
+      },
+      {
+        "id": "2",
+        "name": "在URL输入框中输入:{{baseUrl}}/echo"
+      },
+      {
+        "id": "3",
+        "name": "点击\"发送请求\"按钮"
+      },
+      {
+        "id": "4",
+        "name": "查看响应结果"
+      }
+    ],
+    "expectedResults": [
+      {
+        "id": "1",
+        "name": "URL中的{{baseUrl}}被替换为实际值\"http://127.0.0.1:3456\""
+      },
+      {
+        "id": "2",
+        "name": "请求成功发送到http://127.0.0.1:3456/echo"
+      },
+      {
+        "id": "3",
+        "name": "响应状态码为200"
+      },
+      {
+        "id": "4",
+        "name": "响应body中url字段显示完整的请求路径"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "1",
+        "name": "URL变量替换在request.ts中的变量解析阶段完成"
+      },
+      {
+        "id": "2",
+        "name": "变量替换使用{{variableName}}语法"
+      },
+      {
+        "id": "3",
+        "name": "URL变量替换后拼接完整的请求地址"
+      }
+    ],
+    "notes": [
+      {
+        "id": "1",
+        "name": "URL变量通常用于存储环境相关的基础地址"
+      },
+      {
+        "id": "2",
+        "name": "可以在URL的任意位置使用变量"
+      }
+    ]
+  },
+  {
+    "purpose": "在请求Headers中使用变量,验证Authorization等头部变量替换",
+    "precondition": [
+      {
+        "id": "1",
+        "name": "已登录并打开任意项目工作区"
+      },
+      {
+        "id": "2",
+        "name": "已新增变量token(string:\"Bearer test-token-123\")"
+      },
+      {
+        "id": "3",
+        "name": "本地mock server已启动"
+      }
+    ],
+    "operationSteps": [
+      {
+        "id": "1",
+        "name": "新建一个HTTP GET请求节点"
+      },
+      {
+        "id": "2",
+        "name": "设置请求URL为:http://127.0.0.1:3456/echo"
+      },
+      {
+        "id": "3",
+        "name": "切换到Headers选项卡"
+      },
+      {
+        "id": "4",
+        "name": "添加请求头:Authorization = {{token}}"
+      },
+      {
+        "id": "5",
+        "name": "点击\"发送请求\"按钮"
+      },
+      {
+        "id": "6",
+        "name": "查看响应结果中的headers部分"
+      }
+    ],
+    "expectedResults": [
+      {
+        "id": "1",
+        "name": "请求头中的{{token}}被替换为\"Bearer test-token-123\""
+      },
+      {
+        "id": "2",
+        "name": "响应body中headers.authorization字段值为\"Bearer test-token-123\""
+      },
+      {
+        "id": "3",
+        "name": "响应状态码为200"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "1",
+        "name": "Headers变量替换在请求发送前完成"
+      },
+      {
+        "id": "2",
+        "name": "Headers变量支持在key和value中使用"
+      },
+      {
+        "id": "3",
+        "name": "echo接口返回接收到的headers信息"
+      }
+    ],
+    "notes": [
+      {
+        "id": "1",
+        "name": "Headers变量常用于存储认证token"
+      },
+      {
+        "id": "2",
+        "name": "敏感信息建议使用变量存储,避免硬编码"
+      }
+    ]
+  },
+  {
+    "purpose": "使用any类型变量执行复杂JavaScript表达式,如动态时间戳",
+    "precondition": [
+      {
+        "id": "1",
+        "name": "已登录并打开任意项目工作区"
+      },
+      {
+        "id": "2",
+        "name": "打开变量管理页面"
+      }
+    ],
+    "operationSteps": [
+      {
+        "id": "1",
+        "name": "点击\"新增变量\"按钮"
+      },
+      {
+        "id": "2",
+        "name": "输入变量名\"timestamp\",选择类型\"any\""
+      },
+      {
+        "id": "3",
+        "name": "在JavaScript编辑器中输入:Date.now()"
+      },
+      {
+        "id": "4",
+        "name": "点击保存"
+      },
+      {
+        "id": "5",
+        "name": "新建HTTP请求,在URL中使用{{timestamp}}变量"
+      },
+      {
+        "id": "6",
+        "name": "发送请求并查看响应"
+      }
+    ],
+    "expectedResults": [
+      {
+        "id": "1",
+        "name": "any类型变量成功保存"
+      },
+      {
+        "id": "2",
+        "name": "发送请求时,{{timestamp}}被替换为当前时间戳数字"
+      },
+      {
+        "id": "3",
+        "name": "每次请求的时间戳值都不同(动态计算)"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "1",
+        "name": "any类型变量支持JavaScript表达式"
+      },
+      {
+        "id": "2",
+        "name": "表达式在每次变量解析时重新执行"
+      },
+      {
+        "id": "3",
+        "name": "支持Date,Math等JavaScript内置对象"
+      }
+    ],
+    "notes": [
+      {
+        "id": "1",
+        "name": "any类型变量可用于生成动态数据"
+      },
+      {
+        "id": "2",
+        "name": "支持的表达式包括:Date.now(),Math.random(),字符串拼接等"
+      },
+      {
+        "id": "3",
+        "name": "复杂逻辑可以使用IIFE:(() => { return value })()"
+      }
+    ]
+  },
+  {
+    "purpose": "测试使用不存在的变量时的处理行为",
+    "precondition": [
+      {
+        "id": "1",
+        "name": "已登录并打开任意项目工作区"
+      },
+      {
+        "id": "2",
+        "name": "本地mock server已启动"
+      }
+    ],
+    "operationSteps": [
+      {
+        "id": "1",
+        "name": "新建一个HTTP POST请求节点"
+      },
+      {
+        "id": "2",
+        "name": "设置请求URL为:http://127.0.0.1:3456/echo"
+      },
+      {
+        "id": "3",
+        "name": "设置Content-Type为application/json"
+      },
+      {
+        "id": "4",
+        "name": "在Body中输入:{ \"value\": \"{{notExistVar}}\" }"
+      },
+      {
+        "id": "5",
+        "name": "点击\"发送请求\"按钮"
+      },
+      {
+        "id": "6",
+        "name": "查看响应结果"
+      }
+    ],
+    "expectedResults": [
+      {
+        "id": "1",
+        "name": "请求正常发送,不会因为变量不存在而报错"
+      },
+      {
+        "id": "2",
+        "name": "响应body中value字段保留原始文本\"{{notExistVar}}\""
+      },
+      {
+        "id": "3",
+        "name": "响应状态码为200"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "1",
+        "name": "变量解析时,不存在的变量保留原始{{variableName}}文本"
+      },
+      {
+        "id": "2",
+        "name": "不存在的变量不会阻止请求发送"
+      }
+    ],
+    "notes": [
+      {
+        "id": "1",
+        "name": "这种行为允许用户在变量未定义时仍能发送请求"
+      },
+      {
+        "id": "2",
+        "name": "可以通过响应内容检查变量是否正确解析"
+      }
+    ]
   }
 ],
 }

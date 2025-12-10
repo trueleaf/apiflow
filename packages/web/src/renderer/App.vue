@@ -13,7 +13,7 @@
       </div>
     </div>
     <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
-    <Ai v-if="agentViewDialogVisible" v-model:visible="agentViewDialogVisible" />
+    <Ai v-show="agentViewDialogVisible" v-model:visible="agentViewDialogVisible" />
     <!-- Electron 环境：语言菜单由 IPC 控制显示 -->
     <LanguageMenu
       v-if="isElectronEnv"

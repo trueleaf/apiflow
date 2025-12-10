@@ -542,6 +542,7 @@ export default {
   菜单可以进行拖拽排序: 'Menus can be drag-sorted',
   参数值不能为null: 'Parameter value cannot be null',
   全选: 'Select All',
+  取消全选: 'Deselect All',
   修改角色: 'Modify Role',
   角色名称: 'Role Name',
   前端路由: 'Frontend Routes',
