@@ -1642,4 +1642,8 @@ export default {
   '已导航到设置页面': 'Navigated to settings page',
   '恢复节点失败': 'Failed to restore node',
   '节点已恢复': 'Node restored',
+  '创建文件夹失败': 'Failed to create folder',
+  '文件夹创建成功': 'Folder created successfully',
+  '文件夹列表不能为空': 'Folder list cannot be empty',
+  '批量创建文件夹完成': 'Batch folder creation completed',
 }

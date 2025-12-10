@@ -79,6 +79,10 @@ export const httpNodeTools: AgentTool[] = [
           type: 'string',
           description: '接口的自然语言描述，例如"创建一个用户登录接口，需要用户名和密码"',
         },
+         pid: {
+          type: 'string',
+          description: '父节点id，根节点留空字符串',
+        },
       },
       required: ['projectId', 'description'],
     },

@@ -80,7 +80,7 @@
           @click="emit('stop')"
           :title="t('停止')"
         >
-          <Square :size="12" />
+          <StopCircle :size="16" />
         </button>
         <button
           v-else
@@ -100,7 +100,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { Send, ChevronDown, Check, Square, Plus, FolderKanban } from 'lucide-vue-next'
+import { Send, ChevronDown, Check, StopCircle, Plus, FolderKanban } from 'lucide-vue-next'
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 
 const isMacOS = navigator.platform.toUpperCase().includes('MAC')

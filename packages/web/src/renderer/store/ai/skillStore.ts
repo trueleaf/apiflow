@@ -1,5 +1,5 @@
 import { cloneDeep, assign, merge } from "lodash-es"
-import { HttpNode, ApidocProperty, ApidocProjectInfo, HttpNodeRequestMethod, HttpNodeContentType, HttpNodeBodyMode, FolderNode, ApidocBannerOfHttpNode, ApidocBanner, ApidocVariable } from '@src/types'
+import { HttpNode, ApidocProperty, ApidocProjectInfo, HttpNodeRequestMethod, HttpNodeContentType, HttpNodeBodyMode, FolderNode, ApidocBannerOfHttpNode, ApidocBannerOfFolderNode, ApidocBanner, ApidocVariable } from '@src/types'
 import { CreateHttpNodeOptions } from '@src/types/ai/tools.type'
 import { defineStore } from "pinia"
 import { DeepPartial } from "@src/types/index.ts"
@@ -894,6 +894,73 @@ export const useSkill = defineStore('skill', () => {
     const projectManagerStore = useProjectManagerStore();
     return await projectManagerStore.unstarProject(projectId);
   }
+  //创建文件夹节点
+  const createFolderNode = async (options: { projectId: string; name: string; pid?: string }): Promise<FolderNode | null> => {
+    const now = new Date().toISOString();
+    const folderNode: FolderNode = {
+      _id: nanoid(),
+      pid: options.pid || '',
+      projectId: options.projectId,
+      sort: Date.now(),
+      info: {
+        name: options.name,
+        type: 'folder',
+        description: '',
+        version: '',
+        creator: '',
+        deletePerson: '',
+        maintainer: '',
+      },
+      commonHeaders: [],
+      createdAt: now,
+      updatedAt: now,
+      isDeleted: false,
+    };
+    const success = await apiNodesCache.addNode(folderNode);
+    if (!success) {
+      logger.error('新增文件夹节点失败', { projectId: options.projectId });
+      return null;
+    }
+    const currentProjectId = router.currentRoute.value.query.id as string;
+    if (currentProjectId === options.projectId) {
+      const bannerStore = useBanner();
+      const bannerNode: ApidocBannerOfFolderNode = {
+        _id: folderNode._id,
+        updatedAt: folderNode.updatedAt,
+        type: 'folder',
+        sort: folderNode.sort,
+        pid: folderNode.pid,
+        name: folderNode.info.name,
+        maintainer: folderNode.info.maintainer,
+        commonHeaders: [],
+        readonly: false,
+        children: [],
+      };
+      if (!folderNode.pid) {
+        bannerStore.splice({ start: bannerStore.banner.length, deleteCount: 0, item: bannerNode });
+      } else {
+        const parentNode = findNodeById(bannerStore.banner, folderNode.pid, { idKey: '_id' }) as ApidocBanner | null;
+        if (parentNode && parentNode.children) {
+          bannerStore.splice({ start: parentNode.children.length, deleteCount: 0, item: bannerNode, opData: parentNode.children });
+        }
+      }
+    }
+    return folderNode;
+  }
+  //批量创建文件夹节点
+  const batchCreateFolderNodes = async (options: { projectId: string; folders: { name: string; pid?: string }[] }): Promise<{ success: FolderNode[]; failed: { name: string; pid?: string }[] }> => {
+    const success: FolderNode[] = [];
+    const failed: { name: string; pid?: string }[] = [];
+    for (const folder of options.folders) {
+      const result = await createFolderNode({ projectId: options.projectId, name: folder.name, pid: folder.pid });
+      if (result) {
+        success.push(result);
+      } else {
+        failed.push(folder);
+      }
+    }
+    return { success, failed };
+  }
   //获取项目下所有文件夹列表
   const getFolderList = async (projectId: string): Promise<FolderNode[]> => {
     const allNodes = await apiNodesCache.getNodesByProjectId(projectId);
@@ -1065,6 +1132,8 @@ export const useSkill = defineStore('skill', () => {
     deleteProject,
     starProject,
     unstarProject,
+    createFolderNode,
+    batchCreateFolderNodes,
     getFolderList,
     renameFolder,
     batchRenameFolders,

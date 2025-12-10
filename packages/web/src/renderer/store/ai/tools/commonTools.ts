@@ -5,6 +5,7 @@ import { useBanner } from '@/store/projectWorkbench/bannerStore'
 import { apiNodesCache } from '@/cache/nodes/nodesCache'
 import { router } from '@/router'
 import { i18n } from '@/i18n'
+import { useSkill } from '@/store/ai/skillStore'
 
 export const commonTools: AgentTool[] = [
   // 获取当前打开的所有Tab列表
@@ -279,6 +280,95 @@ export const commonTools: AgentTool[] = [
       }
       bannerStore.getDocBanner({ projectId })
       return { code: 0, data: { message: i18n.global.t('节点已恢复'), restoredIds } }
+    },
+  },
+  // 创建文件夹节点
+  {
+    name: 'createFolder',
+    description: '在当前项目中创建一个文件夹节点',
+    type: 'common',
+    parameters: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          description: '文件夹名称',
+        },
+        pid: {
+          type: 'string',
+          description: '父节点ID，不填则创建在根目录',
+        },
+      },
+      required: ['name'],
+    },
+    needConfirm: true,
+    execute: async (args: Record<string, unknown>) => {
+      const projectWorkbenchStore = useProjectWorkbench()
+      const skillStore = useSkill()
+      const projectId = projectWorkbenchStore.projectId
+      const name = args.name as string
+      const pid = args.pid as string | undefined
+      if (!projectId) {
+        return { code: 1, data: { message: i18n.global.t('当前未打开任何项目') } }
+      }
+      const folder = await skillStore.createFolderNode({ projectId, name, pid })
+      if (!folder) {
+        return { code: 1, data: { message: i18n.global.t('创建文件夹失败') } }
+      }
+      return { code: 0, data: { message: i18n.global.t('文件夹创建成功'), folder: { _id: folder._id, name: folder.info.name, pid: folder.pid } } }
+    },
+  },
+  // 批量创建文件夹节点
+  {
+    name: 'batchCreateFolders',
+    description: '在当前项目中批量创建文件夹节点',
+    type: 'common',
+    parameters: {
+      type: 'object',
+      properties: {
+        folders: {
+          type: 'array',
+          description: '文件夹列表',
+          items: {
+            type: 'object',
+            properties: {
+              name: {
+                type: 'string',
+                description: '文件夹名称',
+              },
+              pid: {
+                type: 'string',
+                description: '父节点ID，不填则创建在根目录',
+              },
+            },
+            required: ['name'],
+          },
+        },
+      },
+      required: ['folders'],
+    },
+    needConfirm: true,
+    execute: async (args: Record<string, unknown>) => {
+      const projectWorkbenchStore = useProjectWorkbench()
+      const skillStore = useSkill()
+      const projectId = projectWorkbenchStore.projectId
+      const folders = args.folders as { name: string; pid?: string }[]
+      if (!projectId) {
+        return { code: 1, data: { message: i18n.global.t('当前未打开任何项目') } }
+      }
+      if (!folders || folders.length === 0) {
+        return { code: 1, data: { message: i18n.global.t('文件夹列表不能为空') } }
+      }
+      const result = await skillStore.batchCreateFolderNodes({ projectId, folders })
+      return {
+        code: 0,
+        data: {
+          message: i18n.global.t('批量创建文件夹完成'),
+          successCount: result.success.length,
+          failedCount: result.failed.length,
+          createdFolders: result.success.map(f => ({ _id: f._id, name: f.info.name, pid: f.pid })),
+        },
+      }
     },
   },
 ]
