@@ -150,6 +150,80 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
       return { success: false, error: (error as Error).message };
     }
   });
+
+  /*
+  |---------------------------------------------------------------------------
+  | 项目扫描（代码仓库导入）
+  |---------------------------------------------------------------------------
+  */
+  // 代码文件扩展名白名单
+  const CODE_EXTENSIONS = ['.js', '.ts', '.jsx', '.tsx', '.vue', '.go', '.java', '.py', '.rb', '.php', '.rs', '.cs'];
+  // 忽略的目录
+  const IGNORE_DIRS = ['node_modules', '.git', 'dist', 'build', '.next', '__pycache__', 'vendor', 'target', '.idea', '.vscode'];
+  // 配置文件（用于框架识别）
+  const CONFIG_FILES = ['package.json', 'go.mod', 'pom.xml', 'build.gradle', 'requirements.txt', 'pyproject.toml', 'Cargo.toml', 'composer.json'];
+  // 选择项目文件夹
+  ipcMain.handle(IPC_EVENTS.projectScan.rendererToMain.selectFolder, async () => {
+    try {
+      const { dialog } = await import('electron');
+      const result = await dialog.showOpenDialog(mainWindow, {
+        title: '选择项目文件夹',
+        properties: ['openDirectory'],
+      });
+      if (result.canceled || result.filePaths.length === 0) {
+        return { success: false, canceled: true };
+      }
+      const folderPath = result.filePaths[0];
+      const folderName = path.basename(folderPath);
+      return { success: true, folderPath, folderName };
+    } catch (error) {
+      return { success: false, error: (error as Error).message };
+    }
+  });
+  // 递归读取目录文件
+  const readDirRecursive = async (dir: string, baseDir: string, files: { path: string; relativePath: string; size: number }[], maxFiles: number, maxFileSize: number) => {
+    if (files.length >= maxFiles) return;
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (files.length >= maxFiles) break;
+      const fullPath = path.join(dir, entry.name);
+      const relativePath = path.relative(baseDir, fullPath);
+      if (entry.isDirectory()) {
+        if (!IGNORE_DIRS.includes(entry.name)) {
+          await readDirRecursive(fullPath, baseDir, files, maxFiles, maxFileSize);
+        }
+      } else if (entry.isFile()) {
+        const ext = path.extname(entry.name).toLowerCase();
+        const isConfigFile = CONFIG_FILES.includes(entry.name);
+        const isCodeFile = CODE_EXTENSIONS.includes(ext);
+        if (isConfigFile || isCodeFile) {
+          const stats = await fs.stat(fullPath);
+          if (stats.size <= maxFileSize) {
+            files.push({ path: fullPath, relativePath, size: stats.size });
+          }
+        }
+      }
+    }
+  };
+  // 读取项目文件
+  ipcMain.handle(IPC_EVENTS.projectScan.rendererToMain.readFiles, async (_: IpcMainInvokeEvent, folderPath: string) => {
+    try {
+      const maxFiles = 100;
+      const maxFileSize = 100 * 1024; // 100KB
+      const files: { path: string; relativePath: string; size: number }[] = [];
+      await readDirRecursive(folderPath, folderPath, files, maxFiles, maxFileSize);
+      // 读取文件内容
+      const fileContents: { relativePath: string; content: string }[] = [];
+      for (const file of files) {
+        const content = await fs.readFile(file.path, 'utf-8');
+        fileContents.push({ relativePath: file.relativePath, content });
+      }
+      return { success: true, files: fileContents, totalFiles: files.length };
+    } catch (error) {
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
   /*
   |---------------------------------------------------------------------------
   | 窗口操作

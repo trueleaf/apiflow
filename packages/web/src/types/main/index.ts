@@ -102,6 +102,10 @@ export type ElectronAPI = {
     delete: (filePath: string) => Promise<{ success: boolean; error?: string }>;
     read: (filePath: string) => Promise<{ success: true; content: string } | { success: false; error: string }>;
   };
+  projectScan: {
+    selectFolder: () => Promise<{ success: true; folderPath: string; folderName: string; canceled?: false } | { success: false; canceled?: boolean; error?: string }>;
+    readFiles: (folderPath: string) => Promise<{ success: true; files: { relativePath: string; content: string }[]; totalFiles: number } | { success: false; error: string }>;
+  };
   updater: {
     checkForUpdates: () => Promise<CheckUpdateResult>;
     downloadUpdate: () => Promise<DownloadResult>;

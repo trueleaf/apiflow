@@ -10,8 +10,10 @@ type StreamCallbacks = {
   onError: (err: Error | string) => void;
 };
 
+// AI 请求超时时间（60秒）
+const AI_REQUEST_TIMEOUT = 60 * 1000;
 // Web 模式下使用 fetch 调用 LLM API
-const webChat = async (body: ChatRequestBody, config: LLMProviderSettings): Promise<OpenAiResponseBody> => {
+const webChat = async (body: ChatRequestBody, config: LLMProviderSettings, signal?: AbortSignal): Promise<OpenAiResponseBody> => {
   if (!config.apiKey || !config.baseURL) {
     throw new Error('请先配置 API Key 和 Base URL');
   }
@@ -22,16 +24,38 @@ const webChat = async (body: ChatRequestBody, config: LLMProviderSettings): Prom
   config.customHeaders?.forEach(h => {
     if (h.key) headers[h.key] = h.value;
   });
-  const response = await fetch(config.baseURL, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({ ...body, model: config.model, stream: false })
-  });
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`API 请求失败: ${response.status} - ${errorText}`);
+  // 创建超时控制器
+  const timeoutController = new AbortController();
+  const timeoutId = setTimeout(() => timeoutController.abort(), AI_REQUEST_TIMEOUT);
+  // 合并外部信号和超时信号
+  const combinedSignal = signal
+    ? AbortSignal.any([signal, timeoutController.signal])
+    : timeoutController.signal;
+  try {
+    const response = await fetch(config.baseURL, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ ...body, model: config.model, stream: false }),
+      signal: combinedSignal
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API 请求失败: ${response.status} - ${errorText}`);
+    }
+    return await response.json();
+  } catch (err) {
+    if (err instanceof Error) {
+      if (err.name === 'AbortError') {
+        if (signal?.aborted) {
+          throw new Error('请求已取消');
+        }
+        throw new Error('请求超时，请稍后重试');
+      }
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
   }
-  return await response.json();
 };
 // Web 模式下使用 fetch + ReadableStream 实现流式调用
 const webChatStream = (body: ChatRequestBody, config: LLMProviderSettings, callbacks: StreamCallbacks) => {
@@ -127,11 +151,11 @@ export const useLLMClientStore = defineStore('llmClientStore', () => {
     }
   };
   // 非流式聊天
-  const chat = async (body: ChatRequestBody): Promise<OpenAiResponseBody> => {
+  const chat = async (body: ChatRequestBody, signal?: AbortSignal): Promise<OpenAiResponseBody> => {
     if (isElectron() && window.electronAPI?.aiManager) {
       return await window.electronAPI.aiManager.chat(body);
     }
-    return await webChat(body, activeProvider.value);
+    return await webChat(body, activeProvider.value, signal);
   };
   // 流式聊天
   const chatStream = (body: ChatRequestBody, callbacks: StreamCallbacks) => {

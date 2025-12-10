@@ -299,6 +299,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     delete: tempFileDelete,
     read: tempFileRead,
   },
+  projectScan: {
+    selectFolder: () => ipcRenderer.invoke(IPC_EVENTS.projectScan.rendererToMain.selectFolder),
+    readFiles: (folderPath: string) => ipcRenderer.invoke(IPC_EVENTS.projectScan.rendererToMain.readFiles, folderPath),
+  },
   updater: {
     checkForUpdates,
     downloadUpdate,

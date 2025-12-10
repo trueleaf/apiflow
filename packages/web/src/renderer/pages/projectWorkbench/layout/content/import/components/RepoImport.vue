@@ -6,54 +6,66 @@
       <span>{{ t('AI 功能不可用，请先配置 API Key') }}</span>
       <el-button type="primary" link @click="handleGoSettings">{{ t('前往配置') }}</el-button>
     </div>
-    <!-- 输入区域 -->
+    <!-- 非 Electron 环境提示 -->
+    <div v-else-if="!isElectronEnv" class="ai-unavailable">
+      <AlertCircle :size="20" class="warning-icon" />
+      <span>{{ t('此功能仅在桌面客户端可用') }}</span>
+    </div>
+    <!-- 主内容区 -->
     <div v-else class="repo-input-area">
-      <!-- 框架选择 -->
-      <div class="framework-select">
-        <span class="select-label">{{ t('项目框架') }}：</span>
-        <el-select v-model="selectedFramework" :placeholder="t('选择框架类型')" :disabled="loading">
-          <el-option
-            v-for="fw in frameworks"
-            :key="fw.value"
-            :label="fw.label"
-            :value="fw.value"
-          />
-        </el-select>
+      <!-- 文件夹选择 -->
+      <div class="folder-select">
+        <el-button type="primary" :disabled="loading" @click="handleSelectFolder">
+          <FolderOpen :size="16" class="mr-1" />
+          {{ t('选择项目文件夹') }}
+        </el-button>
+        <span v-if="selectedFolder" class="folder-path">{{ selectedFolder.name }}</span>
       </div>
-      <!-- 代码输入 -->
-      <div class="code-input">
-        <div class="input-header">
-          <span>{{ t('路由代码') }}</span>
-          <el-tooltip :content="t('粘贴包含路由定义的代码文件内容')">
-            <HelpCircle :size="14" class="help-icon" />
-          </el-tooltip>
+      <!-- 文件列表预览 -->
+      <div v-if="projectFiles.length > 0" class="file-list">
+        <div class="file-list-header">
+          <span>{{ t('已扫描文件') }} ({{ projectFiles.length }})</span>
         </div>
-        <el-input
-          v-model="codeContent"
-          type="textarea"
-          :placeholder="getPlaceholder()"
-          :rows="12"
-          resize="none"
-          :disabled="loading"
-        />
+        <div class="file-list-content">
+          <div v-for="file in projectFiles.slice(0, 20)" :key="file.relativePath" class="file-item">
+            <FileCode :size="14" class="file-icon" />
+            <span class="file-name">{{ file.relativePath }}</span>
+          </div>
+          <div v-if="projectFiles.length > 20" class="file-more">
+            {{ t('还有 {count} 个文件...', { count: projectFiles.length - 20 }) }}
+          </div>
+        </div>
       </div>
       <!-- 操作按钮 -->
       <div class="repo-actions">
         <el-button
           type="primary"
           :loading="loading"
-          :disabled="!codeContent.trim() || !selectedFramework"
+          :disabled="projectFiles.length === 0"
           @click="handleAnalyze"
         >
-          <GitBranch v-if="!loading" :size="16" class="mr-1" />
-          {{ loading ? t('分析中...') : t('分析代码') }}
+          <Sparkles v-if="!loading" :size="16" class="mr-1" />
+          {{ loading ? t('分析中...') : t('开始分析') }}
         </el-button>
-        <el-button :disabled="loading" @click="handleClear">{{ t('清空') }}</el-button>
+        <el-button v-if="selectedFolder" :disabled="loading" @click="handleClear">{{ t('清空') }}</el-button>
       </div>
       <!-- 进度提示 -->
       <div v-if="loading" class="repo-progress">
-        <el-progress :percentage="50" :indeterminate="true" :show-text="false" />
-        <span class="progress-text">{{ t('AI 正在分析路由定义，请稍候...') }}</span>
+        <el-progress :percentage="progressPercent" :stroke-width="8" />
+        <div class="progress-info">
+          <span class="progress-step">{{ progressStep }}</span>
+          <span class="progress-text">{{ progressText }}</span>
+        </div>
+        <el-button type="danger" plain size="small" class="cancel-btn" @click="handleCancel">
+          <X :size="14" class="mr-1" />
+          {{ t('取消分析') }}
+        </el-button>
+      </div>
+      <!-- Token 消耗显示 -->
+      <div v-if="tokenUsage" class="token-usage">
+        <Coins :size="16" class="token-icon" />
+        <span>{{ t('Token 消耗') }}: {{ formatTokens(tokenUsage.totalTokens) }}</span>
+        <span class="token-detail">({{ t('输入') }}: {{ formatTokens(tokenUsage.promptTokens) }}, {{ t('输出') }}: {{ formatTokens(tokenUsage.completionTokens) }})</span>
       </div>
     </div>
   </div>
@@ -62,14 +74,18 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { GitBranch, AlertCircle, HelpCircle } from 'lucide-vue-next'
+import { FolderOpen, FileCode, AlertCircle, Sparkles, X, Coins } from 'lucide-vue-next'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
-import { AiImportTranslator } from '../aiImport'
+import { analyzeProject } from '../aiImport'
 import { router } from '@/router/index'
 import { ElMessage } from 'element-plus'
-
+import { isElectron } from '@/helper'
 import type { HttpNode, FolderNode } from '@src/types'
 
+type ProjectFile = {
+  relativePath: string
+  content: string
+}
 const emit = defineEmits<{
   (e: 'success', data: { docs: (HttpNode | FolderNode)[]; type: 'ai' | 'repository' }): void
   (e: 'error', message: string): void
@@ -79,93 +95,110 @@ const props = defineProps<{
 }>()
 const { t } = useI18n()
 const llmStore = useLLMClientStore()
-const codeContent = ref('')
-const selectedFramework = ref('')
 const loading = ref(false)
-// 框架列表
-const frameworks = [
-  { label: 'Express (Node.js)', value: 'express', language: 'Node.js' },
-  { label: 'Koa (Node.js)', value: 'koa', language: 'Node.js' },
-  { label: 'Fastify (Node.js)', value: 'fastify', language: 'Node.js' },
-  { label: 'NestJS (Node.js)', value: 'nestjs', language: 'Node.js' },
-  { label: 'Gin (Go)', value: 'gin', language: 'Go' },
-  { label: 'Echo (Go)', value: 'echo', language: 'Go' },
-  { label: 'Spring Boot (Java)', value: 'spring', language: 'Java' },
-  { label: 'Flask (Python)', value: 'flask', language: 'Python' },
-  { label: 'FastAPI (Python)', value: 'fastapi', language: 'Python' },
-  { label: 'Django (Python)', value: 'django', language: 'Python' },
-]
+const progressText = ref('')
+const progressStep = ref('')
+const progressPercent = ref(0)
+const selectedFolder = ref<{ path: string; name: string } | null>(null)
+const projectFiles = ref<ProjectFile[]>([])
+const abortController = ref<AbortController | null>(null)
+const tokenUsage = ref<{ promptTokens: number; completionTokens: number; totalTokens: number } | null>(null)
 // 检查 AI 是否可用
 const isAiAvailable = computed(() => llmStore.isAvailable())
-// 获取占位符
-const getPlaceholder = () => {
-  const examples: Record<string, string> = {
-    express: `// Express 路由示例
-router.get('/api/users', getUsers)
-router.post('/api/users', createUser)
-router.get('/api/users/:id', getUserById)`,
-    gin: `// Gin 路由示例
-r.GET("/api/users", GetUsers)
-r.POST("/api/users", CreateUser)
-r.GET("/api/users/:id", GetUserById)`,
-    spring: `// Spring 控制器示例
-@GetMapping("/api/users")
-public List<User> getUsers() { }
-
-@PostMapping("/api/users")
-public User createUser(@RequestBody User user) { }`,
-    flask: `# Flask 路由示例
-@app.route('/api/users', methods=['GET'])
-def get_users():
-    pass
-
-@app.route('/api/users', methods=['POST'])
-def create_user():
-    pass`,
-  }
-  return examples[selectedFramework.value] || t('粘贴包含路由定义的代码')
-}
-// 获取框架语言
-const getFrameworkLanguage = () => {
-  const fw = frameworks.find(f => f.value === selectedFramework.value)
-  return fw?.language || 'Unknown'
-}
+// 检查是否 Electron 环境
+const isElectronEnv = computed(() => isElectron())
 // 跳转设置页
 const handleGoSettings = () => {
   router.push({ name: 'Settings', query: { action: 'ai-settings' } })
 }
+// 选择文件夹
+const handleSelectFolder = async () => {
+  if (!window.electronAPI?.projectScan) return
+  try {
+    const selectResult = await window.electronAPI.projectScan.selectFolder()
+    if (!selectResult.success || selectResult.canceled) {
+      return
+    }
+    selectedFolder.value = {
+      path: selectResult.folderPath,
+      name: selectResult.folderName,
+    }
+    // 读取文件
+    const readResult = await window.electronAPI.projectScan.readFiles(selectResult.folderPath)
+    if (!readResult.success) {
+      ElMessage.error(readResult.error || t('读取文件失败'))
+      return
+    }
+    projectFiles.value = readResult.files
+    ElMessage.success(t('已扫描 {count} 个文件', { count: readResult.totalFiles }))
+  } catch {
+    ElMessage.error(t('选择文件夹失败'))
+  }
+}
 // 开始分析
 const handleAnalyze = async () => {
-  if (!codeContent.value.trim()) {
-    ElMessage.warning(t('请输入代码内容'))
-    return
-  }
-  if (!selectedFramework.value) {
-    ElMessage.warning(t('请选择框架类型'))
+  if (projectFiles.value.length === 0) {
+    ElMessage.warning(t('请先选择项目文件夹'))
     return
   }
   loading.value = true
+  progressPercent.value = 0
+  progressStep.value = t('步骤 1/3')
+  progressText.value = t('准备分析...')
+  tokenUsage.value = null
+  abortController.value = new AbortController()
   try {
-    const translator = new AiImportTranslator(props.projectId)
-    const docs = await translator.analyzeCode(
-      codeContent.value,
-      selectedFramework.value,
-      getFrameworkLanguage()
+    const files = projectFiles.value.map(f => ({ path: f.relativePath, content: f.content }))
+    const docs = await analyzeProject(
+      props.projectId,
+      llmStore,
+      files,
+      (stage, message, percent) => {
+        progressText.value = message
+        progressPercent.value = percent
+        if (stage === 'analyzing') progressStep.value = t('步骤 1/3')
+        else if (stage === 'extracting') progressStep.value = t('步骤 2/3')
+        else if (stage === 'converting') progressStep.value = t('步骤 3/3')
+      },
+      (usage) => {
+        tokenUsage.value = usage
+      },
+      abortController.value.signal
     )
+    progressPercent.value = 100
     emit('success', { docs, type: 'repository' })
     ElMessage.success(t('分析成功'))
   } catch (err) {
+    if (err instanceof Error && err.message === '请求已取消') {
+      ElMessage.info(t('已取消分析'))
+      return
+    }
     const errorMsg = err instanceof Error ? err.message : t('代码分析失败')
     ElMessage.error(errorMsg)
     emit('error', errorMsg)
   } finally {
     loading.value = false
+    progressText.value = ''
+    progressStep.value = ''
+    progressPercent.value = 0
+    abortController.value = null
   }
+}
+// 取消分析
+const handleCancel = () => {
+  abortController.value?.abort()
+}
+// 格式化 Token 数量
+const formatTokens = (tokens: number) => {
+  if (tokens > 1000) {
+    return `${(tokens / 1000).toFixed(1)}k`
+  }
+  return tokens.toString()
 }
 // 清空
 const handleClear = () => {
-  codeContent.value = ''
-  selectedFramework.value = ''
+  selectedFolder.value = null
+  projectFiles.value = []
 }
 </script>
 
@@ -186,58 +219,117 @@ const handleClear = () => {
   }
 
   .repo-input-area {
-    .framework-select {
+    .folder-select {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
       margin-bottom: 16px;
 
-      .select-label {
+      .folder-path {
         font-size: 14px;
-        color: var(--gray-700);
-        white-space: nowrap;
-      }
-
-      .el-select {
-        width: 200px;
+        color: var(--gray-600);
+        padding: 4px 8px;
+        background: var(--gray-100);
+        border-radius: var(--border-radius);
       }
     }
 
-    .code-input {
-      .input-header {
+    .file-list {
+      margin-bottom: 16px;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--border-radius);
+
+      .file-list-header {
+        padding: 8px 12px;
+        background: var(--gray-50);
+        border-bottom: 1px solid var(--gray-200);
+        font-size: 13px;
+        color: var(--gray-600);
+      }
+
+      .file-list-content {
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 8px 0;
+      }
+
+      .file-item {
         display: flex;
         align-items: center;
-        gap: 4px;
-        margin-bottom: 8px;
-        font-size: 14px;
+        gap: 8px;
+        padding: 4px 12px;
+        font-size: 13px;
         color: var(--gray-700);
 
-        .help-icon {
+        .file-icon {
           color: var(--gray-400);
-          cursor: help;
+          flex-shrink: 0;
+        }
+
+        .file-name {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
       }
 
-      :deep(.el-textarea__inner) {
-        font-family: var(--font-family-code);
-        font-size: 13px;
+      .file-more {
+        padding: 4px 12px;
+        font-size: 12px;
+        color: var(--gray-400);
       }
     }
 
     .repo-actions {
-      margin-top: 12px;
       display: flex;
       gap: 8px;
     }
 
     .repo-progress {
-      margin-top: 12px;
+      margin-top: 16px;
+
+      .progress-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 8px;
+      }
+
+      .progress-step {
+        font-size: 12px;
+        color: var(--el-color-primary);
+        font-weight: 500;
+        white-space: nowrap;
+      }
 
       .progress-text {
-        display: block;
-        margin-top: 8px;
         font-size: 13px;
         color: var(--gray-500);
+      }
+
+      .cancel-btn {
+        margin-top: 8px;
+      }
+    }
+
+    .token-usage {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 12px;
+      background: var(--el-color-success-light-9);
+      border-radius: var(--border-radius);
+      font-size: 13px;
+      color: var(--el-color-success);
+
+      .token-icon {
+        flex-shrink: 0;
+      }
+
+      .token-detail {
+        color: var(--gray-500);
+        font-size: 12px;
       }
     }
   }

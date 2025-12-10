@@ -7,6 +7,8 @@ export type ChatStreamCallbacks = {
   onError: (err: Error | string) => void;
 };
 
+// AI 请求超时时间（60秒）
+const AI_REQUEST_TIMEOUT = 60 * 1000;
 // LLM 客户端类
 export class LLMClient {
   private config: LLMProviderSettings = null!;
@@ -35,7 +37,8 @@ export class LLMClient {
       {
         headers,
         json: requestBody,
-        responseType: 'json'
+        responseType: 'json',
+        timeout: { request: AI_REQUEST_TIMEOUT }
       }
     );
     return response.body;
