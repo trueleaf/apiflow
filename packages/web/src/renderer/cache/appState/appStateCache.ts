@@ -1,8 +1,35 @@
 import type { WebsocketActiveTabType } from '@src/types/websocketNode';
 import type { MockNodeActiveTabType } from '@src/types/mockNode';
+import type { AdvancedSearchConditions } from '@src/types/advancedSearch';
 import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
+type ProjectManagerSearchState = {
+  keyword: string;
+  showAdvancedSearch: boolean;
+  searchMode: 'simple' | 'advanced';
+  searchConditions: AdvancedSearchConditions;
+  isFold: boolean;
+};
 class AppState {
+  // 获取项目管理页搜索状态
+  getProjectManagerSearchState(): ProjectManagerSearchState | null {
+    try {
+      const data = localStorage.getItem(cacheKey.appState.home.projectManagerSearch);
+      if (!data) return null;
+      return JSON.parse(data) as ProjectManagerSearchState;
+    } catch (error) {
+      logger.error('获取项目管理搜索状态失败', { error });
+      return null;
+    }
+  }
+  // 设置项目管理页搜索状态
+  setProjectManagerSearchState(state: ProjectManagerSearchState) {
+    try {
+      localStorage.setItem(cacheKey.appState.home.projectManagerSearch, JSON.stringify(state));
+    } catch (error) {
+      logger.error('设置项目管理搜索状态失败', { error });
+    }
+  }
   // 获取首页激活的tab（项目列表/团队管理）
   getActiveHomeTab(): string {
     try {

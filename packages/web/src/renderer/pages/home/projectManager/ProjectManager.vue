@@ -224,6 +224,7 @@ import { apiNodesCache } from '@/cache/nodes/nodesCache'
 import { useProjectManagerStore } from '@/store/projectManager/projectManagerStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
+import { appState } from '@/cache/appState/appStateCache';
 import { IPC_EVENTS } from '@src/types/ipc';
 
 //变量
@@ -458,7 +459,19 @@ const handleUnStar = async (item: ApidocProjectInfo) => {
 }
 //初始化缓存
 const initCahce = () => {
-  isFold.value = localStorage.getItem('doc-list/isFold') === 'close';
+  const savedState = appState.getProjectManagerSearchState();
+  if (savedState) {
+    projectName.value = savedState.keyword || '';
+    showAdvancedSearch.value = savedState.showAdvancedSearch || false;
+    searchMode.value = savedState.searchMode || 'simple';
+    isFold.value = savedState.isFold || false;
+    if (savedState.searchConditions) {
+      searchConditions.value = savedState.searchConditions;
+    }
+    if (savedState.keyword && savedState.showAdvancedSearch) {
+      debouncedAdvancedSearch();
+    }
+  }
 }
 //跳转到编辑
 const handleJumpToProject = (item: ApidocProjectInfo) => {
@@ -502,7 +515,7 @@ const handleEditSuccess = (data?: { id: string, name: string }) => {
 //折叠打开项目列表
 const toggleCollapse = () => {
   isFold.value = !isFold.value;
-  localStorage.setItem('doc-list/isFold', isFold.value ? 'close' : 'open');
+  saveSearchState();
 }
 //清空搜索
 const handleClearSearch = () => {
@@ -625,6 +638,20 @@ const handleLoadMore = async (projectId: string) => {
 // 监听搜索条件变化
 watch(searchConditions, () => {
   debouncedAdvancedSearch();
+}, { deep: true });
+// 保存搜索状态
+const saveSearchState = () => {
+  appState.setProjectManagerSearchState({
+    keyword: projectName.value,
+    showAdvancedSearch: showAdvancedSearch.value,
+    searchMode: searchMode.value,
+    searchConditions: searchConditions.value,
+    isFold: isFold.value,
+  });
+};
+// 监听搜索状态变化并保存
+watch([projectName, showAdvancedSearch, searchMode, searchConditions], () => {
+  saveSearchState();
 }, { deep: true });
 onMounted(() => {
   getProjectList();

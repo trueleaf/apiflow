@@ -8,9 +8,7 @@
       <!-- 空状态 -->
       <div v-if="!loading && results.length === 0" class="empty-state">
         <el-empty :description="$t('暂无搜索结果')">
-          <template #image>
-            <Search :size="60" :stroke-width="1.5" color="var(--el-text-color-placeholder)" />
-          </template>
+         
         </el-empty>
       </div>
       <!-- 结果列表 -->

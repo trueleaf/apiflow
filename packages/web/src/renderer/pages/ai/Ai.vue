@@ -496,15 +496,32 @@ const handleStreamError = (requestId: string, error: string) => {
 }
 // 处理重试
 const handleRetry = async (originalPrompt: string, retryMode: 'agent' | 'ask', messageId: string) => {
-  // 删除错误消息
   agentViewStore.deleteAgentViewMessageById(messageId)
-  // 设置输入框内容并触发发送
-  inputMessage.value = originalPrompt
-  // 确保模式正确
   if (mode.value !== retryMode) {
     mode.value = retryMode
     currentView.value = retryMode === 'agent' ? 'agent' : 'chat'
   }
+  if (retryMode === 'agent') {
+    agentViewStore.setWorkingStatus('working')
+    const result = await runAgent({ prompt: originalPrompt })
+    agentViewStore.setWorkingStatus('finish')
+    if (!result.success && !result.aborted) {
+      const errorMessage: ErrorMessage = {
+        id: nanoid(),
+        type: 'error',
+        errorType: detectErrorType(result.error),
+        content: result.error,
+        errorDetail: result.error,
+        originalPrompt,
+        timestamp: new Date().toISOString(),
+        sessionId: agentViewStore.currentSessionId,
+        mode: 'agent'
+      }
+      agentViewStore.addAgentViewMessage(errorMessage)
+    }
+    return
+  }
+  inputMessage.value = originalPrompt
   await nextTick()
   await handleSend()
 }

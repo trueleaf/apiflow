@@ -19,6 +19,7 @@ export const cacheKey = {
     },
     home: {
       activeTab: 'appState/home/activeTab',
+      projectManagerSearch: 'appState/home/projectManagerSearch',
     },
     websocketNode: {
       activeParamsTab: 'appState/websocketNode/activeParamsTab',
