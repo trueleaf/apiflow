@@ -53,7 +53,38 @@ test.describe('Navigation', () => {
     await expect(contentPage).toHaveURL(/.*#\/settings.*/);
   });
 
-  test('点击已存在的tab则高亮而不新增', async ({ topBarPage, contentPage, createProject }) => {
+  test('点击编辑按钮打开不存在的项目tab会新增tab并高亮', async ({ topBarPage, contentPage, createProject }) => {
+    // 首先创建一个项目
+    const projectName = await createProject(`编辑按钮测试-${Date.now()}`);
+    // 关闭当前项目Tab
+    const projectTab = topBarPage.locator('.tab-item').filter({ hasText: projectName });
+    const closeBtn = projectTab.locator('.close-btn');
+    await closeBtn.click();
+    await topBarPage.waitForTimeout(500);
+    // 验证Tab已关闭
+    await expect(projectTab).toBeHidden();
+    // 跳转到首页
+    const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+    await homeBtn.click();
+    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await topBarPage.waitForTimeout(500);
+    // 记录当前Tab数量
+    const tabCountBefore = await topBarPage.locator('.tab-item').count();
+    // 在项目列表中找到该项目并点击编辑按钮
+    const projectCard = contentPage.locator('.project-card').filter({ hasText: projectName });
+    await expect(projectCard).toBeVisible({ timeout: 5000 });
+    const editBtn = projectCard.locator('[data-testid="home-project-enter-btn"]');
+    await editBtn.click();
+    await topBarPage.waitForTimeout(500);
+    // 验证Tab数量增加
+    const tabCountAfter = await topBarPage.locator('.tab-item').count();
+    expect(tabCountAfter).toBeGreaterThan(tabCountBefore);
+    // 验证新Tab被高亮
+    const activeTab = topBarPage.locator('.tab-item.active');
+    await expect(activeTab).toContainText(projectName);
+  });
+
+  test('点击已存在的tab高亮而不新增', async ({ topBarPage, contentPage, createProject }) => {
     const uniqueProjectName = await createProject(`切换测试-${Date.now()}`);
     // 打开设置Tab
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
@@ -108,27 +139,86 @@ test.describe('Navigation', () => {
     expect(projectBIndex).toBeLessThan(settingsIndex);
   });
 
-  test('可以关闭tab,关闭高亮Tab后自动切换高亮', async ({ topBarPage, createProject }) => {
-    await createProject(`关闭A-${Date.now()}`);
-    const projectBName = await createProject(`关闭B-${Date.now()}`);
-    // 当前项目B应该被高亮
+  test('可以拖拽tab改变顺序', async ({ topBarPage, createProject }) => {
+    // 创建3个项目
+    const projectAName = await createProject(`拖拽A-${Date.now()}`);
+    const projectBName = await createProject(`拖拽B-${Date.now()}`);
+    const projectCName = await createProject(`拖拽C-${Date.now()}`);
+    await topBarPage.waitForTimeout(500);
+    // 获取初始顺序
+    const allTabs = topBarPage.locator('.tab-item');
+    const initialTabTexts: string[] = [];
+    const initialTabCount = await allTabs.count();
+    for (let i = 0; i < initialTabCount; i++) {
+      const text = await allTabs.nth(i).textContent();
+      initialTabTexts.push(text || '');
+    }
+    // 验证初始顺序：A, B, C
+    const initialAIndex = initialTabTexts.findIndex((t) => t.includes(projectAName));
+    const initialBIndex = initialTabTexts.findIndex((t) => t.includes(projectBName));
+    const initialCIndex = initialTabTexts.findIndex((t) => t.includes(projectCName));
+    expect(initialAIndex).toBeLessThan(initialBIndex);
+    expect(initialBIndex).toBeLessThan(initialCIndex);
+    // 拖拽Tab A到Tab C之后
+    const tabA = topBarPage.locator('.tab-item').filter({ hasText: projectAName });
+    const tabC = topBarPage.locator('.tab-item').filter({ hasText: projectCName });
+    await tabA.dragTo(tabC);
+    await topBarPage.waitForTimeout(500);
+    // 获取拖拽后的顺序
+    const afterDragTabTexts: string[] = [];
+    const afterDragTabCount = await allTabs.count();
+    for (let i = 0; i < afterDragTabCount; i++) {
+      const text = await allTabs.nth(i).textContent();
+      afterDragTabTexts.push(text || '');
+    }
+    // 验证顺序变化
+    const afterAIndex = afterDragTabTexts.findIndex((t) => t.includes(projectAName));
+    const afterBIndex = afterDragTabTexts.findIndex((t) => t.includes(projectBName));
+    const afterCIndex = afterDragTabTexts.findIndex((t) => t.includes(projectCName));
+    // 拖拽后顺序应该变化（B在A之前，或A在C之后）
+    expect(afterBIndex).toBeLessThan(afterAIndex);
+  });
+
+  test('关闭高亮Tab后自动高亮右侧Tab', async ({ topBarPage, createProject }) => {
+    const projectAName = await createProject(`高亮右侧A-${Date.now()}`);
+    const projectBName = await createProject(`高亮右侧B-${Date.now()}`);
+    const projectCName = await createProject(`高亮右侧C-${Date.now()}`);
+    await topBarPage.waitForTimeout(500);
+    // 点击项目B使其高亮
+    const projectBTab = topBarPage.locator('.tab-item').filter({ hasText: projectBName });
+    await projectBTab.click();
+    await topBarPage.waitForTimeout(300);
+    // 验证项目B被高亮
     let activeTab = topBarPage.locator('.tab-item.active');
     await expect(activeTab).toContainText(projectBName);
-    // 记录关闭前的Tab数量
-    const tabCountBefore = await topBarPage.locator('.tab-item').count();
-    // 点击项目B的关闭按钮
+    // 关闭项目B
+    const closeBtn = projectBTab.locator('.close-btn');
+    await closeBtn.click();
+    await topBarPage.waitForTimeout(500);
+    // 验证项目B Tab已关闭
+    await expect(projectBTab).toBeHidden();
+    // 验证右侧Tab（项目C）被高亮
+    activeTab = topBarPage.locator('.tab-item.active');
+    await expect(activeTab).toContainText(projectCName);
+  });
+
+  test('关闭最右侧高亮Tab后高亮左侧最近的Tab', async ({ topBarPage, createProject }) => {
+    const projectAName = await createProject(`最右侧A-${Date.now()}`);
+    const projectBName = await createProject(`最右侧B-${Date.now()}`);
+    await topBarPage.waitForTimeout(500);
+    // 当前项目B应该被高亮（最后创建的）
+    let activeTab = topBarPage.locator('.tab-item.active');
+    await expect(activeTab).toContainText(projectBName);
+    // 关闭项目B（最右侧的高亮Tab）
     const projectBTab = topBarPage.locator('.tab-item').filter({ hasText: projectBName });
     const closeBtn = projectBTab.locator('.close-btn');
     await closeBtn.click();
     await topBarPage.waitForTimeout(500);
     // 验证项目B Tab已关闭
     await expect(projectBTab).toBeHidden();
-    // 验证Tab数量减少
-    const tabCountAfter = await topBarPage.locator('.tab-item').count();
-    expect(tabCountAfter).toBe(tabCountBefore - 1);
-    // 验证有一个Tab被自动高亮（根据代码逻辑，关闭后会选择右侧或最后一个同模式Tab）
+    // 验证左侧Tab（项目A）被高亮
     activeTab = topBarPage.locator('.tab-item.active');
-    await expect(activeTab).toBeVisible();
+    await expect(activeTab).toContainText(projectAName);
   });
 
   test('关闭非高亮Tab不影响当前高亮状态', async ({ topBarPage, createProject }) => {
@@ -147,5 +237,81 @@ test.describe('Navigation', () => {
     // 验证项目B仍然保持高亮
     activeTab = topBarPage.locator('.tab-item.active');
     await expect(activeTab).toContainText(projectBName);
+  });
+
+  test('更新项目名称后tab页签名称同步更新', async ({ topBarPage, contentPage, createProject }) => {
+    const originalName = `原名称-${Date.now()}`;
+    const newName = `新名称-${Date.now()}`;
+    // 创建项目
+    await createProject(originalName);
+    // 验证Tab显示原名称
+    let projectTab = topBarPage.locator('.tab-item').filter({ hasText: originalName });
+    await expect(projectTab).toBeVisible();
+    // 跳转到首页修改项目名称
+    const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+    await homeBtn.click();
+    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await topBarPage.waitForTimeout(500);
+    // 找到项目卡片并点击编辑按钮（修改项目名称的按钮，不是进入编辑的按钮）
+    const projectCard = contentPage.locator('.project-card').filter({ hasText: originalName });
+    await expect(projectCard).toBeVisible({ timeout: 5000 });
+    // 悬停显示操作按钮
+    await projectCard.hover();
+    await topBarPage.waitForTimeout(300);
+    // 点击编辑图标打开编辑对话框
+    const editIconBtn = projectCard.locator('[title="编辑"], [title="Edit"]').first();
+    await editIconBtn.click();
+    await topBarPage.waitForTimeout(500);
+    // 在编辑对话框中修改项目名称
+    const editDialog = contentPage.locator('.el-dialog').filter({ hasText: /修改项目|Edit Project/ });
+    await expect(editDialog).toBeVisible({ timeout: 5000 });
+    const nameInput = editDialog.locator('input').first();
+    await nameInput.clear();
+    await nameInput.fill(newName);
+    const confirmBtn = editDialog.locator('.el-button--primary').last();
+    await confirmBtn.click();
+    await topBarPage.waitForTimeout(500);
+    // 验证Tab名称已更新
+    projectTab = topBarPage.locator('.tab-item').filter({ hasText: newName });
+    await expect(projectTab).toBeVisible({ timeout: 5000 });
+    // 验证原名称的Tab不存在
+    const oldTab = topBarPage.locator('.tab-item').filter({ hasText: originalName });
+    await expect(oldTab).toBeHidden();
+  });
+
+  test('删除项目后对应的tab页签关闭', async ({ topBarPage, contentPage, createProject }) => {
+    const projectAName = await createProject(`删除测试A-${Date.now()}`);
+    const projectBName = await createProject(`删除测试B-${Date.now()}`);
+    await topBarPage.waitForTimeout(500);
+    // 验证两个Tab都存在
+    const projectATab = topBarPage.locator('.tab-item').filter({ hasText: projectAName });
+    const projectBTab = topBarPage.locator('.tab-item').filter({ hasText: projectBName });
+    await expect(projectATab).toBeVisible();
+    await expect(projectBTab).toBeVisible();
+    // 跳转到首页删除项目A
+    const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+    await homeBtn.click();
+    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await topBarPage.waitForTimeout(500);
+    // 找到项目A卡片
+    const projectCard = contentPage.locator('.project-card').filter({ hasText: projectAName });
+    await expect(projectCard).toBeVisible({ timeout: 5000 });
+    // 悬停显示操作按钮
+    await projectCard.hover();
+    await topBarPage.waitForTimeout(300);
+    // 点击删除按钮
+    const deleteBtn = projectCard.locator('[data-testid="home-project-delete-btn"]');
+    await deleteBtn.click();
+    await topBarPage.waitForTimeout(300);
+    // 确认删除对话框
+    const confirmDialog = contentPage.locator('.el-message-box');
+    await expect(confirmDialog).toBeVisible({ timeout: 5000 });
+    const confirmBtn = confirmDialog.locator('.el-button--primary');
+    await confirmBtn.click();
+    await topBarPage.waitForTimeout(500);
+    // 验证项目A的Tab已关闭
+    await expect(projectATab).toBeHidden({ timeout: 5000 });
+    // 验证项目B的Tab仍然存在
+    await expect(projectBTab).toBeVisible();
   });
 });
