@@ -1,5 +1,115 @@
-import { test } from '@playwright/test';
+import { test, expect } from '../../../../../../fixtures/electron.fixture';
 
 test.describe('QueryParamsUndo', () => {
-  test.skip('Query参数撤销', async () => {});
+  // 测试用例1: query参数key输入字符串ab,按ctrl+z逐步撤销
+  test('query参数key输入后按ctrl+z撤销', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    // 新增HTTP节点
+    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('Query参数撤销测试接口');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 切换到Params标签页
+    const paramsTab = contentPage.locator('[data-testid="http-params-tab-params"]');
+    await paramsTab.click();
+    await contentPage.waitForTimeout(300);
+    // 找到Query参数区域的key输入框
+    const querySection = contentPage.locator('.query-params, .params-section').filter({ hasText: /Query|查询参数/ }).first();
+    const keyInput = querySection.locator('input').first();
+    await keyInput.click();
+    await keyInput.pressSequentially('a', { delay: 100 });
+    await contentPage.waitForTimeout(200);
+    await keyInput.pressSequentially('b', { delay: 100 });
+    await contentPage.waitForTimeout(200);
+    // 验证key值为ab
+    await expect(keyInput).toHaveValue('ab', { timeout: 5000 });
+    // 按ctrl+z快捷键
+    await contentPage.keyboard.press('Control+z');
+    await contentPage.waitForTimeout(200);
+    // 验证key值为a
+    await expect(keyInput).toHaveValue('a', { timeout: 5000 });
+    // 再次按ctrl+z快捷键
+    await contentPage.keyboard.press('Control+z');
+    await contentPage.waitForTimeout(200);
+    // 验证key值为空
+    await expect(keyInput).toHaveValue('', { timeout: 5000 });
+  });
+  // 测试用例2: query参数value输入字符串后撤销
+  test('query参数value输入后按ctrl+z撤销', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    // 新增HTTP节点
+    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('Query参数value撤销测试接口');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 切换到Params标签页
+    const paramsTab = contentPage.locator('[data-testid="http-params-tab-params"]');
+    await paramsTab.click();
+    await contentPage.waitForTimeout(300);
+    // 找到Query参数区域,先输入key
+    const querySection = contentPage.locator('.query-params, .params-section').filter({ hasText: /Query|查询参数/ }).first();
+    const keyInput = querySection.locator('input').first();
+    await keyInput.click();
+    await keyInput.fill('testKey');
+    await contentPage.waitForTimeout(200);
+    // 找到value输入框并输入
+    const valueInput = querySection.locator('input').nth(1);
+    await valueInput.click();
+    await valueInput.pressSequentially('v1', { delay: 100 });
+    await contentPage.waitForTimeout(200);
+    await valueInput.pressSequentially('v2', { delay: 100 });
+    await contentPage.waitForTimeout(200);
+    // 验证value值
+    await expect(valueInput).toHaveValue('v1v2', { timeout: 5000 });
+    // 按ctrl+z快捷键
+    await contentPage.keyboard.press('Control+z');
+    await contentPage.waitForTimeout(200);
+    // 验证value值变化
+    await expect(valueInput).toHaveValue('v1', { timeout: 5000 });
+  });
+  // 测试用例3: url和query参数联动撤销
+  test('url和query参数联动变化后撤销', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    // 新增HTTP节点
+    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('URL联动撤销测试接口');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 在url输入框输入带query参数的url
+    const urlInput = contentPage.locator('.url-input input');
+    await urlInput.click();
+    await urlInput.fill('http://example.com?key=value');
+    await contentPage.waitForTimeout(500);
+    // 验证url已输入
+    await expect(urlInput).toHaveValue('http://example.com?key=value', { timeout: 5000 });
+    // 按ctrl+z快捷键撤销
+    await contentPage.keyboard.press('Control+z');
+    await contentPage.waitForTimeout(200);
+    // 验证url恢复为空
+    await expect(urlInput).toHaveValue('', { timeout: 5000 });
+  });
 });

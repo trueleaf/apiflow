@@ -1,5 +1,65 @@
-import { test } from '@playwright/test';
+import { test, expect } from '../../../../../../../fixtures/electron.fixture';
+
+const MOCK_SERVER_PORT = 3456;
 
 test.describe('SendButton', () => {
-  test.skip('发送按钮', async () => {});
+  // 测试用例1: 发送请求按钮点击后请求过程中出现取消请求按钮
+  test('发送请求按钮点击后出现取消请求按钮点击后取消请求', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    // 新增HTTP节点
+    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('取消请求测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 设置请求URL（使用一个会延迟响应的地址或不存在的地址来模拟长时间请求）
+    const urlInput = contentPage.locator('.url-input input');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    // 点击发送请求按钮
+    const sendBtn = contentPage.locator('.send-btn');
+    await sendBtn.click();
+    // 等待请求完成或超时
+    await contentPage.waitForTimeout(3000);
+    // 验证按钮恢复为发送请求状态
+    await expect(sendBtn).toBeVisible({ timeout: 5000 });
+  });
+  // 测试用例2: 发送请求按钮点击后变成取消请求按钮,请求完成后恢复
+  test('发送请求按钮请求完成后恢复为发送请求按钮', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    // 新增HTTP节点
+    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('请求状态测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 设置请求URL
+    const urlInput = contentPage.locator('.url-input input');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    // 获取发送按钮初始状态
+    const sendBtn = contentPage.locator('.send-btn');
+    await expect(sendBtn).toBeVisible({ timeout: 5000 });
+    // 点击发送请求按钮
+    await sendBtn.click();
+    // 等待请求完成
+    await contentPage.waitForTimeout(3000);
+    // 验证响应区域显示响应数据
+    const responseBody = contentPage.locator('.response-body');
+    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    // 验证按钮恢复为发送请求状态
+    await expect(sendBtn).toBeVisible({ timeout: 5000 });
+  });
 });

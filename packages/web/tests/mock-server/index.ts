@@ -84,6 +84,21 @@ function getRawBody(ctx: Koa.Context): string {
     return String(body);
   }
 }
+// 解析路径参数
+const parsePathParams = (pattern: string, path: string): Record<string, string> | null => {
+  const patternParts = pattern.split('/').filter(Boolean);
+  const pathParts = path.split('/').filter(Boolean);
+  if (patternParts.length !== pathParts.length) return null;
+  const params: Record<string, string> = {};
+  for (let i = 0; i < patternParts.length; i++) {
+    if (patternParts[i].startsWith(':')) {
+      params[patternParts[i].slice(1)] = pathParts[i];
+    } else if (patternParts[i] !== pathParts[i]) {
+      return null;
+    }
+  }
+  return params;
+};
 // 创建 Mock 服务器
 export function createMockServer(): Koa {
   const app = new Koa();
@@ -95,12 +110,87 @@ export function createMockServer(): Koa {
   }));
   // Echo 路由 - 返回完整请求信息
   app.use(async (ctx) => {
-    if (ctx.path === '/echo') {
-      const files = (ctx.request as any).files as Files | undefined;
+    const files = (ctx.request as any).files as Files | undefined;
+    // 重定向路由 - 返回301重定向
+    if (ctx.path === '/redirect-301') {
+      ctx.status = 301;
+      ctx.redirect(`http://localhost:${PORT}/echo`);
+      return;
+    }
+    // 重定向路由 - 返回302重定向
+    if (ctx.path === '/redirect-302') {
+      ctx.status = 302;
+      ctx.redirect(`http://localhost:${PORT}/echo`);
+      return;
+    }
+    // 多次重定向路由 - 链式重定向
+    if (ctx.path.startsWith('/redirect-chain/')) {
+      const match = ctx.path.match(/\/redirect-chain\/(\d+)/);
+      if (match) {
+        const count = parseInt(match[1], 10);
+        if (count > 1) {
+          ctx.status = 302;
+          ctx.redirect(`http://localhost:${PORT}/redirect-chain/${count - 1}`);
+          return;
+        } else {
+          ctx.status = 302;
+          ctx.redirect(`http://localhost:${PORT}/echo`);
+          return;
+        }
+      }
+    }
+    // 状态码测试路由 - 返回指定状态码
+    if (ctx.path.startsWith('/status/')) {
+      const match = ctx.path.match(/\/status\/(\d+)/);
+      if (match) {
+        const statusCode = parseInt(match[1], 10);
+        ctx.status = statusCode;
+        ctx.body = { statusCode, message: `Status ${statusCode}` };
+        return;
+      }
+    }
+    // 延迟响应路由 - 用于测试响应时长
+    if (ctx.path.startsWith('/delay/')) {
+      const match = ctx.path.match(/\/delay\/(\d+)/);
+      if (match) {
+        const delay = parseInt(match[1], 10);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        ctx.body = { delayed: delay, message: `Delayed ${delay}ms` };
+        return;
+      }
+    }
+    // 大数据响应路由 - 用于测试响应大小
+    if (ctx.path.startsWith('/size/')) {
+      const match = ctx.path.match(/\/size\/(\d+)/);
+      if (match) {
+        const size = parseInt(match[1], 10);
+        ctx.body = { data: 'x'.repeat(size), size };
+        return;
+      }
+    }
+    // 检查是否匹配 /echo 或 /echo/* 路径
+    if (ctx.path === '/echo' || ctx.path.startsWith('/echo/')) {
+      // 尝试匹配带 path 参数的路由模式
+      const pathPatterns = [
+        '/echo/users/:userId',
+        '/echo/users/:userId/posts/:postId',
+        '/echo/users/:userId/posts/:postId/comments/:commentId',
+        '/echo/items/:id',
+        '/echo/:param',
+      ];
+      let pathParams: Record<string, string> = {};
+      for (const pattern of pathPatterns) {
+        const params = parsePathParams(pattern, ctx.path);
+        if (params) {
+          pathParams = params;
+          break;
+        }
+      }
       ctx.body = {
         method: ctx.method,
         url: ctx.url,
         path: ctx.path,
+        pathParams,
         query: ctx.query,
         headers: ctx.headers,
         contentType: ctx.get('content-type') || '',
