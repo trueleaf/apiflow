@@ -1,103 +1,99 @@
 <template>
   <div class="doc-import">
     <!-- 导入方式选择 -->
-    <SFieldset :title="t('导入方式')">
-      <div class="download-wrap">
+    <SFieldset :title="t('数据来源')">
+      <div class="source-wrap">
         <div
-          v-for="item in importTypes"
+          v-for="item in importSources"
           :key="item.value"
-          :class="['item', { active: currentImportType === item.value }]"
-          @click="handleSelectImportType(item.value)"
+          :class="['source-item', { active: currentSourceType === item.value }]"
+          @click="handleSelectSourceType(item.value)"
         >
-          <component :is="item.icon" :size="70" :stroke-width="1.5" class="lucide-icon" />
-          <div class="mt-1">{{ t(item.label) }}</div>
+          <component :is="item.icon" :size="32" :stroke-width="1.5" class="source-icon" />
+          <div class="source-info">
+            <div class="source-name">{{ t(item.label) }}</div>
+            <div class="source-desc">{{ t(item.desc) }}</div>
+          </div>
         </div>
       </div>
     </SFieldset>
 
-    <!-- 本地文件上传区域 -->
-    <div v-show="currentImportType === 'file'">
-      <SFieldset :title="t('上传文件')">
-        <el-upload
-          class="w-100"
-          drag
-          action=""
-          :show-file-list="false"
-          :before-upload="handleBeforeUpload"
-          :http-request="requestHook"
-        >
-          <el-icon :size="20">
-            <Upload />
-          </el-icon>
-          <div class="el-upload__text">{{ t("将文件拖到此处，或") }}<em>{{ t("点击上传") }}</em></div>
-          <template #tip>
-            <div class="mt-2">
-              <div v-if="importTypeInfo.name" class="orange">
-                <span>{{ t("文档类型") }}：</span>
-                <span>{{ importTypeInfo.name }}</span>
-                <span v-if="importTypeInfo.version">({{ importTypeInfo.version }})</span>
-              </div>
-            </div>
-          </template>
-        </el-upload>
-      </SFieldset>
-    </div>
+    <!-- 数据输入区域 -->
+    <SFieldset :title="t('数据输入')">
+      <!-- 本地文件上传 -->
+      <FileImport v-if="currentSourceType === 'file'" @success="handleDataLoaded" @error="handleError" />
+      <!-- URL导入 -->
+      <UrlImport v-else-if="currentSourceType === 'url'" @success="handleDataLoaded" @error="handleError" />
+      <!-- 粘贴导入 -->
+      <PasteImport v-else-if="currentSourceType === 'paste'" @success="handleDataLoaded" @error="handleError" />
+    </SFieldset>
 
-    <!-- URL导入区域(暂未实现) -->
-    <div v-show="currentImportType === 'url'">
-      <SFieldset :title="t('从URL导入')">
-        <div class="url-import-placeholder">
-          {{ t('URL导入功能开发中，敬请期待') }}
-        </div>
-      </SFieldset>
-    </div>
+    <!-- 文档格式选择 -->
+    <SFieldset v-if="importTypeInfo.name !== 'unknown'" :title="t('文档格式')">
+      <FormatSelector
+        v-model="selectedFormat"
+        :detected-format="importTypeInfo.name"
+        :format-version="importTypeInfo.version"
+        @update:model-value="handleFormatChange"
+      />
+    </SFieldset>
 
-    <!-- 粘贴导入区域(暂未实现) -->
-    <div v-show="currentImportType === 'paste'">
-      <SFieldset :title="t('粘贴内容')">
-        <div class="paste-import-placeholder">
-          {{ t('粘贴导入功能开发中，敬请期待') }}
-        </div>
-      </SFieldset>
-    </div>
     <!-- 导入数据预览 -->
     <SFieldset :title="t('导入数据预览')">
-      <div>
-        <SLableValue :label="`${t('文档数')}：`" label-width="auto" class="mr-4">{{ formInfo.moyuData.docs.filter((v) =>
-          v.info.type !== 'folder').length }}</SLableValue>
-        <SLableValue :label="`${t('文件夹数')}：`" label-width="auto">{{ formInfo.moyuData.docs.filter((v) =>
-          v.info.type === 'folder').length
-          }}</SLableValue>
+      <div class="preview-stats">
+        <SLableValue :label="`${t('文档数')}：`" label-width="auto" class="mr-4">
+          {{ stats.docCount }}
+        </SLableValue>
+        <SLableValue :label="`${t('文件夹数')}：`" label-width="auto">
+          {{ stats.folderCount }}
+        </SLableValue>
       </div>
-      <el-tree ref="docTree" :data="previewNavTreeData" node-key="_id" :expand-on-click-node="true">
+      <el-tree
+        v-if="previewNavTreeData.length > 0"
+        ref="docTree"
+        :data="previewNavTreeData"
+        node-key="_id"
+        :expand-on-click-node="true"
+        default-expand-all
+      >
         <template #default="scope">
           <div class="custom-tree-node" tabindex="0">
-            <!-- file渲染 -->
             <template v-if="scope.data.info.type !== 'folder'">
-              <template v-for="(req) in requestMethods">
-                <span v-if="scope.data.item.method.toLowerCase() === req.value.toLowerCase()" :key="req.name"
-                  class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
+              <template v-for="req in requestMethods" :key="req.name">
+                <span
+                  v-if="scope.data.item?.method?.toLowerCase() === req.value.toLowerCase()"
+                  class="file-icon"
+                  :style="{ color: req.iconColor }"
+                >{{ req.name }}</span>
               </template>
               <div class="node-label-wrap">
-                <SEmphasize class="node-top" :title="scope.data.info.name" :value="scope.data.info.name"></SEmphasize>
+                <SEmphasize class="node-top" :title="scope.data.info.name" :value="scope.data.info.name" />
               </div>
             </template>
-            <!-- 文件夹渲染 -->
-            <template v-if="scope.data.info.type === 'folder'">
-              <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
+            <template v-else>
+              <Folder :size="16" class="folder-icon" />
               <div class="node-label-wrap">
-                <SEmphasize class="node-top" :title="scope.data.info.name" :value="scope.data.info.name"></SEmphasize>
+                <SEmphasize class="node-top" :title="scope.data.info.name" :value="scope.data.info.name" />
               </div>
             </template>
           </div>
         </template>
       </el-tree>
+      <div v-else class="empty-preview">
+        <FileQuestion :size="48" :stroke-width="1" class="empty-icon" />
+        <div class="empty-text">{{ t('暂无数据，请先上传或输入文档') }}</div>
+      </div>
     </SFieldset>
+
     <!-- 额外配置信息 -->
     <SFieldset v-if="!importAsProject" :title="t('额外配置')">
       <div>
-        <SConfig v-if="formInfo.type === 'openapi' || formInfo.type === 'swagger'" :has-check="false"
-          :label="t('文件夹命名方式')" :description="t('none代表不存在文件夹，所有节点扁平放置')">
+        <SConfig
+          v-if="selectedFormat === 'openapi' || selectedFormat === 'swagger'"
+          :has-check="false"
+          :label="t('文件夹命名方式')"
+          :description="t('none代表不存在文件夹，所有节点扁平放置')"
+        >
           <el-radio-group v-model="openapiFolderNamedType" @change="handleChangeNamedType">
             <el-radio value="tag">Tag</el-radio>
             <el-radio value="url">Url</el-radio>
@@ -106,20 +102,30 @@
         </SConfig>
         <SConfig :has-check="false" :label="t('导入方式')" :description="t('请谨慎选择导入方式')">
           <el-radio-group v-model="formInfo.cover" @change="handleChangeIsCover">
-            <el-radio :value="false">{{ t("追加方式") }}</el-radio>
-            <el-radio :value="true">{{ t("覆盖方式") }}</el-radio>
+            <el-radio :value="false">{{ t('追加方式') }}</el-radio>
+            <el-radio :value="true">{{ t('覆盖方式') }}</el-radio>
           </el-radio-group>
         </SConfig>
-        <SConfig :label="t('目标目录')" :description="t('选择需要挂载的节点，不选择则默认挂载到根目录')" @change="handleToggleTargetFolder">
+        <SConfig
+          :label="t('目标目录')"
+          :description="t('选择需要挂载的节点，不选择则默认挂载到根目录')"
+          @change="handleToggleTargetFolder"
+        >
           <template #default="prop">
             <SLoading :loading="loading2">
               <div v-show="prop.isEnabled" class="doc-nav">
-                <el-tree ref="docTree2" :data="navTreeData" node-key="_id" show-checkbox :expand-on-click-node="true"
-                  :check-strictly="true" @check="handleCheckChange">
+                <el-tree
+                  ref="docTree2"
+                  :data="navTreeData"
+                  node-key="_id"
+                  show-checkbox
+                  :expand-on-click-node="true"
+                  :check-strictly="true"
+                  @check="handleCheckChange"
+                >
                   <template #default="scope">
                     <div class="custom-tree-node" tabindex="0">
-                      <!-- 文件夹渲染 -->
-                      <img :src="folderIcon" width="16px" height="16px" />
+                      <img :src="folderIcon" width="16px" height="16px" alt="folder">
                       <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
                     </div>
                   </template>
@@ -129,20 +135,12 @@
           </template>
         </SConfig>
       </div>
-      <div class="d-flex j-center mt-2">
-        <el-button :loading="loading" type="primary" @click="handleSubmit">{{ t("确定导入") }}</el-button>
+      <div class="submit-wrap">
+        <el-button :loading="loading" type="primary" :disabled="stats.docCount === 0" @click="handleSubmit">
+          {{ t('确定导入') }}
+        </el-button>
       </div>
     </SFieldset>
-    <!-- <template v-if="importAsProject">
-            <el-form ref="form" :model="formInfo" label-width="80px" class="mt-3">
-                <el-form-item label="项目名称">
-                    <el-input v-model="projectName" name="name" placeholder="请输入项目名称" class="w-100" maxlength="100" clearable></el-input>
-                </el-form-item>
-            </el-form>
-            <div class="d-flex j-center mt-2">
-                <el-button :loading="loading" type="primary" @click="handleSubmitAsProject">确定导入</el-button>
-            </div>
-        </template> -->
   </div>
 </template>
 
@@ -152,452 +150,363 @@ import SLoading from '@/components/common/loading/ClLoading.vue'
 import SLableValue from '@/components/common/labelValue/ClLabelValue.vue'
 import SConfig from '@/components/common/config/ClConfig.vue'
 import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
-import { ref, Ref, computed } from 'vue'
-import jsyaml from 'js-yaml'
-import type { OpenAPIV3 } from 'openapi-types';
-import { ElMessageBox } from 'element-plus';
-import { Upload, FileUp, Link, ClipboardCopy } from 'lucide-vue-next'
-import type { ApidocBanner, HttpNode } from '@src/types'
-import { config } from '@src/config/config'
+import FileImport from './components/FileImport.vue'
+import UrlImport from './components/UrlImport.vue'
+import PasteImport from './components/PasteImport.vue'
+import FormatSelector from './components/FormatSelector.vue'
+import { ref, computed, type Ref } from 'vue'
+import { ElMessageBox } from 'element-plus'
+import { FileUp, Link, ClipboardCopy, Folder, FileQuestion } from 'lucide-vue-next'
+import type { ApidocBanner, HttpNode, FolderNode } from '@src/types'
+import type { OpenAPIV3, OpenAPIV2 } from 'openapi-types'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
 import { message } from '@/helper'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
-// import OpenApiTranslator from './openapi';
-// import PostmanTranslator from './postman';
+import { OpenApiTranslator, type OpenApiFolderNamedType } from './openapi'
+import { PostmanTranslator } from './postman'
 import { requestMethods } from '@/data/data'
 import { useBanner } from '@/store/projectWorkbench/bannerStore'
 import { apiNodesCache } from '@/cache/nodes/nodesCache'
 import { useRuntime } from '@/store/runtime/runtimeStore'
+import {
+  detectDocumentFormat,
+  type ImportSourceType,
+  type ImportFormatType,
+  type ApiflowDocument,
+  type PostmanCollection,
+} from '@/composables/useImport'
 
 type FormInfo = {
   moyuData: {
-    docs: (HttpNode & { children?: HttpNode[] })[]
-  },
-  type: string,
+    docs: (HttpNode | FolderNode)[]
+  }
+  type: ImportFormatType
   cover: boolean
 }
-
-type ApiflowInfo = {
-  type: string,
-  docs: HttpNode[],
-  info: {
-    projectName: string,
-  }
-};
-
-/*
-|--------------------------------------------------------------------------
-| 基本数据信息
-|--------------------------------------------------------------------------
-|
-*/
 defineProps({
-  //是否直接导出为项目
   importAsProject: {
     type: Boolean,
     default: false,
-  }
+  },
 })
 const { t } = useI18n()
-const runtimeStore = useRuntime();
-const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
+const runtimeStore = useRuntime()
+const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
 const bannerStore = useBanner()
-const projectId = router.currentRoute.value.query.id as string;
+const projectId = router.currentRoute.value.query.id as string
 const folderIcon = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href
-//导入方式类型
-const currentImportType = ref('file');
-const importTypes = [
-  {
-    label: '本地文件',
-    value: 'file',
-    icon: FileUp,
-  },
-  {
-    label: 'URL导入',
-    value: 'url',
-    icon: Link,
-  },
-  {
-    label: '粘贴内容',
-    value: 'paste',
-    icon: ClipboardCopy,
-  },
+// 数据来源类型
+const currentSourceType: Ref<ImportSourceType> = ref('file')
+const importSources = [
+  { label: '本地文件', value: 'file' as ImportSourceType, icon: FileUp, desc: '上传 JSON/YAML 文件' },
+  { label: 'URL导入', value: 'url' as ImportSourceType, icon: Link, desc: '从远程 URL 获取' },
+  { label: '粘贴内容', value: 'paste' as ImportSourceType, icon: ClipboardCopy, desc: '直接粘贴内容' },
 ]
-//目标树
-const docTree2: Ref<TreeNodeOptions['store'] | null> = ref(null);
-//按钮加载效果
-const loading = ref(false);
-//目标节点菜单
-const loading2 = ref(false);
-//openapi文件夹格式
-const openapiFolderNamedType: Ref<'tag' | 'url' | 'none'> = ref('tag');
+// 目标树
+const docTree2: Ref<TreeNodeOptions['store'] | null> = ref(null)
+// 加载状态
+const loading = ref(false)
+const loading2 = ref(false)
+// OpenAPI 文件夹命名方式
+const openapiFolderNamedType: Ref<OpenApiFolderNamedType> = ref('tag')
+// 表单信息
 const formInfo: Ref<FormInfo> = ref({
-  moyuData: {
-    docs: [],
-  },
-  type: '',
+  moyuData: { docs: [] },
+  type: 'unknown',
   cover: false,
-});
-const importTypeInfo = ref({
-  name: '',
+})
+// 导入类型信息
+const importTypeInfo = ref<{ name: ImportFormatType; version: string }>({
+  name: 'unknown',
   version: '',
-});
-const jsonText: Ref<OpenAPIV3.Document | string | { type: string }> = ref('');
-const fileType = ref('');
-const navTreeData = ref<ApidocBanner[]>([]);
-const currentMountedNode: Ref<HttpNode | null> = ref(null);
-/*
-|--------------------------------------------------------------------------
-| 导入方式选择
-|--------------------------------------------------------------------------
-|
-*/
-//选择导入方式
-const handleSelectImportType = (type: string) => {
-  currentImportType.value = type;
-}
-/*
-|--------------------------------------------------------------------------
-| 文件选择
-|--------------------------------------------------------------------------
-|
-*/
-//检查文件格式和文件大小
-const handleBeforeUpload = (file: File) => {
-  const standerFileType = file.type; //标准类型
-  const matchSuffix = file.name.match(/(?<=\.)[^.]+$/); //根据后缀获取类型
-  const suffixFileType = matchSuffix ? matchSuffix[0] : '';
-  fileType.value = standerFileType || suffixFileType;
-  if (!standerFileType && !suffixFileType) {
-    ElMessage({
-      message: t('未知的文件格式，无法解析'),
-      grouping: true,
-      type: 'error',
-    })
-    return false;
+})
+// 选中的格式
+const selectedFormat: Ref<ImportFormatType> = ref('unknown')
+// 原始解析数据
+const parsedData: Ref<unknown> = ref(null)
+// 导航树数据
+const navTreeData = ref<ApidocBanner[]>([])
+// 当前挂载节点
+const currentMountedNode: Ref<HttpNode | null> = ref(null)
+// 统计信息
+const stats = computed(() => {
+  const docs = formInfo.value.moyuData.docs || []
+  return {
+    docCount: docs.filter(v => v.info.type !== 'folder').length,
+    folderCount: docs.filter(v => v.info.type === 'folder').length,
   }
-  if (fileType.value !== 'application/json' && fileType.value !== 'yaml' && fileType.value !== 'application/x-yaml') {
-    ElMessage({
-      message: t('仅支持JSON格式或者YAML格式文件'),
-      grouping: true,
-      type: 'error',
-    })
-    return false;
-  }
-  if (file.size > config.renderConfig.importProjectConfig.maxSize) {
-    ElMessage({
-      message: `${t('文件大小不超过')}${config.renderConfig.importProjectConfig.maxSize / 1024 / 1024}M`,
-      grouping: true,
-      type: 'error',
-    })
-    return false;
-  }
-  return true;
-}
-//获取导入文件信息
-const getImportFileInfo = () => {
-  // TODO: 转换器功能需要实现
-  // const openApiTranslatorInstance = new OpenApiTranslator(projectId, jsonText.value as OpenAPIV3.Document);
-  if ((jsonText.value as ApiflowInfo).type === 'apiflow') {
-    importTypeInfo.value.name = 'apiflow';
-    formInfo.value.type = 'apiflow';
-    formInfo.value.moyuData.docs = (jsonText.value as ApiflowInfo).docs;
-  } else if ((jsonText.value as OpenAPIV3.Document).openapi) {
-    importTypeInfo.value.name = 'openapi';
-    importTypeInfo.value.version = (jsonText.value as OpenAPIV3.Document).openapi;
-    formInfo.value.type = 'openapi';
-    // formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } else if ((jsonText.value as any).swagger) {
-    importTypeInfo.value.name = 'swagger';
-    importTypeInfo.value.version = (jsonText.value as OpenAPIV3.Document).openapi;
-    formInfo.value.type = 'swagger';
-    // formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } else if ((jsonText.value as any)?.info?._postman_id) {
-    importTypeInfo.value.name = 'postman';
-    formInfo.value.type = 'postman';
-  }
-  // postmanTranslatorInstance = new PostmanTranslator($route.query.id);
-  // yapiTranslatorInstance = new YAPITranslator($route.query.id);
-  // const isArray = Array.isArray(jsonText);
-  // const firstEl = isArray ? jsonText[0] : null;
-  // const isYapi = firstEl && firstEl.add_time && firstEl.up_time;
-  // if (jsonText.type === "moyu") {
-  //     importTypeInfo.name = "moyu";
-  //     formInfo.type = "moyu";
-  //     formInfo.moyuData = jsonText;
-  // } else if (jsonText.info?._postman_id) {
-  //     importTypeInfo.name = "postman";
-  //     importTypeInfo.version = "postman";
-  //     formInfo.type = "postman";
-  //     formInfo.moyuData = postmanTranslatorInstance.convertPostmanData(jsonText);
-  // } else if (jsonText.openapi) {
-  //     importTypeInfo.name = "openapi";
-  //     importTypeInfo.version = jsonText.openapi;
-  //     formInfo.type = "openapi";
-  //     formInfo.moyuData = openApiTranslatorInstance.convertToMoyuDocs(jsonText, { folderNamedType: openapiFolderNamedType });
-  // } else if (jsonText.swagger) {
-  //     importTypeInfo.name = "swagger";
-  //     importTypeInfo.version = jsonText.swagger;
-  //     formInfo.type = "swagger";
-  //     formInfo.moyuData = openApiTranslatorInstance.convertToMoyuDocs(jsonText, { folderNamedType: openapiFolderNamedType });
-  // } else if (isYapi) {
-  //     importTypeInfo.name = "yapi";
-  //     formInfo.type = "yapi";
-  //     formInfo.moyuData = yapiTranslatorInstance.convertYapiData(jsonText);
-  // } else {
-  //     importTypeInfo.name = "未知类型";
-  // }
-  // projectName = formInfo.moyuData?.info?.projectName;
-}
-//上传成功读取文件内容
-const requestHook = (e: { file: File }) => {
-  return e.file.text().then((fileStr) => {
-    if (fileType.value === 'yaml' || fileType.value === 'application/x-yaml') {
-      jsonText.value = jsyaml.load(fileStr) as OpenAPIV3.Document;
-    } else {
-      jsonText.value = JSON.parse(fileStr)
-    }
-    getImportFileInfo();
-    return fileStr;
-  }).catch((err) => {
-    console.error(err);
-    throw err;
-  });
-}
-//导入数据预览
+})
+// 预览树形数据
 const previewNavTreeData = computed(() => {
-  const docs = formInfo.value.moyuData.docs || [];
-  const result = [];
+  const docs = formInfo.value.moyuData.docs || []
+  const result: ((HttpNode | FolderNode) & { children?: (HttpNode | FolderNode)[] })[] = []
   for (let i = 0; i < docs.length; i += 1) {
-    const docInfo = docs[i];
-    if (!docInfo.pid) { //根元素
-      docInfo.children = [];
-      result.push(docInfo);
+    const docInfo = docs[i] as (HttpNode | FolderNode) & { children?: (HttpNode | FolderNode)[] }
+    if (!docInfo.pid) {
+      docInfo.children = []
+      result.push(docInfo)
     }
-    const id = docInfo._id.toString();
+    const id = docInfo._id.toString()
     for (let j = 0; j < docs.length; j += 1) {
-      if (id === docs[j].pid) { //项目中新增的数据使用标准id
-        if (docInfo.children == null) {
-          docInfo.children = [];
+      if (id === docs[j].pid) {
+        if (!docInfo.children) {
+          docInfo.children = []
         }
-        docInfo.children.push(docs[j]);
+        docInfo.children.push(docs[j])
       }
     }
   }
-
-  // 排序函数：实现多级排序规则
-  const sortItems = (items: typeof docs) => {
+  const sortItems = (items: typeof result) => {
     return items.sort((a, b) => {
-      // 文件夹排在前面，API文档排在后面
-      if (a.info.type === 'folder' && b.info.type !== 'folder') return -1;
-      if (a.info.type !== 'folder' && b.info.type === 'folder') return 1;
-
-      // 同类型内部按 sort 字段升序排序
-      const aSort = a.sort ?? Number.MAX_SAFE_INTEGER;
-      const bSort = b.sort ?? Number.MAX_SAFE_INTEGER;
-      if (aSort !== bSort) {
-        return aSort - bSort;
-      }
-
-      // sort 字段相同或都不存在时，按名称字母排序
-      return (a.info?.name || '').localeCompare(b.info?.name || '');
-    });
-  };
-
-  // 递归排序所有层级
-  const sortRecursively = (items: typeof docs) => {
-    const sorted = sortItems(items);
+      if (a.info.type === 'folder' && b.info.type !== 'folder') return -1
+      if (a.info.type !== 'folder' && b.info.type === 'folder') return 1
+      const aSort = a.sort ?? Number.MAX_SAFE_INTEGER
+      const bSort = b.sort ?? Number.MAX_SAFE_INTEGER
+      if (aSort !== bSort) return aSort - bSort
+      return (a.info?.name || '').localeCompare(b.info?.name || '')
+    })
+  }
+  const sortRecursively = (items: typeof result): typeof result => {
+    const sorted = sortItems(items)
     sorted.forEach(item => {
       if (item.children && item.children.length > 0) {
-        item.children = sortRecursively(item.children);
+        item.children = sortRecursively(item.children as typeof result)
       }
-    });
-    return sorted;
-  };
-
-  return sortRecursively(result);
+    })
+    return sorted
+  }
+  return sortRecursively(result)
 })
-/*
-|--------------------------------------------------------------------------
-| 额外配置信息
-|--------------------------------------------------------------------------
-|
-*/
-//改变导入方式，如果为覆盖类型提醒用户
+// 选择数据来源
+const handleSelectSourceType = (type: ImportSourceType) => {
+  currentSourceType.value = type
+  resetData()
+}
+// 重置数据
+const resetData = () => {
+  formInfo.value = { moyuData: { docs: [] }, type: 'unknown', cover: false }
+  importTypeInfo.value = { name: 'unknown', version: '' }
+  selectedFormat.value = 'unknown'
+  parsedData.value = null
+}
+// 数据加载成功
+const handleDataLoaded = (data: unknown) => {
+  parsedData.value = data
+  const typeInfo = detectDocumentFormat(data)
+  importTypeInfo.value = typeInfo
+  selectedFormat.value = typeInfo.name
+  formInfo.value.type = typeInfo.name
+  convertData(typeInfo.name)
+}
+// 转换数据
+const convertData = (format: ImportFormatType) => {
+  if (!parsedData.value) return
+  try {
+    if (format === 'apiflow') {
+      const apiflowData = parsedData.value as ApiflowDocument
+      formInfo.value.moyuData.docs = apiflowData.docs || []
+    } else if (format === 'openapi' || format === 'swagger') {
+      const translator = new OpenApiTranslator(
+        projectId,
+        parsedData.value as OpenAPIV3.Document | OpenAPIV2.Document
+      )
+      formInfo.value.moyuData.docs = translator.getDocsInfo(openapiFolderNamedType.value)
+    } else if (format === 'postman') {
+      const translator = new PostmanTranslator(projectId, parsedData.value as PostmanCollection)
+      formInfo.value.moyuData.docs = translator.getDocsInfo()
+    }
+  } catch (err) {
+    message.error(t('数据转换失败'))
+  }
+}
+// 格式变化
+const handleFormatChange = (format: ImportFormatType) => {
+  formInfo.value.type = format
+  convertData(format)
+}
+// 错误处理
+const handleError = () => {
+  resetData()
+}
+// 改变命名方式
+const handleChangeNamedType = () => {
+  convertData(selectedFormat.value)
+}
+// 改变导入方式
 const handleChangeIsCover = (val: string | number | boolean | undefined) => {
   if (val) {
     ElMessageBox.confirm(t('覆盖后的数据将无法还原'), t('提示'), {
       confirmButtonText: t('确定'),
       cancelButtonText: t('取消'),
       type: 'warning',
-    }).catch((err) => {
+    }).catch(err => {
       if (err === 'cancel' || err === 'close') {
-        formInfo.value.cover = false;
-        return;
+        formInfo.value.cover = false
       }
-      console.error(err)
-    });
+    })
   }
 }
-//节点选中状态改变时候
+// 节点选中状态改变
 const handleCheckChange = (data: HttpNode, { checkedKeys }: { checkedKeys: HttpNode[] }) => {
-  docTree2.value?.setCheckedKeys([]);
+  docTree2.value?.setCheckedKeys([])
   if (checkedKeys.length > 0) {
-    docTree2.value?.setCheckedKeys([data._id]);
+    docTree2.value?.setCheckedKeys([data._id])
   }
-  currentMountedNode.value = data;
+  currentMountedNode.value = data
 }
-//改变命名方式
-const handleChangeNamedType = () => {
-  // TODO: 转换器功能需要实现
-  // const openApiTranslatorInstance = new OpenApiTranslator(projectId, jsonText.value as OpenAPIV3.Document);
-  // formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
-}
-//是否导入到特定文件夹
+// 切换目标文件夹
 const handleToggleTargetFolder = async (val: boolean) => {
-  currentMountedNode.value = null;
+  currentMountedNode.value = null
   if (val) {
     if (isStandalone.value) {
-      const banner = await apiNodesCache.getApiNodesAsTree(projectId);
-      navTreeData.value = banner;
+      const banner = await apiNodesCache.getApiNodesAsTree(projectId)
+      navTreeData.value = banner
       return
     }
-
-    loading2.value = true;
-    const params = {
-      projectId,
-    };
-    request.get('/api/project/doc_tree_folder_node', { params }).then((res) => {
-      navTreeData.value = res.data;
-    }).catch((err) => {
-      console.error(err);
-    }).finally(() => {
-      loading2.value = false;
-    });
+    loading2.value = true
+    const params = { projectId }
+    request
+      .get('/api/project/doc_tree_folder_node', { params })
+      .then(res => {
+        navTreeData.value = res.data
+      })
+      .catch(() => {})
+      .finally(() => {
+        loading2.value = false
+      })
   }
 }
-/*
-|--------------------------------------------------------------------------
-| 确定导入
-|--------------------------------------------------------------------------
-|
-*/
+// 确定导入
 const handleSubmit = async () => {
   try {
-    if (!formInfo.value.moyuData.docs) {
-      message.warning(t('请选择需要导入的文件'));
-      return;
+    if (!formInfo.value.moyuData.docs || formInfo.value.moyuData.docs.length === 0) {
+      message.warning(t('请选择需要导入的文件'))
+      return
     }
-    const mountedId = currentMountedNode.value?._id;
-
-    // 处理文档的父子关系
-    const docs = formInfo.value.moyuData.docs.map((val) => {
-      // 如果文档没有父ID（根节点）且用户选择了挂载节点，则设置为挂载节点
-      // 如果文档有父ID，保留原有的父子关系结构
-      const processedDoc = {
-        ...val,
-        pid: (!val.pid && mountedId) ? mountedId : val.pid,
-      };
-      return processedDoc;
-    });
-
+    const mountedId = currentMountedNode.value?._id
+    const docs = formInfo.value.moyuData.docs.map(val => ({
+      ...val,
+      pid: !val.pid && mountedId ? mountedId : val.pid,
+    }))
     if (isStandalone.value && formInfo.value.cover) {
-      const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[];
-      await apiNodesCache.replaceAllNodes(copiedDocs as HttpNode[], projectId);
-      bannerStore.getDocBanner({ projectId });
-      message.success(t('导入成功'));
+      const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[]
+      await apiNodesCache.replaceAllNodes(copiedDocs, projectId)
+      bannerStore.getDocBanner({ projectId })
+      message.success(t('导入成功'))
       return
     } else if (isStandalone.value && !formInfo.value.cover) {
-      const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[];
-      await apiNodesCache.appendNodes(copiedDocs, projectId);
-      bannerStore.getDocBanner({ projectId });
-      message.success(t('导入成功'));
+      const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[]
+      await apiNodesCache.appendNodes(copiedDocs, projectId)
+      bannerStore.getDocBanner({ projectId })
+      message.success(t('导入成功'))
       return
     }
-    loading.value = true;
+    loading.value = true
     const params = {
       projectId,
       cover: formInfo.value.cover,
-      moyuData: {
-        ...formInfo.value.moyuData,
-        docs,
-      },
-    };
-    request.post('/api/project/import/moyu', params).then(() => {
-      bannerStore.getDocBanner({ projectId });
-    }).catch((err) => {
-      console.error(err);
-    }).finally(() => {
-      loading.value = false;
-    });
+      moyuData: { ...formInfo.value.moyuData, docs },
+    }
+    request
+      .post('/api/project/import/moyu', params)
+      .then(() => {
+        bannerStore.getDocBanner({ projectId })
+        message.success(t('导入成功'))
+      })
+      .catch(() => {})
+      .finally(() => {
+        loading.value = false
+      })
   } catch (error) {
-    message.warning((error as Error).message);
-    loading.value = false;
+    message.warning((error as Error).message)
+    loading.value = false
   }
 }
 </script>
 
-<style lang='scss'>
+<style lang="scss" scoped>
 .doc-import {
   overflow-y: auto;
   height: calc(100vh - var(--apiflow-doc-nav-height));
   width: 70%;
   min-width: 768px;
   margin: 0 auto;
+  padding-bottom: 40px;
 
-  .download-wrap {
+  .source-wrap {
     display: flex;
-    
-    .item {
-      width: 130px;
-      height: 100px;
-      padding: 10px;
-      margin-right: 20px;
-      cursor: pointer;
+    gap: 16px;
+
+    .source-item {
       display: flex;
       align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      border: 1px solid transparent;
-      
-      &.active {
-        border: 1px solid var(--gray-400);
-        box-shadow: var(--box-shadow-sm);
-      }
-      
+      gap: 12px;
+      padding: 16px 20px;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: all 0.2s;
+      min-width: 200px;
+
       &:hover {
-        border: 1px solid var(--gray-400);
+        border-color: var(--gray-400);
+        background: var(--gray-50);
       }
-      
-      .lucide-icon {
-        color: var(--gray-700);
+
+      &.active {
+        border-color: var(--theme-color);
+        background: var(--theme-color-light);
+
+        .source-icon {
+          color: var(--theme-color);
+        }
+
+        .source-name {
+          color: var(--theme-color);
+        }
+      }
+
+      .source-icon {
+        color: var(--gray-500);
+      }
+
+      .source-info {
+        .source-name {
+          font-size: 14px;
+          font-weight: 500;
+          color: var(--gray-800);
+        }
+
+        .source-desc {
+          font-size: 12px;
+          color: var(--gray-500);
+          margin-top: 2px;
+        }
       }
     }
   }
 
-  .url-import-placeholder,
-  .paste-import-placeholder {
-    padding: 60px 20px;
-    text-align: center;
-    color: var(--gray-500);
-    font-size: 14px;
-    background: var(--gray-50);
-    border-radius: var(--border-radius);
+  .preview-stats {
+    margin-bottom: 12px;
   }
 
-  .el-upload {
-    width: 100%;
-  }
-
-  .el-upload-dragger {
+  .empty-preview {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%;
+    padding: 40px;
+    color: var(--gray-400);
+
+    .empty-icon {
+      margin-bottom: 12px;
+    }
+
+    .empty-text {
+      font-size: 14px;
+    }
   }
 
   .custom-tree-node {
@@ -607,12 +516,6 @@ const handleSubmit = async () => {
     overflow: hidden;
     height: 30px;
 
-    &:hover {
-      .more {
-        display: block;
-      }
-    }
-
     &>img {
       width: 16px;
       height: 16px;
@@ -621,13 +524,12 @@ const handleSubmit = async () => {
     .file-icon {
       font-size: 14px;
       margin-right: 5px;
+      font-weight: 500;
     }
 
     .folder-icon {
       color: var(--yellow);
       flex: 0 0 auto;
-      width: 16px;
-      height: 16px;
       margin-right: 5px;
     }
 
@@ -643,25 +545,23 @@ const handleSubmit = async () => {
         text-overflow: ellipsis;
         white-space: nowrap;
       }
-
-      .node-bottom {
-        color: var(--gray-500);
-        width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
     }
   }
 
-  .el-tree-node__content {
+  .submit-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  :deep(.el-tree-node__content) {
     height: 30px;
     display: flex;
     align-items: center;
   }
 
-  .el-tree-node__content>.el-tree-node__expand-icon {
-    transition: none; //去除所有动画
+  :deep(.el-tree-node__content > .el-tree-node__expand-icon) {
+    transition: none;
     padding-top: 0;
     padding-bottom: 0;
     margin-top: -1px;

@@ -32,6 +32,11 @@ const agentSystemPrompt = `你是 Apiflow 智能代理，需使用工具完成�
 - 重命名文件夹时，若用户未指定具体名称，优先使用autoRenameFoldersByContent工具，它会根据子节点内容自动生成不超过10个字的有意义命名并执行重命名。
 - 操作变量时，使用getVariables获取变量列表，createVariable创建变量，updateVariable更新变量，deleteVariables删除变量。变量可在请求URL、Header、Body中通过{{ variableName }}方式引用。
 
+【创建节点规则】
+- 只有 folder（目录）类型的节点可以包含子节点
+- 创建节点时，pid 参数只能是空字符串（表示根目录）或已存在的 folder 节点的 ID
+- http、httpMock、websocket、websocketMock、markdown 类型的节点不能作为父节点
+
 【任务计划规则】
 对于需要超过2个步骤完成的复杂任务，你必须在第一次响应时输出任务计划。
 任务计划格式要求：

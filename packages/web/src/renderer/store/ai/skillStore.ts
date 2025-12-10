@@ -5,7 +5,7 @@ import { defineStore } from "pinia"
 import { DeepPartial } from "@src/types/index.ts"
 import { apiNodesCache } from "@/cache/nodes/nodesCache";
 import { nodeVariableCache } from "@/cache/variable/nodeVariableCache";
-import { logger, generateEmptyHttpNode, generateHttpNode, inferContentTypeFromBody, findNodeById, findParentById } from '@/helper';
+import { logger, generateEmptyHttpNode, generateHttpNode, inferContentTypeFromBody, findNodeById, findParentById, generateEmptyProperty } from '@/helper';
 import { useHttpNode } from "../httpNode/httpNodeStore";
 import { useProjectManagerStore } from "../projectManager/projectManagerStore";
 import { useBanner } from "../projectWorkbench/bannerStore";
@@ -51,12 +51,24 @@ export const useSkill = defineStore('skill', () => {
       }
       if (item.paths !== undefined) {
         node.item.paths = item.paths;
+        const lastPath = node.item.paths[node.item.paths.length - 1];
+        if (!lastPath || lastPath.key !== '' || lastPath.value !== '') {
+          node.item.paths.push(generateEmptyProperty());
+        }
       }
       if (item.queryParams !== undefined) {
         node.item.queryParams = item.queryParams;
+        const lastQueryParam = node.item.queryParams[node.item.queryParams.length - 1];
+        if (!lastQueryParam || lastQueryParam.key !== '' || lastQueryParam.value !== '') {
+          node.item.queryParams.push(generateEmptyProperty());
+        }
       }
       if (item.headers !== undefined) {
         node.item.headers = item.headers;
+        const lastHeader = node.item.headers[node.item.headers.length - 1];
+        if (!lastHeader || lastHeader.key !== '' || lastHeader.value !== '') {
+          node.item.headers.push(generateEmptyProperty());
+        }
       }
       if (item.responseParams !== undefined) {
         node.item.responseParams = item.responseParams;
@@ -71,9 +83,17 @@ export const useSkill = defineStore('skill', () => {
         }
         if (requestBody.formdata !== undefined) {
           node.item.requestBody.formdata = requestBody.formdata;
+          const lastFormdata = node.item.requestBody.formdata[node.item.requestBody.formdata.length - 1];
+          if (!lastFormdata || lastFormdata.key !== '' || lastFormdata.value !== '') {
+            node.item.requestBody.formdata.push(generateEmptyProperty());
+          }
         }
         if (requestBody.urlencoded !== undefined) {
           node.item.requestBody.urlencoded = requestBody.urlencoded;
+          const lastUrlencoded = node.item.requestBody.urlencoded[node.item.requestBody.urlencoded.length - 1];
+          if (!lastUrlencoded || lastUrlencoded.key !== '' || lastUrlencoded.value !== '') {
+            node.item.requestBody.urlencoded.push(generateEmptyProperty());
+          }
         }
         if (requestBody.raw !== undefined) {
           node.item.requestBody.raw = { ...node.item.requestBody.raw, ...requestBody.raw };

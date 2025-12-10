@@ -22,9 +22,10 @@ type LLMInferredParams = {
   headers?: LLMInferredParam[]
 }
 //将LLM返回的简化JSON转换为完整的CreateHttpNodeOptions
-const buildCreateHttpNodeOptions = (projectId: string, params: LLMInferredParams): CreateHttpNodeOptions => {
+const buildCreateHttpNodeOptions = (projectId: string, params: LLMInferredParams, pid?: string): CreateHttpNodeOptions => {
   const options: CreateHttpNodeOptions = {
     projectId,
+    pid: pid || '',
     name: params.name || '未命名接口',
     description: params.description || '',
   }
@@ -92,6 +93,7 @@ export const httpNodeTools: AgentTool[] = [
       const llmClientStore = useLLMClientStore()
       const projectId = args.projectId as string
       const description = args.description as string
+      const pid = typeof args.pid === 'string' ? args.pid : ''
       const systemPrompt = `你是一个API设计专家。根据用户的自然语言描述，推断出完整的HTTP接口参数。
 返回严格的JSON格式，不要有任何其他内容。
 
@@ -126,7 +128,7 @@ JSON结构：
         })
         const content = response.choices[0]?.message?.content || '{}'
         const inferredParams: LLMInferredParams = JSON.parse(content)
-        const options = buildCreateHttpNodeOptions(projectId, inferredParams)
+        const options = buildCreateHttpNodeOptions(projectId, inferredParams, pid)
         const node = await skillStore.createHttpNode(options)
         return { code: node ? 0 : 1, data: node }
       } catch (error) {

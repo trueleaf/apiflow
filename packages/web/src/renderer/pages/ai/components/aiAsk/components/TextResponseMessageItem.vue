@@ -6,7 +6,7 @@
     <div class="message-content">
       <div class="message-bubble">
         <div class="markdown-content">
-          <VueMarkdownRender :source="message.content" :options="markdownOptions" />
+          <VueMarkdownRender :source="message.content" :options="markdownOptions" :plugins="[customTagsPlugin]" />
         </div>
       </div>
     </div>
@@ -16,6 +16,7 @@
 <script setup lang="ts">
 import { Bot } from 'lucide-vue-next'
 import VueMarkdownRender from 'vue-markdown-render'
+import type MarkdownIt from 'markdown-it'
 import type { TextResponseMessage } from '@src/types/ai'
 
 defineProps<{
@@ -23,9 +24,32 @@ defineProps<{
 }>()
 
 const markdownOptions = {
-  html: false,
+  html: true,
   breaks: true,
   linkify: true
+}
+
+// AI 响应中允许的自定义标签白名单
+const allowedTags = ['todo_plan', 'current_step', 'thinking', 'result', 'context', 'instruction']
+// 处理自定义标签，将白名单标签转换为带样式类的 div，非白名单标签转义
+const processCustomTags = (html: string, escapeHtml: (str: string) => string): string => {
+  return html.replace(/<\/?(\w+)([^>]*)>/g, (match, tagName, attrs) => {
+    const lowerTag = tagName.toLowerCase()
+    if (allowedTags.includes(lowerTag)) {
+      const isClosing = match.startsWith('</')
+      return isClosing ? '</div>' : `<div class="ai-tag ai-tag-${lowerTag}">`
+    }
+    return escapeHtml(match)
+  })
+}
+// markdown-it 插件：处理自定义 HTML 标签
+const customTagsPlugin = (md: MarkdownIt) => {
+  md.renderer.rules.html_block = (tokens, idx) => {
+    return processCustomTags(tokens[idx].content, md.utils.escapeHtml)
+  }
+  md.renderer.rules.html_inline = (tokens, idx) => {
+    return processCustomTags(tokens[idx].content, md.utils.escapeHtml)
+  }
 }
 </script>
 
@@ -225,5 +249,42 @@ const markdownOptions = {
   height: auto;
   display: block;
   margin: 10px 0;
+}
+.markdown-content :deep(.ai-tag),
+.markdown-content .ai-tag {
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 8px 0;
+  font-size: 12px;
+}
+.markdown-content :deep(.ai-tag-todo_plan),
+.markdown-content .ai-tag-todo_plan {
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 3px solid #3b82f6;
+}
+.markdown-content :deep(.ai-tag-current_step),
+.markdown-content .ai-tag-current_step {
+  background: rgba(34, 197, 94, 0.1);
+  border-left: 3px solid #22c55e;
+}
+.markdown-content :deep(.ai-tag-thinking),
+.markdown-content .ai-tag-thinking {
+  background: rgba(168, 85, 247, 0.1);
+  border-left: 3px solid #a855f7;
+}
+.markdown-content :deep(.ai-tag-result),
+.markdown-content .ai-tag-result {
+  background: rgba(249, 115, 22, 0.1);
+  border-left: 3px solid #f97316;
+}
+.markdown-content :deep(.ai-tag-context),
+.markdown-content .ai-tag-context {
+  background: rgba(107, 114, 128, 0.1);
+  border-left: 3px solid #6b7280;
+}
+.markdown-content :deep(.ai-tag-instruction),
+.markdown-content .ai-tag-instruction {
+  background: rgba(236, 72, 153, 0.1);
+  border-left: 3px solid #ec4899;
 }
 </style>
