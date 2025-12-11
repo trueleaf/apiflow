@@ -52,6 +52,8 @@ export const test = base.extend<ElectronFixtures>({
         NODE_ENV: 'test',
       },
     });
+    // 等待应用完全启动并加载所有窗口
+    await new Promise((resolve) => setTimeout(resolve, 2000));
     await use(app);
     // 在关闭前等待一小段时间，避免 Playwright 内部 step id 错误
     await new Promise((resolve) => setTimeout(resolve, 500));

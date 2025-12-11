@@ -96,7 +96,7 @@
     "@koa/cors": "^5.0.0",
     "@koa/multer": "^4.0.0",
     "@koa/router": "^14.0.0",
-    "@playwright/test": "^1.55.1",
+    "@playwright/test": "^1.57.0",
     "@types/detect-port": "^2.0.0",
     "@types/got": "^9.6.12",
     "@types/ip": "^1.1.3",

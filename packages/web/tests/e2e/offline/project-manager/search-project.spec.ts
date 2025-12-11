@@ -211,6 +211,11 @@ test.describe('SearchProject', () => {
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
     await addHttpBtn.click();
+    const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
+    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
+    await addApiDialog.locator('input').first().fill('未命名接口');
+    await addApiDialog.locator('.el-button--primary').last().click();
+    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 返回首页
     const logo = topBarPage.locator('.logo-img');
@@ -240,6 +245,11 @@ test.describe('SearchProject', () => {
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
     await addHttpBtn.click();
+    const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
+    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
+    await addApiDialog.locator('input').first().fill('未命名接口');
+    await addApiDialog.locator('.el-button--primary').last().click();
+    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 返回首页
     const logo = topBarPage.locator('.logo-img');
@@ -277,6 +287,11 @@ test.describe('SearchProject', () => {
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
     await addHttpBtn.click();
+    const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
+    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
+    await addApiDialog.locator('input').first().fill('未命名接口');
+    await addApiDialog.locator('.el-button--primary').last().click();
+    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 返回首页
     const logo = topBarPage.locator('.logo-img');
@@ -312,6 +327,11 @@ test.describe('SearchProject', () => {
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
     await addHttpBtn.click();
+    const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
+    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
+    await addApiDialog.locator('input').first().fill('未命名接口');
+    await addApiDialog.locator('.el-button--primary').last().click();
+    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 返回首页
     const logo = topBarPage.locator('.logo-img');
@@ -346,6 +366,11 @@ test.describe('SearchProject', () => {
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
     await addHttpBtn.click();
+    const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
+    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
+    await addApiDialog.locator('input').first().fill('未命名接口');
+    await addApiDialog.locator('.el-button--primary').last().click();
+    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 返回首页
     const logo = topBarPage.locator('.logo-img');

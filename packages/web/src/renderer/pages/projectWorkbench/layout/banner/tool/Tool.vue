@@ -92,17 +92,17 @@
       <!-- 固定的工具栏操作 -->
       <SDraggable v-model="pinOperations" animation="150" item-key="name" class="operation" group="operation">
         <template #item="{ element }">
-          <div :title="t(element.name)" class="cursor-pointer">
+          <div :title="t(element.name)" class="cursor-pointer" :data-testid="getOperationTestId(element.op)" @click="handleEmit(element.op)">
             <template v-if="element.icon === 'variable'">
-              <Variable :size="20" :stroke-width="1.5" class="lucide-icon" @click="handleEmit(element.op)" />
+              <Variable :size="20" :stroke-width="1.5" class="lucide-icon" />
             </template>
             <template v-else-if="element.icon === 'arrowDownToLine'">
-              <ArrowDownToLine :size="20" :stroke-width="1.5" class="lucide-icon" @click="handleEmit(element.op)" />
+              <ArrowDownToLine :size="20" :stroke-width="1.5" class="lucide-icon" />
             </template>
             <template v-else-if="element.icon === 'arrowUpToLine'">
-              <ArrowUpToLine :size="20" :stroke-width="1.5" class="lucide-icon" @click="handleEmit(element.op)" />
+              <ArrowUpToLine :size="20" :stroke-width="1.5" class="lucide-icon" />
             </template>
-            <svg v-else class="svg-icon" aria-hidden="true" @click="handleEmit(element.op)">
+            <svg v-else class="svg-icon" aria-hidden="true">
               <use :xlink:href="element.icon"></use>
             </svg>
           </div>
@@ -216,6 +216,13 @@ const toggleProjectVisible = ref(false);
 const handleAddFileAndFolderCb = (data: ApidocBanner) => {
   addFileAndFolderCb.call(this, ref(null), data)
 };
+// 获取操作按钮测试选择器
+const getOperationTestId = (op: string) => {
+  if (op === 'addRootFile') {
+    return 'banner-add-http-btn'
+  }
+  return undefined
+}
 //=====================================操作栏数据====================================//
 const bannerData = computed(() => {
   const originBannerData = bannerStore.banner;

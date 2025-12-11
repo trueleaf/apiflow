@@ -33,6 +33,11 @@ test.describe('Search', () => {
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
     await addHttpBtn.click();
+    const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
+    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
+    await addApiDialog.locator('input').first().fill('未命名接口');
+    await addApiDialog.locator('.el-button--primary').last().click();
+    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 验证节点存在
     const treeNode = contentPage.locator('.el-tree-node');
@@ -56,6 +61,11 @@ test.describe('Search', () => {
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
     await addHttpBtn.click();
+    const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
+    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
+    await addApiDialog.locator('input').first().fill('未命名接口');
+    await addApiDialog.locator('.el-button--primary').last().click();
+    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 在URL输入框中输入URL
     const urlInput = contentPage.locator('[data-testid="http-request-url-input"] input');
@@ -84,6 +94,11 @@ test.describe('Search', () => {
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
     await addHttpBtn.click();
+    const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
+    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
+    await addApiDialog.locator('input').first().fill('未命名接口');
+    await addApiDialog.locator('.el-button--primary').last().click();
+    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 输入不存在的内容
     const searchInput = contentPage.locator('[data-testid="banner-search-input"] input');
@@ -106,6 +121,11 @@ test.describe('Search', () => {
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
     await addHttpBtn.click();
+    const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
+    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
+    await addApiDialog.locator('input').first().fill('未命名接口');
+    await addApiDialog.locator('.el-button--primary').last().click();
+    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 搜索关键字
     const searchInput = contentPage.locator('[data-testid="banner-search-input"] input');
