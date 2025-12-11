@@ -4,7 +4,6 @@ test.describe('VariableDialog', () => {
   // 测试用例1: 点击变量按钮打开变量管理弹窗,弹窗展示当前项目的所有变量
   test('点击变量按钮打开变量管理弹窗', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -31,7 +30,6 @@ test.describe('VariableDialog', () => {
   // 测试用例2: 变量弹窗可以拖拽移动位置,关闭后再打开位置保持不变
   test('变量弹窗可以拖拽移动位置', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

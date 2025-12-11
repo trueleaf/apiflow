@@ -4,7 +4,6 @@ test.describe('PreScriptEditorFeatures', () => {
   // 前置脚本编辑器支持JavaScript语法高亮
   test('前置脚本编辑器支持JavaScript语法高亮', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -41,7 +40,6 @@ test.describe('PreScriptEditorFeatures', () => {
   // 输入af.后出现代码补全提示
   test('输入af后出现代码补全提示', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -83,7 +81,6 @@ test.describe('PreScriptEditorFeatures', () => {
   // 点击格式化按钮,代码格式化正确
   test('点击格式化按钮代码格式化正确', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -130,7 +127,6 @@ test.describe('PreScriptEditorFeatures', () => {
   // 鼠标悬停在af对象属性上时显示API说明提示
   test('鼠标悬停在af对象属性上显示API说明提示', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);

@@ -4,7 +4,6 @@ test.describe('TabOperation', () => {
   // 测试用例1: 点击关闭按钮关闭当前tab
   test('点击关闭按钮关闭当前tab', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -28,7 +27,6 @@ test.describe('TabOperation', () => {
   // 测试用例2: 右键菜单关闭当前tab
   test('右键菜单关闭当前tab', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -53,7 +51,6 @@ test.describe('TabOperation', () => {
   // 测试用例3: 右键菜单关闭左侧tab
   test('右键菜单关闭左侧tab', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增三个HTTP节点
@@ -83,7 +80,6 @@ test.describe('TabOperation', () => {
   // 测试用例4: 右键菜单关闭右侧tab
   test('右键菜单关闭右侧tab', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增三个HTTP节点
@@ -113,7 +109,6 @@ test.describe('TabOperation', () => {
   // 测试用例5: 右键菜单关闭其他tab
   test('右键菜单关闭其他tab', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增三个HTTP节点
@@ -145,7 +140,6 @@ test.describe('TabOperation', () => {
   // 测试用例6: 右键菜单全部关闭
   test('右键菜单全部关闭', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增两个HTTP节点
@@ -173,7 +167,6 @@ test.describe('TabOperation', () => {
   // 测试用例7: 点击tab切换选中状态
   test('点击tab切换选中状态', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增两个HTTP节点
@@ -203,7 +196,6 @@ test.describe('TabOperation', () => {
   // 测试用例8: 新增空白接口按钮功能
   test('新增空白接口按钮功能', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 获取初始tab数量
@@ -222,7 +214,6 @@ test.describe('TabOperation', () => {
   // 测试用例9: 双击tab固定非固定页签
   test('双击tab固定非固定页签', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

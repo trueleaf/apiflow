@@ -6,7 +6,6 @@ test.describe('Query', () => {
   // query参数key输入值以后,如果不存在next节点,则自动新增一行数据
   test('query参数key输入后自动新增一行', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -46,7 +45,6 @@ test.describe('Query', () => {
   // query参数key,value,description输入值以后,调用echo接口验证query参数正确
   test('query参数正确发送到服务器', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -92,7 +90,6 @@ test.describe('Query', () => {
   // query参数key,value支持变量替换
   test('query参数支持变量替换', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -138,7 +135,6 @@ test.describe('Query', () => {
   // query参数key,value支持mock
   test('query参数支持mock数据', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -184,7 +180,6 @@ test.describe('Query', () => {
   // query参数key,value支持混合变量
   test('query参数支持混合变量', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -230,7 +225,6 @@ test.describe('Query', () => {
   // query参数是否发送未勾选那么当前参数不会发送
   test('未勾选的query参数不会发送', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);

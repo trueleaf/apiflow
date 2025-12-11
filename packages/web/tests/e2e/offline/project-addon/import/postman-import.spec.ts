@@ -4,7 +4,6 @@ test.describe('PostmanImport', () => {
   // 测试用例1: 打开导入页面验证Postman格式支持
   test('打开导入页面验证Postman格式支持', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
@@ -21,7 +20,6 @@ test.describe('PostmanImport', () => {
   // 测试用例2: 验证Postman Collection格式识别
   test('验证Postman Collection格式识别', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
@@ -38,7 +36,6 @@ test.describe('PostmanImport', () => {
   // 测试用例3: 选择追加导入方式
   test('选择追加导入方式', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
@@ -52,7 +49,6 @@ test.describe('PostmanImport', () => {
   // 测试用例4: 无数据时确定导入按钮禁用
   test('无数据时确定导入按钮禁用', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮

@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
@@ -6,7 +6,6 @@ test.describe('RefreshButton', () => {
   // 测试用例1: 刷新按钮点击后,清空修改的值
   test('刷新按钮点击后清空修改的值', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -45,7 +44,6 @@ test.describe('RefreshButton', () => {
   // 测试用例2: 验证录入项变更后刷新页面数据恢复
   test('验证录入项变更后刷新页面数据恢复', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

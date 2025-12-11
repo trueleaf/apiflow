@@ -4,7 +4,6 @@ test.describe('QueryParamsUndo', () => {
   // 测试用例1: query参数key输入字符串ab,按ctrl+z逐步撤销
   test('query参数key输入后按ctrl+z撤销', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -45,7 +44,6 @@ test.describe('QueryParamsUndo', () => {
   // 测试用例2: query参数value输入字符串后撤销
   test('query参数value输入后按ctrl+z撤销', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -86,7 +84,6 @@ test.describe('QueryParamsUndo', () => {
   // 测试用例3: url和query参数联动撤销
   test('url和query参数联动变化后撤销', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

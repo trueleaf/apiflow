@@ -4,7 +4,6 @@ test.describe('RequestUrlUndo', () => {
   // 测试用例1: 请求url中输入字符串ab,点击撤销按钮,url值为a,再次点击撤销按钮,url值为空
   test('输入字符串后点击撤销按钮逐步撤销', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -41,7 +40,6 @@ test.describe('RequestUrlUndo', () => {
   // 测试用例2: 请求url中输入字符串ab,按ctrl+z,url值为a,再次按ctrl+z,url值为空
   test('输入字符串后按ctrl+z快捷键逐步撤销', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -77,7 +75,6 @@ test.describe('RequestUrlUndo', () => {
   // 测试用例3: 请求url中输入中文字符串,点击撤销按钮,url值为空
   test('输入中文字符串后撤销', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -106,7 +103,6 @@ test.describe('RequestUrlUndo', () => {
   // 测试用例4: 请求url中输入字符a,粘贴test.demo.com,撤销后url值为a
   test('输入字符后粘贴内容再撤销', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

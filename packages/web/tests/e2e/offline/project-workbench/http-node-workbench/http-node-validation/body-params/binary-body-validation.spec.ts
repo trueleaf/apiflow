@@ -5,7 +5,7 @@ test.describe('BinaryBodyValidation', () => {
   // 测试用例1: 切换Body类型为Binary后显示Binary选项
   test('切换Body类型为Binary后显示Binary选项', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -46,7 +46,7 @@ test.describe('BinaryBodyValidation', () => {
   // 测试用例2: Binary变量模式输入框可见
   test('Binary变量模式输入框可见', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -87,7 +87,7 @@ test.describe('BinaryBodyValidation', () => {
   // 测试用例3: Binary变量模式可以输入变量
   test('Binary变量模式可以输入变量', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -130,7 +130,7 @@ test.describe('BinaryBodyValidation', () => {
   // 测试用例4: Binary文件模式选择文件按钮可见
   test('Binary文件模式选择文件按钮可见', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -172,7 +172,7 @@ test.describe('BinaryBodyValidation', () => {
   // 测试用例5: Binary模式切换在变量和文件之间
   test('Binary模式切换在变量和文件之间', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -220,7 +220,7 @@ test.describe('BinaryBodyValidation', () => {
   // 测试用例6: POST方法下可以选择Binary类型
   test('POST方法下可以选择Binary类型', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -264,7 +264,7 @@ test.describe('BinaryBodyValidation', () => {
   // 测试用例7: PUT方法下可以选择Binary类型
   test('PUT方法下可以选择Binary类型', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -308,7 +308,7 @@ test.describe('BinaryBodyValidation', () => {
   // 测试用例8: PATCH方法下可以选择Binary类型
   test('PATCH方法下可以选择Binary类型', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -352,7 +352,7 @@ test.describe('BinaryBodyValidation', () => {
   // 测试用例9: Binary变量模式输入值在切换tab后保持
   test('Binary变量模式输入值在切换tab后保持', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -402,7 +402,7 @@ test.describe('BinaryBodyValidation', () => {
   // 测试用例10: Binary模式选择在切换tab后保持
   test('Binary模式选择在切换tab后保持', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -451,7 +451,7 @@ test.describe('BinaryBodyValidation', () => {
   // 测试用例11: 从Binary切换到JSON类型后再切回Binary
   test('从Binary切换到JSON类型后再切回Binary', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -502,7 +502,7 @@ test.describe('BinaryBodyValidation', () => {
   // 测试用例12: Binary变量模式输入框有正确的placeholder提示
   test('Binary变量模式输入框有正确的placeholder提示', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);

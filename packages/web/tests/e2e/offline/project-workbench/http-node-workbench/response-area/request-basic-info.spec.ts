@@ -6,7 +6,6 @@ test.describe('RequestBasicInfo', () => {
   // 测试用例1: 发送请求后,基本信息区域内容展示,需要展示请求地址,请求方式,维护人员,创建人员等
   test('发送请求后基本信息区域内容正确展示', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -40,7 +39,6 @@ test.describe('RequestBasicInfo', () => {
   // 测试用例2: 发送请求后,验证请求方法颜色,验证各种请求方法颜色
   test('发送不同请求方法验证颜色显示正确', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

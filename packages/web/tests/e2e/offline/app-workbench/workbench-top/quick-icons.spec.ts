@@ -7,13 +7,13 @@ test.describe('QuickIcons', () => {
       await expect(aiBtn).toBeVisible();
       await aiBtn.click();
       // 等待AI助理弹窗出现
-      const aiDialog = contentPage.locator('.agent-view-dialog');
+      const aiDialog = contentPage.locator('.ai-dialog');
       await expect(aiDialog).toBeVisible({ timeout: 5000 });
     });
     test('多次点击AI助理按钮不会关闭弹窗', async ({ contentPage, topBarPage }) => {
       const aiBtn = topBarPage.locator('[data-testid="header-ai-btn"]');
       await aiBtn.click();
-      const aiDialog = contentPage.locator('.agent-view-dialog');
+      const aiDialog = contentPage.locator('.ai-dialog');
       await expect(aiDialog).toBeVisible({ timeout: 5000 });
       // 再次点击AI按钮
       await aiBtn.click();
@@ -36,13 +36,13 @@ test.describe('QuickIcons', () => {
       expect(['中', '繁', 'EN', 'JP']).toContain(btnText?.trim());
       await languageBtn.click();
       // 等待语言菜单出现
-      const languageMenu = contentPage.locator('.language-menu');
+      const languageMenu = contentPage.locator('.language-dropdown-menu');
       await expect(languageMenu).toBeVisible({ timeout: 5000 });
     });
     test('语言菜单包含4种语言选项', async ({ contentPage, topBarPage }) => {
       const languageBtn = topBarPage.locator('[data-testid="header-language-btn"]');
       await languageBtn.click();
-      const languageMenu = contentPage.locator('.language-menu');
+      const languageMenu = contentPage.locator('.language-dropdown-menu');
       await expect(languageMenu).toBeVisible({ timeout: 5000 });
       // 验证4种语言选项存在
       await expect(languageMenu.locator('text=简体中文')).toBeVisible();
@@ -53,7 +53,7 @@ test.describe('QuickIcons', () => {
     test('点击语言选项切换语言', async ({ contentPage, topBarPage }) => {
       const languageBtn = topBarPage.locator('[data-testid="header-language-btn"]');
       await languageBtn.click();
-      const languageMenu = contentPage.locator('.language-menu');
+      const languageMenu = contentPage.locator('.language-dropdown-menu');
       await expect(languageMenu).toBeVisible({ timeout: 5000 });
       // 点击English选项
       await languageMenu.locator('text=English').click();
@@ -65,7 +65,7 @@ test.describe('QuickIcons', () => {
       await expect(settingsBtn).toHaveAttribute('title', 'Settings');
       // 切换回简体中文
       await languageBtn.click();
-      const languageMenu2 = contentPage.locator('.language-menu');
+      const languageMenu2 = contentPage.locator('.language-dropdown-menu');
       await expect(languageMenu2).toBeVisible({ timeout: 5000 });
       await languageMenu2.locator('text=简体中文').click();
       await topBarPage.waitForTimeout(500);
@@ -74,10 +74,11 @@ test.describe('QuickIcons', () => {
     test('点击内容区域关闭语言菜单', async ({ contentPage, topBarPage }) => {
       const languageBtn = topBarPage.locator('[data-testid="header-language-btn"]');
       await languageBtn.click();
-      const languageMenu = contentPage.locator('.language-menu');
+      const languageMenu = contentPage.locator('.language-dropdown-menu');
       await expect(languageMenu).toBeVisible({ timeout: 5000 });
-      // 点击内容区域关闭菜单
-      await contentPage.locator('body').click({ position: { x: 100, y: 100 } });
+      // 点击内容区域关闭菜单（点击遮罩层）
+      const overlay = contentPage.locator('.language-menu-overlay');
+      await overlay.click();
       await expect(languageMenu).toBeHidden({ timeout: 3000 });
     });
   });

@@ -4,7 +4,6 @@ test.describe('LayoutOperation', () => {
   // 测试用例1: 点击水平布局按钮,请求区域和响应区域左右排列
   test('点击水平布局按钮,请求区域和响应区域左右排列', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -37,7 +36,6 @@ test.describe('LayoutOperation', () => {
   // 测试用例2: 点击垂直布局按钮,请求区域和响应区域上下排列
   test('点击垂直布局按钮,请求区域和响应区域上下排列', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -69,7 +67,6 @@ test.describe('LayoutOperation', () => {
   // 测试用例3: 切换布局后刷新页面,布局保持不变
   test('切换布局后刷新页面,布局保持不变', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

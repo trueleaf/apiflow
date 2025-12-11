@@ -6,7 +6,6 @@ test.describe('AfHttpApi', () => {
   // 测试用例1: 使用af.http.get()发送GET请求,请求成功并获取响应数据
   test('使用af.http.get发送GET请求并获取响应数据', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -48,7 +47,6 @@ console.log("GET响应数据:", JSON.stringify(response.data));`;
   // 测试用例2: 使用af.http.post()发送POST请求,请求成功并获取响应数据
   test('使用af.http.post发送POST请求并获取响应数据', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -90,7 +88,6 @@ console.log("POST响应数据:", JSON.stringify(response.data));`;
   // 测试用例3: 使用af.http.put()发送PUT请求,请求成功并获取响应数据
   test('使用af.http.put发送PUT请求并获取响应数据', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -132,7 +129,6 @@ console.log("PUT响应数据:", JSON.stringify(response.data));`;
   // 测试用例4: 使用af.http.delete()发送DELETE请求,请求成功并获取响应数据
   test('使用af.http.delete发送DELETE请求并获取响应数据', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -174,7 +170,6 @@ console.log("DELETE响应数据:", JSON.stringify(response.data));`;
   // 测试用例5: af.http请求失败时正确抛出错误并在响应区域展示错误信息
   test('af.http请求失败时正确抛出错误', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

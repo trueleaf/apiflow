@@ -6,7 +6,6 @@ test.describe('GlobalCommonHeaders', () => {
   // 测试用例1: 为folder节点设置公共请求头,该folder下所有接口自动继承这些请求头
   test('为folder节点设置公共请求头,该folder下所有接口自动继承这些请求头', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -79,7 +78,6 @@ test.describe('GlobalCommonHeaders', () => {
   // 测试用例2: 公共请求头支持表格模式和多行编辑模式切换,两种模式数据同步
   test('公共请求头支持表格模式和多行编辑模式切换,两种模式数据同步', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);

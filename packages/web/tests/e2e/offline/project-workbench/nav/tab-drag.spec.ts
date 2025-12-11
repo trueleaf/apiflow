@@ -4,7 +4,6 @@ test.describe('TabDrag', () => {
   // 测试用例1: 拖拽tab页签改变顺序
   test('拖拽tab页签改变顺序', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增多个HTTP节点
@@ -45,7 +44,6 @@ test.describe('TabDrag', () => {
   // 测试用例2: 拖拽tab页签后激活状态保持
   test('拖拽tab页签后激活状态保持', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增两个HTTP节点
@@ -81,7 +79,6 @@ test.describe('TabDrag', () => {
   // 测试用例3: 拖拽后页签数量不变
   test('拖拽后页签数量不变', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增三个HTTP节点
@@ -112,7 +109,6 @@ test.describe('TabDrag', () => {
   // 测试用例4: 拖拽单个tab时无变化
   test('只有单个tab时拖拽无变化', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增一个HTTP节点
@@ -140,7 +136,6 @@ test.describe('TabDrag', () => {
   // 测试用例5: 拖拽后固定状态保持
   test('拖拽后固定状态保持', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增两个HTTP节点（新增时为固定状态）

@@ -6,7 +6,6 @@ test.describe('AfVariablesApi', () => {
   // 使用af.variables.get(name)获取指定变量值
   test('使用af.variables.get(name)获取指定变量值', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -44,7 +43,6 @@ test.describe('AfVariablesApi', () => {
   // 使用af.variables.set(name, value)设置变量值
   test('使用af.variables.set(name, value)设置变量值', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -82,7 +80,6 @@ test.describe('AfVariablesApi', () => {
   // 后置脚本中设置的变量在下次请求中可以使用
   test('后置脚本中设置的变量在下次请求中可以使用', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增第一个HTTP节点用于设置变量

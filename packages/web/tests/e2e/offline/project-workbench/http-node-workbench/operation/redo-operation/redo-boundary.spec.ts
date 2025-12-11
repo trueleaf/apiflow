@@ -1,10 +1,9 @@
-import { test, expect } from '../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron.fixture';
 
 test.describe('RedoBoundary', () => {
   // 测试用例1: 没有可重做的操作时,重做按钮置灰不可点击,ctrl+shift+z无反应
   test('没有可重做的操作时,重做按钮置灰不可点击', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -33,7 +32,6 @@ test.describe('RedoBoundary', () => {
   // 测试用例2: 撤销后进行新操作,重做历史被清空,重做按钮置灰不可点击
   test('撤销后进行新操作,重做历史被清空,重做按钮置灰不可点击', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

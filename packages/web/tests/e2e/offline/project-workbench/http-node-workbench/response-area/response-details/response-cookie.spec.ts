@@ -6,7 +6,6 @@ test.describe('ResponseCookie', () => {
   // 测试用例1: 返回cookie正确展示
   test('返回Cookie正确展示', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -39,7 +38,6 @@ test.describe('ResponseCookie', () => {
   // 测试用例2: Cookie值包括名称,值,域,路径等完整信息
   test('Cookie展示包含完整信息', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

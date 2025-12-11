@@ -6,7 +6,6 @@ test.describe('RawValue', () => {
   // 测试用例1: 原始值需要正确返回
   test('原始值正确返回', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -39,7 +38,6 @@ test.describe('RawValue', () => {
   // 测试用例2: 原始值与JSON格式化显示的内容一致
   test('原始值与JSON格式化显示内容一致', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

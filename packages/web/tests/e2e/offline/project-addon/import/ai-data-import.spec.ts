@@ -4,7 +4,6 @@ test.describe('AiDataImport', () => {
   // 测试用例1: 打开导入页面验证AI智能识别选项存在
   test('打开导入页面验证AI智能识别选项存在', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
@@ -21,7 +20,6 @@ test.describe('AiDataImport', () => {
   // 测试用例2: 选择AI智能识别导入方式
   test('选择AI智能识别导入方式', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
@@ -38,7 +36,6 @@ test.describe('AiDataImport', () => {
   // 测试用例3: AI导入界面显示正确
   test('AI导入界面显示正确', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
@@ -58,7 +55,6 @@ test.describe('AiDataImport', () => {
   // 测试用例4: 切换回其他导入方式
   test('从AI导入切换回其他导入方式', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮

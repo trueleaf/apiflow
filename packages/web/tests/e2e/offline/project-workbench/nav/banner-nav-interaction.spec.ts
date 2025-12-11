@@ -4,7 +4,6 @@ test.describe('BannerNavInteraction', () => {
   // 测试用例1: 单击左侧非folder类型节点,右侧导航栏会新增一个tab页签,并且页签为非固定状态,页签中字体为斜体
   test('单击左侧非folder类型节点新增非固定tab页签且字体斜体', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -35,7 +34,6 @@ test.describe('BannerNavInteraction', () => {
   // 测试用例2: 双击左侧非folder类型节点,右侧导航栏会新增一个tab页签,并且页签为固定状态,页签中字体正常展示
   test('双击左侧非folder类型节点新增固定tab页签且字体正常', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -67,7 +65,6 @@ test.describe('BannerNavInteraction', () => {
   // 测试用例3: 单击左侧folder类型节点,右侧导航栏不会新增一个tab页签
   test('单击左侧folder类型节点不会新增tab页签', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增文件夹节点
@@ -93,7 +90,6 @@ test.describe('BannerNavInteraction', () => {
   // 测试用例4: 单击非folder节点A后再单击非folder节点B，节点B的tab会覆盖节点A的非固定tab
   test('单击非folder节点B覆盖非固定tab节点A', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增两个HTTP节点
@@ -137,7 +133,6 @@ test.describe('BannerNavInteraction', () => {
   // 测试用例5: 双击非folder节点覆盖非固定页签并设为固定
   test('双击非folder节点覆盖非固定页签并设为固定', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增两个HTTP节点
@@ -177,7 +172,6 @@ test.describe('BannerNavInteraction', () => {
   // 测试用例6: banner新增节点会在右侧导航栏新增固定tab页签
   test('banner新增节点会在右侧导航栏新增固定tab页签', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -200,7 +194,6 @@ test.describe('BannerNavInteraction', () => {
   // 测试用例7: 删除banner节点，右侧导航栏删除对应tab页签
   test('删除banner节点右侧导航栏删除对应tab页签', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -230,7 +223,6 @@ test.describe('BannerNavInteraction', () => {
   // 测试用例8: 重命名banner节点，右侧导航栏对应tab页签名称更新
   test('重命名banner节点右侧导航栏对应tab页签名称更新', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -265,7 +257,6 @@ test.describe('BannerNavInteraction', () => {
   // 测试用例9: 点击tab页签，左侧banner节点高亮
   test('点击tab页签左侧banner节点高亮', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增两个HTTP节点
@@ -293,7 +284,6 @@ test.describe('BannerNavInteraction', () => {
   // 测试用例10: 单击非固定页签变为固定
   test('双击非固定页签变为固定', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

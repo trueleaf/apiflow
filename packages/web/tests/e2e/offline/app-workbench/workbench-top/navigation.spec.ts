@@ -67,11 +67,19 @@ test.describe('Navigation', () => {
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
     await homeBtn.click();
     await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    // 等待页面完全加载，并关闭可能的提示弹窗
     await topBarPage.waitForTimeout(500);
+    const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
+    if (await confirmBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
+      await confirmBtn.click();
+      await topBarPage.waitForTimeout(300);
+    }
+    // 等待项目列表加载 (使用 data-testid 选择器)
+    await expect(contentPage.locator('[data-testid="home-project-card-0"]')).toBeVisible({ timeout: 5000 });
     // 记录当前Tab数量
     const tabCountBefore = await topBarPage.locator('.tab-item').count();
-    // 在项目列表中找到该项目并点击编辑按钮
-    const projectCard = contentPage.locator('.project-card').filter({ hasText: projectName });
+    // 在项目列表中找到该项目并点击编辑按钮 (使用 .project-list 类)
+    const projectCard = contentPage.locator('.project-list').filter({ hasText: projectName });
     await expect(projectCard).toBeVisible({ timeout: 5000 });
     const editBtn = projectCard.locator('[data-testid="home-project-enter-btn"]');
     await editBtn.click();
@@ -252,8 +260,16 @@ test.describe('Navigation', () => {
     await homeBtn.click();
     await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await topBarPage.waitForTimeout(500);
+    // 关闭可能的提示弹窗
+    const msgBoxConfirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
+    if (await msgBoxConfirmBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
+      await msgBoxConfirmBtn.click();
+      await topBarPage.waitForTimeout(300);
+    }
+    // 等待项目列表加载
+    await expect(contentPage.locator('[data-testid="home-project-card-0"]')).toBeVisible({ timeout: 5000 });
     // 找到项目卡片并点击编辑按钮（修改项目名称的按钮，不是进入编辑的按钮）
-    const projectCard = contentPage.locator('.project-card').filter({ hasText: originalName });
+    const projectCard = contentPage.locator('.project-list').filter({ hasText: originalName });
     await expect(projectCard).toBeVisible({ timeout: 5000 });
     // 悬停显示操作按钮
     await projectCard.hover();
@@ -293,8 +309,16 @@ test.describe('Navigation', () => {
     await homeBtn.click();
     await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await topBarPage.waitForTimeout(500);
+    // 关闭可能的提示弹窗
+    const msgBoxConfirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
+    if (await msgBoxConfirmBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
+      await msgBoxConfirmBtn.click();
+      await topBarPage.waitForTimeout(300);
+    }
+    // 等待项目列表加载
+    await expect(contentPage.locator('[data-testid="home-project-card-0"]')).toBeVisible({ timeout: 5000 });
     // 找到项目A卡片
-    const projectCard = contentPage.locator('.project-card').filter({ hasText: projectAName });
+    const projectCard = contentPage.locator('.project-list').filter({ hasText: projectAName });
     await expect(projectCard).toBeVisible({ timeout: 5000 });
     // 悬停显示操作按钮
     await projectCard.hover();

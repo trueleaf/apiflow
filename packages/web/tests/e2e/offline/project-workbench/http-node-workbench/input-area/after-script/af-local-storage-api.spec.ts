@@ -6,7 +6,6 @@ test.describe('AfLocalStorageApi', () => {
   // 测试用例1: 使用af.localStorage.set(key, value)存储持久数据
   test('使用af.localStorage.set(key, value)存储持久数据', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -48,7 +47,6 @@ test.describe('AfLocalStorageApi', () => {
   // 测试用例2: 使用af.localStorage.get(key)获取持久数据
   test('使用af.localStorage.get(key)获取持久数据', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 预先设置localStorage数据
@@ -89,7 +87,6 @@ test.describe('AfLocalStorageApi', () => {
   // 测试用例3: 使用af.localStorage.remove(key)删除持久数据
   test('使用af.localStorage.remove(key)删除持久数据', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 预先设置localStorage数据
@@ -140,7 +137,6 @@ test.describe('AfLocalStorageApi', () => {
   // 测试用例4: 使用af.localStorage.clear()清空所有持久数据
   test('使用af.localStorage.clear()清空所有持久数据', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 预先设置多个localStorage数据
@@ -205,7 +201,6 @@ test.describe('AfLocalStorageApi', () => {
   // 测试用例5: 获取不存在的键返回null
   test('获取不存在的键返回null', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

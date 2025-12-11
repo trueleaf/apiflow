@@ -4,7 +4,6 @@ test.describe('Tools', () => {
   // 测试用例1: 工具栏默认显示固定工具
   test('工具栏默认显示固定工具', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -22,7 +21,6 @@ test.describe('Tools', () => {
   // 测试用例2: 点击更多操作按钮展开工具面板
   test('点击更多操作按钮展开工具面板', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -43,7 +41,6 @@ test.describe('Tools', () => {
   // 测试用例3: 更多操作面板显示完整工具列表
   test('更多操作面板显示完整工具列表', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -67,7 +64,6 @@ test.describe('Tools', () => {
   // 测试用例4: 点击关闭按钮关闭更多操作面板
   test('点击关闭按钮关闭更多操作面板', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -88,7 +84,6 @@ test.describe('Tools', () => {
   // 测试用例5: 点击外部区域关闭更多操作面板
   test('点击外部区域关闭更多操作面板', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -108,7 +103,6 @@ test.describe('Tools', () => {
   // 测试用例6: 点击固定按钮将工具固定到工具栏
   test('点击固定按钮将工具固定到工具栏', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -129,7 +123,6 @@ test.describe('Tools', () => {
   // 测试用例7: 点击取消固定将工具从工具栏移除
   test('点击取消固定将工具从工具栏移除', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -150,7 +143,6 @@ test.describe('Tools', () => {
   // 测试用例8: 点击新增目录按钮弹出目录创建对话框
   test('点击新增目录按钮弹出目录创建对话框', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -172,7 +164,6 @@ test.describe('Tools', () => {
   // 测试用例9: 点击新增接口按钮弹出接口创建对话框
   test('点击新增接口按钮弹出接口创建对话框', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -194,7 +185,6 @@ test.describe('Tools', () => {
   // 测试用例10: 点击回收站按钮打开回收站标签页
   test('点击回收站按钮打开回收站标签页', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -215,7 +205,6 @@ test.describe('Tools', () => {
   // 测试用例11: 点击Cookie管理按钮打开Cookies标签页
   test('点击Cookie管理按钮打开Cookies标签页', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -236,7 +225,6 @@ test.describe('Tools', () => {
   // 测试用例12: 点击变量按钮打开变量标签页
   test('点击变量按钮打开变量标签页', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -257,7 +245,6 @@ test.describe('Tools', () => {
   // 测试用例13: 点击导入文档按钮打开导入文档标签页
   test('点击导入文档按钮打开导入文档标签页', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -278,7 +265,6 @@ test.describe('Tools', () => {
   // 测试用例14: 点击导出文档按钮打开导出文档标签页
   test('点击导出文档按钮打开导出文档标签页', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);

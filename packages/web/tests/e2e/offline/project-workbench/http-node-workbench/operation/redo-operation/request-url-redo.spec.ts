@@ -1,10 +1,9 @@
-import { test, expect } from '../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron.fixture';
 
 test.describe('RequestUrlRedo', () => {
   // 测试用例1: 请求url中输入字符串ab,按ctrl+z撤销到a,再按ctrl+shift+z重做,url值为ab
   test('请求url输入后撤销再按ctrl+shift+z重做,url值恢复', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -42,7 +41,6 @@ test.describe('RequestUrlRedo', () => {
   // 测试用例2: 请求url中输入字符串ab,点击撤销按钮撤销到a,再点击重做按钮,url值为ab
   test('请求url输入后点击撤销按钮再点击重做按钮,url值恢复', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

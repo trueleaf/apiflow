@@ -6,7 +6,6 @@ test.describe('RequestMethodValidation', () => {
   // 验证GET方法能正常发送
   test('验证GET方法能正常发送', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -36,7 +35,6 @@ test.describe('RequestMethodValidation', () => {
   // 验证POST方法能正常发送
   test('验证POST方法能正常发送', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -69,7 +67,6 @@ test.describe('RequestMethodValidation', () => {
   // 验证PUT方法能正常发送
   test('验证PUT方法能正常发送', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -102,7 +99,6 @@ test.describe('RequestMethodValidation', () => {
   // 验证DELETE方法能正常发送
   test('验证DELETE方法能正常发送', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -135,7 +131,6 @@ test.describe('RequestMethodValidation', () => {
   // 验证PATCH方法能正常发送
   test('验证PATCH方法能正常发送', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -168,7 +163,6 @@ test.describe('RequestMethodValidation', () => {
   // 验证HEAD方法响应不包含body
   test('验证HEAD方法响应不包含body', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -204,7 +198,6 @@ test.describe('RequestMethodValidation', () => {
   // 验证OPTIONS方法能正常发送
   test('验证OPTIONS方法能正常发送', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -237,7 +230,6 @@ test.describe('RequestMethodValidation', () => {
   // 验证方法切换后UI立即更新显示新的方法
   test('验证方法切换后UI立即更新显示新的方法', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

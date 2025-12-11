@@ -4,7 +4,6 @@ test.describe('ApiflowImport', () => {
   // 测试用例1: 打开导入页面并选择本地文件导入方式
   test('打开导入页面并选择本地文件导入方式', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
@@ -24,7 +23,6 @@ test.describe('ApiflowImport', () => {
   // 测试用例2: 导入apiflow格式数据预览正确显示
   test('导入apiflow格式数据预览正确显示', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
@@ -44,7 +42,6 @@ test.describe('ApiflowImport', () => {
   // 测试用例3: 选择追加导入方式
   test('选择追加导入方式', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
@@ -61,7 +58,6 @@ test.describe('ApiflowImport', () => {
   // 测试用例4: 选择覆盖导入方式弹出确认框
   test('选择覆盖导入方式弹出确认框', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
@@ -83,7 +79,6 @@ test.describe('ApiflowImport', () => {
   // 测试用例5: 无数据时点击确定导入显示警告
   test('无数据时点击确定导入显示警告', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
@@ -97,7 +92,6 @@ test.describe('ApiflowImport', () => {
   // 测试用例6: 切换不同数据来源类型
   test('切换不同数据来源类型', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮

@@ -6,7 +6,6 @@ test.describe('RequestInfo', () => {
   // 测试用例1: 请求信息区域基本信息正确展示
   test('请求信息区域基本信息正确展示', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -39,7 +38,6 @@ test.describe('RequestInfo', () => {
   // 测试用例2: 请求头和请求body正确展示
   test('POST请求的请求头和请求body正确展示', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

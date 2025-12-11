@@ -6,7 +6,6 @@ test.describe('ResponseHeader', () => {
   // 测试用例1: 返回头正确展示
   test('响应头正确展示', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -43,7 +42,6 @@ test.describe('ResponseHeader', () => {
   // 测试用例2: 响应头列表显示完整信息
   test('响应头列表显示Content-Type等标准头', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

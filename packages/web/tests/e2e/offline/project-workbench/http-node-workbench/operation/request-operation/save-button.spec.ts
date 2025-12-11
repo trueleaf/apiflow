@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
@@ -6,7 +6,6 @@ test.describe('SaveButton', () => {
   // 测试用例1: 无任何数据变更时候可以点击保存按钮
   test('无任何数据变更时可以点击保存按钮', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -31,7 +30,6 @@ test.describe('SaveButton', () => {
   // 测试用例2: 存在数据变更点击保存按钮,未保存小圆点消失,刷新页面数据保持不变
   test('存在数据变更点击保存按钮后小圆点消失且刷新后数据保持', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -65,7 +63,6 @@ test.describe('SaveButton', () => {
   // 测试用例3: 验证录入项变更后保存成功且刷新后数据不丢失
   test('验证录入项变更后保存成功且刷新后数据不丢失', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

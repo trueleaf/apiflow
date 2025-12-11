@@ -15,12 +15,8 @@ dotenv.config({ path: path.resolve(__dirname, '.env.test') });
  * 参考文档: https://playwright.dev/docs/api/class-electron
  */
 export default defineConfig({
-  // 全局 setup/teardown（启动/关闭 mock 服务器）
+  // 全局 setup（启动 mock 服务器）
   globalSetup: './tests/mock-server/index.ts',
-  globalTeardown: async () => {
-    const { globalTeardown } = await import('./tests/mock-server/index.js');
-    await globalTeardown();
-  },
   // 测试文件目录
   testDir: './tests/e2e',
   
@@ -30,8 +26,8 @@ export default defineConfig({
   // CI 环境下禁止 test.only
   forbidOnly: !!process.env.CI,
   
-  // CI 环境下失败重试 2 次
-  retries: process.env.CI ? 2 : 0,
+  // 失败重试 2 次（Electron 测试存在 step id not found 内部错误，需要重试机制）
+  retries: 2,
   
   // 使用 1 个 worker（Electron 应用测试建议单线程）
   workers: 1,
@@ -45,18 +41,18 @@ export default defineConfig({
   
   // 全局测试配置
   use: {
-    // 失败时重试录制 trace
-    trace: 'retain-on-failure',
-    
+    // 禁用 trace（避免 Internal error: step id not found 问题）
+    trace: 'off',
+
     // 失败时截图
     screenshot: 'only-on-failure',
-    
-    // 失败时录制视频
-    video: 'retain-on-failure',
-    
+
+    // 禁用视频（避免 Internal error: step id not found 问题）
+    video: 'off',
+
     // 设置超时
     actionTimeout: 10000,
-    
+
   },
   
   // 测试项目配置

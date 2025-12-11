@@ -4,7 +4,6 @@ test.describe('Search', () => {
   // 测试用例1: 搜索框UI样式验证
   test('搜索框显示正确的placeholder和clearable按钮', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -27,7 +26,6 @@ test.describe('Search', () => {
   // 测试用例2: 搜索匹配节点名称
   test('输入内容可以匹配节点名称', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -51,7 +49,6 @@ test.describe('Search', () => {
   // 测试用例3: 搜索匹配节点URL
   test('输入内容可以匹配节点URL', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -80,7 +77,6 @@ test.describe('Search', () => {
   // 测试用例4: 无搜索结果时节点树显示为空
   test('无搜索结果时节点树不显示节点', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -103,7 +99,6 @@ test.describe('Search', () => {
   // 测试用例5: 搜索结果中关键字高亮显示
   test('搜索结果中关键字高亮显示', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -125,7 +120,6 @@ test.describe('Search', () => {
   // 测试用例6: 离线模式下不显示高级筛选按钮
   test('离线模式下不显示高级筛选按钮', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);

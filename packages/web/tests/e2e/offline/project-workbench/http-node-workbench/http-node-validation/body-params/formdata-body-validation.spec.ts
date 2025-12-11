@@ -6,7 +6,6 @@ test.describe('FormdataBodyValidation', () => {
   // 测试用例1: 调用echo接口验证常规formdata是否正常返回,content-type是否设置正确
   test('调用echo接口验证常规formdata是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -72,7 +71,6 @@ test.describe('FormdataBodyValidation', () => {
   // 测试用例2: 调用echo接口验证使用变量的formdata是否正常返回,content-type是否设置正确
   test('调用echo接口验证使用变量的formdata是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 打开变量管理页面并创建变量
@@ -150,7 +148,6 @@ test.describe('FormdataBodyValidation', () => {
   // 测试用例3: 调用echo接口验证使用mock的formdata是否正常返回,content-type是否设置正确
   test('调用echo接口验证使用mock的formdata是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

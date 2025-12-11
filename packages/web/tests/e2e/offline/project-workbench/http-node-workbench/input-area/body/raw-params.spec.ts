@@ -6,7 +6,6 @@ test.describe('RawParams', () => {
   // 测试用例1: raw text参数输入值以后,请求头自动添加contentType:text/plain,调用127.0.0.1:{环境变量中的端口}/echo,返回结果参数和请求头正确
   test('raw text参数输入值以后,请求头自动添加contentType:text/plain,调用echo接口返回结果参数和请求头正确', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -65,7 +64,6 @@ test.describe('RawParams', () => {
   // 测试用例2: raw html参数输入值以后,请求头自动添加contentType:text/html,调用127.0.0.1:{环境变量中的端口}/echo,返回结果参数和请求头正确
   test('raw html参数输入值以后,请求头自动添加contentType:text/html,调用echo接口返回结果参数和请求头正确', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -126,7 +124,6 @@ test.describe('RawParams', () => {
   // 测试用例3: raw xml参数输入值以后,请求头自动添加contentType:application/xml,调用127.0.0.1:{环境变量中的端口}/echo,返回结果参数和请求头正确
   test('raw xml参数输入值以后,请求头自动添加contentType:application/xml,调用echo接口返回结果参数和请求头正确', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -188,7 +185,6 @@ test.describe('RawParams', () => {
   // 测试用例4: raw javascript参数输入值以后,请求头自动添加contentType:text/javascript,调用127.0.0.1:{环境变量中的端口}/echo,返回结果参数和请求头正确
   test('raw javascript参数输入值以后,请求头自动添加contentType:text/javascript,调用echo接口返回结果参数和请求头正确', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -247,7 +243,6 @@ test.describe('RawParams', () => {
   // 测试用例5: raw 参数(text,html,xml,json格式)无任何值,请求头不自动添加,调用127.0.0.1:{环境变量中的端口}/echo,返回结果参数和请求头正确
   test('raw参数无任何值时,请求头不自动添加Content-Type,调用echo接口返回正确', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

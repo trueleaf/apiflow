@@ -4,7 +4,6 @@ test.describe('RenameNode', () => {
   test.describe('重命名httpNode节点', () => {
     test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -43,7 +42,6 @@ test.describe('RenameNode', () => {
     });
     test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -79,7 +77,6 @@ test.describe('RenameNode', () => {
     });
     test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -119,7 +116,6 @@ test.describe('RenameNode', () => {
     });
     test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -158,7 +154,6 @@ test.describe('RenameNode', () => {
   test.describe('重命名websocketNode节点', () => {
     test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -200,7 +195,6 @@ test.describe('RenameNode', () => {
     });
     test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -240,7 +234,6 @@ test.describe('RenameNode', () => {
     });
     test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -285,7 +278,6 @@ test.describe('RenameNode', () => {
     });
     test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -330,7 +322,6 @@ test.describe('RenameNode', () => {
   test.describe('重命名httpMockNode节点', () => {
     test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -372,7 +363,6 @@ test.describe('RenameNode', () => {
     });
     test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -412,7 +402,6 @@ test.describe('RenameNode', () => {
     });
     test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -457,7 +446,6 @@ test.describe('RenameNode', () => {
     });
     test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -502,7 +490,6 @@ test.describe('RenameNode', () => {
   test.describe('重命名websocketMockNode节点', () => {
     test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -544,7 +531,6 @@ test.describe('RenameNode', () => {
     });
     test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -584,7 +570,6 @@ test.describe('RenameNode', () => {
     });
     test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -629,7 +614,6 @@ test.describe('RenameNode', () => {
     });
     test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -674,7 +658,6 @@ test.describe('RenameNode', () => {
   test.describe('重命名folder节点', () => {
     test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -710,7 +693,6 @@ test.describe('RenameNode', () => {
     });
     test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -744,7 +726,6 @@ test.describe('RenameNode', () => {
     });
     test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -783,7 +764,6 @@ test.describe('RenameNode', () => {
     });
     test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);

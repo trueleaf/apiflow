@@ -6,7 +6,6 @@ test.describe('RedirectConfig', () => {
   // 测试用例1: 开启自动跟随重定向时,请求自动跟随重定向并返回最终响应
   test('开启自动跟随重定向时,请求自动跟随重定向并返回最终响应', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -47,7 +46,6 @@ test.describe('RedirectConfig', () => {
   // 测试用例2: 关闭自动跟随重定向时,请求返回重定向响应不继续跟随
   test('关闭自动跟随重定向时,请求返回重定向响应不继续跟随', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -88,7 +86,6 @@ test.describe('RedirectConfig', () => {
   // 测试用例3: 修改最大重定向次数配置,超过次数后停止重定向并提示
   test('修改最大重定向次数配置,超过次数后停止重定向并提示', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

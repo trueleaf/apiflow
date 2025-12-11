@@ -4,7 +4,6 @@ test.describe('CutNode', () => {
   test.describe('剪切HTTP节点', () => {
     test('剪切单个httpNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -45,7 +44,6 @@ test.describe('CutNode', () => {
     });
     test('剪切单个httpNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -96,7 +94,6 @@ test.describe('CutNode', () => {
     });
     test('剪切多个httpNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -162,7 +159,6 @@ test.describe('CutNode', () => {
     });
     test('剪切httpNode节点在非folder节点右键不显示粘贴选项', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -196,7 +192,6 @@ test.describe('CutNode', () => {
   test.describe('剪切WebSocket节点', () => {
     test('剪切单个websocketNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -235,7 +230,6 @@ test.describe('CutNode', () => {
     });
     test('剪切单个websocketNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -284,7 +278,6 @@ test.describe('CutNode', () => {
   test.describe('剪切HTTP Mock节点', () => {
     test('剪切单个httpMockNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -321,7 +314,6 @@ test.describe('CutNode', () => {
     });
     test('剪切单个httpMockNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -370,7 +362,6 @@ test.describe('CutNode', () => {
   test.describe('剪切WebSocket Mock节点', () => {
     test('剪切单个websocketMockNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -407,7 +398,6 @@ test.describe('CutNode', () => {
     });
     test('剪切单个websocketMockNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -456,7 +446,6 @@ test.describe('CutNode', () => {
   test.describe('剪切文件夹节点', () => {
     test('剪切单个folder节点粘贴到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -491,7 +480,6 @@ test.describe('CutNode', () => {
     });
     test('剪切包含子节点的folder节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -552,7 +540,6 @@ test.describe('CutNode', () => {
   test.describe('剪切混合节点', () => {
     test('批量剪切不同类型节点粘贴到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -625,7 +612,6 @@ test.describe('CutNode', () => {
   test.describe('快捷键剪切粘贴', () => {
     test('使用Ctrl+X和Ctrl+V剪切粘贴节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -673,7 +659,6 @@ test.describe('CutNode', () => {
   test.describe('剪切特殊情况', () => {
     test('剪切节点后进行复制操作,原剪切内容被覆盖', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);

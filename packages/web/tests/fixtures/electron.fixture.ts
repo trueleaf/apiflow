@@ -53,7 +53,13 @@ export const test = base.extend<ElectronFixtures>({
       },
     });
     await use(app);
-    await app.close();
+    // 在关闭前等待一小段时间，避免 Playwright 内部 step id 错误
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      await app.close();
+    } catch {
+      // 忽略关闭时的错误（可能应用已经关闭）
+    }
   },
   // 顶部栏视图 Page fixture（header.html）
   topBarPage: async ({ electronApp }, use) => {
@@ -71,9 +77,10 @@ export const test = base.extend<ElectronFixtures>({
     await contentPage.waitForLoadState('domcontentloaded');
     await use(contentPage);
   },
-  // 清空所有缓存（localStorage、sessionStorage、IndexedDB）
-  clearCache: async ({ contentPage }, use) => {
+  // 清空所有缓存（localStorage、sessionStorage、IndexedDB）并重置到首页
+  clearCache: async ({ contentPage, topBarPage }, use) => {
     const clear = async () => {
+      // 清除所有存储
       await contentPage.evaluate(() => {
         localStorage.clear();
         sessionStorage.clear();
@@ -95,6 +102,14 @@ export const test = base.extend<ElectronFixtures>({
           indexedDB.deleteDatabase(dbName);
         });
       });
+      // 点击首页按钮
+      const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+      await homeBtn.click();
+      await contentPage.waitForTimeout(300);
+      // 刷新页面以应用缓存清除
+      await contentPage.reload();
+      await contentPage.waitForLoadState('domcontentloaded');
+      await contentPage.waitForTimeout(500);
     };
     await use(clear);
   },
