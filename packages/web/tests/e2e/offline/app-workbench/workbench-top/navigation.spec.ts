@@ -213,20 +213,22 @@ test.describe('Navigation', () => {
   test('关闭最右侧高亮Tab后高亮左侧最近的Tab', async ({ topBarPage, createProject }) => {
     const projectAName = await createProject(`最右侧A-${Date.now()}`);
     const projectBName = await createProject(`最右侧B-${Date.now()}`);
+    const projectCName = await createProject(`最右侧C-${Date.now()}`);
+    const projectDName = await createProject(`最右侧D-${Date.now()}`);
     await topBarPage.waitForTimeout(500);
-    // 当前项目B应该被高亮（最后创建的）
+    // 当前项目D应该被高亮（最后创建的）
     let activeTab = topBarPage.locator('.tab-item.active');
-    await expect(activeTab).toContainText(projectBName);
-    // 关闭项目B（最右侧的高亮Tab）
-    const projectBTab = topBarPage.locator('.tab-item').filter({ hasText: projectBName });
-    const closeBtn = projectBTab.locator('.close-btn');
+    await expect(activeTab).toContainText(projectDName);
+    // 关闭项目D（最右侧的高亮Tab）
+    const projectDTab = topBarPage.locator('.tab-item').filter({ hasText: projectDName });
+    const closeBtn = projectDTab.locator('.close-btn');
     await closeBtn.click();
     await topBarPage.waitForTimeout(500);
-    // 验证项目B Tab已关闭
-    await expect(projectBTab).toBeHidden();
-    // 验证左侧Tab（项目A）被高亮
+    // 验证项目D Tab已关闭
+    await expect(projectDTab).toBeHidden();
+    // 验证左侧最近的Tab（项目C）被高亮
     activeTab = topBarPage.locator('.tab-item.active');
-    await expect(activeTab).toContainText(projectAName);
+    await expect(activeTab).toContainText(projectCName);
   });
 
   test('关闭非高亮Tab不影响当前高亮状态', async ({ topBarPage, createProject }) => {

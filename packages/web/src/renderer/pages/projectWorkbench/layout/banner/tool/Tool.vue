@@ -218,6 +218,9 @@ const handleAddFileAndFolderCb = (data: ApidocBanner) => {
 };
 // 获取操作按钮测试选择器
 const getOperationTestId = (op: string) => {
+  if (op === 'addRootFolder') {
+    return 'banner-add-folder-btn'
+  }
   if (op === 'addRootFile') {
     return 'banner-add-http-btn'
   }

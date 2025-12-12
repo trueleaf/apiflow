@@ -159,7 +159,7 @@ test.describe('ProjectList', () => {
     const unstarBtn = projectCard.locator('[data-testid="home-project-unstar-btn"]');
     await expect(unstarBtn).toBeVisible({ timeout: 5000 });
     // 验证"收藏的项目"区域显示
-    const starProjectsTitle = contentPage.locator('.star-projects-wrap');
+    const starProjectsTitle = contentPage.locator('[data-testid="home-star-projects-wrap"]');
     await expect(starProjectsTitle).toBeVisible({ timeout: 5000 });
     // 验证收藏区域包含该项目
     const starProjectCard = contentPage.locator('[data-testid="home-star-project-card-0"]');
@@ -172,7 +172,7 @@ test.describe('ProjectList', () => {
     const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
     await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
     // 验证"收藏的项目"区域不显示
-    const starProjectsWrap = contentPage.locator('.star-projects-wrap');
+    const starProjectsWrap = contentPage.locator('[data-testid="home-star-projects-wrap"]');
     await expect(starProjectsWrap).toBeHidden({ timeout: 5000 });
     // 验证"全部项目"区域正常显示
     const allProjectsTitle = contentPage.locator('[data-testid="home-projects-wrap"]');
@@ -189,7 +189,7 @@ test.describe('ProjectList', () => {
     await starBtn.click();
     await contentPage.waitForTimeout(500);
     // 验证收藏区域显示
-    const starProjectsWrap = contentPage.locator('.star-projects-wrap');
+    const starProjectsWrap = contentPage.locator('[data-testid="home-star-projects-wrap"]');
     await expect(starProjectsWrap).toBeVisible({ timeout: 5000 });
     // 在收藏区域点击取消收藏
     const starProjectCard = contentPage.locator('[data-testid="home-star-project-card-0"]');
@@ -227,7 +227,7 @@ test.describe('ProjectList', () => {
     const undoNotification = contentPage.locator('.undo-notification');
     await expect(undoNotification).toBeVisible({ timeout: 5000 });
     // 点击撤回按钮
-    const undoBtn = undoNotification.locator('.undo-btn');
+    const undoBtn = undoNotification.locator('.btn-undo');
     await expect(undoBtn).toBeVisible();
     await undoBtn.click();
     // 验证撤回通知消失
@@ -251,15 +251,27 @@ test.describe('ProjectList', () => {
     // 等待banner工具栏加载
     await contentPage.waitForTimeout(1000);
     // 添加一个文件夹节点(使用title属性定位)
-    const addFolderBtn = contentPage.locator('[title="新建文件夹"]').first();
+    const addFolderBtn = contentPage.locator('[data-testid="banner-add-folder-btn"], [title="新增文件夹"], [title="New Folder"]').first();
     await expect(addFolderBtn).toBeVisible({ timeout: 5000 });
     await addFolderBtn.click();
-    await contentPage.waitForTimeout(500);
-    // 添加一个HTTP节点(使用title属性定位)
-    const addHttpBtn = contentPage.locator('[title="新建接口"]').first();
+    const addFolderDialog = contentPage.locator('[data-testid="add-folder-dialog"]');
+    await expect(addFolderDialog).toBeVisible({ timeout: 5000 });
+    const folderNameInput = addFolderDialog.locator('[data-testid="add-folder-name-input"] input');
+    await folderNameInput.fill(`文件夹-${Date.now()}`);
+    const addFolderConfirmBtn = addFolderDialog.locator('[data-testid="add-folder-confirm-btn"]');
+    await addFolderConfirmBtn.click();
+    await expect(addFolderDialog).toBeHidden({ timeout: 5000 });
+    // 添加一个HTTP节点
+    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"], [title="新增文件"], [title="New File"]').first();
     await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
     await addHttpBtn.click();
-    await contentPage.waitForTimeout(500);
+    const addHttpDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|New\s+API|Create\s+API|Add\s+API/ });
+    await expect(addHttpDialog).toBeVisible({ timeout: 5000 });
+    const apiNameInput = addHttpDialog.locator('input').first();
+    await apiNameInput.fill(`接口-${Date.now()}`);
+    const addHttpConfirmBtn = addHttpDialog.locator('.el-button--primary').last();
+    await addHttpConfirmBtn.click();
+    await expect(addHttpDialog).toBeHidden({ timeout: 5000 });
     // 返回首页查看接口总数
     const logo = topBarPage.locator('.logo-img');
     await logo.click();
