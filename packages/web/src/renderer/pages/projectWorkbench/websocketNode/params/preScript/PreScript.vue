@@ -27,7 +27,7 @@ const recordPreRequestOperation = (oldValue: string, newValue: string) => {
 };
 // 前置脚本内容的前值
 let previousScriptContent = websocketStore.websocket.preRequest.raw
-const preRequest = computed<string>({
+const preRequest = computed({
   get() {
     return websocketStore.websocket.preRequest.raw;
   },

@@ -165,7 +165,7 @@ const handleSaveHttpNode = () => {
 }
 const { loading3, handleSendRequest, handleStopRequest, handleFreshApidoc } = operationPart;
 //请求url、完整url
-const requestPath = computed<string>({
+const requestPath = computed({
   get() {
     return httpNodeStore.httpNodeInfo.item.url.path;
   },

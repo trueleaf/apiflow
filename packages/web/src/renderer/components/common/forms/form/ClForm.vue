@@ -39,7 +39,7 @@ const props = defineProps({
 })
 
 const formInfo = ref<Record<string, unknown>>({});
-const labelWidth = ref<string>('100px');
+const labelWidth = ref('100px');
 const form = ref<FormInstance>();
 const slots = useSlots();
 watch(() => props.editData, (data) => {

@@ -63,7 +63,7 @@ const convertQueryToParams = (requestPath: string): void => {
 export const handleFormatUrl = ():void => {
   const httpNodeStore = useHttpNode()
   // const projectId = router.currentRoute.value.query.id as string;
-  const requestPath = computed<string>({
+  const requestPath = computed({
     get() {
       return httpNodeStore.httpNodeInfo.item.url.path;
     },

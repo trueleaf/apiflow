@@ -129,7 +129,7 @@ const filterInputRef = ref<HTMLInputElement | null>(null);
 const isSearchInputVisible = ref(false);
 const isRawView = ref(false);
 const popoverVirtualRef = ref<HTMLElement | null>(null);
-const activePopoverIndex = ref<number>(-1);
+const activePopoverIndex = ref(-1);
 const messageRefs = ref<Record<number, HTMLElement>>({});
 
 type FilteredDataPayload = {
@@ -196,7 +196,7 @@ const customFilteredData = computed<ParsedSSeData[]>(() => {
   }
   return processFilteredData(customFilteredDataFromChild.value.list);
 });
-const overrideDisplayText = computed<string | null>(() => {
+const overrideDisplayText = computed(() => {
   const value = customFilteredDataFromChild.value.finalValue;
   if (value === null || value === undefined) {
     return null;

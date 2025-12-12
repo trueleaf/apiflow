@@ -172,7 +172,7 @@ const handleAddProject = () => {
           input.focus();
         }
       });
-      message.warning(t('请完善必填信息'));
+      
       loading.value = false;
     }
   });

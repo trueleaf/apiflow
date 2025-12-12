@@ -27,7 +27,7 @@ const recordAfterRequestOperation = (oldValue: string, newValue: string) => {
 };
 // 后置脚本内容的前值
 let previousAfterScriptContent = websocketStore.websocket.afterRequest.raw
-const afterRequest = computed<string>({
+const afterRequest = computed({
   get() {
     return websocketStore.websocket.afterRequest.raw;
   },

@@ -6,8 +6,8 @@ import defaultLogoImg from '@/assets/imgs/logo.png'
 import { IPC_EVENTS } from '@src/types/ipc'
 
 export const useAppSettings = defineStore('appSettings', () => {
-  const appTitle = ref<string>(appSettingsCache.getAppTitle())
-  const _appLogo = ref<string>(appSettingsCache.getAppLogo())
+  const appTitle = ref(appSettingsCache.getAppTitle())
+  const _appLogo = ref(appSettingsCache.getAppLogo())
   const appTheme = ref<AppTheme>(appSettingsCache.getAppTheme())
   
   const appLogo = computed(() => _appLogo.value || defaultLogoImg)

@@ -13,7 +13,7 @@ export const useProjectWorkbench = defineStore('projectWorkbench', () => {
   const projectId = ref('');
   const projectName = ref('');
   const layout = ref<'vertical' | 'horizontal'>('horizontal');
-  const responseHeight = ref<number>(350);
+  const responseHeight = ref(350);
   //改变项目id
   const changeProjectId = (id: string): void => {
     projectId.value = id;

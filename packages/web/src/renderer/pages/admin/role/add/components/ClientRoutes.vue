@@ -38,7 +38,7 @@ const { t } = useI18n()
 const emits = defineEmits(['change']);
 const selectedData = ref<string[]>([]); //------------当前选中的前端路由
 const clientRoutes = ref<ClientGroupRoutes>({}); //---前端路由列表
-const loading = ref<boolean>(false);
+const loading = ref(false);
 
 watch(selectedData, (val) => {
   emits('change', val)

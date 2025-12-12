@@ -143,7 +143,7 @@ const activeSource = ref<'variable' | 'mockjs' | 'faker'>('variable');
 const currentVariableId = ref<string | null>(null);
 const activeCategory = ref('common');
 const searchText = ref('');
-const previewValue = ref<string>('');
+const previewValue = ref('');
 const isImagePreview = ref(false);
 const currentItem = ref<(MockItem & { _id?: string }) | null>(null);
 const handlePanelFocusIn = () => {

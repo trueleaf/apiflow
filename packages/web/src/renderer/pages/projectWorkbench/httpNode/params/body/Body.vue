@@ -239,7 +239,7 @@ const requestBody = computed<HttpNodeBodyParams>(() => {
 //     bodyUseVisible.value = true
 // }
 //json格式body参数
-const rawJsonData = computed<string>({
+const rawJsonData = computed({
   get() {
     const { rawJson } = httpNodeStore.httpNodeInfo.item.requestBody;
     return rawJson;

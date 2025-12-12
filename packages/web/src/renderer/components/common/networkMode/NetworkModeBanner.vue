@@ -23,7 +23,7 @@ import { appState } from '@/cache/appState/appStateCache';
 // 保存横幅是否被关闭
 const runtimeStore = useRuntime();
 const { t } = useI18n();
-const dismissed = ref<boolean>(appState.getNetworkModeBannerDismissed());
+const dismissed = ref(appState.getNetworkModeBannerDismissed());
 const visible = computed(() => runtimeStore.networkMode === 'online' && !dismissed.value);
 const handleClose = () => {
   dismissed.value = true;

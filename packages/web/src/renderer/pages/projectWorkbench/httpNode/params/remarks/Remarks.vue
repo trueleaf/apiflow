@@ -39,7 +39,7 @@ const editorRef = ref<{
   setCursorPosition?: (position: { anchor: number, head: number }) => void,
 } | null>(null)
 
-const description = computed<string>(() => httpNodeStore.httpNodeInfo.info.description)
+const description = computed(() => httpNodeStore.httpNodeInfo.info.description)
 //处理备注变化
 const handleDescriptionChange = (newValue: string) => {
   const oldValue = { description: httpNodeStore.httpNodeInfo.info.description };

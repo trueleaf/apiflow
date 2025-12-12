@@ -31,7 +31,7 @@ export default (): HostReturn => {
   //host弹窗
   const hostDialogVisible = ref(false);
   //prefix值
-  const host = computed<string>({
+  const host = computed({
     get() {
       return httpNodeStore.httpNodeInfo.item.url.prefix
     },

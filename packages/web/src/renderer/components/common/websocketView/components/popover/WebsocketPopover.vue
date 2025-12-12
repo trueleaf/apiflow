@@ -102,7 +102,7 @@ const emit = defineEmits<WebsocketPopoverEmits>();
 |--------------------------------------------------------------------------
 */
 const activeTab = ref<'content'>('content');
-const formattedContent = ref<string>('');
+const formattedContent = ref('');
 
 /*
 |--------------------------------------------------------------------------

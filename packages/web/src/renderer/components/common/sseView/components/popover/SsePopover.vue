@@ -118,7 +118,7 @@ const emit = defineEmits<SsePopoverEmits>();
 |--------------------------------------------------------------------------
 */
 const activeTab = ref<'content' | 'raw'>('content');
-const formattedContent = ref<string>('');
+const formattedContent = ref('');
 
 /*
 |--------------------------------------------------------------------------

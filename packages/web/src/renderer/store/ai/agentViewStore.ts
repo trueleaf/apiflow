@@ -8,8 +8,8 @@ import type { AnchorRect } from '@src/types/common';
 
 export const useAgentViewStore = defineStore('agentView', () => {
   const agentViewMessageList = ref<AgentViewMessage[]>([]);
-  const currentSessionId = ref<string>('test-session');
-  const loading = ref<boolean>(false);
+  const currentSessionId = ref('test-session');
+  const loading = ref(false);
   const workingStatus = ref<'working' | 'finish'>('finish');
   const agentViewDialogVisible = ref(false);
   const agentViewAnchorRect = ref<AnchorRect | null>(null);

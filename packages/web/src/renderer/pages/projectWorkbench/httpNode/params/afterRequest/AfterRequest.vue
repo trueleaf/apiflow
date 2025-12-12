@@ -35,7 +35,7 @@ const editorRef = ref<{
   setCursorPosition?: (position: Monaco.Position) => void,
 } | null>(null)
 
-const afterRequest = computed<string>(() => httpNodeStore.httpNodeInfo?.afterRequest.raw)
+const afterRequest = computed(() => httpNodeStore.httpNodeInfo?.afterRequest.raw)
 //处理后置脚本变化
 const handleAfterRequestChange = (newValue: string) => {
   const oldValue = { raw: httpNodeStore.httpNodeInfo.afterRequest.raw };
