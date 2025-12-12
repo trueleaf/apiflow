@@ -18,6 +18,7 @@
           <AskMessageItem v-if="message.type === 'ask'" :message="message" />
           <LoadingMessageItem v-else-if="message.type === 'loading'" :message="message" />
           <TextResponseMessageItem v-else-if="message.type === 'textResponse'" :message="message" />
+          <InfoMessageItem v-else-if="message.type === 'info'" :message="message" />
           <ErrorMessageItem v-else-if="message.type === 'error'" :message="message" @retry="handleRetry" />
         </template>
       </template>
@@ -29,10 +30,11 @@
 import { ref, watch, nextTick, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Bot, AlertTriangle, ArrowRight } from 'lucide-vue-next'
-import { useAgentViewStore } from '@/store/ai/agentViewStore'
+import { useAgentViewStore } from '@/store/ai/agentView'
 import AskMessageItem from './components/AskMessageItem.vue'
 import LoadingMessageItem from './components/LoadingMessageItem.vue'
 import TextResponseMessageItem from './components/TextResponseMessageItem.vue'
+import InfoMessageItem from './components/InfoMessageItem.vue'
 import ErrorMessageItem from './components/ErrorMessageItem.vue'
 
 defineProps<{
@@ -45,7 +47,7 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const agentViewStore = useAgentViewStore()
 const messagesRef = ref<HTMLElement | null>(null)
-const filteredMessages = computed(() => agentViewStore.agentViewMessageList.filter(msg => msg.mode === 'ask'))
+const filteredMessages = computed(() => agentViewStore.currentMessageList.filter(msg => msg.mode === 'ask'))
 
 const scrollToBottom = () => {
   nextTick(() => {

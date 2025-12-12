@@ -52,7 +52,7 @@ const requestBody = ref<ChatRequestBody | null>(null)
 let cancelStreamFn: { abort: () => void } | null = null
 // 判断配置是否有效
 const isConfigValid = computed(() => {
-  const p = llmClientStore.activeProvider
+  const p = llmClientStore.LLMConfig
   return p.apiKey.trim() !== '' && p.baseURL.trim() !== '' && p.model.trim() !== ''
 })
 // 发送测试请求（非流式）

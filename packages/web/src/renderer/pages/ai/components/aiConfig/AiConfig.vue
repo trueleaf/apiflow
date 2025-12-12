@@ -117,18 +117,18 @@ const autoSave = useDebounceFn(() => {
   if (isSyncingFromStore) return
   const hasApiKey = localApiKey.value.trim() !== ''
   if (!hasApiKey) return
-  llmClientStore.updateConfig({
+  llmClientStore.updateLLMConfig({
     provider: providerType.value,
     apiKey: localApiKey.value,
     baseURL: providerType.value === 'DeepSeek' ? 'https://api.deepseek.com/chat/completions' : localBaseURL.value,
     model: localModel.value,
-    customHeaders: llmClientStore.activeProvider.customHeaders,
+    customHeaders: llmClientStore.LLMConfig.customHeaders,
   })
 }, 300)
 // 从 store 同步数据到本地状态
 const syncFromStore = () => {
   isSyncingFromStore = true
-  const provider = llmClientStore.activeProvider
+  const provider = llmClientStore.LLMConfig
   providerType.value = provider.provider
   localApiKey.value = provider.apiKey
   localBaseURL.value = provider.baseURL
@@ -139,7 +139,20 @@ const syncFromStore = () => {
 }
 // 处理 Provider 类型变更
 const handleProviderChange = (type: LLMProviderType) => {
-  llmClientStore.changeProviderType(type)
+  if (type === 'DeepSeek') {
+    llmClientStore.updateLLMConfig({
+      provider: type,
+      baseURL: 'https://api.deepseek.com/chat/completions',
+      model: 'deepseek-chat',
+      customHeaders: []
+    })
+  } else {
+    llmClientStore.updateLLMConfig({
+      provider: type,
+      baseURL: '',
+      model: ''
+    })
+  }
   syncFromStore()
 }
 // 监听配置变化，自动保存
@@ -147,12 +160,11 @@ watch([providerType, localApiKey, localBaseURL, localModel], () => {
   autoSave()
 })
 // 监听 store 变化
-watch(() => llmClientStore.activeProvider, () => {
+watch(() => llmClientStore.LLMConfig, () => {
   syncFromStore()
 })
 
 onMounted(() => {
-  llmClientStore.initFromCache()
   syncFromStore()
 })
 </script>

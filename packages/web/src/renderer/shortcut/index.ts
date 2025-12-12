@@ -1,6 +1,6 @@
 import hotkeys from "hotkeys-js";
 import { useRouter } from "vue-router";
-import { useAgentViewStore } from "@/store/ai/agentViewStore";
+import { useAgentViewStore } from "@/store/ai/agentView";
 import { useProjectNav } from "@/store/projectWorkbench/projectNavStore";
 import { useHttpRedoUndo } from "@/store/redoUndo/httpRedoUndoStore";
 import { useWsRedoUndo } from "@/store/redoUndo/wsRedoUndoStore";
@@ -30,8 +30,11 @@ class ShortcutManager {
           tabType: "",
         },
         handler: (event: KeyboardEvent) => {
+          event.preventDefault();
           const agentViewStore = useAgentViewStore();
-          agentViewStore.handleAgentViewShortcut(event);
+          if (!agentViewStore.agentViewDialogVisible) {
+            agentViewStore.showAgentViewDialog();
+          }
         },
       },
       {

@@ -1,9 +1,9 @@
-import type { LLMProviderSettings } from '@src/types/ai/agent.type';
+import type { LLMProviderSetting } from '@src/types/ai/agent.type';
 import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
 class LLMProviderCache {
   // 获取 LLM Provider 配置
-  getLLMProvider(): LLMProviderSettings | null {
+  getLLMProvider(): LLMProviderSetting | null {
     try {
       const cached = localStorage.getItem(cacheKey.ai.llmProvider);
       if (cached) {
@@ -19,7 +19,7 @@ class LLMProviderCache {
     return null;
   }
   // 保存 LLM Provider 配置
-  setLLMProvider(provider: LLMProviderSettings): boolean {
+  setLLMProvider(provider: LLMProviderSetting): boolean {
     try {
       localStorage.setItem(cacheKey.ai.llmProvider, JSON.stringify(provider));
       return true;

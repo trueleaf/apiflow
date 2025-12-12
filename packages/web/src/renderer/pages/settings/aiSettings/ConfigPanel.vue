@@ -153,7 +153,7 @@ const autoSave = useDebounceFn(() => {
   if (isSyncingFromStore) return
   if (!isConfigValid.value) return
   const validHeaders = localCustomHeaders.value.filter(h => h.key.trim() !== '')
-  llmClientStore.updateConfig({
+  llmClientStore.updateLLMConfig({
     provider: providerType.value,
     apiKey: localApiKey.value,
     baseURL: providerType.value === 'DeepSeek' ? 'https://api.deepseek.com/chat/completions' : localBaseURL.value,
@@ -164,7 +164,7 @@ const autoSave = useDebounceFn(() => {
 // 从 store 同步数据到本地状态
 const syncFromStore = () => {
   isSyncingFromStore = true
-  const provider = llmClientStore.activeProvider
+  const provider = llmClientStore.LLMConfig
   providerType.value = provider.provider
   localApiKey.value = provider.apiKey
   localBaseURL.value = provider.baseURL
@@ -176,7 +176,20 @@ const syncFromStore = () => {
 }
 // 处理 Provider 类型变更
 const handleProviderChange = (type: LLMProviderType) => {
-  llmClientStore.changeProviderType(type)
+  if (type === 'DeepSeek') {
+    llmClientStore.updateLLMConfig({
+      provider: type,
+      baseURL: 'https://api.deepseek.com/chat/completions',
+      model: 'deepseek-chat',
+      customHeaders: []
+    })
+  } else {
+    llmClientStore.updateLLMConfig({
+      provider: type,
+      baseURL: '',
+      model: ''
+    })
+  }
   syncFromStore()
 }
 // 添加自定义请求头
@@ -189,7 +202,7 @@ const removeHeader = (index: number) => {
 }
 // 重置配置
 const handleReset = () => {
-  llmClientStore.resetConfig()
+  llmClientStore.resetLLMConfig()
   syncFromStore()
   message.success(t('配置已重置'))
 }
@@ -198,12 +211,11 @@ watch([providerType, localApiKey, localBaseURL, localModel, localCustomHeaders],
   autoSave()
 }, { deep: true })
 // 监听 store 变化（禁用深度监听，避免循环触发）
-watch(() => llmClientStore.activeProvider, () => {
+watch(() => llmClientStore.LLMConfig, () => {
   syncFromStore()
 })
 
 onMounted(() => {
-  llmClientStore.initFromCache()
   syncFromStore()
 })
 </script>

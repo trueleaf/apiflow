@@ -75,9 +75,9 @@ import { IPC_EVENTS } from '@src/types/ipc'
 import { config } from '@src/config/config'
 import { appState } from '@/cache/appState/appStateCache'
 import { llmProviderCache } from '@/cache/ai/llmProviderCache'
-import { useAgentViewStore } from '@/store/ai/agentViewStore'
+import { useAgentViewStore } from '@/store/ai/agentView'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
-import { runAgent, stopAgent } from '@/store/ai/agentStore'
+import { useAgentStore } from '@/store/ai/agentStore'
 import AiHistory from './components/aiHistory/AiHistory.vue'
 import ClDrag from '@/components/ui/cleanDesign/clDrag/ClDrag.vue'
 import AiHeader from './components/aiHeader/AiHeader.vue'
@@ -89,6 +89,7 @@ import AiFooter from './components/aiFooter/AiFooter.vue'
 const visible = defineModel<boolean>('visible', { default: false })
 const agentViewStore = useAgentViewStore()
 const llmClientStore = useLLMClientStore()
+const agentStore = useAgentStore()
 const aiFooterRef = ref<InstanceType<typeof AiFooter> | null>(null)
 const { t } = useI18n()
 const inputMessage = ref('')
@@ -140,6 +141,7 @@ const buildOpenAIRequestBody = (userMessage: string): ChatRequestBody => {
   const recentMessages = agentViewStore.getLatestMessages(10)
 
   for (const msg of recentMessages) {
+    if (!msg.canBeContext) continue
     if (msg.type === 'ask') {
       messages.push({
         role: 'user',
@@ -166,7 +168,7 @@ const buildOpenAIRequestBody = (userMessage: string): ChatRequestBody => {
 }
 const stopCurrentConversation = async () => {
   if (mode.value === 'agent') {
-    stopAgent()
+    agentStore.stopAgent()
     agentViewStore.setWorkingStatus('finish')
     return
   }
@@ -176,7 +178,7 @@ const stopCurrentConversation = async () => {
     cancelCurrentStream.value = null
   }
   if (loadingMessageId.value) {
-    agentViewStore.deleteAgentViewMessageById(loadingMessageId.value)
+    agentViewStore.deleteCurrentMessageById(loadingMessageId.value)
     loadingMessageId.value = null
   }
   isStreaming.value = false
@@ -190,7 +192,7 @@ const handleClose = () => {
 }
 const handleCreateConversation = async () => {
   await stopCurrentConversation()
-  if (agentViewStore.agentViewMessageList.length > 0) {
+  if (agentViewStore.currentMessageList.length > 0) {
     agentViewStore.createNewSession()
   }
   currentView.value = mode.value === 'agent' ? 'agent' : 'chat'
@@ -199,13 +201,13 @@ const handleOpenHistory = () => {
   currentView.value = 'history'
 }
 const handleBackToChat = () => {
-  const firstMessage = agentViewStore.agentViewMessageList[0]
+  const firstMessage = agentViewStore.currentMessageList[0]
   const sessionMode = firstMessage?.mode || mode.value
   mode.value = sessionMode
   currentView.value = sessionMode === 'agent' ? 'agent' : 'chat'
 }
 const handleSelectSession = async (sessionId: string, sessionMode: 'agent' | 'ask') => {
-  await agentViewStore.loadMessagesForSession(sessionId)
+  await agentViewStore.loadSession(sessionId)
   mode.value = sessionMode
   currentView.value = sessionMode === 'agent' ? 'agent' : 'chat'
 }
@@ -262,26 +264,28 @@ const handleSend = async () => {
       content: message,
       timestamp,
       sessionId: agentViewStore.currentSessionId,
-      mode: 'agent'
+      mode: 'agent',
+      canBeContext: true
     }
-    await agentViewStore.addAgentViewMessage(askMessage)
+    await agentViewStore.addCurrentMessage(askMessage)
     agentViewStore.setWorkingStatus('working')
-    const result = await runAgent({ prompt: message })
+    const result = await agentStore.runAgent({ prompt: message })
     agentViewStore.setWorkingStatus('finish')
-    if (!result.success) {
+    if (result.code !== 0) {
       const errorMessageId = nanoid()
       const errorMessage: ErrorMessage = {
         id: errorMessageId,
         type: 'error',
-        errorType: detectErrorType(result.error),
-        content: result.error,
-        errorDetail: result.error,
+        errorType: detectErrorType(result.msg),
+        content: result.msg,
+        errorDetail: result.msg,
         originalPrompt: message,
         timestamp: new Date().toISOString(),
         sessionId: agentViewStore.currentSessionId,
-        mode: 'agent'
+        mode: 'agent',
+        canBeContext: false
       }
-      agentViewStore.addAgentViewMessage(errorMessage)
+      agentViewStore.addCurrentMessage(errorMessage)
     }
     return
   }
@@ -300,7 +304,8 @@ const handleSend = async () => {
     content: message,
     timestamp,
     sessionId: agentViewStore.currentSessionId,
-    mode: 'ask'
+    mode: 'ask',
+    canBeContext: true
   }
   
   const loadingMessage: LoadingMessage = {
@@ -309,11 +314,12 @@ const handleSend = async () => {
     content: '',
     timestamp,
     sessionId: agentViewStore.currentSessionId,
-    mode: 'ask'
+    mode: 'ask',
+    canBeContext: false
   }
   
-  await agentViewStore.addAgentViewMessage(askMessage)
-  await agentViewStore.addAgentViewMessage(loadingMessage)
+  await agentViewStore.addCurrentMessage(askMessage)
+  await agentViewStore.addCurrentMessage(loadingMessage)
   
   isStreaming.value = true
   currentStreamRequestId.value = requestId
@@ -326,7 +332,7 @@ const handleSend = async () => {
   
   if (!llmClientStore.isAvailable()) {
     if (loadingMessageId.value) {
-      agentViewStore.deleteAgentViewMessageById(loadingMessageId.value)
+      agentViewStore.deleteCurrentMessageById(loadingMessageId.value)
       loadingMessageId.value = null
     }
     
@@ -340,10 +346,11 @@ const handleSend = async () => {
       originalPrompt: message,
       timestamp,
       sessionId: agentViewStore.currentSessionId,
-      mode: 'ask'
+      mode: 'ask',
+      canBeContext: false
     }
     
-    agentViewStore.addAgentViewMessage(errorMessage)
+    agentViewStore.addCurrentMessage(errorMessage)
     isStreaming.value = false
     currentStreamRequestId.value = null
     streamingMessageId.value = null
@@ -375,7 +382,7 @@ const handleSend = async () => {
     }
   } catch (error) {
     if (loadingMessageId.value) {
-      agentViewStore.deleteAgentViewMessageById(loadingMessageId.value)
+      agentViewStore.deleteCurrentMessageById(loadingMessageId.value)
       loadingMessageId.value = null
     }
     
@@ -391,10 +398,11 @@ const handleSend = async () => {
       originalPrompt: message,
       timestamp,
       sessionId: agentViewStore.currentSessionId,
-      mode: 'ask'
+      mode: 'ask',
+      canBeContext: false
     }
     
-    agentViewStore.addAgentViewMessage(errorMessage)
+    agentViewStore.addCurrentMessage(errorMessage)
     isStreaming.value = false
     currentStreamRequestId.value = null
     streamingMessageId.value = null
@@ -418,7 +426,7 @@ const handleStreamData = (requestId: string, chunk: string) => {
       
       if (content) {
         if (isFirstChunk.value && loadingMessageId.value) {
-          agentViewStore.deleteAgentViewMessageById(loadingMessageId.value)
+          agentViewStore.deleteCurrentMessageById(loadingMessageId.value)
           
           const timestamp = new Date().toISOString()
           const responseMessageId = nanoid()
@@ -428,18 +436,19 @@ const handleStreamData = (requestId: string, chunk: string) => {
             content,
             timestamp,
             sessionId: agentViewStore.currentSessionId,
-            mode: 'ask'
+            mode: 'ask',
+            canBeContext: true
           }
           
-          agentViewStore.addAgentViewMessage(responseMessage)
+          agentViewStore.addCurrentMessage(responseMessage)
           streamingMessageId.value = responseMessageId
           loadingMessageId.value = null
           isFirstChunk.value = false
         } else if (streamingMessageId.value) {
           const message = agentViewStore.getMessageById(streamingMessageId.value)
           if (message && message.type === 'textResponse') {
-            message.content += content
-            agentViewStore.updateAgentViewMessage(message)
+            const nextContent = `${message.content}${content}`
+            void agentViewStore.updateCurrentMessageById(message.id, { content: nextContent })
           }
         }
       }
@@ -452,7 +461,7 @@ const handleStreamEnd = (requestId: string) => {
   if (currentStreamRequestId.value !== requestId) return
   
   if (loadingMessageId.value) {
-    agentViewStore.deleteAgentViewMessageById(loadingMessageId.value)
+    agentViewStore.deleteCurrentMessageById(loadingMessageId.value)
     loadingMessageId.value = null
   }
   
@@ -467,7 +476,7 @@ const handleStreamError = (requestId: string, error: string) => {
   if (currentStreamRequestId.value !== requestId) return
 
   if (loadingMessageId.value) {
-    agentViewStore.deleteAgentViewMessageById(loadingMessageId.value)
+    agentViewStore.deleteCurrentMessageById(loadingMessageId.value)
     loadingMessageId.value = null
   }
 
@@ -482,10 +491,11 @@ const handleStreamError = (requestId: string, error: string) => {
     originalPrompt: lastAskPrompt.value,
     timestamp,
     sessionId: agentViewStore.currentSessionId,
-    mode: 'ask'
+    mode: 'ask',
+    canBeContext: false
   }
 
-  agentViewStore.addAgentViewMessage(errorMessage)
+  agentViewStore.addCurrentMessage(errorMessage)
 
   isStreaming.value = false
   currentStreamRequestId.value = null
@@ -496,28 +506,29 @@ const handleStreamError = (requestId: string, error: string) => {
 }
 // 处理重试
 const handleRetry = async (originalPrompt: string, retryMode: 'agent' | 'ask', messageId: string) => {
-  agentViewStore.deleteAgentViewMessageById(messageId)
+  agentViewStore.deleteCurrentMessageById(messageId)
   if (mode.value !== retryMode) {
     mode.value = retryMode
     currentView.value = retryMode === 'agent' ? 'agent' : 'chat'
   }
   if (retryMode === 'agent') {
     agentViewStore.setWorkingStatus('working')
-    const result = await runAgent({ prompt: originalPrompt })
+    const result = await agentStore.runAgent({ prompt: originalPrompt })
     agentViewStore.setWorkingStatus('finish')
-    if (!result.success && !result.aborted) {
+    if (result.code !== 0 && result.code !== -2) {
       const errorMessage: ErrorMessage = {
         id: nanoid(),
         type: 'error',
-        errorType: detectErrorType(result.error),
-        content: result.error,
-        errorDetail: result.error,
+        errorType: detectErrorType(result.msg),
+        content: result.msg,
+        errorDetail: result.msg,
         originalPrompt,
         timestamp: new Date().toISOString(),
         sessionId: agentViewStore.currentSessionId,
-        mode: 'agent'
+        mode: 'agent',
+        canBeContext: false
       }
-      agentViewStore.addAgentViewMessage(errorMessage)
+      agentViewStore.addCurrentMessage(errorMessage)
     }
     return
   }
@@ -589,8 +600,7 @@ const initDialogState = () => {
 
 onMounted(() => {
   initDialogState()
-  agentViewStore.initStore()
-  llmClientStore.initFromCache()
+  agentViewStore.loadSessionData()
 })
 
 </script>
@@ -615,3 +625,4 @@ onMounted(() => {
   background: var(--ai-dialog-bg);
 }
 </style>
+

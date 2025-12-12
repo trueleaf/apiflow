@@ -4,11 +4,6 @@
       <Bot :size="20" />
     </div>
     <div class="message-content">
-      <AgentTodoList
-        v-if="message.todoList && message.todoList.length > 0"
-        :todo-list="message.todoList"
-        :current-todo-id="message.currentTodoId"
-      />
       <div class="agent-execution-container">
         <div class="agent-execution-header" @click="toggleExpand">
           <div class="agent-header-left">
@@ -90,7 +85,6 @@ import { ref, computed, watch, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Bot, ChevronDown, ChevronRight, Loader2, CheckCircle2, XCircle, Clock, AlertCircle, Check, X, Brain, StopCircle } from 'lucide-vue-next'
 import VueMarkdownRender from 'vue-markdown-render'
-import AgentTodoList from './AgentTodoList.vue'
 import type { AgentExecutionMessage, AgentToolCallStatus } from '@src/types/ai'
 
 const props = defineProps<{

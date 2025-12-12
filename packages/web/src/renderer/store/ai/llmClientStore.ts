@@ -1,19 +1,13 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { ChatRequestBody, OpenAiResponseBody, LLMProviderSettings, LLMProviderType } from '@src/types/ai/agent.type';
+import type { ChatRequestBody, OpenAiResponseBody, LLMProviderSetting, ChatStreamCallbacks } from '@src/types/ai/agent.type';
 import { generateDeepSeekProvider, isElectron } from '@/helper';
 import { llmProviderCache } from '@/cache/ai/llmProviderCache';
-
-type StreamCallbacks = {
-  onData: (chunk: Uint8Array) => void;
-  onEnd: () => void;
-  onError: (err: Error | string) => void;
-};
 
 // AI 请求超时时间（60秒）
 const AI_REQUEST_TIMEOUT = 60 * 1000;
 // Web 模式下使用 fetch 调用 LLM API
-const webChat = async (body: ChatRequestBody, config: LLMProviderSettings, signal?: AbortSignal): Promise<OpenAiResponseBody> => {
+const webChat = async (body: ChatRequestBody, config: LLMProviderSetting, signal?: AbortSignal): Promise<OpenAiResponseBody> => {
   if (!config.apiKey || !config.baseURL) {
     throw new Error('请先配置 API Key 和 Base URL');
   }
@@ -58,7 +52,7 @@ const webChat = async (body: ChatRequestBody, config: LLMProviderSettings, signa
   }
 };
 // Web 模式下使用 fetch + ReadableStream 实现流式调用
-const webChatStream = (body: ChatRequestBody, config: LLMProviderSettings, callbacks: StreamCallbacks) => {
+const webChatStream = (body: ChatRequestBody, config: LLMProviderSetting, callbacks: ChatStreamCallbacks) => {
   const abortController = new AbortController();
   if (!config.apiKey || !config.baseURL) {
     callbacks.onError(new Error('请先配置 API Key 和 Base URL'));
@@ -109,45 +103,30 @@ const webChatStream = (body: ChatRequestBody, config: LLMProviderSettings, callb
   })();
   return { abort: () => abortController.abort() };
 };
-
+// 同步配置到缓存和主进程
+const syncConfig = (config: LLMProviderSetting) => {
+  llmProviderCache.setLLMProvider(config);
+  if (isElectron() && window.electronAPI?.aiManager) {
+    window.electronAPI.aiManager.updateConfig(JSON.parse(JSON.stringify(config)));
+  }
+};
 export const useLLMClientStore = defineStore('llmClientStore', () => {
-  const cached = llmProviderCache.getLLMProvider();
-  const activeProvider = ref<LLMProviderSettings>(cached || generateDeepSeekProvider());
-
-  watch(() => activeProvider.value,
-    (newVal) => {
-      if (isElectron() && window.electronAPI?.aiManager) {
-        window.electronAPI.aiManager.updateConfig(JSON.parse(JSON.stringify(newVal)));
-      }
-      llmProviderCache.setLLMProvider(newVal);
-    },
-    { deep: true, immediate: true }
-  );
-  // 更新 Provider 类型
-  const changeProviderType = (providerType: LLMProviderType) => {
-    activeProvider.value.provider = providerType;
-    if (providerType === 'DeepSeek') {
-      activeProvider.value.baseURL = 'https://api.deepseek.com/chat/completions';
-      activeProvider.value.model = 'deepseek-chat';
-      activeProvider.value.customHeaders = [];
-    } else {
-      activeProvider.value.baseURL = '';
-      activeProvider.value.model = '';
-    }
-  };
+  const LLMConfig = ref<LLMProviderSetting>(generateDeepSeekProvider());
   // 更新配置字段
-  const updateConfig = (updates: Partial<Omit<LLMProviderSettings, 'id'>>) => {
-    Object.assign(activeProvider.value, updates);
+  const updateLLMConfig = (updates: Partial<Omit<LLMProviderSetting, 'id'>>) => {
+    Object.assign(LLMConfig.value, updates);
+    syncConfig(LLMConfig.value);
   };
   // 重置配置
-  const resetConfig = () => {
-    activeProvider.value = generateDeepSeekProvider();
+  const resetLLMConfig = () => {
+    LLMConfig.value = generateDeepSeekProvider();
+    syncConfig(LLMConfig.value);
   };
   // 初始化（从缓存加载）
-  const initFromCache = () => {
+  const initLLMConfig = () => {
     const cached = llmProviderCache.getLLMProvider();
     if (cached) {
-      activeProvider.value = cached;
+      LLMConfig.value = cached;
     }
   };
   // 非流式聊天
@@ -155,28 +134,25 @@ export const useLLMClientStore = defineStore('llmClientStore', () => {
     if (isElectron() && window.electronAPI?.aiManager) {
       return await window.electronAPI.aiManager.chat(body);
     }
-    return await webChat(body, activeProvider.value, signal);
+    return await webChat(body, LLMConfig.value, signal);
   };
   // 流式聊天
-  const chatStream = (body: ChatRequestBody, callbacks: StreamCallbacks) => {
+  const chatStream = (body: ChatRequestBody, callbacks: ChatStreamCallbacks) => {
     if (isElectron() && window.electronAPI?.aiManager) {
       return window.electronAPI.aiManager.chatStream(body, callbacks);
     }
-    return webChatStream(body, activeProvider.value, callbacks);
+    return webChatStream(body, LLMConfig.value, callbacks);
   };
   // 检查 AI 功能是否可用
   const isAvailable = () => {
-    if (isElectron()) {
-      return !!window.electronAPI?.aiManager;
-    }
-    return !!activeProvider.value.apiKey && !!activeProvider.value.baseURL;
+    const { model, baseURL, apiKey } = LLMConfig.value;
+    return !!model && !!baseURL && !!apiKey;
   };
   return {
-    activeProvider,
-    changeProviderType,
-    updateConfig,
-    resetConfig,
-    initFromCache,
+    LLMConfig,
+    updateLLMConfig,
+    resetLLMConfig,
+    initLLMConfig,
     chat,
     chatStream,
     isAvailable,

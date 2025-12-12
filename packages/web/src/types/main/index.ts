@@ -8,8 +8,7 @@ import type { CommonResponse } from '../project';
 import type { StandaloneExportHtmlParams } from '../standalone';
 import { WebsocketConnectParams } from '../websocketNode';
 import { HttpMockNode, MockLog, MockStatusChangedPayload, WebSocketMockNode, WebSocketMockStatusChangedPayload } from '../mockNode';
-import { ChatStreamCallbacks } from '@src/main/ai/agent.ts';
-import { LLMProviderSettings, ChatRequestBody, OpenAiResponseBody } from '../ai/agent.type.ts';
+import { LLMProviderSetting, ChatRequestBody, OpenAiResponseBody, ChatStreamCallbacks } from '../ai/agent.type.ts';
 import type { CheckUpdateResult, DownloadResult, UpdateStatus, UpdateProgress, VersionInfo } from '@src/types/updater';
 
 // ============================================================================
@@ -91,7 +90,7 @@ export type ElectronAPI = {
     selectFile: () => Promise<CommonResponse<{ filePath?: string }>>;
   };
   aiManager: {
-    updateConfig: (config: LLMProviderSettings) => void;
+    updateConfig: (config: LLMProviderSetting) => void;
     chat: (body: ChatRequestBody) => Promise<OpenAiResponseBody>;
     chatStream: (body: ChatRequestBody, callbacks: ChatStreamCallbacks) => {
       abort: () => void;

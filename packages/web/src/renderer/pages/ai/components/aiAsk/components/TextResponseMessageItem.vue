@@ -30,7 +30,7 @@ const markdownOptions = {
 }
 
 // AI 响应中允许的自定义标签白名单
-const allowedTags = ['todo_plan', 'current_step', 'thinking', 'result', 'context', 'instruction']
+const allowedTags = ['thinking', 'result', 'context', 'instruction']
 // 处理自定义标签，将白名单标签转换为带样式类的 div，非白名单标签转义
 const processCustomTags = (html: string, escapeHtml: (str: string) => string): string => {
   return html.replace(/<\/?(\w+)([^>]*)>/g, (match, tagName, attrs) => {
@@ -256,16 +256,6 @@ const customTagsPlugin = (md: MarkdownIt) => {
   padding: 10px 12px;
   margin: 8px 0;
   font-size: 12px;
-}
-.markdown-content :deep(.ai-tag-todo_plan),
-.markdown-content .ai-tag-todo_plan {
-  background: rgba(59, 130, 246, 0.1);
-  border-left: 3px solid #3b82f6;
-}
-.markdown-content :deep(.ai-tag-current_step),
-.markdown-content .ai-tag-current_step {
-  background: rgba(34, 197, 94, 0.1);
-  border-left: 3px solid #22c55e;
 }
 .markdown-content :deep(.ai-tag-thinking),
 .markdown-content .ai-tag-thinking {

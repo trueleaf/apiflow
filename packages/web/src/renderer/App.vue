@@ -52,7 +52,8 @@ import { IPC_EVENTS } from '@src/types/ipc';
 import type { AnchorRect } from '@src/types/common';
 import { useAppSettings } from '@/store/appSettings/appSettingsStore';
 import { shortcutManager } from '@/shortcut/index.ts';
-import { useAgentViewStore } from '@/store/ai/agentViewStore';
+import { useAgentViewStore } from '@/store/ai/agentView';
+import { useLLMClientStore } from '@/store/ai/llmClientStore';
 import { storeToRefs } from 'pinia';
 import { useTheme } from '@/hooks/useTheme';
 import { isElectron } from '@/helper';
@@ -63,6 +64,7 @@ const projectWorkbenchStore = useProjectWorkbench()
 const runtimeStore = useRuntime();
 const appSettingsStore = useAppSettings();
 const agentViewStore = useAgentViewStore();
+const llmClientStore = useLLMClientStore();
 const { agentViewDialogVisible } = storeToRefs(agentViewStore);
 const { t } = useI18n()
 // 平台环境检测
@@ -412,6 +414,7 @@ onMounted(() => {
   initLanguage();
   initTheme();
   initAppTitle();
+  llmClientStore.initLLMConfig();
   
   if (isElectronEnv) {
     // Electron 环境初始化

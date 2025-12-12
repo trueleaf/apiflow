@@ -1,19 +1,13 @@
 import { got } from 'got';
-import type { ChatRequestBody, OpenAiResponseBody, LLMProviderSettings } from '@src/types/ai/agent.type';
-
-export type ChatStreamCallbacks = {
-  onData: (chunk: Uint8Array) => void;
-  onEnd: () => void;
-  onError: (err: Error | string) => void;
-};
+import type { ChatRequestBody, OpenAiResponseBody, LLMProviderSetting, ChatStreamCallbacks } from '@src/types/ai/agent.type';
 
 // AI 请求超时时间（60秒）
 const AI_REQUEST_TIMEOUT = 60 * 1000;
 // LLM 客户端类
 export class LLMClient {
-  private config: LLMProviderSettings = null!;
+  private config: LLMProviderSetting = null!;
   // 更新配置
-  updateConfig(newConfig: LLMProviderSettings): void {
+  updateConfig(newConfig: LLMProviderSetting): void {
     this.config = newConfig;
   }
   // 非流式聊天
@@ -32,12 +26,13 @@ export class LLMClient {
         headers[h.key] = h.value;
       }
     });
+    const responseType = body.response_format?.type === 'json_object' ? 'json' : 'json';
     const response = await got.post<OpenAiResponseBody>(
       baseURL,
       {
         headers,
         json: requestBody,
-        responseType: 'json',
+        responseType,
         timeout: { request: AI_REQUEST_TIMEOUT }
       }
     );

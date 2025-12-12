@@ -5,14 +5,8 @@ import { gotRequest } from './sendRequest'
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts'
 import { WindowState } from '@src/types/index.ts'
 import { IPC_EVENTS } from '@src/types/ipc'
-import type { ChatRequestBody, LLMProviderSettings, OpenAiResponseBody } from '@src/types/ai/agent.type'
+import type { ChatRequestBody, LLMProviderSetting, OpenAiResponseBody, ChatStreamCallbacks } from '@src/types/ai/agent.type'
 import { globalLLMClient } from './ai/agent.ts'
-
-type ChatStreamCallbacks = {
-  onData: (chunk: Uint8Array) => void;
-  onEnd: () => void;
-  onError: (err: Error | string) => void;
-}
 const openDevTools = () => {
   ipcRenderer.send(IPC_EVENTS.window.rendererToMain.openDevTools)
 }
@@ -149,7 +143,7 @@ const websocketMockGetAllStates = (projectId: string) => {
 }
 
 // AI 相关方法
-const aiUpdateConfig = (config: LLMProviderSettings): void => {
+const aiUpdateConfig = (config: LLMProviderSetting): void => {
   globalLLMClient.updateConfig(config);
 }
 const aiChat = async (body: ChatRequestBody): Promise<OpenAiResponseBody> => {

@@ -10,7 +10,7 @@ export type CustomHeader = {
 }
 export type LLMProviderType = 'DeepSeek' | 'OpenAICompatible';
 export type DeepSeekModel = 'deepseek-chat' | 'deepseek-reasoner';
-export type LLMProviderSettings = {
+export type LLMProviderSetting = {
   id: string;
   name: string;
   provider: LLMProviderType;
@@ -99,6 +99,11 @@ export type OpenAiStreamChunk = {
 | 大模型统一配置类型
 |--------------------------------------------------------------------------
 */
+export type ChatStreamCallbacks = {
+  onData: (chunk: Uint8Array) => void;
+  onEnd: () => void;
+  onError: (err: Error | string) => void;
+};
 export type PromptItem = {
   description: string;
   role: 'system' | 'user' | 'assistant';

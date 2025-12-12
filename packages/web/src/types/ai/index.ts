@@ -11,6 +11,7 @@ export type AskMessage = {
   timestamp: string;
   sessionId: string;
   mode: 'agent' | 'ask';
+  canBeContext: boolean;
 }
 export type TextResponseMessage = {
   id: string;
@@ -19,6 +20,7 @@ export type TextResponseMessage = {
   timestamp: string;
   sessionId: string;
   mode: 'agent' | 'ask';
+  canBeContext: boolean;
 }
 export type LoadingMessage = {
   id: string;
@@ -27,16 +29,9 @@ export type LoadingMessage = {
   timestamp: string;
   sessionId: string;
   mode: 'agent' | 'ask';
+  canBeContext: boolean;
 }
 export type AgentToolCallStatus = 'pending' | 'running' | 'success' | 'error' | 'waiting-confirm' | 'cancelled'
-export type TodoItemStatus = 'pending' | 'running' | 'success' | 'error' | 'skipped'
-export type TodoItem = {
-  id: string;
-  stepNumber: number;
-  title: string;
-  description?: string;
-  status: TodoItemStatus;
-}
 export type AgentToolCallInfo = {
   id: string;
   name: string;
@@ -63,8 +58,7 @@ export type AgentExecutionMessage = {
   thinkingContent?: string;
   mode: 'agent' | 'ask';
   isStreaming?: boolean;
-  todoList?: TodoItem[];
-  currentTodoId?: string;
+  canBeContext: boolean;
 }
 export type ErrorMessage = {
   id: string;
@@ -76,8 +70,19 @@ export type ErrorMessage = {
   timestamp: string;
   sessionId: string;
   mode: 'agent' | 'ask';
+  canBeContext: boolean;
 }
-export type AgentViewMessage = AskMessage | LoadingMessage | TextResponseMessage | AgentExecutionMessage | ErrorMessage;
+export type InfoMessage = {
+  id: string;
+  type: "info";
+  content: string;
+  timestamp: string;
+  sessionId: string;
+  mode: 'agent' | 'ask';
+  canBeContext: boolean;
+  totalTokens?: number;
+}
+export type AgentViewMessage = AskMessage | LoadingMessage | TextResponseMessage | AgentExecutionMessage | ErrorMessage | InfoMessage;
 
 export type ToolExecuteResult = {
   code: number;

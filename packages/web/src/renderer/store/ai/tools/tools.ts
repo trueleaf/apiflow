@@ -14,8 +14,8 @@ export const openaiTools: OpenAiToolDefinition[] = rawTools.map(tool => ({
     parameters: tool.parameters
   }
 }))
-// 工具摘要列表，仅包含名称和简短描述，用于 LLM 筛选阶段
-export const toolSummaries: { name: string; description: string }[] = rawTools.map(tool => ({
+// 获取工具摘要列表，仅包含名称和简短描述，用于 LLM 筛选阶段
+export const getToolSummaries = (): { name: string; description: string }[] => rawTools.map(tool => ({
   name: tool.name,
   description: tool.description
 }))

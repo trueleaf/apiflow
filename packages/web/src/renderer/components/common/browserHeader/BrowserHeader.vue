@@ -77,7 +77,7 @@ import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { useRouter } from 'vue-router'
 import { appWorkbenchCache } from '@/cache/appWorkbench/appWorkbenchCache'
-import { useAgentViewStore } from '@/store/ai/agentViewStore'
+import { useAgentViewStore } from '@/store/ai/agentView'
 import LanguageMenu from '@/components/common/language/Language.vue'
 
 const emit = defineEmits<{

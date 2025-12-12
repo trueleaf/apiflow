@@ -29,7 +29,7 @@ import type {
   WebSocketNode,
   FolderNode,
 } from '@src/types'
-import type { LLMProviderSettings } from '@src/types/ai/agent.type'
+import type { LLMProviderSetting } from '@src/types/ai/agent.type'
 import type { HttpNodeResponseData, UrlInfo } from '@src/types/helper'
 import { useVariable } from '@/store/projectWorkbench/variablesStore'
 import { config } from '@src/config/config'
@@ -126,7 +126,7 @@ export const generateDefaultHttpNodeConfig = (): HttpNodeConfig => ({
   tempFileSizeThreshold: config.httpNodeConfig.tempFileSizeThreshold
 })
 // 生成 DeepSeek Provider 默认配置
-export const generateDeepSeekProvider = (): LLMProviderSettings => ({
+export const generateDeepSeekProvider = (): LLMProviderSetting => ({
   id: nanoid(),
   name: 'Default Provider',
   provider: 'DeepSeek',
@@ -144,7 +144,8 @@ export const generateAgentExecutionMessage = (sessionId: string): import('@src/t
   status: 'running',
   toolCalls: [],
   mode: 'agent',
-  isStreaming: true
+  isStreaming: true,
+  canBeContext: true
 })
 // 生成完成消息
 export const generateCompletionMessage = (sessionId: string, content: string): import('@src/types/ai').TextResponseMessage => ({
@@ -153,7 +154,19 @@ export const generateCompletionMessage = (sessionId: string, content: string): i
   content: content || '任务已完成',
   timestamp: new Date().toISOString(),
   sessionId,
-  mode: 'agent'
+  mode: 'agent',
+  canBeContext: true
+})
+// 生成信息消息
+export const generateInfoMessage = (sessionId: string, content: string, mode: 'agent' | 'ask', totalTokens?: number): import('@src/types/ai').InfoMessage => ({
+  id: nanoid(),
+  type: 'info',
+  content,
+  timestamp: new Date().toISOString(),
+  sessionId,
+  mode,
+  canBeContext: false,
+  totalTokens
 })
 /*
 |--------------------------------------------------------------------------
