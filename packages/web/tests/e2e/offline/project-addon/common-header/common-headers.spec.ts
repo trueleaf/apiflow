@@ -2,7 +2,7 @@ import { test, expect } from '../../../../fixtures/electron.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
-test.describe('GlobalCommonHeaders', () => {
+test.describe('CommonHeaders', () => {
   // 测试用例1: 为folder节点设置公共请求头,该folder下所有接口自动继承这些请求头
   test('为folder节点设置公共请求头,该folder下所有接口自动继承这些请求头', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
@@ -567,6 +567,17 @@ test.describe('GlobalCommonHeaders', () => {
     const fileConfirmBtn = addFileDialog.locator('.el-button--primary').last();
     await fileConfirmBtn.click();
     await contentPage.waitForTimeout(500);
+    // 切换到Headers标签，验证UI上父级被标记为低优先级，子级为高优先级
+    const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
+    await headersTab.click();
+    await contentPage.waitForTimeout(500);
+    const commonHeaderTable = contentPage.locator('.header-info .el-table').first();
+    const parentRow = commonHeaderTable.locator('.el-table__body-wrapper tbody tr', { hasText: 'parent-value' }).first();
+    const childRow = commonHeaderTable.locator('.el-table__body-wrapper tbody tr', { hasText: 'child-value' }).first();
+    await expect(parentRow).toBeVisible({ timeout: 5000 });
+    await expect(childRow).toBeVisible({ timeout: 5000 });
+    await expect(parentRow.locator('.inactive-common-header')).toBeVisible({ timeout: 5000 });
+    await expect(childRow.locator('.inactive-common-header')).toHaveCount(0);
     // 发送请求验证子目录的公共请求头覆盖父目录的
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);

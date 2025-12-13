@@ -21,29 +21,51 @@ type MatchedHeaderOptions = {
 };
 type GlobalCommonHeader = Pick<ApidocProperty, '_id' | 'key' | 'value' | 'description' | 'select'> & { path?: string[]; nodeId?: string };
 
+export const normalizeHeaderKey = (key: string) => key.trim().toLowerCase();
+
+export const computeCommonHeaderEffect = <T extends Pick<ApidocProperty, '_id' | 'key' | 'select'>>(headers: T[], ignoredHeaderIds: string[]) => {
+  const lastIndexByKey = new Map<string, number>();
+  for (let i = 0; i < headers.length; i += 1) {
+    const header = headers[i];
+    if (!header.select) {
+      continue;
+    }
+    if (ignoredHeaderIds.includes(header._id)) {
+      continue;
+    }
+    const normalized = normalizeHeaderKey(header.key);
+    if (!normalized) {
+      continue;
+    }
+    lastIndexByKey.set(normalized, i);
+  }
+  const display = headers.map((header, index) => {
+    const normalized = normalizeHeaderKey(header.key);
+    const isIgnored = ignoredHeaderIds.includes(header._id);
+    const isEffective = header.select && !isIgnored && normalized !== '' && lastIndexByKey.get(normalized) === index;
+    return {
+      ...header,
+      isEffective,
+    };
+  });
+  const effective = display.filter((h) => h.isEffective);
+  return {
+    display,
+    effective,
+  };
+};
+
 const getMatchedHeaders = (data: ApidocProjectBaseInfoState['commonHeaders'], options: MatchedHeaderOptions) => {
   for (let i = 0; i < data.length; i += 1) {
     const currentItem = data[i];
-    const currentHeaders: HeaderInfo[] = [];
     const { _id, commonHeaders, children } = currentItem;
+    const currentHeaders = options.preCommonHeaders.concat(commonHeaders).map((h) => JSON.parse(JSON.stringify(h)) as HeaderInfo);
     if (_id === options.id) {
       options.result.matched = true;
-      // 合并祖先节点的公共请求头和当前节点的公共请求头
-      const mergedHeaders: HeaderInfo[] = [];
-      options.preCommonHeaders.concat(commonHeaders).forEach((header) => {
-        if (header && mergedHeaders.every((v) => v.key !== header.key)) {
-          mergedHeaders.push(JSON.parse(JSON.stringify(header)));
-        }
-      });
-      options.result.data = mergedHeaders;
+      options.result.data = currentHeaders;
       options.result.nodeId = currentItem._id;
       return;
     }
-    options.preCommonHeaders.concat(commonHeaders).forEach((header) => {
-      if (header && currentHeaders.every((v) => v.key !== header.key)) {
-        currentHeaders.push(JSON.parse(JSON.stringify(header)));
-      }
-    });
     if (children?.length > 0) {
       getMatchedHeaders(children, {
         id: options.id,
@@ -51,6 +73,9 @@ const getMatchedHeaders = (data: ApidocProjectBaseInfoState['commonHeaders'], op
         result: options.result,
         preCommonHeaders: currentHeaders,
       });
+      if (options.result.matched) {
+        return;
+      }
     }
   }
 };
@@ -67,8 +92,11 @@ export const useCommonHeader = defineStore('commonHeader', () => {
     commonHeaders.value = headers;
   };
   // 根据 header ID 获取路径
-  const getCommonHeaderPathById = (headerItemId: string) => {
-    const path: string[] = [];
+  const getCommonHeaderSourceById = (headerItemId: string) => {
+    const source = {
+      path: [] as string[],
+      nodeId: '' as string,
+    };
     const cpCommonHeaders = commonHeaders.value;
     let isMatched = false;
     const loop = (loopData: ApidocProjectCommonHeader[], id: string, level: number) => {
@@ -78,12 +106,13 @@ export const useCommonHeader = defineStore('commonHeader', () => {
         }
         const data = loopData[i];
         if (level === 0) {
-          path.length = 0;
+          source.path.length = 0;
         }
-        path[level] = data.name as string;
+        source.path[level] = data.name as string;
         for (let j = 0; j < data.commonHeaders.length; j++) {
           const header = data.commonHeaders[j];
           if (header._id === id) {
+            source.nodeId = data._id;
             isMatched = true;
             return;
           }
@@ -94,7 +123,7 @@ export const useCommonHeader = defineStore('commonHeader', () => {
       }
     };
     loop(cpCommonHeaders, headerItemId, 0);
-    return path;
+    return source;
   };
   // 根据文档id获取公共请求头
   const getCommonHeadersById = (id: string) => {
@@ -127,11 +156,12 @@ export const useCommonHeader = defineStore('commonHeader', () => {
     }
     const validCommonHeaders = result.data?.filter((v) => v.key && v.select) || [];
     validCommonHeaders.forEach((header) => {
-      header.path = getCommonHeaderPathById(header._id);
-      header.nodeId = result.nodeId;
+      const source = getCommonHeaderSourceById(header._id);
+      header.path = source.path;
+      header.nodeId = source.nodeId || result.nodeId;
     });
     const validGlobalCommonHeaders = globalCommonHeaders.value?.filter((v) => v.key && v.select) || [];
-    return [...validCommonHeaders, ...validGlobalCommonHeaders];
+    return [...validGlobalCommonHeaders, ...validCommonHeaders];
   };
   // 获取全部公共请求头信息
   const getCommonHeaders = async (): Promise<void> => {

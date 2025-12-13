@@ -44,11 +44,29 @@
             <el-checkbox v-model="scope.row.select" @change="handleChangeCommonHeaderIsSend($event, scope.row)"></el-checkbox>
           </template>
         </el-table-column>
-        <el-table-column prop="key" :label="t('键')" align="center"></el-table-column>
+        <el-table-column prop="key" :label="t('键')" align="center">
+          <template #default="scope">
+            <el-tooltip
+              placement="top"
+              :show-after="500"
+              :content="t('该公共请求头未生效：已被同名公共请求头覆盖')"
+              :disabled="!(scope.row.select && scope.row.isEffective === false)"
+            >
+              <span :class="{ 'inactive-common-header': scope.row.select && scope.row.isEffective === false }">{{ scope.row.key }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
         <el-table-column prop="type" :label="t('类型')" align="center" width="100px"></el-table-column>
         <el-table-column prop="value" :label="t('值')" align="center">
           <template #default="scope">
-            <div class="value-wrap">{{ scope.row.value }}</div>
+            <el-tooltip
+              placement="top"
+              :show-after="500"
+              :content="t('该公共请求头未生效：已被同名公共请求头覆盖')"
+              :disabled="!(scope.row.select && scope.row.isEffective === false)"
+            >
+              <div class="value-wrap" :class="{ 'inactive-common-header': scope.row.select && scope.row.isEffective === false }">{{ scope.row.value }}</div>
+            </el-tooltip>
           </template>
         </el-table-column>
         <el-table-column prop="description" :label="t('来源')" align="center" width="250px">
@@ -92,7 +110,7 @@ import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { useWebSocket } from '@/store/websocketNode/websocketNodeStore';
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore';
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
-import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore';
+import { computeCommonHeaderEffect, useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore';
 import { commonHeaderCache } from '@/cache/project/commonHeadersCache';
 import { storeToRefs } from 'pinia';
 import { CheckboxValueType } from 'element-plus';
@@ -135,7 +153,7 @@ watch(paramsTreeRef, (instance) => {
 })
 
 const hideDefaultHeader = ref(true);
-const commonHeaders = ref<(Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select' & { path?: string[] }>)[]>([]);
+const commonHeaders = ref<(ApidocProperty<'string'> & { path?: string[]; nodeId?: string; isEffective?: boolean })[]>([]);
 // 请求头记录函数
 const recordHeadersOperation = (oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
   if (!currentSelectNav.value) return;
@@ -158,6 +176,27 @@ const handleChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
   recordHeadersOperation(oldValue, newData as ApidocProperty<'string'>[]);
 };
 
+const refreshCommonHeaders = () => {
+  if (currentSelectNav.value?.tabType !== 'websocket') {
+    return
+  }
+  const defaultCommonHeader = commonHeaderStore.getCommonHeadersById(currentSelectNav.value?._id || "");
+  const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectNav.value?._id ?? "") || [];
+  const rows = defaultCommonHeader.map(v => {
+    const isSelect = ignoreHeaderIds.includes(v._id) ? false : true
+    const property: ApidocProperty<'string'> & { path?: string[]; nodeId?: string } = generateEmptyProperty();
+    property._id = v._id;
+    property.select = isSelect;
+    property.key = v.key;
+    property.value = v.value;
+    property.description = v.description;
+    property.path = v.path;
+    property.nodeId = v.nodeId;
+    return property;
+  })
+  const computedResult = computeCommonHeaderEffect(rows, [])
+  commonHeaders.value = computedResult.display
+}
 const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select'>) => {
   if (isSend) {
     commonHeaderCache.deleteIgnoredCommonHeader({
@@ -173,26 +212,11 @@ const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<
     })
   }
   emits('changeCommonHeaderSendStatus')
+  refreshCommonHeaders()
 }
 
 watch([currentSelectNav, cHeaders, globalCommonHeaders], () => {
-  if (currentSelectNav.value?.tabType !== 'websocket') {
-    return
-  }
-  const defaultCommonHeader = commonHeaderStore.getCommonHeadersById(currentSelectNav.value?._id || "");
-  commonHeaders.value = defaultCommonHeader.map(v => {
-    const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectNav.value?._id ?? "");
-    const isSelect = ignoreHeaderIds?.find(headerId => headerId === v._id) ? false : true
-    const property: ApidocProperty<'string'> & { path?: string[] } = generateEmptyProperty();
-    property._id = v._id;
-    property.select = isSelect;
-    property.key = v.key;
-    property.value = v.value;
-    property.description = v.description;
-    property.path = v.path;
-    property.nodeId = v.nodeId;
-    return property;
-  })
+  refreshCommonHeaders()
 }, {
   deep: true,
   immediate: true
@@ -228,6 +252,9 @@ const handleJumpToCommonHeaderConfigPage = ({ nodeId, name }: { nodeId?: string,
   }
   .folder-icon {
     color: var(--yellow);
+  }
+  .inactive-common-header {
+    text-decoration: line-through;
   }
 }
 .view-icon {

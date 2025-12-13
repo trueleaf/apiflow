@@ -287,7 +287,7 @@
 </template>
 <script lang="ts" setup>
 import type { DebouncedFunc } from 'lodash-es'
-import type { HttpNode, ApidocProperty } from '@src/types'
+import type { HttpNode } from '@src/types'
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts'
 import { appState } from '@/cache/appState/appStateCache.ts'
 import { commonHeaderCache } from '@/cache/project/commonHeadersCache'
@@ -306,7 +306,7 @@ import SPreRequestParams from './preRequest/PreRequest.vue';
 import SAfterRequestParams from './afterRequest/AfterRequest.vue';
 import SRemark from './remarks/Remarks.vue';
 import SSettings from './settings/Settings.vue';
-import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore'
+import { computeCommonHeaderEffect, useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore'
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore'
 import { useRoute } from 'vue-router'
@@ -396,14 +396,15 @@ const freshHasHeaders = () => {
   const { headers } = httpNodeStore.httpNodeInfo.item;
   const commonHeaders = commonHeaderStore.getCommonHeadersById(currentSelectNav.value?._id || "");
   const cpCommonHeaders = JSON.parse(JSON.stringify(commonHeaders)) as (typeof commonHeaders);
+  const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectNav.value?._id ?? "") || [];
   cpCommonHeaders.forEach(header => {
-    const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectNav.value?._id ?? "");
-    const isSelect = ignoreHeaderIds?.find(headerId => headerId === header._id) ? false : true;
+    const isSelect = ignoreHeaderIds.includes(header._id) ? false : true;
     header.select = isSelect;
   })
-  const allHeaders = headers.concat(cpCommonHeaders.map(v => ({ ...v })) as ApidocProperty<'string'>[]);
-  const hasHeader = allHeaders.filter(header => header.select).some((data) => data.key);
-  // console.log('fresh', hasHeader, allHeaders, )
+  const computedResult = computeCommonHeaderEffect(cpCommonHeaders, []);
+  const hasCustomHeader = headers.filter(header => header.select).some((data) => data.key);
+  const hasCommonHeader = computedResult.effective.some((data) => data.select && data.key);
+  const hasHeader = hasCustomHeader || hasCommonHeader;
   hasHeaders.value = hasHeader;
 }
 watchEffect(freshHasHeaders, {

@@ -12,31 +12,79 @@ import { generateAgentExecutionMessage, generateCompletionMessage, generateInfoM
 import { config } from '@src/config/config'
 import { nanoid } from 'nanoid'
 
-const agentSystemPrompt = `你是 Apiflow 智能代理，需使用工具完成用户意图。
-- 优先调用工具完成修改，避免凭空编造。
-- 工具调用前先用一句话确认理解；缺信息则先追问。
-- 仅在工具执行后，用中文简要说明修改结果或下一步需求。
-- 不生成与当前请求无关的代码或文本。
-- 创建接口时，如果用户只提供了简单描述而没有给出完整参数，优先使用simpleCreateHttpNode工具。
-- 重命名文件夹时，若用户未指定具体名称，优先使用autoRenameFoldersByContent工具，它会根据子节点内容自动生成不超过10个字的有意义命名并执行重命名。
-- 操作变量时，使用getVariables获取变量列表，createVariable创建变量，updateVariable更新变量，deleteVariables删除变量。变量可在请求URL、Header、Body中通过{{ variableName }}方式引用。
+const agentSystemPrompt = `你是 Apiflow 智能代理，你的目标是“通过调用可用工具”完成用户意图。
+
+【总原则】
+- 优先用工具获取信息与完成修改，避免猜测与凭空编造。
+- 工具调用前：先用一句话确认你将要做什么；若缺少关键字段，先追问或先用查询类工具补齐。
+- 工具调用后：只用中文简要说明结果（成功/失败、影响范围、下一步需要用户提供什么）。
+- 不生成与当前请求无关的代码或长篇解释。
+
+【节点类型与常用定位】
+- 项目树节点类型包括：folder、http、httpMock、websocket、websocketMock、markdown。
+- 当用户未提供 nodeId/folderId：优先用 searchNodes（按名称/关键词/类型）或 getChildNodes（按目录浏览）定位目标节点。
+- 若“当前选中Tab”已提供（context.activeTab），可优先用 activeTab.id 作为 nodeId，activeTab.type 作为节点类型判断。
+
+【通用节点操作（跨类型）】
+- 改名/移动/复制粘贴/删除/搜索：使用 nodeOperation 相关工具（如 renameNode、moveNode、copyNodes、pasteNodes、deleteNodes、searchNodes 等）。
+- 重命名文件夹：用户未指定具体名称时，优先用 autoRenameFoldersByContent 自动生成并执行（命名不超过10字）。
+
+【HTTP 接口（http 节点）】
+- 创建接口：
+	- 用户只给“简单描述/示例URL/一句话需求”，信息不全时优先用 simpleCreateHttpNode。
+	- 用户给了较完整结构（method/url/params/headers/body/response等）时用 createHttpNode。
+
+【HTTP Mock（httpMock 节点，对应 httpMockNode 工具）】
+- 修改 mock 基础信息（名称/方法/url/port/delay）：用 updateHttpMockNodeBasic（必要时先 getHttpMockNodeDetail）。
+- 保存当前 mock：用 saveCurrentHttpMockNode（依赖当前Tab选中态）。
+- 启停与状态/日志：
+	- 启动：startHttpMockServerByNodeId（需要 projectId + nodeId，且通常要求 Electron 环境）。
+	- 停止：stopHttpMockServerByNodeId。
+	- 是否启用：getHttpMockEnabledStatus。
+	- 查看日志：getHttpMockLogs。
+
+【WebSocket（websocket 节点，对应 websocketNode 工具）】
+- 修改 WebSocket 基础信息（名称/描述/协议ws/wss/path/prefix）：用 updateWebsocketNodeMeta（必要时先 getWebsocketNodeDetail）。
+- 添加请求头：用 addWebsocketNodeHeader。
+- 保存当前 WebSocket：用 saveCurrentWebsocketNode（依赖当前Tab选中态）。
+- 连接/发送/断开（通常要求 Electron 环境）：
+	- 连接：connectWebsocketByNodeId（需要 nodeId + 完整 url；若用户只给了 host 或只给了 path，先追问补齐或先读取节点详情再组合）。
+	- 发送消息：sendWebsocketMessageByNodeId。
+	- 断开连接：disconnectWebsocketByNodeId。
+
+【WebSocket Mock（websocketMock 节点，对应 websocketMockNode 工具）】
+- 注意：WebSocket Mock 仅离线模式支持。若用户要求操作但未确认当前模式，先追问用户是否处于离线模式。
+- 修改基础信息（name/path/port/delay/echoMode/responseContent）：用 updateWebsocketMockNodeBasic（必要时先 getWebsocketMockNodeDetail）。
+- 保存当前 WebSocket Mock：用 saveCurrentWebsocketMockNode（依赖当前Tab选中态）。
+- 启停与状态：
+	- 启动：startWebsocketMockServerByNodeId（需要 projectId + nodeId，且通常要求 Electron 环境）。
+	- 停止：stopWebsocketMockServerByNodeId。
+	- 是否启用：getWebsocketMockEnabledStatus。
+
+【变量规则】
+- 操作变量：getVariables 获取列表，createVariable 创建，updateVariable 更新，deleteVariables 删除。
+- 变量可在请求 URL/Header/Body 中用 {{ variableName }} 引用。
 
 【创建节点规则】
-- 只有 folder（目录）类型的节点可以包含子节点
-- 创建节点时，pid 参数只能是空字符串（表示根目录）或已存在的 folder 节点的 ID
-- http、httpMock、websocket、websocketMock、markdown 类型的节点不能作为父节点
+- 只有 folder（目录）类型的节点可以包含子节点。
+- 创建节点时，pid 只能是空字符串（根目录）或已存在的 folder 节点 ID。
+- http、httpMock、websocket、websocketMock、markdown 类型节点不能作为父节点。
 `
 
-const toolSelectionSystemPrompt = `你是工具选择助手。根据用户意图从工具列表中选择所有可能用到的工具。
-返回格式必须是纯JSON数组，只包含工具名称，不要有其他内容。
-例如：["toolName1", "toolName2", "toolName3"]
-选择原则：
-- 宁多勿少，确保覆盖用户可能需要的所有操作
-- 如果是创建接口相关，包含simpleCreateHttpNode和createHttpNode
-- 如果涉及查询/获取，包含相应的get/search工具
-- 如果涉及修改/更新，包含相应的patch/update/set工具
-- 如果涉及文件夹操作，包含folder相关工具
-- 如果不确定具体操作类型，选择该类别的所有相关工具`
+const toolSelectionSystemPrompt = `你是 Apiflow 的工具选择助手。你的任务是：结合“用户意图 + 上下文信息 + 可用工具列表”，挑选出本轮对话最可能需要调用的工具名称。
+
+【输出要求】
+- 只输出严格 JSON（不要 Markdown、不要解释）。
+- 由于会启用 JSON 模式，你必须返回 JSON 对象：{"tools":["toolName1","toolName2"]}
+- tools 必须是字符串数组；只允许返回在“可用工具列表”里出现过的工具名称；不要返回不存在的名字。
+
+【选择规则】
+- 优先精确：只选“完成用户任务”必要或高度相关的工具，避免无意义全选。
+- 但要覆盖关键分支：如果缺少 nodeId/folderId/projectId 等关键字段，优先选择能先定位/读取的工具（search/get/detail/list），再选变更类工具（create/update/delete/save）。
+- 创建 HTTP 接口：通常同时加入 simpleCreateHttpNode 与 createHttpNode（以便信息不全时可推断）。
+- 涉及目录/节点：加入 searchNodes/getChildNodes 以及对应的 nodeOperation 工具（rename/move/copy/paste/delete）。
+- 涉及 Mock/WebSocket：优先加入 detail + update + save + start/stop/status/logs 这些可能链路上会用到的工具。
+- 若用户目标是“只查看/分析”，不要选会修改数据的工具（create/update/delete/save/start/stop）除非用户明确要求。\n`
 
 export const useAgentStore = defineStore('agent', () => {
 	let agentAbortController: AbortController | null = null
@@ -95,7 +143,15 @@ export const useAgentStore = defineStore('agent', () => {
 			const response = await llmClientStore.chat({ messages, response_format: { type: 'json_object' } })
 			checkAborted(signal)
 			const content = response.choices[0]?.message?.content?.trim() || ''
-			const toolNames: string[] = JSON.parse(content)
+			const parsed: unknown = JSON.parse(content)
+			const toolNamesRaw: unknown = Array.isArray(parsed)
+				? parsed
+				: (typeof parsed === 'object' && parsed !== null && 'tools' in parsed)
+					? (parsed as { tools?: unknown }).tools
+					: null
+			const toolNames = Array.isArray(toolNamesRaw)
+				? toolNamesRaw.filter((name): name is string => typeof name === 'string' && name.length > 0)
+				: []
 			const totalTokens = response.usage?.total_tokens || 0
 			if (!Array.isArray(toolNames) || toolNames.length === 0) {
 				return { tools: openaiTools, totalTokens }
@@ -220,11 +276,12 @@ export const useAgentStore = defineStore('agent', () => {
 		const signal = agentAbortController.signal
 		const agentViewStore = useAgentViewStore()
 		const context = buildAgentContext()
-		const contextText = `当前上下文信息，若字段为null表示未选中：${JSON.stringify({
-			project: context.project,
-			activeTab: context.activeTab,
-			variables: context.variables
-		})}`
+		const contextText = `【上下文（只读）】以下信息来自 Apiflow 当前界面状态，用于辅助工具入参填充与减少反问。
+规则：
+- 不要编造 id（projectId/nodeId/folderId），优先从这里读取；若为 null，再询问用户或先用搜索/详情类工具定位。
+- activeTab 不为 null 时，通常可直接用 activeTab.id 作为 nodeId；结合 activeTab.type 判断节点类型。
+- 当需要 projectId（如创建节点/启停 Mock/启动服务等）时，优先使用 project.id；若为 null，先提示用户选择/打开项目。
+JSON：${JSON.stringify({ project: context.project, activeTab: context.activeTab, variables: context.variables })}`
 		const historyMessages = buildHistoryMessages()
 		const messages: LLMessage[] = [
 			{ role: 'system', content: agentSystemPrompt },

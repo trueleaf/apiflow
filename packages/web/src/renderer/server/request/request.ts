@@ -6,7 +6,7 @@ import { getFormDataFromFormDataParams, getObjectPathParams, getStringFromParams
 import { getCompiledTemplate } from '@/helper';
 import { useVariable } from '@/store/projectWorkbench/variablesStore';
 import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/index.ts';
-import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore';
+import { computeCommonHeaderEffect, useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore';
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { useHttpNodeResponse } from '@/store/httpNode/httpNodeResponseStore';
@@ -149,7 +149,7 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
 
   const defaultCommonHeaders = commonHeaderStore.getCommonHeadersById(currentSelectNav?._id || "");
   const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectNav?._id ?? "") || [];
-  const commonHeaders = defaultCommonHeaders.filter(header => !ignoreHeaderIds.includes(header._id));
+  const { effective: commonHeaders } = computeCommonHeaderEffect(defaultCommonHeaders, ignoreHeaderIds);
   const headers = websocketNode.item.headers;
   const headersObject: Record<string, string> = {};
 
@@ -209,7 +209,7 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
     if (realKey.trim() === '') {
       continue;
     }
-    const headerKeyLower = realKey.toLowerCase();
+    const headerKeyLower = realKey.trim().toLowerCase();
 
     // 不允许覆盖关键的WebSocket握手头
     if (headerKeyLower === 'sec-websocket-key' || headerKeyLower === 'sec-websocket-version') {
@@ -230,7 +230,7 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
     if (realKey.trim() === '') {
       continue;
     }
-    const headerKeyLower = realKey.toLowerCase();
+    const headerKeyLower = realKey.trim().toLowerCase();
 
     // 不允许覆盖关键的WebSocket握手头
     if (headerKeyLower === 'sec-websocket-key' || headerKeyLower === 'sec-websocket-version') {
@@ -370,7 +370,7 @@ const getHeaders = async (apidoc: HttpNode) => {
   }
   const defaultCommonHeaders = commonHeaderStore.getCommonHeadersById(currentSelectNav?._id || "");
   const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectNav?._id ?? "") || [];
-  const commonHeaders = defaultCommonHeaders.filter(header => !ignoreHeaderIds.includes(header._id));
+  const { effective: commonHeaders } = computeCommonHeaderEffect(defaultCommonHeaders, ignoreHeaderIds);
   const headers = apidoc.item.headers;
   const headersObject: Record<string, string | null> = {};
   for (let i = 0; i < defaultHeaders.length; i++) {
@@ -389,7 +389,7 @@ const getHeaders = async (apidoc: HttpNode) => {
       continue;
     }
     const realValue = await getCompiledTemplate(header.value, variables);
-    headersObject[realKey.toLowerCase()] = realValue
+    headersObject[realKey.trim().toLowerCase()] = realValue
   }
   // const matchedCookies = getMachtedCookies(url);
   // if (matchedCookies.length > 0) {
@@ -407,7 +407,7 @@ const getHeaders = async (apidoc: HttpNode) => {
       continue;
     }
     const realValue = await getCompiledTemplate(header.value, variables);
-    headersObject[realKey.toLowerCase()] = realValue
+    headersObject[realKey.trim().toLowerCase()] = realValue
   }
   return headersObject;
 }
