@@ -223,7 +223,6 @@ const handleEditVariable = () => {
             fileValue: params.fileValue
           });
           if (response.code === 0) {
-            message.success(t('修改成功'));
             handleClose();
             emits('success');
           } else {

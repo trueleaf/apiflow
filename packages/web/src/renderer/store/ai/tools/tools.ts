@@ -1,12 +1,15 @@
 import { AgentTool, OpenAiToolDefinition } from '@src/types/ai'
 import { httpNodeTools } from './httpNodeTools'
+import { websocketNodeTools } from './websocketNodeTools'
+import { httpMockNodeTools } from './httpMockNodeTools'
+import { websocketMockNodeTools } from './websocketMockNodeTools'
 import { projectTools } from './projectTools'
 import { nodeOperationTools } from './nodeOperationTools'
 import { variableTools } from './variableTools'
 import { commonTools } from './commonTools'
 import { commonHeaderTools } from './commonHeaderTools'
 
-export const rawTools: AgentTool[] = [...httpNodeTools, ...projectTools, ...nodeOperationTools, ...variableTools, ...commonTools, ...commonHeaderTools]
+export const rawTools: AgentTool[] = [...httpNodeTools, ...websocketNodeTools, ...httpMockNodeTools, ...websocketMockNodeTools, ...projectTools, ...nodeOperationTools, ...variableTools, ...commonTools, ...commonHeaderTools]
 export const openaiTools: OpenAiToolDefinition[] = rawTools.map(tool => ({
   type: 'function',
   function: {
