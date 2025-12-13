@@ -2,6 +2,22 @@ import { useSkill } from '../skillStore'
 import { AgentTool } from '@src/types/ai'
 
 export const commonHeaderTools: AgentTool[] = [
+  {
+    name: 'deleteAllCommonHeaders',
+    description: '删除当前项目下的所有公共请求头（包括全局公共头与所有文件夹公共头）。这是一个危险操作，不可恢复',
+    type: 'commonHeader',
+    parameters: {
+      type: 'object',
+      properties: {},
+      required: [],
+    },
+    needConfirm: true,
+    execute: async () => {
+      const skillStore = useSkill()
+      const result = await skillStore.deleteAllCommonHeaders()
+      return { code: result.ok ? 0 : 1, data: result }
+    },
+  },
   // ==================== 全局公共请求头工具 ====================
   {
     name: 'getGlobalCommonHeaders',

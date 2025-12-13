@@ -201,6 +201,10 @@ export const addFileAndFolderCb = (currentOperationalNode: Ref<ApidocBanner | nu
       commonHeaders: [],
       children: [],
     });
+    // 非folder节点需要更新映射，以便能够继承父目录的公共请求头
+    if (data.type !== 'folder') {
+      commonHeaderStore.updateNodeIdToPidMap(data._id, data.pid);
+    }
   } else {
     commonHeaderStore.commonHeaders.push({
       _id: data._id,

@@ -186,7 +186,6 @@ const handleEditCommonHeader = async () => {
           commonHeaders: validHeaders.map(v => ({
             ...v,
             type: 'string' as const,
-            required: false,
           })),
         } as Partial<import('@src/types').FolderNode>);
         message.success(t('修改成功'));

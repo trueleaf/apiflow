@@ -168,7 +168,7 @@ export const useCommonHeader = defineStore('commonHeader', () => {
             };
           });
       };
-      const treeData = buildTree(projectId);
+      const treeData = buildTree('');
       changeCommonHeaders(treeData);
       return;
     }

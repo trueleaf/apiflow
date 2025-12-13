@@ -127,6 +127,7 @@ export const useLLMClientStore = defineStore('llmClientStore', () => {
     const cached = llmProviderCache.getLLMProvider();
     if (cached) {
       LLMConfig.value = cached;
+      syncConfig(cached);
     }
   };
   // 非流式聊天

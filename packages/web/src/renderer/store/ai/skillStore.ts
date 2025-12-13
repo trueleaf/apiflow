@@ -10,6 +10,8 @@ import { useHttpNode } from "../httpNode/httpNodeStore";
 import { useProjectManagerStore } from "../projectManager/projectManagerStore";
 import { useBanner } from "../projectWorkbench/bannerStore";
 import { useProjectNav } from "../projectWorkbench/projectNavStore";
+import { useCommonHeader } from "../projectWorkbench/commonHeaderStore";
+import { useRuntime } from "../runtime/runtimeStore";
 import { router } from "@/router";
 import { IPC_EVENTS } from "@src/types/ipc";
 import { nanoid } from "nanoid";
@@ -1117,6 +1119,75 @@ export const useSkill = defineStore('skill', () => {
     }
     return [];
   }
+
+  // 删除当前项目下的所有公共请求头
+  const deleteAllCommonHeaders = async (): Promise<{
+    ok: boolean;
+    data: {
+      global: { ok: boolean };
+      folder: { total: number; cleared: number; failedFolderIds: string[] };
+    };
+  }> => {
+    const runtimeStore = useRuntime();
+    const isOffline = runtimeStore.networkMode === 'offline';
+    const projectId = router.currentRoute.value.query.id as string;
+    const folderNodes = (await apiNodesCache.getNodesByProjectId(projectId)).filter((node) => node.info.type === 'folder');
+    const failedFolderIds: string[] = [];
+    let clearedFolderCount = 0;
+
+    let globalOk = false;
+    try {
+      if (isOffline) {
+        const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
+        globalOk = await commonHeaderCache.setCommonHeaders([]);
+      } else {
+        const { request } = await import('@/api/api');
+        await request.put('/api/project/replace_global_common_headers', { projectId, commonHeaders: [] });
+        globalOk = true;
+      }
+    } catch (error) {
+      logger.error('删除全局公共请求头失败', { error });
+      globalOk = false;
+    }
+
+    for (let i = 0; i < folderNodes.length; i += 1) {
+      const folderId = folderNodes[i]._id;
+      try {
+        if (isOffline) {
+          const success = await apiNodesCache.updateNodeById(folderId, { commonHeaders: [] });
+          if (!success) {
+            failedFolderIds.push(folderId);
+          } else {
+            clearedFolderCount += 1;
+          }
+        } else {
+          const { request } = await import('@/api/api');
+          await request.put('/api/project/common_header', { projectId, id: folderId, commonHeaders: [] });
+          clearedFolderCount += 1;
+        }
+      } catch (error) {
+        logger.error('删除文件夹公共请求头失败', { error, folderId });
+        failedFolderIds.push(folderId);
+      }
+    }
+
+    const commonHeaderStore = useCommonHeader();
+    try {
+      await Promise.all([commonHeaderStore.getGlobalCommonHeaders(), commonHeaderStore.getCommonHeaders()]);
+    } catch (error) {
+      logger.error('刷新公共请求头失败', { error });
+    }
+
+    const folderOk = failedFolderIds.length === 0;
+    const ok = globalOk && folderOk;
+    return {
+      ok,
+      data: {
+        global: { ok: globalOk },
+        folder: { total: folderNodes.length, cleared: clearedFolderCount, failedFolderIds },
+      },
+    };
+  }
   /*
   |--------------------------------------------------------------------------
   | 公共请求头相关逻辑
@@ -1287,5 +1358,6 @@ export const useSkill = defineStore('skill', () => {
     updateFolderCommonHeader,
     deleteFolderCommonHeaders,
     setFolderCommonHeaders,
+    deleteAllCommonHeaders,
   }
 })
