@@ -28,8 +28,15 @@ const getMatchedHeaders = (data: ApidocProjectBaseInfoState['commonHeaders'], op
     const { _id, commonHeaders, children } = currentItem;
     if (_id === options.id) {
       options.result.matched = true;
-      options.result.data = options.preCommonHeaders;
-      options.result.nodeId = currentItem.pid;
+      // 合并祖先节点的公共请求头和当前节点的公共请求头
+      const mergedHeaders: HeaderInfo[] = [];
+      options.preCommonHeaders.concat(commonHeaders).forEach((header) => {
+        if (header && mergedHeaders.every((v) => v.key !== header.key)) {
+          mergedHeaders.push(JSON.parse(JSON.stringify(header)));
+        }
+      });
+      options.result.data = mergedHeaders;
+      options.result.nodeId = currentItem._id;
       return;
     }
     options.preCommonHeaders.concat(commonHeaders).forEach((header) => {
@@ -53,6 +60,8 @@ export const useCommonHeader = defineStore('commonHeader', () => {
   const isOffline = () => runtimeStore.networkMode === 'offline';
   const commonHeaders = ref<ApidocProjectCommonHeader[]>([]);
   const globalCommonHeaders = ref<GlobalCommonHeader[]>([]);
+  // 节点ID到父节点ID的映射，用于查找非文件夹节点的父文件夹
+  const nodeIdToPidMap = ref<Map<string, string>>(new Map());
   // 改变公共请求头信息
   const changeCommonHeaders = (headers: ApidocProjectCommonHeader[]): void => {
     commonHeaders.value = headers;
@@ -97,12 +106,25 @@ export const useCommonHeader = defineStore('commonHeader', () => {
       nodeId: '',
       data: [],
     };
+    // 首先尝试直接匹配（适用于文件夹节点）
     getMatchedHeaders(commonHeaders.value, {
       id,
       preCommonHeaders: [],
       deep: 1,
       result,
     });
+    // 如果没有匹配到，说明可能是非文件夹节点（如HTTP节点），尝试用其pid查找
+    if (!result.matched) {
+      const pid = nodeIdToPidMap.value.get(id);
+      if (pid) {
+        getMatchedHeaders(commonHeaders.value, {
+          id: pid,
+          preCommonHeaders: [],
+          deep: 1,
+          result,
+        });
+      }
+    }
     const validCommonHeaders = result.data?.filter((v) => v.key && v.select) || [];
     validCommonHeaders.forEach((header) => {
       header.path = getCommonHeaderPathById(header._id);
@@ -117,6 +139,14 @@ export const useCommonHeader = defineStore('commonHeader', () => {
       const projectId = router.currentRoute.value.query.id as string;
       const allNodes = await apiNodesCache.getNodesByProjectId(projectId);
       const folderNodes = allNodes.filter((node) => node.info.type === 'folder');
+      // 构建节点ID到父节点ID的映射
+      const newNodeIdToPidMap = new Map<string, string>();
+      allNodes.forEach((node) => {
+        if (node.pid) {
+          newNodeIdToPidMap.set(node._id, node.pid);
+        }
+      });
+      nodeIdToPidMap.value = newNodeIdToPidMap;
       const buildTree = (pid: string): ApidocProjectCommonHeader[] => {
         return folderNodes
           .filter((node) => node.pid === pid)
@@ -186,6 +216,16 @@ export const useCommonHeader = defineStore('commonHeader', () => {
         });
     });
   };
+  // 更新节点ID到父节点ID的映射（用于新增节点时调用）
+  const updateNodeIdToPidMap = (nodeId: string, pid: string) => {
+    if (nodeId && pid) {
+      nodeIdToPidMap.value.set(nodeId, pid);
+    }
+  };
+  // 从映射中删除节点（用于删除节点时调用）
+  const removeFromNodeIdToPidMap = (nodeId: string) => {
+    nodeIdToPidMap.value.delete(nodeId);
+  };
   return {
     commonHeaders,
     globalCommonHeaders,
@@ -193,5 +233,7 @@ export const useCommonHeader = defineStore('commonHeader', () => {
     getCommonHeadersById,
     getCommonHeaders,
     getGlobalCommonHeaders,
+    updateNodeIdToPidMap,
+    removeFromNodeIdToPidMap,
   };
 });

@@ -192,4 +192,81 @@ test.describe('GlobalCommonHeaders', () => {
     expect(secondKeyValue).toBe('Accept');
     expect(secondValueValue).toBe('*/*');
   });
+  // 测试用例4: 公共请求头顺序在刷新后保持一致，且在HTTP节点中展示顺序相同
+  test('公共请求头顺序在刷新后保持一致,且在HTTP节点中展示顺序相同', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    const treeWrap = contentPage.locator('.tree-wrap');
+    // 打开全局公共请求头设置
+    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
+    await contentPage.waitForTimeout(300);
+    const contextMenu = contentPage.locator('.s-contextmenu');
+    const commonHeaderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /设置公共请求头/ });
+    await commonHeaderItem.click();
+    await contentPage.waitForTimeout(500);
+    const commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
+    // 按顺序添加3个公共请求头: a, b, c
+    const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.nth(0).fill('a');
+    await valueInputs.nth(0).click();
+    await contentPage.keyboard.type('value-a');
+    await contentPage.waitForTimeout(200);
+    await keyInputs.nth(1).fill('b');
+    await valueInputs.nth(1).click();
+    await contentPage.keyboard.type('value-b');
+    await contentPage.waitForTimeout(200);
+    await keyInputs.nth(2).fill('c');
+    await valueInputs.nth(2).click();
+    await contentPage.keyboard.type('value-c');
+    await contentPage.waitForTimeout(300);
+    // 点击确认修改按钮保存
+    const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    await confirmBtn.click();
+    await contentPage.waitForTimeout(500);
+    const successMessage = contentPage.locator('.el-message--success');
+    await expect(successMessage).toBeVisible({ timeout: 3000 });
+    // 点击刷新按钮重新加载数据
+    const refreshBtn = commonHeaderPage.locator('.el-button--primary').filter({ hasText: /刷新/ });
+    await refreshBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 验证刷新后顺序保持为 a, b, c
+    const refreshedKeyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    const firstKey = await refreshedKeyInputs.nth(0).inputValue();
+    const secondKey = await refreshedKeyInputs.nth(1).inputValue();
+    const thirdKey = await refreshedKeyInputs.nth(2).inputValue();
+    expect(firstKey).toBe('a');
+    expect(secondKey).toBe('b');
+    expect(thirdKey).toBe('c');
+    // 创建HTTP节点验证公共请求头顺序
+    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
+    await contentPage.waitForTimeout(300);
+    const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
+    await newInterfaceItem.click();
+    await contentPage.waitForTimeout(300);
+    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|新增接口/ });
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('测试接口');
+    const fileConfirmBtn = addFileDialog.locator('.el-button--primary').last();
+    await fileConfirmBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 切换到Headers标签
+    const headersTab = contentPage.locator('.el-tabs__item').filter({ hasText: /^Headers$/ });
+    await headersTab.click();
+    await contentPage.waitForTimeout(300);
+    // 验证公共请求头表格中的顺序为 a, b, c
+    const commonHeaderTable = contentPage.locator('.header-info .el-table');
+    await expect(commonHeaderTable).toBeVisible({ timeout: 3000 });
+    const tableRows = commonHeaderTable.locator('.el-table__body-wrapper .el-table__row');
+    const firstRowKey = await tableRows.nth(0).locator('td').nth(1).textContent();
+    const secondRowKey = await tableRows.nth(1).locator('td').nth(1).textContent();
+    const thirdRowKey = await tableRows.nth(2).locator('td').nth(1).textContent();
+    expect(firstRowKey?.trim()).toBe('a');
+    expect(secondRowKey?.trim()).toBe('b');
+    expect(thirdRowKey?.trim()).toBe('c');
+  });
 });

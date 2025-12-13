@@ -4,8 +4,9 @@ import { projectTools } from './projectTools'
 import { nodeOperationTools } from './nodeOperationTools'
 import { variableTools } from './variableTools'
 import { commonTools } from './commonTools'
+import { commonHeaderTools } from './commonHeaderTools'
 
-export const rawTools: AgentTool[] = [...httpNodeTools, ...projectTools, ...nodeOperationTools, ...variableTools, ...commonTools]
+export const rawTools: AgentTool[] = [...httpNodeTools, ...projectTools, ...nodeOperationTools, ...variableTools, ...commonTools, ...commonHeaderTools]
 export const openaiTools: OpenAiToolDefinition[] = rawTools.map(tool => ({
   type: 'function',
   function: {

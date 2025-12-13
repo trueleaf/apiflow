@@ -1117,6 +1117,118 @@ export const useSkill = defineStore('skill', () => {
     }
     return [];
   }
+  /*
+  |--------------------------------------------------------------------------
+  | 公共请求头相关逻辑
+  |--------------------------------------------------------------------------
+  */
+  // 获取全局公共请求头列表
+  const getGlobalCommonHeaders = async (): Promise<ApidocProperty<'string'>[]> => {
+    const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
+    return await commonHeaderCache.getCommonHeaders();
+  }
+  // 根据ID获取单个全局公共请求头
+  const getGlobalCommonHeaderById = async (headerId: string): Promise<ApidocProperty<'string'> | null> => {
+    const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
+    return await commonHeaderCache.getCommonHeaderById(headerId);
+  }
+  // 创建全局公共请求头
+  const createGlobalCommonHeader = async (header: { key: string; value: string; description?: string }): Promise<ApidocProperty<'string'> | null> => {
+    const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
+    const newHeader: ApidocProperty<'string'> = {
+      _id: nanoid(),
+      key: header.key,
+      value: header.value,
+      type: 'string',
+      required: false,
+      description: header.description || '',
+      select: true,
+    };
+    const success = await commonHeaderCache.addCommonHeader(newHeader);
+    return success ? newHeader : null;
+  }
+  // 更新全局公共请求头
+  const updateGlobalCommonHeader = async (headerId: string, updates: Partial<{ key: string; value: string; description: string; select: boolean }>): Promise<boolean> => {
+    const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
+    return await commonHeaderCache.updateCommonHeader(headerId, updates);
+  }
+  // 删除全局公共请求头
+  const deleteGlobalCommonHeaders = async (headerIds: string[]): Promise<boolean> => {
+    const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
+    return await commonHeaderCache.deleteCommonHeaders(headerIds);
+  }
+  // 按 key 搜索全局公共请求头
+  const searchGlobalCommonHeaders = async (keyword: string): Promise<ApidocProperty<'string'>[]> => {
+    const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
+    const headers = await commonHeaderCache.getCommonHeaders();
+    const lowerKeyword = keyword.toLowerCase();
+    return headers.filter(h => h.key.toLowerCase().includes(lowerKeyword));
+  }
+  // 获取文件夹的公共请求头列表
+  const getFolderCommonHeaders = async (folderId: string): Promise<ApidocProperty<'string'>[] | null> => {
+    const node = await apiNodesCache.getNodeById(folderId);
+    if (!node || node.info.type !== 'folder') {
+      return null;
+    }
+    const folderNode = node as FolderNode;
+    return folderNode.commonHeaders || [];
+  }
+  // 为文件夹添加公共请求头
+  const addFolderCommonHeader = async (folderId: string, header: { key: string; value: string; description?: string }): Promise<ApidocProperty<'string'> | null> => {
+    const node = await apiNodesCache.getNodeById(folderId);
+    if (!node || node.info.type !== 'folder') {
+      return null;
+    }
+    const folderNode = node as FolderNode;
+    const newHeader: ApidocProperty<'string'> = {
+      _id: nanoid(),
+      key: header.key,
+      value: header.value,
+      type: 'string',
+      required: false,
+      description: header.description || '',
+      select: true,
+    };
+    const existingHeaders = folderNode.commonHeaders || [];
+    const updatedHeaders = [...existingHeaders, newHeader];
+    const success = await apiNodesCache.updateNodeById(folderId, { commonHeaders: updatedHeaders });
+    return success ? newHeader : null;
+  }
+  // 更新文件夹的公共请求头
+  const updateFolderCommonHeader = async (folderId: string, headerId: string, updates: Partial<{ key: string; value: string; description: string; select: boolean }>): Promise<boolean> => {
+    const node = await apiNodesCache.getNodeById(folderId);
+    if (!node || node.info.type !== 'folder') {
+      return false;
+    }
+    const folderNode = node as FolderNode;
+    const existingHeaders = folderNode.commonHeaders || [];
+    const headerIndex = existingHeaders.findIndex(h => h._id === headerId);
+    if (headerIndex === -1) {
+      return false;
+    }
+    existingHeaders[headerIndex] = { ...existingHeaders[headerIndex], ...updates };
+    return await apiNodesCache.updateNodeById(folderId, { commonHeaders: existingHeaders });
+  }
+  // 删除文件夹的公共请求头
+  const deleteFolderCommonHeaders = async (folderId: string, headerIds: string[]): Promise<boolean> => {
+    const node = await apiNodesCache.getNodeById(folderId);
+    if (!node || node.info.type !== 'folder') {
+      return false;
+    }
+    const folderNode = node as FolderNode;
+    const existingHeaders = folderNode.commonHeaders || [];
+    const headerIdsSet = new Set(headerIds);
+    const updatedHeaders = existingHeaders.filter(h => !headerIdsSet.has(h._id));
+    return await apiNodesCache.updateNodeById(folderId, { commonHeaders: updatedHeaders });
+  }
+  // 设置文件夹的全部公共请求头（覆盖式更新）
+  const setFolderCommonHeaders = async (folderId: string, headers: ApidocProperty<'string'>[]): Promise<boolean> => {
+    const node = await apiNodesCache.getNodeById(folderId);
+    if (!node || node.info.type !== 'folder') {
+      return false;
+    }
+    return await apiNodesCache.updateNodeById(folderId, { commonHeaders: headers });
+  }
 
   return {
     searchHttpNodes,
@@ -1164,5 +1276,16 @@ export const useSkill = defineStore('skill', () => {
     updateVariableById,
     deleteVariableByIds,
     searchVariablesByName,
+    getGlobalCommonHeaders,
+    getGlobalCommonHeaderById,
+    createGlobalCommonHeader,
+    updateGlobalCommonHeader,
+    deleteGlobalCommonHeaders,
+    searchGlobalCommonHeaders,
+    getFolderCommonHeaders,
+    addFolderCommonHeader,
+    updateFolderCommonHeader,
+    deleteFolderCommonHeaders,
+    setFolderCommonHeaders,
   }
 })
