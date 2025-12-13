@@ -255,7 +255,7 @@ test.describe('CommonHeaders', () => {
     await fileConfirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 切换到Headers标签
-    const headersTab = contentPage.locator('.el-tabs__item').filter({ hasText: /^Headers$/ });
+    const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
     await headersTab.click();
     await contentPage.waitForTimeout(300);
     // 验证公共请求头表格中的顺序为 a, b, c
