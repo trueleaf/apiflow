@@ -42,7 +42,7 @@ test.describe('TabOperation', () => {
     await tab.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
     // 点击关闭菜单项
-    const closeMenuItem = contentPage.locator('.contextmenu-item').filter({ hasText: /^关闭$|^Close$/ }).first();
+    const closeMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: /^关闭$|^Close$/ }).first();
     await closeMenuItem.click();
     await contentPage.waitForTimeout(300);
     // 验证tab不存在
@@ -68,7 +68,7 @@ test.describe('TabOperation', () => {
     await tab3.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
     // 点击关闭左侧
-    const closeLeftMenuItem = contentPage.locator('.contextmenu-item').filter({ hasText: /关闭左侧|Close Left/ });
+    const closeLeftMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: /关闭左侧|Close Left/ });
     await closeLeftMenuItem.click();
     await contentPage.waitForTimeout(300);
     // 验证左侧tab不存在
@@ -97,7 +97,7 @@ test.describe('TabOperation', () => {
     await tab1.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
     // 点击关闭右侧
-    const closeRightMenuItem = contentPage.locator('.contextmenu-item').filter({ hasText: /关闭右侧|Close Right/ });
+    const closeRightMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: /关闭右侧|Close Right/ });
     await closeRightMenuItem.click();
     await contentPage.waitForTimeout(300);
     // 验证右侧tab不存在
@@ -126,7 +126,7 @@ test.describe('TabOperation', () => {
     await tab2.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
     // 点击关闭其他
-    const closeOtherMenuItem = contentPage.locator('.contextmenu-item').filter({ hasText: /关闭其他|Close Other/ });
+    const closeOtherMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: /关闭其他|Close Other/ });
     await closeOtherMenuItem.click();
     await contentPage.waitForTimeout(300);
     // 验证其他tab不存在
@@ -157,7 +157,7 @@ test.describe('TabOperation', () => {
     await tab.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
     // 点击全部关闭
-    const closeAllMenuItem = contentPage.locator('.contextmenu-item').filter({ hasText: /全部关闭|Close All/ }).first();
+    const closeAllMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: /全部关闭|Close All/ }).first();
     await closeAllMenuItem.click();
     await contentPage.waitForTimeout(500);
     // 验证没有tab

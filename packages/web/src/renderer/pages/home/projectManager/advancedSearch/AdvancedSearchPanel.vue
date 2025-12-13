@@ -1,86 +1,84 @@
 <template>
-  <transition name="el-fade-in">
-    <div v-show="isVisible" class="advanced-search-panel">
-      <el-card shadow="never" class="search-card">
-        <div class="search-sections">
-          <!-- 基础信息 -->
-          <div class="search-section">
-            <div class="section-header">
-              <span class="section-title">{{ $t('基础信息') }}:</span>
-            </div>
-            <div class="section-content">
-              <el-checkbox v-model="localConditions.searchScope.projectName">{{ $t('项目名称') }}</el-checkbox>
-              <el-checkbox v-model="localConditions.searchScope.docName">{{ $t('文档名称') }}</el-checkbox>
-              <el-checkbox v-model="localConditions.searchScope.url">{{ $t('请求URL') }}</el-checkbox>
-              <el-checkbox v-if="!isStandalone" v-model="localConditions.searchScope.creator">{{ $t('创建者') }}</el-checkbox>
-              <el-checkbox v-if="!isStandalone" v-model="localConditions.searchScope.maintainer">{{ $t('维护者') }}</el-checkbox>
-              <el-checkbox v-model="localConditions.searchScope.method">{{ $t('请求方法') }}</el-checkbox>
-              <el-checkbox v-model="localConditions.searchScope.remark">{{ $t('备注') }}</el-checkbox>
-            </div>
+  <div v-show="isVisible" class="advanced-search-panel">
+    <el-card shadow="never" class="search-card">
+      <div class="search-sections">
+        <!-- 基础信息 -->
+        <div class="search-section">
+          <div class="section-header">
+            <span class="section-title">{{ $t('基础信息') }}:</span>
           </div>
-          <!-- 节点类型 -->
-          <div class="search-section">
-            <div class="section-header">
-              <span class="section-title">{{ $t('节点类型') }}:</span>
-            </div>
-            <div class="section-content">
-              <el-checkbox v-model="localConditions.searchScope.folder">{{ $t('目录') }}</el-checkbox>
-              <el-checkbox v-model="localConditions.searchScope.http">{{ $t('HTTP节点') }}</el-checkbox>
-              <el-checkbox v-model="localConditions.searchScope.websocket">{{ $t('WebSocket节点') }}</el-checkbox>
-              <el-checkbox v-model="localConditions.searchScope.httpMock">{{ $t('HTTP Mock节点') }}</el-checkbox>
-            </div>
-          </div>
-          <!-- 请求参数 -->
-          <div class="search-section">
-            <div class="section-header">
-              <span class="section-title">{{ $t('请求参数') }}:</span>
-            </div>
-            <div class="section-content">
-              <el-checkbox v-model="localConditions.searchScope.query">{{ $t('Query参数') }}</el-checkbox>
-              <el-checkbox v-model="localConditions.searchScope.path">{{ $t('Path参数') }}</el-checkbox>
-              <el-checkbox v-model="localConditions.searchScope.headers">{{ $t('请求头参数') }}</el-checkbox>
-              <el-checkbox v-model="localConditions.searchScope.body">{{ $t('Body参数') }}</el-checkbox>
-              <el-checkbox v-model="localConditions.searchScope.response">{{ $t('返回参数') }}</el-checkbox>
-              <el-checkbox v-model="localConditions.searchScope.preScript">{{ $t('前置脚本') }}</el-checkbox>
-              <el-checkbox v-model="localConditions.searchScope.afterScript">{{ $t('后置脚本') }}</el-checkbox>
-              <el-checkbox v-model="localConditions.searchScope.wsMessage">{{ $t('WebSocket消息') }}</el-checkbox>
-            </div>
-          </div>
-          <!-- 更新日期 -->
-          <div class="search-section">
-            <div class="section-header">
-              <span class="section-title">{{ $t('更新日期') }}:</span>
-            </div>
-            <div class="section-content date-content">
-              <el-radio-group v-model="localConditions.dateRange.type" class="date-radio-group">
-                <el-radio label="unlimited">{{ $t('不限制') }}</el-radio>
-                <el-radio label="recent3days">{{ $t('最近3天') }}</el-radio>
-                <el-radio label="recent1week">{{ $t('最近1周') }}</el-radio>
-                <el-radio label="recent1month">{{ $t('最近1月') }}</el-radio>
-                <el-radio label="recent3months">{{ $t('最近3月') }}</el-radio>
-                <el-radio label="custom">{{ $t('自定义') }}</el-radio>
-              </el-radio-group>
-              <el-date-picker
-                v-if="localConditions.dateRange.type === 'custom'"
-                v-model="customDateRange"
-                type="daterange"
-                size="small"
-                :start-placeholder="$t('开始日期')"
-                :end-placeholder="$t('结束日期')"
-                class="custom-date-picker"
-                @change="handleDateChange"
-              />
-            </div>
+          <div class="section-content">
+            <el-checkbox v-model="localConditions.searchScope.projectName">{{ $t('项目名称') }}</el-checkbox>
+            <el-checkbox v-model="localConditions.searchScope.docName">{{ $t('文档名称') }}</el-checkbox>
+            <el-checkbox v-model="localConditions.searchScope.url">{{ $t('请求URL') }}</el-checkbox>
+            <el-checkbox v-if="!isStandalone" v-model="localConditions.searchScope.creator">{{ $t('创建者') }}</el-checkbox>
+            <el-checkbox v-if="!isStandalone" v-model="localConditions.searchScope.maintainer">{{ $t('维护者') }}</el-checkbox>
+            <el-checkbox v-model="localConditions.searchScope.method">{{ $t('请求方法') }}</el-checkbox>
+            <el-checkbox v-model="localConditions.searchScope.remark">{{ $t('备注') }}</el-checkbox>
           </div>
         </div>
-        <!-- 操作按钮 -->
-        <div class="search-actions">
-          <el-button size="small" @click="handleToggleSelectAll">{{ isAllSelected ? t('取消全选') : t('全选') }}</el-button>
-          <el-button size="small" @click="handleReset">{{ t('重置') }}</el-button>
+        <!-- 节点类型 -->
+        <div class="search-section">
+          <div class="section-header">
+            <span class="section-title">{{ $t('节点类型') }}:</span>
+          </div>
+          <div class="section-content">
+            <el-checkbox v-model="localConditions.searchScope.folder">{{ $t('目录') }}</el-checkbox>
+            <el-checkbox v-model="localConditions.searchScope.http">{{ $t('HTTP节点') }}</el-checkbox>
+            <el-checkbox v-model="localConditions.searchScope.websocket">{{ $t('WebSocket节点') }}</el-checkbox>
+            <el-checkbox v-model="localConditions.searchScope.httpMock">{{ $t('HTTP Mock节点') }}</el-checkbox>
+          </div>
         </div>
-      </el-card>
-    </div>
-  </transition>
+        <!-- 请求参数 -->
+        <div class="search-section">
+          <div class="section-header">
+            <span class="section-title">{{ $t('请求参数') }}:</span>
+          </div>
+          <div class="section-content">
+            <el-checkbox v-model="localConditions.searchScope.query">{{ $t('Query参数') }}</el-checkbox>
+            <el-checkbox v-model="localConditions.searchScope.path">{{ $t('Path参数') }}</el-checkbox>
+            <el-checkbox v-model="localConditions.searchScope.headers">{{ $t('请求头参数') }}</el-checkbox>
+            <el-checkbox v-model="localConditions.searchScope.body">{{ $t('Body参数') }}</el-checkbox>
+            <el-checkbox v-model="localConditions.searchScope.response">{{ $t('返回参数') }}</el-checkbox>
+            <el-checkbox v-model="localConditions.searchScope.preScript">{{ $t('前置脚本') }}</el-checkbox>
+            <el-checkbox v-model="localConditions.searchScope.afterScript">{{ $t('后置脚本') }}</el-checkbox>
+            <el-checkbox v-model="localConditions.searchScope.wsMessage">{{ $t('WebSocket消息') }}</el-checkbox>
+          </div>
+        </div>
+        <!-- 更新日期 -->
+        <div class="search-section">
+          <div class="section-header">
+            <span class="section-title">{{ $t('更新日期') }}:</span>
+          </div>
+          <div class="section-content date-content">
+            <el-radio-group v-model="localConditions.dateRange.type" class="date-radio-group">
+              <el-radio label="unlimited">{{ $t('不限制') }}</el-radio>
+              <el-radio label="recent3days">{{ $t('最近3天') }}</el-radio>
+              <el-radio label="recent1week">{{ $t('最近1周') }}</el-radio>
+              <el-radio label="recent1month">{{ $t('最近1月') }}</el-radio>
+              <el-radio label="recent3months">{{ $t('最近3月') }}</el-radio>
+              <el-radio label="custom">{{ $t('自定义') }}</el-radio>
+            </el-radio-group>
+            <el-date-picker
+              v-if="localConditions.dateRange.type === 'custom'"
+              v-model="customDateRange"
+              type="daterange"
+              size="small"
+              :start-placeholder="$t('开始日期')"
+              :end-placeholder="$t('结束日期')"
+              class="custom-date-picker"
+              @change="handleDateChange"
+            />
+          </div>
+        </div>
+      </div>
+      <!-- 操作按钮 -->
+      <div class="search-actions">
+        <el-button size="small" @click="handleToggleSelectAll">{{ isAllSelected ? t('取消全选') : t('全选') }}</el-button>
+        <el-button size="small" @click="handleReset">{{ t('重置') }}</el-button>
+      </div>
+    </el-card>
+  </div>
 </template>
 <script lang="ts" setup>
 import type { AdvancedSearchConditions } from '@src/types/advancedSearch';

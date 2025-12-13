@@ -31,8 +31,8 @@ test.describe('NavControl', () => {
   test('前进后退按钮按历史栈导航', async ({ topBarPage, contentPage, createProject }) => {
     // 创建三个项目
     const projectAName = await createProject(`项目A-${Date.now()}`);
-    const projectBName = await createProject(`项目B-${Date.now()}`);
-    const projectCName = await createProject(`项目C-${Date.now()}`);
+    await createProject(`项目B-${Date.now()}`);
+    await createProject(`项目C-${Date.now()}`);
     // 当前在项目C，切换到项目A
     const projectATab = topBarPage.locator('.tab-item').filter({ hasText: projectAName });
     await projectATab.click();

@@ -35,7 +35,7 @@ test.describe('JsonBodyValidation', () => {
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 输入常规JSON数据
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('{"name":"test","age":20,"active":true}');
@@ -109,7 +109,7 @@ test.describe('JsonBodyValidation', () => {
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 输入包含变量的JSON数据
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('{"global":"{{globalVar}}","env":"{{envVar}}"}');
@@ -158,7 +158,7 @@ test.describe('JsonBodyValidation', () => {
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 输入包含mock数据的JSON
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('{"id":"@id","name":"@cname","email":"@email"}');
@@ -214,7 +214,7 @@ test.describe('JsonBodyValidation', () => {
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 测试null类型
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('null');

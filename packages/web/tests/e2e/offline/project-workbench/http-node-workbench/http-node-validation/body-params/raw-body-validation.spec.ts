@@ -45,7 +45,7 @@ test.describe('RawBodyValidation', () => {
     if (await rawTextarea.count() > 0) {
       await rawTextarea.fill('Hello World, this is plain text content.');
     } else {
-      const monacoEditor = contentPage.locator('.monaco-editor').first();
+      const monacoEditor = contentPage.locator('.s-code-editor').first();
       await monacoEditor.click();
       await contentPage.keyboard.type('Hello World, this is plain text content.');
     }
@@ -104,7 +104,7 @@ test.describe('RawBodyValidation', () => {
     if (await rawTextarea.count() > 0) {
       await rawTextarea.fill('<html><body><h1>Test</h1></body></html>');
     } else {
-      const monacoEditor = contentPage.locator('.monaco-editor').first();
+      const monacoEditor = contentPage.locator('.s-code-editor').first();
       await monacoEditor.click();
       await contentPage.keyboard.type('<html><body><h1>Test</h1></body></html>');
     }
@@ -166,7 +166,7 @@ test.describe('RawBodyValidation', () => {
     if (await rawTextarea.count() > 0) {
       await rawTextarea.fill('<?xml version="1.0"?><root><name>test</name></root>');
     } else {
-      const monacoEditor = contentPage.locator('.monaco-editor').first();
+      const monacoEditor = contentPage.locator('.s-code-editor').first();
       await monacoEditor.click();
       await contentPage.keyboard.type('<?xml version="1.0"?><root><name>test</name></root>');
     }
@@ -228,7 +228,7 @@ test.describe('RawBodyValidation', () => {
     if (await rawTextarea.count() > 0) {
       await rawTextarea.fill('function hello() { return "world"; }');
     } else {
-      const monacoEditor = contentPage.locator('.monaco-editor').first();
+      const monacoEditor = contentPage.locator('.s-code-editor').first();
       await monacoEditor.click();
       await contentPage.keyboard.type('function hello() { return "world"; }');
     }

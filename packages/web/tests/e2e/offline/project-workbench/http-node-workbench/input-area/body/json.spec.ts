@@ -35,7 +35,7 @@ test.describe('Json', () => {
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入json5格式数据
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.waitForTimeout(300);
     // 清空编辑器内容并输入json5格式数据
@@ -105,7 +105,7 @@ test.describe('Json', () => {
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入包含变量的JSON数据
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.waitForTimeout(300);
     await contentPage.keyboard.press('ControlOrMeta+a');
@@ -153,7 +153,7 @@ test.describe('Json', () => {
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入包含超大数字的JSON数据
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.waitForTimeout(300);
     await contentPage.keyboard.press('ControlOrMeta+a');

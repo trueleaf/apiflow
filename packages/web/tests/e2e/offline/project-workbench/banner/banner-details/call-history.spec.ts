@@ -11,8 +11,8 @@ test.describe('CallHistory', () => {
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
     await expect(bannerTabs).toBeVisible({ timeout: 5000 });
     // 验证存在"接口列表"和"调用历史"两个Tab选项
-    const listTab = bannerTabs.locator('.clean-tab-item').filter({ hasText: /接口列表/ });
-    const historyTab = bannerTabs.locator('.clean-tab-item').filter({ hasText: /调用历史/ });
+    const listTab = bannerTabs.locator('.clean-tabs__item').filter({ hasText: /接口列表/ });
+    const historyTab = bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ });
     await expect(listTab).toBeVisible();
     await expect(historyTab).toBeVisible();
     // 点击"调用历史"Tab
@@ -47,7 +47,7 @@ test.describe('CallHistory', () => {
     await contentPage.waitForTimeout(500);
     // 切换到调用历史Tab
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
-    const historyTab = bannerTabs.locator('.clean-tab-item').filter({ hasText: /调用历史/ });
+    const historyTab = bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ });
     await historyTab.click();
     await contentPage.waitForTimeout(300);
     // 验证搜索框存在
@@ -81,7 +81,7 @@ test.describe('CallHistory', () => {
     await contentPage.waitForTimeout(500);
     // 切换到调用历史Tab
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
-    const historyTab = bannerTabs.locator('.clean-tab-item').filter({ hasText: /调用历史/ });
+    const historyTab = bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ });
     await historyTab.click();
     await contentPage.waitForTimeout(300);
     // 定位清空历史记录图标
@@ -114,7 +114,7 @@ test.describe('CallHistory', () => {
     await contentPage.waitForTimeout(500);
     // 切换到调用历史Tab
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
-    const historyTab = bannerTabs.locator('.clean-tab-item').filter({ hasText: /调用历史/ });
+    const historyTab = bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ });
     await historyTab.click();
     await contentPage.waitForTimeout(300);
     // 验证历史列表容器存在
@@ -150,7 +150,7 @@ test.describe('CallHistory', () => {
     }
     // 切换到调用历史Tab
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
-    const historyTab = bannerTabs.locator('.clean-tab-item').filter({ hasText: /调用历史/ });
+    const historyTab = bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ });
     await historyTab.click();
     await contentPage.waitForTimeout(500);
     // 检查是否有历史记录项
@@ -189,7 +189,7 @@ test.describe('CallHistory', () => {
       await contentPage.waitForTimeout(1000);
     }
     // 删除HTTP节点
-    const treeNode = contentPage.locator('.el-tree-node').first();
+    const treeNode = contentPage.locator('.el-tree-node__content').first();
     await treeNode.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
     const deleteMenuItem = contentPage.locator('.el-dropdown-menu__item').filter({ hasText: /删除/ });
@@ -205,7 +205,7 @@ test.describe('CallHistory', () => {
     }
     // 切换到调用历史Tab
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
-    const historyTab = bannerTabs.locator('.clean-tab-item').filter({ hasText: /调用历史/ });
+    const historyTab = bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ });
     await historyTab.click();
     await contentPage.waitForTimeout(500);
     // 验证已删除接口的历史记录显示"已删除"标签
@@ -230,7 +230,7 @@ test.describe('CallHistory', () => {
     await contentPage.waitForTimeout(500);
     // 切换到调用历史Tab
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
-    const historyTab = bannerTabs.locator('.clean-tab-item').filter({ hasText: /调用历史/ });
+    const historyTab = bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ });
     await historyTab.click();
     await contentPage.waitForTimeout(300);
     // 验证历史列表容器存在且可滚动
@@ -260,7 +260,7 @@ test.describe('CallHistory', () => {
     await contentPage.waitForTimeout(500);
     // 切换到调用历史Tab
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
-    const historyTab = bannerTabs.locator('.clean-tab-item').filter({ hasText: /调用历史/ });
+    const historyTab = bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ });
     await historyTab.click();
     await contentPage.waitForTimeout(300);
     // 验证清理按钮的条件渲染

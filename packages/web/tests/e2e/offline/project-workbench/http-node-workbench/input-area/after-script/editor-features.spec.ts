@@ -21,13 +21,13 @@ test.describe('AfterScriptEditorFeatures', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在编辑器中输入包含关键字、函数、变量等的JavaScript代码
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('const message = "hello world";\nfunction test() {\n  return 123;\n}\n// 这是注释');
     await contentPage.waitForTimeout(500);
     // 验证编辑器使用Monaco Editor并支持语法高亮
-    const editorContainer = contentPage.locator('.monaco-editor');
+    const editorContainer = contentPage.locator('.s-code-editor');
     await expect(editorContainer.first()).toBeVisible();
     // 验证编辑器中存在语法高亮的token（关键字、字符串、注释等会有不同的class）
     const editorContent = contentPage.locator('.monaco-editor .view-lines');
@@ -56,7 +56,7 @@ test.describe('AfterScriptEditorFeatures', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在编辑器中输入af.触发代码补全
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('af.');
@@ -90,7 +90,7 @@ test.describe('AfterScriptEditorFeatures', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在编辑器中输入格式不规范的JavaScript代码
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     // 输入格式混乱的代码（缩进不对，括号不整齐）

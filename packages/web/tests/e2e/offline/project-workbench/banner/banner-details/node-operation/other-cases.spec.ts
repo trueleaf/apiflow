@@ -12,7 +12,7 @@ test.describe('OtherCases', () => {
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
     const contextMenu = contentPage.locator('.s-contextmenu');
-    const newFolderItem = contextMenu.locator('.contextmenu-item', { hasText: /新建文件夹/ });
+    const newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
     await newFolderItem.click();
     await contentPage.waitForTimeout(300);
     const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -25,7 +25,7 @@ test.describe('OtherCases', () => {
     // 创建第一个HTTP节点
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
-    const newInterfaceItem1 = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建接口/ });
+    const newInterfaceItem1 = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem1.click();
     await contentPage.waitForTimeout(300);
     const addFileDialog1 = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -38,7 +38,7 @@ test.describe('OtherCases', () => {
     // 创建第二个HTTP节点
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
-    const newInterfaceItem2 = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建接口/ });
+    const newInterfaceItem2 = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem2.click();
     await contentPage.waitForTimeout(300);
     const addFileDialog2 = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -69,7 +69,7 @@ test.describe('OtherCases', () => {
     // 首先创建一个HTTP节点
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
-    const newInterfaceItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建接口/ });
+    const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -82,7 +82,7 @@ test.describe('OtherCases', () => {
     // 创建第一个文件夹
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
-    const newFolderItem1 = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+    const newFolderItem1 = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
     await newFolderItem1.click();
     await contentPage.waitForTimeout(300);
     const folderDialog1 = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -95,7 +95,7 @@ test.describe('OtherCases', () => {
     // 创建第二个文件夹
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
-    const newFolderItem2 = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+    const newFolderItem2 = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
     await newFolderItem2.click();
     await contentPage.waitForTimeout(300);
     const folderDialog2 = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -128,7 +128,7 @@ test.describe('OtherCases', () => {
     // 创建一个文件夹
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
-    const newFolderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+    const newFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
     await newFolderItem.click();
     await contentPage.waitForTimeout(300);
     const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -141,7 +141,7 @@ test.describe('OtherCases', () => {
     // 创建一个HTTP节点
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
-    const newInterfaceItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建接口/ });
+    const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -152,25 +152,25 @@ test.describe('OtherCases', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 多选节点：先点击文件夹，然后Ctrl+点击HTTP节点
-    const folderNode = contentPage.locator('.el-tree-node').filter({ hasText: '源文件夹' });
+    const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
     await folderNode.click();
     await contentPage.waitForTimeout(200);
     await contentPage.keyboard.down('Control');
-    const httpNode = contentPage.locator('.el-tree-node').filter({ hasText: '源HTTP节点' });
+    const httpNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '源HTTP节点' });
     await httpNode.click();
     await contentPage.keyboard.up('Control');
     await contentPage.waitForTimeout(300);
     // 右键批量复制
     await folderNode.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
-    const batchCopyItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /批量复制/ });
+    const batchCopyItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /批量复制/ });
     await expect(batchCopyItem).toBeVisible();
     await batchCopyItem.click();
     await contentPage.waitForTimeout(300);
     // 在空白区域右键粘贴
     await treeWrap.click({ button: 'right', position: { x: 100, y: 400 } });
     await contentPage.waitForTimeout(300);
-    const pasteItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /粘贴/ });
+    const pasteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /粘贴/ });
     await pasteItem.click();
     await contentPage.waitForTimeout(500);
     // 获取所有根节点

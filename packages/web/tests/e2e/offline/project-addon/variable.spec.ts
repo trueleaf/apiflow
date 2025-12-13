@@ -227,7 +227,7 @@ test.describe('Variable', () => {
     const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: 'json' });
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('{"value": "{{testVar}}"}');
@@ -374,7 +374,7 @@ test.describe('Variable', () => {
     const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: 'json' });
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('{"value": "{{notExistVar}}"}');

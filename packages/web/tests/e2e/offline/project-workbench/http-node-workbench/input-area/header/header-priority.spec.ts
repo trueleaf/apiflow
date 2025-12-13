@@ -14,7 +14,7 @@ test.describe('HeaderPriority', () => {
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
     const contextMenu = contentPage.locator('.s-contextmenu');
-    const commonHeaderItem = contextMenu.locator('.contextmenu-item', { hasText: /设置公共请求头/ });
+    const commonHeaderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /设置公共请求头/ });
     await commonHeaderItem.click();
     await contentPage.waitForTimeout(500);
     // 添加公共请求头: X-Custom=from-common
@@ -68,7 +68,7 @@ test.describe('HeaderPriority', () => {
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
     const contextMenu = contentPage.locator('.s-contextmenu');
-    const commonHeaderItem = contextMenu.locator('.contextmenu-item', { hasText: /设置公共请求头/ });
+    const commonHeaderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /设置公共请求头/ });
     await commonHeaderItem.click();
     await contentPage.waitForTimeout(500);
     // 添加公共请求头覆盖User-Agent
@@ -149,7 +149,7 @@ test.describe('HeaderPriority', () => {
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
     const contextMenu = contentPage.locator('.s-contextmenu');
-    const commonHeaderItem = contextMenu.locator('.contextmenu-item', { hasText: /设置公共请求头/ });
+    const commonHeaderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /设置公共请求头/ });
     await commonHeaderItem.click();
     await contentPage.waitForTimeout(500);
     // 添加公共请求头覆盖User-Agent

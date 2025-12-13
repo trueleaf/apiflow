@@ -156,7 +156,7 @@ test.describe('DefaultHeaders', () => {
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入数据
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.waitForTimeout(300);
     await contentPage.keyboard.press('ControlOrMeta+a');
@@ -202,7 +202,7 @@ test.describe('DefaultHeaders', () => {
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入数据
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.waitForTimeout(300);
     await contentPage.keyboard.press('ControlOrMeta+a');

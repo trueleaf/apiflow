@@ -11,7 +11,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -21,11 +21,11 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const httpNode = contentPage.locator('.el-tree-node').filter({ hasText: '待重命名HTTP节点' });
+      const httpNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待重命名HTTP节点' });
       await expect(httpNode).toBeVisible({ timeout: 5000 });
       await httpNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const renameItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /重命名/ });
+      const renameItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /重命名/ });
       await expect(renameItem).toBeVisible();
       await renameItem.click();
       await contentPage.waitForTimeout(300);
@@ -35,9 +35,9 @@ test.describe('RenameNode', () => {
       await renameInput.fill('新HTTP节点名称');
       await renameInput.press('Enter');
       await contentPage.waitForTimeout(500);
-      const renamedNode = contentPage.locator('.el-tree-node').filter({ hasText: '新HTTP节点名称' });
+      const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '新HTTP节点名称' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
-      const oldNode = contentPage.locator('.el-tree-node').filter({ hasText: '待重命名HTTP节点' });
+      const oldNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待重命名HTTP节点' });
       await expect(oldNode).toBeHidden({ timeout: 5000 });
     });
     test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
@@ -49,7 +49,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -59,7 +59,7 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const httpNode = contentPage.locator('.el-tree-node').filter({ hasText: '待F2重命名HTTP节点' });
+      const httpNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待F2重命名HTTP节点' });
       await expect(httpNode).toBeVisible({ timeout: 5000 });
       await httpNode.click();
       await contentPage.waitForTimeout(300);
@@ -72,7 +72,7 @@ test.describe('RenameNode', () => {
       await renameInput.fill('F2重命名后HTTP节点');
       await renameInput.press('Enter');
       await contentPage.waitForTimeout(500);
-      const renamedNode = contentPage.locator('.el-tree-node').filter({ hasText: 'F2重命名后HTTP节点' });
+      const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: 'F2重命名后HTTP节点' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
     test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject }) => {
@@ -84,7 +84,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -94,7 +94,7 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const httpNode = contentPage.locator('.el-tree-node').filter({ hasText: '待更多操作重命名HTTP节点' });
+      const httpNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待更多操作重命名HTTP节点' });
       await expect(httpNode).toBeVisible({ timeout: 5000 });
       await httpNode.hover();
       await contentPage.waitForTimeout(300);
@@ -102,7 +102,7 @@ test.describe('RenameNode', () => {
       await expect(moreBtn).toBeVisible({ timeout: 5000 });
       await moreBtn.click();
       await contentPage.waitForTimeout(300);
-      const renameItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /重命名/ });
+      const renameItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /重命名/ });
       await expect(renameItem).toBeVisible();
       await renameItem.click();
       await contentPage.waitForTimeout(300);
@@ -111,7 +111,7 @@ test.describe('RenameNode', () => {
       await renameInput.fill('更多操作重命名后HTTP节点');
       await treeWrap.click({ position: { x: 10, y: 10 } });
       await contentPage.waitForTimeout(500);
-      const renamedNode = contentPage.locator('.el-tree-node').filter({ hasText: '更多操作重命名后HTTP节点' });
+      const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '更多操作重命名后HTTP节点' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
     test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject }) => {
@@ -123,7 +123,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -133,11 +133,11 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const httpNode = contentPage.locator('.el-tree-node').filter({ hasText: '空名称测试HTTP节点' });
+      const httpNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '空名称测试HTTP节点' });
       await expect(httpNode).toBeVisible({ timeout: 5000 });
       await httpNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const renameItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /重命名/ });
+      const renameItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /重命名/ });
       await renameItem.click();
       await contentPage.waitForTimeout(300);
       const renameInput = httpNode.locator('.rename-ipt');
@@ -147,7 +147,7 @@ test.describe('RenameNode', () => {
       await expect(renameInput).toHaveClass(/error/);
       await renameInput.press('Enter');
       await contentPage.waitForTimeout(500);
-      const originalNode = contentPage.locator('.el-tree-node').filter({ hasText: '空名称测试HTTP节点' });
+      const originalNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '空名称测试HTTP节点' });
       await expect(originalNode).toBeVisible({ timeout: 5000 });
     });
   });
@@ -161,7 +161,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -177,11 +177,11 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const wsNode = contentPage.locator('.el-tree-node').filter({ hasText: '待重命名WS节点' });
+      const wsNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待重命名WS节点' });
       await expect(wsNode).toBeVisible({ timeout: 5000 });
       await wsNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const renameItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /重命名/ });
+      const renameItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /重命名/ });
       await expect(renameItem).toBeVisible();
       await renameItem.click();
       await contentPage.waitForTimeout(300);
@@ -190,7 +190,7 @@ test.describe('RenameNode', () => {
       await renameInput.fill('新WS节点名称');
       await renameInput.press('Enter');
       await contentPage.waitForTimeout(500);
-      const renamedNode = contentPage.locator('.el-tree-node').filter({ hasText: '新WS节点名称' });
+      const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '新WS节点名称' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
     test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
@@ -202,7 +202,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -218,7 +218,7 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const wsNode = contentPage.locator('.el-tree-node').filter({ hasText: '待F2重命名WS节点' });
+      const wsNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待F2重命名WS节点' });
       await expect(wsNode).toBeVisible({ timeout: 5000 });
       await wsNode.click();
       await contentPage.waitForTimeout(300);
@@ -229,7 +229,7 @@ test.describe('RenameNode', () => {
       await renameInput.fill('F2重命名后WS节点');
       await renameInput.press('Enter');
       await contentPage.waitForTimeout(500);
-      const renamedNode = contentPage.locator('.el-tree-node').filter({ hasText: 'F2重命名后WS节点' });
+      const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: 'F2重命名后WS节点' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
     test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject }) => {
@@ -241,7 +241,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -257,7 +257,7 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const wsNode = contentPage.locator('.el-tree-node').filter({ hasText: '待更多操作重命名WS节点' });
+      const wsNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待更多操作重命名WS节点' });
       await expect(wsNode).toBeVisible({ timeout: 5000 });
       await wsNode.hover();
       await contentPage.waitForTimeout(300);
@@ -265,7 +265,7 @@ test.describe('RenameNode', () => {
       await expect(moreBtn).toBeVisible({ timeout: 5000 });
       await moreBtn.click();
       await contentPage.waitForTimeout(300);
-      const renameItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /重命名/ });
+      const renameItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /重命名/ });
       await renameItem.click();
       await contentPage.waitForTimeout(300);
       const renameInput = wsNode.locator('.rename-ipt');
@@ -273,7 +273,7 @@ test.describe('RenameNode', () => {
       await renameInput.fill('更多操作重命名后WS节点');
       await treeWrap.click({ position: { x: 10, y: 10 } });
       await contentPage.waitForTimeout(500);
-      const renamedNode = contentPage.locator('.el-tree-node').filter({ hasText: '更多操作重命名后WS节点' });
+      const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '更多操作重命名后WS节点' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
     test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject }) => {
@@ -285,7 +285,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -301,11 +301,11 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const wsNode = contentPage.locator('.el-tree-node').filter({ hasText: '空名称测试WS节点' });
+      const wsNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '空名称测试WS节点' });
       await expect(wsNode).toBeVisible({ timeout: 5000 });
       await wsNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const renameItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /重命名/ });
+      const renameItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /重命名/ });
       await renameItem.click();
       await contentPage.waitForTimeout(300);
       const renameInput = wsNode.locator('.rename-ipt');
@@ -315,7 +315,7 @@ test.describe('RenameNode', () => {
       await expect(renameInput).toHaveClass(/error/);
       await renameInput.press('Enter');
       await contentPage.waitForTimeout(500);
-      const originalNode = contentPage.locator('.el-tree-node').filter({ hasText: '空名称测试WS节点' });
+      const originalNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '空名称测试WS节点' });
       await expect(originalNode).toBeVisible({ timeout: 5000 });
     });
   });
@@ -329,7 +329,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -345,11 +345,11 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const mockNode = contentPage.locator('.el-tree-node').filter({ hasText: '待重命名HttpMock节点' });
+      const mockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待重命名HttpMock节点' });
       await expect(mockNode).toBeVisible({ timeout: 5000 });
       await mockNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const renameItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /重命名/ });
+      const renameItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /重命名/ });
       await expect(renameItem).toBeVisible();
       await renameItem.click();
       await contentPage.waitForTimeout(300);
@@ -358,7 +358,7 @@ test.describe('RenameNode', () => {
       await renameInput.fill('新HttpMock节点名称');
       await renameInput.press('Enter');
       await contentPage.waitForTimeout(500);
-      const renamedNode = contentPage.locator('.el-tree-node').filter({ hasText: '新HttpMock节点名称' });
+      const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '新HttpMock节点名称' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
     test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
@@ -370,7 +370,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -386,7 +386,7 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const mockNode = contentPage.locator('.el-tree-node').filter({ hasText: '待F2重命名HttpMock节点' });
+      const mockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待F2重命名HttpMock节点' });
       await expect(mockNode).toBeVisible({ timeout: 5000 });
       await mockNode.click();
       await contentPage.waitForTimeout(300);
@@ -397,7 +397,7 @@ test.describe('RenameNode', () => {
       await renameInput.fill('F2重命名后HttpMock节点');
       await renameInput.press('Enter');
       await contentPage.waitForTimeout(500);
-      const renamedNode = contentPage.locator('.el-tree-node').filter({ hasText: 'F2重命名后HttpMock节点' });
+      const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: 'F2重命名后HttpMock节点' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
     test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject }) => {
@@ -409,7 +409,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -425,7 +425,7 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const mockNode = contentPage.locator('.el-tree-node').filter({ hasText: '待更多操作重命名HttpMock节点' });
+      const mockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待更多操作重命名HttpMock节点' });
       await expect(mockNode).toBeVisible({ timeout: 5000 });
       await mockNode.hover();
       await contentPage.waitForTimeout(300);
@@ -433,7 +433,7 @@ test.describe('RenameNode', () => {
       await expect(moreBtn).toBeVisible({ timeout: 5000 });
       await moreBtn.click();
       await contentPage.waitForTimeout(300);
-      const renameItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /重命名/ });
+      const renameItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /重命名/ });
       await renameItem.click();
       await contentPage.waitForTimeout(300);
       const renameInput = mockNode.locator('.rename-ipt');
@@ -441,7 +441,7 @@ test.describe('RenameNode', () => {
       await renameInput.fill('更多操作重命名后HttpMock节点');
       await treeWrap.click({ position: { x: 10, y: 10 } });
       await contentPage.waitForTimeout(500);
-      const renamedNode = contentPage.locator('.el-tree-node').filter({ hasText: '更多操作重命名后HttpMock节点' });
+      const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '更多操作重命名后HttpMock节点' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
     test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject }) => {
@@ -453,7 +453,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -469,11 +469,11 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const mockNode = contentPage.locator('.el-tree-node').filter({ hasText: '空名称测试HttpMock节点' });
+      const mockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '空名称测试HttpMock节点' });
       await expect(mockNode).toBeVisible({ timeout: 5000 });
       await mockNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const renameItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /重命名/ });
+      const renameItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /重命名/ });
       await renameItem.click();
       await contentPage.waitForTimeout(300);
       const renameInput = mockNode.locator('.rename-ipt');
@@ -483,7 +483,7 @@ test.describe('RenameNode', () => {
       await expect(renameInput).toHaveClass(/error/);
       await renameInput.press('Enter');
       await contentPage.waitForTimeout(500);
-      const originalNode = contentPage.locator('.el-tree-node').filter({ hasText: '空名称测试HttpMock节点' });
+      const originalNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '空名称测试HttpMock节点' });
       await expect(originalNode).toBeVisible({ timeout: 5000 });
     });
   });
@@ -497,7 +497,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -513,11 +513,11 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const mockNode = contentPage.locator('.el-tree-node').filter({ hasText: '待重命名WsMock节点' });
+      const mockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待重命名WsMock节点' });
       await expect(mockNode).toBeVisible({ timeout: 5000 });
       await mockNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const renameItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /重命名/ });
+      const renameItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /重命名/ });
       await expect(renameItem).toBeVisible();
       await renameItem.click();
       await contentPage.waitForTimeout(300);
@@ -526,7 +526,7 @@ test.describe('RenameNode', () => {
       await renameInput.fill('新WsMock节点名称');
       await renameInput.press('Enter');
       await contentPage.waitForTimeout(500);
-      const renamedNode = contentPage.locator('.el-tree-node').filter({ hasText: '新WsMock节点名称' });
+      const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '新WsMock节点名称' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
     test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
@@ -538,7 +538,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -554,7 +554,7 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const mockNode = contentPage.locator('.el-tree-node').filter({ hasText: '待F2重命名WsMock节点' });
+      const mockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待F2重命名WsMock节点' });
       await expect(mockNode).toBeVisible({ timeout: 5000 });
       await mockNode.click();
       await contentPage.waitForTimeout(300);
@@ -565,7 +565,7 @@ test.describe('RenameNode', () => {
       await renameInput.fill('F2重命名后WsMock节点');
       await renameInput.press('Enter');
       await contentPage.waitForTimeout(500);
-      const renamedNode = contentPage.locator('.el-tree-node').filter({ hasText: 'F2重命名后WsMock节点' });
+      const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: 'F2重命名后WsMock节点' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
     test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject }) => {
@@ -577,7 +577,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -593,7 +593,7 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const mockNode = contentPage.locator('.el-tree-node').filter({ hasText: '待更多操作重命名WsMock节点' });
+      const mockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待更多操作重命名WsMock节点' });
       await expect(mockNode).toBeVisible({ timeout: 5000 });
       await mockNode.hover();
       await contentPage.waitForTimeout(300);
@@ -601,7 +601,7 @@ test.describe('RenameNode', () => {
       await expect(moreBtn).toBeVisible({ timeout: 5000 });
       await moreBtn.click();
       await contentPage.waitForTimeout(300);
-      const renameItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /重命名/ });
+      const renameItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /重命名/ });
       await renameItem.click();
       await contentPage.waitForTimeout(300);
       const renameInput = mockNode.locator('.rename-ipt');
@@ -609,7 +609,7 @@ test.describe('RenameNode', () => {
       await renameInput.fill('更多操作重命名后WsMock节点');
       await treeWrap.click({ position: { x: 10, y: 10 } });
       await contentPage.waitForTimeout(500);
-      const renamedNode = contentPage.locator('.el-tree-node').filter({ hasText: '更多操作重命名后WsMock节点' });
+      const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '更多操作重命名后WsMock节点' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
     test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject }) => {
@@ -621,7 +621,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -637,11 +637,11 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const mockNode = contentPage.locator('.el-tree-node').filter({ hasText: '空名称测试WsMock节点' });
+      const mockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '空名称测试WsMock节点' });
       await expect(mockNode).toBeVisible({ timeout: 5000 });
       await mockNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const renameItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /重命名/ });
+      const renameItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /重命名/ });
       await renameItem.click();
       await contentPage.waitForTimeout(300);
       const renameInput = mockNode.locator('.rename-ipt');
@@ -651,7 +651,7 @@ test.describe('RenameNode', () => {
       await expect(renameInput).toHaveClass(/error/);
       await renameInput.press('Enter');
       await contentPage.waitForTimeout(500);
-      const originalNode = contentPage.locator('.el-tree-node').filter({ hasText: '空名称测试WsMock节点' });
+      const originalNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '空名称测试WsMock节点' });
       await expect(originalNode).toBeVisible({ timeout: 5000 });
     });
   });
@@ -665,7 +665,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newFolderItem = contextMenu.locator('.contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const addFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹/ });
@@ -675,11 +675,11 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFolderDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const folderNode = contentPage.locator('.el-tree-node').filter({ hasText: '待重命名文件夹' });
+      const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待重命名文件夹' });
       await expect(folderNode).toBeVisible({ timeout: 5000 });
       await folderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const renameItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /重命名/ });
+      const renameItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /重命名/ });
       await expect(renameItem).toBeVisible();
       await renameItem.click();
       await contentPage.waitForTimeout(300);
@@ -688,7 +688,7 @@ test.describe('RenameNode', () => {
       await renameInput.fill('新文件夹名称');
       await renameInput.press('Enter');
       await contentPage.waitForTimeout(500);
-      const renamedNode = contentPage.locator('.el-tree-node').filter({ hasText: '新文件夹名称' });
+      const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '新文件夹名称' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
     test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
@@ -700,7 +700,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newFolderItem = contextMenu.locator('.contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const addFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹/ });
@@ -710,7 +710,7 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFolderDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const folderNode = contentPage.locator('.el-tree-node').filter({ hasText: '待F2重命名文件夹' });
+      const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待F2重命名文件夹' });
       await expect(folderNode).toBeVisible({ timeout: 5000 });
       await folderNode.click();
       await contentPage.waitForTimeout(300);
@@ -721,7 +721,7 @@ test.describe('RenameNode', () => {
       await renameInput.fill('F2重命名后文件夹');
       await renameInput.press('Enter');
       await contentPage.waitForTimeout(500);
-      const renamedNode = contentPage.locator('.el-tree-node').filter({ hasText: 'F2重命名后文件夹' });
+      const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: 'F2重命名后文件夹' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
     test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject }) => {
@@ -733,7 +733,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newFolderItem = contextMenu.locator('.contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const addFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹/ });
@@ -743,7 +743,7 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFolderDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const folderNode = contentPage.locator('.el-tree-node').filter({ hasText: '待更多操作重命名文件夹' });
+      const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待更多操作重命名文件夹' });
       await expect(folderNode).toBeVisible({ timeout: 5000 });
       await folderNode.hover();
       await contentPage.waitForTimeout(300);
@@ -751,7 +751,7 @@ test.describe('RenameNode', () => {
       await expect(moreBtn).toBeVisible({ timeout: 5000 });
       await moreBtn.click();
       await contentPage.waitForTimeout(300);
-      const renameItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /重命名/ });
+      const renameItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /重命名/ });
       await renameItem.click();
       await contentPage.waitForTimeout(300);
       const renameInput = folderNode.locator('.rename-ipt');
@@ -759,7 +759,7 @@ test.describe('RenameNode', () => {
       await renameInput.fill('更多操作重命名后文件夹');
       await treeWrap.click({ position: { x: 10, y: 10 } });
       await contentPage.waitForTimeout(500);
-      const renamedNode = contentPage.locator('.el-tree-node').filter({ hasText: '更多操作重命名后文件夹' });
+      const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '更多操作重命名后文件夹' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
     test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject }) => {
@@ -771,7 +771,7 @@ test.describe('RenameNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newFolderItem = contextMenu.locator('.contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const addFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹/ });
@@ -781,11 +781,11 @@ test.describe('RenameNode', () => {
       const confirmBtn = addFolderDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const folderNode = contentPage.locator('.el-tree-node').filter({ hasText: '空名称测试文件夹' });
+      const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '空名称测试文件夹' });
       await expect(folderNode).toBeVisible({ timeout: 5000 });
       await folderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const renameItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /重命名/ });
+      const renameItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /重命名/ });
       await renameItem.click();
       await contentPage.waitForTimeout(300);
       const renameInput = folderNode.locator('.rename-ipt');
@@ -795,7 +795,7 @@ test.describe('RenameNode', () => {
       await expect(renameInput).toHaveClass(/error/);
       await renameInput.press('Enter');
       await contentPage.waitForTimeout(500);
-      const originalNode = contentPage.locator('.el-tree-node').filter({ hasText: '空名称测试文件夹' });
+      const originalNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '空名称测试文件夹' });
       await expect(originalNode).toBeVisible({ timeout: 5000 });
     });
   });

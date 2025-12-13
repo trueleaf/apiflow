@@ -214,7 +214,7 @@ test.describe('BannerNavInteraction', () => {
     await bannerNode.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
     // 点击删除选项
-    const deleteMenuItem = contentPage.locator('.contextmenu-item').filter({ hasText: /删除|Delete/ });
+    const deleteMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: /删除|Delete/ });
     await deleteMenuItem.click();
     await contentPage.waitForTimeout(500);
     // 验证tab不存在
@@ -243,7 +243,7 @@ test.describe('BannerNavInteraction', () => {
     await bannerNode.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
     // 点击重命名选项
-    const renameMenuItem = contentPage.locator('.contextmenu-item').filter({ hasText: /重命名|Rename/ });
+    const renameMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: /重命名|Rename/ });
     await renameMenuItem.click();
     await contentPage.waitForTimeout(300);
     // 清空并输入新名称

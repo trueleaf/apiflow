@@ -10,7 +10,7 @@
               data-testid="home-search-clear-btn" @click.stop="handleClearSearch">
               <CircleCloseIcon />
             </el-icon>
-            <el-icon :title="t('高级搜索')" class="cursor-pointer" color="var(--gray-400)" data-testid="home-advanced-search-btn" @click.stop="toggleAdvancedSearch">
+            <el-icon :title="t('高级搜索')" class="cursor-pointer" :color="showAdvancedSearch ? 'var(--el-color-primary)' : 'var(--gray-400)'" data-testid="home-advanced-search-btn" @click.stop="toggleAdvancedSearch">
               <Tools />
             </el-icon>
           </div>
@@ -114,8 +114,12 @@
       <div v-if="isEmptyState && !isFold" class="empty-container">
         <el-empty :description="t('暂无项目，点击上方按钮创建第一个项目')"></el-empty>
       </div>
+      <!-- 搜索无结果提示 -->
+      <div v-if="!isEmptyState && projectList.length === 0 && projectName.trim().length > 0 && !isFold" class="empty-container">
+        <el-empty :description="t('暂无搜索结果')"></el-empty>
+      </div>
       <!-- 项目列表 -->
-      <div v-show="!isFold && !isEmptyState" class="project-wrap" data-testid="home-projects-wrap">
+      <div v-show="!isFold && !isEmptyState && !(projectList.length === 0 && projectName.trim().length > 0)" class="project-wrap" data-testid="home-projects-wrap">
         <div v-for="(item, index) in projectList" :key="index" class="project-list" :data-testid="`home-project-card-${index}`">
           <div class="project-header">
             <div :title="item.projectName" class="title project-name theme-color text-ellipsis">
@@ -576,6 +580,10 @@ async function matchNode(node: ApiNode, conditions: AdvancedSearchConditions, pr
 // 切换高级搜索面板
 const toggleAdvancedSearch = () => {
   showAdvancedSearch.value = !showAdvancedSearch.value;
+  if (!showAdvancedSearch.value) {
+    searchMode.value = 'simple';
+    searchResults.value = [];
+  }
 };
 // 重置搜索
 const handleResetSearch = () => {

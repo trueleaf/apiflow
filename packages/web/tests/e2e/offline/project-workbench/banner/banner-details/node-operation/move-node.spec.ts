@@ -13,7 +13,7 @@ test.describe('MoveNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newFolderItem = contextMenu.locator('.contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -24,10 +24,10 @@ test.describe('MoveNode', () => {
       await folderConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 在文件夹中创建httpNode节点
-      const folderNode = contentPage.locator('.el-tree-node').filter({ hasText: '测试文件夹' });
+      const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试文件夹' });
       await folderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newInterfaceItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -45,7 +45,7 @@ test.describe('MoveNode', () => {
         await contentPage.waitForTimeout(300);
       }
       // 拖拽httpNode到空白区域
-      const httpNode = contentPage.locator('.el-tree-node').filter({ hasText: '测试HTTP节点' });
+      const httpNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试HTTP节点' });
       const httpNodeBox = await httpNode.boundingBox();
       const treeBox = await treeWrap.boundingBox();
       if (httpNodeBox && treeBox) {
@@ -69,7 +69,7 @@ test.describe('MoveNode', () => {
       // 创建源文件夹
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -81,7 +81,7 @@ test.describe('MoveNode', () => {
       // 创建目标文件夹
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem2 = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem2 = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem2.click();
       await contentPage.waitForTimeout(300);
       const folderDialog2 = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -91,10 +91,10 @@ test.describe('MoveNode', () => {
       await folderConfirmBtn2.click();
       await contentPage.waitForTimeout(500);
       // 在源文件夹中创建httpNode节点
-      const sourceFolderNode = contentPage.locator('.el-tree-node').filter({ hasText: '源文件夹' });
+      const sourceFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
       await sourceFolderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newInterfaceItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -111,8 +111,8 @@ test.describe('MoveNode', () => {
         await contentPage.waitForTimeout(300);
       }
       // 拖拽httpNode到目标文件夹
-      const httpNode = contentPage.locator('.el-tree-node').filter({ hasText: '测试HTTP节点' });
-      const targetFolderNode = contentPage.locator('.el-tree-node').filter({ hasText: '目标文件夹' });
+      const httpNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试HTTP节点' });
+      const targetFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' });
       const httpNodeBox = await httpNode.boundingBox();
       const targetBox = await targetFolderNode.boundingBox();
       if (httpNodeBox && targetBox) {
@@ -125,7 +125,7 @@ test.describe('MoveNode', () => {
       // 验证目标文件夹展开并包含节点
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '目标文件夹' });
       await expect(expandedFolder).toBeVisible({ timeout: 5000 });
-      const movedNode = expandedFolder.locator('.el-tree-node').filter({ hasText: '测试HTTP节点' });
+      const movedNode = expandedFolder.locator('.el-tree-node__content').filter({ hasText: '测试HTTP节点' });
       await expect(movedNode).toBeVisible({ timeout: 5000 });
     });
     // 拖拽单个httpNode节点调整在同一层级的顺序
@@ -138,7 +138,7 @@ test.describe('MoveNode', () => {
       // 创建第一个httpNode节点
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newInterfaceItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -150,7 +150,7 @@ test.describe('MoveNode', () => {
       // 创建第二个httpNode节点
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newInterfaceItem2 = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem2 = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem2.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog2 = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -160,8 +160,8 @@ test.describe('MoveNode', () => {
       await confirmBtn2.click();
       await contentPage.waitForTimeout(500);
       // 获取节点B的位置
-      const nodeB = contentPage.locator('.el-tree-node').filter({ hasText: 'HTTP节点B' });
-      const nodeA = contentPage.locator('.el-tree-node').filter({ hasText: 'HTTP节点A' });
+      const nodeB = contentPage.locator('.el-tree-node__content').filter({ hasText: 'HTTP节点B' });
+      const nodeA = contentPage.locator('.el-tree-node__content').filter({ hasText: 'HTTP节点A' });
       const nodeBBox = await nodeB.boundingBox();
       const nodeABox = await nodeA.boundingBox();
       if (nodeBBox && nodeABox) {
@@ -187,7 +187,7 @@ test.describe('MoveNode', () => {
       // 创建两个httpNode节点
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newInterfaceItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -198,7 +198,7 @@ test.describe('MoveNode', () => {
       await contentPage.waitForTimeout(500);
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newInterfaceItem2 = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem2 = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem2.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog2 = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -208,8 +208,8 @@ test.describe('MoveNode', () => {
       await confirmBtn2.click();
       await contentPage.waitForTimeout(500);
       // 尝试拖拽节点A到节点B内部(inner模式)
-      const nodeA = contentPage.locator('.el-tree-node').filter({ hasText: 'HTTP节点A' });
-      const nodeB = contentPage.locator('.el-tree-node').filter({ hasText: 'HTTP节点B' });
+      const nodeA = contentPage.locator('.el-tree-node__content').filter({ hasText: 'HTTP节点A' });
+      const nodeB = contentPage.locator('.el-tree-node__content').filter({ hasText: 'HTTP节点B' });
       const nodeABox = await nodeA.boundingBox();
       const nodeBBox = await nodeB.boundingBox();
       if (nodeABox && nodeBBox) {
@@ -236,7 +236,7 @@ test.describe('MoveNode', () => {
       // 先创建一个文件夹
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -246,10 +246,10 @@ test.describe('MoveNode', () => {
       await folderConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 在文件夹中创建websocket节点
-      const folderNode = contentPage.locator('.el-tree-node').filter({ hasText: '测试文件夹' });
+      const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试文件夹' });
       await folderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newWsItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /WebSocket/ });
+      const newWsItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /WebSocket/ });
       await newWsItem.click();
       await contentPage.waitForTimeout(300);
       const addWsDialog = contentPage.locator('.el-dialog').filter({ hasText: /WebSocket|Websocket/ });
@@ -267,7 +267,7 @@ test.describe('MoveNode', () => {
         await contentPage.waitForTimeout(300);
       }
       // 拖拽websocket节点到空白区域
-      const wsNode = contentPage.locator('.el-tree-node').filter({ hasText: '测试WS节点' });
+      const wsNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试WS节点' });
       const wsNodeBox = await wsNode.boundingBox();
       const treeBox = await treeWrap.boundingBox();
       if (wsNodeBox && treeBox) {
@@ -291,7 +291,7 @@ test.describe('MoveNode', () => {
       // 创建源文件夹
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -303,7 +303,7 @@ test.describe('MoveNode', () => {
       // 创建目标文件夹
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem2 = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem2 = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem2.click();
       await contentPage.waitForTimeout(300);
       const folderDialog2 = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -313,10 +313,10 @@ test.describe('MoveNode', () => {
       await folderConfirmBtn2.click();
       await contentPage.waitForTimeout(500);
       // 在源文件夹中创建websocket节点
-      const sourceFolderNode = contentPage.locator('.el-tree-node').filter({ hasText: '源文件夹' });
+      const sourceFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
       await sourceFolderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newWsItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /WebSocket/ });
+      const newWsItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /WebSocket/ });
       await newWsItem.click();
       await contentPage.waitForTimeout(300);
       const addWsDialog = contentPage.locator('.el-dialog').filter({ hasText: /WebSocket|Websocket/ });
@@ -333,8 +333,8 @@ test.describe('MoveNode', () => {
         await contentPage.waitForTimeout(300);
       }
       // 拖拽websocket节点到目标文件夹
-      const wsNode = contentPage.locator('.el-tree-node').filter({ hasText: '测试WS节点' });
-      const targetFolderNode = contentPage.locator('.el-tree-node').filter({ hasText: '目标文件夹' });
+      const wsNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试WS节点' });
+      const targetFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' });
       const wsNodeBox = await wsNode.boundingBox();
       const targetBox = await targetFolderNode.boundingBox();
       if (wsNodeBox && targetBox) {
@@ -347,7 +347,7 @@ test.describe('MoveNode', () => {
       // 验证目标文件夹展开并包含节点
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '目标文件夹' });
       await expect(expandedFolder).toBeVisible({ timeout: 5000 });
-      const movedNode = expandedFolder.locator('.el-tree-node').filter({ hasText: '测试WS节点' });
+      const movedNode = expandedFolder.locator('.el-tree-node__content').filter({ hasText: '测试WS节点' });
       await expect(movedNode).toBeVisible({ timeout: 5000 });
     });
   });
@@ -363,7 +363,7 @@ test.describe('MoveNode', () => {
       // 先创建一个文件夹
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -373,10 +373,10 @@ test.describe('MoveNode', () => {
       await folderConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 在文件夹中创建httpMock节点
-      const folderNode = contentPage.locator('.el-tree-node').filter({ hasText: '测试文件夹' });
+      const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试文件夹' });
       await folderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newMockItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /HTTP Mock|HttpMock/ });
+      const newMockItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /HTTP Mock|HttpMock/ });
       await newMockItem.click();
       await contentPage.waitForTimeout(300);
       const addMockDialog = contentPage.locator('.el-dialog').filter({ hasText: /Mock/ });
@@ -394,7 +394,7 @@ test.describe('MoveNode', () => {
         await contentPage.waitForTimeout(300);
       }
       // 拖拽mock节点到空白区域
-      const mockNode = contentPage.locator('.el-tree-node').filter({ hasText: '测试Mock节点' });
+      const mockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试Mock节点' });
       const mockNodeBox = await mockNode.boundingBox();
       const treeBox = await treeWrap.boundingBox();
       if (mockNodeBox && treeBox) {
@@ -418,7 +418,7 @@ test.describe('MoveNode', () => {
       // 创建源文件夹
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -430,7 +430,7 @@ test.describe('MoveNode', () => {
       // 创建目标文件夹
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem2 = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem2 = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem2.click();
       await contentPage.waitForTimeout(300);
       const folderDialog2 = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -440,10 +440,10 @@ test.describe('MoveNode', () => {
       await folderConfirmBtn2.click();
       await contentPage.waitForTimeout(500);
       // 在源文件夹中创建httpMock节点
-      const sourceFolderNode = contentPage.locator('.el-tree-node').filter({ hasText: '源文件夹' });
+      const sourceFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
       await sourceFolderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newMockItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /HTTP Mock|HttpMock/ });
+      const newMockItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /HTTP Mock|HttpMock/ });
       await newMockItem.click();
       await contentPage.waitForTimeout(300);
       const addMockDialog = contentPage.locator('.el-dialog').filter({ hasText: /Mock/ });
@@ -460,8 +460,8 @@ test.describe('MoveNode', () => {
         await contentPage.waitForTimeout(300);
       }
       // 拖拽mock节点到目标文件夹
-      const mockNode = contentPage.locator('.el-tree-node').filter({ hasText: '测试Mock节点' });
-      const targetFolderNode = contentPage.locator('.el-tree-node').filter({ hasText: '目标文件夹' });
+      const mockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试Mock节点' });
+      const targetFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' });
       const mockNodeBox = await mockNode.boundingBox();
       const targetBox = await targetFolderNode.boundingBox();
       if (mockNodeBox && targetBox) {
@@ -474,7 +474,7 @@ test.describe('MoveNode', () => {
       // 验证目标文件夹展开并包含节点
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '目标文件夹' });
       await expect(expandedFolder).toBeVisible({ timeout: 5000 });
-      const movedNode = expandedFolder.locator('.el-tree-node').filter({ hasText: '测试Mock节点' });
+      const movedNode = expandedFolder.locator('.el-tree-node__content').filter({ hasText: '测试Mock节点' });
       await expect(movedNode).toBeVisible({ timeout: 5000 });
     });
   });
@@ -490,7 +490,7 @@ test.describe('MoveNode', () => {
       // 先创建一个文件夹
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -500,10 +500,10 @@ test.describe('MoveNode', () => {
       await folderConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 在文件夹中创建websocketMock节点
-      const folderNode = contentPage.locator('.el-tree-node').filter({ hasText: '测试文件夹' });
+      const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试文件夹' });
       await folderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newWsMockItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /WebSocket Mock|WsMock/ });
+      const newWsMockItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /WebSocket Mock|WsMock/ });
       await newWsMockItem.click();
       await contentPage.waitForTimeout(300);
       const addWsMockDialog = contentPage.locator('.el-dialog').filter({ hasText: /Mock|WebSocket/ });
@@ -521,7 +521,7 @@ test.describe('MoveNode', () => {
         await contentPage.waitForTimeout(300);
       }
       // 拖拽wsMock节点到空白区域
-      const wsMockNode = contentPage.locator('.el-tree-node').filter({ hasText: '测试WsMock节点' });
+      const wsMockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试WsMock节点' });
       const wsMockNodeBox = await wsMockNode.boundingBox();
       const treeBox = await treeWrap.boundingBox();
       if (wsMockNodeBox && treeBox) {
@@ -545,7 +545,7 @@ test.describe('MoveNode', () => {
       // 创建源文件夹
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -557,7 +557,7 @@ test.describe('MoveNode', () => {
       // 创建目标文件夹
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem2 = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem2 = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem2.click();
       await contentPage.waitForTimeout(300);
       const folderDialog2 = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -567,10 +567,10 @@ test.describe('MoveNode', () => {
       await folderConfirmBtn2.click();
       await contentPage.waitForTimeout(500);
       // 在源文件夹中创建websocketMock节点
-      const sourceFolderNode = contentPage.locator('.el-tree-node').filter({ hasText: '源文件夹' });
+      const sourceFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
       await sourceFolderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newWsMockItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /WebSocket Mock|WsMock/ });
+      const newWsMockItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /WebSocket Mock|WsMock/ });
       await newWsMockItem.click();
       await contentPage.waitForTimeout(300);
       const addWsMockDialog = contentPage.locator('.el-dialog').filter({ hasText: /Mock|WebSocket/ });
@@ -587,8 +587,8 @@ test.describe('MoveNode', () => {
         await contentPage.waitForTimeout(300);
       }
       // 拖拽wsMock节点到目标文件夹
-      const wsMockNode = contentPage.locator('.el-tree-node').filter({ hasText: '测试WsMock节点' });
-      const targetFolderNode = contentPage.locator('.el-tree-node').filter({ hasText: '目标文件夹' });
+      const wsMockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试WsMock节点' });
+      const targetFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' });
       const wsMockNodeBox = await wsMockNode.boundingBox();
       const targetBox = await targetFolderNode.boundingBox();
       if (wsMockNodeBox && targetBox) {
@@ -601,7 +601,7 @@ test.describe('MoveNode', () => {
       // 验证目标文件夹展开并包含节点
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '目标文件夹' });
       await expect(expandedFolder).toBeVisible({ timeout: 5000 });
-      const movedNode = expandedFolder.locator('.el-tree-node').filter({ hasText: '测试WsMock节点' });
+      const movedNode = expandedFolder.locator('.el-tree-node__content').filter({ hasText: '测试WsMock节点' });
       await expect(movedNode).toBeVisible({ timeout: 5000 });
     });
   });
@@ -617,7 +617,7 @@ test.describe('MoveNode', () => {
       // 创建父文件夹
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -627,10 +627,10 @@ test.describe('MoveNode', () => {
       await folderConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 在父文件夹中创建子文件夹
-      const parentFolderNode = contentPage.locator('.el-tree-node').filter({ hasText: '父文件夹' });
+      const parentFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '父文件夹' });
       await parentFolderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newSubFolderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newSubFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newSubFolderItem.click();
       await contentPage.waitForTimeout(300);
       const subFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -647,7 +647,7 @@ test.describe('MoveNode', () => {
         await contentPage.waitForTimeout(300);
       }
       // 拖拽子文件夹到空白区域
-      const childFolderNode = contentPage.locator('.el-tree-node').filter({ hasText: '子文件夹' });
+      const childFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '子文件夹' });
       const childFolderBox = await childFolderNode.boundingBox();
       const treeBox = await treeWrap.boundingBox();
       if (childFolderBox && treeBox) {
@@ -671,7 +671,7 @@ test.describe('MoveNode', () => {
       // 创建源文件夹
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -683,7 +683,7 @@ test.describe('MoveNode', () => {
       // 创建目标文件夹
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem2 = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem2 = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem2.click();
       await contentPage.waitForTimeout(300);
       const folderDialog2 = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -693,8 +693,8 @@ test.describe('MoveNode', () => {
       await folderConfirmBtn2.click();
       await contentPage.waitForTimeout(500);
       // 拖拽源文件夹到目标文件夹内
-      const sourceFolderNode = contentPage.locator('.el-tree-node').filter({ hasText: '源文件夹' });
-      const targetFolderNode = contentPage.locator('.el-tree-node').filter({ hasText: '目标文件夹' });
+      const sourceFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
+      const targetFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' });
       const sourceBox = await sourceFolderNode.boundingBox();
       const targetBox = await targetFolderNode.boundingBox();
       if (sourceBox && targetBox) {
@@ -707,7 +707,7 @@ test.describe('MoveNode', () => {
       // 验证目标文件夹展开并包含源文件夹
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '目标文件夹' });
       await expect(expandedFolder).toBeVisible({ timeout: 5000 });
-      const movedFolder = expandedFolder.locator('.el-tree-node').filter({ hasText: '源文件夹' });
+      const movedFolder = expandedFolder.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
       await expect(movedFolder).toBeVisible({ timeout: 5000 });
     });
     // 拖拽folder节点调整在同一层级的顺序
@@ -720,7 +720,7 @@ test.describe('MoveNode', () => {
       // 创建文件夹A
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -732,7 +732,7 @@ test.describe('MoveNode', () => {
       // 创建文件夹B
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem2 = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem2 = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem2.click();
       await contentPage.waitForTimeout(300);
       const folderDialog2 = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -742,8 +742,8 @@ test.describe('MoveNode', () => {
       await folderConfirmBtn2.click();
       await contentPage.waitForTimeout(500);
       // 拖拽文件夹B到文件夹A上方
-      const folderB = contentPage.locator('.el-tree-node').filter({ hasText: '文件夹B' });
-      const folderA = contentPage.locator('.el-tree-node').filter({ hasText: '文件夹A' });
+      const folderB = contentPage.locator('.el-tree-node__content').filter({ hasText: '文件夹B' });
+      const folderA = contentPage.locator('.el-tree-node__content').filter({ hasText: '文件夹A' });
       const folderBBox = await folderB.boundingBox();
       const folderABox = await folderA.boundingBox();
       if (folderBBox && folderABox) {
@@ -768,7 +768,7 @@ test.describe('MoveNode', () => {
       // 创建父文件夹
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -778,10 +778,10 @@ test.describe('MoveNode', () => {
       await folderConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 在父文件夹中创建子文件夹
-      const parentFolderNode = contentPage.locator('.el-tree-node').filter({ hasText: '父文件夹' });
+      const parentFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '父文件夹' });
       await parentFolderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newSubFolderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newSubFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newSubFolderItem.click();
       await contentPage.waitForTimeout(300);
       const subFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -798,7 +798,7 @@ test.describe('MoveNode', () => {
         await contentPage.waitForTimeout(300);
       }
       // 尝试拖拽父文件夹到子文件夹内部
-      const childFolderNode = contentPage.locator('.el-tree-node').filter({ hasText: '子文件夹' });
+      const childFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '子文件夹' });
       const parentBox = await parentFolderNode.boundingBox();
       const childBox = await childFolderNode.boundingBox();
       if (parentBox && childBox) {
@@ -822,7 +822,7 @@ test.describe('MoveNode', () => {
       // 创建源文件夹
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newFolderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -832,10 +832,10 @@ test.describe('MoveNode', () => {
       await folderConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 在源文件夹中创建子文件夹
-      const sourceFolderNode = contentPage.locator('.el-tree-node').filter({ hasText: '源文件夹' });
+      const sourceFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
       await sourceFolderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newSubFolderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newSubFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newSubFolderItem.click();
       await contentPage.waitForTimeout(300);
       const subFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -847,7 +847,7 @@ test.describe('MoveNode', () => {
       // 在源文件夹中创建httpNode节点
       await sourceFolderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newInterfaceItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -859,7 +859,7 @@ test.describe('MoveNode', () => {
       // 创建目标文件夹
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
-      const newTargetFolderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建文件夹/ });
+      const newTargetFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
       await newTargetFolderItem.click();
       await contentPage.waitForTimeout(300);
       const targetFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -869,7 +869,7 @@ test.describe('MoveNode', () => {
       await targetFolderConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 拖拽源文件夹到目标文件夹内
-      const targetFolderNode = contentPage.locator('.el-tree-node').filter({ hasText: '目标文件夹' });
+      const targetFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' });
       const sourceBox = await sourceFolderNode.boundingBox();
       const targetBox = await targetFolderNode.boundingBox();
       if (sourceBox && targetBox) {
@@ -882,16 +882,16 @@ test.describe('MoveNode', () => {
       // 验证目标文件夹展开并包含源文件夹
       const expandedTargetFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '目标文件夹' });
       await expect(expandedTargetFolder).toBeVisible({ timeout: 5000 });
-      const movedSourceFolder = expandedTargetFolder.locator('.el-tree-node').filter({ hasText: '源文件夹' });
+      const movedSourceFolder = expandedTargetFolder.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
       await expect(movedSourceFolder).toBeVisible({ timeout: 5000 });
       // 展开移动后的源文件夹验证子节点
       const movedExpandIcon = movedSourceFolder.locator('.el-tree-node__expand-icon').first();
       await movedExpandIcon.click();
       await contentPage.waitForTimeout(300);
       // 验证嵌套的子文件夹和HTTP节点仍然存在
-      const nestedSubFolder = movedSourceFolder.locator('.el-tree-node').filter({ hasText: '嵌套子文件夹' });
+      const nestedSubFolder = movedSourceFolder.locator('.el-tree-node__content').filter({ hasText: '嵌套子文件夹' });
       await expect(nestedSubFolder).toBeVisible({ timeout: 5000 });
-      const nestedHttpNode = movedSourceFolder.locator('.el-tree-node').filter({ hasText: '嵌套HTTP节点' });
+      const nestedHttpNode = movedSourceFolder.locator('.el-tree-node__content').filter({ hasText: '嵌套HTTP节点' });
       await expect(nestedHttpNode).toBeVisible({ timeout: 5000 });
     });
   });

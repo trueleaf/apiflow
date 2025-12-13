@@ -76,7 +76,7 @@ test.describe('RequestMethodInput', () => {
     // 验证编辑区域显示POST
     await expect(methodSelect).toContainText('POST', { timeout: 5000 });
     // 验证banner节点图标仍为GET(未保存)
-    const bannerNode = contentPage.locator('.el-tree-node').filter({ hasText: '方法保存测试' });
+    const bannerNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '方法保存测试' });
     await expect(bannerNode).toContainText('GET', { timeout: 5000 });
     // 点击保存按钮
     await saveBtn.click();

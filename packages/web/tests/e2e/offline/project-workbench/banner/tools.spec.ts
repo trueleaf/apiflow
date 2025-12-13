@@ -151,7 +151,7 @@ test.describe('Tools', () => {
     await moreBtn.click();
     await contentPage.waitForTimeout(300);
     // 点击新增文件夹工具
-    const addFolderItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /新增文件夹/ });
+    const addFolderItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /新增文件夹|New Folder/ });
     if (await addFolderItem.isVisible()) {
       await addFolderItem.click();
       await contentPage.waitForTimeout(300);
@@ -172,7 +172,7 @@ test.describe('Tools', () => {
     await moreBtn.click();
     await contentPage.waitForTimeout(300);
     // 点击新增文件工具
-    const addFileItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /新增文件/ });
+    const addFileItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /新增文件|New File/ });
     if (await addFileItem.isVisible()) {
       await addFileItem.click();
       await contentPage.waitForTimeout(300);

@@ -210,7 +210,8 @@ test.describe('Navigation', () => {
     await expect(activeTab).toContainText(projectCName);
   });
 
-  test('关闭最右侧高亮Tab后高亮左侧最近的Tab', async ({ topBarPage, createProject }) => {
+  test('关闭最右侧高亮Tab后高亮左侧最近的Tab', async ({ topBarPage, createProject, clearCache }) => {
+    await clearCache();
     const projectAName = await createProject(`最右侧A-${Date.now()}`);
     const projectBName = await createProject(`最右侧B-${Date.now()}`);
     const projectCName = await createProject(`最右侧C-${Date.now()}`);

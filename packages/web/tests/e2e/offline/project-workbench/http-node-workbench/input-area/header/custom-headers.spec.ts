@@ -14,7 +14,7 @@ test.describe('CustomHeaders', () => {
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
     const contextMenu = contentPage.locator('.s-contextmenu');
-    const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+    const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -53,7 +53,7 @@ test.describe('CustomHeaders', () => {
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
     const contextMenu = contentPage.locator('.s-contextmenu');
-    const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+    const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -98,7 +98,7 @@ test.describe('CustomHeaders', () => {
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
     const contextMenu = contentPage.locator('.s-contextmenu');
-    const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+    const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -137,7 +137,7 @@ test.describe('CustomHeaders', () => {
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
     const contextMenu = contentPage.locator('.s-contextmenu');
-    const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+    const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -182,7 +182,7 @@ test.describe('CustomHeaders', () => {
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
     const contextMenu = contentPage.locator('.s-contextmenu');
-    const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+    const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -227,7 +227,7 @@ test.describe('CustomHeaders', () => {
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
     const contextMenu = contentPage.locator('.s-contextmenu');
-    const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+    const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });

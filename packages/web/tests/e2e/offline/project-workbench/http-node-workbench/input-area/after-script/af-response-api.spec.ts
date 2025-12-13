@@ -26,7 +26,7 @@ test.describe('AfResponseApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('console.log("statusCode:", af.response.statusCode)');
@@ -62,7 +62,7 @@ test.describe('AfResponseApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('console.log("headers:", JSON.stringify(af.response.headers))');
@@ -98,7 +98,7 @@ test.describe('AfResponseApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('console.log("cookies:", JSON.stringify(af.response.cookies))');
@@ -134,7 +134,7 @@ test.describe('AfResponseApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('console.log("body:", JSON.stringify(af.response.body))');
@@ -170,7 +170,7 @@ test.describe('AfResponseApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('console.log("rt:", af.response.rt, "ms")');
@@ -207,7 +207,7 @@ test.describe('AfResponseApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('console.log("size:", af.response.size, "bytes")');
@@ -244,7 +244,7 @@ test.describe('AfResponseApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('console.log("ip:", af.response.ip)');

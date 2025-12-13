@@ -11,7 +11,7 @@ test.describe('DeleteNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -21,11 +21,11 @@ test.describe('DeleteNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const httpNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除HTTP节点' });
+      const httpNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除HTTP节点' });
       await expect(httpNode).toBeVisible({ timeout: 5000 });
       await httpNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const deleteItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /删除/ });
+      const deleteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /删除/ });
       await expect(deleteItem).toBeVisible();
       await deleteItem.click();
       await contentPage.waitForTimeout(300);
@@ -36,7 +36,7 @@ test.describe('DeleteNode', () => {
       const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
       await dialogConfirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const deletedNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除HTTP节点' });
+      const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除HTTP节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
     test('鼠标移动到httpNode节点,点击更多操作删除节点', async ({ contentPage, clearCache, createProject }) => {
@@ -48,7 +48,7 @@ test.describe('DeleteNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -58,7 +58,7 @@ test.describe('DeleteNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const httpNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除HTTP节点' });
+      const httpNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除HTTP节点' });
       await expect(httpNode).toBeVisible({ timeout: 5000 });
       await httpNode.hover();
       await contentPage.waitForTimeout(300);
@@ -66,7 +66,7 @@ test.describe('DeleteNode', () => {
       await expect(moreBtn).toBeVisible({ timeout: 5000 });
       await moreBtn.click();
       await contentPage.waitForTimeout(300);
-      const deleteItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /删除/ });
+      const deleteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /删除/ });
       await expect(deleteItem).toBeVisible();
       await deleteItem.click();
       await contentPage.waitForTimeout(300);
@@ -75,7 +75,7 @@ test.describe('DeleteNode', () => {
       const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
       await dialogConfirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const deletedNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除HTTP节点' });
+      const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除HTTP节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
     test('按住ctrl鼠标左键批量选择httpNode节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject }) => {
@@ -88,7 +88,7 @@ test.describe('DeleteNode', () => {
         await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
         await contentPage.waitForTimeout(300);
         const contextMenu = contentPage.locator('.s-contextmenu');
-        const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+        const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
         await newInterfaceItem.click();
         await contentPage.waitForTimeout(300);
         const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -99,9 +99,9 @@ test.describe('DeleteNode', () => {
         await confirmBtn.click();
         await contentPage.waitForTimeout(500);
       }
-      const httpNode1 = contentPage.locator('.el-tree-node').filter({ hasText: '批量删除HTTP节点1' });
-      const httpNode2 = contentPage.locator('.el-tree-node').filter({ hasText: '批量删除HTTP节点2' });
-      const httpNode3 = contentPage.locator('.el-tree-node').filter({ hasText: '批量删除HTTP节点3' });
+      const httpNode1 = contentPage.locator('.el-tree-node__content').filter({ hasText: '批量删除HTTP节点1' });
+      const httpNode2 = contentPage.locator('.el-tree-node__content').filter({ hasText: '批量删除HTTP节点2' });
+      const httpNode3 = contentPage.locator('.el-tree-node__content').filter({ hasText: '批量删除HTTP节点3' });
       await httpNode1.click({ modifiers: ['Control'] });
       await contentPage.waitForTimeout(200);
       await httpNode2.click({ modifiers: ['Control'] });
@@ -114,7 +114,7 @@ test.describe('DeleteNode', () => {
       await httpNode1.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
       const batchMenu = contentPage.locator('.s-contextmenu');
-      const batchDeleteItem = batchMenu.locator('.contextmenu-item', { hasText: /批量删除/ });
+      const batchDeleteItem = batchMenu.locator('.s-contextmenu-item', { hasText: /批量删除/ });
       await expect(batchDeleteItem).toBeVisible();
       await batchDeleteItem.click();
       await contentPage.waitForTimeout(300);
@@ -138,7 +138,7 @@ test.describe('DeleteNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -154,11 +154,11 @@ test.describe('DeleteNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const websocketNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除Websocket节点' });
+      const websocketNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除Websocket节点' });
       await expect(websocketNode).toBeVisible({ timeout: 5000 });
       await websocketNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const deleteItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /删除/ });
+      const deleteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /删除/ });
       await expect(deleteItem).toBeVisible();
       await deleteItem.click();
       await contentPage.waitForTimeout(300);
@@ -169,7 +169,7 @@ test.describe('DeleteNode', () => {
       const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
       await dialogConfirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const deletedNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除Websocket节点' });
+      const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除Websocket节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
     test('鼠标移动到websocketNode节点,点击更多操作删除节点', async ({ contentPage, clearCache, createProject }) => {
@@ -181,7 +181,7 @@ test.describe('DeleteNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -197,7 +197,7 @@ test.describe('DeleteNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const websocketNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除Websocket节点' });
+      const websocketNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除Websocket节点' });
       await expect(websocketNode).toBeVisible({ timeout: 5000 });
       await websocketNode.hover();
       await contentPage.waitForTimeout(300);
@@ -205,7 +205,7 @@ test.describe('DeleteNode', () => {
       await expect(moreBtn).toBeVisible({ timeout: 5000 });
       await moreBtn.click();
       await contentPage.waitForTimeout(300);
-      const deleteItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /删除/ });
+      const deleteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /删除/ });
       await expect(deleteItem).toBeVisible();
       await deleteItem.click();
       await contentPage.waitForTimeout(300);
@@ -214,7 +214,7 @@ test.describe('DeleteNode', () => {
       const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
       await dialogConfirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const deletedNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除Websocket节点' });
+      const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除Websocket节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
     test('按住ctrl鼠标左键批量选择websocketNode节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject }) => {
@@ -227,7 +227,7 @@ test.describe('DeleteNode', () => {
         await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
         await contentPage.waitForTimeout(300);
         const contextMenu = contentPage.locator('.s-contextmenu');
-        const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+        const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
         await newInterfaceItem.click();
         await contentPage.waitForTimeout(300);
         const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -244,9 +244,9 @@ test.describe('DeleteNode', () => {
         await confirmBtn.click();
         await contentPage.waitForTimeout(500);
       }
-      const wsNode1 = contentPage.locator('.el-tree-node').filter({ hasText: '批量删除WS节点1' });
-      const wsNode2 = contentPage.locator('.el-tree-node').filter({ hasText: '批量删除WS节点2' });
-      const wsNode3 = contentPage.locator('.el-tree-node').filter({ hasText: '批量删除WS节点3' });
+      const wsNode1 = contentPage.locator('.el-tree-node__content').filter({ hasText: '批量删除WS节点1' });
+      const wsNode2 = contentPage.locator('.el-tree-node__content').filter({ hasText: '批量删除WS节点2' });
+      const wsNode3 = contentPage.locator('.el-tree-node__content').filter({ hasText: '批量删除WS节点3' });
       await wsNode1.click({ modifiers: ['Control'] });
       await contentPage.waitForTimeout(200);
       await wsNode2.click({ modifiers: ['Control'] });
@@ -259,7 +259,7 @@ test.describe('DeleteNode', () => {
       await wsNode1.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
       const batchMenu = contentPage.locator('.s-contextmenu');
-      const batchDeleteItem = batchMenu.locator('.contextmenu-item', { hasText: /批量删除/ });
+      const batchDeleteItem = batchMenu.locator('.s-contextmenu-item', { hasText: /批量删除/ });
       await expect(batchDeleteItem).toBeVisible();
       await batchDeleteItem.click();
       await contentPage.waitForTimeout(300);
@@ -283,7 +283,7 @@ test.describe('DeleteNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -299,11 +299,11 @@ test.describe('DeleteNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const httpMockNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除HttpMock节点' });
+      const httpMockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除HttpMock节点' });
       await expect(httpMockNode).toBeVisible({ timeout: 5000 });
       await httpMockNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const deleteItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /删除/ });
+      const deleteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /删除/ });
       await expect(deleteItem).toBeVisible();
       await deleteItem.click();
       await contentPage.waitForTimeout(300);
@@ -314,7 +314,7 @@ test.describe('DeleteNode', () => {
       const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
       await dialogConfirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const deletedNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除HttpMock节点' });
+      const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除HttpMock节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
     test('鼠标移动到httpMockNode节点,点击更多操作删除节点', async ({ contentPage, clearCache, createProject }) => {
@@ -326,7 +326,7 @@ test.describe('DeleteNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -342,7 +342,7 @@ test.describe('DeleteNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const httpMockNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除HttpMock节点' });
+      const httpMockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除HttpMock节点' });
       await expect(httpMockNode).toBeVisible({ timeout: 5000 });
       await httpMockNode.hover();
       await contentPage.waitForTimeout(300);
@@ -350,7 +350,7 @@ test.describe('DeleteNode', () => {
       await expect(moreBtn).toBeVisible({ timeout: 5000 });
       await moreBtn.click();
       await contentPage.waitForTimeout(300);
-      const deleteItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /删除/ });
+      const deleteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /删除/ });
       await expect(deleteItem).toBeVisible();
       await deleteItem.click();
       await contentPage.waitForTimeout(300);
@@ -359,7 +359,7 @@ test.describe('DeleteNode', () => {
       const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
       await dialogConfirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const deletedNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除HttpMock节点' });
+      const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除HttpMock节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
     test('按住ctrl鼠标左键批量选择httpMockNode节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject }) => {
@@ -372,7 +372,7 @@ test.describe('DeleteNode', () => {
         await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
         await contentPage.waitForTimeout(300);
         const contextMenu = contentPage.locator('.s-contextmenu');
-        const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+        const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
         await newInterfaceItem.click();
         await contentPage.waitForTimeout(300);
         const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -389,9 +389,9 @@ test.describe('DeleteNode', () => {
         await confirmBtn.click();
         await contentPage.waitForTimeout(500);
       }
-      const mockNode1 = contentPage.locator('.el-tree-node').filter({ hasText: '批量删除Mock节点1' });
-      const mockNode2 = contentPage.locator('.el-tree-node').filter({ hasText: '批量删除Mock节点2' });
-      const mockNode3 = contentPage.locator('.el-tree-node').filter({ hasText: '批量删除Mock节点3' });
+      const mockNode1 = contentPage.locator('.el-tree-node__content').filter({ hasText: '批量删除Mock节点1' });
+      const mockNode2 = contentPage.locator('.el-tree-node__content').filter({ hasText: '批量删除Mock节点2' });
+      const mockNode3 = contentPage.locator('.el-tree-node__content').filter({ hasText: '批量删除Mock节点3' });
       await mockNode1.click({ modifiers: ['Control'] });
       await contentPage.waitForTimeout(200);
       await mockNode2.click({ modifiers: ['Control'] });
@@ -404,7 +404,7 @@ test.describe('DeleteNode', () => {
       await mockNode1.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
       const batchMenu = contentPage.locator('.s-contextmenu');
-      const batchDeleteItem = batchMenu.locator('.contextmenu-item', { hasText: /批量删除/ });
+      const batchDeleteItem = batchMenu.locator('.s-contextmenu-item', { hasText: /批量删除/ });
       await expect(batchDeleteItem).toBeVisible();
       await batchDeleteItem.click();
       await contentPage.waitForTimeout(300);
@@ -428,7 +428,7 @@ test.describe('DeleteNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -444,11 +444,11 @@ test.describe('DeleteNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const wsMockNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除WsMock节点' });
+      const wsMockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除WsMock节点' });
       await expect(wsMockNode).toBeVisible({ timeout: 5000 });
       await wsMockNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const deleteItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /删除/ });
+      const deleteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /删除/ });
       await expect(deleteItem).toBeVisible();
       await deleteItem.click();
       await contentPage.waitForTimeout(300);
@@ -459,7 +459,7 @@ test.describe('DeleteNode', () => {
       const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
       await dialogConfirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const deletedNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除WsMock节点' });
+      const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除WsMock节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
     test('鼠标移动到websocketMockNode节点,点击更多操作删除节点', async ({ contentPage, clearCache, createProject }) => {
@@ -471,7 +471,7 @@ test.describe('DeleteNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -487,7 +487,7 @@ test.describe('DeleteNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const wsMockNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除WsMock节点' });
+      const wsMockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除WsMock节点' });
       await expect(wsMockNode).toBeVisible({ timeout: 5000 });
       await wsMockNode.hover();
       await contentPage.waitForTimeout(300);
@@ -495,7 +495,7 @@ test.describe('DeleteNode', () => {
       await expect(moreBtn).toBeVisible({ timeout: 5000 });
       await moreBtn.click();
       await contentPage.waitForTimeout(300);
-      const deleteItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /删除/ });
+      const deleteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /删除/ });
       await expect(deleteItem).toBeVisible();
       await deleteItem.click();
       await contentPage.waitForTimeout(300);
@@ -504,7 +504,7 @@ test.describe('DeleteNode', () => {
       const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
       await dialogConfirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const deletedNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除WsMock节点' });
+      const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除WsMock节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
     test('按住ctrl鼠标左键批量选择websocketMockNode节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject }) => {
@@ -517,7 +517,7 @@ test.describe('DeleteNode', () => {
         await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
         await contentPage.waitForTimeout(300);
         const contextMenu = contentPage.locator('.s-contextmenu');
-        const newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+        const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
         await newInterfaceItem.click();
         await contentPage.waitForTimeout(300);
         const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -534,9 +534,9 @@ test.describe('DeleteNode', () => {
         await confirmBtn.click();
         await contentPage.waitForTimeout(500);
       }
-      const wsMockNode1 = contentPage.locator('.el-tree-node').filter({ hasText: '批量删除WsMock1' });
-      const wsMockNode2 = contentPage.locator('.el-tree-node').filter({ hasText: '批量删除WsMock2' });
-      const wsMockNode3 = contentPage.locator('.el-tree-node').filter({ hasText: '批量删除WsMock3' });
+      const wsMockNode1 = contentPage.locator('.el-tree-node__content').filter({ hasText: '批量删除WsMock1' });
+      const wsMockNode2 = contentPage.locator('.el-tree-node__content').filter({ hasText: '批量删除WsMock2' });
+      const wsMockNode3 = contentPage.locator('.el-tree-node__content').filter({ hasText: '批量删除WsMock3' });
       await wsMockNode1.click({ modifiers: ['Control'] });
       await contentPage.waitForTimeout(200);
       await wsMockNode2.click({ modifiers: ['Control'] });
@@ -549,7 +549,7 @@ test.describe('DeleteNode', () => {
       await wsMockNode1.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
       const batchMenu = contentPage.locator('.s-contextmenu');
-      const batchDeleteItem = batchMenu.locator('.contextmenu-item', { hasText: /批量删除/ });
+      const batchDeleteItem = batchMenu.locator('.s-contextmenu-item', { hasText: /批量删除/ });
       await expect(batchDeleteItem).toBeVisible();
       await batchDeleteItem.click();
       await contentPage.waitForTimeout(300);
@@ -573,7 +573,7 @@ test.describe('DeleteNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newFolderItem = contextMenu.locator('.contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -583,11 +583,11 @@ test.describe('DeleteNode', () => {
       const folderConfirmBtn = folderDialog.locator('.el-button--primary').last();
       await folderConfirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const folderNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除文件夹' });
+      const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除文件夹' });
       await expect(folderNode).toBeVisible({ timeout: 5000 });
       await folderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const deleteItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /删除/ });
+      const deleteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /删除/ });
       await expect(deleteItem).toBeVisible();
       await deleteItem.click();
       await contentPage.waitForTimeout(300);
@@ -598,7 +598,7 @@ test.describe('DeleteNode', () => {
       const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
       await dialogConfirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const deletedNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除文件夹' });
+      const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除文件夹' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
     test('鼠标移动到folder节点,点击更多操作删除节点', async ({ contentPage, clearCache, createProject }) => {
@@ -610,7 +610,7 @@ test.describe('DeleteNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
-      const newFolderItem = contextMenu.locator('.contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -620,7 +620,7 @@ test.describe('DeleteNode', () => {
       const folderConfirmBtn = folderDialog.locator('.el-button--primary').last();
       await folderConfirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const folderNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除文件夹' });
+      const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除文件夹' });
       await expect(folderNode).toBeVisible({ timeout: 5000 });
       await folderNode.hover();
       await contentPage.waitForTimeout(300);
@@ -628,7 +628,7 @@ test.describe('DeleteNode', () => {
       await expect(moreBtn).toBeVisible({ timeout: 5000 });
       await moreBtn.click();
       await contentPage.waitForTimeout(300);
-      const deleteItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /删除/ });
+      const deleteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /删除/ });
       await expect(deleteItem).toBeVisible();
       await deleteItem.click();
       await contentPage.waitForTimeout(300);
@@ -637,7 +637,7 @@ test.describe('DeleteNode', () => {
       const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
       await dialogConfirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const deletedNode = contentPage.locator('.el-tree-node').filter({ hasText: '待删除文件夹' });
+      const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除文件夹' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
     test('按住ctrl鼠标左键批量选择folder节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject }) => {
@@ -650,7 +650,7 @@ test.describe('DeleteNode', () => {
         await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
         await contentPage.waitForTimeout(300);
         const contextMenu = contentPage.locator('.s-contextmenu');
-        const newFolderItem = contextMenu.locator('.contextmenu-item', { hasText: /新建文件夹/ });
+        const newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
         await newFolderItem.click();
         await contentPage.waitForTimeout(300);
         const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -661,9 +661,9 @@ test.describe('DeleteNode', () => {
         await folderConfirmBtn.click();
         await contentPage.waitForTimeout(500);
       }
-      const folderNode1 = contentPage.locator('.el-tree-node').filter({ hasText: '批量删除文件夹1' });
-      const folderNode2 = contentPage.locator('.el-tree-node').filter({ hasText: '批量删除文件夹2' });
-      const folderNode3 = contentPage.locator('.el-tree-node').filter({ hasText: '批量删除文件夹3' });
+      const folderNode1 = contentPage.locator('.el-tree-node__content').filter({ hasText: '批量删除文件夹1' });
+      const folderNode2 = contentPage.locator('.el-tree-node__content').filter({ hasText: '批量删除文件夹2' });
+      const folderNode3 = contentPage.locator('.el-tree-node__content').filter({ hasText: '批量删除文件夹3' });
       await folderNode1.click({ modifiers: ['Control'] });
       await contentPage.waitForTimeout(200);
       await folderNode2.click({ modifiers: ['Control'] });
@@ -676,7 +676,7 @@ test.describe('DeleteNode', () => {
       await folderNode1.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
       const batchMenu = contentPage.locator('.s-contextmenu');
-      const batchDeleteItem = batchMenu.locator('.contextmenu-item', { hasText: /批量删除/ });
+      const batchDeleteItem = batchMenu.locator('.s-contextmenu-item', { hasText: /批量删除/ });
       await expect(batchDeleteItem).toBeVisible();
       await batchDeleteItem.click();
       await contentPage.waitForTimeout(300);
@@ -701,7 +701,7 @@ test.describe('DeleteNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       let contextMenu = contentPage.locator('.s-contextmenu');
-      let newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      let newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       let addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -715,7 +715,7 @@ test.describe('DeleteNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       contextMenu = contentPage.locator('.s-contextmenu');
-      newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -735,7 +735,7 @@ test.describe('DeleteNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       contextMenu = contentPage.locator('.s-contextmenu');
-      newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -755,7 +755,7 @@ test.describe('DeleteNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       contextMenu = contentPage.locator('.s-contextmenu');
-      newInterfaceItem = contextMenu.locator('.contextmenu-item', { hasText: /新建接口/ });
+      newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
       await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
       addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
@@ -775,7 +775,7 @@ test.describe('DeleteNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);
       contextMenu = contentPage.locator('.s-contextmenu');
-      const newFolderItem = contextMenu.locator('.contextmenu-item', { hasText: /新建文件夹/ });
+      const newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
       await newFolderItem.click();
       await contentPage.waitForTimeout(300);
       const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -786,11 +786,11 @@ test.describe('DeleteNode', () => {
       await folderConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 批量选择所有节点
-      const httpNode = contentPage.locator('.el-tree-node').filter({ hasText: '混合删除HTTP' });
-      const wsNode = contentPage.locator('.el-tree-node').filter({ hasText: '混合删除WS' });
-      const httpMockNode = contentPage.locator('.el-tree-node').filter({ hasText: '混合删除HttpMock' });
-      const wsMockNode = contentPage.locator('.el-tree-node').filter({ hasText: '混合删除WsMock' });
-      const folderNode = contentPage.locator('.el-tree-node').filter({ hasText: '混合删除文件夹' });
+      const httpNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '混合删除HTTP' });
+      const wsNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '混合删除WS' });
+      const httpMockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '混合删除HttpMock' });
+      const wsMockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '混合删除WsMock' });
+      const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '混合删除文件夹' });
       await httpNode.click({ modifiers: ['Control'] });
       await contentPage.waitForTimeout(200);
       await wsNode.click({ modifiers: ['Control'] });
@@ -810,7 +810,7 @@ test.describe('DeleteNode', () => {
       await httpNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
       const batchMenu = contentPage.locator('.s-contextmenu');
-      const batchDeleteItem = batchMenu.locator('.contextmenu-item', { hasText: /批量删除/ });
+      const batchDeleteItem = batchMenu.locator('.s-contextmenu-item', { hasText: /批量删除/ });
       await expect(batchDeleteItem).toBeVisible();
       await batchDeleteItem.click();
       await contentPage.waitForTimeout(300);

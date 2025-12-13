@@ -14,7 +14,7 @@ test.describe('GlobalCommonHeaders', () => {
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
     const contextMenu = contentPage.locator('.s-contextmenu');
-    const newFolderItem = contextMenu.locator('.contextmenu-item', { hasText: /新建文件夹/ });
+    const newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
     await newFolderItem.click();
     await contentPage.waitForTimeout(300);
     const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
@@ -25,10 +25,10 @@ test.describe('GlobalCommonHeaders', () => {
     await folderConfirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 右键folder节点,点击设置公共请求头
-    const folderNode = contentPage.locator('.el-tree-node').filter({ hasText: '测试文件夹' });
+    const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试文件夹' });
     await folderNode.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
-    const commonHeaderItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /设置公共请求头/ });
+    const commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
     await commonHeaderItem.click();
     await contentPage.waitForTimeout(500);
     // 验证公共请求头配置页面打开
@@ -55,7 +55,7 @@ test.describe('GlobalCommonHeaders', () => {
     // 在folder下创建一个HTTP节点
     await folderNode.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
-    const newInterfaceItem = contentPage.locator('.s-contextmenu .contextmenu-item', { hasText: /新建接口/ });
+    const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|新增接口/ });
@@ -66,7 +66,7 @@ test.describe('GlobalCommonHeaders', () => {
     await fileConfirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL并发送
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     const sendBtn = contentPage.locator('.send-btn');
     await sendBtn.click();
@@ -86,7 +86,7 @@ test.describe('GlobalCommonHeaders', () => {
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
     await contentPage.waitForTimeout(300);
     const contextMenu = contentPage.locator('.s-contextmenu');
-    const commonHeaderItem = contextMenu.locator('.contextmenu-item', { hasText: /设置公共请求头/ });
+    const commonHeaderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /设置公共请求头/ });
     await commonHeaderItem.click();
     await contentPage.waitForTimeout(500);
     // 验证公共请求头配置页面打开

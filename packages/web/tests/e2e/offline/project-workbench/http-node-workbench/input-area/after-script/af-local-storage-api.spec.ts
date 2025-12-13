@@ -26,7 +26,7 @@ test.describe('AfLocalStorageApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 输入后置脚本
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('af.localStorage.set("user_id", "12345")');
@@ -71,7 +71,7 @@ test.describe('AfLocalStorageApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 输入后置脚本，获取值并存储到变量中
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('const value = af.localStorage.get("test_key"); af.variables.set("retrieved_value", value);');
@@ -116,7 +116,7 @@ test.describe('AfLocalStorageApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 输入后置脚本删除数据
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('af.localStorage.remove("remove_key")');
@@ -174,7 +174,7 @@ test.describe('AfLocalStorageApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 输入后置脚本清空所有数据
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('af.localStorage.clear()');
@@ -221,7 +221,7 @@ test.describe('AfLocalStorageApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 输入后置脚本，获取不存在的键并存储结果
-    const monacoEditor = contentPage.locator('.monaco-editor').first();
+    const monacoEditor = contentPage.locator('.s-code-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('const value = af.localStorage.get("non_existent_key"); af.localStorage.set("result", value === null ? "is_null" : "not_null");');
