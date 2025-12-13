@@ -1046,6 +1046,12 @@ const handleApplyMultiline = () => {
   if (localData.value.length === 0) {
     localData.value.push(generateEmptyProperty<'string'>());
   }
+  const lastItem = localData.value[localData.value.length - 1];
+  const isLastItemEmpty = lastItem && !lastItem.key?.trim() && !lastItem.value?.trim();
+  if (!isLastItemEmpty) {
+    const emptyProperty = generateEmptyProperty<'string'>();
+    localData.value.push(emptyProperty);
+  }
   defaultCheckedKeys.value = localData.value.filter(item => item.select).map(item => item._id);
   nextTick(() => {
     localData.value.forEach(item => {

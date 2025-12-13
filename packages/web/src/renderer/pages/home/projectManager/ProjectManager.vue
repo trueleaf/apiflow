@@ -583,6 +583,8 @@ const toggleAdvancedSearch = () => {
   if (!showAdvancedSearch.value) {
     searchMode.value = 'simple';
     searchResults.value = [];
+    projectName.value = '';
+    searchConditions.value.keyword = '';
   }
 };
 // 重置搜索

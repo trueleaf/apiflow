@@ -29,6 +29,7 @@
         show-checkbox
         :data="headerData"
         :edit-mode="isMultiline ? 'multiline' : 'table'"
+        @change="handleHeaderDataChange"
       ></SParamsTree>
       <div class="d-flex a-center j-center mt-5">
         <el-button type="success" :loading="loading2" @click="handleEditCommonHeader">{{ t('确认修改') }}</el-button>
@@ -54,7 +55,7 @@ import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { Switch } from '@element-plus/icons-vue'
-
+import { onBeforeUnmount } from 'vue'
 
 type CommonHeaderResponse = {
   _id: string,
@@ -95,6 +96,9 @@ watch(paramsTreeRef, (instance) => {
   if (!instance?.onMultilineCancelled) return
   instance.onMultilineCancelled(handleMultilineCancelled)
 })
+const handleHeaderDataChange = (data: ApidocProperty<'string' | 'file'>[]) => {
+  headerData.value = data;
+}
 
 const loading = ref(false);
 const getCommonHeaderInfo = async () => {
@@ -108,18 +112,14 @@ const getCommonHeaderInfo = async () => {
         const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
         const commonHeaders = await commonHeaderCache.getCommonHeaders();
         headerData.value = (commonHeaders || []) as ApidocProperty<'string' | 'file'>[];
-        if (!headerData.value.length) {
-          headerData.value.push(generateEmptyProperty() as ApidocProperty<'string' | 'file'>)
-        }
+        headerData.value.push(generateEmptyProperty() as ApidocProperty<'string' | 'file'>)
       } else {
         const params = {
           projectId,
         }
         const res = await request.get<CommonResponse<ApidocProperty[]>, CommonResponse<ApidocProperty[]>>('/api/project/global_common_headers', { params });
         headerData.value = (res.data || []) as ApidocProperty<'string' | 'file'>[];
-        if (!headerData.value.length) {
-          headerData.value.push(generateEmptyProperty() as ApidocProperty<'string' | 'file'>)
-        }
+        headerData.value.push(generateEmptyProperty() as ApidocProperty<'string' | 'file'>)
       }
     } else {
       if (isOffline) {
@@ -128,9 +128,7 @@ const getCommonHeaderInfo = async () => {
         if (node && node.info.type === 'folder') {
           const folderNode = node as import('@src/types').FolderNode;
           headerData.value = (folderNode.commonHeaders || []) as ApidocProperty<'string' | 'file'>[];
-          if (!headerData.value.length) {
-            headerData.value.push(generateEmptyProperty() as ApidocProperty<'string' | 'file'>)
-          }
+          headerData.value.push(generateEmptyProperty() as ApidocProperty<'string' | 'file'>)
         }
       } else {
         const params = {
@@ -139,9 +137,7 @@ const getCommonHeaderInfo = async () => {
         }
         const res = await request.get<CommonResponse<CommonHeaderResponse>, CommonResponse<CommonHeaderResponse>>('/api/project/common_header_by_id', { params });
         headerData.value = (res.data.commonHeaders || []) as ApidocProperty<'string' | 'file'>[];
-        if (!headerData.value.length) {
-          headerData.value.push(generateEmptyProperty() as ApidocProperty<'string' | 'file'>)
-        }
+        headerData.value.push(generateEmptyProperty() as ApidocProperty<'string' | 'file'>)
       }
     }
   } catch (err) {
@@ -156,48 +152,38 @@ const handleEditCommonHeader = async () => {
   loading2.value = true;
   const runtimeStore = useRuntime();
   const isOffline = runtimeStore.networkMode === 'offline';
+  const validHeaders = headerData.value.filter(v => v.key?.trim() || v.value?.trim());
 
   try {
     if (currentSelectNav.value?._id === projectId) {
-      const commonHeadersData = headerData.value.map(v => ({
-        _id: v._id,
-        key: v.key,
-        value: v.value,
-        description: v.description,
-        select: v.select,
-      }));
-
       if (isOffline) {
         const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
-        await commonHeaderCache.setCommonHeaders(commonHeadersData.map(v => ({
+        await commonHeaderCache.setCommonHeaders(validHeaders.map(v => ({
           ...v,
           type: 'string' as const,
-          required: false,
         })));
         message.success(t('修改成功'));
         await commonHeaderStore.getGlobalCommonHeaders();
       } else {
         const params = {
           projectId,
-          commonHeaders: commonHeadersData,
+          commonHeaders: validHeaders.map(v => ({
+            _id: v._id,
+            key: v.key,
+            value: v.value,
+            description: v.description,
+            select: v.select,
+          })),
         }
         await request.put('/api/project/replace_global_common_headers', params);
         message.success(t('修改成功'));
         await commonHeaderStore.getGlobalCommonHeaders();
       }
     } else {
-      const commonHeadersData = headerData.value.map(v => ({
-        _id: v._id,
-        key: v.key,
-        value: v.value,
-        description: v.description,
-        select: v.select,
-      }));
-
       if (isOffline) {
         const { apiNodesCache } = await import('@/cache/nodes/nodesCache');
         await apiNodesCache.updateNodeById(currentSelectNav.value?._id || '', {
-          commonHeaders: commonHeadersData.map(v => ({
+          commonHeaders: validHeaders.map(v => ({
             ...v,
             type: 'string' as const,
             required: false,
@@ -209,7 +195,13 @@ const handleEditCommonHeader = async () => {
         const params = {
           projectId,
           id: currentSelectNav.value?._id,
-          commonHeaders: commonHeadersData,
+          commonHeaders: validHeaders.map(v => ({
+            _id: v._id,
+            key: v.key,
+            value: v.value,
+            description: v.description,
+            select: v.select,
+          })),
         }
         await request.put('/api/project/common_header', params);
         message.success(t('修改成功'));
@@ -229,8 +221,21 @@ watch(currentSelectNav, (newVal) => {
 }, {
   deep: true,
 })
+// Ctrl+S 保存快捷键
+const handleKeyDown = (e: KeyboardEvent) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    if (!loading2.value) {
+      handleEditCommonHeader();
+    }
+  }
+}
 onMounted(() => {
   getCommonHeaderInfo();
+  window.addEventListener('keydown', handleKeyDown);
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeyDown);
 })
 
 

@@ -53,13 +53,14 @@ export class CommonHeaderCache {
     const tx = db.transaction(this.storeName, "readonly");
     const store = tx.objectStore(this.storeName);
     const keys = await store.getAllKeys();
-    const headers: ApidocProperty<'string'>[] = [];
+    const headers: (ApidocProperty<'string'> & { _sort?: number })[] = [];
     for (const key of keys) {
       const header = await store.get(key);
       if (header && !header.isDeleted) {
         headers.push(header);
       }
     }
+    headers.sort((a, b) => (a._sort ?? 0) - (b._sort ?? 0));
     return headers;
   }
   async getCommonHeaderById(headerId: string): Promise<ApidocProperty<'string'> | null> {
@@ -129,8 +130,9 @@ export class CommonHeaderCache {
     for (const key of keys) {
       await store.delete(key);
     }
-    for (const header of headers) {
-      await store.put(header, header._id);
+    for (let i = 0; i < headers.length; i++) {
+      const header = headers[i];
+      await store.put({ ...header, _sort: i }, header._id);
     }
     await tx.done;
     return true;
