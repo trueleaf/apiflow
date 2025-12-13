@@ -49,11 +49,11 @@ test.describe('ResponseBasicInfo', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 测试200状态码 - 绿色
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
     await urlInput.fill(`http://localhost:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(200);
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     const responseSummary = contentPage.locator('.response-summary-view');
@@ -87,11 +87,11 @@ test.describe('ResponseBasicInfo', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 发送快速响应请求
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
     await urlInput.fill(`http://localhost:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(200);
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     const responseSummary = contentPage.locator('.response-summary-view');

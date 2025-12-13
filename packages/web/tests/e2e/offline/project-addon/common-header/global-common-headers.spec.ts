@@ -68,7 +68,7 @@ test.describe('GlobalCommonHeaders', () => {
     // 设置请求URL并发送
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应中包含公共请求头
@@ -139,5 +139,57 @@ test.describe('GlobalCommonHeaders', () => {
     // 验证表格数据保持不变
     const finalKeyValue = await firstKeyInput.inputValue();
     expect(finalKeyValue).toBe('Content-Type');
+  });
+  // 测试用例3: 批量模式应用参数后自动在尾部添加空行
+  test('批量模式应用参数后自动在尾部添加空行', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    const treeWrap = contentPage.locator('.tree-wrap');
+    // 打开全局公共请求头设置
+    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
+    await contentPage.waitForTimeout(300);
+    const contextMenu = contentPage.locator('.s-contextmenu');
+    const commonHeaderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /设置公共请求头/ });
+    await commonHeaderItem.click();
+    await contentPage.waitForTimeout(500);
+    // 验证公共请求头配置页面打开
+    const commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
+    // 点击多行编辑切换按钮
+    const toggleModeBtn = commonHeaderPage.locator('.mode-toggle-icon');
+    await toggleModeBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 验证切换到多行编辑模式
+    const multilineTextarea = contentPage.locator('[data-testid="params-tree-multiline-textarea"]');
+    await expect(multilineTextarea).toBeVisible({ timeout: 3000 });
+    // 在多行编辑器中输入2行参数
+    await multilineTextarea.fill('Content-Type=application/json\nAccept=*/*');
+    await contentPage.waitForTimeout(300);
+    // 点击应用按钮
+    const applyBtn = contentPage.locator('[data-testid="params-tree-apply-btn"]');
+    await applyBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 验证自动切换回表格模式
+    await expect(multilineTextarea).not.toBeVisible({ timeout: 3000 });
+    // 验证参数行数为3行(2个有效参数 + 1个自动添加的空行)
+    const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await expect(keyInputs).toHaveCount(3);
+    // 验证最后一行的key和value为空
+    const lastKeyValue = await keyInputs.nth(2).inputValue();
+    const lastValueValue = await valueInputs.nth(2).inputValue();
+    expect(lastKeyValue).toBe('');
+    expect(lastValueValue).toBe('');
+    // 验证前两行的数据正确
+    const firstKeyValue = await keyInputs.nth(0).inputValue();
+    const firstValueValue = await valueInputs.nth(0).inputValue();
+    expect(firstKeyValue).toBe('Content-Type');
+    expect(firstValueValue).toBe('application/json');
+    const secondKeyValue = await keyInputs.nth(1).inputValue();
+    const secondValueValue = await valueInputs.nth(1).inputValue();
+    expect(secondKeyValue).toBe('Accept');
+    expect(secondValueValue).toBe('*/*');
   });
 });
