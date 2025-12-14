@@ -83,30 +83,31 @@
            </el-icon>
            <!-- 参数key -->
            <div class="w-15 flex0 mr-2 d-flex a-center" @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
-             <el-autocomplete 
-               v-if="props.mindKeyParams && props.mindKeyParams.length > 0" 
-               popper-class="params-tree-autocomplete" 
-               :model-value="data.key" 
-               :debounce="0" 
-               :placeholder="t('输入参数名称自动换行')" 
-               :fetch-suggestions="querySearchKey" 
-               :disabled="data._disableKey || props.disableKeyEdit" 
-               :title="data._disableKeyTip || (props.disableKeyEdit ? t('Path参数名由URL自动解析，不可修改') : '')" 
-               data-testid="params-tree-key-autocomplete"
-               @select="(item: any) => handleSelectKey(item, data)" 
-               @update:modelValue="(v: string | number) => handleChangeKey(String(v), data)" 
-               @focus="handleFocusKey()" 
-               @blur="handleEnableDrag()" 
-               @keydown="(e: KeyboardEvent) => { handlePreventDefaultKeys(e); handleKeyDown(e, data); }" 
-               @paste="(event: ClipboardEvent) => handlePasteKey(event, data)"
-             >
-               <template #default="{ item }">
-                 <div class="autocomplete-item">
-                   <div class="value" v-html="highlightText(item.key, currentKeyQuery)"></div>
-                   <div class="description" v-html="highlightText(item.description || '', currentKeyQuery)"></div>
-                 </div>
-               </template>
-             </el-autocomplete>
+             <div v-if="props.mindKeyParams && props.mindKeyParams.length > 0" class="w-100" data-testid="params-tree-key-autocomplete">
+               <el-autocomplete 
+                 class="w-100"
+                 popper-class="params-tree-autocomplete" 
+                 :model-value="data.key" 
+                 :debounce="0" 
+                 :placeholder="t('输入参数名称自动换行')" 
+                 :fetch-suggestions="querySearchKey" 
+                 :disabled="data._disableKey || props.disableKeyEdit" 
+                 :title="data._disableKeyTip || (props.disableKeyEdit ? t('Path参数名由URL自动解析，不可修改') : '')" 
+                 @select="(item: any) => handleSelectKey(item, data)" 
+                 @update:modelValue="(v: string | number) => handleChangeKey(String(v), data)" 
+                 @focus="handleFocusKey()" 
+                 @blur="handleEnableDrag()" 
+                 @keydown="(e: KeyboardEvent) => { handlePreventDefaultKeys(e); handleKeyDown(e, data); }" 
+                 @paste="(event: ClipboardEvent) => handlePasteKey(event, data)"
+               >
+                 <template #default="{ item }">
+                   <div class="autocomplete-item">
+                     <div class="value" v-html="highlightText(item.key, currentKeyQuery)"></div>
+                     <div class="description" v-html="highlightText(item.description || '', currentKeyQuery)"></div>
+                   </div>
+                 </template>
+               </el-autocomplete>
+             </div>
              <el-input 
                v-else 
                :model-value="data.key" 

@@ -44,7 +44,6 @@ import { useI18n } from 'vue-i18n'
 import { onMounted, ref, computed, watch } from 'vue'
 import 'element-plus/es/components/message/style/css';
 import { router } from '@/router'
-import { message } from '@/helper'
 import { ApidocProperty, CommonResponse } from '@src/types';
 import { request } from '@/api/api';
 import { generateEmptyProperty } from '@/helper';
@@ -162,7 +161,6 @@ const handleEditCommonHeader = async () => {
           ...v,
           type: 'string' as const,
         })));
-        message.success(t('修改成功'));
         await commonHeaderStore.getGlobalCommonHeaders();
       } else {
         const params = {
@@ -176,7 +174,6 @@ const handleEditCommonHeader = async () => {
           })),
         }
         await request.put('/api/project/replace_global_common_headers', params);
-        message.success(t('修改成功'));
         await commonHeaderStore.getGlobalCommonHeaders();
       }
     } else {
@@ -188,7 +185,6 @@ const handleEditCommonHeader = async () => {
             type: 'string' as const,
           })),
         } as Partial<import('@src/types').FolderNode>);
-        message.success(t('修改成功'));
         await commonHeaderStore.getCommonHeaders();
       } else {
         const params = {
@@ -203,7 +199,6 @@ const handleEditCommonHeader = async () => {
           })),
         }
         await request.put('/api/project/common_header', params);
-        message.success(t('修改成功'));
         await commonHeaderStore.getCommonHeaders();
       }
     }

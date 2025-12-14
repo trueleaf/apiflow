@@ -114,38 +114,58 @@
       </div>
     </Teleport>
     <el-tabs v-model="activeName" class="params-tabs" data-testid="http-params-tabs">
-      <el-tab-pane name="SParams" data-testid="http-params-tab-params">
+      <el-tab-pane name="SParams">
         <template #label>
-          <el-badge :is-dot="hasQueryOrPathsParams">Params</el-badge>
+          <span data-testid="http-params-tab-params">
+            <el-badge :is-dot="hasQueryOrPathsParams">Params</el-badge>
+          </span>
         </template>
       </el-tab-pane>
-      <el-tab-pane name="SRequestBody" data-testid="http-params-tab-body">
+      <el-tab-pane name="SRequestBody">
         <template #label>
-          <el-badge :is-dot="hasBodyParams">Body</el-badge>
+          <span data-testid="http-params-tab-body">
+            <el-badge :is-dot="hasBodyParams">Body</el-badge>
+          </span>
         </template>
       </el-tab-pane>
-      <el-tab-pane name="SRequestHeaders" data-testid="http-params-tab-headers">
+      <el-tab-pane name="SRequestHeaders">
         <template #label>
-          <el-badge :is-dot="hasHeaders">{{ t("请求头") }}</el-badge>
+          <span data-testid="http-params-tab-headers">
+            <el-badge :is-dot="hasHeaders">{{ t("请求头") }}</el-badge>
+          </span>
         </template>
       </el-tab-pane>
-      <el-tab-pane name="SResponseParams" data-testid="http-params-tab-response">
+      <el-tab-pane name="SResponseParams">
         <template #label>
-          <el-badge :is-dot="!!responseNum">{{ t("返回参数") }}</el-badge>
+          <span data-testid="http-params-tab-response">
+            <el-badge :is-dot="!!responseNum">{{ t("返回参数") }}</el-badge>
+          </span>
         </template>
       </el-tab-pane>
-      <el-tab-pane name="SPreRequest" data-testid="http-params-tab-prescript">
+      <el-tab-pane name="SPreRequest">
         <template #label>
-          <el-badge :is-dot="hasPreRequest">{{ t("前置脚本") }}</el-badge>
+          <span data-testid="http-params-tab-prescript">
+            <el-badge :is-dot="hasPreRequest">{{ t("前置脚本") }}</el-badge>
+          </span>
         </template>
       </el-tab-pane>
-      <el-tab-pane name="SAfterRequest" data-testid="http-params-tab-afterscript">
+      <el-tab-pane name="SAfterRequest">
         <template #label>
-          <el-badge :is-dot="hasAfterRequest">{{ t("后置脚本") }}</el-badge>
+          <span data-testid="http-params-tab-afterscript">
+            <el-badge :is-dot="hasAfterRequest">{{ t("后置脚本") }}</el-badge>
+          </span>
         </template>
       </el-tab-pane>
-      <el-tab-pane :label="t('备注')" name="SRemarks" data-testid="http-params-tab-remarks"></el-tab-pane>
-      <el-tab-pane :label="t('设置')" name="SSettings" data-testid="http-params-tab-settings"></el-tab-pane>
+      <el-tab-pane name="SRemarks">
+        <template #label>
+          <span data-testid="http-params-tab-remarks">{{ t('备注') }}</span>
+        </template>
+      </el-tab-pane>
+      <el-tab-pane name="SSettings">
+        <template #label>
+          <span data-testid="http-params-tab-settings">{{ t('设置') }}</span>
+        </template>
+      </el-tab-pane>
     </el-tabs>
     <keep-alive>
       <component :is="getComponent()" class="workbench" @changeCommonHeaderSendStatus="freshHasHeaders"></component>
