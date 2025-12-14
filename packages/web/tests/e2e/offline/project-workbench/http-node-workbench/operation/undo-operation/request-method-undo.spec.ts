@@ -17,7 +17,7 @@ test.describe('RequestMethodUndo', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 验证初始请求方法为GET
-    const methodSelector = contentPage.locator('.method-select, .request-method-select').first();
+    const methodSelector = contentPage.locator('[data-testid="method-select"]').first();
     await expect(methodSelector).toContainText('GET', { timeout: 5000 });
     // 切换请求方法为POST
     await methodSelector.click();
@@ -61,7 +61,7 @@ test.describe('RequestMethodUndo', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 验证初始请求方法为GET
-    const methodSelector = contentPage.locator('.method-select, .request-method-select').first();
+    const methodSelector = contentPage.locator('[data-testid="method-select"]').first();
     await expect(methodSelector).toContainText('GET', { timeout: 5000 });
     // 切换请求方法为POST
     await methodSelector.click();

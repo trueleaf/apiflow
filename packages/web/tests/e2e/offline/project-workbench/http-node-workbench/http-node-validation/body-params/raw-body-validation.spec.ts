@@ -19,10 +19,10 @@ test.describe('RawBodyValidation', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 选择POST方法
-    const methodSelect = contentPage.locator('.method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
     await postOption.click();
@@ -51,7 +51,7 @@ test.describe('RawBodyValidation', () => {
     }
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
@@ -78,10 +78,10 @@ test.describe('RawBodyValidation', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 选择POST方法
-    const methodSelect = contentPage.locator('.method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
     await postOption.click();
@@ -110,7 +110,7 @@ test.describe('RawBodyValidation', () => {
     }
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
@@ -140,10 +140,10 @@ test.describe('RawBodyValidation', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 选择POST方法
-    const methodSelect = contentPage.locator('.method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
     await postOption.click();
@@ -172,7 +172,7 @@ test.describe('RawBodyValidation', () => {
     }
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
@@ -202,10 +202,10 @@ test.describe('RawBodyValidation', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 选择POST方法
-    const methodSelect = contentPage.locator('.method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
     await postOption.click();
@@ -234,7 +234,7 @@ test.describe('RawBodyValidation', () => {
     }
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应

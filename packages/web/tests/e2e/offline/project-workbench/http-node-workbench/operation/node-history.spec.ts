@@ -19,9 +19,9 @@ test.describe('NodeHistory', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL并发送多次请求以生成历史记录
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?request=first`);
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 发送第二次请求
@@ -60,9 +60,9 @@ test.describe('NodeHistory', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL并发送请求以生成历史记录
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?detail=test`);
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 点击历史记录按钮

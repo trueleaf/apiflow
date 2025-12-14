@@ -19,7 +19,7 @@ test.describe('PreScriptExecution', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击前置脚本标签页
     const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
@@ -35,7 +35,7 @@ test.describe('PreScriptExecution', () => {
     await contentPage.keyboard.type(invalidScript);
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证错误信息显示（脚本错误应该在页面上显示）
@@ -65,7 +65,7 @@ test.describe('PreScriptExecution', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击前置脚本标签页
     const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
@@ -81,7 +81,7 @@ test.describe('PreScriptExecution', () => {
     await contentPage.keyboard.type(runtimeErrorScript);
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证错误信息显示
@@ -111,7 +111,7 @@ test.describe('PreScriptExecution', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击前置脚本标签页
     const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
@@ -127,7 +127,7 @@ test.describe('PreScriptExecution', () => {
     await contentPage.keyboard.type(validScript);
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域显示主请求的响应数据

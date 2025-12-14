@@ -29,7 +29,7 @@ test.describe('RequestInfo', () => {
     const responseBody = contentPage.locator('.response-body');
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 切换到请求信息标签页
-    const requestInfoTab = contentPage.locator('.response-tabs, .response-detail-tabs').locator('text=请求信息, text=Request Info, text=Request').first();
+    const requestInfoTab = contentPage.locator('[data-testid="response-tabs"]').getByRole('tab', { name: /请求信息|Request Info|Request/i }).first();
     if (await requestInfoTab.isVisible().catch(() => false)) {
       await requestInfoTab.click();
       await contentPage.waitForTimeout(300);
@@ -51,10 +51,10 @@ test.describe('RequestInfo', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 选择POST方法
-    const methodSelect = contentPage.locator('.method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(300);
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
@@ -77,7 +77,7 @@ test.describe('RequestInfo', () => {
       await contentPage.waitForTimeout(300);
     }
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在

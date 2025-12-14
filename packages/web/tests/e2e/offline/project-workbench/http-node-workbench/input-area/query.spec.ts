@@ -63,7 +63,7 @@ test.describe('Query', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.request-url .url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Query标签
@@ -80,7 +80,7 @@ test.describe('Query', () => {
     await queryValueInput.fill('1');
     await contentPage.waitForTimeout(300);
     // 点击发送按钮
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域有内容（请求成功发送）
@@ -108,7 +108,7 @@ test.describe('Query', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.request-url .url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Query标签
@@ -125,7 +125,7 @@ test.describe('Query', () => {
     await queryValueInput.fill('{{page_num}}');
     await contentPage.waitForTimeout(300);
     // 点击发送按钮
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域有内容（请求成功发送）
@@ -153,7 +153,7 @@ test.describe('Query', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.request-url .url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Query标签
@@ -170,7 +170,7 @@ test.describe('Query', () => {
     await queryValueInput.fill('@name');
     await contentPage.waitForTimeout(300);
     // 点击发送按钮
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域有内容（请求成功发送）
@@ -198,7 +198,7 @@ test.describe('Query', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.request-url .url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Query标签
@@ -215,7 +215,7 @@ test.describe('Query', () => {
     await queryValueInput.fill('{{prefix}}_user');
     await contentPage.waitForTimeout(300);
     // 点击发送按钮
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域有内容（请求成功发送）
@@ -243,7 +243,7 @@ test.describe('Query', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.request-url .url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Query标签
@@ -266,7 +266,7 @@ test.describe('Query', () => {
       await contentPage.waitForTimeout(200);
     }
     // 点击发送按钮
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域有内容（请求成功发送）

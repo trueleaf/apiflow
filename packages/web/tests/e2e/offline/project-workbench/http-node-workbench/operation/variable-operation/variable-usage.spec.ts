@@ -40,12 +40,12 @@ test.describe('VariableUsage', () => {
     await closeBtn.click();
     await contentPage.waitForTimeout(300);
     // 在url中使用变量
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
     await urlInput.fill('{{baseUrl}}/echo');
     await contentPage.waitForTimeout(200);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
@@ -91,12 +91,12 @@ test.describe('VariableUsage', () => {
     await closeBtn.click();
     await contentPage.waitForTimeout(300);
     // 设置URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
     await urlInput.fill(`http://localhost:${MOCK_SERVER_PORT}/echo?id={{userId}}`);
     await contentPage.waitForTimeout(200);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
@@ -142,7 +142,7 @@ test.describe('VariableUsage', () => {
     await closeBtn.click();
     await contentPage.waitForTimeout(300);
     // 设置URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
     await urlInput.fill(`http://localhost:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(200);
@@ -161,7 +161,7 @@ test.describe('VariableUsage', () => {
     await headerValueInput.fill('{{authToken}}');
     await contentPage.waitForTimeout(200);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
@@ -207,14 +207,14 @@ test.describe('VariableUsage', () => {
     await closeBtn.click();
     await contentPage.waitForTimeout(300);
     // 切换请求方法为POST
-    const methodSelector = contentPage.locator('.method-select, .request-method-select').first();
+    const methodSelector = contentPage.locator('[data-testid="method-select"]').first();
     await methodSelector.click();
     await contentPage.waitForTimeout(200);
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first();
     await postOption.click();
     await contentPage.waitForTimeout(300);
     // 设置URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
     await urlInput.fill(`http://localhost:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(200);
@@ -232,7 +232,7 @@ test.describe('VariableUsage', () => {
     await contentPage.keyboard.type('{"name": "{{userName}}"}');
     await contentPage.waitForTimeout(200);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应

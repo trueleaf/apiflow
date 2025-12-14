@@ -17,7 +17,7 @@ test.describe('RequestMethodRedo', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 初始请求方法为GET,切换为POST
-    const methodSelect = contentPage.locator('.method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
     await postOption.click();
@@ -58,7 +58,7 @@ test.describe('RequestMethodRedo', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 初始请求方法为GET,切换为POST
-    const methodSelect = contentPage.locator('.method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
     await postOption.click();

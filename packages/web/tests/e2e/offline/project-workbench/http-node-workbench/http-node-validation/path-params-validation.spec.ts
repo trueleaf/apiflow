@@ -18,7 +18,7 @@ test.describe('PathParamsValidation', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL包含path参数占位符
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/users/{userId}/posts/{postId}`);
     await contentPage.waitForTimeout(500);
     // 点击Params标签页
@@ -40,7 +40,7 @@ test.describe('PathParamsValidation', () => {
     await contentPage.keyboard.type('456');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
@@ -69,7 +69,7 @@ test.describe('PathParamsValidation', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL包含单个path参数
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/items/{id}`);
     await contentPage.waitForTimeout(500);
     // 点击Params标签页
@@ -83,7 +83,7 @@ test.describe('PathParamsValidation', () => {
     await contentPage.keyboard.type('item_001');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
@@ -108,7 +108,7 @@ test.describe('PathParamsValidation', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/{param}`);
     await contentPage.waitForTimeout(500);
     // 点击Params标签页
@@ -122,7 +122,7 @@ test.describe('PathParamsValidation', () => {
     await contentPage.keyboard.type('测试中文');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应（中文会被URL编码）
@@ -163,7 +163,7 @@ test.describe('PathParamsValidation', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/users/{id}`);
     await contentPage.waitForTimeout(500);
     // 点击Params标签页
@@ -177,7 +177,7 @@ test.describe('PathParamsValidation', () => {
     await contentPage.keyboard.type('{{userId}}');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
@@ -201,7 +201,7 @@ test.describe('PathParamsValidation', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL包含三个path参数
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/users/{userId}/posts/{postId}/comments/{commentId}`);
     await contentPage.waitForTimeout(500);
     // 点击Params标签页
@@ -226,7 +226,7 @@ test.describe('PathParamsValidation', () => {
     await contentPage.keyboard.type('comment003');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应

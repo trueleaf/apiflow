@@ -29,7 +29,7 @@ test.describe('RawValue', () => {
     const responseBody = contentPage.locator('.response-body');
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 切换到原始值标签页
-    const rawTab = contentPage.locator('.response-tabs, .response-detail-tabs').locator('text=原始值, text=Raw, text=原始').first();
+    const rawTab = contentPage.locator('[data-testid="response-tabs"]').getByRole('tab', { name: /原始值|原始|Raw/i }).first();
     if (await rawTab.isVisible().catch(() => false)) {
       await rawTab.click();
       await contentPage.waitForTimeout(300);
@@ -51,10 +51,10 @@ test.describe('RawValue', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?test=rawvalue`);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在

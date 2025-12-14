@@ -30,10 +30,10 @@ test.describe('RedirectConfig', () => {
       await contentPage.waitForTimeout(300);
     }
     // 设置请求URL为重定向接口
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://localhost:${MOCK_SERVER_PORT}/redirect-302`);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应 - 应该是最终/echo接口的响应,而不是重定向响应
@@ -70,10 +70,10 @@ test.describe('RedirectConfig', () => {
       await contentPage.waitForTimeout(300);
     }
     // 设置请求URL为重定向接口
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://localhost:${MOCK_SERVER_PORT}/redirect-302`);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域显示重定向信息
@@ -114,10 +114,10 @@ test.describe('RedirectConfig', () => {
     await maxRedirectsInput.fill('2');
     await contentPage.waitForTimeout(300);
     // 设置请求URL为链式重定向接口(需要重定向5次)
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://localhost:${MOCK_SERVER_PORT}/redirect-chain/5`);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域显示错误信息(超过最大重定向次数)

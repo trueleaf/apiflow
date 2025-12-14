@@ -21,13 +21,13 @@ test.describe('RedoBoundary', () => {
     // 验证重做按钮呈灰色禁用状态
     await expect(redoBtn).toBeDisabled({ timeout: 5000 });
     // 记录当前url值
-    const urlInput = contentPage.locator('.url-input input');
-    const originalUrl = await urlInput.inputValue();
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    const originalUrl = (await urlInput.innerText()).trim();
     // 尝试按ctrl+shift+z快捷键
     await contentPage.keyboard.press('Control+Shift+z');
     await contentPage.waitForTimeout(300);
     // 验证ctrl+shift+z快捷键无响应,url值不变
-    await expect(urlInput).toHaveValue(originalUrl, { timeout: 5000 });
+    await expect(urlInput).toHaveText(originalUrl === '' ? /^\s*$/ : originalUrl, { timeout: 5000 });
   });
   // 测试用例2: 撤销后进行新操作,重做历史被清空,重做按钮置灰不可点击
   test('撤销后进行新操作,重做历史被清空,重做按钮置灰不可点击', async ({ contentPage, clearCache, createProject }) => {
@@ -45,7 +45,7 @@ test.describe('RedoBoundary', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 初始请求方法为GET,切换为POST
-    const methodSelect = contentPage.locator('.method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
     await postOption.click();

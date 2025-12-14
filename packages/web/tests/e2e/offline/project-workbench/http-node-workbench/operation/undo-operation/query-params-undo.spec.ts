@@ -97,16 +97,16 @@ test.describe('QueryParamsUndo', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 在url输入框输入带query参数的url
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
     await urlInput.fill('http://example.com?key=value');
     await contentPage.waitForTimeout(500);
     // 验证url已输入
-    await expect(urlInput).toHaveValue('http://example.com?key=value', { timeout: 5000 });
+    await expect(urlInput).toHaveText('http://example.com?key=value', { timeout: 5000 });
     // 按ctrl+z快捷键撤销
     await contentPage.keyboard.press('Control+z');
     await contentPage.waitForTimeout(200);
     // 验证url恢复为空
-    await expect(urlInput).toHaveValue('', { timeout: 5000 });
+    await expect(urlInput).toHaveText(/^\s*$/, { timeout: 5000 });
   });
 });

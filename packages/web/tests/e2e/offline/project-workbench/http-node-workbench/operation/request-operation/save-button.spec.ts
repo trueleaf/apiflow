@@ -19,7 +19,7 @@ test.describe('SaveButton', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 直接点击保存按钮（无任何修改）
-    const saveBtn = contentPage.locator('.save-btn');
+    const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
     // 验证保存成功，无错误提示
@@ -43,12 +43,12 @@ test.describe('SaveButton', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 修改URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     const newUrl = `http://127.0.0.1:${MOCK_SERVER_PORT}/saved-url`;
     await urlInput.fill(newUrl);
     await contentPage.waitForTimeout(300);
     // 点击保存按钮
-    const saveBtn = contentPage.locator('.save-btn');
+    const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
     // 刷新页面
@@ -56,8 +56,8 @@ test.describe('SaveButton', () => {
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 10000 });
     await contentPage.waitForTimeout(1000);
     // 验证URL保持修改后的值
-    const urlInputAfterReload = contentPage.locator('.url-input input');
-    const savedUrlValue = await urlInputAfterReload.inputValue();
+    const urlInputAfterReload = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    const savedUrlValue = (await urlInputAfterReload.innerText()).trim();
     expect(savedUrlValue).toBe(newUrl);
   });
   // 测试用例3: 验证录入项变更后保存成功且刷新后数据不丢失
@@ -76,17 +76,17 @@ test.describe('SaveButton', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 修改URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     const testUrl = `http://127.0.0.1:${MOCK_SERVER_PORT}/full-save-test`;
     await urlInput.fill(testUrl);
     // 修改请求方法为POST
-    const methodSelect = contentPage.locator('.method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
     await postOption.click();
     await contentPage.waitForTimeout(300);
     // 点击保存按钮
-    const saveBtn = contentPage.locator('.save-btn');
+    const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
     // 刷新页面
@@ -94,11 +94,11 @@ test.describe('SaveButton', () => {
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 10000 });
     await contentPage.waitForTimeout(1000);
     // 验证URL保持
-    const urlInputAfterReload = contentPage.locator('.url-input input');
-    const savedUrlValue = await urlInputAfterReload.inputValue();
+    const urlInputAfterReload = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    const savedUrlValue = (await urlInputAfterReload.innerText()).trim();
     expect(savedUrlValue).toBe(testUrl);
     // 验证请求方法保持为POST
-    const methodSelectAfterReload = contentPage.locator('.method-select');
+    const methodSelectAfterReload = contentPage.locator('[data-testid="method-select"]');
     const methodText = await methodSelectAfterReload.textContent();
     expect(methodText).toContain('POST');
   });

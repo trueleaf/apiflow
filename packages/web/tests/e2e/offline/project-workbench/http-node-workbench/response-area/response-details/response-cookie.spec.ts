@@ -29,7 +29,7 @@ test.describe('ResponseCookie', () => {
     const responseBody = contentPage.locator('.response-body');
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 切换到Cookie标签页
-    const cookieTab = contentPage.locator('.response-tabs, .response-detail-tabs').locator('text=Cookie, text=Cookies').first();
+    const cookieTab = contentPage.locator('[data-testid="response-tabs"]').getByRole('tab', { name: /Cookie|Cookies/i }).first();
     if (await cookieTab.isVisible().catch(() => false)) {
       await cookieTab.click();
       await contentPage.waitForTimeout(300);
@@ -51,7 +51,7 @@ test.describe('ResponseCookie', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击Headers标签页添加Cookie请求头
     const headersTab = contentPage.locator('[data-testid="http-params-tab-header"]');
@@ -67,7 +67,7 @@ test.describe('ResponseCookie', () => {
       await contentPage.waitForTimeout(300);
     }
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在

@@ -24,7 +24,7 @@ test.describe('NoneParams', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.request-url .url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Body标签
@@ -35,7 +35,7 @@ test.describe('NoneParams', () => {
     const noneRadio = contentPage.locator('.body-params .el-radio', { hasText: /none/i });
     await expect(noneRadio).toBeVisible();
     // 点击发送按钮
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域有内容（请求成功发送）

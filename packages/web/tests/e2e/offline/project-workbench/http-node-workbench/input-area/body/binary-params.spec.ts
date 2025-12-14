@@ -26,14 +26,14 @@ test.describe('BinaryParams', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置POST方法
-    const methodSelect = contentPage.locator('.request-url .method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(200);
     const postOption = contentPage.locator('.el-select-dropdown__item', { hasText: 'POST' });
     await postOption.click();
     await contentPage.waitForTimeout(300);
     // 设置请求URL
-    const urlInput = contentPage.locator('.request-url .url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Body标签
@@ -54,7 +54,7 @@ test.describe('BinaryParams', () => {
     await varInput.fill('{{invalidVariable}}');
     await contentPage.waitForTimeout(300);
     // 点击发送按钮
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(1000);
     // 验证显示错误提示
@@ -114,14 +114,14 @@ test.describe('BinaryParams', () => {
       }
     }
     // 设置POST方法
-    const methodSelect = contentPage.locator('.request-url .method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(200);
     const postOption = contentPage.locator('.el-select-dropdown__item', { hasText: 'POST' });
     await postOption.click();
     await contentPage.waitForTimeout(300);
     // 设置请求URL
-    const urlInput = contentPage.locator('.request-url .url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Body标签
@@ -142,7 +142,7 @@ test.describe('BinaryParams', () => {
     await varInput.fill('{{binaryFilePath}}');
     await contentPage.waitForTimeout(300);
     // 点击发送按钮
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域有内容（请求成功发送）
@@ -174,14 +174,14 @@ test.describe('BinaryParams', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置POST方法
-    const methodSelect = contentPage.locator('.request-url .method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(200);
     const postOption = contentPage.locator('.el-select-dropdown__item', { hasText: 'POST' });
     await postOption.click();
     await contentPage.waitForTimeout(300);
     // 设置请求URL
-    const urlInput = contentPage.locator('.request-url .url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Body标签
@@ -198,7 +198,7 @@ test.describe('BinaryParams', () => {
     await fileModeRadio.click();
     await contentPage.waitForTimeout(300);
     // 不选择任何文件，直接发送
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(1000);
     // 验证显示错误提示
@@ -235,14 +235,14 @@ test.describe('BinaryParams', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置POST方法
-    const methodSelect = contentPage.locator('.request-url .method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(200);
     const postOption = contentPage.locator('.el-select-dropdown__item', { hasText: 'POST' });
     await postOption.click();
     await contentPage.waitForTimeout(300);
     // 设置请求URL
-    const urlInput = contentPage.locator('.request-url .url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Body标签
@@ -265,7 +265,7 @@ test.describe('BinaryParams', () => {
       await contentPage.waitForTimeout(500);
     }
     // 点击发送按钮
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域有内容（请求成功发送）

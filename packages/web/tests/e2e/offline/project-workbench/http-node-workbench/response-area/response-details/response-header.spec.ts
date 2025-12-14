@@ -29,7 +29,7 @@ test.describe('ResponseHeader', () => {
     const responseBody = contentPage.locator('.response-body');
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 切换到响应头标签页
-    const headerTab = contentPage.locator('.response-tabs, .response-detail-tabs').locator('text=响应头, text=Headers, text=Response Headers').first();
+    const headerTab = contentPage.locator('[data-testid="response-tabs"]').getByRole('tab', { name: /响应头|Headers|Response Headers/i }).first();
     if (await headerTab.isVisible().catch(() => false)) {
       await headerTab.click();
       await contentPage.waitForTimeout(300);

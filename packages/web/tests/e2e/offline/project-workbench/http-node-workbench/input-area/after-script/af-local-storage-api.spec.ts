@@ -19,7 +19,7 @@ test.describe('AfLocalStorageApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击后置脚本标签页
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
@@ -32,7 +32,7 @@ test.describe('AfLocalStorageApi', () => {
     await contentPage.keyboard.type('af.localStorage.set("user_id", "12345")');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证请求成功（状态码200表示脚本执行无误）
@@ -64,7 +64,7 @@ test.describe('AfLocalStorageApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL（使用变量将获取的值传递到请求中验证）
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击后置脚本标签页
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
@@ -77,7 +77,7 @@ test.describe('AfLocalStorageApi', () => {
     await contentPage.keyboard.type('const value = af.localStorage.get("test_key"); af.variables.set("retrieved_value", value);');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证请求成功
@@ -109,7 +109,7 @@ test.describe('AfLocalStorageApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击后置脚本标签页
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
@@ -122,7 +122,7 @@ test.describe('AfLocalStorageApi', () => {
     await contentPage.keyboard.type('af.localStorage.remove("remove_key")');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证请求成功
@@ -167,7 +167,7 @@ test.describe('AfLocalStorageApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击后置脚本标签页
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
@@ -180,7 +180,7 @@ test.describe('AfLocalStorageApi', () => {
     await contentPage.keyboard.type('af.localStorage.clear()');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证请求成功
@@ -214,7 +214,7 @@ test.describe('AfLocalStorageApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击后置脚本标签页
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
@@ -227,7 +227,7 @@ test.describe('AfLocalStorageApi', () => {
     await contentPage.keyboard.type('const value = af.localStorage.get("non_existent_key"); af.localStorage.set("result", value === null ? "is_null" : "not_null");');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证请求成功

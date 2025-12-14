@@ -19,7 +19,7 @@ test.describe('AfRequestApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill('http://invalid-host.local/echo');
     // 点击前置脚本标签页
     const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
@@ -35,7 +35,7 @@ test.describe('AfRequestApi', () => {
     await contentPage.keyboard.type(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
@@ -61,7 +61,7 @@ test.describe('AfRequestApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/original-path`);
     // 点击前置脚本标签页
     const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
@@ -77,7 +77,7 @@ test.describe('AfRequestApi', () => {
     await contentPage.keyboard.type(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
@@ -103,7 +103,7 @@ test.describe('AfRequestApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击前置脚本标签页
     const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
@@ -119,7 +119,7 @@ test.describe('AfRequestApi', () => {
     await contentPage.keyboard.type(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
@@ -146,7 +146,7 @@ test.describe('AfRequestApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?page=1`);
     // 点击前置脚本标签页
     const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
@@ -163,7 +163,7 @@ af.request.queryParams["newParam"] = "newValue";`;
     await contentPage.keyboard.type(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
@@ -191,7 +191,7 @@ af.request.queryParams["newParam"] = "newValue";`;
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL，使用路径参数
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/users/{userId}`);
     // 点击Params标签页设置路径参数
     const paramsTab = contentPage.locator('[data-testid="http-params-tab-params"]');
@@ -218,7 +218,7 @@ af.request.queryParams["newParam"] = "newValue";`;
     await contentPage.keyboard.type(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
@@ -244,10 +244,10 @@ af.request.queryParams["newParam"] = "newValue";`;
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 选择POST方法
-    const methodSelect = contentPage.locator('.method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(300);
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
@@ -283,7 +283,7 @@ af.request.body.json.newField = "addedValue";`;
     await contentPage.keyboard.type(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
@@ -311,10 +311,10 @@ af.request.body.json.newField = "addedValue";`;
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 选择POST方法
-    const methodSelect = contentPage.locator('.method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(300);
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
@@ -351,7 +351,7 @@ af.request.body.json.newField = "addedValue";`;
     await contentPage.keyboard.type(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
@@ -377,10 +377,10 @@ af.request.body.json.newField = "addedValue";`;
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 初始选择GET方法
-    const methodSelect = contentPage.locator('.method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(300);
     const getOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'GET' });
@@ -400,7 +400,7 @@ af.request.body.json.newField = "addedValue";`;
     await contentPage.keyboard.type(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
@@ -426,7 +426,7 @@ af.request.body.json.newField = "addedValue";`;
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置一个初始的无效URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill('http://invalid-host.local/invalid-path');
     // 点击前置脚本标签页
     const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
@@ -442,7 +442,7 @@ af.request.body.json.newField = "addedValue";`;
     await contentPage.keyboard.type(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在

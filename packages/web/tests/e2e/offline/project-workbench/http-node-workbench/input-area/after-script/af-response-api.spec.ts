@@ -19,7 +19,7 @@ test.describe('AfResponseApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击后置脚本标签页
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
@@ -32,7 +32,7 @@ test.describe('AfResponseApi', () => {
     await contentPage.keyboard.type('console.log("statusCode:", af.response.statusCode)');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证控制台输出包含状态码
@@ -55,7 +55,7 @@ test.describe('AfResponseApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击后置脚本标签页
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
@@ -68,7 +68,7 @@ test.describe('AfResponseApi', () => {
     await contentPage.keyboard.type('console.log("headers:", JSON.stringify(af.response.headers))');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证控制台输出包含响应头信息
@@ -91,7 +91,7 @@ test.describe('AfResponseApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL - 使用set-cookie端点
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/set-cookie`);
     // 点击后置脚本标签页
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
@@ -104,7 +104,7 @@ test.describe('AfResponseApi', () => {
     await contentPage.keyboard.type('console.log("cookies:", JSON.stringify(af.response.cookies))');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证控制台输出包含cookies信息
@@ -127,7 +127,7 @@ test.describe('AfResponseApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击后置脚本标签页
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
@@ -140,7 +140,7 @@ test.describe('AfResponseApi', () => {
     await contentPage.keyboard.type('console.log("body:", JSON.stringify(af.response.body))');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证控制台输出包含响应体信息
@@ -163,7 +163,7 @@ test.describe('AfResponseApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击后置脚本标签页
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
@@ -176,7 +176,7 @@ test.describe('AfResponseApi', () => {
     await contentPage.keyboard.type('console.log("rt:", af.response.rt, "ms")');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证控制台输出包含响应时长
@@ -200,7 +200,7 @@ test.describe('AfResponseApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击后置脚本标签页
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
@@ -213,7 +213,7 @@ test.describe('AfResponseApi', () => {
     await contentPage.keyboard.type('console.log("size:", af.response.size, "bytes")');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证控制台输出包含响应大小
@@ -237,7 +237,7 @@ test.describe('AfResponseApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击后置脚本标签页
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
@@ -250,7 +250,7 @@ test.describe('AfResponseApi', () => {
     await contentPage.keyboard.type('console.log("ip:", af.response.ip)');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证控制台输出包含IP地址

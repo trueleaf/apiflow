@@ -19,7 +19,7 @@ test.describe('AfVariablesApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 切换到后置脚本Tab
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
@@ -32,7 +32,7 @@ test.describe('AfVariablesApi', () => {
     await contentPage.keyboard.type('af.variables.set("api_url", "https://example.com/api");\nconst apiUrl = af.variables.get("api_url");\nconsole.log("apiUrl:", apiUrl);');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证控制台输出包含变量值
@@ -56,7 +56,7 @@ test.describe('AfVariablesApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 切换到后置脚本Tab
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
@@ -69,7 +69,7 @@ test.describe('AfVariablesApi', () => {
     await contentPage.keyboard.type('af.variables.set("next_page", 2);\nconsole.log("变量已设置:", af.variables.get("next_page"));');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证控制台输出包含设置的变量值
@@ -93,7 +93,7 @@ test.describe('AfVariablesApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置第一个请求的URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 切换到后置脚本Tab
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
@@ -106,7 +106,7 @@ test.describe('AfVariablesApi', () => {
     await contentPage.keyboard.type('af.variables.set("token_from_response", "test_token_abc123");\nconsole.log("Token变量已设置");');
     await contentPage.waitForTimeout(300);
     // 发送第一个请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证第一个请求成功设置了变量
@@ -120,7 +120,7 @@ test.describe('AfVariablesApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置第二个请求的URL，使用变量
-    const urlInput2 = contentPage.locator('.url-input input');
+    const urlInput2 = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput2.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?token={{token_from_response}}`);
     // 切换到后置脚本Tab
     await afterScriptTab.click();

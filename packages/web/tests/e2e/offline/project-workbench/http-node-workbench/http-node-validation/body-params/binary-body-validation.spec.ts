@@ -239,7 +239,7 @@ test.describe('BinaryBodyValidation', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 选择POST方法
-    const methodSelect = contentPage.locator('.request-url .method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(200);
     const postOption = contentPage.locator('.el-select-dropdown__item', { hasText: 'POST' });
@@ -283,7 +283,7 @@ test.describe('BinaryBodyValidation', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 选择PUT方法
-    const methodSelect = contentPage.locator('.request-url .method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(200);
     const putOption = contentPage.locator('.el-select-dropdown__item', { hasText: 'PUT' });
@@ -327,7 +327,7 @@ test.describe('BinaryBodyValidation', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 选择PATCH方法
-    const methodSelect = contentPage.locator('.request-url .method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(200);
     const patchOption = contentPage.locator('.el-select-dropdown__item', { hasText: 'PATCH' });

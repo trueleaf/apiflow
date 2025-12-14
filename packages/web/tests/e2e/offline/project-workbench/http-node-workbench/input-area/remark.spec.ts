@@ -60,7 +60,7 @@ test.describe('Remark', () => {
     await editorContent.pressSequentially(testRemark, { delay: 30 });
     await contentPage.waitForTimeout(300);
     // 保存内容
-    const saveBtn = contentPage.locator('.save-btn');
+    const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
     await contentPage.waitForTimeout(1000);
     // 刷新页面
@@ -224,7 +224,7 @@ test.describe('Remark', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 先保存确保初始状态没有未保存标记
-    const saveBtn = contentPage.locator('.save-btn');
+    const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
     // 切换到备注标签页

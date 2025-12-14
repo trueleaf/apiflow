@@ -19,7 +19,7 @@ test.describe('QueryParamsValidation', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击Params标签页
     const paramsTab = contentPage.locator('[data-testid="http-params-tab-params"]');
@@ -30,7 +30,7 @@ test.describe('QueryParamsValidation', () => {
     await keyInputs.first().fill('id');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
@@ -54,7 +54,7 @@ test.describe('QueryParamsValidation', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击Params标签页
     const paramsTab = contentPage.locator('[data-testid="http-params-tab-params"]');
@@ -68,7 +68,7 @@ test.describe('QueryParamsValidation', () => {
     await contentPage.keyboard.type('1');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
@@ -93,7 +93,7 @@ test.describe('QueryParamsValidation', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击Params标签页
     const paramsTab = contentPage.locator('[data-testid="http-params-tab-params"]');
@@ -112,7 +112,7 @@ test.describe('QueryParamsValidation', () => {
     await contentPage.keyboard.type('3');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
@@ -138,7 +138,7 @@ test.describe('QueryParamsValidation', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击Params标签页
     const paramsTab = contentPage.locator('[data-testid="http-params-tab-params"]');
@@ -157,7 +157,7 @@ test.describe('QueryParamsValidation', () => {
     await contentPage.keyboard.type('a b');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应

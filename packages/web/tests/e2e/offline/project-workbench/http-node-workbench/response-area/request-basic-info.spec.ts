@@ -52,12 +52,12 @@ test.describe('RequestBasicInfo', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
     await urlInput.fill(`http://localhost:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(200);
     // 测试GET方法 - 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证GET方法在基本信息区域显示并有颜色
@@ -69,7 +69,7 @@ test.describe('RequestBasicInfo', () => {
     const getMethodStyle = await getMethodLabel.getAttribute('style');
     expect(getMethodStyle).toContain('color');
     // 切换为POST方法
-    const methodSelect = contentPage.locator('.request-method-select, .method-select').first();
+    const methodSelect = contentPage.locator('[data-testid="method-select"]').first();
     await methodSelect.click();
     await contentPage.waitForTimeout(200);
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first();

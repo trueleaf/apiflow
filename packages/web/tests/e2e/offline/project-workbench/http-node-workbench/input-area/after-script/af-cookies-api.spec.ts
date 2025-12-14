@@ -19,7 +19,7 @@ test.describe('AfCookiesApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 切换到后置脚本Tab
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
@@ -32,7 +32,7 @@ test.describe('AfCookiesApi', () => {
     await contentPage.keyboard.type('af.cookies["session_id"] = "test_session_123";\nconst sessionId = af.cookies["session_id"];\nconsole.log("sessionId:", sessionId);');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应成功
@@ -55,7 +55,7 @@ test.describe('AfCookiesApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 切换到后置脚本Tab
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
@@ -68,7 +68,7 @@ test.describe('AfCookiesApi', () => {
     await contentPage.keyboard.type('af.cookies["cookie1"] = "value1";\naf.cookies["cookie2"] = "value2";\nconst allCookies = af.cookies;\nconsole.log("allCookies:", allCookies);');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应成功
@@ -91,7 +91,7 @@ test.describe('AfCookiesApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 切换到后置脚本Tab
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
@@ -104,7 +104,7 @@ test.describe('AfCookiesApi', () => {
     await contentPage.keyboard.type('af.cookies["auth_token"] = "xyz789";\nconsole.log("Cookie已设置:", af.cookies["auth_token"]);');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应成功
@@ -127,7 +127,7 @@ test.describe('AfCookiesApi', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 切换到后置脚本Tab
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
@@ -140,7 +140,7 @@ test.describe('AfCookiesApi', () => {
     await contentPage.keyboard.type('af.cookies["auth_token"] = "xyz789";\nconsole.log("Cookie设置后:", af.cookies["auth_token"]);\ndelete af.cookies["auth_token"];\nconsole.log("Cookie删除后:", af.cookies["auth_token"]);');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应成功

@@ -17,7 +17,7 @@ test.describe('PathParamsUndo', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 先在url中输入带path参数的格式，触发path参数显示
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
     await urlInput.fill('http://example.com/{id}');
     await contentPage.waitForTimeout(500);
@@ -62,17 +62,17 @@ test.describe('PathParamsUndo', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 在url输入框输入带path参数的url
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
     await urlInput.fill('http://example.com/users/{userId}/posts/{postId}');
     await contentPage.waitForTimeout(500);
     // 验证url已输入
-    await expect(urlInput).toHaveValue('http://example.com/users/{userId}/posts/{postId}', { timeout: 5000 });
+    await expect(urlInput).toHaveText('http://example.com/users/{userId}/posts/{postId}', { timeout: 5000 });
     // 按ctrl+z快捷键撤销
     await contentPage.keyboard.press('Control+z');
     await contentPage.waitForTimeout(200);
     // 验证url恢复为空
-    await expect(urlInput).toHaveValue('', { timeout: 5000 });
+    await expect(urlInput).toHaveText(/^\s*$/, { timeout: 5000 });
   });
   // 测试用例3: path参数value输入后点击撤销按钮恢复
   test('path参数value输入后点击撤销按钮恢复', async ({ contentPage, clearCache, createProject }) => {
@@ -90,7 +90,7 @@ test.describe('PathParamsUndo', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 先在url中输入带path参数的格式
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
     await urlInput.fill('http://example.com/{id}');
     await contentPage.waitForTimeout(500);

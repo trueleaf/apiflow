@@ -63,7 +63,7 @@ test.describe('CustomHeaders', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.request-url .url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Headers标签
@@ -80,7 +80,7 @@ test.describe('CustomHeaders', () => {
     await headerValueInput.fill('CustomAgent/1.0');
     await contentPage.waitForTimeout(300);
     // 点击发送按钮
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域有内容（请求成功发送）
@@ -147,7 +147,7 @@ test.describe('CustomHeaders', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.request-url .url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Headers标签
@@ -164,7 +164,7 @@ test.describe('CustomHeaders', () => {
     await headerValueInput.fill('12345');
     await contentPage.waitForTimeout(300);
     // 点击发送按钮
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域有内容（请求成功发送）
@@ -192,7 +192,7 @@ test.describe('CustomHeaders', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.request-url .url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Headers标签
@@ -209,7 +209,7 @@ test.describe('CustomHeaders', () => {
     await headerValueInput.fill('Bearer {{token}}');
     await contentPage.waitForTimeout(300);
     // 点击发送按钮
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域有内容（请求成功发送）
@@ -237,7 +237,7 @@ test.describe('CustomHeaders', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.request-url .url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Headers标签
@@ -260,7 +260,7 @@ test.describe('CustomHeaders', () => {
       await contentPage.waitForTimeout(200);
     }
     // 点击发送按钮
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域有内容（请求成功发送）

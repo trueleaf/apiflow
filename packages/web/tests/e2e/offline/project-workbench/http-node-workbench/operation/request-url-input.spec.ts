@@ -89,11 +89,11 @@ test.describe('RequestUrlInput', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 输入带变量的URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://{{localUrl}}:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应
@@ -116,14 +116,14 @@ test.describe('RequestUrlInput', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 输入不带协议的URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 点击其他区域失焦
-    await contentPage.locator('.method-select').click();
+    await contentPage.locator('[data-testid="method-select"]').click();
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应
@@ -146,11 +146,11 @@ test.describe('RequestUrlInput', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 输入带query参数的URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?id=3&name=lee`);
     await contentPage.waitForTimeout(300);
     // 点击其他区域失焦
-    await contentPage.locator('.method-select').click();
+    await contentPage.locator('[data-testid="method-select"]').click();
     await contentPage.waitForTimeout(500);
     // 验证参数列表中存在解析的参数
     const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
@@ -174,14 +174,14 @@ test.describe('RequestUrlInput', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 输入带query参数的URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?id=3&name=lee`);
     await contentPage.waitForTimeout(300);
     // 点击其他区域失焦
-    await contentPage.locator('.method-select').click();
+    await contentPage.locator('[data-testid="method-select"]').click();
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应包含query参数
@@ -206,17 +206,17 @@ test.describe('RequestUrlInput', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 先清空URL输入框
-    const urlInput = contentPage.locator('.url-input input');
-    await urlInput.clear();
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill('');
     await contentPage.waitForTimeout(300);
     // 直接输入带空格的URL（模拟粘贴效果）
     await urlInput.fill(`  http://127.0.0.1:${MOCK_SERVER_PORT}/echo  `);
     await contentPage.waitForTimeout(300);
     // 点击其他区域失焦
-    await contentPage.locator('.method-select').click();
+    await contentPage.locator('[data-testid="method-select"]').click();
     await contentPage.waitForTimeout(300);
     // 发送请求验证URL被正确处理
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应

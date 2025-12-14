@@ -19,7 +19,7 @@ test.describe('RequestMethodInput', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 点击请求方法下拉框
-    const methodSelect = contentPage.locator('.method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(300);
     // 验证下拉选项包含所有请求方法
@@ -64,11 +64,11 @@ test.describe('RequestMethodInput', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 保存节点
-    const saveBtn = contentPage.locator('.save-btn');
+    const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
     // 切换请求方法为POST
-    const methodSelect = contentPage.locator('.method-select');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
     await postOption.click();
@@ -100,11 +100,11 @@ test.describe('RequestMethodInput', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 测试GET方法
-    const methodSelect = contentPage.locator('.method-select');
-    const sendBtn = contentPage.locator('.send-btn');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     const responseBody = contentPage.locator('.response-body');

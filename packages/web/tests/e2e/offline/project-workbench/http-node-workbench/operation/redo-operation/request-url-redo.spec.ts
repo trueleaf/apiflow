@@ -17,7 +17,7 @@ test.describe('RequestUrlRedo', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 在url输入框中输入字符
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
     await urlInput.fill('');
     await contentPage.keyboard.type('a');
@@ -25,18 +25,18 @@ test.describe('RequestUrlRedo', () => {
     await contentPage.keyboard.type('b');
     await contentPage.waitForTimeout(300);
     // 验证url值为ab
-    await expect(urlInput).toHaveValue('ab', { timeout: 5000 });
+    await expect(urlInput).toHaveText('ab', { timeout: 5000 });
     // 按ctrl+z快捷键撤销
     await contentPage.keyboard.press('Control+z');
     await contentPage.waitForTimeout(300);
     // 验证撤销后url值
-    const urlValueAfterUndo = await urlInput.inputValue();
+    const urlValueAfterUndo = (await urlInput.innerText()).trim();
     expect(urlValueAfterUndo.length).toBeLessThan(2);
     // 按ctrl+shift+z快捷键重做
     await contentPage.keyboard.press('Control+Shift+z');
     await contentPage.waitForTimeout(300);
     // 验证重做后url值恢复为ab
-    await expect(urlInput).toHaveValue('ab', { timeout: 5000 });
+    await expect(urlInput).toHaveText('ab', { timeout: 5000 });
   });
   // 测试用例2: 请求url中输入字符串ab,点击撤销按钮撤销到a,再点击重做按钮,url值为ab
   test('请求url输入后点击撤销按钮再点击重做按钮,url值恢复', async ({ contentPage, clearCache, createProject }) => {
@@ -54,7 +54,7 @@ test.describe('RequestUrlRedo', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 在url输入框中输入字符
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
     await urlInput.fill('');
     await contentPage.keyboard.type('a');
@@ -62,19 +62,19 @@ test.describe('RequestUrlRedo', () => {
     await contentPage.keyboard.type('b');
     await contentPage.waitForTimeout(300);
     // 验证url值为ab
-    await expect(urlInput).toHaveValue('ab', { timeout: 5000 });
+    await expect(urlInput).toHaveText('ab', { timeout: 5000 });
     // 点击撤销按钮
     const undoBtn = contentPage.locator('[data-testid="undo-btn"]');
     await undoBtn.click();
     await contentPage.waitForTimeout(300);
     // 验证撤销后url值
-    const urlValueAfterUndo = await urlInput.inputValue();
+    const urlValueAfterUndo = (await urlInput.innerText()).trim();
     expect(urlValueAfterUndo.length).toBeLessThan(2);
     // 点击重做按钮
     const redoBtn = contentPage.locator('[data-testid="redo-btn"]');
     await redoBtn.click();
     await contentPage.waitForTimeout(300);
     // 验证重做后url值恢复为ab
-    await expect(urlInput).toHaveValue('ab', { timeout: 5000 });
+    await expect(urlInput).toHaveText('ab', { timeout: 5000 });
   });
 });

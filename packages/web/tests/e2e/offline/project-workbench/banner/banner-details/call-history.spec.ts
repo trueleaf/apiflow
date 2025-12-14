@@ -25,7 +25,7 @@ test.describe('CallHistory', () => {
     await listTab.click();
     await contentPage.waitForTimeout(300);
     // 验证el-tree节点树显示
-    const nodeTree = contentPage.locator('.el-tree');
+    const nodeTree = contentPage.locator('[data-testid="banner-doc-tree"]');
     await expect(nodeTree).toBeVisible({ timeout: 5000 });
   });
 
@@ -35,7 +35,7 @@ test.describe('CallHistory', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    // 添加HTTP节点并发送请求生成历史记录
+    // 添加HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
     await addHttpBtn.click();
@@ -138,32 +138,53 @@ test.describe('CallHistory', () => {
     await addHttpBtn.click();
     const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
     await expect(addApiDialog).toBeVisible({ timeout: 5000 });
-    await addApiDialog.locator('input').first().fill('未命名接口');
+    const httpName = '未命名接口';
+    await addApiDialog.locator('input').first().fill(httpName);
     await addApiDialog.locator('.el-button--primary').last().click();
     await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    // 发送请求生成历史记录
-    const sendBtn = contentPage.locator('[data-testid="http-send-btn"]');
-    if (await sendBtn.isVisible()) {
-      await sendBtn.click();
-      await contentPage.waitForTimeout(1000);
+    // 选中接口节点，发送请求生成历史记录
+    const bannerTree = contentPage.locator('[data-testid="banner-doc-tree"]');
+    await expect(bannerTree).toBeVisible({ timeout: 5000 });
+    await bannerTree.locator('.el-tree-node__content', { hasText: httpName }).first().click();
+    const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror');
+    await expect(urlEditor).toBeVisible({ timeout: 5000 });
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.type('http://localhost:3456/echo');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await expect(sendBtn).toBeVisible({ timeout: 5000 });
+    await sendBtn.click();
+    await contentPage.waitForTimeout(800);
+
+    // 关闭当前接口Tab，确保后续点击历史记录会重新打开/聚焦对应接口
+    const apiTab = contentPage.locator('.nav .item').filter({ hasText: httpName }).first();
+    await expect(apiTab).toBeVisible({ timeout: 5000 });
+    const apiTabCloseBtn = apiTab.locator('[data-testid="project-nav-tab-close-btn"]');
+    if (await apiTabCloseBtn.isVisible()) {
+      await apiTabCloseBtn.click();
+    } else {
+      await apiTab.click({ button: 'right' });
+      await contentPage.waitForTimeout(200);
+      const closeMenuItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /关闭|Close/ }).first();
+      await expect(closeMenuItem).toBeVisible({ timeout: 5000 });
+      await closeMenuItem.click();
     }
+    await expect(apiTab).not.toBeVisible({ timeout: 5000 });
+
     // 切换到调用历史Tab
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
     const historyTab = bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ });
     await historyTab.click();
     await contentPage.waitForTimeout(500);
-    // 检查是否有历史记录项
+    // 等待历史记录项出现并点击
     const historyItem = contentPage.locator('.send-history-list .history-item').first();
-    const hasHistoryItem = await historyItem.isVisible().catch(() => false);
-    if (hasHistoryItem) {
-      // 点击历史记录项
-      await historyItem.click();
-      await contentPage.waitForTimeout(500);
-      // 验证nav区域有Tab显示
-      const navTabs = contentPage.locator('.project-nav .nav-item');
-      await expect(navTabs.first()).toBeVisible({ timeout: 5000 });
-    }
+    await expect(historyItem).toBeVisible({ timeout: 15000 });
+    await historyItem.click();
+    await contentPage.waitForTimeout(500);
+    // 验证nav区域有对应Tab显示（点击历史记录应打开/聚焦对应接口）
+    const navTab = contentPage.locator('[data-testid^="project-nav-tab-"]').filter({ hasText: httpName }).first();
+    await expect(navTab).toBeVisible({ timeout: 5000 });
   });
 
   // 测试用例6: 已删除接口的历史记录标记验证
@@ -178,48 +199,48 @@ test.describe('CallHistory', () => {
     await addHttpBtn.click();
     const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
     await expect(addApiDialog).toBeVisible({ timeout: 5000 });
-    await addApiDialog.locator('input').first().fill('未命名接口');
+    const httpName = '未命名接口';
+    await addApiDialog.locator('input').first().fill(httpName);
     await addApiDialog.locator('.el-button--primary').last().click();
     await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    // 发送请求生成历史记录
-    const sendBtn = contentPage.locator('[data-testid="http-send-btn"]');
-    if (await sendBtn.isVisible()) {
-      await sendBtn.click();
-      await contentPage.waitForTimeout(1000);
-    }
+    // 选中接口节点，发送请求生成历史记录
+    const bannerTree = contentPage.locator('[data-testid="banner-doc-tree"]');
+    await expect(bannerTree).toBeVisible({ timeout: 5000 });
+    const httpRow = bannerTree.locator('.el-tree-node__content', { hasText: httpName }).first();
+    await httpRow.click();
+    const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror');
+    await expect(urlEditor).toBeVisible({ timeout: 5000 });
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.type('http://localhost:3456/echo');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await expect(sendBtn).toBeVisible({ timeout: 5000 });
+    await sendBtn.click();
+    await contentPage.waitForTimeout(800);
+
     // 删除HTTP节点
-    const treeNode = contentPage.locator('.el-tree-node__content').first();
-    await treeNode.click({ button: 'right' });
-    await contentPage.waitForTimeout(300);
-    const deleteMenuItem = contentPage.locator('.el-dropdown-menu__item').filter({ hasText: /删除/ });
-    if (await deleteMenuItem.isVisible()) {
-      await deleteMenuItem.click();
-      await contentPage.waitForTimeout(300);
-      // 确认删除
-      const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
-      if (await confirmBtn.isVisible()) {
-        await confirmBtn.click();
-        await contentPage.waitForTimeout(500);
-      }
-    }
+    await httpRow.click({ button: 'right' });
+  const deleteMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: /删除|Delete/ }).first();
+    await expect(deleteMenuItem).toBeVisible({ timeout: 5000 });
+    await deleteMenuItem.click();
+    const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
+    await expect(confirmBtn).toBeVisible({ timeout: 5000 });
+    await confirmBtn.click();
+    await contentPage.waitForTimeout(800);
     // 切换到调用历史Tab
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
     const historyTab = bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ });
     await historyTab.click();
     await contentPage.waitForTimeout(500);
-    // 验证已删除接口的历史记录显示"已删除"标签
-    const deletedTag = contentPage.locator('.send-history-list .deleted-tag');
-    const deletedItem = contentPage.locator('.send-history-list .deleted-item');
-    // 如果有已删除的历史记录，验证标签显示
-    const hasDeletedItem = await deletedItem.first().isVisible().catch(() => false);
-    if (hasDeletedItem) {
-      await expect(deletedTag.first()).toBeVisible();
-      await expect(deletedTag.first()).toContainText(/已删除/);
-      // 验证清理按钮显示
-      const cleanDeletedBtn = contentPage.locator('.clean-deleted-btn');
-      await expect(cleanDeletedBtn).toBeVisible();
-    }
+    // 验证已删除接口的历史记录显示"已删除"标签，并显示清理按钮
+    const deletedItem = contentPage.locator('.send-history-list .history-item.deleted-item').first();
+    await expect(deletedItem).toBeVisible({ timeout: 15000 });
+    const deletedTag = deletedItem.locator('.deleted-tag');
+    await expect(deletedTag).toBeVisible({ timeout: 5000 });
+    await expect(deletedTag).toContainText(/已删除/);
+    const cleanDeletedBtn = contentPage.locator('.clean-deleted-btn');
+    await expect(cleanDeletedBtn).toBeVisible({ timeout: 5000 });
   });
 
   // 测试用例7: 历史记录滚动加载更多功能验证
@@ -228,6 +249,49 @@ test.describe('CallHistory', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
+    // 预置足够数量的历史数据（31条），保证触发分页并出现“没有更多了”
+    await contentPage.evaluate(async () => {
+      const dbName = 'sendHistoryCache';
+      const version = 2;
+      const storeName = 'histories';
+      const openRequest = indexedDB.open(dbName, version);
+      const db: IDBDatabase = await new Promise((resolve, reject) => {
+        openRequest.onupgradeneeded = () => {
+          const upgradeDb = openRequest.result;
+          if (!upgradeDb.objectStoreNames.contains(storeName)) {
+            const store = upgradeDb.createObjectStore(storeName, { keyPath: '_id' });
+            store.createIndex('nodeId', 'nodeId', { unique: false });
+            store.createIndex('timestamp', 'timestamp', { unique: false });
+            store.createIndex('networkType', 'networkType', { unique: false });
+          }
+        };
+        openRequest.onsuccess = () => resolve(openRequest.result);
+        openRequest.onerror = () => reject(openRequest.error);
+      });
+
+      const tx = db.transaction(storeName, 'readwrite');
+      const store = tx.objectStore(storeName);
+      const now = Date.now();
+      for (let i = 0; i < 31; i += 1) {
+        store.put({
+          _id: `e2e-${now}-${i}`,
+          nodeId: `e2e-node-${i}`,
+          nodeName: `E2E接口${i}`,
+          nodeType: 'http',
+          method: 'GET',
+          url: `http://localhost:3456/echo?i=${i}`,
+          timestamp: now - i,
+          operatorName: 'e2e',
+          networkType: 'offline'
+        });
+      }
+      await new Promise<void>((resolve, reject) => {
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error);
+      });
+      db.close();
+    });
     // 切换到调用历史Tab
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
     const historyTab = bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ });
@@ -236,20 +300,13 @@ test.describe('CallHistory', () => {
     // 验证历史列表容器存在且可滚动
     const historyList = contentPage.locator('.send-history-list');
     await expect(historyList).toBeVisible({ timeout: 5000 });
-    // 验证加载状态元素存在于DOM中（可能隐藏）
-    const loadingMore = contentPage.locator('.send-history-list .loading-more');
-    const noMore = contentPage.locator('.send-history-list .no-more');
-    // 滚动到底部触发加载
+    // 等待列表至少渲染一条历史记录（避免仍处于加载状态）
+    await expect(contentPage.locator('.send-history-list .history-item').first()).toBeVisible({ timeout: 15000 });
+    // 滚动到底部触发加载更多，并最终出现“没有更多了”
     await historyList.evaluate((el) => {
       el.scrollTop = el.scrollHeight;
     });
-    await contentPage.waitForTimeout(500);
-    // 验证加载中或没有更多数据的状态
-    const isLoading = await loadingMore.isVisible().catch(() => false);
-    const isNoMore = await noMore.isVisible().catch(() => false);
-    const isEmpty = await contentPage.locator('.send-history-list .empty').isVisible().catch(() => false);
-    // 至少应该显示一种状态
-    expect(isLoading || isNoMore || isEmpty).toBeTruthy();
+    await expect(contentPage.locator('.send-history-list .no-more')).toBeVisible({ timeout: 15000 });
   });
 
   // 测试用例8: 清理已删除接口历史功能验证
@@ -258,30 +315,79 @@ test.describe('CallHistory', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
+    // 添加HTTP节点、发送请求生成历史，然后删除该接口，确保出现“已删除”历史
+    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
+    await addHttpBtn.click();
+    const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
+    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
+    const httpName = '未命名接口';
+    await addApiDialog.locator('input').first().fill(httpName);
+    await addApiDialog.locator('.el-button--primary').last().click();
+    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+
+    const bannerTree = contentPage.locator('[data-testid="banner-doc-tree"]');
+    await expect(bannerTree).toBeVisible({ timeout: 5000 });
+    const httpRow = bannerTree.locator('.el-tree-node__content', { hasText: httpName }).first();
+    await httpRow.click();
+    const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror');
+    await expect(urlEditor).toBeVisible({ timeout: 5000 });
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.type('http://localhost:3456/echo');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await expect(sendBtn).toBeVisible({ timeout: 5000 });
+    await sendBtn.click();
+    await contentPage.waitForTimeout(800);
+
+    await httpRow.click({ button: 'right' });
+    const deleteMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: /删除|Delete/ }).first();
+    await expect(deleteMenuItem).toBeVisible({ timeout: 5000 });
+    await deleteMenuItem.click();
+    const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
+    await expect(confirmBtn).toBeVisible({ timeout: 5000 });
+    await confirmBtn.click();
+    await contentPage.waitForTimeout(800);
+
     // 切换到调用历史Tab
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
     const historyTab = bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ });
     await historyTab.click();
     await contentPage.waitForTimeout(300);
-    // 验证清理按钮的条件渲染
+
+    // 验证清理按钮显示并包含数量
     const cleanDeletedBtn = contentPage.locator('.clean-deleted-btn');
-    const hasCleanBtn = await cleanDeletedBtn.isVisible().catch(() => false);
-    if (hasCleanBtn) {
-      // 验证按钮显示已删除记录数量
-      const btnText = await cleanDeletedBtn.textContent();
-      expect(btnText).toMatch(/清理已删除接口历史.*\(\d+\)/);
-      // 点击清理按钮
-      await cleanDeletedBtn.click();
-      await contentPage.waitForTimeout(300);
-      // 验证弹出确认对话框
-      const confirmDialog = contentPage.locator('.el-message-box');
-      await expect(confirmDialog).toBeVisible({ timeout: 5000 });
-      // 点击取消按钮
-      const cancelBtn = confirmDialog.locator('.el-message-box__btns button').filter({ hasText: /取消/ });
-      await cancelBtn.click();
-      await contentPage.waitForTimeout(300);
-      // 验证对话框关闭
-      await expect(confirmDialog).toBeHidden({ timeout: 5000 });
-    }
+    await expect(cleanDeletedBtn).toBeVisible({ timeout: 15000 });
+    await expect(cleanDeletedBtn).toContainText(/\(\d+\)/);
+
+    // 点击清理按钮，验证确认对话框并取消
+    await cleanDeletedBtn.click();
+    const confirmDialog = contentPage.locator('.el-message-box');
+    await expect(confirmDialog).toBeVisible({ timeout: 5000 });
+    const cancelBtn = confirmDialog.locator('.el-message-box__btns button').filter({ hasText: /取消/ });
+    await cancelBtn.click();
+    await expect(confirmDialog).toBeHidden({ timeout: 5000 });
+
+    // 再次点击清理按钮并确认，验证清理后列表为空状态（从UI角度验证）
+    await cleanDeletedBtn.click();
+    await expect(confirmDialog).toBeVisible({ timeout: 5000 });
+    const confirmClearBtn = confirmDialog.locator('.el-message-box__btns .el-button--primary');
+    await expect(confirmClearBtn).toBeVisible({ timeout: 5000 });
+    await confirmClearBtn.click();
+    await expect(confirmDialog).toBeHidden({ timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+
+    // 已删除历史记录应被清理：deleted-item 不再出现
+    const deletedItem = contentPage.locator('.send-history-list .history-item.deleted-item');
+    await expect(deletedItem).toHaveCount(0);
+
+    // 历史列表应展示空状态
+    const emptyState = contentPage.locator('.send-history-list .empty');
+    await expect(emptyState).toBeVisible({ timeout: 5000 });
+    await expect(emptyState).toContainText(/暂无历史记录/);
+
+    // 清理按钮应消失（没有可清理的已删除历史）
+    await expect(cleanDeletedBtn).toBeHidden({ timeout: 5000 });
   });
 });

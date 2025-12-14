@@ -19,11 +19,11 @@ test.describe('RequestUrlDisplay', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 输入包含中文的URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?name=测试`);
     await contentPage.waitForTimeout(300);
     // 点击其他区域使输入框失焦
-    await contentPage.locator('.method-select').click();
+    await contentPage.locator('[data-testid="method-select"]').click();
     await contentPage.waitForTimeout(300);
     // 验证URL展示区域存在编码后的内容
     const urlDisplay = contentPage.locator('.full-url, .url-display');
@@ -49,11 +49,11 @@ test.describe('RequestUrlDisplay', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 输入包含未定义变量的URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/{{undefinedVar}}`);
     await contentPage.waitForTimeout(300);
     // 点击其他区域使输入框失焦
-    await contentPage.locator('.method-select').click();
+    await contentPage.locator('[data-testid="method-select"]').click();
     await contentPage.waitForTimeout(300);
     // 验证URL展示区域存在警告或提示
     const urlDisplay = contentPage.locator('.full-url, .url-display');
@@ -75,14 +75,14 @@ test.describe('RequestUrlDisplay', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 输入不带协议的URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 点击其他区域使输入框失焦
-    await contentPage.locator('.method-select').click();
+    await contentPage.locator('[data-testid="method-select"]').click();
     await contentPage.waitForTimeout(500);
     // 发送请求验证自动添加了http://
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在（说明请求成功）

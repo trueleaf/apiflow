@@ -19,7 +19,7 @@ test.describe('AfterScriptExecution', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 点击后置脚本标签页
@@ -34,7 +34,7 @@ test.describe('AfterScriptExecution', () => {
     await contentPage.keyboard.type('const x = { invalid syntax');
     await contentPage.waitForTimeout(500);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域显示脚本错误信息
@@ -60,7 +60,7 @@ test.describe('AfterScriptExecution', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 点击后置脚本标签页
@@ -75,7 +75,7 @@ test.describe('AfterScriptExecution', () => {
     await contentPage.keyboard.type('const x = null; x.property;');
     await contentPage.waitForTimeout(500);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域显示脚本运行时错误信息
@@ -101,7 +101,7 @@ test.describe('AfterScriptExecution', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 设置请求URL
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 点击后置脚本标签页
@@ -116,7 +116,7 @@ test.describe('AfterScriptExecution', () => {
     await contentPage.keyboard.type('const statusCode = af.response.statusCode;');
     await contentPage.waitForTimeout(500);
     // 发送请求
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证主请求成功返回（后置脚本在主请求响应后执行，不影响主请求结果）
