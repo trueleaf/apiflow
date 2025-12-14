@@ -26,9 +26,6 @@ export default defineConfig({
   // CI 环境下禁止 test.only
   forbidOnly: !!process.env.CI,
   
-  // 失败重试 2 次（Electron 测试存在 step id not found 内部错误，需要重试机制）
-  retries: 2,
-  
   // 使用 1 个 worker（Electron 应用测试建议单线程）
   workers: 1,
   

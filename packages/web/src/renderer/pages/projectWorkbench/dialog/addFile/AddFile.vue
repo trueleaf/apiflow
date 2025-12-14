@@ -8,6 +8,7 @@
     content-class="add-file-dialog__content"
     body-class="add-file-dialog__body"
     :before-close="handleClose"
+    data-testid="add-file-dialog"
    >
     <el-form ref="form" :model="formData" :rules="formRules" @submit.prevent="handleAddFile">
       <el-form-item :label="t('接口名称')" prop="name">
@@ -39,6 +40,7 @@
         </template>
         <CodeEditor
           v-if="isAiConfigValid()" 
+          data-testid="add-file-ai-prompt-editor"
           v-model="formData.aiPrompt"
           language="javascript"
           :auto-height="true"
@@ -181,7 +183,7 @@ const callAiToGenerateNodeData = async (nodeType: 'http' | 'websocket' | 'httpMo
   }
 
   try {
-  const response = await llmClientStore.chat(requestBody)
+    const response = await llmClientStore.chat(requestBody)
 
     const aiContent = response.choices?.[0]?.message?.content
     if (!aiContent) {
@@ -189,7 +191,6 @@ const callAiToGenerateNodeData = async (nodeType: 'http' | 'websocket' | 'httpMo
     }
 
     const parsedData = JSON.parse(aiContent)
-    console.log('AI生成的数据:', parsedData)
     return { success: true, data: parsedData }
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'AI生成失败' }

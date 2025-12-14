@@ -157,20 +157,15 @@ test.describe('CallHistory', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(800);
 
-    // 关闭当前接口Tab，确保后续点击历史记录会重新打开/聚焦对应接口
-    const apiTab = contentPage.locator('.nav .item').filter({ hasText: httpName }).first();
+    // 新增一个空白接口Tab，使当前接口Tab不再被选中
+    const addTabBtn = contentPage.locator('[data-testid="project-nav-add-tab-btn"]');
+    await expect(addTabBtn).toBeVisible({ timeout: 5000 });
+    await addTabBtn.click();
+    await contentPage.waitForTimeout(300);
+    // 验证新Tab被选中，原Tab不再是active状态
+    const apiTab = contentPage.locator('[data-testid^="project-nav-tab-"]').filter({ hasText: httpName }).first();
     await expect(apiTab).toBeVisible({ timeout: 5000 });
-    const apiTabCloseBtn = apiTab.locator('[data-testid="project-nav-tab-close-btn"]');
-    if (await apiTabCloseBtn.isVisible()) {
-      await apiTabCloseBtn.click();
-    } else {
-      await apiTab.click({ button: 'right' });
-      await contentPage.waitForTimeout(200);
-      const closeMenuItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /关闭|Close/ }).first();
-      await expect(closeMenuItem).toBeVisible({ timeout: 5000 });
-      await closeMenuItem.click();
-    }
-    await expect(apiTab).not.toBeVisible({ timeout: 5000 });
+    await expect(apiTab).not.toHaveClass(/active/);
 
     // 切换到调用历史Tab
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
@@ -182,9 +177,8 @@ test.describe('CallHistory', () => {
     await expect(historyItem).toBeVisible({ timeout: 15000 });
     await historyItem.click();
     await contentPage.waitForTimeout(500);
-    // 验证nav区域有对应Tab显示（点击历史记录应打开/聚焦对应接口）
-    const navTab = contentPage.locator('[data-testid^="project-nav-tab-"]').filter({ hasText: httpName }).first();
-    await expect(navTab).toBeVisible({ timeout: 5000 });
+    // 验证点击历史记录后，对应接口Tab被选中激活
+    await expect(apiTab).toHaveClass(/active/, { timeout: 5000 });
   });
 
   // 测试用例6: 已删除接口的历史记录标记验证

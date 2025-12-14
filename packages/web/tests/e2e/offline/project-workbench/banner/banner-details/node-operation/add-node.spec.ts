@@ -99,7 +99,8 @@ test.describe('AddNode', () => {
       // 点击新增文件选项
       const toolPanel = contentPage.locator('.tool-panel');
       await expect(toolPanel).toBeVisible({ timeout: 5000 });
-      const addFileItem = toolPanel.locator('.dropdown-item', { hasText: /新增文件|New File/ });
+      const addFileItem = toolPanel.locator('[data-testid="banner-add-http-btn"]');
+      await expect(addFileItem).toBeVisible({ timeout: 5000 });
       await addFileItem.click();
       await contentPage.waitForTimeout(300);
       // 填写接口信息
@@ -134,7 +135,7 @@ test.describe('AddNode', () => {
           model: 'deepseek-chat',
           customHeaders: []
         };
-        localStorage.setItem('llmProvider', JSON.stringify(llmConfig));
+        localStorage.setItem('apiflow/ai/llmProvider', JSON.stringify(llmConfig));
       }, { apiUrl: aiApiUrl, apiKey: aiApiKey });
       await contentPage.waitForTimeout(300);
       // 在空白区域右键
@@ -153,7 +154,7 @@ test.describe('AddNode', () => {
       const nameInput = addFileDialog.locator('input').first();
       await nameInput.fill('AI生成的HTTP接口');
       // 验证AI提示词输入框存在
-      const aiPromptEditor = addFileDialog.locator('.s-code-editor');
+      const aiPromptEditor = addFileDialog.locator('[data-testid="add-file-ai-prompt-editor"] .monaco-editor');
       await expect(aiPromptEditor).toBeVisible({ timeout: 5000 });
       // 输入AI提示词
       await aiPromptEditor.click();
@@ -264,7 +265,9 @@ test.describe('AddNode', () => {
       await contentPage.waitForTimeout(300);
       // 点击新增文件选项
       const toolPanel = contentPage.locator('.tool-panel');
-      const addFileItem = toolPanel.locator('.dropdown-item', { hasText: /新增文件|New File/ });
+      await expect(toolPanel).toBeVisible({ timeout: 5000 });
+      const addFileItem = toolPanel.locator('[data-testid="banner-add-http-btn"]');
+      await expect(addFileItem).toBeVisible({ timeout: 5000 });
       await addFileItem.click();
       await contentPage.waitForTimeout(300);
       // 填写接口信息
@@ -379,7 +382,9 @@ test.describe('AddNode', () => {
       await contentPage.waitForTimeout(300);
       // 点击新增文件选项
       const toolPanel = contentPage.locator('.tool-panel');
-      const addFileItem = toolPanel.locator('.dropdown-item', { hasText: /新增文件|New File/ });
+      await expect(toolPanel).toBeVisible({ timeout: 5000 });
+      const addFileItem = toolPanel.locator('[data-testid="banner-add-http-btn"]');
+      await expect(addFileItem).toBeVisible({ timeout: 5000 });
       await addFileItem.click();
       await contentPage.waitForTimeout(300);
       // 填写接口信息
@@ -494,7 +499,9 @@ test.describe('AddNode', () => {
       await contentPage.waitForTimeout(300);
       // 点击新增文件选项
       const toolPanel = contentPage.locator('.tool-panel');
-      const addFileItem = toolPanel.locator('.dropdown-item', { hasText: /新增文件|New File/ });
+      await expect(toolPanel).toBeVisible({ timeout: 5000 });
+      const addFileItem = toolPanel.locator('[data-testid="banner-add-http-btn"]');
+      await expect(addFileItem).toBeVisible({ timeout: 5000 });
       await addFileItem.click();
       await contentPage.waitForTimeout(300);
       // 填写接口信息
@@ -602,7 +609,9 @@ test.describe('AddNode', () => {
       await contentPage.waitForTimeout(300);
       // 点击新增文件夹选项
       const toolPanel = contentPage.locator('.tool-panel');
-      const addFolderItem = toolPanel.locator('.dropdown-item', { hasText: /新增文件夹|New Folder/ });
+      await expect(toolPanel).toBeVisible({ timeout: 5000 });
+      const addFolderItem = toolPanel.locator('[data-testid="banner-add-folder-btn"]');
+      await expect(addFolderItem).toBeVisible({ timeout: 5000 });
       await addFolderItem.click();
       await contentPage.waitForTimeout(300);
       // 填写文件夹名称

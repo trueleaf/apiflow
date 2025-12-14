@@ -125,7 +125,7 @@
         </div>
         <SDraggable v-model="operations" animation="150" item-key="name" group="operation2">
           <template #item="{ element }">
-            <div class="dropdown-item cursor-pointer"
+            <div class="dropdown-item cursor-pointer" :data-testid="getOperationTestId(element.op)"
               @click="handleEmit(element.op)">
               <template v-if="element.icon === 'variable'">
                 <Variable :size="20" :stroke-width="1.5" class="lucide-icon mr-2" />

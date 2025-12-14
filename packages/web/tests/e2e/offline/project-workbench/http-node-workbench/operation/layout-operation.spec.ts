@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../fixtures/electron.fixture';
 
 test.describe('LayoutOperation', () => {
   // 测试用例1: 点击水平布局按钮,请求区域和响应区域左右排列
