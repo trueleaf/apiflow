@@ -54,7 +54,7 @@
         >
           {{ t("连接中") }}
         </el-button>
-        <el-button type="primary" :loading="saveLoading" @click="handleSave">{{ t("保存接口") }}</el-button>
+        <el-button type="primary" :loading="saveLoading" data-testid="websocket-operation-save-btn" @click="handleSave">{{ t("保存接口") }}</el-button>
         <el-button type="primary" :icon="Refresh" :loading="refreshLoading" @click="handleRefresh">{{ t("刷新") }}</el-button>
       </div>
     </div>

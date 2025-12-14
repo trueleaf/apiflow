@@ -451,7 +451,9 @@ test.describe('SearchProject', () => {
     await expect(blockNameInput).toBeVisible({ timeout: 5000 });
     await blockNameInput.fill(wsMessageKeyword);
     await contentPage.waitForTimeout(600);
-    await saveBtn.click();
+    const wsSaveBtn = contentPage.locator('[data-testid="websocket-operation-save-btn"]');
+    await expect(wsSaveBtn).toBeVisible({ timeout: 5000 });
+    await wsSaveBtn.click();
     await contentPage.waitForTimeout(800);
     const logo = topBarPage.locator('.logo-img');
     await logo.click();
