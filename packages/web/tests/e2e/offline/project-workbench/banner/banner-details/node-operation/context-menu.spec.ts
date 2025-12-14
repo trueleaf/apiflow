@@ -107,7 +107,7 @@ test.describe('ContextMenu', () => {
       await commonHeaderItem.click();
       await contentPage.waitForTimeout(500);
       // 验证导航区域增加公共请求头标签
-      const commonHeaderTab = contentPage.locator('.s-nav').locator('.nav-item', { hasText: /公共请求头/ });
+      const commonHeaderTab = contentPage.getByText(/【公共头】全局/).first();
       await expect(commonHeaderTab).toBeVisible({ timeout: 5000 });
     });
     // 鼠标右键空白区域,点击粘贴,可以粘贴节点
@@ -311,7 +311,7 @@ test.describe('ContextMenu', () => {
       await commonHeaderItem.click();
       await contentPage.waitForTimeout(500);
       // 验证导航区域增加公共请求头标签
-      const commonHeaderTab = contentPage.locator('.s-nav').locator('.nav-item', { hasText: /公共请求头/ });
+      const commonHeaderTab = contentPage.getByText(/【公共头】测试文件夹/).first();
       await expect(commonHeaderTab).toBeVisible({ timeout: 5000 });
     });
     // 鼠标右键folder节点,点击剪切,被剪切节点样式发生改变,点击粘贴可以粘贴节点
@@ -356,7 +356,7 @@ test.describe('ContextMenu', () => {
       await cutItem.click();
       await contentPage.waitForTimeout(300);
       // 验证被剪切节点有特殊样式
-      const cutNode = contentPage.locator('.el-tree-node.is-cut').filter({ hasText: '源文件夹' });
+      const cutNode = contentPage.locator('.tree-wrap .custom-tree-node.cut-node').filter({ hasText: '源文件夹' });
       await expect(cutNode).toBeVisible({ timeout: 5000 });
       // 右键目标文件夹,点击粘贴
       const targetFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' });
@@ -438,8 +438,9 @@ test.describe('ContextMenu', () => {
       await renameItem.click();
       await contentPage.waitForTimeout(300);
       // 验证输入框出现
-      const renameInput = folderNode.locator('input');
+      const renameInput = contentPage.locator('.tree-wrap .rename-ipt');
       await expect(renameInput).toBeVisible({ timeout: 5000 });
+      await expect(renameInput).toHaveValue('原文件夹名称');
       // 清空并输入新名称
       await renameInput.fill('新文件夹名称');
       await contentPage.keyboard.press('Enter');
@@ -577,7 +578,7 @@ test.describe('ContextMenu', () => {
       await cutItem.click();
       await contentPage.waitForTimeout(300);
       // 验证被剪切节点有特殊样式
-      const cutNode = contentPage.locator('.el-tree-node.is-cut').filter({ hasText: '源HTTP节点' });
+      const cutNode = contentPage.locator('.tree-wrap .custom-tree-node.cut-node').filter({ hasText: '源HTTP节点' });
       await expect(cutNode).toBeVisible({ timeout: 5000 });
       // 右键目标文件夹,点击粘贴
       const targetFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' });
@@ -691,8 +692,9 @@ test.describe('ContextMenu', () => {
       await renameItem.click();
       await contentPage.waitForTimeout(300);
       // 验证输入框出现
-      const renameInput = httpNode.locator('input');
+      const renameInput = contentPage.locator('.tree-wrap .rename-ipt');
       await expect(renameInput).toBeVisible({ timeout: 5000 });
+      await expect(renameInput).toHaveValue('原节点名称');
       // 清空并输入新名称
       await renameInput.fill('新节点名称');
       await contentPage.keyboard.press('Enter');

@@ -123,9 +123,18 @@ test.describe('MoveNode', () => {
       }
       await contentPage.waitForTimeout(500);
       // 验证目标文件夹展开并包含节点
-      const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '目标文件夹' });
-      await expect(expandedFolder).toBeVisible({ timeout: 5000 });
-      const movedNode = expandedFolder.locator('.el-tree-node__content').filter({ hasText: '测试HTTP节点' });
+      const targetFolderTreeNode = contentPage
+        .locator('.el-tree-node')
+        .filter({ has: contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' }) })
+        .first();
+      await expect(targetFolderTreeNode).toBeVisible({ timeout: 5000 });
+      const isTargetExpanded = await targetFolderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
+      if (!isTargetExpanded) {
+        const expandIcon = targetFolderTreeNode.locator('.el-tree-node__expand-icon').first();
+        await expandIcon.click();
+        await contentPage.waitForTimeout(300);
+      }
+      const movedNode = targetFolderTreeNode.locator('.el-tree-node__content').filter({ hasText: '测试HTTP节点' });
       await expect(movedNode).toBeVisible({ timeout: 5000 });
     });
     // 拖拽单个httpNode节点调整在同一层级的顺序
@@ -249,14 +258,17 @@ test.describe('MoveNode', () => {
       const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试文件夹' });
       await folderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newWsItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /WebSocket/ });
-      await newWsItem.click();
+      const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
+      await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
-      const addWsDialog = contentPage.locator('.el-dialog').filter({ hasText: /WebSocket|Websocket/ });
-      await expect(addWsDialog).toBeVisible({ timeout: 5000 });
-      const wsNameInput = addWsDialog.locator('input').first();
+      const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const wsNameInput = addFileDialog.locator('input').first();
       await wsNameInput.fill('测试WS节点');
-      const wsConfirmBtn = addWsDialog.locator('.el-button--primary').last();
+      const wsRadio = addFileDialog.locator('.el-radio').filter({ hasText: 'WebSocket' }).first();
+      await wsRadio.click();
+      await contentPage.waitForTimeout(200);
+      const wsConfirmBtn = addFileDialog.locator('.el-button--primary').last();
       await wsConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 展开文件夹
@@ -316,13 +328,17 @@ test.describe('MoveNode', () => {
       const sourceFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
       await sourceFolderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newWsItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /WebSocket/ });
-      await newWsItem.click();
+      const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
+      await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
-      const addWsDialog = contentPage.locator('.el-dialog').filter({ hasText: /WebSocket|Websocket/ });
-      const wsNameInput = addWsDialog.locator('input').first();
+      const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const wsNameInput = addFileDialog.locator('input').first();
       await wsNameInput.fill('测试WS节点');
-      const wsConfirmBtn = addWsDialog.locator('.el-button--primary').last();
+      const wsRadio = addFileDialog.locator('.el-radio').filter({ hasText: 'WebSocket' }).first();
+      await wsRadio.click();
+      await contentPage.waitForTimeout(200);
+      const wsConfirmBtn = addFileDialog.locator('.el-button--primary').last();
       await wsConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 展开源文件夹
@@ -345,9 +361,18 @@ test.describe('MoveNode', () => {
       }
       await contentPage.waitForTimeout(500);
       // 验证目标文件夹展开并包含节点
-      const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '目标文件夹' });
-      await expect(expandedFolder).toBeVisible({ timeout: 5000 });
-      const movedNode = expandedFolder.locator('.el-tree-node__content').filter({ hasText: '测试WS节点' });
+      const targetFolderTreeNode = contentPage
+        .locator('.el-tree-node')
+        .filter({ has: contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' }) })
+        .first();
+      await expect(targetFolderTreeNode).toBeVisible({ timeout: 5000 });
+      const isTargetExpanded = await targetFolderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
+      if (!isTargetExpanded) {
+        const expandIcon = targetFolderTreeNode.locator('.el-tree-node__expand-icon').first();
+        await expandIcon.click();
+        await contentPage.waitForTimeout(300);
+      }
+      const movedNode = targetFolderTreeNode.locator('.el-tree-node__content').filter({ hasText: '测试WS节点' });
       await expect(movedNode).toBeVisible({ timeout: 5000 });
     });
   });
@@ -376,14 +401,17 @@ test.describe('MoveNode', () => {
       const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试文件夹' });
       await folderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newMockItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /HTTP Mock|HttpMock/ });
-      await newMockItem.click();
+      const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
+      await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
-      const addMockDialog = contentPage.locator('.el-dialog').filter({ hasText: /Mock/ });
-      await expect(addMockDialog).toBeVisible({ timeout: 5000 });
-      const mockNameInput = addMockDialog.locator('input').first();
+      const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const mockNameInput = addFileDialog.locator('input').first();
       await mockNameInput.fill('测试Mock节点');
-      const mockConfirmBtn = addMockDialog.locator('.el-button--primary').last();
+      const httpMockRadio = addFileDialog.locator('.el-radio').filter({ hasText: 'HTTP Mock' }).first();
+      await httpMockRadio.click();
+      await contentPage.waitForTimeout(200);
+      const mockConfirmBtn = addFileDialog.locator('.el-button--primary').last();
       await mockConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 展开文件夹
@@ -443,13 +471,17 @@ test.describe('MoveNode', () => {
       const sourceFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
       await sourceFolderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newMockItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /HTTP Mock|HttpMock/ });
-      await newMockItem.click();
+      const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
+      await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
-      const addMockDialog = contentPage.locator('.el-dialog').filter({ hasText: /Mock/ });
-      const mockNameInput = addMockDialog.locator('input').first();
+      const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const mockNameInput = addFileDialog.locator('input').first();
       await mockNameInput.fill('测试Mock节点');
-      const mockConfirmBtn = addMockDialog.locator('.el-button--primary').last();
+      const httpMockRadio = addFileDialog.locator('.el-radio').filter({ hasText: 'HTTP Mock' }).first();
+      await httpMockRadio.click();
+      await contentPage.waitForTimeout(200);
+      const mockConfirmBtn = addFileDialog.locator('.el-button--primary').last();
       await mockConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 展开源文件夹
@@ -472,9 +504,18 @@ test.describe('MoveNode', () => {
       }
       await contentPage.waitForTimeout(500);
       // 验证目标文件夹展开并包含节点
-      const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '目标文件夹' });
-      await expect(expandedFolder).toBeVisible({ timeout: 5000 });
-      const movedNode = expandedFolder.locator('.el-tree-node__content').filter({ hasText: '测试Mock节点' });
+      const targetFolderTreeNode = contentPage
+        .locator('.el-tree-node')
+        .filter({ has: contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' }) })
+        .first();
+      await expect(targetFolderTreeNode).toBeVisible({ timeout: 5000 });
+      const isTargetExpanded = await targetFolderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
+      if (!isTargetExpanded) {
+        const expandIcon = targetFolderTreeNode.locator('.el-tree-node__expand-icon').first();
+        await expandIcon.click();
+        await contentPage.waitForTimeout(300);
+      }
+      const movedNode = targetFolderTreeNode.locator('.el-tree-node__content').filter({ hasText: '测试Mock节点' });
       await expect(movedNode).toBeVisible({ timeout: 5000 });
     });
   });
@@ -503,14 +544,17 @@ test.describe('MoveNode', () => {
       const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试文件夹' });
       await folderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newWsMockItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /WebSocket Mock|WsMock/ });
-      await newWsMockItem.click();
+      const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
+      await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
-      const addWsMockDialog = contentPage.locator('.el-dialog').filter({ hasText: /Mock|WebSocket/ });
-      await expect(addWsMockDialog).toBeVisible({ timeout: 5000 });
-      const wsMockNameInput = addWsMockDialog.locator('input').first();
+      const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const wsMockNameInput = addFileDialog.locator('input').first();
       await wsMockNameInput.fill('测试WsMock节点');
-      const wsMockConfirmBtn = addWsMockDialog.locator('.el-button--primary').last();
+      const wsMockRadio = addFileDialog.locator('.el-radio').filter({ hasText: 'WebSocket Mock' }).first();
+      await wsMockRadio.click();
+      await contentPage.waitForTimeout(200);
+      const wsMockConfirmBtn = addFileDialog.locator('.el-button--primary').last();
       await wsMockConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 展开文件夹
@@ -570,13 +614,17 @@ test.describe('MoveNode', () => {
       const sourceFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
       await sourceFolderNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
-      const newWsMockItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /WebSocket Mock|WsMock/ });
-      await newWsMockItem.click();
+      const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
+      await newInterfaceItem.click();
       await contentPage.waitForTimeout(300);
-      const addWsMockDialog = contentPage.locator('.el-dialog').filter({ hasText: /Mock|WebSocket/ });
-      const wsMockNameInput = addWsMockDialog.locator('input').first();
+      const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const wsMockNameInput = addFileDialog.locator('input').first();
       await wsMockNameInput.fill('测试WsMock节点');
-      const wsMockConfirmBtn = addWsMockDialog.locator('.el-button--primary').last();
+      const wsMockRadio = addFileDialog.locator('.el-radio').filter({ hasText: 'WebSocket Mock' }).first();
+      await wsMockRadio.click();
+      await contentPage.waitForTimeout(200);
+      const wsMockConfirmBtn = addFileDialog.locator('.el-button--primary').last();
       await wsMockConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 展开源文件夹
@@ -599,9 +647,18 @@ test.describe('MoveNode', () => {
       }
       await contentPage.waitForTimeout(500);
       // 验证目标文件夹展开并包含节点
-      const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '目标文件夹' });
-      await expect(expandedFolder).toBeVisible({ timeout: 5000 });
-      const movedNode = expandedFolder.locator('.el-tree-node__content').filter({ hasText: '测试WsMock节点' });
+      const targetFolderTreeNode = contentPage
+        .locator('.el-tree-node')
+        .filter({ has: contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' }) })
+        .first();
+      await expect(targetFolderTreeNode).toBeVisible({ timeout: 5000 });
+      const isTargetExpanded = await targetFolderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
+      if (!isTargetExpanded) {
+        const expandIcon = targetFolderTreeNode.locator('.el-tree-node__expand-icon').first();
+        await expandIcon.click();
+        await contentPage.waitForTimeout(300);
+      }
+      const movedNode = targetFolderTreeNode.locator('.el-tree-node__content').filter({ hasText: '测试WsMock节点' });
       await expect(movedNode).toBeVisible({ timeout: 5000 });
     });
   });
@@ -880,18 +937,28 @@ test.describe('MoveNode', () => {
       }
       await contentPage.waitForTimeout(500);
       // 验证目标文件夹展开并包含源文件夹
-      const expandedTargetFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '目标文件夹' });
-      await expect(expandedTargetFolder).toBeVisible({ timeout: 5000 });
-      const movedSourceFolder = expandedTargetFolder.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
+      const targetFolderTreeNode = contentPage
+        .locator('.el-tree-node')
+        .filter({ has: contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' }) })
+        .first();
+      await expect(targetFolderTreeNode).toBeVisible({ timeout: 5000 });
+      const isTargetExpanded = await targetFolderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
+      if (!isTargetExpanded) {
+        const expandIcon = targetFolderTreeNode.locator('.el-tree-node__expand-icon').first();
+        await expandIcon.click();
+        await contentPage.waitForTimeout(300);
+      }
+      const movedSourceFolder = targetFolderTreeNode.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
       await expect(movedSourceFolder).toBeVisible({ timeout: 5000 });
       // 展开移动后的源文件夹验证子节点
-      const movedExpandIcon = movedSourceFolder.locator('.el-tree-node__expand-icon').first();
+      const movedSourceTreeNode = movedSourceFolder.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
+      const movedExpandIcon = movedSourceTreeNode.locator('.el-tree-node__expand-icon').first();
       await movedExpandIcon.click();
       await contentPage.waitForTimeout(300);
       // 验证嵌套的子文件夹和HTTP节点仍然存在
-      const nestedSubFolder = movedSourceFolder.locator('.el-tree-node__content').filter({ hasText: '嵌套子文件夹' });
+      const nestedSubFolder = movedSourceTreeNode.locator('.el-tree-node__content').filter({ hasText: '嵌套子文件夹' });
       await expect(nestedSubFolder).toBeVisible({ timeout: 5000 });
-      const nestedHttpNode = movedSourceFolder.locator('.el-tree-node__content').filter({ hasText: '嵌套HTTP节点' });
+      const nestedHttpNode = movedSourceTreeNode.locator('.el-tree-node__content').filter({ hasText: '嵌套HTTP节点' });
       await expect(nestedHttpNode).toBeVisible({ timeout: 5000 });
     });
   });

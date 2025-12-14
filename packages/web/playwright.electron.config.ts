@@ -55,25 +55,18 @@ export default defineConfig({
   // 测试项目配置
   projects: [
     {
-      name: 'electron',
-      testMatch: '**/*.spec.ts',
+    name: 'electron',
+    testMatch: '**/*.spec.ts',
+    use: {
+      trace: 'retain-on-failure',
+      screenshot: 'only-on-failure',
+      video: 'retain-on-failure',
     },
-    {
-      name: 'electron-trace',
-      testMatch: '**/*.spec.ts',
-      use: {
-        // 记录所有测试的完整 trace（包括成功的测试）
-        trace: 'on',
-        // 记录所有测试的截图
-        screenshot: 'on',
-        // 记录所有测试的视频
-        video: 'on',
-      },
-    },
+  },
   ],
   
   // 全局超时设置（30 秒）
-  timeout: 30 * 1000,
+  timeout: 20 * 1000,
   
   // 期望断言超时（5 秒）
   expect: {

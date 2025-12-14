@@ -29,7 +29,7 @@ test.describe('CutNode', () => {
       await expect(cutItem).toBeVisible();
       await cutItem.click();
       await contentPage.waitForTimeout(300);
-      const cutNode = contentPage.locator('.el-tree-node.cut-node').filter({ hasText: '源HTTP节点' });
+      const cutNode = contentPage.locator('.custom-tree-node.cut-node').filter({ hasText: '源HTTP节点' });
       await expect(cutNode).toBeVisible({ timeout: 3000 });
       await treeWrap.click({ button: 'right', position: { x: 100, y: 300 } });
       await contentPage.waitForTimeout(300);
@@ -39,7 +39,7 @@ test.describe('CutNode', () => {
       await contentPage.waitForTimeout(500);
       const allNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '源HTTP节点' });
       await expect(allNodes).toHaveCount(1, { timeout: 5000 });
-      const cutNodeAfterPaste = contentPage.locator('.el-tree-node.cut-node');
+      const cutNodeAfterPaste = contentPage.locator('.custom-tree-node.cut-node');
       await expect(cutNodeAfterPaste).toHaveCount(0);
     });
     test('剪切单个httpNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject }) => {
@@ -89,7 +89,7 @@ test.describe('CutNode', () => {
       await expect(expandedFolder).toBeVisible({ timeout: 5000 });
       const childNode = expandedFolder.locator('.el-tree-node__content').filter({ hasText: '源HTTP节点' });
       await expect(childNode).toBeVisible({ timeout: 5000 });
-      const rootNodes = contentPage.locator('.tree-wrap > .el-tree > .el-tree-node').filter({ hasText: '源HTTP节点' });
+      const rootNodes = contentPage.locator('.tree-wrap > .el-tree > .el-tree-node > .el-tree-node__content').filter({ hasText: '源HTTP节点' });
       await expect(rootNodes).toHaveCount(0);
     });
     test('剪切多个httpNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject }) => {
@@ -140,7 +140,7 @@ test.describe('CutNode', () => {
       await expect(batchCutItem).toBeVisible();
       await batchCutItem.click();
       await contentPage.waitForTimeout(300);
-      const cutNodes = contentPage.locator('.el-tree-node.cut-node');
+      const cutNodes = contentPage.locator('.custom-tree-node.cut-node');
       await expect(cutNodes).toHaveCount(3);
       const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' });
       await folderNode.click({ button: 'right' });
@@ -218,7 +218,7 @@ test.describe('CutNode', () => {
       const cutItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /剪切/ }).first();
       await cutItem.click();
       await contentPage.waitForTimeout(300);
-      const cutNode = contentPage.locator('.el-tree-node.cut-node').filter({ hasText: '源WebSocket节点' });
+      const cutNode = contentPage.locator('.custom-tree-node.cut-node').filter({ hasText: '源WebSocket节点' });
       await expect(cutNode).toBeVisible({ timeout: 3000 });
       await treeWrap.click({ button: 'right', position: { x: 100, y: 300 } });
       await contentPage.waitForTimeout(300);
@@ -468,7 +468,7 @@ test.describe('CutNode', () => {
       const cutItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /剪切/ }).first();
       await cutItem.click();
       await contentPage.waitForTimeout(300);
-      const cutNode = contentPage.locator('.el-tree-node.cut-node').filter({ hasText: '源文件夹' });
+      const cutNode = contentPage.locator('.custom-tree-node.cut-node').filter({ hasText: '源文件夹' });
       await expect(cutNode).toBeVisible({ timeout: 3000 });
       await treeWrap.click({ button: 'right', position: { x: 100, y: 300 } });
       await contentPage.waitForTimeout(300);
@@ -593,7 +593,7 @@ test.describe('CutNode', () => {
       const batchCutItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /批量剪切/ });
       await batchCutItem.click();
       await contentPage.waitForTimeout(300);
-      const cutNodes = contentPage.locator('.el-tree-node.cut-node');
+      const cutNodes = contentPage.locator('.custom-tree-node.cut-node');
       await expect(cutNodes).toHaveCount(2);
       const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' });
       await folderNode.click({ button: 'right' });
@@ -643,7 +643,7 @@ test.describe('CutNode', () => {
       await contentPage.waitForTimeout(200);
       await contentPage.keyboard.press('Control+x');
       await contentPage.waitForTimeout(300);
-      const cutNode = contentPage.locator('.el-tree-node.cut-node').filter({ hasText: '快捷键测试节点' });
+      const cutNode = contentPage.locator('.custom-tree-node.cut-node').filter({ hasText: '快捷键测试节点' });
       await expect(cutNode).toBeVisible({ timeout: 3000 });
       const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' });
       await folderNode.click();
@@ -682,7 +682,7 @@ test.describe('CutNode', () => {
       const cutItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /剪切/ }).first();
       await cutItem.click();
       await contentPage.waitForTimeout(300);
-      const cutNode = contentPage.locator('.el-tree-node.cut-node').filter({ hasText: 'HTTP节点1' });
+      const cutNode = contentPage.locator('.custom-tree-node.cut-node').filter({ hasText: 'HTTP节点1' });
       await expect(cutNode).toBeVisible({ timeout: 3000 });
       const node2 = contentPage.locator('.el-tree-node__content').filter({ hasText: 'HTTP节点2' });
       await node2.click({ button: 'right' });
@@ -690,7 +690,7 @@ test.describe('CutNode', () => {
       const copyItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /复制/ }).first();
       await copyItem.click();
       await contentPage.waitForTimeout(300);
-      const cutNodeAfterCopy = contentPage.locator('.el-tree-node.cut-node');
+      const cutNodeAfterCopy = contentPage.locator('.custom-tree-node.cut-node');
       await expect(cutNodeAfterCopy).toHaveCount(0);
       await treeWrap.click({ button: 'right', position: { x: 100, y: 400 } });
       await contentPage.waitForTimeout(300);

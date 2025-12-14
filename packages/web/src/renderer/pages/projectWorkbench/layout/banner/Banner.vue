@@ -129,7 +129,7 @@
                 class="folder-mock-indicator"
                 :title="t('此目录包含正在运行的Mock接口')"
               ></span>
-              <div class="more" @click.stop="handleShowContextmenu($event, scope.data)">
+              <div class="more" data-testid="banner-node-more-btn" @click.stop="handleShowContextmenu($event, scope.data)">
                 <el-icon class="more-op" :title="t('更多操作')" :size="16">
                   <more-filled />
                 </el-icon>
