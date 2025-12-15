@@ -31,8 +31,10 @@
       </el-popover>
     </div>
     <div class="p-relative">
-      <el-input v-model="formInfo.iptValue" size="large" class="doc-search" :placeholder="t('文档名称、文档url')" clearable
-        data-testid="banner-search-input" @change="handleFilterBanner"></el-input>
+      <div data-testid="banner-search-input">
+        <el-input v-model="formInfo.iptValue" size="large" class="doc-search" :placeholder="t('文档名称、文档url')" clearable
+          @change="handleFilterBanner"></el-input>
+      </div>
         <el-badge v-if="!isStandalone" :is-dot="hasFilterCondition" class="badge">
         <el-popover placement="right-end" :hide-after="0" transition="none" width="50vw" trigger="click">
           <template #reference>
@@ -92,7 +94,7 @@
       <!-- 固定的工具栏操作 -->
       <SDraggable v-model="pinOperations" animation="150" item-key="name" class="operation" group="operation">
         <template #item="{ element }">
-          <div :title="t(element.name)" class="cursor-pointer" :data-testid="getOperationTestId(element.op)" @click="handleEmit(element.op)">
+          <div :title="t(element.name)" class="cursor-pointer" :data-testid="getOperationTestId(element.op, 'pin')" @click="handleEmit(element.op)">
             <template v-if="element.icon === 'variable'">
               <Variable :size="20" :stroke-width="1.5" class="lucide-icon" />
             </template>
@@ -125,7 +127,7 @@
         </div>
         <SDraggable v-model="operations" animation="150" item-key="name" group="operation2">
           <template #item="{ element }">
-            <div class="dropdown-item cursor-pointer" :data-testid="getOperationTestId(element.op)"
+            <div class="dropdown-item cursor-pointer" :data-testid="getOperationTestId(element.op, 'panel')"
               @click="handleEmit(element.op)">
               <template v-if="element.icon === 'variable'">
                 <Variable :size="20" :stroke-width="1.5" class="lucide-icon mr-2" />
@@ -217,14 +219,20 @@ const handleAddFileAndFolderCb = (data: ApidocBanner) => {
   addFileAndFolderCb.call(this, ref(null), data)
 };
 // 获取操作按钮测试选择器
-const getOperationTestId = (op: string) => {
-  if (op === 'addRootFolder') {
-    return 'banner-add-folder-btn'
+const getOperationTestId = (op: string, scope: 'pin' | 'panel') => {
+  const testId = (() => {
+    if (op === 'addRootFolder') {
+      return 'banner-add-folder-btn'
+    }
+    if (op === 'addRootFile') {
+      return 'banner-add-http-btn'
+    }
+    return undefined
+  })()
+  if (!testId) {
+    return undefined
   }
-  if (op === 'addRootFile') {
-    return 'banner-add-http-btn'
-  }
-  return undefined
+  return scope === 'panel' ? `tool-panel-${testId}` : testId
 }
 //=====================================操作栏数据====================================//
 const bannerData = computed(() => {

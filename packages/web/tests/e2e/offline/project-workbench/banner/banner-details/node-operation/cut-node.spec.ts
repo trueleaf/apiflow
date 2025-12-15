@@ -495,7 +495,7 @@ test.describe('CutNode', () => {
       const folderConfirmBtn = folderDialog.locator('.el-button--primary').last();
       await folderConfirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const parentFolder = contentPage.locator('.el-tree-node__content').filter({ hasText: '父文件夹' });
+      const parentFolder = contentPage.locator('.custom-tree-node').filter({ hasText: '父文件夹' });
       await parentFolder.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
       const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
@@ -523,7 +523,7 @@ test.describe('CutNode', () => {
       const cutItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /剪切/ }).first();
       await cutItem.click();
       await contentPage.waitForTimeout(300);
-      const targetFolder = contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' });
+      const targetFolder = contentPage.locator('.custom-tree-node').filter({ hasText: '目标文件夹' });
       await targetFolder.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
       const pasteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /粘贴/ });
@@ -531,10 +531,14 @@ test.describe('CutNode', () => {
       await contentPage.waitForTimeout(500);
       const expandedTargetFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '目标文件夹' });
       await expect(expandedTargetFolder).toBeVisible({ timeout: 5000 });
-      const childFolder = expandedTargetFolder.locator('.el-tree-node__content').filter({ hasText: '父文件夹' });
+      const childFolder = expandedTargetFolder.locator('.custom-tree-node').filter({ hasText: '父文件夹' });
       await expect(childFolder).toBeVisible({ timeout: 5000 });
-      const allChildNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '子节点HTTP' });
-      await expect(allChildNodes).toHaveCount(1, { timeout: 5000 });
+      const childFolderContent = childFolder.locator('xpath=ancestor::div[contains(@class,"el-tree-node__content")]');
+      const folderExpander = childFolderContent.getByRole('img').first();
+      await folderExpander.click({ timeout: 5000 });
+      await contentPage.waitForTimeout(300);
+      const childHttpNode = contentPage.locator('.custom-tree-node').filter({ hasText: '子节点HTTP' });
+      await expect(childHttpNode).toHaveCount(1, { timeout: 5000 });
     });
   });
   test.describe('剪切混合节点', () => {

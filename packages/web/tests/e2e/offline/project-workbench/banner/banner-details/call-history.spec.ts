@@ -36,7 +36,7 @@ test.describe('CallHistory', () => {
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    const addHttpBtn = contentPage.getByTitle('新增文件', { exact: true });
     await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
     await addHttpBtn.click();
     const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
@@ -133,7 +133,7 @@ test.describe('CallHistory', () => {
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    const addHttpBtn = contentPage.getByTitle('新增文件', { exact: true });
     await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
     await addHttpBtn.click();
     const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
@@ -188,7 +188,7 @@ test.describe('CallHistory', () => {
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    const addHttpBtn = contentPage.getByTitle('新增文件', { exact: true });
     await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
     await addHttpBtn.click();
     const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
@@ -310,7 +310,7 @@ test.describe('CallHistory', () => {
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点、发送请求生成历史，然后删除该接口，确保出现“已删除”历史
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    const addHttpBtn = contentPage.getByTitle('新增文件', { exact: true });
     await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
     await addHttpBtn.click();
     const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });

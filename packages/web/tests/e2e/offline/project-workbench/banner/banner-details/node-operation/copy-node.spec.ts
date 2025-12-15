@@ -530,9 +530,29 @@ test.describe('CopyNode', () => {
       // 验证新文件夹出现
       const allFolders = contentPage.locator('.el-tree-node__content').filter({ hasText: '父文件夹' });
       await expect(allFolders).toHaveCount(2, { timeout: 5000 });
-      // 验证子节点也被复制
-      const allChildNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '子节点HTTP' });
-      await expect(allChildNodes).toHaveCount(2, { timeout: 5000 });
+      // 验证子节点也被复制（分别在两个文件夹下各存在一个子节点）
+      const firstFolderNode = allFolders.nth(0).locator('xpath=ancestor::div[contains(@class,"el-tree-node")]');
+      const firstExpandIcon = firstFolderNode.locator('.el-tree-node__expand-icon').first();
+      const firstExpandClass = await firstExpandIcon.getAttribute('class');
+      if (!firstExpandClass?.includes('expanded')) {
+        await firstExpandIcon.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const firstChildNode = firstFolderNode
+        .locator('.el-tree-node__children .el-tree-node__content')
+        .filter({ hasText: '子节点HTTP' });
+      await expect(firstChildNode).toHaveCount(1, { timeout: 5000 });
+      const secondFolderNode = allFolders.nth(1).locator('xpath=ancestor::div[contains(@class,"el-tree-node")]');
+      const secondExpandIcon = secondFolderNode.locator('.el-tree-node__expand-icon').first();
+      const secondExpandClass = await secondExpandIcon.getAttribute('class');
+      if (!secondExpandClass?.includes('expanded')) {
+        await secondExpandIcon.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const secondChildNode = secondFolderNode
+        .locator('.el-tree-node__children .el-tree-node__content')
+        .filter({ hasText: '子节点HTTP' });
+      await expect(secondChildNode).toHaveCount(1, { timeout: 5000 });
     });
   });
   test.describe('复制混合节点', () => {
@@ -619,20 +639,24 @@ test.describe('CopyNode', () => {
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 选中节点
-      const sourceNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '快捷键测试节点' });
+      const sourceNode = contentPage.locator('.custom-tree-node').filter({ hasText: '快捷键测试节点' });
       await sourceNode.click();
       await contentPage.waitForTimeout(200);
       // 使用Ctrl+C复制
       await contentPage.keyboard.press('Control+c');
       await contentPage.waitForTimeout(300);
-      // 点击空白区域
-      await treeWrap.click({ position: { x: 100, y: 300 } });
+      // 将“当前操作节点”切换为根节点（tree-wrap 右键会设置 currentOperationalNode 为 null）
+      await treeWrap.click({ button: 'right', position: { x: 100, y: 300 } });
       await contentPage.waitForTimeout(200);
+      await contentPage.keyboard.press('Escape');
+      await contentPage.waitForTimeout(200);
+      // 保持焦点在节点上触发 keydown，但不触发 click（避免 currentOperationalNode 被重新赋值为 http 节点）
+      await sourceNode.focus();
       // 使用Ctrl+V粘贴
       await contentPage.keyboard.press('Control+v');
       await contentPage.waitForTimeout(500);
       // 验证新节点出现
-      const allNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '快捷键测试节点' });
+      const allNodes = contentPage.locator('.custom-tree-node').filter({ hasText: '快捷键测试节点' });
       await expect(allNodes).toHaveCount(2, { timeout: 5000 });
     });
   });
