@@ -57,7 +57,7 @@ test.describe('Export', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -73,8 +73,9 @@ test.describe('Export', () => {
     await contentPage.waitForTimeout(500);
     const exportPage = contentPage.locator('.doc-export');
     await expect(exportPage).toBeVisible({ timeout: 5000 });
-    const configSwitch = exportPage.locator('.s-config .el-switch');
-    await configSwitch.click();
+    const selectExportCheckbox = exportPage.locator('.config-item').filter({ hasText: /选择导出/ }).locator('.el-checkbox');
+    await expect(selectExportCheckbox).toBeVisible({ timeout: 5000 });
+    await selectExportCheckbox.click();
     await contentPage.waitForTimeout(300);
     const tree = exportPage.locator('.el-tree');
     await expect(tree).toBeVisible({ timeout: 5000 });
@@ -85,7 +86,7 @@ test.describe('Export', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -104,17 +105,37 @@ test.describe('Export', () => {
     const jsonOption = exportPage.locator('.item').filter({ hasText: /JSON文档/ });
     await jsonOption.click();
     await expect(jsonOption).toHaveClass(/active/);
-    const downloadPromise = contentPage.waitForEvent('download');
+    await contentPage.evaluate(() => {
+      const w = window as unknown as { __downloadFilenames?: string[] };
+      w.__downloadFilenames = [];
+      const originalClick = HTMLAnchorElement.prototype.click;
+      HTMLAnchorElement.prototype.click = function () {
+        const downloadAttr = this.getAttribute('download');
+        if (downloadAttr) {
+          w.__downloadFilenames?.push(downloadAttr);
+        }
+        return originalClick.apply(this);
+      };
+    });
     const exportBtn = exportPage.locator('.el-button--primary').filter({ hasText: /确定导出/ });
     await exportBtn.click();
-    const download = await downloadPromise;
-    expect(download.suggestedFilename()).toMatch(/\.json$/);
+    await expect.poll(async () => {
+      return await contentPage.evaluate(() => {
+        const w = window as unknown as { __downloadFilenames?: string[] };
+        return w.__downloadFilenames?.length || 0;
+      });
+    }, { timeout: 5000 }).toBeGreaterThan(0);
+    const filenames = await contentPage.evaluate(() => {
+      const w = window as unknown as { __downloadFilenames?: string[] };
+      return w.__downloadFilenames || [];
+    });
+    expect(filenames.some((name) => name.endsWith('.json'))).toBeTruthy();
   });
   test('导出OpenAPI格式,点击确定导出按钮触发下载', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -133,10 +154,30 @@ test.describe('Export', () => {
     const openapiOption = exportPage.locator('.item').filter({ hasText: 'OpenAPI' });
     await openapiOption.click();
     await expect(openapiOption).toHaveClass(/active/);
-    const downloadPromise = contentPage.waitForEvent('download');
+    await contentPage.evaluate(() => {
+      const w = window as unknown as { __downloadFilenames?: string[] };
+      w.__downloadFilenames = [];
+      const originalClick = HTMLAnchorElement.prototype.click;
+      HTMLAnchorElement.prototype.click = function () {
+        const downloadAttr = this.getAttribute('download');
+        if (downloadAttr) {
+          w.__downloadFilenames?.push(downloadAttr);
+        }
+        return originalClick.apply(this);
+      };
+    });
     const exportBtn = exportPage.locator('.el-button--primary').filter({ hasText: /确定导出/ });
     await exportBtn.click();
-    const download = await downloadPromise;
-    expect(download.suggestedFilename()).toMatch(/\.openapi\.json$/);
+    await expect.poll(async () => {
+      return await contentPage.evaluate(() => {
+        const w = window as unknown as { __downloadFilenames?: string[] };
+        return w.__downloadFilenames?.length || 0;
+      });
+    }, { timeout: 5000 }).toBeGreaterThan(0);
+    const filenames = await contentPage.evaluate(() => {
+      const w = window as unknown as { __downloadFilenames?: string[] };
+      return w.__downloadFilenames || [];
+    });
+    expect(filenames.some((name) => name.endsWith('.openapi.json'))).toBeTruthy();
   });
 });

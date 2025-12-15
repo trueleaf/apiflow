@@ -7,8 +7,12 @@ test.describe('CodeRepoImport', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
-    const toolItem = contentPage.locator('.tool-items .tool-item').filter({ hasText: /导入|Import/ });
-    await toolItem.click();
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    await contentPage.waitForTimeout(300);
+    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
+    await expect(importItem).toBeVisible({ timeout: 5000 });
+    await importItem.click();
     await contentPage.waitForTimeout(500);
     // 验证导入页面正确渲染
     const importPage = contentPage.locator('.doc-import');
@@ -23,8 +27,12 @@ test.describe('CodeRepoImport', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
-    const toolItem = contentPage.locator('.tool-items .tool-item').filter({ hasText: /导入|Import/ });
-    await toolItem.click();
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    await contentPage.waitForTimeout(300);
+    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
+    await expect(importItem).toBeVisible({ timeout: 5000 });
+    await importItem.click();
     await contentPage.waitForTimeout(500);
     // 点击代码仓库识别选项
     const repoSource = contentPage.locator('.source-item').filter({ hasText: /代码仓库识别|Repository/ });
@@ -39,8 +47,12 @@ test.describe('CodeRepoImport', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
-    const toolItem = contentPage.locator('.tool-items .tool-item').filter({ hasText: /导入|Import/ });
-    await toolItem.click();
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    await contentPage.waitForTimeout(300);
+    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
+    await expect(importItem).toBeVisible({ timeout: 5000 });
+    await importItem.click();
     await contentPage.waitForTimeout(500);
     // 验证导入页面正确渲染
     const importPage = contentPage.locator('.doc-import');
@@ -58,8 +70,12 @@ test.describe('CodeRepoImport', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
-    const toolItem = contentPage.locator('.tool-items .tool-item').filter({ hasText: /导入|Import/ });
-    await toolItem.click();
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    await contentPage.waitForTimeout(300);
+    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
+    await expect(importItem).toBeVisible({ timeout: 5000 });
+    await importItem.click();
     await contentPage.waitForTimeout(500);
     // 点击代码仓库识别选项
     const repoSource = contentPage.locator('.source-item').filter({ hasText: /代码仓库识别|Repository/ });
@@ -81,8 +97,12 @@ test.describe('CodeRepoImport', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
-    const toolItem = contentPage.locator('.tool-items .tool-item').filter({ hasText: /导入|Import/ });
-    await toolItem.click();
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    await contentPage.waitForTimeout(300);
+    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
+    await expect(importItem).toBeVisible({ timeout: 5000 });
+    await importItem.click();
     await contentPage.waitForTimeout(500);
     // 验证五种导入方式都存在
     const sourceItems = contentPage.locator('.source-item');

@@ -34,7 +34,7 @@ test.describe('RequestMethodUndo', () => {
     await contentPage.waitForTimeout(300);
     await expect(methodSelector).toContainText('PUT', { timeout: 5000 });
     // 点击撤销按钮
-    const undoBtn = contentPage.locator('.undo-btn, [data-testid="undo-btn"]').first();
+    const undoBtn = contentPage.locator('[data-testid="http-params-undo-btn"]').first();
     await undoBtn.click();
     await contentPage.waitForTimeout(200);
     // 验证请求方法恢复为POST

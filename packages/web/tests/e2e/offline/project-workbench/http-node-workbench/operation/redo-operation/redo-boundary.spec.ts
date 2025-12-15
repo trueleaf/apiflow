@@ -17,9 +17,9 @@ test.describe('RedoBoundary', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 观察重做按钮的状态
-    const redoBtn = contentPage.locator('[data-testid="redo-btn"]');
+    const redoBtn = contentPage.locator('[data-testid="http-params-redo-btn"]');
     // 验证重做按钮呈灰色禁用状态
-    await expect(redoBtn).toBeDisabled({ timeout: 5000 });
+    await expect(redoBtn).toHaveClass(/disabled/, { timeout: 5000 });
     // 记录当前url值
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     const originalUrl = (await urlInput.innerText()).trim();
@@ -53,14 +53,14 @@ test.describe('RedoBoundary', () => {
     // 验证请求方法为POST
     await expect(methodSelect).toContainText('POST', { timeout: 5000 });
     // 点击撤销按钮,请求方法恢复为GET
-    const undoBtn = contentPage.locator('[data-testid="undo-btn"]');
+    const undoBtn = contentPage.locator('[data-testid="http-params-undo-btn"]');
     await undoBtn.click();
     await contentPage.waitForTimeout(300);
     // 验证撤销后请求方法为GET
     await expect(methodSelect).toContainText('GET', { timeout: 5000 });
     // 此时重做按钮应该可用
-    const redoBtn = contentPage.locator('[data-testid="redo-btn"]');
-    await expect(redoBtn).not.toBeDisabled({ timeout: 5000 });
+    const redoBtn = contentPage.locator('[data-testid="http-params-redo-btn"]');
+    await expect(redoBtn).not.toHaveClass(/disabled/, { timeout: 5000 });
     // 将请求方法切换为PUT(进行新操作)
     await methodSelect.click();
     const putOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'PUT' });
@@ -69,6 +69,6 @@ test.describe('RedoBoundary', () => {
     // 验证请求方法为PUT
     await expect(methodSelect).toContainText('PUT', { timeout: 5000 });
     // 观察重做按钮状态,进行新操作后重做历史栈被清空
-    await expect(redoBtn).toBeDisabled({ timeout: 5000 });
+    await expect(redoBtn).toHaveClass(/disabled/, { timeout: 5000 });
   });
 });

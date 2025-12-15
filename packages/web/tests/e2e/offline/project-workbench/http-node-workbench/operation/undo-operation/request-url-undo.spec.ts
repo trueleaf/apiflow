@@ -26,7 +26,7 @@ test.describe('RequestUrlUndo', () => {
     // 验证当前url值为ab
     await expect(urlInput).toHaveText('ab', { timeout: 5000 });
     // 点击撤销按钮
-    const undoBtn = contentPage.locator('.undo-btn, [data-testid="undo-btn"]').first();
+    const undoBtn = contentPage.locator('[data-testid="http-params-undo-btn"]').first();
     await undoBtn.click();
     await contentPage.waitForTimeout(200);
     // 验证url值为a

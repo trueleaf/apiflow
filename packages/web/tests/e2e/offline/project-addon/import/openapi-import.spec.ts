@@ -7,8 +7,12 @@ test.describe('OpenapiImport', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
-    const toolItem = contentPage.locator('.tool-items .tool-item').filter({ hasText: /导入|Import/ });
-    await toolItem.click();
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    await contentPage.waitForTimeout(300);
+    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
+    await expect(importItem).toBeVisible({ timeout: 5000 });
+    await importItem.click();
     await contentPage.waitForTimeout(500);
     // 验证导入页面正确渲染
     const importPage = contentPage.locator('.doc-import');
@@ -23,8 +27,12 @@ test.describe('OpenapiImport', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
-    const toolItem = contentPage.locator('.tool-items .tool-item').filter({ hasText: /导入|Import/ });
-    await toolItem.click();
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    await contentPage.waitForTimeout(300);
+    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
+    await expect(importItem).toBeVisible({ timeout: 5000 });
+    await importItem.click();
     await contentPage.waitForTimeout(500);
     // 验证导入页面正确渲染
     const importPage = contentPage.locator('.doc-import');
@@ -39,8 +47,12 @@ test.describe('OpenapiImport', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
-    const toolItem = contentPage.locator('.tool-items .tool-item').filter({ hasText: /导入|Import/ });
-    await toolItem.click();
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    await contentPage.waitForTimeout(300);
+    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
+    await expect(importItem).toBeVisible({ timeout: 5000 });
+    await importItem.click();
     await contentPage.waitForTimeout(500);
     // 验证追加方式radio存在
     const appendRadio = contentPage.locator('.el-radio').filter({ hasText: /追加方式|Append/ });
@@ -55,7 +67,7 @@ test.describe('OpenapiImport', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 先创建一个文件夹
-    const addFolderBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件夹|Add Folder/ }).first();
+    const addFolderBtn = contentPage.getByTestId('banner-add-folder-btn');
     await addFolderBtn.click();
     const addFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增文件夹|新建文件夹|Add Folder/ });
     await expect(addFolderDialog).toBeVisible({ timeout: 5000 });
@@ -63,8 +75,12 @@ test.describe('OpenapiImport', () => {
     await addFolderDialog.locator('.el-button--primary').last().click();
     await contentPage.waitForTimeout(500);
     // 点击导入文档按钮
-    const toolItem = contentPage.locator('.tool-items .tool-item').filter({ hasText: /导入|Import/ });
-    await toolItem.click();
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    await contentPage.waitForTimeout(300);
+    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
+    await expect(importItem).toBeVisible({ timeout: 5000 });
+    await importItem.click();
     await contentPage.waitForTimeout(500);
     // 验证导入页面正确渲染
     const importPage = contentPage.locator('.doc-import');

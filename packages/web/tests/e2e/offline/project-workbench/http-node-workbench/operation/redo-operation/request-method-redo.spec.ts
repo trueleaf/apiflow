@@ -30,13 +30,13 @@ test.describe('RequestMethodRedo', () => {
     // 验证请求方法为PUT
     await expect(methodSelect).toContainText('PUT', { timeout: 5000 });
     // 点击撤销按钮
-    const undoBtn = contentPage.locator('[data-testid="undo-btn"]');
+    const undoBtn = contentPage.locator('[data-testid="http-params-undo-btn"]');
     await undoBtn.click();
     await contentPage.waitForTimeout(300);
     // 验证撤销后请求方法为POST
     await expect(methodSelect).toContainText('POST', { timeout: 5000 });
     // 点击重做按钮
-    const redoBtn = contentPage.locator('[data-testid="redo-btn"]');
+    const redoBtn = contentPage.locator('[data-testid="http-params-redo-btn"]');
     await redoBtn.click();
     await contentPage.waitForTimeout(300);
     // 验证重做后请求方法恢复为PUT
@@ -76,7 +76,7 @@ test.describe('RequestMethodRedo', () => {
     // 验证撤销后请求方法为POST
     await expect(methodSelect).toContainText('POST', { timeout: 5000 });
     // 按ctrl+shift+z快捷键重做
-    await contentPage.keyboard.press('Control+Shift+z');
+    await contentPage.keyboard.press('Control+y');
     await contentPage.waitForTimeout(300);
     // 验证重做后请求方法恢复为PUT
     await expect(methodSelect).toContainText('PUT', { timeout: 5000 });

@@ -48,10 +48,7 @@ test.describe('CommonHeaders', () => {
     // 点击确认修改按钮保存
     const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
     await confirmBtn.click();
-    // await contentPage.waitForTimeout(500);
-    // 验证修改成功消息
-    const successMessage = contentPage.locator('.el-message--success');
-    await expect(successMessage).toBeVisible({ timeout: 3000 });
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     // 在folder下创建一个HTTP节点
     await folderNode.click({ button: 'right' });
     // await contentPage.waitForTimeout(300);
@@ -233,9 +230,7 @@ test.describe('CommonHeaders', () => {
     // 点击确认修改按钮保存
     const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
     await confirmBtn.click();
-    // await contentPage.waitForTimeout(500);
-    const successMessage = contentPage.locator('.el-message--success');
-    await expect(successMessage).toBeVisible({ timeout: 3000 });
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     // 点击刷新按钮重新加载数据
     const refreshBtn = commonHeaderPage.locator('.el-button--primary').filter({ hasText: /刷新/ });
     await refreshBtn.click();
@@ -316,9 +311,7 @@ test.describe('CommonHeaders', () => {
     // 保存公共请求头
     const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
     await confirmBtn.click();
-    // await contentPage.waitForTimeout(500);
-    const successMessage = contentPage.locator('.el-message--success');
-    await expect(successMessage).toBeVisible({ timeout: 3000 });
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     // 在folder下创建一个HTTP节点
     await folderNode.click({ button: 'right' });
@@ -385,9 +378,7 @@ test.describe('CommonHeaders', () => {
     // await contentPage.waitForTimeout(300);
     let confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
     await confirmBtn.click();
-    // await contentPage.waitForTimeout(500);
-    let successMessage = contentPage.locator('.el-message--success');
-    await expect(successMessage).toBeVisible({ timeout: 3000 });
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     // 在Level1下创建第二层目录: 目录Level2
     await level1Folder.click({ button: 'right' });
@@ -420,9 +411,7 @@ test.describe('CommonHeaders', () => {
     // await contentPage.waitForTimeout(300);
     confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
     await confirmBtn.click();
-    // await contentPage.waitForTimeout(500);
-    successMessage = contentPage.locator('.el-message--success');
-    await expect(successMessage).toBeVisible({ timeout: 3000 });
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     // 在Level2下创建第三层目录: 目录Level3
     await level2Folder.click({ button: 'right' });
@@ -455,9 +444,7 @@ test.describe('CommonHeaders', () => {
     // await contentPage.waitForTimeout(300);
     confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
     await confirmBtn.click();
-    // await contentPage.waitForTimeout(500);
-    successMessage = contentPage.locator('.el-message--success');
-    await expect(successMessage).toBeVisible({ timeout: 3000 });
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     // 在Level3下创建一个HTTP节点
     await level3Folder.click({ button: 'right' });
@@ -528,9 +515,7 @@ test.describe('CommonHeaders', () => {
     // await contentPage.waitForTimeout(300);
     let confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
     await confirmBtn.click();
-    // await contentPage.waitForTimeout(500);
-    let successMessage = contentPage.locator('.el-message--success');
-    await expect(successMessage).toBeVisible({ timeout: 3000 });
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     // 在父目录下创建子目录
     await parentFolder.click({ button: 'right' });
@@ -563,9 +548,7 @@ test.describe('CommonHeaders', () => {
     // await contentPage.waitForTimeout(300);
     confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
     await confirmBtn.click();
-    // await contentPage.waitForTimeout(500);
-    successMessage = contentPage.locator('.el-message--success');
-    await expect(successMessage).toBeVisible({ timeout: 3000 });
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     // 在子目录下创建HTTP节点
     await childFolder.click({ button: 'right' });

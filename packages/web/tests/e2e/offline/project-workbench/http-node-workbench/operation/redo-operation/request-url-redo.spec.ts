@@ -33,7 +33,7 @@ test.describe('RequestUrlRedo', () => {
     const urlValueAfterUndo = (await urlInput.innerText()).trim();
     expect(urlValueAfterUndo.length).toBeLessThan(2);
     // 按ctrl+shift+z快捷键重做
-    await contentPage.keyboard.press('Control+Shift+z');
+    await contentPage.keyboard.press('Control+y');
     await contentPage.waitForTimeout(300);
     // 验证重做后url值恢复为ab
     await expect(urlInput).toHaveText('ab', { timeout: 5000 });
@@ -64,14 +64,14 @@ test.describe('RequestUrlRedo', () => {
     // 验证url值为ab
     await expect(urlInput).toHaveText('ab', { timeout: 5000 });
     // 点击撤销按钮
-    const undoBtn = contentPage.locator('[data-testid="undo-btn"]');
+    const undoBtn = contentPage.locator('[data-testid="http-params-undo-btn"]');
     await undoBtn.click();
     await contentPage.waitForTimeout(300);
     // 验证撤销后url值
     const urlValueAfterUndo = (await urlInput.innerText()).trim();
     expect(urlValueAfterUndo.length).toBeLessThan(2);
     // 点击重做按钮
-    const redoBtn = contentPage.locator('[data-testid="redo-btn"]');
+    const redoBtn = contentPage.locator('[data-testid="http-params-redo-btn"]');
     await redoBtn.click();
     await contentPage.waitForTimeout(300);
     // 验证重做后url值恢复为ab

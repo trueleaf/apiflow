@@ -31,12 +31,13 @@ test.describe('Json', () => {
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择JSON类型
-    const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: 'json' });
+    const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: /json/i });
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入json5格式数据
-    const monacoEditor = contentPage.locator('.s-code-editor').first();
-    await monacoEditor.click();
+    const monacoEditor = contentPage.locator('.s-json-editor').first();
+    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor textarea, .s-json-editor textarea, .s-json-editor .monaco-editor, .s-json-editor').first();
+    await editorTarget.click({ force: true });
     await contentPage.waitForTimeout(300);
     // 清空编辑器内容并输入json5格式数据
     await contentPage.keyboard.press('ControlOrMeta+a');
@@ -47,14 +48,19 @@ test.describe('Json', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseTab = contentPage.locator('[data-testid="http-params-tab-response"]');
+    await responseTab.click();
+    const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseTabs).toBeVisible({ timeout: 10000 });
     // 验证Content-Type为application/json
-    await expect(responseBody).toContainText('application/json', { timeout: 10000 });
+    await contentPage.locator('#tab-SHeadersView').click();
+    await expect(responseTabs).toContainText('application/json', { timeout: 10000 });
     // 验证响应体中包含正确的JSON数据
-    await expect(responseBody).toContainText('name', { timeout: 10000 });
-    await expect(responseBody).toContainText('test', { timeout: 10000 });
-    await expect(responseBody).toContainText('age', { timeout: 10000 });
-    await expect(responseBody).toContainText('25', { timeout: 10000 });
+    await contentPage.locator('#tab-SBodyView').click();
+    await expect(responseTabs).toContainText('name', { timeout: 10000 });
+    await expect(responseTabs).toContainText('test', { timeout: 10000 });
+    await expect(responseTabs).toContainText('age', { timeout: 10000 });
+    await expect(responseTabs).toContainText('25', { timeout: 10000 });
   });
   // 测试用例2: json数据的值字段支持变量,调用echo接口返回结果body参数正确
   test('json数据值字段支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
@@ -79,34 +85,40 @@ test.describe('Json', () => {
     await methodSelect.click();
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
     await postOption.click();
-    // 打开变量弹窗配置变量
-    const variableBtn = contentPage.locator('[data-testid="variable-btn"]');
+    // 打开变量管理页签配置变量
+    const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]');
     await variableBtn.click();
     await contentPage.waitForTimeout(500);
+    const variableTab = contentPage.locator('[data-testid="project-nav-tab-variable"]');
+    await expect(variableTab).toHaveClass(/active/, { timeout: 5000 });
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
     // 添加变量 user_id=123
-    const variableDialog = contentPage.locator('.el-dialog').filter({ hasText: /变量|Variable/ });
-    await expect(variableDialog).toBeVisible({ timeout: 5000 });
-    const variableKeyInput = variableDialog.locator('[data-testid="params-tree-key-input"]').first();
-    await variableKeyInput.fill('user_id');
-    const variableValueInput = variableDialog.locator('[data-testid="params-tree-value-input"]').first();
-    await variableValueInput.click();
-    await contentPage.keyboard.type('123');
-    await contentPage.waitForTimeout(300);
-    // 关闭变量弹窗
-    const closeBtn = variableDialog.locator('.el-dialog__headerbtn');
-    await closeBtn.click();
+    const addPanel = variablePage.locator('.left');
+    const nameFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ });
+    await nameFormItem.locator('input').first().fill('user_id');
+    const valueFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ });
+    await valueFormItem.locator('textarea').first().fill('123');
+    const confirmAddBtn2 = addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first();
+    await confirmAddBtn2.click();
+    await contentPage.waitForTimeout(500);
+    await expect(variablePage.locator('.right')).toContainText('user_id', { timeout: 5000 });
+    // 切回HTTP节点页签
+    const httpTab = contentPage.locator('.nav .item').filter({ hasText: 'JSON变量测试' }).first();
+    await httpTab.click();
     await contentPage.waitForTimeout(300);
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择JSON类型
-    const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: 'json' });
+    const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: /json/i });
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入包含变量的JSON数据
-    const monacoEditor = contentPage.locator('.s-code-editor').first();
-    await monacoEditor.click();
+    const monacoEditor = contentPage.locator('.s-json-editor').first();
+    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor textarea, .s-json-editor textarea, .s-json-editor .monaco-editor, .s-json-editor').first();
+    await editorTarget.click({ force: true });
     await contentPage.waitForTimeout(300);
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('{"user_id": "{{user_id}}", "name": "test"}');
@@ -116,10 +128,13 @@ test.describe('Json', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseTab = contentPage.locator('[data-testid="http-params-tab-response"]');
+    await responseTab.click();
+    const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseTabs).toBeVisible({ timeout: 10000 });
     // 验证变量被正确替换
-    await expect(responseBody).toContainText('123', { timeout: 10000 });
-    await expect(responseBody).toContainText('user_id', { timeout: 10000 });
+    await expect(responseTabs).toContainText('123', { timeout: 10000 });
+    await expect(responseTabs).toContainText('user_id', { timeout: 10000 });
   });
   // 测试用例3: json数据支持超大数字
   test('json数据支持超大数字调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
@@ -149,12 +164,13 @@ test.describe('Json', () => {
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择JSON类型
-    const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: 'json' });
+    const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: /json/i });
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入包含超大数字的JSON数据
-    const monacoEditor = contentPage.locator('.s-code-editor').first();
-    await monacoEditor.click();
+    const monacoEditor = contentPage.locator('.s-json-editor').first();
+    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor textarea, .s-json-editor textarea, .s-json-editor .monaco-editor, .s-json-editor').first();
+    await editorTarget.click({ force: true });
     await contentPage.waitForTimeout(300);
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('{"big_number": 9007199254740992, "name": "test"}');
@@ -164,9 +180,12 @@ test.describe('Json', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseTab = contentPage.locator('[data-testid="http-params-tab-response"]');
+    await responseTab.click();
+    const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseTabs).toBeVisible({ timeout: 10000 });
     // 验证超大数字被正确处理
-    await expect(responseBody).toContainText('9007199254740992', { timeout: 10000 });
-    await expect(responseBody).toContainText('big_number', { timeout: 10000 });
+    await expect(responseTabs).toContainText('9007199254740992', { timeout: 10000 });
+    await expect(responseTabs).toContainText('big_number', { timeout: 10000 });
   });
 });
