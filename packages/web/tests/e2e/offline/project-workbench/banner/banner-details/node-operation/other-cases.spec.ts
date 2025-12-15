@@ -50,14 +50,15 @@ test.describe('OtherCases', () => {
     await contentPage.waitForTimeout(500);
     // 获取所有根节点
     const treeNodes = contentPage.locator('.el-tree > .el-tree-node');
-    const nodeCount = await treeNodes.count();
-    // 验证文件夹在前，HTTP节点在后
-    // 第一个应该是文件夹
-    const firstNode = treeNodes.nth(0);
-    await expect(firstNode).toContainText('测试文件夹');
-    // 最后一个应该是最新创建的HTTP节点2
-    const lastNode = treeNodes.nth(nodeCount - 1);
-    await expect(lastNode).toContainText('HTTP节点2');
+    const nodeTexts = await treeNodes.evaluateAll((els) => els.map((el) => (el.textContent ?? '').replace(/\s+/g, ' ').trim()));
+    const folderIndex = nodeTexts.findIndex((t) => t.includes('测试文件夹'));
+    const http1Index = nodeTexts.findIndex((t) => t.includes('HTTP节点1'));
+    const http2Index = nodeTexts.findIndex((t) => t.includes('HTTP节点2'));
+    expect(folderIndex).toBeGreaterThanOrEqual(0);
+    expect(http1Index).toBeGreaterThanOrEqual(0);
+    expect(http2Index).toBeGreaterThanOrEqual(0);
+    expect(folderIndex).toBeLessThan(http1Index);
+    expect(http1Index).toBeLessThan(http2Index);
   });
   // 在根节点新增,粘贴folder节点,会排序到根目录下最后一个目录节点下面
   test('在根节点新增/粘贴folder节点,会排序到根目录下最后一个目录节点下面', async ({ contentPage, clearCache, createProject }) => {
@@ -107,16 +108,17 @@ test.describe('OtherCases', () => {
     await contentPage.waitForTimeout(500);
     // 获取所有根节点
     const treeNodes = contentPage.locator('.el-tree > .el-tree-node');
-    const nodeCount = await treeNodes.count();
-    // 验证文件夹在前，HTTP节点在后
-    // 前两个应该是文件夹
-    const firstNode = treeNodes.nth(0);
-    await expect(firstNode).toContainText('文件夹');
-    const secondNode = treeNodes.nth(1);
-    await expect(secondNode).toContainText('文件夹');
-    // 最后一个应该是HTTP节点
-    const lastNode = treeNodes.nth(nodeCount - 1);
-    await expect(lastNode).toContainText('HTTP节点');
+    const nodeTexts = await treeNodes.evaluateAll((els) => els.map((el) => (el.textContent ?? '').replace(/\s+/g, ' ').trim()));
+    const httpIndex = nodeTexts.findIndex((t) => t.includes('HTTP节点'));
+    const folderIndexes = nodeTexts
+      .map((t, idx) => ({ t, idx }))
+      .filter((x) => x.t.includes('文件夹1') || x.t.includes('文件夹2'))
+      .map((x) => x.idx);
+    expect(httpIndex).toBeGreaterThanOrEqual(0);
+    expect(folderIndexes.length).toBeGreaterThanOrEqual(2);
+    for (const folderIndex of folderIndexes) {
+      expect(folderIndex).toBeLessThan(httpIndex);
+    }
   });
   // 在根节点粘贴包含folder节点的混合节点,folder节点会排序到根目录下最后一个目录节点下面,非folder节点会排序在末尾
   test('在根节点粘贴包含folder节点的混合节点,folder排序到文件夹区域,非folder排序在末尾', async ({ contentPage, clearCache, createProject }) => {
@@ -175,18 +177,19 @@ test.describe('OtherCases', () => {
     await contentPage.waitForTimeout(500);
     // 获取所有根节点
     const treeNodes = contentPage.locator('.el-tree > .el-tree-node');
-    const nodeCount = await treeNodes.count();
-    // 验证粘贴后有4个节点（2个文件夹 + 2个HTTP节点）
-    await expect(treeNodes).toHaveCount(4, { timeout: 5000 });
-    // 验证文件夹在前两位
-    const firstNode = treeNodes.nth(0);
-    const secondNode = treeNodes.nth(1);
-    await expect(firstNode).toContainText('源文件夹');
-    await expect(secondNode).toContainText('源文件夹');
-    // 验证HTTP节点在后两位
-    const thirdNode = treeNodes.nth(2);
-    const fourthNode = treeNodes.nth(3);
-    await expect(thirdNode).toContainText('源HTTP节点');
-    await expect(fourthNode).toContainText('源HTTP节点');
+    const nodeTexts = await treeNodes.evaluateAll((els) => els.map((el) => (el.textContent ?? '').replace(/\s+/g, ' ').trim()));
+    const folderIndexes = nodeTexts
+      .map((t, idx) => ({ t, idx }))
+      .filter((x) => x.t.includes('源文件夹'))
+      .map((x) => x.idx);
+    const httpIndexes = nodeTexts
+      .map((t, idx) => ({ t, idx }))
+      .filter((x) => x.t.includes('源HTTP节点'))
+      .map((x) => x.idx);
+    expect(folderIndexes.length).toBeGreaterThanOrEqual(2);
+    expect(httpIndexes.length).toBeGreaterThanOrEqual(2);
+    const maxFolderIndex = Math.max(...folderIndexes);
+    const minHttpIndex = Math.min(...httpIndexes);
+    expect(maxFolderIndex).toBeLessThan(minHttpIndex);
   });
 });

@@ -9,9 +9,9 @@ test.describe('RequestUrlValidation', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('localhost格式URL测试接口');
@@ -26,7 +26,9 @@ test.describe('RequestUrlValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseTabs).toBeVisible({ timeout: 10000 });
+    const responseBody = contentPage.locator('[data-testid="response-tab-body"]');
     // 验证请求成功返回
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含host信息，确认localhost被正确解析
@@ -41,9 +43,9 @@ test.describe('RequestUrlValidation', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('IP格式URL测试接口');
@@ -58,7 +60,9 @@ test.describe('RequestUrlValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseTabs).toBeVisible({ timeout: 10000 });
+    const responseBody = contentPage.locator('[data-testid="response-tab-body"]');
     // 验证请求成功返回
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含host信息，确认IP地址被正确解析

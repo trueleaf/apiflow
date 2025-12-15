@@ -9,9 +9,9 @@ test.describe('ResponseValue', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('JSON返回值测试');
@@ -26,7 +26,7 @@ test.describe('ResponseValue', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.locator('[data-testid="response-tab-body"]');
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证JSON数据正确显示
     const responseText = await responseBody.textContent();
@@ -39,9 +39,9 @@ test.describe('ResponseValue', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('返回值滚动测试');
@@ -56,10 +56,10 @@ test.describe('ResponseValue', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.locator('[data-testid="response-tab-body"]');
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应区域可以滚动（内容较长时）
-    const responseArea = contentPage.locator('.response-area, .response-content');
+    const responseArea = contentPage.locator('.remote-response-wrap');
     await expect(responseArea.first()).toBeVisible({ timeout: 5000 });
   });
 });

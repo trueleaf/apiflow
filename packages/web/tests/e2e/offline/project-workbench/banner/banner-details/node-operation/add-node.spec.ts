@@ -99,7 +99,7 @@ test.describe('AddNode', () => {
       // 点击新增文件选项
       const toolPanel = contentPage.locator('.tool-panel');
       await expect(toolPanel).toBeVisible({ timeout: 5000 });
-      const addFileItem = toolPanel.locator('[data-testid="banner-add-http-btn"]');
+      const addFileItem = toolPanel.locator('[data-testid="tool-panel-banner-add-http-btn"]');
       await expect(addFileItem).toBeVisible({ timeout: 5000 });
       await addFileItem.click();
       await contentPage.waitForTimeout(300);
@@ -266,7 +266,7 @@ test.describe('AddNode', () => {
       // 点击新增文件选项
       const toolPanel = contentPage.locator('.tool-panel');
       await expect(toolPanel).toBeVisible({ timeout: 5000 });
-      const addFileItem = toolPanel.locator('[data-testid="banner-add-http-btn"]');
+      const addFileItem = toolPanel.locator('[data-testid="tool-panel-banner-add-http-btn"]');
       await expect(addFileItem).toBeVisible({ timeout: 5000 });
       await addFileItem.click();
       await contentPage.waitForTimeout(300);
@@ -383,7 +383,7 @@ test.describe('AddNode', () => {
       // 点击新增文件选项
       const toolPanel = contentPage.locator('.tool-panel');
       await expect(toolPanel).toBeVisible({ timeout: 5000 });
-      const addFileItem = toolPanel.locator('[data-testid="banner-add-http-btn"]');
+      const addFileItem = toolPanel.locator('[data-testid="tool-panel-banner-add-http-btn"]');
       await expect(addFileItem).toBeVisible({ timeout: 5000 });
       await addFileItem.click();
       await contentPage.waitForTimeout(300);
@@ -500,7 +500,7 @@ test.describe('AddNode', () => {
       // 点击新增文件选项
       const toolPanel = contentPage.locator('.tool-panel');
       await expect(toolPanel).toBeVisible({ timeout: 5000 });
-      const addFileItem = toolPanel.locator('[data-testid="banner-add-http-btn"]');
+      const addFileItem = toolPanel.locator('[data-testid="tool-panel-banner-add-http-btn"]');
       await expect(addFileItem).toBeVisible({ timeout: 5000 });
       await addFileItem.click();
       await contentPage.waitForTimeout(300);
@@ -610,7 +610,7 @@ test.describe('AddNode', () => {
       // 点击新增文件夹选项
       const toolPanel = contentPage.locator('.tool-panel');
       await expect(toolPanel).toBeVisible({ timeout: 5000 });
-      const addFolderItem = toolPanel.locator('[data-testid="banner-add-folder-btn"]');
+      const addFolderItem = toolPanel.locator('[data-testid="tool-panel-banner-add-folder-btn"]');
       await expect(addFolderItem).toBeVisible({ timeout: 5000 });
       await addFolderItem.click();
       await contentPage.waitForTimeout(300);

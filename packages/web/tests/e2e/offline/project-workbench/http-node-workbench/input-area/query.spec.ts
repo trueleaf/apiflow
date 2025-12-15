@@ -17,7 +17,7 @@ test.describe('Query', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('Query自动新增行测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
@@ -56,7 +56,7 @@ test.describe('Query', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('Query发送测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
@@ -101,7 +101,7 @@ test.describe('Query', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('Query变量替换测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
@@ -146,7 +146,7 @@ test.describe('Query', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('Query Mock测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
@@ -191,7 +191,7 @@ test.describe('Query', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('Query混合变量测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
@@ -236,7 +236,7 @@ test.describe('Query', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('Query是否发送测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();

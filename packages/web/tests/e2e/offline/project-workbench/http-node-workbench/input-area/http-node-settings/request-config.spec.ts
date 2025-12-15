@@ -17,7 +17,7 @@ test.describe('RequestConfig', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('最大文本Body大小测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
@@ -52,7 +52,7 @@ test.describe('RequestConfig', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('最大原始Body大小测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
@@ -80,7 +80,7 @@ test.describe('RequestConfig', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('自定义User-Agent测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
@@ -123,7 +123,7 @@ test.describe('RequestConfig', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('请求头展示长度测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();

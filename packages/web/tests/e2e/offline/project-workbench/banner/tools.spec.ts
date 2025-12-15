@@ -111,13 +111,14 @@ test.describe('Tools', () => {
     await moreBtn.click();
     await contentPage.waitForTimeout(300);
     // 找到未固定的工具(没有active类的pin按钮)
-    const unpinnedItem = contentPage.locator('.tool-panel .dropdown-item .pin:not(.active)').first();
-    if (await unpinnedItem.isVisible()) {
-      await unpinnedItem.click();
-      await contentPage.waitForTimeout(300);
-      // 验证该按钮变为激活状态
-      await expect(unpinnedItem).toHaveClass(/active/);
-    }
+    const unpinnedRows = contentPage
+      .locator('.tool-panel .dropdown-item')
+      .filter({ has: contentPage.locator('.pin:not(.active)') });
+    await expect(unpinnedRows.first()).toBeVisible({ timeout: 5000 });
+    const activePins = contentPage.locator('.tool-panel .dropdown-item .pin.active');
+    const activePinsBefore = await activePins.count();
+    await unpinnedRows.first().locator('.pin').click();
+    await expect(activePins).toHaveCount(activePinsBefore + 1, { timeout: 5000 });
   });
 
   // 测试用例7: 点击取消固定将工具从工具栏移除
@@ -131,13 +132,14 @@ test.describe('Tools', () => {
     await moreBtn.click();
     await contentPage.waitForTimeout(300);
     // 找到已固定的工具(有active类的pin按钮)
-    const pinnedItem = contentPage.locator('.tool-panel .dropdown-item .pin.active').first();
-    if (await pinnedItem.isVisible()) {
-      await pinnedItem.click();
-      await contentPage.waitForTimeout(300);
-      // 验证该按钮变为未激活状态
-      await expect(pinnedItem).not.toHaveClass(/active/);
-    }
+    const pinnedRows = contentPage
+      .locator('.tool-panel .dropdown-item')
+      .filter({ has: contentPage.locator('.pin.active') });
+    await expect(pinnedRows.first()).toBeVisible({ timeout: 5000 });
+    const activePins = contentPage.locator('.tool-panel .dropdown-item .pin.active');
+    const activePinsBefore = await activePins.count();
+    await pinnedRows.first().locator('.pin').click();
+    await expect(activePins).toHaveCount(activePinsBefore - 1, { timeout: 5000 });
   });
 
   // 测试用例8: 点击新增目录按钮弹出目录创建对话框
@@ -151,7 +153,7 @@ test.describe('Tools', () => {
     await moreBtn.click();
     await contentPage.waitForTimeout(300);
     // 点击新增文件夹工具
-    const addFolderItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /新增文件夹|New Folder/ });
+    const addFolderItem = contentPage.locator('[data-testid="tool-panel-banner-add-folder-btn"]');
     if (await addFolderItem.isVisible()) {
       await addFolderItem.click();
       await contentPage.waitForTimeout(300);
@@ -172,7 +174,7 @@ test.describe('Tools', () => {
     await moreBtn.click();
     await contentPage.waitForTimeout(300);
     // 点击新增文件工具
-    const addFileItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /新增文件|New File/ });
+    const addFileItem = contentPage.locator('[data-testid="tool-panel-banner-add-http-btn"]');
     if (await addFileItem.isVisible()) {
       await addFileItem.click();
       await contentPage.waitForTimeout(300);
@@ -197,9 +199,8 @@ test.describe('Tools', () => {
     await expect(recyclerItem).toBeVisible({ timeout: 5000 });
     await recyclerItem.click();
     await contentPage.waitForTimeout(500);
-    // 验证标签页显示"回收站"
-    const tabLabel = contentPage.locator('.nav-tabs .nav-item').filter({ hasText: /回收站/ });
-    await expect(tabLabel).toBeVisible({ timeout: 5000 });
+    // 验证回收站内容区显示
+    await expect(contentPage.locator('.recycler')).toBeVisible({ timeout: 5000 });
   });
 
   // 测试用例11: 点击Cookie管理按钮打开Cookies标签页
@@ -217,9 +218,8 @@ test.describe('Tools', () => {
     await expect(cookiesItem).toBeVisible({ timeout: 5000 });
     await cookiesItem.click();
     await contentPage.waitForTimeout(500);
-    // 验证标签页显示"Cookies"
-    const tabLabel = contentPage.locator('.nav-tabs .nav-item').filter({ hasText: /Cookie/ });
-    await expect(tabLabel).toBeVisible({ timeout: 5000 });
+    // 验证Cookies内容区显示
+    await expect(contentPage.locator('.cookies-page')).toBeVisible({ timeout: 5000 });
   });
 
   // 测试用例12: 点击变量按钮打开变量标签页
@@ -237,9 +237,8 @@ test.describe('Tools', () => {
     await expect(variableItem).toBeVisible({ timeout: 5000 });
     await variableItem.click();
     await contentPage.waitForTimeout(500);
-    // 验证标签页显示"变量"
-    const tabLabel = contentPage.locator('.nav-tabs .nav-item').filter({ hasText: /变量/ });
-    await expect(tabLabel).toBeVisible({ timeout: 5000 });
+    // 验证变量内容区显示
+    await expect(contentPage.locator('.s-variable')).toBeVisible({ timeout: 5000 });
   });
 
   // 测试用例13: 点击导入文档按钮打开导入文档标签页
@@ -257,9 +256,8 @@ test.describe('Tools', () => {
     await expect(importItem).toBeVisible({ timeout: 5000 });
     await importItem.click();
     await contentPage.waitForTimeout(500);
-    // 验证标签页显示"导入文档"
-    const tabLabel = contentPage.locator('.nav-tabs .nav-item').filter({ hasText: /导入文档/ });
-    await expect(tabLabel).toBeVisible({ timeout: 5000 });
+    // 验证导入文档内容区显示
+    await expect(contentPage.locator('.doc-import')).toBeVisible({ timeout: 5000 });
   });
 
   // 测试用例14: 点击导出文档按钮打开导出文档标签页
@@ -277,8 +275,7 @@ test.describe('Tools', () => {
     await expect(exportItem).toBeVisible({ timeout: 5000 });
     await exportItem.click();
     await contentPage.waitForTimeout(500);
-    // 验证标签页显示"导出文档"
-    const tabLabel = contentPage.locator('.nav-tabs .nav-item').filter({ hasText: /导出文档/ });
-    await expect(tabLabel).toBeVisible({ timeout: 5000 });
+    // 验证导出文档内容区显示
+    await expect(contentPage.locator('.doc-export')).toBeVisible({ timeout: 5000 });
   });
 });

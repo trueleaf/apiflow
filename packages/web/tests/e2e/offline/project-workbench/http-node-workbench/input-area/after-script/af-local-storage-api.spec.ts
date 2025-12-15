@@ -9,9 +9,9 @@ test.describe('AfLocalStorageApi', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('localStorage set测试');
@@ -54,9 +54,9 @@ test.describe('AfLocalStorageApi', () => {
       localStorage.setItem('af_test_key', '"test_value"');
     });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('localStorage get测试');
@@ -99,9 +99,9 @@ test.describe('AfLocalStorageApi', () => {
     });
     expect(initialValue).toBe('"remove_value"');
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('localStorage remove测试');
@@ -157,9 +157,9 @@ test.describe('AfLocalStorageApi', () => {
     expect(initialValues.key2).toBe('"value2"');
     expect(initialValues.key3).toBe('"value3"');
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('localStorage clear测试');
@@ -204,9 +204,9 @@ test.describe('AfLocalStorageApi', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('localStorage get不存在的键测试');

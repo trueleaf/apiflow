@@ -19,7 +19,7 @@ test.describe('BinaryParams', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('Binary变量模式无效变量测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
@@ -82,7 +82,7 @@ test.describe('BinaryParams', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('Binary变量模式有效变量测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
@@ -167,7 +167,7 @@ test.describe('BinaryParams', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('Binary文件模式未选择文件测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
@@ -228,7 +228,7 @@ test.describe('BinaryParams', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('Binary文件模式选择文件测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();

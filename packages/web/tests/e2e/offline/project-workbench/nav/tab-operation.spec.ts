@@ -7,7 +7,7 @@ test.describe('TabOperation', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -30,7 +30,7 @@ test.describe('TabOperation', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -42,7 +42,7 @@ test.describe('TabOperation', () => {
     await tab.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
     // 点击关闭菜单项
-    const closeMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: /^关闭$|^Close$/ }).first();
+    const closeMenuItem = contentPage.locator('[data-testid="contextmenu-item-关闭"], [data-testid="contextmenu-item-Close"]');
     await closeMenuItem.click();
     await contentPage.waitForTimeout(300);
     // 验证tab不存在
@@ -54,7 +54,7 @@ test.describe('TabOperation', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增三个HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 3; i++) {
       await addFileBtn.click();
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
@@ -83,7 +83,7 @@ test.describe('TabOperation', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增三个HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 3; i++) {
       await addFileBtn.click();
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
@@ -112,7 +112,7 @@ test.describe('TabOperation', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增三个HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 3; i++) {
       await addFileBtn.click();
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
@@ -143,7 +143,7 @@ test.describe('TabOperation', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增两个HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 2; i++) {
       await addFileBtn.click();
       const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
@@ -170,7 +170,7 @@ test.describe('TabOperation', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增两个HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -217,7 +217,7 @@ test.describe('TabOperation', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });

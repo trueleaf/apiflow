@@ -38,9 +38,11 @@ test.describe('MoveNode', () => {
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 展开文件夹查看节点
-      const expandIcon = folderNode.locator('.el-tree-node__expand-icon').first();
-      const isExpanded = await folderNode.evaluate(el => el.classList.contains('is-expanded'));
+      const folderTreeNode = folderNode.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
+      await expect(folderTreeNode).toBeVisible({ timeout: 5000 });
+      const isExpanded = await folderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
       if (!isExpanded) {
+        const expandIcon = folderTreeNode.locator('.el-tree-node__expand-icon').first();
         await expandIcon.click();
         await contentPage.waitForTimeout(300);
       }
@@ -104,9 +106,11 @@ test.describe('MoveNode', () => {
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 展开源文件夹
-      const expandIcon = sourceFolderNode.locator('.el-tree-node__expand-icon').first();
-      const isExpanded = await sourceFolderNode.evaluate(el => el.classList.contains('is-expanded'));
+      const sourceFolderTreeNode = sourceFolderNode.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
+      await expect(sourceFolderTreeNode).toBeVisible({ timeout: 5000 });
+      const isExpanded = await sourceFolderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
       if (!isExpanded) {
+        const expandIcon = sourceFolderTreeNode.locator('.el-tree-node__expand-icon').first();
         await expandIcon.click();
         await contentPage.waitForTimeout(300);
       }
@@ -123,10 +127,7 @@ test.describe('MoveNode', () => {
       }
       await contentPage.waitForTimeout(500);
       // 验证目标文件夹展开并包含节点
-      const targetFolderTreeNode = contentPage
-        .locator('.el-tree-node')
-        .filter({ has: contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' }) })
-        .first();
+      const targetFolderTreeNode = targetFolderNode.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
       await expect(targetFolderTreeNode).toBeVisible({ timeout: 5000 });
       const isTargetExpanded = await targetFolderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
       if (!isTargetExpanded) {
@@ -272,9 +273,11 @@ test.describe('MoveNode', () => {
       await wsConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 展开文件夹
-      const expandIcon = folderNode.locator('.el-tree-node__expand-icon').first();
-      const isExpanded = await folderNode.evaluate(el => el.classList.contains('is-expanded'));
+      const folderTreeNode = folderNode.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
+      await expect(folderTreeNode).toBeVisible({ timeout: 5000 });
+      const isExpanded = await folderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
       if (!isExpanded) {
+        const expandIcon = folderTreeNode.locator('.el-tree-node__expand-icon').first();
         await expandIcon.click();
         await contentPage.waitForTimeout(300);
       }
@@ -342,9 +345,11 @@ test.describe('MoveNode', () => {
       await wsConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 展开源文件夹
-      const expandIcon = sourceFolderNode.locator('.el-tree-node__expand-icon').first();
-      const isExpanded = await sourceFolderNode.evaluate(el => el.classList.contains('is-expanded'));
+      const sourceFolderTreeNode = sourceFolderNode.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
+      await expect(sourceFolderTreeNode).toBeVisible({ timeout: 5000 });
+      const isExpanded = await sourceFolderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
       if (!isExpanded) {
+        const expandIcon = sourceFolderTreeNode.locator('.el-tree-node__expand-icon').first();
         await expandIcon.click();
         await contentPage.waitForTimeout(300);
       }
@@ -361,10 +366,7 @@ test.describe('MoveNode', () => {
       }
       await contentPage.waitForTimeout(500);
       // 验证目标文件夹展开并包含节点
-      const targetFolderTreeNode = contentPage
-        .locator('.el-tree-node')
-        .filter({ has: contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' }) })
-        .first();
+      const targetFolderTreeNode = targetFolderNode.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
       await expect(targetFolderTreeNode).toBeVisible({ timeout: 5000 });
       const isTargetExpanded = await targetFolderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
       if (!isTargetExpanded) {
@@ -415,9 +417,11 @@ test.describe('MoveNode', () => {
       await mockConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 展开文件夹
-      const expandIcon = folderNode.locator('.el-tree-node__expand-icon').first();
-      const isExpanded = await folderNode.evaluate(el => el.classList.contains('is-expanded'));
+      const folderTreeNode = folderNode.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
+      await expect(folderTreeNode).toBeVisible({ timeout: 5000 });
+      const isExpanded = await folderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
       if (!isExpanded) {
+        const expandIcon = folderTreeNode.locator('.el-tree-node__expand-icon').first();
         await expandIcon.click();
         await contentPage.waitForTimeout(300);
       }
@@ -485,9 +489,11 @@ test.describe('MoveNode', () => {
       await mockConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 展开源文件夹
-      const expandIcon = sourceFolderNode.locator('.el-tree-node__expand-icon').first();
-      const isExpanded = await sourceFolderNode.evaluate(el => el.classList.contains('is-expanded'));
+      const sourceFolderTreeNode = sourceFolderNode.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
+      await expect(sourceFolderTreeNode).toBeVisible({ timeout: 5000 });
+      const isExpanded = await sourceFolderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
       if (!isExpanded) {
+        const expandIcon = sourceFolderTreeNode.locator('.el-tree-node__expand-icon').first();
         await expandIcon.click();
         await contentPage.waitForTimeout(300);
       }
@@ -504,10 +510,7 @@ test.describe('MoveNode', () => {
       }
       await contentPage.waitForTimeout(500);
       // 验证目标文件夹展开并包含节点
-      const targetFolderTreeNode = contentPage
-        .locator('.el-tree-node')
-        .filter({ has: contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' }) })
-        .first();
+      const targetFolderTreeNode = targetFolderNode.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
       await expect(targetFolderTreeNode).toBeVisible({ timeout: 5000 });
       const isTargetExpanded = await targetFolderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
       if (!isTargetExpanded) {
@@ -558,9 +561,11 @@ test.describe('MoveNode', () => {
       await wsMockConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 展开文件夹
-      const expandIcon = folderNode.locator('.el-tree-node__expand-icon').first();
-      const isExpanded = await folderNode.evaluate(el => el.classList.contains('is-expanded'));
+      const folderTreeNode = folderNode.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
+      await expect(folderTreeNode).toBeVisible({ timeout: 5000 });
+      const isExpanded = await folderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
       if (!isExpanded) {
+        const expandIcon = folderTreeNode.locator('.el-tree-node__expand-icon').first();
         await expandIcon.click();
         await contentPage.waitForTimeout(300);
       }
@@ -628,9 +633,11 @@ test.describe('MoveNode', () => {
       await wsMockConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 展开源文件夹
-      const expandIcon = sourceFolderNode.locator('.el-tree-node__expand-icon').first();
-      const isExpanded = await sourceFolderNode.evaluate(el => el.classList.contains('is-expanded'));
+      const sourceFolderTreeNode = sourceFolderNode.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
+      await expect(sourceFolderTreeNode).toBeVisible({ timeout: 5000 });
+      const isExpanded = await sourceFolderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
       if (!isExpanded) {
+        const expandIcon = sourceFolderTreeNode.locator('.el-tree-node__expand-icon').first();
         await expandIcon.click();
         await contentPage.waitForTimeout(300);
       }
@@ -647,10 +654,7 @@ test.describe('MoveNode', () => {
       }
       await contentPage.waitForTimeout(500);
       // 验证目标文件夹展开并包含节点
-      const targetFolderTreeNode = contentPage
-        .locator('.el-tree-node')
-        .filter({ has: contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' }) })
-        .first();
+      const targetFolderTreeNode = targetFolderNode.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
       await expect(targetFolderTreeNode).toBeVisible({ timeout: 5000 });
       const isTargetExpanded = await targetFolderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
       if (!isTargetExpanded) {
@@ -697,9 +701,11 @@ test.describe('MoveNode', () => {
       await subFolderConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 展开父文件夹
-      const expandIcon = parentFolderNode.locator('.el-tree-node__expand-icon').first();
-      const isExpanded = await parentFolderNode.evaluate(el => el.classList.contains('is-expanded'));
+      const parentFolderTreeNode = parentFolderNode.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
+      await expect(parentFolderTreeNode).toBeVisible({ timeout: 5000 });
+      const isExpanded = await parentFolderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
       if (!isExpanded) {
+        const expandIcon = parentFolderTreeNode.locator('.el-tree-node__expand-icon').first();
         await expandIcon.click();
         await contentPage.waitForTimeout(300);
       }
@@ -848,9 +854,11 @@ test.describe('MoveNode', () => {
       await subFolderConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 展开父文件夹
-      const expandIcon = parentFolderNode.locator('.el-tree-node__expand-icon').first();
-      const isExpanded = await parentFolderNode.evaluate(el => el.classList.contains('is-expanded'));
+      const parentFolderTreeNode = parentFolderNode.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
+      await expect(parentFolderTreeNode).toBeVisible({ timeout: 5000 });
+      const isExpanded = await parentFolderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
       if (!isExpanded) {
+        const expandIcon = parentFolderTreeNode.locator('.el-tree-node__expand-icon').first();
         await expandIcon.click();
         await contentPage.waitForTimeout(300);
       }
@@ -937,10 +945,7 @@ test.describe('MoveNode', () => {
       }
       await contentPage.waitForTimeout(500);
       // 验证目标文件夹展开并包含源文件夹
-      const targetFolderTreeNode = contentPage
-        .locator('.el-tree-node')
-        .filter({ has: contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' }) })
-        .first();
+      const targetFolderTreeNode = targetFolderNode.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
       await expect(targetFolderTreeNode).toBeVisible({ timeout: 5000 });
       const isTargetExpanded = await targetFolderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
       if (!isTargetExpanded) {
@@ -952,9 +957,13 @@ test.describe('MoveNode', () => {
       await expect(movedSourceFolder).toBeVisible({ timeout: 5000 });
       // 展开移动后的源文件夹验证子节点
       const movedSourceTreeNode = movedSourceFolder.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
-      const movedExpandIcon = movedSourceTreeNode.locator('.el-tree-node__expand-icon').first();
-      await movedExpandIcon.click();
-      await contentPage.waitForTimeout(300);
+      await expect(movedSourceTreeNode).toBeVisible({ timeout: 5000 });
+      const isMovedExpanded = await movedSourceTreeNode.evaluate(el => el.classList.contains('is-expanded'));
+      if (!isMovedExpanded) {
+        const movedExpandIcon = movedSourceTreeNode.locator('.el-tree-node__expand-icon').first();
+        await movedExpandIcon.click();
+        await contentPage.waitForTimeout(300);
+      }
       // 验证嵌套的子文件夹和HTTP节点仍然存在
       const nestedSubFolder = movedSourceTreeNode.locator('.el-tree-node__content').filter({ hasText: '嵌套子文件夹' });
       await expect(nestedSubFolder).toBeVisible({ timeout: 5000 });

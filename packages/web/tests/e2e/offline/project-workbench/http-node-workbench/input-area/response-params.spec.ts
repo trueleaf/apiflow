@@ -7,9 +7,9 @@ test.describe('ResponseParams', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('返回参数CRUD测试接口');
@@ -27,7 +27,7 @@ test.describe('ResponseParams', () => {
     const initialCards = responseParams.locator('.response-collapse-card');
     await expect(initialCards).toHaveCount(1, { timeout: 5000 });
     // 点击新增按钮添加新的返回参数
-    const addBtn = responseParams.locator('.action-icon').filter({ has: contentPage.locator('svg') }).first();
+    const addBtn = responseParams.locator('.card-actions .action-icon').first();
     await addBtn.click();
     await contentPage.waitForTimeout(300);
     // 验证新增成功，现在有2个返回参数
@@ -61,9 +61,9 @@ test.describe('ResponseParams', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('状态码测试接口');
@@ -77,10 +77,10 @@ test.describe('ResponseParams', () => {
     // 点击状态码输入框，弹出常见响应码列表
     const responseParams = contentPage.locator('.response-params');
     const statusCodeArea = responseParams.locator('.status-code').first();
-    await statusCodeArea.click();
+    await statusCodeArea.locator('.cursor-pointer').first().click();
     await contentPage.waitForTimeout(300);
     // 验证弹出状态码选择器
-    const statusPopover = contentPage.locator('.el-popover').filter({ hasText: /200|404|500/ });
+    const statusPopover = contentPage.locator('.el-popper.el-popover:visible').filter({ hasText: /200|404|500/ });
     await expect(statusPopover).toBeVisible({ timeout: 5000 });
     // 选择404状态码
     const status404 = statusPopover.locator('text=404').first();
@@ -90,9 +90,9 @@ test.describe('ResponseParams', () => {
     const statusCodeSpan = statusCodeArea.locator('.red');
     await expect(statusCodeSpan).toContainText('404', { timeout: 5000 });
     // 再次点击状态码，选择200
-    await statusCodeArea.click();
+    await statusCodeArea.locator('.cursor-pointer').first().click();
     await contentPage.waitForTimeout(300);
-    const status200 = contentPage.locator('.el-popover').filter({ hasText: /200/ }).locator('text=200').first();
+    const status200 = contentPage.locator('.el-popper.el-popover:visible').filter({ hasText: /200/ }).locator('text=200').first();
     await status200.click();
     await contentPage.waitForTimeout(300);
     // 验证状态码已更新为200，且显示为绿色（2xx成功）
@@ -105,9 +105,9 @@ test.describe('ResponseParams', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('响应类型测试接口');
@@ -121,13 +121,13 @@ test.describe('ResponseParams', () => {
     // 点击数据类型下拉框
     const responseParams = contentPage.locator('.response-params');
     const contentTypeArea = responseParams.locator('.content-type').first();
-    await contentTypeArea.click();
+    await contentTypeArea.locator('.cursor-pointer').first().click();
     await contentPage.waitForTimeout(300);
     // 验证弹出类型选择器，包含常见类型
-    const mimePopover = contentPage.locator('.el-popover').filter({ hasText: /JSON|HTML|XML|Text/ });
+    const mimePopover = contentPage.locator('.el-popper.el-popover:visible').filter({ hasText: /JSON|HTML|XML|Text/ });
     await expect(mimePopover).toBeVisible({ timeout: 5000 });
     // 选择JSON类型
-    const jsonOption = mimePopover.locator('text=application/json').first();
+    const jsonOption = mimePopover.locator('.item').filter({ hasText: /^JSON$/ }).first();
     await jsonOption.click();
     await contentPage.waitForTimeout(300);
     // 验证JSON编辑器显示
@@ -139,9 +139,14 @@ test.describe('ResponseParams', () => {
     await contentPage.keyboard.type('{"message": "test"}');
     await contentPage.waitForTimeout(300);
     // 再次点击数据类型，选择HTML类型
-    await contentTypeArea.click();
+    await contentTypeArea.locator('.cursor-pointer').first().click();
     await contentPage.waitForTimeout(300);
-    const htmlOption = contentPage.locator('.el-popover').filter({ hasText: /HTML/ }).locator('text=text/html').first();
+    const htmlOption = contentPage
+      .locator('.el-popper.el-popover:visible')
+      .filter({ hasText: /HTML/ })
+      .locator('.item')
+      .filter({ hasText: /HTM,HTML|text\/html/ })
+      .first();
     await htmlOption.click();
     await contentPage.waitForTimeout(300);
     // 验证类型已更新

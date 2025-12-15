@@ -7,7 +7,7 @@ test.describe('BannerNavInteraction', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -37,7 +37,7 @@ test.describe('BannerNavInteraction', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -68,7 +68,7 @@ test.describe('BannerNavInteraction', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增文件夹节点
-    const addFolderBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件夹|Add Folder/ }).first();
+    const addFolderBtn = contentPage.getByTestId('banner-add-folder-btn');
     await addFolderBtn.click();
     const addFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增文件夹|新建文件夹|Add Folder/ });
     await expect(addFolderDialog).toBeVisible({ timeout: 5000 });
@@ -93,7 +93,7 @@ test.describe('BannerNavInteraction', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增两个HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -136,7 +136,7 @@ test.describe('BannerNavInteraction', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增两个HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -175,7 +175,7 @@ test.describe('BannerNavInteraction', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -197,7 +197,7 @@ test.describe('BannerNavInteraction', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -214,8 +214,11 @@ test.describe('BannerNavInteraction', () => {
     await bannerNode.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
     // 点击删除选项
-    const deleteMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: /删除|Delete/ });
+    const deleteMenuItem = contentPage.locator('[data-testid="contextmenu-item-删除"], [data-testid="contextmenu-item-Delete"]');
     await deleteMenuItem.click();
+    const confirmDeleteBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
+    await expect(confirmDeleteBtn).toBeVisible({ timeout: 3000 });
+    await confirmDeleteBtn.click();
     await contentPage.waitForTimeout(500);
     // 验证tab不存在
     await expect(navTab).not.toBeVisible({ timeout: 3000 });
@@ -226,7 +229,7 @@ test.describe('BannerNavInteraction', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -247,7 +250,8 @@ test.describe('BannerNavInteraction', () => {
     await renameMenuItem.click();
     await contentPage.waitForTimeout(300);
     // 清空并输入新名称
-    const renameInput = contentPage.locator('.el-tree-node .el-input__inner');
+    const renameInput = contentPage.getByTestId('banner-doc-tree').locator('input.rename-ipt');
+    await expect(renameInput).toBeVisible({ timeout: 3000 });
     await renameInput.fill('新接口名称');
     await renameInput.press('Enter');
     await contentPage.waitForTimeout(500);
@@ -260,7 +264,7 @@ test.describe('BannerNavInteraction', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增两个HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -278,7 +282,7 @@ test.describe('BannerNavInteraction', () => {
     await tabE.click();
     await contentPage.waitForTimeout(300);
     // 验证banner中对应节点高亮
-    const bannerNodeE = contentPage.locator('.el-tree-node.is-current .el-tree-node__content').filter({ hasText: '接口E' });
+    const bannerNodeE = contentPage.getByTestId('banner-doc-tree').locator('.custom-tree-node.active-node').filter({ hasText: '接口E' });
     await expect(bannerNodeE).toBeVisible({ timeout: 3000 });
   });
   // 测试用例10: 单击非固定页签变为固定
@@ -287,7 +291,7 @@ test.describe('BannerNavInteraction', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });

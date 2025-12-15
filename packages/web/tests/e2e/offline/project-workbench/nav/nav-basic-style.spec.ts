@@ -22,7 +22,7 @@ test.describe('NavBasicStyle', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -39,7 +39,7 @@ test.describe('NavBasicStyle', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -64,7 +64,7 @@ test.describe('NavBasicStyle', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -83,7 +83,7 @@ test.describe('NavBasicStyle', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -91,9 +91,10 @@ test.describe('NavBasicStyle', () => {
     await addFileDialog.locator('.el-button--primary').last().click();
     await contentPage.waitForTimeout(500);
     // 修改URL触发未保存状态
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.getByTestId('url-input').locator('.cl-rich-input__editor');
     await urlInput.click();
-    await urlInput.fill('http://localhost:3456/echo');
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.type('http://localhost:3456/echo');
     await contentPage.waitForTimeout(300);
     // 验证未保存状态的小圆点显示
     const unsavedDot = contentPage.locator('[data-testid="project-nav-tab-unsaved"]');
@@ -105,7 +106,7 @@ test.describe('NavBasicStyle', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -122,7 +123,7 @@ test.describe('NavBasicStyle', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增带有长名称的HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });

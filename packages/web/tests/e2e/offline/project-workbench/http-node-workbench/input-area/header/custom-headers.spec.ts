@@ -17,7 +17,7 @@ test.describe('CustomHeaders', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('请求头下拉列表测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
@@ -56,7 +56,7 @@ test.describe('CustomHeaders', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('请求头覆盖测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
@@ -101,7 +101,7 @@ test.describe('CustomHeaders', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('Header自动新增行测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
@@ -140,7 +140,7 @@ test.describe('CustomHeaders', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('Header发送测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
@@ -185,7 +185,7 @@ test.describe('CustomHeaders', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('Header变量替换测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
@@ -230,7 +230,7 @@ test.describe('CustomHeaders', () => {
     const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
     await newInterfaceItem.click();
     await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('Header是否发送测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();

@@ -9,9 +9,9 @@ test.describe('ResponseCookie', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('Cookie测试');
@@ -26,8 +26,8 @@ test.describe('ResponseCookie', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
-    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseTabs).toBeVisible({ timeout: 10000 });
     // 切换到Cookie标签页
     const cookieTab = contentPage.locator('[data-testid="response-tabs"]').getByRole('tab', { name: /Cookie|Cookies/i }).first();
     if (await cookieTab.isVisible().catch(() => false)) {
@@ -41,9 +41,9 @@ test.describe('ResponseCookie', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('Cookie详情测试');
@@ -54,7 +54,7 @@ test.describe('ResponseCookie', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击Headers标签页添加Cookie请求头
-    const headersTab = contentPage.locator('[data-testid="http-params-tab-header"]');
+    const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
     await headersTab.click();
     await contentPage.waitForTimeout(300);
     // 添加Cookie请求头
@@ -71,7 +71,7 @@ test.describe('ResponseCookie', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
-    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseTabs).toBeVisible({ timeout: 10000 });
   });
 });

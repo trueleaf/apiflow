@@ -56,11 +56,13 @@ test.describe('ProjectToggle', () => {
     const toggleBtn = contentPage.locator('[data-testid="banner-toggle-project-btn"]');
     await toggleBtn.click();
     await contentPage.waitForTimeout(300);
+    const popover = contentPage.locator('.el-popover').filter({ has: contentPage.locator('.tool-toggle-project') });
+    await expect(popover).toBeVisible({ timeout: 5000 });
     // 验证项目列表区域存在
-    const projectWrap = contentPage.locator('.tool-toggle-project .project-wrap');
-    await expect(projectWrap.first()).toBeVisible({ timeout: 5000 });
+    const projectWrap = popover.locator('.project-wrap:visible').first();
+    await expect(projectWrap).toBeVisible({ timeout: 5000 });
     // 验证项目列表中有项目项
-    const projectItems = contentPage.locator('.tool-toggle-project .project-wrap .item');
+    const projectItems = projectWrap.locator('.item');
     const count = await projectItems.count();
     expect(count).toBeGreaterThan(0);
   });
@@ -75,8 +77,10 @@ test.describe('ProjectToggle', () => {
     const toggleBtn = contentPage.locator('[data-testid="banner-toggle-project-btn"]');
     await toggleBtn.click();
     await contentPage.waitForTimeout(300);
+    const popover = contentPage.locator('.el-popover').filter({ has: contentPage.locator('.tool-toggle-project') });
+    await expect(popover).toBeVisible({ timeout: 5000 });
     // 验证项目项包含项目名称
-    const firstItem = contentPage.locator('.tool-toggle-project .project-wrap .item').first();
+    const firstItem = popover.locator('.project-wrap .item').first();
     const itemTitle = firstItem.locator('.item-title');
     await expect(itemTitle).toBeVisible({ timeout: 5000 });
     // 验证项目项包含创建者名称
@@ -113,13 +117,14 @@ test.describe('ProjectToggle', () => {
     const toggleBtn = contentPage.locator('[data-testid="banner-toggle-project-btn"]');
     await toggleBtn.click();
     await contentPage.waitForTimeout(300);
+    const popover = contentPage.locator('.el-popover').filter({ has: contentPage.locator('.tool-toggle-project') });
+    await expect(popover).toBeVisible({ timeout: 5000 });
     // 点击第一个项目
-    const firstItem = contentPage.locator('.tool-toggle-project .project-wrap .item').first();
+    const firstItem = popover.locator('.project-wrap .item').first();
     await expect(firstItem).toBeVisible({ timeout: 5000 });
     await firstItem.click();
     await contentPage.waitForTimeout(500);
     // 验证点击后面板关闭(项目切换后面板应自动关闭)
-    const popover = contentPage.locator('.el-popover').filter({ has: contentPage.locator('.tool-toggle-project') });
     await expect(popover).toBeHidden({ timeout: 5000 });
   });
 });

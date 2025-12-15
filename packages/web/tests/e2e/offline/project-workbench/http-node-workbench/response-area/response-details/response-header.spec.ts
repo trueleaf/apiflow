@@ -9,9 +9,9 @@ test.describe('ResponseHeader', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('响应头测试');
@@ -26,8 +26,8 @@ test.describe('ResponseHeader', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
-    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseTabs).toBeVisible({ timeout: 10000 });
     // 切换到响应头标签页
     const headerTab = contentPage.locator('[data-testid="response-tabs"]').getByRole('tab', { name: /响应头|Headers|Response Headers/i }).first();
     if (await headerTab.isVisible().catch(() => false)) {
@@ -37,7 +37,7 @@ test.describe('ResponseHeader', () => {
     // 验证响应头区域存在
     const responseHeaders = contentPage.locator('.response-headers, .header-list, .response-header-area');
     const hasHeaders = await responseHeaders.first().isVisible().catch(() => false);
-    expect(hasHeaders || await responseBody.isVisible()).toBeTruthy();
+    expect(hasHeaders || await responseTabs.isVisible()).toBeTruthy();
   });
   // 测试用例2: 响应头列表显示完整信息
   test('响应头列表显示Content-Type等标准头', async ({ contentPage, clearCache, createProject }) => {
@@ -45,9 +45,9 @@ test.describe('ResponseHeader', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('响应头详情测试');
@@ -62,7 +62,7 @@ test.describe('ResponseHeader', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
-    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseTabs).toBeVisible({ timeout: 10000 });
   });
 });
