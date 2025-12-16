@@ -24,22 +24,24 @@ test.describe('Query', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 切换到Query标签
-    const queryTab = contentPage.locator('.el-tabs__item', { hasText: /Query|Params/ });
+    const queryTab = contentPage.locator('[data-testid="http-params-tab-params"]');
     await queryTab.click();
     await contentPage.waitForTimeout(300);
+    const queryParamsPanel = contentPage.locator('.query-path-params');
+    await expect(queryParamsPanel).toBeVisible({ timeout: 5000 });
     // 获取初始行数
-    const queryRows = contentPage.locator('.query-params .el-table__row, .query-params .param-row');
-    const initialRowCount = await queryRows.count();
+    const queryKeyInputs = queryParamsPanel.getByPlaceholder(/输入参数名称自动换行/);
+    const initialRowCount = await queryKeyInputs.count();
     // 在第一行query参数的key输入框中输入page
-    const queryKeyInput = contentPage.locator('.query-params .el-input input, .query-params input').first();
+    const queryKeyInput = queryKeyInputs.first();
     await queryKeyInput.click();
     await queryKeyInput.fill('page');
     await contentPage.waitForTimeout(200);
     // 点击key输入框外的区域使其失焦
-    await contentPage.locator('.el-tabs__item', { hasText: /Query|Params/ }).click();
+    await contentPage.locator('[data-testid="http-params-tab-params"]').click();
     await contentPage.waitForTimeout(300);
     // 验证自动新增第二行
-    const newRowCount = await queryRows.count();
+    const newRowCount = await queryKeyInputs.count();
     expect(newRowCount).toBeGreaterThanOrEqual(initialRowCount);
   });
   // query参数key,value,description输入值以后,调用echo接口验证query参数正确
@@ -67,15 +69,17 @@ test.describe('Query', () => {
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Query标签
-    const queryTab = contentPage.locator('.el-tabs__item', { hasText: /Query|Params/ });
+    const queryTab = contentPage.locator('[data-testid="http-params-tab-params"]');
     await queryTab.click();
     await contentPage.waitForTimeout(300);
+    const queryParamsPanel = contentPage.locator('.query-path-params');
+    await expect(queryParamsPanel).toBeVisible({ timeout: 5000 });
     // 添加query参数: key="page", value="1"
-    const queryKeyInput = contentPage.locator('.query-params .el-input input, .query-params input').first();
+    const queryKeyInput = queryParamsPanel.getByPlaceholder(/输入参数名称自动换行/).first();
     await queryKeyInput.click();
     await queryKeyInput.fill('page');
     await contentPage.waitForTimeout(200);
-    const queryValueInput = contentPage.locator('.query-params .el-input input, .query-params input').nth(1);
+    const queryValueInput = queryParamsPanel.locator('[contenteditable="true"]').first();
     await queryValueInput.click();
     await queryValueInput.fill('1');
     await contentPage.waitForTimeout(300);
@@ -84,8 +88,8 @@ test.describe('Query', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域有内容（请求成功发送）
-    const responseArea = contentPage.locator('.response-area, .response-wrap, .response-content');
-    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const responseSummary = contentPage.locator('.response-summary-view');
+    await expect(responseSummary).toBeVisible({ timeout: 10000 });
   });
   // query参数key,value支持变量替换
   test('query参数支持变量替换', async ({ contentPage, clearCache, createProject }) => {
@@ -112,15 +116,17 @@ test.describe('Query', () => {
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Query标签
-    const queryTab = contentPage.locator('.el-tabs__item', { hasText: /Query|Params/ });
+    const queryTab = contentPage.locator('[data-testid="http-params-tab-params"]');
     await queryTab.click();
     await contentPage.waitForTimeout(300);
+    const queryParamsPanel = contentPage.locator('.query-path-params');
+    await expect(queryParamsPanel).toBeVisible({ timeout: 5000 });
     // 添加query参数: key="page", value="{{page_num}}"
-    const queryKeyInput = contentPage.locator('.query-params .el-input input, .query-params input').first();
+    const queryKeyInput = queryParamsPanel.getByPlaceholder(/输入参数名称自动换行/).first();
     await queryKeyInput.click();
     await queryKeyInput.fill('page');
     await contentPage.waitForTimeout(200);
-    const queryValueInput = contentPage.locator('.query-params .el-input input, .query-params input').nth(1);
+    const queryValueInput = queryParamsPanel.locator('[contenteditable="true"]').first();
     await queryValueInput.click();
     await queryValueInput.fill('{{page_num}}');
     await contentPage.waitForTimeout(300);
@@ -129,8 +135,8 @@ test.describe('Query', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域有内容（请求成功发送）
-    const responseArea = contentPage.locator('.response-area, .response-wrap, .response-content');
-    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const responseSummary = contentPage.locator('.response-summary-view');
+    await expect(responseSummary).toBeVisible({ timeout: 10000 });
   });
   // query参数key,value支持mock
   test('query参数支持mock数据', async ({ contentPage, clearCache, createProject }) => {
@@ -157,15 +163,17 @@ test.describe('Query', () => {
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Query标签
-    const queryTab = contentPage.locator('.el-tabs__item', { hasText: /Query|Params/ });
+    const queryTab = contentPage.locator('[data-testid="http-params-tab-params"]');
     await queryTab.click();
     await contentPage.waitForTimeout(300);
+    const queryParamsPanel = contentPage.locator('.query-path-params');
+    await expect(queryParamsPanel).toBeVisible({ timeout: 5000 });
     // 添加query参数: key="username", value="@name"
-    const queryKeyInput = contentPage.locator('.query-params .el-input input, .query-params input').first();
+    const queryKeyInput = queryParamsPanel.getByPlaceholder(/输入参数名称自动换行/).first();
     await queryKeyInput.click();
     await queryKeyInput.fill('username');
     await contentPage.waitForTimeout(200);
-    const queryValueInput = contentPage.locator('.query-params .el-input input, .query-params input').nth(1);
+    const queryValueInput = queryParamsPanel.locator('[contenteditable="true"]').first();
     await queryValueInput.click();
     await queryValueInput.fill('@name');
     await contentPage.waitForTimeout(300);
@@ -174,8 +182,8 @@ test.describe('Query', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域有内容（请求成功发送）
-    const responseArea = contentPage.locator('.response-area, .response-wrap, .response-content');
-    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const responseSummary = contentPage.locator('.response-summary-view');
+    await expect(responseSummary).toBeVisible({ timeout: 10000 });
   });
   // query参数key,value支持混合变量
   test('query参数支持混合变量', async ({ contentPage, clearCache, createProject }) => {
@@ -202,15 +210,17 @@ test.describe('Query', () => {
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Query标签
-    const queryTab = contentPage.locator('.el-tabs__item', { hasText: /Query|Params/ });
+    const queryTab = contentPage.locator('[data-testid="http-params-tab-params"]');
     await queryTab.click();
     await contentPage.waitForTimeout(300);
+    const queryParamsPanel = contentPage.locator('.query-path-params');
+    await expect(queryParamsPanel).toBeVisible({ timeout: 5000 });
     // 添加query参数: key="type", value="{{prefix}}_user"
-    const queryKeyInput = contentPage.locator('.query-params .el-input input, .query-params input').first();
+    const queryKeyInput = queryParamsPanel.getByPlaceholder(/输入参数名称自动换行/).first();
     await queryKeyInput.click();
     await queryKeyInput.fill('type');
     await contentPage.waitForTimeout(200);
-    const queryValueInput = contentPage.locator('.query-params .el-input input, .query-params input').nth(1);
+    const queryValueInput = queryParamsPanel.locator('[contenteditable="true"]').first();
     await queryValueInput.click();
     await queryValueInput.fill('{{prefix}}_user');
     await contentPage.waitForTimeout(300);
@@ -219,8 +229,8 @@ test.describe('Query', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域有内容（请求成功发送）
-    const responseArea = contentPage.locator('.response-area, .response-wrap, .response-content');
-    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const responseSummary = contentPage.locator('.response-summary-view');
+    await expect(responseSummary).toBeVisible({ timeout: 10000 });
   });
   // query参数是否发送未勾选那么当前参数不会发送
   test('未勾选的query参数不会发送', async ({ contentPage, clearCache, createProject }) => {
@@ -247,20 +257,22 @@ test.describe('Query', () => {
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Query标签
-    const queryTab = contentPage.locator('.el-tabs__item', { hasText: /Query|Params/ });
+    const queryTab = contentPage.locator('[data-testid="http-params-tab-params"]');
     await queryTab.click();
     await contentPage.waitForTimeout(300);
+    const queryParamsPanel = contentPage.locator('.query-path-params');
+    await expect(queryParamsPanel).toBeVisible({ timeout: 5000 });
     // 添加query参数: key="page", value="1"
-    const queryKeyInput = contentPage.locator('.query-params .el-input input, .query-params input').first();
+    const queryKeyInput = queryParamsPanel.getByPlaceholder(/输入参数名称自动换行/).first();
     await queryKeyInput.click();
     await queryKeyInput.fill('page');
     await contentPage.waitForTimeout(200);
-    const queryValueInput = contentPage.locator('.query-params .el-input input, .query-params input').nth(1);
+    const queryValueInput = queryParamsPanel.locator('[contenteditable="true"]').first();
     await queryValueInput.click();
     await queryValueInput.fill('1');
     await contentPage.waitForTimeout(300);
     // 取消勾选"是否发送"checkbox
-    const sendCheckbox = contentPage.locator('.query-params .el-checkbox, .query-params .send-checkbox').first();
+    const sendCheckbox = queryParamsPanel.locator('.el-tree-node__content .el-checkbox').first();
     if (await sendCheckbox.isVisible()) {
       await sendCheckbox.click();
       await contentPage.waitForTimeout(200);
@@ -270,7 +282,7 @@ test.describe('Query', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域有内容（请求成功发送）
-    const responseArea = contentPage.locator('.response-area, .response-wrap, .response-content');
-    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const responseSummary = contentPage.locator('.response-summary-view');
+    await expect(responseSummary).toBeVisible({ timeout: 10000 });
   });
 });

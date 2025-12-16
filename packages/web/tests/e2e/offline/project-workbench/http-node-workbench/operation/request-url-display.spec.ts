@@ -26,12 +26,9 @@ test.describe('RequestUrlDisplay', () => {
     await contentPage.locator('[data-testid="method-select"]').click();
     await contentPage.waitForTimeout(300);
     // 验证URL展示区域存在编码后的内容
-    const urlDisplay = contentPage.locator('.full-url, .url-display');
-    if (await urlDisplay.isVisible()) {
-      const displayText = await urlDisplay.textContent();
-      // 验证中文被编码（编码后会包含%E6等字符）
-      expect(displayText).toBeTruthy();
-    }
+    const urlDisplay = contentPage.locator('.pre-url-wrap .url');
+    await expect(urlDisplay).toBeVisible({ timeout: 5000 });
+    await expect(urlDisplay).toContainText('%', { timeout: 5000 });
   });
   // 测试用例2: 如果url地址存在异常需要提示tooltip
   test('url地址存在异常时需要提示', async ({ contentPage, clearCache, createProject }) => {
@@ -56,8 +53,10 @@ test.describe('RequestUrlDisplay', () => {
     await contentPage.locator('[data-testid="method-select"]').click();
     await contentPage.waitForTimeout(300);
     // 验证URL展示区域存在警告或提示
-    const urlDisplay = contentPage.locator('.full-url, .url-display');
+    const urlDisplay = contentPage.locator('.pre-url-wrap .url');
     await expect(urlDisplay).toBeVisible({ timeout: 5000 });
+    const warningIcon = contentPage.locator('.pre-url-wrap .tip');
+    await expect(warningIcon).toBeVisible({ timeout: 5000 });
   });
   // 测试用例3: url如果没有http://或者https://开头自动添加http://
   test('url没有协议时自动添加http前缀', async ({ contentPage, clearCache, createProject }) => {
@@ -86,7 +85,7 @@ test.describe('RequestUrlDisplay', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在（说明请求成功）
-    const responseBody = contentPage.locator('.response-body');
-    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    const responseSummary = contentPage.locator('.response-summary-view');
+    await expect(responseSummary).toBeVisible({ timeout: 10000 });
   });
 });

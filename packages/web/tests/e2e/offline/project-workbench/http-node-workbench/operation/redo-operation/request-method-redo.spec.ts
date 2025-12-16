@@ -19,12 +19,14 @@ test.describe('RequestMethodRedo', () => {
     // 初始请求方法为GET,切换为POST
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^POST$/ });
+    await expect(postOption).toBeVisible({ timeout: 5000 });
     await postOption.click();
     await contentPage.waitForTimeout(300);
     // 再切换为PUT
     await methodSelect.click();
-    const putOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'PUT' });
+    const putOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^PUT$/ });
+    await expect(putOption).toBeVisible({ timeout: 5000 });
     await putOption.click();
     await contentPage.waitForTimeout(300);
     // 验证请求方法为PUT
@@ -60,12 +62,14 @@ test.describe('RequestMethodRedo', () => {
     // 初始请求方法为GET,切换为POST
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^POST$/ });
+    await expect(postOption).toBeVisible({ timeout: 5000 });
     await postOption.click();
     await contentPage.waitForTimeout(300);
     // 再切换为PUT
     await methodSelect.click();
-    const putOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'PUT' });
+    const putOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^PUT$/ });
+    await expect(putOption).toBeVisible({ timeout: 5000 });
     await putOption.click();
     await contentPage.waitForTimeout(300);
     // 验证请求方法为PUT

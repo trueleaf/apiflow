@@ -1,5 +1,7 @@
 import { test, expect } from '../../../../../fixtures/electron.fixture';
 
+const MOCK_SERVER_PORT = 3456;
+
 test.describe('LayoutOperation', () => {
   // 测试用例1: 点击水平布局按钮,请求区域和响应区域左右排列
   test('点击水平布局按钮,请求区域和响应区域左右排列', async ({ contentPage, clearCache, createProject }) => {
@@ -30,8 +32,14 @@ test.describe('LayoutOperation', () => {
     // 验证请求区域在左侧,响应区域在右侧
     const requestLayout = contentPage.locator('.request-layout');
     await expect(requestLayout).toBeVisible({ timeout: 5000 });
-    const responseArea = contentPage.locator('.response-wrap');
-    await expect(responseArea).toBeVisible({ timeout: 5000 });
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    const responseSummary = contentPage.locator('.response-summary-view');
+    await expect(responseSummary).toBeVisible({ timeout: 10000 });
+    const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseTabs).toBeVisible({ timeout: 10000 });
   });
   // 测试用例2: 点击垂直布局按钮,请求区域和响应区域上下排列
   test('点击垂直布局按钮,请求区域和响应区域上下排列', async ({ contentPage, clearCache, createProject }) => {

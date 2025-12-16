@@ -41,7 +41,7 @@ test.describe('RequestMethodInput', () => {
     await methodSelect.click();
     await contentPage.waitForTimeout(300);
     // 点击空白区域,下拉菜单消失
-    const urlInput = contentPage.locator('.url-input');
+    const urlInput = contentPage.locator('[data-testid="url-input"]');
     await urlInput.click();
     await contentPage.waitForTimeout(300);
     // 验证下拉菜单已关闭
@@ -107,23 +107,31 @@ test.describe('RequestMethodInput', () => {
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    const responseBody = contentPage.locator('.response-body');
-    await expect(responseBody).toContainText('GET', { timeout: 10000 });
+    const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseTabs).toBeVisible({ timeout: 10000 });
+    const rawTab = contentPage.locator('#tab-SRawBodyView');
+    await rawTab.click();
+    const rawBody = contentPage.locator('.raw-body');
+    await expect(rawBody).toContainText('GET', { timeout: 10000 });
     // 测试POST方法
     await methodSelect.click();
-    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^POST$/ });
+    await expect(postOption).toBeVisible({ timeout: 5000 });
     await postOption.click();
     await contentPage.waitForTimeout(300);
+    await expect(methodSelect).toContainText('POST', { timeout: 5000 });
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    await expect(responseBody).toContainText('POST', { timeout: 10000 });
+    await expect(rawBody).toContainText('POST', { timeout: 10000 });
     // 测试PUT方法
     await methodSelect.click();
-    const putOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'PUT' });
+    const putOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^PUT$/ });
+    await expect(putOption).toBeVisible({ timeout: 5000 });
     await putOption.click();
     await contentPage.waitForTimeout(300);
+    await expect(methodSelect).toContainText('PUT', { timeout: 5000 });
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    await expect(responseBody).toContainText('PUT', { timeout: 10000 });
+    await expect(rawBody).toContainText('PUT', { timeout: 10000 });
   });
 });

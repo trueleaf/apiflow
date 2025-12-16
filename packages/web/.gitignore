@@ -20,6 +20,7 @@ dist-ssr
 
 # Test results and reports
 test-results/
+test-results2/
 playwright-report/
 playwright/.cache/
 

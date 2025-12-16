@@ -55,8 +55,8 @@ test.describe('SendButton', () => {
     // 等待请求完成
     await contentPage.waitForTimeout(3000);
     // 验证响应区域显示响应数据
-    const responseBody = contentPage.locator('.response-body');
-    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    const responseSummary = contentPage.locator('.response-summary-view');
+    await expect(responseSummary).toBeVisible({ timeout: 10000 });
     // 验证按钮恢复为发送请求状态
     await expect(sendBtn).toBeVisible({ timeout: 5000 });
   });
