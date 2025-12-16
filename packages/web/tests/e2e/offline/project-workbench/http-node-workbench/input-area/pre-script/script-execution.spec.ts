@@ -42,7 +42,7 @@ test.describe('PreScriptExecution', () => {
     const errorMessage = contentPage.locator('.el-message--error, .script-error, .error-message');
     const hasError = await errorMessage.count() > 0;
     // 或者检查响应区域是否有错误相关内容
-    const responseArea = contentPage.locator('.response-body, .response-view');
+    const responseArea = contentPage.getByTestId('response-tab-body');
     if (await responseArea.isVisible()) {
       const responseText = await responseArea.textContent();
       // 语法错误时可能会显示错误信息或请求未能成功发送
@@ -88,7 +88,7 @@ test.describe('PreScriptExecution', () => {
     const errorMessage = contentPage.locator('.el-message--error, .script-error, .error-message');
     const hasError = await errorMessage.count() > 0;
     // 或者检查响应区域
-    const responseArea = contentPage.locator('.response-body, .response-view');
+    const responseArea = contentPage.getByTestId('response-tab-body');
     if (await responseArea.isVisible()) {
       const responseText = await responseArea.textContent();
       // 运行时错误时可能会显示错误信息
@@ -123,7 +123,7 @@ test.describe('PreScriptExecution', () => {
     await editor.click();
     await contentPage.waitForTimeout(300);
     // 输入正确的脚本代码
-    const validScript = 'const timestamp = Date.now(); console.log("前置脚本执行时间:", timestamp);';
+    const validScript = 'const timestamp = Date.now();';
     await contentPage.keyboard.type(validScript);
     await contentPage.waitForTimeout(300);
     // 发送请求
@@ -131,7 +131,7 @@ test.describe('PreScriptExecution', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域显示主请求的响应数据
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应包含echo接口返回的数据，说明主请求成功发送
     await expect(responseBody).toContainText('127.0.0.1', { timeout: 10000 });

@@ -32,7 +32,7 @@ test.describe('UrlencodedParams', () => {
     // 在第一行urlencoded参数的key输入框中输入username
     await keyInputs.first().fill('username');
     // 点击key输入框外的区域使其失焦
-    await contentPage.locator('.url-input').click();
+    await contentPage.locator('[data-testid="url-input"]').click();
     await contentPage.waitForTimeout(300);
     // 验证自动新增第二行空的urlencoded参数行
     const newCount = await keyInputs.count();
@@ -89,7 +89,7 @@ test.describe('UrlencodedParams', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证Content-Type包含application/x-www-form-urlencoded
     await expect(responseBody).toContainText('application/x-www-form-urlencoded', { timeout: 10000 });
     // 验证表单数据正确发送
@@ -157,7 +157,7 @@ test.describe('UrlencodedParams', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证变量被正确替换
     await expect(responseBody).toContainText('user123', { timeout: 10000 });
   });
@@ -209,7 +209,7 @@ test.describe('UrlencodedParams', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证Content-Type包含application/x-www-form-urlencoded
     await expect(responseBody).toContainText('application/x-www-form-urlencoded', { timeout: 10000 });
     // 验证mock数据已生成(字段名存在)
@@ -280,7 +280,7 @@ test.describe('UrlencodedParams', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证混合变量被正确替换
     await expect(responseBody).toContainText('api_v1', { timeout: 10000 });
     await expect(responseBody).toContainText('REQ_', { timeout: 10000 });
@@ -337,7 +337,7 @@ test.describe('UrlencodedParams', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应 - 只包含user,不包含token
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('user', { timeout: 10000 });
     await expect(responseBody).toContainText('admin', { timeout: 10000 });
     // 验证token没有被发送

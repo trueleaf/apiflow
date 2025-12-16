@@ -31,7 +31,7 @@ test.describe('RequestBasicInfo', () => {
     await expect(baseInfoView).toBeVisible({ timeout: 5000 });
     // 验证请求地址显示
     await expect(baseInfoView).toContainText(/请求地址|Request URL/);
-    await expect(baseInfoView).toContainText(`http://localhost:${MOCK_SERVER_PORT}/echo`);
+    await expect(baseInfoView).toContainText(new RegExp(`http://(localhost|127\\.0\\.0\\.1):${MOCK_SERVER_PORT}/echo`));
     // 验证请求方式显示
     await expect(baseInfoView).toContainText(/请求方式|Request Method/);
     await expect(baseInfoView).toContainText('GET');

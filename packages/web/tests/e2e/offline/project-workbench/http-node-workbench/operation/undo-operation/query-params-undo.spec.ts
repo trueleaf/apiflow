@@ -21,8 +21,7 @@ test.describe('QueryParamsUndo', () => {
     await paramsTab.click();
     await contentPage.waitForTimeout(300);
     // 找到Query参数区域的key输入框
-    const querySection = contentPage.locator('.query-params, .params-section').filter({ hasText: /Query|查询参数/ }).first();
-    const keyInput = querySection.locator('input').first();
+    const keyInput = contentPage.getByPlaceholder('输入参数名称自动换行').first();
     await keyInput.click();
     await keyInput.pressSequentially('a', { delay: 100 });
     await contentPage.waitForTimeout(200);
@@ -61,25 +60,25 @@ test.describe('QueryParamsUndo', () => {
     await paramsTab.click();
     await contentPage.waitForTimeout(300);
     // 找到Query参数区域,先输入key
-    const querySection = contentPage.locator('.query-params, .params-section').filter({ hasText: /Query|查询参数/ }).first();
-    const keyInput = querySection.locator('input').first();
+    const keyInput = contentPage.getByPlaceholder('输入参数名称自动换行').first();
     await keyInput.click();
     await keyInput.fill('testKey');
     await contentPage.waitForTimeout(200);
     // 找到value输入框并输入
-    const valueInput = querySection.locator('input').nth(1);
-    await valueInput.click();
-    await valueInput.pressSequentially('v1', { delay: 100 });
+    const valueInput = contentPage.locator('[data-testid="params-tree-value-input"]').first();
+    const valueEditor = valueInput.locator('[contenteditable="true"]').first();
+    await valueEditor.click();
+    await valueEditor.pressSequentially('v1', { delay: 100 });
     await contentPage.waitForTimeout(200);
-    await valueInput.pressSequentially('v2', { delay: 100 });
+    await valueEditor.pressSequentially('v2', { delay: 100 });
     await contentPage.waitForTimeout(200);
     // 验证value值
-    await expect(valueInput).toHaveValue('v1v2', { timeout: 5000 });
+    await expect(valueEditor).toHaveText('v1v2', { timeout: 5000 });
     // 按ctrl+z快捷键
     await contentPage.keyboard.press('Control+z');
     await contentPage.waitForTimeout(200);
     // 验证value值变化
-    await expect(valueInput).toHaveValue('v1', { timeout: 5000 });
+    await expect(valueEditor).toHaveText('v1', { timeout: 5000 });
   });
   // 测试用例3: url和query参数联动撤销
   test('url和query参数联动变化后撤销', async ({ contentPage, clearCache, createProject }) => {

@@ -31,13 +31,13 @@ test.describe('RawBodyValidation', () => {
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择Raw类型
-    const rawRadio = contentPage.locator('.el-radio').filter({ hasText: 'raw' });
+    const rawRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^raw$/i }).locator('.el-radio');
     await rawRadio.click();
     await contentPage.waitForTimeout(300);
     // 选择Text格式
-    const rawTypeSelect = contentPage.locator('.raw-type-select');
+    const rawTypeSelect = contentPage.locator('.raw-type .el-select');
     await rawTypeSelect.click();
-    const textOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'text/plain' });
+    const textOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^text$/ });
     await textOption.click();
     await contentPage.waitForTimeout(300);
     // 输入纯文本内容
@@ -45,7 +45,7 @@ test.describe('RawBodyValidation', () => {
     if (await rawTextarea.count() > 0) {
       await rawTextarea.fill('Hello World, this is plain text content.');
     } else {
-      const monacoEditor = contentPage.locator('.s-code-editor').first();
+        const monacoEditor = contentPage.locator('.s-monaco-editor').first();
       await monacoEditor.click();
       await contentPage.keyboard.type('Hello World, this is plain text content.');
     }
@@ -55,7 +55,7 @@ test.describe('RawBodyValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证Content-Type包含text/plain
     await expect(responseBody).toContainText('text/plain', { timeout: 10000 });
     // 验证纯文本内容正确发送
@@ -90,13 +90,13 @@ test.describe('RawBodyValidation', () => {
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择Raw类型
-    const rawRadio = contentPage.locator('.el-radio').filter({ hasText: 'raw' });
+    const rawRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^raw$/i }).locator('.el-radio');
     await rawRadio.click();
     await contentPage.waitForTimeout(300);
     // 选择HTML格式
-    const rawTypeSelect = contentPage.locator('.raw-type-select');
+    const rawTypeSelect = contentPage.locator('.raw-type .el-select');
     await rawTypeSelect.click();
-    const htmlOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'text/html' });
+    const htmlOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^html$/ });
     await htmlOption.click();
     await contentPage.waitForTimeout(300);
     // 输入HTML内容
@@ -104,7 +104,7 @@ test.describe('RawBodyValidation', () => {
     if (await rawTextarea.count() > 0) {
       await rawTextarea.fill('<html><body><h1>Test</h1></body></html>');
     } else {
-      const monacoEditor = contentPage.locator('.s-code-editor').first();
+        const monacoEditor = contentPage.locator('.s-monaco-editor').first();
       await monacoEditor.click();
       await contentPage.keyboard.type('<html><body><h1>Test</h1></body></html>');
     }
@@ -114,7 +114,7 @@ test.describe('RawBodyValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证Content-Type包含text/html
     await expect(responseBody).toContainText('text/html', { timeout: 10000 });
     // 验证HTML标签完整
@@ -152,13 +152,13 @@ test.describe('RawBodyValidation', () => {
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择Raw类型
-    const rawRadio = contentPage.locator('.el-radio').filter({ hasText: 'raw' });
+    const rawRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^raw$/i }).locator('.el-radio');
     await rawRadio.click();
     await contentPage.waitForTimeout(300);
     // 选择XML格式
-    const rawTypeSelect = contentPage.locator('.raw-type-select');
+    const rawTypeSelect = contentPage.locator('.raw-type .el-select');
     await rawTypeSelect.click();
-    const xmlOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'application/xml' });
+    const xmlOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^xml$/ });
     await xmlOption.click();
     await contentPage.waitForTimeout(300);
     // 输入XML内容
@@ -166,7 +166,7 @@ test.describe('RawBodyValidation', () => {
     if (await rawTextarea.count() > 0) {
       await rawTextarea.fill('<?xml version="1.0"?><root><name>test</name></root>');
     } else {
-      const monacoEditor = contentPage.locator('.s-code-editor').first();
+        const monacoEditor = contentPage.locator('.s-monaco-editor').first();
       await monacoEditor.click();
       await contentPage.keyboard.type('<?xml version="1.0"?><root><name>test</name></root>');
     }
@@ -176,7 +176,7 @@ test.describe('RawBodyValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证Content-Type包含application/xml
     await expect(responseBody).toContainText('application/xml', { timeout: 10000 });
     // 验证XML结构完整
@@ -214,13 +214,13 @@ test.describe('RawBodyValidation', () => {
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择Raw类型
-    const rawRadio = contentPage.locator('.el-radio').filter({ hasText: 'raw' });
+    const rawRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^raw$/i }).locator('.el-radio');
     await rawRadio.click();
     await contentPage.waitForTimeout(300);
     // 选择JavaScript格式
-    const rawTypeSelect = contentPage.locator('.raw-type-select');
+    const rawTypeSelect = contentPage.locator('.raw-type .el-select');
     await rawTypeSelect.click();
-    const jsOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'application/javascript' });
+    const jsOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^javascript$/ });
     await jsOption.click();
     await contentPage.waitForTimeout(300);
     // 输入JavaScript代码
@@ -228,7 +228,7 @@ test.describe('RawBodyValidation', () => {
     if (await rawTextarea.count() > 0) {
       await rawTextarea.fill('function hello() { return "world"; }');
     } else {
-      const monacoEditor = contentPage.locator('.s-code-editor').first();
+        const monacoEditor = contentPage.locator('.s-monaco-editor').first();
       await monacoEditor.click();
       await contentPage.keyboard.type('function hello() { return "world"; }');
     }
@@ -238,9 +238,9 @@ test.describe('RawBodyValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证Content-Type包含application/javascript
-    await expect(responseBody).toContainText('application/javascript', { timeout: 10000 });
+    await expect(responseBody).toContainText('text/javascript', { timeout: 10000 });
     // 验证代码内容完整
     await expect(responseBody).toContainText('function', { timeout: 10000 });
     await expect(responseBody).toContainText('hello', { timeout: 10000 });

@@ -26,7 +26,7 @@ test.describe('AfVariablesApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本编辑器中输入代码：先设置变量再获取
-    const monacoEditor = contentPage.locator('.s-code-editor').first();
+    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('af.variables.set("api_url", "https://example.com/api");\nconst apiUrl = af.variables.get("api_url");\nconsole.log("apiUrl:", apiUrl);');
@@ -63,7 +63,7 @@ test.describe('AfVariablesApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本编辑器中输入代码设置变量
-    const monacoEditor = contentPage.locator('.s-code-editor').first();
+    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('af.variables.set("next_page", 2);\nconsole.log("变量已设置:", af.variables.get("next_page"));');
@@ -100,7 +100,7 @@ test.describe('AfVariablesApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在第一个请求的后置脚本中设置变量
-    const monacoEditor = contentPage.locator('.s-code-editor').first();
+    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('af.variables.set("token_from_response", "test_token_abc123");\nconsole.log("Token变量已设置");');
@@ -126,7 +126,7 @@ test.describe('AfVariablesApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在第二个请求的后置脚本中读取并验证变量
-    const monacoEditor2 = contentPage.locator('.s-code-editor').first();
+    const monacoEditor2 = contentPage.locator('.s-monaco-editor').first();
     await monacoEditor2.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('const token = af.variables.get("token_from_response");\nconsole.log("获取到的Token:", token);');

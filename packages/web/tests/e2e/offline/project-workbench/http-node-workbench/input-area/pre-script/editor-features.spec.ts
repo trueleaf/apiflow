@@ -22,11 +22,11 @@ test.describe('PreScriptEditorFeatures', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 切换到前置脚本标签
-    const preScriptTab = contentPage.locator('.el-tabs__item', { hasText: /前置脚本|Pre-Script/ });
+    const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
     await preScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 验证Monaco编辑器可见
-    const monacoEditor = contentPage.locator('.s-code-editor');
+    const monacoEditor = contentPage.locator('.s-monaco-editor');
     await expect(monacoEditor).toBeVisible({ timeout: 5000 });
     // 在编辑器中输入JavaScript代码
     await monacoEditor.click();
@@ -58,11 +58,11 @@ test.describe('PreScriptEditorFeatures', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 切换到前置脚本标签
-    const preScriptTab = contentPage.locator('.el-tabs__item', { hasText: /前置脚本|Pre-Script/ });
+    const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
     await preScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 验证Monaco编辑器可见
-    const monacoEditor = contentPage.locator('.s-code-editor');
+    const monacoEditor = contentPage.locator('.s-monaco-editor');
     await expect(monacoEditor).toBeVisible({ timeout: 5000 });
     // 在编辑器中输入af.触发代码补全
     await monacoEditor.click();
@@ -99,11 +99,11 @@ test.describe('PreScriptEditorFeatures', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 切换到前置脚本标签
-    const preScriptTab = contentPage.locator('.el-tabs__item', { hasText: /前置脚本|Pre-Script/ });
+    const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
     await preScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 验证Monaco编辑器可见
-    const monacoEditor = contentPage.locator('.s-code-editor');
+    const monacoEditor = contentPage.locator('.s-monaco-editor');
     await expect(monacoEditor).toBeVisible({ timeout: 5000 });
     // 在编辑器中输入格式不规范的JavaScript代码
     await monacoEditor.click();
@@ -145,11 +145,11 @@ test.describe('PreScriptEditorFeatures', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 切换到前置脚本标签
-    const preScriptTab = contentPage.locator('.el-tabs__item', { hasText: /前置脚本|Pre-Script/ });
+    const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
     await preScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 验证Monaco编辑器可见
-    const monacoEditor = contentPage.locator('.s-code-editor');
+    const monacoEditor = contentPage.locator('.s-monaco-editor');
     await expect(monacoEditor).toBeVisible({ timeout: 5000 });
     // 在编辑器中输入af.request
     await monacoEditor.click();

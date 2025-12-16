@@ -53,7 +53,7 @@ test.describe('HeaderPriority', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证自定义请求头的值优先级最高,服务器接收到X-Custom=from-custom
     await expect(responseBody).toContainText('from-custom', { timeout: 10000 });
   });
@@ -96,7 +96,7 @@ test.describe('HeaderPriority', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证公共请求头覆盖了默认的User-Agent
     await expect(responseBody).toContainText('CustomAgent/1.0', { timeout: 10000 });
   });
@@ -134,7 +134,7 @@ test.describe('HeaderPriority', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证自定义请求头覆盖了默认的User-Agent
     await expect(responseBody).toContainText('MyCustomAgent/2.0', { timeout: 10000 });
   });
@@ -188,7 +188,7 @@ test.describe('HeaderPriority', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证自定义请求头优先级最高,即使公共请求头也设置了相同的key
     await expect(responseBody).toContainText('CustomAgent/2.0', { timeout: 10000 });
   });

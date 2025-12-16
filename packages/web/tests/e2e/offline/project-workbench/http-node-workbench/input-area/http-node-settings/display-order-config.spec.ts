@@ -49,7 +49,7 @@ test.describe('DisplayOrderConfig', () => {
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 验证Body类型radio按钮的顺序
-    const radioLabels = contentPage.locator('.el-radio');
+    const radioLabels = contentPage.locator('.body-mode-item');
     const firstRadioText = await radioLabels.first().textContent();
     // 验证第一个radio是我们拖拽到第一位的模式
     expect(firstRadioText?.toLowerCase()).toContain(lastModeLabel?.toLowerCase() || '');

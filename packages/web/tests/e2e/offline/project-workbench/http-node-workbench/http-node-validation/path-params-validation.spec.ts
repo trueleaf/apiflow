@@ -44,7 +44,7 @@ test.describe('PathParamsValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证path参数被正确替换
     await expect(responseBody).toContainText('/echo/users/123/posts/456', { timeout: 10000 });
     // 验证pathParams包含正确的参数值
@@ -87,7 +87,7 @@ test.describe('PathParamsValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('/echo/items/item_001', { timeout: 10000 });
     await expect(responseBody).toContainText('id', { timeout: 10000 });
     await expect(responseBody).toContainText('item_001', { timeout: 10000 });
@@ -126,7 +126,7 @@ test.describe('PathParamsValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应（中文会被URL编码）
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('/echo/', { timeout: 10000 });
     // 验证路径中包含中文编码或原始中文
     await expect(responseBody).toContainText('param', { timeout: 10000 });
@@ -181,7 +181,7 @@ test.describe('PathParamsValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证变量被正确替换
     await expect(responseBody).toContainText('/echo/users/user_12345', { timeout: 10000 });
   });
@@ -230,7 +230,7 @@ test.describe('PathParamsValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证所有path参数都被正确替换
     await expect(responseBody).toContainText('/echo/users/user001/posts/post002/comments/comment003', { timeout: 10000 });
     // 验证pathParams包含所有参数

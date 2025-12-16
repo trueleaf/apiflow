@@ -5,6 +5,7 @@ const ECHO_URL = 'http://localhost:3456/echo';
 test.describe('UrlencodedBodyValidation', () => {
   test.beforeEach(async ({ createProject, contentPage }) => {
     await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
   });
 
@@ -16,7 +17,8 @@ test.describe('UrlencodedBodyValidation', () => {
     await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).click();
 
     // 2. 输入echo接口URL
-    const urlInput = contentPage.locator('[data-testid="url-input"]');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.click();
     await urlInput.fill(ECHO_URL);
 
     // 3. 在Body区域选择x-www-form-urlencoded类型
@@ -32,24 +34,27 @@ test.describe('UrlencodedBodyValidation', () => {
     const firstKeyInput = paramsTree.locator('[data-testid="params-tree-key-input"]').first();
     await firstKeyInput.fill('username');
     await contentPage.waitForTimeout(200);
-    const firstValueInput = paramsTree.locator('.el-input').nth(1).locator('input');
-    await firstValueInput.fill('test');
+    const firstValueInput = paramsTree.locator('[data-testid="params-tree-value-input"]').nth(0).locator('[contenteditable="true"]');
+    await firstValueInput.click();
+    await contentPage.keyboard.type('test');
     await contentPage.waitForTimeout(200);
 
     // 添加参数字段: password=123456 (新行自动生成)
     const secondKeyInput = paramsTree.locator('[data-testid="params-tree-key-input"]').nth(1);
     await secondKeyInput.fill('password');
     await contentPage.waitForTimeout(200);
-    const secondValueInput = paramsTree.locator('.el-input').nth(4).locator('input');
-    await secondValueInput.fill('123456');
+    const secondValueInput = paramsTree.locator('[data-testid="params-tree-value-input"]').nth(1).locator('[contenteditable="true"]');
+    await secondValueInput.click();
+    await contentPage.keyboard.type('123456');
     await contentPage.waitForTimeout(200);
 
     // 添加参数字段: remember=true (新行自动生成)
     const thirdKeyInput = paramsTree.locator('[data-testid="params-tree-key-input"]').nth(2);
     await thirdKeyInput.fill('remember');
     await contentPage.waitForTimeout(200);
-    const thirdValueInput = paramsTree.locator('.el-input').nth(7).locator('input');
-    await thirdValueInput.fill('true');
+    const thirdValueInput = paramsTree.locator('[data-testid="params-tree-value-input"]').nth(2).locator('[contenteditable="true"]');
+    await thirdValueInput.click();
+    await contentPage.keyboard.type('true');
     await contentPage.waitForTimeout(200);
 
     // 5. 发送请求
@@ -58,24 +63,17 @@ test.describe('UrlencodedBodyValidation', () => {
     await contentPage.waitForTimeout(2000);
 
     // 6. 检查响应结果
-    const responseTabBody = contentPage.locator('[data-testid="response-tab-body"]');
-    await expect(responseTabBody).toBeVisible({ timeout: 10000 });
-    await responseTabBody.click();
-    await contentPage.waitForTimeout(500);
-
-    // 获取响应内容验证
-    const responseContent = await contentPage.locator('.response-view').textContent();
-    expect(responseContent).toContain('method');
-    expect(responseContent).toContain('POST');
-    expect(responseContent).toContain('username');
-    expect(responseContent).toContain('test');
-    expect(responseContent).toContain('password');
-    expect(responseContent).toContain('123456');
-    expect(responseContent).toContain('remember');
-    expect(responseContent).toContain('true');
-
-    // 验证Content-Type为application/x-www-form-urlencoded
-    expect(responseContent).toContain('application/x-www-form-urlencoded');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    await expect(responseBody).toContainText('method', { timeout: 10000 });
+    await expect(responseBody).toContainText('POST', { timeout: 10000 });
+    await expect(responseBody).toContainText('username', { timeout: 10000 });
+    await expect(responseBody).toContainText('test', { timeout: 10000 });
+    await expect(responseBody).toContainText('password', { timeout: 10000 });
+    await expect(responseBody).toContainText('123456', { timeout: 10000 });
+    await expect(responseBody).toContainText('remember', { timeout: 10000 });
+    await expect(responseBody).toContainText('true', { timeout: 10000 });
+    await expect(responseBody).toContainText('application/x-www-form-urlencoded', { timeout: 10000 });
 
     // 验证响应状态码为200
     const statusCode = contentPage.locator('.status-code');
@@ -90,7 +88,8 @@ test.describe('UrlencodedBodyValidation', () => {
     await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'PUT' }).click();
 
     // 2. 输入echo接口URL
-    const urlInput = contentPage.locator('[data-testid="url-input"]');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.click();
     await urlInput.fill(ECHO_URL);
 
     // 3. 在Body区域选择x-www-form-urlencoded类型
@@ -106,16 +105,18 @@ test.describe('UrlencodedBodyValidation', () => {
     const firstKeyInput = paramsTree.locator('[data-testid="params-tree-key-input"]').first();
     await firstKeyInput.fill('id');
     await contentPage.waitForTimeout(200);
-    const firstValueInput = paramsTree.locator('.el-input').nth(1).locator('input');
-    await firstValueInput.fill('1');
+    const firstValueInput = paramsTree.locator('[data-testid="params-tree-value-input"]').nth(0).locator('[contenteditable="true"]');
+    await firstValueInput.click();
+    await contentPage.keyboard.type('1');
     await contentPage.waitForTimeout(200);
 
     // 添加参数字段: name=updated
     const secondKeyInput = paramsTree.locator('[data-testid="params-tree-key-input"]').nth(1);
     await secondKeyInput.fill('name');
     await contentPage.waitForTimeout(200);
-    const secondValueInput = paramsTree.locator('.el-input').nth(4).locator('input');
-    await secondValueInput.fill('updated');
+    const secondValueInput = paramsTree.locator('[data-testid="params-tree-value-input"]').nth(1).locator('[contenteditable="true"]');
+    await secondValueInput.click();
+    await contentPage.keyboard.type('updated');
     await contentPage.waitForTimeout(200);
 
     // 5. 发送请求
@@ -124,22 +125,15 @@ test.describe('UrlencodedBodyValidation', () => {
     await contentPage.waitForTimeout(2000);
 
     // 6. 检查响应结果
-    const responseTabBody = contentPage.locator('[data-testid="response-tab-body"]');
-    await expect(responseTabBody).toBeVisible({ timeout: 10000 });
-    await responseTabBody.click();
-    await contentPage.waitForTimeout(500);
-
-    // 获取响应内容验证
-    const responseContent = await contentPage.locator('.response-view').textContent();
-    expect(responseContent).toContain('method');
-    expect(responseContent).toContain('PUT');
-    expect(responseContent).toContain('id');
-    expect(responseContent).toContain('1');
-    expect(responseContent).toContain('name');
-    expect(responseContent).toContain('updated');
-
-    // 验证Content-Type为application/x-www-form-urlencoded
-    expect(responseContent).toContain('application/x-www-form-urlencoded');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    await expect(responseBody).toContainText('method', { timeout: 10000 });
+    await expect(responseBody).toContainText('PUT', { timeout: 10000 });
+    await expect(responseBody).toContainText('id', { timeout: 10000 });
+    await expect(responseBody).toContainText('1', { timeout: 10000 });
+    await expect(responseBody).toContainText('name', { timeout: 10000 });
+    await expect(responseBody).toContainText('updated', { timeout: 10000 });
+    await expect(responseBody).toContainText('application/x-www-form-urlencoded', { timeout: 10000 });
 
     // 验证响应状态码为200
     const statusCode = contentPage.locator('.status-code');

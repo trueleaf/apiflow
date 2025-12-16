@@ -26,16 +26,16 @@ test.describe('NodeHistory', () => {
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?request=first`);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    const responseSummary = contentPage.locator('.response-summary-view');
-    await expect(responseSummary).toBeVisible({ timeout: 10000 });
+    const responseCode = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseCode).toBeVisible({ timeout: 10000 });
     // 发送第二次请求
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?request=second`);
     await sendBtn.click();
-    await expect(responseSummary).toBeVisible({ timeout: 10000 });
+    await expect(responseCode).toBeVisible({ timeout: 10000 });
     // 发送第三次请求
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?request=third`);
     await sendBtn.click();
-    await expect(responseSummary).toBeVisible({ timeout: 10000 });
+    await expect(responseCode).toBeVisible({ timeout: 10000 });
     // 点击历史记录按钮
     const historyBtn = contentPage.locator('[data-testid="http-params-history-btn"]');
     await historyBtn.click();
@@ -45,7 +45,7 @@ test.describe('NodeHistory', () => {
     const historyLoading = contentPage.locator('.history-loading');
     await expect(historyLoading).toBeHidden({ timeout: 10000 });
     // 验证历史记录列表按时间倒序排列(最新的在最上方)
-    const historyItems = contentPage.locator('.history-item');
+    const historyItems = historyPanel.locator('.history-item');
     await expect.poll(async () => historyItems.count(), { timeout: 10000 }).toBeGreaterThanOrEqual(3);
   });
   // 测试用例2: 点击历史记录项可以查看该次请求的详细信息
@@ -71,8 +71,8 @@ test.describe('NodeHistory', () => {
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?detail=test`);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    const responseSummary = contentPage.locator('.response-summary-view');
-    await expect(responseSummary).toBeVisible({ timeout: 10000 });
+    const responseCode = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseCode).toBeVisible({ timeout: 10000 });
     // 点击历史记录按钮
     const historyBtn = contentPage.locator('[data-testid="http-params-history-btn"]');
     await historyBtn.click();
@@ -81,7 +81,7 @@ test.describe('NodeHistory', () => {
     const historyLoading = contentPage.locator('.history-loading');
     await expect(historyLoading).toBeHidden({ timeout: 10000 });
     // 点击历史记录列表中的某条记录
-    const historyItems = contentPage.locator('.history-item');
+    const historyItems = historyPanel.locator('.history-item');
     await expect(historyItems.first()).toBeVisible({ timeout: 10000 });
     await historyItems.first().click();
     await contentPage.waitForTimeout(500);

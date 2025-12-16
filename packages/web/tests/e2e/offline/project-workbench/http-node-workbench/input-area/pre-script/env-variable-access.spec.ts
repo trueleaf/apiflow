@@ -60,7 +60,7 @@ test.describe('EnvVariableAccess', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例2: 使用af.currentEnv获取当前激活的环境变量
@@ -115,7 +115,7 @@ test.describe('EnvVariableAccess', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
 });

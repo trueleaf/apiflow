@@ -38,7 +38,7 @@ test.describe('AfterScriptExecution', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域显示脚本错误信息
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证错误信息（脚本语法错误会显示在响应区域）
     const errorText = await responseBody.textContent();
@@ -79,7 +79,7 @@ test.describe('AfterScriptExecution', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域显示脚本运行时错误信息
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证错误信息（运行时错误会显示在响应区域）
     const errorText = await responseBody.textContent();
@@ -120,7 +120,7 @@ test.describe('AfterScriptExecution', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证主请求成功返回（后置脚本在主请求响应后执行，不影响主请求结果）
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含echo接口返回的数据，说明主请求成功执行
     await expect(responseBody).toContainText('host', { timeout: 10000 });

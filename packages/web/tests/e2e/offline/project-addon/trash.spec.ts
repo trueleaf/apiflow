@@ -23,9 +23,9 @@ test.describe('Trash', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('待删除接口');
@@ -59,9 +59,9 @@ test.describe('Trash', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('待恢复接口');

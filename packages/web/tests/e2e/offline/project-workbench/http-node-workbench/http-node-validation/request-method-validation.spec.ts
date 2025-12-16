@@ -29,7 +29,7 @@ test.describe('RequestMethodValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('"method": "GET"', { timeout: 10000 });
   });
   // 验证POST方法能正常发送
@@ -61,7 +61,7 @@ test.describe('RequestMethodValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('"method": "POST"', { timeout: 10000 });
   });
   // 验证PUT方法能正常发送
@@ -93,7 +93,7 @@ test.describe('RequestMethodValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('"method": "PUT"', { timeout: 10000 });
   });
   // 验证DELETE方法能正常发送
@@ -125,7 +125,7 @@ test.describe('RequestMethodValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('"method": "DELETE"', { timeout: 10000 });
   });
   // 验证PATCH方法能正常发送
@@ -157,7 +157,7 @@ test.describe('RequestMethodValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('"method": "PATCH"', { timeout: 10000 });
   });
   // 验证HEAD方法响应不包含body
@@ -189,7 +189,7 @@ test.describe('RequestMethodValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证HEAD方法响应不包含body（响应体应为空或显示无数据）
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // HEAD请求不应返回响应体内容，可能显示为空或无数据提示
     const hasContent = await responseBody.textContent();
     // HEAD方法返回的body应该是空的或不包含method字段
@@ -224,7 +224,7 @@ test.describe('RequestMethodValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('"method": "OPTIONS"', { timeout: 10000 });
   });
   // 验证方法切换后UI立即更新显示新的方法

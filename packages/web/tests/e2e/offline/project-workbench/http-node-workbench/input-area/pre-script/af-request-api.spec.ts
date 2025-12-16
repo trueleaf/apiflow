@@ -39,7 +39,7 @@ test.describe('AfRequestApi', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证实际请求使用了修改后的前缀
     const responseText = await responseBody.textContent();
@@ -81,7 +81,7 @@ test.describe('AfRequestApi', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证实际请求使用了修改后的路径
     const responseText = await responseBody.textContent();
@@ -123,7 +123,7 @@ test.describe('AfRequestApi', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含自定义请求头
     const responseText = await responseBody.textContent();
@@ -167,7 +167,7 @@ af.request.queryParams["newParam"] = "newValue";`;
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含修改后的查询参数
     const responseText = await responseBody.textContent();
@@ -222,7 +222,7 @@ af.request.queryParams["newParam"] = "newValue";`;
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中的路径参数已被修改
     const responseText = await responseBody.textContent();
@@ -262,7 +262,7 @@ af.request.queryParams["newParam"] = "newValue";`;
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入初始JSON
-    const jsonEditor = contentPage.locator('.json-editor .s-monaco-editor, .body-json .s-monaco-editor').first();
+    const jsonEditor = contentPage.locator('.s-json-editor').first();
     await expect(jsonEditor).toBeVisible({ timeout: 5000 });
     await jsonEditor.click();
     await contentPage.waitForTimeout(300);
@@ -287,7 +287,7 @@ af.request.body.json.newField = "addedValue";`;
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含修改后的JSON数据
     const responseText = await responseBody.textContent();
@@ -355,7 +355,7 @@ af.request.body.json.newField = "addedValue";`;
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含修改后的formdata数据
     const responseText = await responseBody.textContent();
@@ -404,7 +404,7 @@ af.request.body.json.newField = "addedValue";`;
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中的method字段已变为PUT
     const responseText = await responseBody.textContent();
@@ -446,7 +446,7 @@ af.request.body.json.newField = "addedValue";`;
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含替换后的URL信息
     const responseText = await responseBody.textContent();

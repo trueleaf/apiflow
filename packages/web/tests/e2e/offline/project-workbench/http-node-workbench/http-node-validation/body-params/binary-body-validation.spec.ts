@@ -24,7 +24,7 @@ test.describe('BinaryBodyValidation', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 切换到Body标签
-    const bodyTab = contentPage.locator('.el-tabs__item', { hasText: 'Body' });
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择binary类型
@@ -65,7 +65,7 @@ test.describe('BinaryBodyValidation', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 切换到Body标签
-    const bodyTab = contentPage.locator('.el-tabs__item', { hasText: 'Body' });
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择binary类型
@@ -106,7 +106,7 @@ test.describe('BinaryBodyValidation', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 切换到Body标签
-    const bodyTab = contentPage.locator('.el-tabs__item', { hasText: 'Body' });
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择binary类型
@@ -149,7 +149,7 @@ test.describe('BinaryBodyValidation', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 切换到Body标签
-    const bodyTab = contentPage.locator('.el-tabs__item', { hasText: 'Body' });
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择binary类型
@@ -191,7 +191,7 @@ test.describe('BinaryBodyValidation', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 切换到Body标签
-    const bodyTab = contentPage.locator('.el-tabs__item', { hasText: 'Body' });
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择binary类型
@@ -246,7 +246,7 @@ test.describe('BinaryBodyValidation', () => {
     await postOption.click();
     await contentPage.waitForTimeout(300);
     // 切换到Body标签
-    const bodyTab = contentPage.locator('.el-tabs__item', { hasText: 'Body' });
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 验证binary选项可见
@@ -290,7 +290,7 @@ test.describe('BinaryBodyValidation', () => {
     await putOption.click();
     await contentPage.waitForTimeout(300);
     // 切换到Body标签
-    const bodyTab = contentPage.locator('.el-tabs__item', { hasText: 'Body' });
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 验证binary选项可见
@@ -334,7 +334,7 @@ test.describe('BinaryBodyValidation', () => {
     await patchOption.click();
     await contentPage.waitForTimeout(300);
     // 切换到Body标签
-    const bodyTab = contentPage.locator('.el-tabs__item', { hasText: 'Body' });
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 验证binary选项可见
@@ -371,7 +371,7 @@ test.describe('BinaryBodyValidation', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 切换到Body标签
-    const bodyTab = contentPage.locator('.el-tabs__item', { hasText: 'Body' });
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择binary类型
@@ -387,7 +387,7 @@ test.describe('BinaryBodyValidation', () => {
     await varInput.fill('{{testBinaryVar}}');
     await contentPage.waitForTimeout(300);
     // 切换到Query标签
-    const queryTab = contentPage.locator('.el-tabs__item', { hasText: 'Query' });
+    const queryTab = contentPage.locator('[data-testid="http-params-tab-params"]');
     await queryTab.click();
     await contentPage.waitForTimeout(300);
     // 切换回Body标签
@@ -421,7 +421,7 @@ test.describe('BinaryBodyValidation', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 切换到Body标签
-    const bodyTab = contentPage.locator('.el-tabs__item', { hasText: 'Body' });
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择binary类型
@@ -437,7 +437,7 @@ test.describe('BinaryBodyValidation', () => {
     const fileModeDiv = contentPage.locator('.file-mode');
     await expect(fileModeDiv).toBeVisible({ timeout: 5000 });
     // 切换到Query标签
-    const queryTab = contentPage.locator('.el-tabs__item', { hasText: 'Query' });
+    const queryTab = contentPage.locator('[data-testid="http-params-tab-params"]');
     await queryTab.click();
     await contentPage.waitForTimeout(300);
     // 切换回Body标签
@@ -470,7 +470,7 @@ test.describe('BinaryBodyValidation', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 切换到Body标签
-    const bodyTab = contentPage.locator('.el-tabs__item', { hasText: 'Body' });
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择binary类型
@@ -521,7 +521,7 @@ test.describe('BinaryBodyValidation', () => {
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     // 切换到Body标签
-    const bodyTab = contentPage.locator('.el-tabs__item', { hasText: 'Body' });
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择binary类型

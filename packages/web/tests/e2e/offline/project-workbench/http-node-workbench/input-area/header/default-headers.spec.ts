@@ -26,7 +26,7 @@ test.describe('DefaultHeaders', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应中包含默认请求头
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证请求包含Host请求头
     await expect(responseBody).toContainText('host', { timeout: 10000 });
     // 验证请求包含Accept-Encoding请求头
@@ -83,7 +83,7 @@ test.describe('DefaultHeaders', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应中包含修改后的请求头
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('CustomUserAgent/1.0', { timeout: 10000 });
     await expect(responseBody).toContainText('application/json', { timeout: 10000 });
   });
@@ -156,7 +156,7 @@ test.describe('DefaultHeaders', () => {
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入数据
-    const monacoEditor = contentPage.locator('.s-code-editor').first();
+    const monacoEditor = contentPage.locator('.s-json-editor').first();
     await monacoEditor.click();
     await contentPage.waitForTimeout(300);
     await contentPage.keyboard.press('ControlOrMeta+a');
@@ -167,7 +167,7 @@ test.describe('DefaultHeaders', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应中包含application/json的Content-Type
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('application/json', { timeout: 10000 });
   });
   // 测试用例5: 自动添加的content-type值允许修改,调用echo接口返回请求头参数正确
@@ -202,7 +202,7 @@ test.describe('DefaultHeaders', () => {
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入数据
-    const monacoEditor = contentPage.locator('.s-code-editor').first();
+    const monacoEditor = contentPage.locator('.s-json-editor').first();
     await monacoEditor.click();
     await contentPage.waitForTimeout(300);
     await contentPage.keyboard.press('ControlOrMeta+a');
@@ -224,7 +224,7 @@ test.describe('DefaultHeaders', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应中包含自定义的Content-Type
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('application/custom', { timeout: 10000 });
   });
 });

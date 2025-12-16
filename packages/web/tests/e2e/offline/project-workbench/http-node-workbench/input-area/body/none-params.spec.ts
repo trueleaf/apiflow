@@ -10,14 +10,10 @@ test.describe('NoneParams', () => {
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
-    const treeWrap = contentPage.locator('.tree-wrap');
-    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
-    await contentPage.waitForTimeout(300);
-    const contextMenu = contentPage.locator('.s-contextmenu');
-    const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
-    await newInterfaceItem.click();
-    await contentPage.waitForTimeout(300);
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
     const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const nameInput = addFileDialog.locator('input').first();
     await nameInput.fill('None参数测试');
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
@@ -28,7 +24,7 @@ test.describe('NoneParams', () => {
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.waitForTimeout(300);
     // 切换到Body标签
-    const bodyTab = contentPage.locator('.el-tabs__item', { hasText: 'Body' });
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 验证默认为none类型
@@ -38,8 +34,7 @@ test.describe('NoneParams', () => {
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    // 验证响应区域有内容（请求成功发送）
-    const responseArea = contentPage.locator('.response-area, .response-wrap, .response-content');
-    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
 });

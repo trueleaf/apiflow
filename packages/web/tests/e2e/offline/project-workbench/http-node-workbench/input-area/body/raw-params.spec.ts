@@ -45,7 +45,7 @@ test.describe('RawParams', () => {
     if (await rawTextarea.count() > 0) {
       await rawTextarea.fill('This is plain text content');
     } else {
-      const monacoEditor = contentPage.locator('.s-code-editor').first();
+      const monacoEditor = contentPage.locator('.s-monaco-editor').first();
       await monacoEditor.click();
       await contentPage.keyboard.type('This is plain text content');
     }
@@ -55,7 +55,7 @@ test.describe('RawParams', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证请求头自动包含Content-Type: text/plain
     await expect(responseBody).toContainText('text/plain', { timeout: 10000 });
     // 验证服务器接收到纯文本内容
@@ -103,7 +103,7 @@ test.describe('RawParams', () => {
     if (await rawTextarea.count() > 0) {
       await rawTextarea.fill('<html><body>Hello World</body></html>');
     } else {
-      const monacoEditor = contentPage.locator('.s-code-editor').first();
+      const monacoEditor = contentPage.locator('.s-monaco-editor').first();
       await monacoEditor.click();
       await contentPage.keyboard.type('<html><body>Hello World</body></html>');
     }
@@ -113,7 +113,7 @@ test.describe('RawParams', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证请求头自动包含Content-Type: text/html
     await expect(responseBody).toContainText('text/html', { timeout: 10000 });
     // 验证服务器接收到HTML内容
@@ -163,7 +163,7 @@ test.describe('RawParams', () => {
     if (await rawTextarea.count() > 0) {
       await rawTextarea.fill('<?xml version="1.0"?><root><item>test</item></root>');
     } else {
-      const monacoEditor = contentPage.locator('.s-code-editor').first();
+      const monacoEditor = contentPage.locator('.s-monaco-editor').first();
       await monacoEditor.click();
       await contentPage.keyboard.type('<?xml version="1.0"?><root><item>test</item></root>');
     }
@@ -173,7 +173,7 @@ test.describe('RawParams', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证请求头自动包含Content-Type: application/xml
     await expect(responseBody).toContainText('application/xml', { timeout: 10000 });
     // 验证服务器接收到正确的XML数据
@@ -224,7 +224,7 @@ test.describe('RawParams', () => {
     if (await rawTextarea.count() > 0) {
       await rawTextarea.fill('var x = 123;');
     } else {
-      const monacoEditor = contentPage.locator('.s-code-editor').first();
+      const monacoEditor = contentPage.locator('.s-monaco-editor').first();
       await monacoEditor.click();
       await contentPage.keyboard.type('var x = 123;');
     }
@@ -234,7 +234,7 @@ test.describe('RawParams', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证请求头自动包含Content-Type: text/javascript
     await expect(responseBody).toContainText('text/javascript', { timeout: 10000 });
     // 验证服务器接收到JavaScript代码
@@ -283,7 +283,7 @@ test.describe('RawParams', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证请求成功返回
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证服务器接收到空的body

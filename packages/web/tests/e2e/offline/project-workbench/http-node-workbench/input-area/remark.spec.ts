@@ -238,7 +238,7 @@ test.describe('Remark', () => {
     await editorContent.pressSequentially('新增的备注内容', { delay: 50 });
     await contentPage.waitForTimeout(500);
     // 验证出现未保存标记（通常是标签页上的圆点或其他指示）
-    const unsavedIndicator = contentPage.locator('.unsaved-dot, .is-changed, .modified-indicator').first();
+    const unsavedIndicator = contentPage.locator('[data-testid="project-nav-tab-unsaved"]').first();
     await expect(unsavedIndicator).toBeVisible({ timeout: 5000 });
     // 保存内容
     await saveBtn.click();

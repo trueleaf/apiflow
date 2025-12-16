@@ -34,7 +34,7 @@ test.describe('QueryParamsValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证请求成功且包含id参数
     await expect(responseBody).toContainText('id', { timeout: 10000 });
   });
@@ -72,7 +72,7 @@ test.describe('QueryParamsValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证请求成功且包含id=1参数
     await expect(responseBody).toContainText('id', { timeout: 10000 });
     await expect(responseBody).toContainText('1', { timeout: 10000 });
@@ -116,7 +116,7 @@ test.describe('QueryParamsValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证请求成功且包含两个id参数值
     await expect(responseBody).toContainText('id', { timeout: 10000 });
     await expect(responseBody).toContainText('1', { timeout: 10000 });
@@ -161,7 +161,7 @@ test.describe('QueryParamsValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证请求成功且参数值正确（Echo服务会自动解码）
     await expect(responseBody).toContainText('name', { timeout: 10000 });
     await expect(responseBody).toContainText('张三', { timeout: 10000 });

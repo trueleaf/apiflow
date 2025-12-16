@@ -31,11 +31,11 @@ test.describe('JsonBodyValidation', () => {
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择JSON类型
-    const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: 'json' });
+    const jsonRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^json$/i }).locator('.el-radio');
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 输入常规JSON数据
-    const monacoEditor = contentPage.locator('.s-code-editor').first();
+    const monacoEditor = contentPage.locator('.s-json-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('{"name":"test","age":20,"active":true}');
@@ -45,7 +45,7 @@ test.describe('JsonBodyValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证Content-Type包含application/json
     await expect(responseBody).toContainText('application/json', { timeout: 10000 });
     // 验证JSON数据正确发送
@@ -105,11 +105,11 @@ test.describe('JsonBodyValidation', () => {
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择JSON类型
-    const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: 'json' });
+    const jsonRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^json$/i }).locator('.el-radio');
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 输入包含变量的JSON数据
-    const monacoEditor = contentPage.locator('.s-code-editor').first();
+    const monacoEditor = contentPage.locator('.s-json-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('{"global":"{{globalVar}}","env":"{{envVar}}"}');
@@ -119,7 +119,7 @@ test.describe('JsonBodyValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证Content-Type包含application/json
     await expect(responseBody).toContainText('application/json', { timeout: 10000 });
     // 验证变量已被正确替换
@@ -154,11 +154,11 @@ test.describe('JsonBodyValidation', () => {
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择JSON类型
-    const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: 'json' });
+    const jsonRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^json$/i }).locator('.el-radio');
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 输入包含mock数据的JSON
-    const monacoEditor = contentPage.locator('.s-code-editor').first();
+    const monacoEditor = contentPage.locator('.s-json-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('{"id":"@id","name":"@cname","email":"@email"}');
@@ -168,7 +168,7 @@ test.describe('JsonBodyValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证Content-Type包含application/json
     await expect(responseBody).toContainText('application/json', { timeout: 10000 });
     // 验证mock数据已被生成（不再是@notation形式）
@@ -210,11 +210,11 @@ test.describe('JsonBodyValidation', () => {
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择JSON类型
-    const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: 'json' });
+    const jsonRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^json$/i }).locator('.el-radio');
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 测试null类型
-    const monacoEditor = contentPage.locator('.s-code-editor').first();
+    const monacoEditor = contentPage.locator('.s-json-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('null');
@@ -224,7 +224,7 @@ test.describe('JsonBodyValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('application/json', { timeout: 10000 });
     await expect(responseBody).toContainText('null', { timeout: 10000 });
     // 测试数字类型

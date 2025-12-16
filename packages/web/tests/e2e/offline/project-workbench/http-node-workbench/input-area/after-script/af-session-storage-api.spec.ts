@@ -26,7 +26,7 @@ test.describe('AfSessionStorageApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本编辑器中输入代码设置sessionStorage
-    const monacoEditor = contentPage.locator('.s-code-editor').first();
+    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('af.sessionStorage["token"] = "abc123";\nconsole.log("sessionStorage已设置:", af.sessionStorage["token"]);');
@@ -36,7 +36,7 @@ test.describe('AfSessionStorageApi', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应成功
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 使用af.sessionStorage.get(key)获取会话数据
@@ -62,7 +62,7 @@ test.describe('AfSessionStorageApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本编辑器中输入代码先设置再获取sessionStorage
-    const monacoEditor = contentPage.locator('.s-code-editor').first();
+    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('af.sessionStorage["token"] = "abc123";\nconst token = af.sessionStorage["token"];\nconsole.log("token:", token);');
@@ -72,7 +72,7 @@ test.describe('AfSessionStorageApi', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应成功
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 使用af.sessionStorage.remove(key)删除会话数据
@@ -98,7 +98,7 @@ test.describe('AfSessionStorageApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本编辑器中输入代码先设置再删除sessionStorage
-    const monacoEditor = contentPage.locator('.s-code-editor').first();
+    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('af.sessionStorage["token"] = "abc123";\nconsole.log("删除前:", af.sessionStorage["token"]);\ndelete af.sessionStorage["token"];\nconsole.log("删除后:", af.sessionStorage["token"]);');
@@ -108,7 +108,7 @@ test.describe('AfSessionStorageApi', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应成功
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 使用af.sessionStorage.clear()清空所有会话数据
@@ -134,7 +134,7 @@ test.describe('AfSessionStorageApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本编辑器中输入代码先设置多个值再清空
-    const monacoEditor = contentPage.locator('.s-code-editor').first();
+    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('af.sessionStorage["key1"] = "value1";\naf.sessionStorage["key2"] = "value2";\nconsole.log("清空前key1:", af.sessionStorage["key1"]);\nObject.keys(af.sessionStorage).forEach(key => delete af.sessionStorage[key]);\nconsole.log("清空后key1:", af.sessionStorage["key1"]);');
@@ -144,7 +144,7 @@ test.describe('AfSessionStorageApi', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应成功
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
 });

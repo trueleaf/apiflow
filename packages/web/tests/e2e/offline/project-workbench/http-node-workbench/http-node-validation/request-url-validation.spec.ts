@@ -28,8 +28,7 @@ test.describe('RequestUrlValidation', () => {
     // 验证响应
     const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
-    const responseBody = contentPage.locator('[data-testid="response-tab-body"]');
-    // 验证请求成功返回
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含host信息，确认localhost被正确解析
     await expect(responseBody).toContainText('host', { timeout: 10000 });
@@ -62,8 +61,7 @@ test.describe('RequestUrlValidation', () => {
     // 验证响应
     const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
-    const responseBody = contentPage.locator('[data-testid="response-tab-body"]');
-    // 验证请求成功返回
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含host信息，确认IP地址被正确解析
     await expect(responseBody).toContainText('host', { timeout: 10000 });

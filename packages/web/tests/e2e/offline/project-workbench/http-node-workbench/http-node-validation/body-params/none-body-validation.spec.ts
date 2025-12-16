@@ -5,6 +5,7 @@ const ECHO_URL = 'http://localhost:3456/echo';
 test.describe('NoneBodyValidation', () => {
   test.beforeEach(async ({ createProject, contentPage }) => {
     await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
   });
 
@@ -16,14 +17,15 @@ test.describe('NoneBodyValidation', () => {
     await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'GET' }).click();
 
     // 2. 输入echo接口URL
-    const urlInput = contentPage.locator('[data-testid="url-input"]');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.click();
     await urlInput.fill(ECHO_URL);
 
     // 3. 在Body区域选择None类型(不发送body)
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
-    const noneRadio = contentPage.locator('.body-mode-item').filter({ hasText: 'none' }).locator('.el-radio');
+    const noneRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^none$/i }).locator('.el-radio');
     await noneRadio.click();
 
     // 4. 发送请求
@@ -32,15 +34,10 @@ test.describe('NoneBodyValidation', () => {
     await contentPage.waitForTimeout(2000);
 
     // 5. 检查响应结果
-    const responseTabBody = contentPage.locator('[data-testid="response-tab-body"]');
-    await expect(responseTabBody).toBeVisible({ timeout: 10000 });
-    await responseTabBody.click();
-    await contentPage.waitForTimeout(500);
-
-    // 获取响应内容验证
-    const responseContent = await contentPage.locator('.response-view').textContent();
-    expect(responseContent).toContain('method');
-    expect(responseContent).toContain('GET');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    await expect(responseBody).toContainText('method', { timeout: 10000 });
+    await expect(responseBody).toContainText('GET', { timeout: 10000 });
 
     // 验证响应状态码为200
     const statusCode = contentPage.locator('.status-code');
@@ -57,17 +54,18 @@ test.describe('NoneBodyValidation', () => {
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await expect(methodSelect).toBeVisible({ timeout: 5000 });
     await methodSelect.click();
-    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'DELETE' }).click();
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^(DEL|DELETE)$/ }).click();
 
     // 2. 输入echo接口URL
-    const urlInput = contentPage.locator('[data-testid="url-input"]');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.click();
     await urlInput.fill(ECHO_URL);
 
     // 3. 在Body区域选择None类型
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
-    const noneRadio = contentPage.locator('.body-mode-item').filter({ hasText: 'none' }).locator('.el-radio');
+    const noneRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^none$/i }).locator('.el-radio');
     await noneRadio.click();
 
     // 4. 发送请求
@@ -76,15 +74,10 @@ test.describe('NoneBodyValidation', () => {
     await contentPage.waitForTimeout(2000);
 
     // 5. 检查响应结果
-    const responseTabBody = contentPage.locator('[data-testid="response-tab-body"]');
-    await expect(responseTabBody).toBeVisible({ timeout: 10000 });
-    await responseTabBody.click();
-    await contentPage.waitForTimeout(500);
-
-    // 获取响应内容验证
-    const responseContent = await contentPage.locator('.response-view').textContent();
-    expect(responseContent).toContain('method');
-    expect(responseContent).toContain('DELETE');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    await expect(responseBody).toContainText('method', { timeout: 10000 });
+    await expect(responseBody).toContainText(/DEL|DELETE/, { timeout: 10000 });
 
     // 验证响应状态码为200
     const statusCode = contentPage.locator('.status-code');

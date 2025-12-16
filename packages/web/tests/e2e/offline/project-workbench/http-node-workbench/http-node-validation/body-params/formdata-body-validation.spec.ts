@@ -31,7 +31,7 @@ test.describe('FormdataBodyValidation', () => {
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择FormData类型
-    const formdataRadio = contentPage.locator('.el-radio').filter({ hasText: 'formdata' });
+    const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
     await formdataRadio.click();
     await contentPage.waitForTimeout(300);
     // 添加表单字段: name=test
@@ -56,7 +56,7 @@ test.describe('FormdataBodyValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证Content-Type包含multipart/form-data
     await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
     // 验证表单数据正确发送
@@ -117,7 +117,7 @@ test.describe('FormdataBodyValidation', () => {
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择FormData类型
-    const formdataRadio = contentPage.locator('.el-radio').filter({ hasText: 'formdata' });
+    const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
     await formdataRadio.click();
     await contentPage.waitForTimeout(300);
     // 添加表单字段: name={{projectVar}}
@@ -137,7 +137,7 @@ test.describe('FormdataBodyValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证Content-Type包含multipart/form-data
     await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
     // 验证变量被正确替换
@@ -173,7 +173,7 @@ test.describe('FormdataBodyValidation', () => {
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 选择FormData类型
-    const formdataRadio = contentPage.locator('.el-radio').filter({ hasText: 'formdata' });
+    const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
     await formdataRadio.click();
     await contentPage.waitForTimeout(300);
     // 添加表单字段: id=@id (mock数据)
@@ -198,7 +198,7 @@ test.describe('FormdataBodyValidation', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 验证Content-Type包含multipart/form-data
     await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
     // 验证mock数据已生成(不包含@符号说明已被替换)

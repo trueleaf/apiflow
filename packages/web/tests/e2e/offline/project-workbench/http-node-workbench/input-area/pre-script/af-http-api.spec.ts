@@ -41,7 +41,7 @@ console.log("GET响应数据:", JSON.stringify(response.data));`;
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例2: 使用af.http.post()发送POST请求,请求成功并获取响应数据
@@ -82,7 +82,7 @@ console.log("POST响应数据:", JSON.stringify(response.data));`;
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例3: 使用af.http.put()发送PUT请求,请求成功并获取响应数据
@@ -123,7 +123,7 @@ console.log("PUT响应数据:", JSON.stringify(response.data));`;
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例4: 使用af.http.delete()发送DELETE请求,请求成功并获取响应数据
@@ -164,7 +164,7 @@ console.log("DELETE响应数据:", JSON.stringify(response.data));`;
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例5: af.http请求失败时正确抛出错误并在响应区域展示错误信息
@@ -208,7 +208,7 @@ console.log("DELETE响应数据:", JSON.stringify(response.data));`;
     await sendBtn.click();
     await contentPage.waitForTimeout(5000);
     // 验证响应区域存在（即使前置脚本有错误，主请求仍会执行）
-    const responseBody = contentPage.locator('.response-body');
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
 });

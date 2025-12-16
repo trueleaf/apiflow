@@ -91,7 +91,7 @@ test.describe('FormDataParams', () => {
       await sendBtn.click();
       await contentPage.waitForTimeout(2000);
       // 验证响应
-      const responseBody = contentPage.locator('.response-body');
+      const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
       // 验证Content-Type包含multipart/form-data
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
       // 验证表单数据正确发送
@@ -169,7 +169,7 @@ test.describe('FormDataParams', () => {
       await sendBtn.click();
       await contentPage.waitForTimeout(2000);
       // 验证响应
-      const responseBody = contentPage.locator('.response-body');
+      const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
       // 验证变量被正确替换
       await expect(responseBody).toContainText('mobile_app', { timeout: 10000 });
       await expect(responseBody).toContainText('token_abc123', { timeout: 10000 });
@@ -222,7 +222,7 @@ test.describe('FormDataParams', () => {
       await sendBtn.click();
       await contentPage.waitForTimeout(2000);
       // 验证响应
-      const responseBody = contentPage.locator('.response-body');
+      const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
       // 验证Content-Type包含multipart/form-data
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
       // 验证mock数据已生成(不包含@符号说明已被替换)
@@ -293,7 +293,7 @@ test.describe('FormDataParams', () => {
       await sendBtn.click();
       await contentPage.waitForTimeout(2000);
       // 验证响应
-      const responseBody = contentPage.locator('.response-body');
+      const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
       // 验证混合变量被正确替换
       await expect(responseBody).toContainText('user_query', { timeout: 10000 });
       await expect(responseBody).toContainText('REQ_', { timeout: 10000 });
@@ -350,7 +350,7 @@ test.describe('FormDataParams', () => {
       await sendBtn.click();
       await contentPage.waitForTimeout(2000);
       // 验证响应 - 只包含username,不包含password
-      const responseBody = contentPage.locator('.response-body');
+      const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
       await expect(responseBody).toContainText('username', { timeout: 10000 });
       await expect(responseBody).toContainText('admin', { timeout: 10000 });
       // 验证password没有被发送
