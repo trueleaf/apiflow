@@ -27,10 +27,10 @@ test.describe('CommonHeaders', () => {
     // 右键folder节点,点击设置公共请求头
     const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试文件夹' });
     await folderNode.click({ button: 'right' });
-    // await contentPage.waitForTimeout(300);
+    await contentPage.waitForTimeout(300);
     const commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
     await commonHeaderItem.click();
-    // await contentPage.waitForTimeout(500);
+    await contentPage.waitForTimeout(500);
     // 验证公共请求头配置页面打开
     const commonHeaderPage = contentPage.locator('.common-header');
     await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });

@@ -227,6 +227,12 @@ test.describe('Variable', () => {
     const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: 'json' });
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
+    const jsonTip = contentPage.locator('.json-tip');
+    if (await jsonTip.isVisible()) {
+      const hideTipBtn = jsonTip.locator('.no-tip');
+      await hideTipBtn.click();
+      await expect(jsonTip).toBeHidden({ timeout: 5000 });
+    }
     const monacoEditor = contentPage.locator('.s-json-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
@@ -268,7 +274,7 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(500);
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill('{{baseUrl}}/echo');
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
@@ -293,27 +299,27 @@ test.describe('Variable', () => {
     const addBtn = variablePage.locator('.left .el-button--primary');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('Headers变量测试');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
     await headersTab.click();
     await contentPage.waitForTimeout(300);
-    const keyInput = contentPage.locator('.params-tree-table .rich-input').first();
+    const keyInput = contentPage.locator('[data-testid="params-tree-key-autocomplete"] input, [data-testid="params-tree-key-input"] input').first();
     await keyInput.click();
-    await contentPage.keyboard.type('Authorization');
-    const valueInput = contentPage.locator('.params-tree-table .rich-input').nth(1);
+    await keyInput.fill('Authorization');
+    const valueInput = contentPage.locator('[data-testid="params-tree-value-input"] .ProseMirror').first();
     await valueInput.click();
     await contentPage.keyboard.type('{{authToken}}');
-    const sendBtn = contentPage.locator('.send-btn');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
@@ -353,16 +359,16 @@ test.describe('Variable', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
-    const addFileBtn = contentPage.locator('.pin-wrap .item').filter({ hasText: /新增文件|Add File/ }).first();
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('不存在变量测试');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
-    const urlInput = contentPage.locator('.url-input input');
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
@@ -374,6 +380,12 @@ test.describe('Variable', () => {
     const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: 'json' });
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
+    const jsonTip2 = contentPage.locator('.json-tip');
+    if (await jsonTip2.isVisible()) {
+      const hideTipBtn = jsonTip2.locator('.no-tip');
+      await hideTipBtn.click();
+      await expect(jsonTip2).toBeHidden({ timeout: 5000 });
+    }
     const monacoEditor = contentPage.locator('.s-json-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');

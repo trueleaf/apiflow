@@ -11,7 +11,12 @@ test.describe('CreateProject', () => {
     await expect(projectNameInput).toBeFocused({ timeout: 3000 });
   });
 
-  test('点击首页内容区新建项目按钮打开弹窗,输入框自动聚焦', async ({ contentPage }) => {
+  test('点击首页内容区新建项目按钮打开弹窗,输入框自动聚焦', async ({ topBarPage, contentPage, clearCache }) => {
+    await clearCache();
+    const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+    await homeBtn.click();
+    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
     const addProjectBtn = contentPage.locator('[data-testid="home-add-project-btn"]');
     await addProjectBtn.click();
     const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });

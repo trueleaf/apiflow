@@ -37,9 +37,9 @@ test.describe('Trash', () => {
     const treeNode = bannerTree.locator('.el-tree-node__content', { hasText: '待删除接口' }).first();
     await expect(treeNode).toBeVisible({ timeout: 5000 });
     await treeNode.click({ button: 'right' });
-    const contextMenu = contentPage.locator('.context-menu');
+    const contextMenu = contentPage.locator('.s-contextmenu');
     await expect(contextMenu).toBeVisible({ timeout: 3000 });
-    const deleteOption = contextMenu.locator('.menu-item').filter({ hasText: /删除/ });
+    const deleteOption = contextMenu.locator('.s-contextmenu-item').filter({ hasText: /删除/ });
     await deleteOption.click();
     const confirmDialog = contentPage.locator('.el-message-box');
     await expect(confirmDialog).toBeVisible({ timeout: 3000 });
@@ -75,9 +75,9 @@ test.describe('Trash', () => {
     const treeNode = bannerTree.locator('.el-tree-node__content', { hasText: '待恢复接口' }).first();
     await expect(treeNode).toBeVisible({ timeout: 5000 });
     await treeNode.click({ button: 'right' });
-    const contextMenu = contentPage.locator('.context-menu');
-    await expect(contextMenu).toBeVisible({ timeout: 3000 });
-    const deleteOption = contextMenu.locator('.menu-item').filter({ hasText: /删除/ });
+    const contextMenu2 = contentPage.locator('.s-contextmenu');
+    await expect(contextMenu2).toBeVisible({ timeout: 3000 });
+    const deleteOption = contextMenu2.locator('.s-contextmenu-item').filter({ hasText: /删除/ });
     await deleteOption.click();
     const confirmDialog = contentPage.locator('.el-message-box');
     await expect(confirmDialog).toBeVisible({ timeout: 3000 });

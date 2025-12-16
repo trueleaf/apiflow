@@ -371,10 +371,10 @@ test.describe('SearchProject', () => {
     await expect(headerKeyInput).toBeVisible({ timeout: 5000 });
     await headerKeyInput.click();
     await headerKeyInput.fill('X-ADV-HEADER');
-    await contentPage.waitForTimeout(100);
-    const headerValueEditor = contentPage.locator('[data-testid="params-tree-value-input"] .ProseMirror').first();
-    await expect(headerValueEditor).toBeVisible({ timeout: 5000 });
-    await headerValueEditor.click();
+    await contentPage.waitForTimeout(200);
+    const headerValueInput = contentPage.locator('[data-testid="params-tree-value-input"]').first();
+    await expect(headerValueInput).toBeVisible({ timeout: 5000 });
+    await headerValueInput.click();
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type(headerKeyword);
     await contentPage.waitForTimeout(200);
