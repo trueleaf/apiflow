@@ -66,7 +66,7 @@ export default defineConfig({
   ],
   
   // 全局超时设置（30 秒）
-  timeout: 20 * 1000,
+  timeout: 10 * 1000,
   
   // 期望断言超时（5 秒）
   expect: {

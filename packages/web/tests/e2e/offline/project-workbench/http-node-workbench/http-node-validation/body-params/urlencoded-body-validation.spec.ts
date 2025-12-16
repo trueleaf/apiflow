@@ -7,14 +7,24 @@ test.describe('UrlencodedBodyValidation', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill(`URLEncoded测试-${Date.now()}`);
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
   });
 
   test('调用echo接口验证urlencoded参数是否正常返回,content-type是否设置正确', async ({ contentPage }) => {
     // 1. 选择POST方法
-    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]').first();
     await expect(methodSelect).toBeVisible({ timeout: 5000 });
     await methodSelect.click();
-    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).click();
+    const methodDropdown = contentPage.locator('.el-select-dropdown:visible');
+    await methodDropdown.locator('.el-select-dropdown__item', { hasText: /^POST$/ }).first().click();
 
     // 2. 输入echo接口URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
@@ -82,10 +92,11 @@ test.describe('UrlencodedBodyValidation', () => {
 
   test('PUT方法配合URLEncoded请求体验证', async ({ contentPage }) => {
     // 1. 选择PUT方法
-    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]').first();
     await expect(methodSelect).toBeVisible({ timeout: 5000 });
     await methodSelect.click();
-    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'PUT' }).click();
+    const methodDropdown = contentPage.locator('.el-select-dropdown:visible');
+    await methodDropdown.locator('.el-select-dropdown__item', { hasText: /^PUT$/ }).first().click();
 
     // 2. 输入echo接口URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');

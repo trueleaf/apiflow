@@ -54,8 +54,8 @@ test.describe('FormdataFileUploadValidation', () => {
     // 切换为文件类型
     const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
     await typeSelects.nth(2).click();
-    const fileTypeOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'file' });
-    await fileTypeOption.click();
+    const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
+    await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
     await contentPage.waitForTimeout(300);
     // 选择文件上传
     const fileInput = contentPage.locator('[data-testid="params-tree-file-input"]').first();

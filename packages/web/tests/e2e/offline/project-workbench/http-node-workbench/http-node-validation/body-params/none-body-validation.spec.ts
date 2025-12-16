@@ -7,14 +7,24 @@ test.describe('NoneBodyValidation', () => {
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill(`NoneBody测试-${Date.now()}`);
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
   });
 
   test('调用echo接口验证body为none请求是否正常返回,content-type是否正确', async ({ contentPage }) => {
     // 1. 选择GET方法（默认就是GET）
-    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]').first();
     await expect(methodSelect).toBeVisible({ timeout: 5000 });
     await methodSelect.click();
-    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'GET' }).click();
+    const methodDropdown = contentPage.locator('.el-select-dropdown:visible');
+    await methodDropdown.locator('.el-select-dropdown__item', { hasText: /^GET$/ }).first().click();
 
     // 2. 输入echo接口URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
@@ -51,10 +61,11 @@ test.describe('NoneBodyValidation', () => {
 
   test('DELETE方法配合None请求体验证', async ({ contentPage }) => {
     // 1. 选择DELETE方法
-    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    const methodSelect = contentPage.locator('[data-testid="method-select"]').first();
     await expect(methodSelect).toBeVisible({ timeout: 5000 });
     await methodSelect.click();
-    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^(DEL|DELETE)$/ }).click();
+    const methodDropdown = contentPage.locator('.el-select-dropdown:visible');
+    await methodDropdown.locator('.el-select-dropdown__item', { hasText: /^(DEL|DELETE)$/ }).first().click();
 
     // 2. 输入echo接口URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');

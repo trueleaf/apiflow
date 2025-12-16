@@ -32,7 +32,9 @@ test.describe('Trash', () => {
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
-    const treeNode = contentPage.locator('.doc-nav-tree .el-tree-node').filter({ hasText: '待删除接口' });
+    const bannerTree = contentPage.getByTestId('banner-doc-tree');
+    await expect(bannerTree).toBeVisible({ timeout: 5000 });
+    const treeNode = bannerTree.locator('.el-tree-node__content', { hasText: '待删除接口' }).first();
     await expect(treeNode).toBeVisible({ timeout: 5000 });
     await treeNode.click({ button: 'right' });
     const contextMenu = contentPage.locator('.context-menu');
@@ -68,7 +70,9 @@ test.describe('Trash', () => {
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
-    const treeNode = contentPage.locator('.doc-nav-tree .el-tree-node').filter({ hasText: '待恢复接口' });
+    const bannerTree = contentPage.getByTestId('banner-doc-tree');
+    await expect(bannerTree).toBeVisible({ timeout: 5000 });
+    const treeNode = bannerTree.locator('.el-tree-node__content', { hasText: '待恢复接口' }).first();
     await expect(treeNode).toBeVisible({ timeout: 5000 });
     await treeNode.click({ button: 'right' });
     const contextMenu = contentPage.locator('.context-menu');
@@ -97,7 +101,7 @@ test.describe('Trash', () => {
     await restoreConfirmBtn.click();
     await contentPage.waitForTimeout(500);
     await expect(deletedDoc).not.toBeVisible({ timeout: 5000 });
-    const restoredNode = contentPage.locator('.doc-nav-tree .el-tree-node').filter({ hasText: '待恢复接口' });
+    const restoredNode = bannerTree.locator('.el-tree-node__content', { hasText: '待恢复接口' }).first();
     await expect(restoredNode).toBeVisible({ timeout: 5000 });
   });
 });
