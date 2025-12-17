@@ -85,7 +85,7 @@ export class HttpMockManager {
     // 处理 multipart/form-data（koa-body 解析后的数据）
     if (contentType.includes('multipart/form-data')) {
       const parts: string[] = [];
-      
+
       // 添加表单字段
       if (body && typeof body === 'object') {
         for (const [key, value] of Object.entries(body)) {
@@ -98,7 +98,7 @@ export class HttpMockManager {
           }
         }
       }
-      
+
       // 添加文件字段（koa-body 将文件存储在 ctx.request.files 中）
       if (files) {
         // files 可能是对象或数组
@@ -499,22 +499,22 @@ export class HttpMockManager {
 
     try {
       const app = new Koa();
-      
+
       // 使用 koa-body 统一处理所有请求体类型（包括 multipart/form-data）
       app.use(koaBody({
-        multipart: true, // 启用 multipart/form-data 解析
+        multipart: true,
         urlencoded: true,
-        json: true,
+        json: true,           // ✅ 这是 Boolean 类型
+        jsonStrict: false,    // ✅ 这是单独的配置项，允许解析非对象/数组的JSON
         text: true,
         formidable: {
-          maxFileSize: 100 * 1024 * 1024, // 100MB
+          maxFileSize: 100 * 1024 * 1024,
           keepExtensions: true,
         },
         jsonLimit: '10mb',
         formLimit: '10mb',
         textLimit: '10mb',
       }));
-      
       app.use(async (ctx) => {
         await this.handleHttpRequest(ctx, httpMock.requestCondition.port);
       });
