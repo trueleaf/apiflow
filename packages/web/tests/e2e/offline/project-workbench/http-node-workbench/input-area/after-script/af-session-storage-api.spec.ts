@@ -22,7 +22,7 @@ test.describe('AfSessionStorageApi', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 切换到后置脚本Tab
-    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本编辑器中输入代码设置sessionStorage
@@ -58,7 +58,7 @@ test.describe('AfSessionStorageApi', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 切换到后置脚本Tab
-    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本编辑器中输入代码先设置再获取sessionStorage
@@ -94,7 +94,7 @@ test.describe('AfSessionStorageApi', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 切换到后置脚本Tab
-    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本编辑器中输入代码先设置再删除sessionStorage
@@ -130,7 +130,7 @@ test.describe('AfSessionStorageApi', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 切换到后置脚本Tab
-    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本编辑器中输入代码先设置多个值再清空

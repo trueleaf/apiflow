@@ -36,7 +36,7 @@ test.describe('JsonBodyValidation', () => {
     await contentPage.waitForTimeout(300);
     // 输入常规JSON数据
     const monacoEditor = contentPage.locator('.s-json-editor').first();
-    await monacoEditor.click();
+    await monacoEditor.click({ force: true });
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('{"name":"test","age":20,"active":true}');
     await contentPage.waitForTimeout(300);
@@ -110,7 +110,7 @@ test.describe('JsonBodyValidation', () => {
     await contentPage.waitForTimeout(300);
     // 输入包含变量的JSON数据
     const monacoEditor = contentPage.locator('.s-json-editor').first();
-    await monacoEditor.click();
+    await monacoEditor.click({ force: true });
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('{"global":"{{globalVar}}","env":"{{envVar}}"}');
     await contentPage.waitForTimeout(300);
@@ -159,9 +159,9 @@ test.describe('JsonBodyValidation', () => {
     await contentPage.waitForTimeout(300);
     // 输入包含mock数据的JSON
     const monacoEditor = contentPage.locator('.s-json-editor').first();
-    await monacoEditor.click();
+    await monacoEditor.click({ force: true });
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('{"id":"@id","name":"@cname","email":"@email"}');
+    await contentPage.keyboard.type('{"id":"{{@id}}","name":"{{@cname}}","email":"{{@email}}"}');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -215,7 +215,7 @@ test.describe('JsonBodyValidation', () => {
     await contentPage.waitForTimeout(300);
     // 测试null类型
     const monacoEditor = contentPage.locator('.s-json-editor').first();
-    await monacoEditor.click();
+    await monacoEditor.click({ force: true });
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('null');
     await contentPage.waitForTimeout(300);

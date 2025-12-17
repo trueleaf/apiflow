@@ -86,7 +86,9 @@ test.describe('UrlencodedBodyValidation', () => {
     await expect(responseBody).toContainText('application/x-www-form-urlencoded', { timeout: 10000 });
 
     // 验证响应状态码为200
-    const statusCode = contentPage.locator('.status-code');
+    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200');
   });
 
@@ -147,7 +149,9 @@ test.describe('UrlencodedBodyValidation', () => {
     await expect(responseBody).toContainText('application/x-www-form-urlencoded', { timeout: 10000 });
 
     // 验证响应状态码为200
-    const statusCode = contentPage.locator('.status-code');
+    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200');
   });
 });

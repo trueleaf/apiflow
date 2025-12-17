@@ -17,7 +17,7 @@ test.describe('AfterScriptEditorFeatures', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 点击后置脚本标签页
-    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在编辑器中输入包含关键字、函数、变量等的JavaScript代码
@@ -52,7 +52,7 @@ test.describe('AfterScriptEditorFeatures', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 点击后置脚本标签页
-    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在编辑器中输入af.触发代码补全
@@ -86,7 +86,7 @@ test.describe('AfterScriptEditorFeatures', () => {
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
     // 点击后置脚本标签页
-    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在编辑器中输入格式不规范的JavaScript代码

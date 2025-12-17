@@ -1,9 +1,10 @@
 import { test, expect } from '../../../../../../fixtures/electron.fixture';
 
-const ECHO_URL = 'http://localhost:3456/echo';
+const MOCK_SERVER_PORT = 3456;
 
 test.describe('NoneBodyValidation', () => {
-  test.beforeEach(async ({ createProject, contentPage }) => {
+  test.beforeEach(async ({ createProject, contentPage, clearCache }) => {
+    await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -29,14 +30,15 @@ test.describe('NoneBodyValidation', () => {
     // 2. 输入echo接口URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
-    await urlInput.fill(ECHO_URL);
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
 
     // 3. 在Body区域选择None类型(不发送body)
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
-    const noneRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^none$/i }).locator('.el-radio');
-    await noneRadio.click();
+    // none 是默认选项，验证其可见即可
+    const noneRadio = contentPage.locator('.body-params .el-radio', { hasText: /none/i });
+    await expect(noneRadio).toBeVisible();
 
     // 4. 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -50,13 +52,9 @@ test.describe('NoneBodyValidation', () => {
     await expect(responseBody).toContainText('GET', { timeout: 10000 });
 
     // 验证响应状态码为200
-    const statusCode = contentPage.locator('.status-code');
+    const statusCode = contentPage.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toBeVisible({ timeout: 10000 });
     await expect(statusCode).toContainText('200');
-
-    // 验证请求不包含body (通过查看请求信息tab)
-    const requestTab = contentPage.locator('[data-testid="response-tab-request"]');
-    await requestTab.click();
-    await contentPage.waitForTimeout(300);
   });
 
   test('DELETE方法配合None请求体验证', async ({ contentPage }) => {
@@ -70,14 +68,15 @@ test.describe('NoneBodyValidation', () => {
     // 2. 输入echo接口URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
-    await urlInput.fill(ECHO_URL);
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
 
     // 3. 在Body区域选择None类型
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
-    const noneRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^none$/i }).locator('.el-radio');
-    await noneRadio.click();
+    // none 是默认选项，验证其可见即可
+    const noneRadio = contentPage.locator('.body-params .el-radio', { hasText: /none/i });
+    await expect(noneRadio).toBeVisible();
 
     // 4. 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -91,7 +90,8 @@ test.describe('NoneBodyValidation', () => {
     await expect(responseBody).toContainText(/DEL|DELETE/, { timeout: 10000 });
 
     // 验证响应状态码为200
-    const statusCode = contentPage.locator('.status-code');
+    const statusCode = contentPage.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toBeVisible({ timeout: 10000 });
     await expect(statusCode).toContainText('200');
   });
 });

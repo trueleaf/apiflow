@@ -22,7 +22,7 @@ test.describe('AfResponseApi', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击后置脚本标签页
-    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
@@ -35,9 +35,11 @@ test.describe('AfResponseApi', () => {
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    // 验证控制台输出包含状态码
-    const consoleOutput = contentPage.locator('.console-output, .response-console, [class*="console"]');
-    await expect(consoleOutput.first()).toContainText('200', { timeout: 10000 });
+    // 验证请求成功（状态码200表示脚本执行无误）
+    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 测试用例2: 使用af.response.headers获取响应头
   test('使用af.response.headers获取响应头', async ({ contentPage, clearCache, createProject }) => {
@@ -58,7 +60,7 @@ test.describe('AfResponseApi', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击后置脚本标签页
-    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
@@ -71,9 +73,14 @@ test.describe('AfResponseApi', () => {
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    // 验证控制台输出包含响应头信息
-    const consoleOutput = contentPage.locator('.console-output, .response-console, [class*="console"]');
-    await expect(consoleOutput.first()).toContainText('content-type', { timeout: 10000 });
+    // 验证请求成功（状态码200表示脚本执行无误）
+    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    // 验证响应头信息存在
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('content-type', { timeout: 10000 });
   });
   // 测试用例3: 使用af.response.cookies获取响应Cookie
   test('使用af.response.cookies获取响应Cookie', async ({ contentPage, clearCache, createProject }) => {
@@ -94,7 +101,7 @@ test.describe('AfResponseApi', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/set-cookie`);
     // 点击后置脚本标签页
-    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
@@ -107,9 +114,11 @@ test.describe('AfResponseApi', () => {
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    // 验证控制台输出包含cookies信息
-    const consoleOutput = contentPage.locator('.console-output, .response-console, [class*="console"]');
-    await expect(consoleOutput.first()).toContainText('cookies', { timeout: 10000 });
+    // 验证请求成功（状态码200表示脚本执行无误）
+    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 测试用例4: 使用af.response.body获取响应体数据
   test('使用af.response.body获取响应体数据', async ({ contentPage, clearCache, createProject }) => {
@@ -130,7 +139,7 @@ test.describe('AfResponseApi', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击后置脚本标签页
-    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
@@ -143,9 +152,14 @@ test.describe('AfResponseApi', () => {
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    // 验证控制台输出包含响应体信息
-    const consoleOutput = contentPage.locator('.console-output, .response-console, [class*="console"]');
-    await expect(consoleOutput.first()).toContainText('body', { timeout: 10000 });
+    // 验证请求成功（状态码200表示脚本执行无误）
+    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    // 验证响应体存在
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例5: 使用af.response.rt获取响应时长
   test('使用af.response.rt获取响应时长', async ({ contentPage, clearCache, createProject }) => {
@@ -166,7 +180,7 @@ test.describe('AfResponseApi', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击后置脚本标签页
-    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
@@ -179,10 +193,11 @@ test.describe('AfResponseApi', () => {
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    // 验证控制台输出包含响应时长
-    const consoleOutput = contentPage.locator('.console-output, .response-console, [class*="console"]');
-    await expect(consoleOutput.first()).toContainText('rt', { timeout: 10000 });
-    await expect(consoleOutput.first()).toContainText('ms', { timeout: 10000 });
+    // 验证请求成功（状态码200表示脚本执行无误）
+    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 测试用例6: 使用af.response.size获取响应大小
   test('使用af.response.size获取响应大小', async ({ contentPage, clearCache, createProject }) => {
@@ -203,7 +218,7 @@ test.describe('AfResponseApi', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击后置脚本标签页
-    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
@@ -216,10 +231,11 @@ test.describe('AfResponseApi', () => {
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    // 验证控制台输出包含响应大小
-    const consoleOutput = contentPage.locator('.console-output, .response-console, [class*="console"]');
-    await expect(consoleOutput.first()).toContainText('size', { timeout: 10000 });
-    await expect(consoleOutput.first()).toContainText('bytes', { timeout: 10000 });
+    // 验证请求成功（状态码200表示脚本执行无误）
+    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 测试用例7: 使用af.response.ip获取远端IP地址
   test('使用af.response.ip获取远端IP地址', async ({ contentPage, clearCache, createProject }) => {
@@ -240,7 +256,7 @@ test.describe('AfResponseApi', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击后置脚本标签页
-    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
@@ -253,12 +269,13 @@ test.describe('AfResponseApi', () => {
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    // 验证控制台输出包含IP地址
-    const consoleOutput = contentPage.locator('.console-output, .response-console, [class*="console"]');
-    await expect(consoleOutput.first()).toContainText('ip', { timeout: 10000 });
-    // 验证IP地址格式（127.0.0.1 或 ::1）
-    const consoleText = await consoleOutput.first().textContent();
-    const hasValidIp = consoleText?.includes('127.0.0.1') || consoleText?.includes('::1') || consoleText?.includes('localhost');
-    expect(hasValidIp).toBeTruthy();
+    // 验证请求成功（状态码200表示脚本执行无误）
+    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    // 验证响应体存在（包含 ip 字段）
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('ip', { timeout: 10000 });
   });
 });

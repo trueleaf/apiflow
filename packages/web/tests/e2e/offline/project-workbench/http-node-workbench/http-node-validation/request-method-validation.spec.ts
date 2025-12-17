@@ -117,9 +117,9 @@ test.describe('RequestMethodValidation', () => {
     // 选择DELETE方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    const deleteOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'DELETE' });
+    const deleteOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^DEL$/ });
     await deleteOption.click();
-    await expect(methodSelect).toContainText('DELETE');
+    await expect(methodSelect).toContainText(/DEL/);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
@@ -255,8 +255,8 @@ test.describe('RequestMethodValidation', () => {
     await expect(methodSelect).toContainText('PUT');
     // 切换到DELETE
     await methodSelect.click();
-    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'DELETE' }).click();
-    await expect(methodSelect).toContainText('DELETE');
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^DEL$/ }).click();
+    await expect(methodSelect).toContainText(/DEL/);
     // 切换到PATCH
     await methodSelect.click();
     await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'PATCH' }).click();

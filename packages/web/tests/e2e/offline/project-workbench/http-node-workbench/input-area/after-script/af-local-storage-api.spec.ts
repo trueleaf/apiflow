@@ -36,7 +36,9 @@ test.describe('AfLocalStorageApi', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证请求成功（状态码200表示脚本执行无误）
-    const statusCode = contentPage.locator('.status-code');
+    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
     // 验证数据已存储到localStorage
     const storedValue = await contentPage.evaluate(() => {
@@ -81,7 +83,9 @@ test.describe('AfLocalStorageApi', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证请求成功
-    const statusCode = contentPage.locator('.status-code');
+    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 测试用例3: 使用af.localStorage.remove(key)删除持久数据
@@ -126,7 +130,9 @@ test.describe('AfLocalStorageApi', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证请求成功
-    const statusCode = contentPage.locator('.status-code');
+    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
     // 验证数据已被删除
     const deletedValue = await contentPage.evaluate(() => {
@@ -184,7 +190,9 @@ test.describe('AfLocalStorageApi', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证请求成功
-    const statusCode = contentPage.locator('.status-code');
+    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
     // 验证所有af_前缀的数据已被清空
     const clearedValues = await contentPage.evaluate(() => {
@@ -231,7 +239,9 @@ test.describe('AfLocalStorageApi', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证请求成功
-    const statusCode = contentPage.locator('.status-code');
+    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
     // 验证结果为null
     const resultValue = await contentPage.evaluate(() => {

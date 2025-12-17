@@ -29,13 +29,13 @@ test.describe('PathParamsValidation', () => {
     const pathParamsArea = contentPage.locator('.query-path-params');
     await expect(pathParamsArea).toBeVisible({ timeout: 5000 });
     // 设置userId的值为123
-    const pathParamsInputs = contentPage.locator('.query-path-params .params-tree-table').last().locator('.rich-input');
-    const userIdValueInput = pathParamsInputs.nth(1);
+    const pathParamsInputs = contentPage.locator('.query-path-params .cl-params-tree').last().locator('[data-testid="params-tree-value-input"]');
+    const userIdValueInput = pathParamsInputs.nth(0);
     await userIdValueInput.click();
     await contentPage.keyboard.type('123');
     await contentPage.waitForTimeout(300);
     // 设置postId的值为456
-    const postIdValueInput = pathParamsInputs.nth(4);
+    const postIdValueInput = pathParamsInputs.nth(1);
     await postIdValueInput.click();
     await contentPage.keyboard.type('456');
     await contentPage.waitForTimeout(300);
@@ -77,8 +77,8 @@ test.describe('PathParamsValidation', () => {
     await paramsTab.click();
     await contentPage.waitForTimeout(300);
     // 设置id的值
-    const pathParamsInputs = contentPage.locator('.query-path-params .params-tree-table').last().locator('.rich-input');
-    const idValueInput = pathParamsInputs.nth(1);
+    const pathParamsInputs = contentPage.locator('.query-path-params .cl-params-tree').last().locator('[data-testid="params-tree-value-input"]');
+    const idValueInput = pathParamsInputs.nth(0);
     await idValueInput.click();
     await contentPage.keyboard.type('item_001');
     await contentPage.waitForTimeout(300);
@@ -116,8 +116,8 @@ test.describe('PathParamsValidation', () => {
     await paramsTab.click();
     await contentPage.waitForTimeout(300);
     // 设置中文path参数值
-    const pathParamsInputs = contentPage.locator('.query-path-params .params-tree-table').last().locator('.rich-input');
-    const paramValueInput = pathParamsInputs.nth(1);
+    const pathParamsInputs = contentPage.locator('.query-path-params .cl-params-tree').last().locator('[data-testid="params-tree-value-input"]');
+    const paramValueInput = pathParamsInputs.nth(0);
     await paramValueInput.click();
     await contentPage.keyboard.type('测试中文');
     await contentPage.waitForTimeout(300);
@@ -171,8 +171,8 @@ test.describe('PathParamsValidation', () => {
     await paramsTab.click();
     await contentPage.waitForTimeout(300);
     // 设置path参数使用变量
-    const pathParamsInputs = contentPage.locator('.query-path-params .params-tree-table').last().locator('.rich-input');
-    const idValueInput = pathParamsInputs.nth(1);
+    const pathParamsInputs = contentPage.locator('.query-path-params .cl-params-tree').last().locator('[data-testid="params-tree-value-input"]');
+    const idValueInput = pathParamsInputs.nth(0);
     await idValueInput.click();
     await contentPage.keyboard.type('{{userId}}');
     await contentPage.waitForTimeout(300);
@@ -209,19 +209,19 @@ test.describe('PathParamsValidation', () => {
     await paramsTab.click();
     await contentPage.waitForTimeout(300);
     // 设置三个path参数的值
-    const pathParamsInputs = contentPage.locator('.query-path-params .params-tree-table').last().locator('.rich-input');
+    const pathParamsInputs = contentPage.locator('.query-path-params .cl-params-tree').last().locator('[data-testid="params-tree-value-input"]');
     // userId
-    const userIdValueInput = pathParamsInputs.nth(1);
+    const userIdValueInput = pathParamsInputs.nth(0);
     await userIdValueInput.click();
     await contentPage.keyboard.type('user001');
     await contentPage.waitForTimeout(200);
     // postId
-    const postIdValueInput = pathParamsInputs.nth(4);
+    const postIdValueInput = pathParamsInputs.nth(1);
     await postIdValueInput.click();
     await contentPage.keyboard.type('post002');
     await contentPage.waitForTimeout(200);
     // commentId
-    const commentIdValueInput = pathParamsInputs.nth(7);
+    const commentIdValueInput = pathParamsInputs.nth(2);
     await commentIdValueInput.click();
     await contentPage.keyboard.type('comment003');
     await contentPage.waitForTimeout(300);

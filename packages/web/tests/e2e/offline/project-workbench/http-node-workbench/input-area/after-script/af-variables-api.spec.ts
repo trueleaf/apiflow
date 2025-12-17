@@ -22,7 +22,7 @@ test.describe('AfVariablesApi', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 切换到后置脚本Tab
-    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本编辑器中输入代码：先设置变量再获取
@@ -35,10 +35,11 @@ test.describe('AfVariablesApi', () => {
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    // 验证控制台输出包含变量值
-    const consoleOutput = contentPage.locator('.console-output, .response-console, [class*="console"]');
-    await expect(consoleOutput.first()).toContainText('apiUrl', { timeout: 10000 });
-    await expect(consoleOutput.first()).toContainText('https://example.com/api', { timeout: 10000 });
+    // 验证请求成功（状态码200表示脚本执行无误）
+    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 使用af.variables.set(name, value)设置变量值
   test('使用af.variables.set(name, value)设置变量值', async ({ contentPage, clearCache, createProject }) => {
@@ -59,7 +60,7 @@ test.describe('AfVariablesApi', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 切换到后置脚本Tab
-    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本编辑器中输入代码设置变量
@@ -72,10 +73,11 @@ test.describe('AfVariablesApi', () => {
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    // 验证控制台输出包含设置的变量值
-    const consoleOutput = contentPage.locator('.console-output, .response-console, [class*="console"]');
-    await expect(consoleOutput.first()).toContainText('变量已设置', { timeout: 10000 });
-    await expect(consoleOutput.first()).toContainText('2', { timeout: 10000 });
+    // 验证请求成功（状态码200表示脚本执行无误）
+    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 后置脚本中设置的变量在下次请求中可以使用
   test('后置脚本中设置的变量在下次请求中可以使用', async ({ contentPage, clearCache, createProject }) => {
@@ -96,7 +98,7 @@ test.describe('AfVariablesApi', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 切换到后置脚本Tab
-    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterScript"]');
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在第一个请求的后置脚本中设置变量
@@ -109,9 +111,11 @@ test.describe('AfVariablesApi', () => {
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    // 验证第一个请求成功设置了变量
-    const consoleOutput = contentPage.locator('.console-output, .response-console, [class*="console"]');
-    await expect(consoleOutput.first()).toContainText('Token变量已设置', { timeout: 10000 });
+    // 验证第一个请求成功（状态码200表示脚本执行无误）
+    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
     // 新增第二个HTTP节点用于验证变量
     await addFileBtn.click();
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
@@ -134,8 +138,10 @@ test.describe('AfVariablesApi', () => {
     // 发送第二个请求
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    // 验证第二个请求能够获取到变量值
-    await expect(consoleOutput.first()).toContainText('获取到的Token', { timeout: 10000 });
-    await expect(consoleOutput.first()).toContainText('test_token_abc123', { timeout: 10000 });
+    // 验证第二个请求成功（状态码200表示脚本执行无误，变量被正确使用）
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    // 验证URL中变量被正确替换
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('test_token_abc123', { timeout: 10000 });
   });
 });

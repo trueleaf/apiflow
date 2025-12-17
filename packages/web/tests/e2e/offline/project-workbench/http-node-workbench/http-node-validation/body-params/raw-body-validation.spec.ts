@@ -37,7 +37,8 @@ test.describe('RawBodyValidation', () => {
     // 选择Text格式
     const rawTypeSelect = contentPage.locator('.raw-type .el-select');
     await rawTypeSelect.click();
-    const textOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^text$/ });
+    await contentPage.waitForTimeout(300);
+    const textOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: 'text' });
     await textOption.click();
     await contentPage.waitForTimeout(300);
     // 输入纯文本内容
@@ -45,8 +46,8 @@ test.describe('RawBodyValidation', () => {
     if (await rawTextarea.count() > 0) {
       await rawTextarea.fill('Hello World, this is plain text content.');
     } else {
-        const monacoEditor = contentPage.locator('.s-monaco-editor').first();
-      await monacoEditor.click();
+      const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+      await monacoEditor.click({ force: true });
       await contentPage.keyboard.type('Hello World, this is plain text content.');
     }
     await contentPage.waitForTimeout(300);
@@ -96,7 +97,8 @@ test.describe('RawBodyValidation', () => {
     // 选择HTML格式
     const rawTypeSelect = contentPage.locator('.raw-type .el-select');
     await rawTypeSelect.click();
-    const htmlOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^html$/ });
+    await contentPage.waitForTimeout(300);
+    const htmlOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: 'html' });
     await htmlOption.click();
     await contentPage.waitForTimeout(300);
     // 输入HTML内容
@@ -104,8 +106,9 @@ test.describe('RawBodyValidation', () => {
     if (await rawTextarea.count() > 0) {
       await rawTextarea.fill('<html><body><h1>Test</h1></body></html>');
     } else {
-        const monacoEditor = contentPage.locator('.s-monaco-editor').first();
-      await monacoEditor.click();
+      const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+      await monacoEditor.click({ force: true });
+
       await contentPage.keyboard.type('<html><body><h1>Test</h1></body></html>');
     }
     await contentPage.waitForTimeout(300);
@@ -158,7 +161,8 @@ test.describe('RawBodyValidation', () => {
     // 选择XML格式
     const rawTypeSelect = contentPage.locator('.raw-type .el-select');
     await rawTypeSelect.click();
-    const xmlOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^xml$/ });
+    await contentPage.waitForTimeout(300);
+    const xmlOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: 'xml' });
     await xmlOption.click();
     await contentPage.waitForTimeout(300);
     // 输入XML内容
@@ -166,7 +170,7 @@ test.describe('RawBodyValidation', () => {
     if (await rawTextarea.count() > 0) {
       await rawTextarea.fill('<?xml version="1.0"?><root><name>test</name></root>');
     } else {
-        const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+      const monacoEditor = contentPage.locator('.s-monaco-editor').first();
       await monacoEditor.click();
       await contentPage.keyboard.type('<?xml version="1.0"?><root><name>test</name></root>');
     }
@@ -220,7 +224,8 @@ test.describe('RawBodyValidation', () => {
     // 选择JavaScript格式
     const rawTypeSelect = contentPage.locator('.raw-type .el-select');
     await rawTypeSelect.click();
-    const jsOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^javascript$/ });
+    await contentPage.waitForTimeout(300);
+    const jsOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: 'javascript' });
     await jsOption.click();
     await contentPage.waitForTimeout(300);
     // 输入JavaScript代码
@@ -228,8 +233,9 @@ test.describe('RawBodyValidation', () => {
     if (await rawTextarea.count() > 0) {
       await rawTextarea.fill('function hello() { return "world"; }');
     } else {
-        const monacoEditor = contentPage.locator('.s-monaco-editor').first();
-      await monacoEditor.click();
+      const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+      await monacoEditor.click({ force: true });
+
       await contentPage.keyboard.type('function hello() { return "world"; }');
     }
     await contentPage.waitForTimeout(300);

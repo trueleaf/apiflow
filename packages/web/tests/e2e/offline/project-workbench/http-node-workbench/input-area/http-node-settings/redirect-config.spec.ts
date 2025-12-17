@@ -80,7 +80,7 @@ test.describe('RedirectConfig', () => {
     const responseArea = contentPage.locator('[data-testid="response-tabs"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     // 应该看到重定向标识或302状态码
-    const statusCodeArea = contentPage.locator('.status-code');
+    const statusCodeArea = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCodeArea).toContainText('302', { timeout: 10000 });
   });
   // 测试用例3: 修改最大重定向次数配置,超过次数后停止重定向并提示

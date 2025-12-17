@@ -1,10 +1,13 @@
 import Koa from 'koa';
 import { koaBody } from 'koa-body';
+import http from 'http';
+import { execFile } from 'child_process';
 import type { Server } from 'http';
 import type { Files, File } from 'formidable';
 
 const PORT = 3456;
 let server: Server | null = null;
+let startPromise: Promise<Server> | null = null;
 
 type FileInfo = {
   fieldName: string;
@@ -12,8 +15,85 @@ type FileInfo = {
   size: number;
   mimeType: string;
 };
+// 延迟
+const sleep = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
+// 判断服务是否监听
+const isListening = (srv: Server | null): srv is Server => Boolean(srv && srv.listening);
+// 请求本地 mock 服务器
+const requestMockEcho = (port: number): Promise<unknown> => {
+  return new Promise((resolve, reject) => {
+    const req = http.request({
+      hostname: '127.0.0.1',
+      port,
+      path: '/echo',
+      method: 'GET',
+      timeout: 800,
+      headers: { accept: 'application/json' },
+    }, (res) => {
+      const chunks: Buffer[] = [];
+      res.on('data', (chunk: Buffer) => chunks.push(chunk));
+      res.on('end', () => {
+        const bodyText = Buffer.concat(chunks).toString('utf-8');
+        if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+          try {
+            resolve(JSON.parse(bodyText));
+          } catch {
+            reject(new Error('mock 响应不是合法 JSON'));
+          }
+          return;
+        }
+        reject(new Error(`mock 响应状态码异常: ${String(res.statusCode)}`));
+      });
+    });
+    req.on('timeout', () => {
+      req.destroy(new Error('mock 请求超时'));
+    });
+    req.on('error', reject);
+    req.end();
+  });
+};
+// 判断占用端口的是否为当前 mock
+const isMockServerOnPort = async (port: number): Promise<boolean> => {
+  try {
+    const data = await requestMockEcho(port);
+    if (!data || typeof data !== 'object') return false;
+    const record = data as Record<string, unknown>;
+    return typeof record.method === 'string' && typeof record.path === 'string' && typeof record.timestamp === 'number';
+  } catch {
+    return false;
+  }
+};
+// 结束占用端口的旧 mock 进程（Windows）
+const killMockProcessOnWindows = async (port: number): Promise<boolean> => {
+  const isWindows = process.platform === 'win32';
+  if (!isWindows) return false;
+  const result = await new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
+    execFile('netstat', ['-ano', '-p', 'tcp'], { windowsHide: true }, (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve({ stdout: String(stdout), stderr: String(stderr) });
+    });
+  });
+  const lines = result.stdout.split(/\r?\n/);
+  const pids = new Set<string>();
+  const portText = `:${String(port)}`;
+  for (const line of lines) {
+    if (!line.includes(portText) || !line.includes('LISTENING')) continue;
+    const match = line.trim().match(/\sLISTENING\s+(\d+)$/);
+    if (match?.[1]) pids.add(match[1]);
+  }
+  if (pids.size === 0) return false;
+  for (const pid of pids) {
+    await new Promise<void>((resolve) => {
+      execFile('taskkill', ['/PID', pid, '/T', '/F'], { windowsHide: true }, () => resolve());
+    });
+  }
+  return true;
+};
 // 解析文件信息
-function parseFiles(files: Files | undefined): FileInfo[] {
+const parseFiles = (files: Files | undefined): FileInfo[] => {
   if (!files) return [];
   const result: FileInfo[] = [];
   for (const [fieldName, fileOrFiles] of Object.entries(files)) {
@@ -30,16 +110,29 @@ function parseFiles(files: Files | undefined): FileInfo[] {
     }
   }
   return result;
-}
+};
 // 获取原始 body 字符串
-function getRawBody(ctx: Koa.Context): string {
+const getRawBody = (ctx: Koa.Context): string => {
   const body = ctx.request.body;
   const files = (ctx.request as any).files as Files | undefined;
   const contentType = ctx.get('content-type') || '';
+
+  // ===== 1️⃣ 基础类型兜底（最重要） =====
+  if (
+    body === null ||
+    typeof body === 'string' ||
+    typeof body === 'number' ||
+    typeof body === 'boolean'
+  ) {
+    return String(body);
+  }
+
   if (!body && !files) return '';
-  // multipart/form-data
+
+  // ===== 2️⃣ multipart/form-data =====
   if (contentType.includes('multipart/form-data')) {
     const parts: string[] = [];
+
     if (body && typeof body === 'object') {
       for (const [key, value] of Object.entries(body)) {
         if (Array.isArray(value)) {
@@ -49,24 +142,30 @@ function getRawBody(ctx: Koa.Context): string {
         }
       }
     }
+
     if (files) {
       for (const [fieldName, fileOrFiles] of Object.entries(files)) {
         const fileArray = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles];
         for (const file of fileArray) {
           if (file) {
             const f = file as File;
-            parts.push(`${fieldName}=[File: ${f.originalFilename || f.newFilename}, ${f.size} bytes]`);
+            parts.push(
+              `${fieldName}=[File: ${f.originalFilename || f.newFilename}, ${f.size} bytes]`
+            );
           }
         }
       }
     }
+
     return parts.join('&');
   }
-  if (!body) return '';
-  // 字符串直接返回
-  if (typeof body === 'string') return body;
-  // application/x-www-form-urlencoded
-  if (contentType.includes('application/x-www-form-urlencoded')) {
+
+  // ===== 3️⃣ application/x-www-form-urlencoded =====
+  if (
+    contentType.includes('application/x-www-form-urlencoded') &&
+    body &&
+    typeof body === 'object'
+  ) {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(body)) {
       if (Array.isArray(value)) {
@@ -77,13 +176,15 @@ function getRawBody(ctx: Koa.Context): string {
     }
     return params.toString();
   }
-  // application/json 或其他
+
+  // ===== 4️⃣ application/json / 其他 =====
   try {
     return JSON.stringify(body);
   } catch {
     return String(body);
   }
-}
+};
+
 // 解析路径参数
 const parsePathParams = (pattern: string, path: string): Record<string, string> | null => {
   const patternParts = pattern.split('/').filter(Boolean);
@@ -100,7 +201,7 @@ const parsePathParams = (pattern: string, path: string): Record<string, string> 
   return params;
 };
 // 创建 Mock 服务器
-export function createMockServer(): Koa {
+export const createMockServer = (): Koa => {
   const app = new Koa();
   app.use(koaBody({
     multipart: true,
@@ -206,38 +307,74 @@ export function createMockServer(): Koa {
     ctx.body = { error: 'Not Found' };
   });
   return app;
-}
+};
 // 启动服务器
-export function startServer(): Promise<Server> {
-  return new Promise((resolve, reject) => {
+export const startServer = async (): Promise<Server> => {
+  if (isListening(server)) return server;
+  if (startPromise) return startPromise;
+  startPromise = (async () => {
+    if (server) await stopServer();
     const app = createMockServer();
-    server = app.listen(PORT, () => {
-      console.log(`Mock server started on port ${PORT}`);
-      resolve(server!);
-    });
-    server.on('error', reject);
+    const listenOnce = (): Promise<Server> => {
+      return new Promise((resolve, reject) => {
+        const nextServer = app.listen(PORT);
+        const onError = (error: unknown) => {
+          nextServer.off('listening', onListening);
+          reject(error);
+        };
+        const onListening = () => {
+          nextServer.off('error', onError);
+          resolve(nextServer);
+        };
+        nextServer.once('error', onError);
+        nextServer.once('listening', onListening);
+      });
+    };
+    try {
+      const nextServer = await listenOnce();
+      server = nextServer;
+      return nextServer;
+    } catch (error) {
+      const errnoError = error as NodeJS.ErrnoException;
+      if (errnoError.code !== 'EADDRINUSE') throw error;
+      const isMock = await isMockServerOnPort(PORT);
+      if (!isMock) {
+        throw new Error(`端口 ${String(PORT)} 已被其他进程占用，无法启动 mock 服务`);
+      }
+      await killMockProcessOnWindows(PORT);
+      await sleep(200);
+      const retryServer = await listenOnce();
+      server = retryServer;
+      return retryServer;
+    }
+  })().finally(() => {
+    startPromise = null;
   });
-}
+  return startPromise;
+};
 // 关闭服务器
-export function stopServer(): Promise<void> {
+export const stopServer = (): Promise<void> => {
   return new Promise((resolve) => {
     if (server) {
-      server.close(() => {
-        console.log('Mock server stopped');
-        server = null;
+      const currentServer = server;
+      currentServer.close(() => {
+        if (server === currentServer) server = null;
         resolve();
       });
-    } else {
-      resolve();
+      return;
     }
+    resolve();
   });
-}
+};
 // Playwright 全局 setup
-export default async function globalSetup() {
+export default async () => {
   await startServer();
-}
+  return async () => {
+    await stopServer();
+  };
+};
 // Playwright 全局 teardown
-export async function globalTeardown() {
+export const globalTeardown = async () => {
   await stopServer();
-}
+};
 export { PORT };
