@@ -1,45 +1,40 @@
 import { test, expect } from '../../../../../../fixtures/electron.fixture';
 
-const ECHO_URL = 'http://localhost:3456/echo';
+const MOCK_SERVER_PORT = 3456;
 
 test.describe('UrlencodedBodyValidation', () => {
-  test.beforeEach(async ({ createProject, contentPage }) => {
+  test('调用echo接口验证urlencoded参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
+    // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill(`URLEncoded测试-${Date.now()}`);
+    await fileNameInput.fill('URLEncoded测试接口');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
-  });
-
-  test('调用echo接口验证urlencoded参数是否正常返回,content-type是否设置正确', async ({ contentPage }) => {
-    // 1. 选择POST方法
-    const methodSelect = contentPage.locator('[data-testid="method-select"]').first();
-    await expect(methodSelect).toBeVisible({ timeout: 5000 });
-    await methodSelect.click();
-    const methodDropdown = contentPage.locator('.el-select-dropdown:visible');
-    await methodDropdown.locator('.el-select-dropdown__item', { hasText: /^POST$/ }).first().click();
-
-    // 2. 输入echo接口URL
+    // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-    await urlInput.click();
-    await urlInput.fill(ECHO_URL);
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    // 选择POST方法
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    await methodSelect.click();
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    await postOption.click();
 
-    // 3. 在Body区域选择x-www-form-urlencoded类型
+    // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
+    // 选择x-www-form-urlencoded类型
     const urlencodedRadio = contentPage.locator('.body-mode-item').filter({ hasText: 'x-www-form-urlencoded' }).locator('.el-radio');
     await urlencodedRadio.click();
     await contentPage.waitForTimeout(300);
-
-    // 4. 添加参数字段: username=test
+    // 添加参数字段: username=test
     const paramsTree = contentPage.locator('.cl-params-tree').first();
     const firstKeyInput = paramsTree.locator('[data-testid="params-tree-key-input"]').first();
     await firstKeyInput.fill('username');
@@ -48,8 +43,7 @@ test.describe('UrlencodedBodyValidation', () => {
     await firstValueInput.click();
     await contentPage.keyboard.type('test');
     await contentPage.waitForTimeout(200);
-
-    // 添加参数字段: password=123456 (新行自动生成)
+    // 添加参数字段: password=123456
     const secondKeyInput = paramsTree.locator('[data-testid="params-tree-key-input"]').nth(1);
     await secondKeyInput.fill('password');
     await contentPage.waitForTimeout(200);
@@ -57,8 +51,7 @@ test.describe('UrlencodedBodyValidation', () => {
     await secondValueInput.click();
     await contentPage.keyboard.type('123456');
     await contentPage.waitForTimeout(200);
-
-    // 添加参数字段: remember=true (新行自动生成)
+    // 添加参数字段: remember=true
     const thirdKeyInput = paramsTree.locator('[data-testid="params-tree-key-input"]').nth(2);
     await thirdKeyInput.fill('remember');
     await contentPage.waitForTimeout(200);
@@ -66,13 +59,11 @@ test.describe('UrlencodedBodyValidation', () => {
     await thirdValueInput.click();
     await contentPage.keyboard.type('true');
     await contentPage.waitForTimeout(200);
-
-    // 5. 发送请求
+    // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-
-    // 6. 检查响应结果
+    // 验证响应
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     await expect(responseBody).toContainText('method', { timeout: 10000 });
@@ -86,34 +77,42 @@ test.describe('UrlencodedBodyValidation', () => {
     await expect(responseBody).toContainText('application/x-www-form-urlencoded', { timeout: 10000 });
 
     // 验证响应状态码为200
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
-    await expect(responseArea).toBeVisible({ timeout: 10000 });
-    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    const statusCode = contentPage.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toBeVisible({ timeout: 10000 });
     await expect(statusCode).toContainText('200');
   });
 
-  test('PUT方法配合URLEncoded请求体验证', async ({ contentPage }) => {
-    // 1. 选择PUT方法
-    const methodSelect = contentPage.locator('[data-testid="method-select"]').first();
-    await expect(methodSelect).toBeVisible({ timeout: 5000 });
-    await methodSelect.click();
-    const methodDropdown = contentPage.locator('.el-select-dropdown:visible');
-    await methodDropdown.locator('.el-select-dropdown__item', { hasText: /^PUT$/ }).first().click();
-
-    // 2. 输入echo接口URL
+  test('PUT方法配合URLEncoded请求体验证', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    // 新增HTTP节点
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('URLEncoded PUT测试接口');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-    await urlInput.click();
-    await urlInput.fill(ECHO_URL);
-
-    // 3. 在Body区域选择x-www-form-urlencoded类型
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    // 选择PUT方法
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    await methodSelect.click();
+    const putOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'PUT' });
+    await putOption.click();
+    // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
+    // 选择x-www-form-urlencoded类型
     const urlencodedRadio = contentPage.locator('.body-mode-item').filter({ hasText: 'x-www-form-urlencoded' }).locator('.el-radio');
     await urlencodedRadio.click();
     await contentPage.waitForTimeout(300);
-
-    // 4. 添加参数字段: id=1
+    // 添加参数字段: id=1
     const paramsTree = contentPage.locator('.cl-params-tree').first();
     const firstKeyInput = paramsTree.locator('[data-testid="params-tree-key-input"]').first();
     await firstKeyInput.fill('id');
@@ -122,7 +121,6 @@ test.describe('UrlencodedBodyValidation', () => {
     await firstValueInput.click();
     await contentPage.keyboard.type('1');
     await contentPage.waitForTimeout(200);
-
     // 添加参数字段: name=updated
     const secondKeyInput = paramsTree.locator('[data-testid="params-tree-key-input"]').nth(1);
     await secondKeyInput.fill('name');
@@ -131,13 +129,11 @@ test.describe('UrlencodedBodyValidation', () => {
     await secondValueInput.click();
     await contentPage.keyboard.type('updated');
     await contentPage.waitForTimeout(200);
-
-    // 5. 发送请求
+    // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-
-    // 6. 检查响应结果
+    // 验证响应
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     await expect(responseBody).toContainText('method', { timeout: 10000 });
@@ -149,9 +145,8 @@ test.describe('UrlencodedBodyValidation', () => {
     await expect(responseBody).toContainText('application/x-www-form-urlencoded', { timeout: 10000 });
 
     // 验证响应状态码为200
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
-    await expect(responseArea).toBeVisible({ timeout: 10000 });
-    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    const statusCode = contentPage.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toBeVisible({ timeout: 10000 });
     await expect(statusCode).toContainText('200');
   });
 });

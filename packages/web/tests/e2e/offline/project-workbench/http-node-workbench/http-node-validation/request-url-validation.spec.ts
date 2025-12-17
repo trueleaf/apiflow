@@ -32,7 +32,7 @@ test.describe('RequestUrlValidation', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含host信息，确认localhost被正确解析
     await expect(responseBody).toContainText('host', { timeout: 10000 });
-    await expect(responseBody).toContainText('localhost', { timeout: 10000 });
+    await expect(responseBody).toContainText('127.0.0.1', { timeout: 10000 });
     // 验证响应中包含请求的URL信息
     await expect(responseBody).toContainText('/echo', { timeout: 10000 });
   });

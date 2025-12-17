@@ -1213,7 +1213,7 @@ export class MockUtils {
       search: search,
       query: ctx.query,
       headers: ctx.headers,
-      body: (ctx.request as any).body || {},
+      body: (ctx.request as any).body ?? {},
       cookies: cookies,
       ip: ctx.ip,
       protocol: ctx.protocol,

@@ -3,11 +3,11 @@
     <div class="flex0 d-flex a-center">
       <span>{{ t("状态码") }}：</span>
       <template v-if="responseInfo.statusCode">
-        <span v-show="responseInfo.statusCode >= 100 && responseInfo.statusCode < 300" class="green status-code" data-testid="status-code">{{
+        <span v-if="responseInfo.statusCode >= 100 && responseInfo.statusCode < 300" class="green status-code" data-testid="status-code">{{
           responseInfo.statusCode }}</span>
-        <span v-show="responseInfo.statusCode >= 300 && responseInfo.statusCode < 400" class="orange status-code" data-testid="status-code">{{
+        <span v-else-if="responseInfo.statusCode >= 300 && responseInfo.statusCode < 400" class="orange status-code" data-testid="status-code">{{
           responseInfo.statusCode }}</span>
-        <span v-show="responseInfo.statusCode >= 400" class="red status-code" data-testid="status-code">{{ responseInfo.statusCode }}</span>
+        <span v-else-if="responseInfo.statusCode >= 400" class="red status-code" data-testid="status-code">{{ responseInfo.statusCode }}</span>
       </template>
       <el-icon v-else :title="t('未请求数据')" :size="16" class="gray-500">
         <QuestionFilled />

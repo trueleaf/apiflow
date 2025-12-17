@@ -164,17 +164,22 @@ const getRawBody = (ctx: Koa.Context): string => {
   if (
     contentType.includes('application/x-www-form-urlencoded') &&
     body &&
-    typeof body === 'object'
+    typeof body === 'object' &&
+    !Array.isArray(body)
   ) {
-    const params = new URLSearchParams();
-    for (const [key, value] of Object.entries(body)) {
-      if (Array.isArray(value)) {
-        value.forEach(v => params.append(key, String(v)));
-      } else {
-        params.append(key, String(value));
+    try {
+      const params = new URLSearchParams();
+      for (const [key, value] of Object.entries(body)) {
+        if (Array.isArray(value)) {
+          value.forEach(v => params.append(key, String(v)));
+        } else {
+          params.append(key, String(value));
+        }
       }
+      return params.toString();
+    } catch {
+      return String(body);
     }
-    return params.toString();
   }
 
   // ===== 4️⃣ application/json / 其他 =====
@@ -203,12 +208,60 @@ const parsePathParams = (pattern: string, path: string): Record<string, string> 
 // 创建 Mock 服务器
 export const createMockServer = (): Koa => {
   const app = new Koa();
-  app.use(koaBody({
+  const koaBodyOptions = {
     multipart: true,
     urlencoded: true,
     json: true,
+    jsonStrict: false,
     text: true,
-  }));
+    includeUnparsed: true,
+    // parsedMethods: ['POST', 'PUT', 'PATCH', 'DELETE', 'GET', 'HEAD', 'OPTIONS'],
+    extendTypes: {
+      text: [
+        'text/plain',
+        'text/html',
+        'text/xml',
+        'application/xml',
+        'application/*+xml',
+        'application/x-yaml',
+        'text/yaml',
+        'application/graphql',
+        'application/octet-stream',
+      ],
+    },
+    formidable: {
+      maxFileSize: 100 * 1024 * 1024,
+      keepExtensions: true,
+    },
+    jsonLimit: '10mb',
+    formLimit: '10mb',
+    textLimit: '10mb',
+  } as Parameters<typeof koaBody>[0];
+  // 自定义中间件：处理 koa-body 无法解析的特殊 content-type（如 XML）
+  const xmlBodyMiddleware = async (ctx: Koa.Context, next: Koa.Next) => {
+    const contentType = ctx.get('content-type') || '';
+    const isXmlType = contentType.includes('xml');
+    if (isXmlType) {
+      const chunks: Buffer[] = [];
+      for await (const chunk of ctx.req) {
+        chunks.push(chunk);
+      }
+      const rawBody = Buffer.concat(chunks).toString('utf-8');
+      (ctx.request as any).body = rawBody;
+      (ctx.request as any).rawBody = rawBody;
+    }
+    await next();
+  };
+  // 条件性使用中间件：XML 类型使用自定义中间件，其他类型使用 koa-body
+  app.use(async (ctx, next) => {
+    const contentType = ctx.get('content-type') || '';
+    const isXmlType = contentType.includes('xml');
+    if (isXmlType) {
+      await xmlBodyMiddleware(ctx, next);
+    } else {
+      await koaBody(koaBodyOptions)(ctx, next);
+    }
+  });
   // Echo 路由 - 返回完整请求信息
   app.use(async (ctx) => {
     const files = (ctx.request as any).files as Files | undefined;

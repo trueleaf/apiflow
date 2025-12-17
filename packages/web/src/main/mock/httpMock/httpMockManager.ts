@@ -77,8 +77,14 @@ export class HttpMockManager {
   // 获取请求体字符串
   private getRequestBody(ctx: Koa.Context): string {
     const body = (ctx.request as any).body;
+    const rawBody = (ctx.request as any).rawBody;
     const files = (ctx.request as any).files;
-    if (!body && !files) return '';
+    if ((body === undefined || body === null) && !files) {
+      if (rawBody && typeof rawBody === 'string') {
+        return rawBody;
+      }
+      return '';
+    }
 
     const contentType = ctx.get('content-type') || '';
 
@@ -123,7 +129,7 @@ export class HttpMockManager {
       return '';
     }
 
-    if (!body) return '';
+    if (body === undefined || body === null) return '';
 
     if (typeof body === 'string') {
       return body;
@@ -501,12 +507,30 @@ export class HttpMockManager {
       const app = new Koa();
 
       // 使用 koa-body 统一处理所有请求体类型（包括 multipart/form-data）
-      app.use(koaBody({
+      const koaBodyOptions = {
         multipart: true,
         urlencoded: true,
-        json: true,           // ✅ 这是 Boolean 类型
-        jsonStrict: false,    // ✅ 这是单独的配置项，允许解析非对象/数组的JSON
+        json: true,
+        jsonStrict: false,    //允许解析非对象/数组的JSON（如 true/"xxx"）
         text: true,
+        includeUnparsed: true,  // 保留原始请求体到 rawBody
+        parsedMethods: ['POST', 'PUT', 'PATCH', 'DELETE', 'GET', 'HEAD', 'OPTIONS'],  // 确保所有方法都解析 body
+        extendTypes: {
+          text: [
+            'text/plain',
+            'text/html',
+            'text/xml',
+            'application/xml',
+            'application/*+xml',
+            // YAML
+            'application/x-yaml',
+            'text/yaml',
+            // GraphQL
+            'application/graphql',
+            // 各种 vendor / 未声明类型
+            'application/octet-stream',
+          ],
+        },
         formidable: {
           maxFileSize: 100 * 1024 * 1024,
           keepExtensions: true,
@@ -514,7 +538,34 @@ export class HttpMockManager {
         jsonLimit: '10mb',
         formLimit: '10mb',
         textLimit: '10mb',
-      }));
+      } as unknown as Parameters<typeof koaBody>[0];
+      // 自定义中间件：处理 koa-body 无法解析的特殊 content-type（如 XML）
+      const xmlBodyMiddleware = async (ctx: Koa.Context, next: Koa.Next) => {
+        const contentType = ctx.get('content-type') || '';
+        const isXmlType = contentType.includes('xml');
+        if (isXmlType) {
+          const chunks: Buffer[] = [];
+          for await (const chunk of ctx.req) {
+            chunks.push(chunk);
+          }
+          const rawBody = Buffer.concat(chunks).toString('utf-8');
+          (ctx.request as any).body = rawBody;
+          (ctx.request as any).rawBody = rawBody;
+        }
+        await next();
+      };
+      // 条件性使用中间件：XML 类型使用自定义中间件，其他类型使用 koa-body
+      app.use(async (ctx, next) => {
+        const contentType = ctx.get('content-type') || '';
+        const isXmlType = contentType.includes('xml');
+        if (isXmlType) {
+          // XML 类型：使用自定义中间件处理
+          await xmlBodyMiddleware(ctx, next);
+        } else {
+          // 其他类型：使用 koa-body 处理
+          await koaBody(koaBodyOptions)(ctx, next);
+        }
+      });
       app.use(async (ctx) => {
         await this.handleHttpRequest(ctx, httpMock.requestCondition.port);
       });

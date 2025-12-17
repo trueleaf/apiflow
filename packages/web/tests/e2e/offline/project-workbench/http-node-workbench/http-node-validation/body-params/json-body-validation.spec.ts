@@ -246,7 +246,7 @@ test.describe('JsonBodyValidation', () => {
     // 测试字符串类型
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('"hello world"');
+    await contentPage.keyboard.type('"hello world');
     await contentPage.waitForTimeout(300);
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
@@ -254,7 +254,7 @@ test.describe('JsonBodyValidation', () => {
     // 测试数组类型
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('[1,2,3]');
+    await contentPage.keyboard.type('[1,2,3');
     await contentPage.waitForTimeout(300);
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
