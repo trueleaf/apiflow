@@ -25,17 +25,22 @@ test.describe('QueryParamsUndo', () => {
     await keyInput.click();
     await keyInput.pressSequentially('a', { delay: 100 });
     await contentPage.waitForTimeout(200);
+    await contentPage.locator('[data-testid="url-input"]').click();
+    await contentPage.waitForTimeout(200);
+    await keyInput.click();
     await keyInput.pressSequentially('b', { delay: 100 });
+    await contentPage.waitForTimeout(200);
+    await contentPage.locator('[data-testid="url-input"]').click();
     await contentPage.waitForTimeout(200);
     // 验证key值为ab
     await expect(keyInput).toHaveValue('ab', { timeout: 5000 });
     // 按ctrl+z快捷键
-    await contentPage.keyboard.press('Control+z');
+    await contentPage.keyboard.press('ControlOrMeta+z');
     await contentPage.waitForTimeout(200);
     // 验证key值为a
     await expect(keyInput).toHaveValue('a', { timeout: 5000 });
     // 再次按ctrl+z快捷键
-    await contentPage.keyboard.press('Control+z');
+    await contentPage.keyboard.press('ControlOrMeta+z');
     await contentPage.waitForTimeout(200);
     // 验证key值为空
     await expect(keyInput).toHaveValue('', { timeout: 5000 });
@@ -70,12 +75,17 @@ test.describe('QueryParamsUndo', () => {
     await valueEditor.click();
     await valueEditor.pressSequentially('v1', { delay: 100 });
     await contentPage.waitForTimeout(200);
+    await contentPage.locator('[data-testid="url-input"]').click();
+    await contentPage.waitForTimeout(200);
+    await valueEditor.click();
     await valueEditor.pressSequentially('v2', { delay: 100 });
+    await contentPage.waitForTimeout(200);
+    await contentPage.locator('[data-testid="url-input"]').click();
     await contentPage.waitForTimeout(200);
     // 验证value值
     await expect(valueEditor).toHaveText('v1v2', { timeout: 5000 });
     // 按ctrl+z快捷键
-    await contentPage.keyboard.press('Control+z');
+    await contentPage.keyboard.press('ControlOrMeta+z');
     await contentPage.waitForTimeout(200);
     // 验证value值变化
     await expect(valueEditor).toHaveText('v1', { timeout: 5000 });

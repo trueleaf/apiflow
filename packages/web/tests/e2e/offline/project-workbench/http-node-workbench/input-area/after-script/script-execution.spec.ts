@@ -36,13 +36,11 @@ test.describe('AfterScriptExecution', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(3000);
-    // 验证响应区域显示脚本错误信息
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
-    await expect(responseBody).toBeVisible({ timeout: 10000 });
-    // 验证错误信息（脚本语法错误会显示在响应区域）
-    const errorText = await responseBody.textContent();
-    expect(errorText?.toLowerCase()).toContain('error');
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const responseError = responseArea.getByTestId('response-error');
+    await expect(responseError).toBeVisible({ timeout: 10000 });
+    await expect(responseError).toContainText(/error|错误/i, { timeout: 10000 });
   });
   // 后置脚本运行时错误时,在响应区域展示运行时错误信息
   test('后置脚本运行时错误时在响应区域展示运行时错误信息', async ({ contentPage, clearCache, createProject }) => {
@@ -77,13 +75,11 @@ test.describe('AfterScriptExecution', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(3000);
-    // 验证响应区域显示脚本运行时错误信息
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
-    await expect(responseBody).toBeVisible({ timeout: 10000 });
-    // 验证错误信息（运行时错误会显示在响应区域）
-    const errorText = await responseBody.textContent();
-    expect(errorText?.toLowerCase()).toContain('error');
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const responseError = responseArea.getByTestId('response-error');
+    await expect(responseError).toBeVisible({ timeout: 10000 });
+    await expect(responseError).toContainText(/error|错误/i, { timeout: 10000 });
   });
   // 后置脚本在主请求响应后执行
   test('后置脚本在主请求响应后执行', async ({ contentPage, clearCache, createProject }) => {
@@ -118,15 +114,14 @@ test.describe('AfterScriptExecution', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(3000);
     // 验证主请求成功返回（后置脚本在主请求响应后执行，不影响主请求结果）
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含echo接口返回的数据，说明主请求成功执行
     await expect(responseBody).toContainText('host', { timeout: 10000 });
     await expect(responseBody).toContainText('127.0.0.1', { timeout: 10000 });
-    // 验证响应状态码为200，表示请求成功
-    const statusInfo = contentPage.locator('.status-info');
-    await expect(statusInfo).toContainText('200', { timeout: 10000 });
   });
 });

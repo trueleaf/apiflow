@@ -1,14 +1,14 @@
 <template>
   <div class="header-info">
-    <div v-if="!hideDefaultHeader">
-      <span class="cursor-pointer no-select" @click="hideDefaultHeader = true">
+    <div v-if="!hideDefaultHeader" class="default-headers-wrap">
+      <span class="cursor-pointer no-select" data-testid="toggle-hidden-headers" @click="hideDefaultHeader = true">
         <span>{{ t("点击隐藏") }}</span>
       </span>
       <SParamsTree :drag="false" show-checkbox :data="defaultHeaders" no-add @change="handleDefaultHeadersChange"></SParamsTree>
       <el-divider border-style="dashed" class="header-divider" />
     </div>
     <div v-else class="d-flex a-center mb-2">
-      <span class="cursor-pointer no-select" @click="hideDefaultHeader = false">
+      <span class="cursor-pointer no-select" data-testid="toggle-hidden-headers" @click="hideDefaultHeader = false">
         <span>{{ defaultHeaders.length }}{{ t("个隐藏") }}</span>
       </span>
       <el-icon :size="16" class="view-icon ml-1" @click="hideDefaultHeader = false">

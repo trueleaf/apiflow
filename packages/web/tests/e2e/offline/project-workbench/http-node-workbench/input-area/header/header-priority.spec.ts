@@ -17,6 +17,8 @@ test.describe('HeaderPriority', () => {
     const commonHeaderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /设置公共请求头/ });
     await commonHeaderItem.click();
     await contentPage.waitForTimeout(500);
+    const commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
     // 添加公共请求头: X-Custom=from-common
     const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
     const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
@@ -24,6 +26,9 @@ test.describe('HeaderPriority', () => {
     await valueInputs.first().click();
     await contentPage.keyboard.type('from-common');
     await contentPage.waitForTimeout(300);
+    const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    await confirmBtn.click();
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -53,7 +58,12 @@ test.describe('HeaderPriority', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证自定义请求头的值优先级最高,服务器接收到X-Custom=from-custom
     await expect(responseBody).toContainText('from-custom', { timeout: 10000 });
   });
@@ -71,6 +81,8 @@ test.describe('HeaderPriority', () => {
     const commonHeaderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /设置公共请求头/ });
     await commonHeaderItem.click();
     await contentPage.waitForTimeout(500);
+    const commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
     // 添加公共请求头覆盖User-Agent
     const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
     const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
@@ -78,6 +90,9 @@ test.describe('HeaderPriority', () => {
     await valueInputs.first().click();
     await contentPage.keyboard.type('CustomAgent/1.0');
     await contentPage.waitForTimeout(300);
+    const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    await confirmBtn.click();
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -96,7 +111,12 @@ test.describe('HeaderPriority', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证公共请求头覆盖了默认的User-Agent
     await expect(responseBody).toContainText('CustomAgent/1.0', { timeout: 10000 });
   });
@@ -134,7 +154,12 @@ test.describe('HeaderPriority', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证自定义请求头覆盖了默认的User-Agent
     await expect(responseBody).toContainText('MyCustomAgent/2.0', { timeout: 10000 });
   });
@@ -152,6 +177,8 @@ test.describe('HeaderPriority', () => {
     const commonHeaderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /设置公共请求头/ });
     await commonHeaderItem.click();
     await contentPage.waitForTimeout(500);
+    const commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
     // 添加公共请求头覆盖User-Agent
     const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
     const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
@@ -159,6 +186,9 @@ test.describe('HeaderPriority', () => {
     await valueInputs.first().click();
     await contentPage.keyboard.type('CommonAgent/1.0');
     await contentPage.waitForTimeout(300);
+    const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    await confirmBtn.click();
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -188,7 +218,12 @@ test.describe('HeaderPriority', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证自定义请求头优先级最高,即使公共请求头也设置了相同的key
     await expect(responseBody).toContainText('CustomAgent/2.0', { timeout: 10000 });
   });

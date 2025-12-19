@@ -34,9 +34,8 @@ test.describe('AfVariablesApi', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求成功（状态码200表示脚本执行无误）
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
@@ -72,9 +71,8 @@ test.describe('AfVariablesApi', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求成功（状态码200表示脚本执行无误）
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
@@ -110,9 +108,8 @@ test.describe('AfVariablesApi', () => {
     // 发送第一个请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证第一个请求成功（状态码200表示脚本执行无误）
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
@@ -137,11 +134,10 @@ test.describe('AfVariablesApi', () => {
     await contentPage.waitForTimeout(300);
     // 发送第二个请求
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证第二个请求成功（状态码200表示脚本执行无误，变量被正确使用）
     await expect(statusCode).toContainText('200', { timeout: 10000 });
     // 验证URL中变量被正确替换
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toContainText('test_token_abc123', { timeout: 10000 });
   });
 });

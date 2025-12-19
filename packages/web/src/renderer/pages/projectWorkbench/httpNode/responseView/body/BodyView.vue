@@ -304,7 +304,7 @@
       返回值大于{{ formatUnit(config.cacheConfig.httpNodeResponseCache.singleResponseBodySize, 'bytes') }}，返回body值缓存失效。
       需重新请求最新数据
     </div>
-    <div v-if="httpNodeResponseStore.responseInfo.responseData.canApiflowParseType === 'error'" class="red">{{ httpNodeResponseStore.responseInfo.responseData.errorData }}</div>
+    <div v-if="httpNodeResponseStore.responseInfo.responseData.canApiflowParseType === 'error'" class="red" data-testid="response-error">{{ httpNodeResponseStore.responseInfo.responseData.errorData }}</div>
     <video ref="videoRef" v-show="false"></video>
   </div>
 </template>

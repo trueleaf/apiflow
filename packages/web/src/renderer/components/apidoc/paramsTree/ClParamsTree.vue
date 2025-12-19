@@ -70,7 +70,12 @@
        @check-change="handleCheckChange"
      >
        <template #default="{ data }">
-         <div class="custom-params">
+           <div
+             class="custom-params"
+             data-testid="params-tree-row"
+             :data-row-id="String(data._id)"
+             :data-row-key="String(data.key || '')"
+           >
            <el-icon 
              class="delete-icon" 
              :class="{ disabled: localData.length <= 1 || data._disableDelete || isLastEmptyItem(data) }" 

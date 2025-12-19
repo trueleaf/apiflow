@@ -329,8 +329,8 @@ test.describe('UrlencodedParams', () => {
     await contentPage.keyboard.type('abc123');
     await contentPage.waitForTimeout(300);
     // 取消勾选token参数的"是否发送"checkbox
-    const sendCheckboxes = contentPage.locator('[data-testid="params-tree-send-checkbox"]');
-    await sendCheckboxes.nth(1).click();
+    const tokenRow = contentPage.locator('[data-testid="params-tree-row"][data-row-key="token"]').first();
+    await tokenRow.getByRole('checkbox').first().click();
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');

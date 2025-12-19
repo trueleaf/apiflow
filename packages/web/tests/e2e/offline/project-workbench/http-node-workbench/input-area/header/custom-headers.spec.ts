@@ -30,7 +30,7 @@ test.describe('CustomHeaders', () => {
     await headerKeyInput.fill('auth');
     await contentPage.waitForTimeout(500);
     // 验证出现下拉列表（包含Authorization等）
-    const dropdown = contentPage.locator('.el-autocomplete-suggestion, .header-suggestion, .autocomplete-dropdown');
+    const dropdown = contentPage.locator('.params-tree-autocomplete:visible');
     await expect(dropdown).toBeVisible({ timeout: 3000 });
     // 按tab键选中第一个下拉项
     await contentPage.keyboard.press('Tab');

@@ -6,7 +6,9 @@
     <div 
       v-show="responseInfo.bodyByteLength || requestState !== 'waiting'" 
       class="remote-response-wrap pl-3 w-100"
+      data-testid="response-area"
       :class="{ vertical: layout === 'vertical' }">
+      <div v-if="responseInfo.statusCode" class="e2e-status-code" data-testid="status-code">{{ responseInfo.statusCode }}</div>
       <el-tabs v-model="activeName" class="h-100 w-100" data-testid="response-tabs">
         <el-tab-pane :label="t('返回值')" name="SBodyView" data-testid="response-tab-body">
           <SBodyView></SBodyView>
@@ -94,6 +96,15 @@ const responseBodyLoading = computed(() => httpNodeStore.responseBodyLoading); /
 .remote-response-wrap {
   height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - var(--apiflow-response-summary-height));
   overflow-y: auto;
+
+  .e2e-status-code {
+    position: absolute;
+    left: -10000px;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
   
   :deep(.el-tabs__header) {
     margin-bottom: 0px;

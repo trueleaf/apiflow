@@ -39,10 +39,11 @@ console.log("GET响应数据:", JSON.stringify(response.data));`;
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
-    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 测试用例2: 使用af.http.post()发送POST请求,请求成功并获取响应数据
   test('使用af.http.post发送POST请求并获取响应数据', async ({ contentPage, clearCache, createProject }) => {
@@ -80,10 +81,11 @@ console.log("POST响应数据:", JSON.stringify(response.data));`;
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
-    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 测试用例3: 使用af.http.put()发送PUT请求,请求成功并获取响应数据
   test('使用af.http.put发送PUT请求并获取响应数据', async ({ contentPage, clearCache, createProject }) => {
@@ -121,10 +123,11 @@ console.log("PUT响应数据:", JSON.stringify(response.data));`;
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
-    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 测试用例4: 使用af.http.delete()发送DELETE请求,请求成功并获取响应数据
   test('使用af.http.delete发送DELETE请求并获取响应数据', async ({ contentPage, clearCache, createProject }) => {
@@ -162,10 +165,11 @@ console.log("DELETE响应数据:", JSON.stringify(response.data));`;
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
-    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 测试用例5: af.http请求失败时正确抛出错误并在响应区域展示错误信息
   test('af.http请求失败时正确抛出错误', async ({ contentPage, clearCache, createProject }) => {
@@ -206,9 +210,10 @@ console.log("DELETE响应数据:", JSON.stringify(response.data));`;
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(5000);
     // 验证响应区域存在（即使前置脚本有错误，主请求仍会执行）
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
-    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
 });

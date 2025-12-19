@@ -17,15 +17,14 @@ test.describe('RawParams', () => {
     await fileNameInput.fill('Raw Text参数测试');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 选择POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
-    await postOption.click();
+    await contentPage.getByRole('option', { name: 'POST' }).click();
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
@@ -35,10 +34,9 @@ test.describe('RawParams', () => {
     await rawRadio.click();
     await contentPage.waitForTimeout(300);
     // 选择Text格式
-    const rawTypeSelect = contentPage.locator('.raw-type-select');
+    const rawTypeSelect = contentPage.getByTestId('raw-body-type-select');
     await rawTypeSelect.click();
-    const textOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'text/plain' });
-    await textOption.click();
+    await contentPage.getByRole('option', { name: 'text/plain' }).click();
     await contentPage.waitForTimeout(300);
     // 输入纯文本内容
     const rawTextarea = contentPage.locator('.raw-textarea textarea, .raw-editor textarea, [data-testid="raw-body-input"]');
@@ -53,9 +51,11 @@ test.describe('RawParams', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     // 验证请求头自动包含Content-Type: text/plain
     await expect(responseBody).toContainText('text/plain', { timeout: 10000 });
     // 验证服务器接收到纯文本内容
@@ -75,15 +75,14 @@ test.describe('RawParams', () => {
     await fileNameInput.fill('Raw HTML参数测试');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 选择POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
-    await postOption.click();
+    await contentPage.getByRole('option', { name: 'POST' }).click();
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
@@ -93,10 +92,9 @@ test.describe('RawParams', () => {
     await rawRadio.click();
     await contentPage.waitForTimeout(300);
     // 选择HTML格式
-    const rawTypeSelect = contentPage.locator('.raw-type-select');
+    const rawTypeSelect = contentPage.getByTestId('raw-body-type-select');
     await rawTypeSelect.click();
-    const htmlOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'text/html' });
-    await htmlOption.click();
+    await contentPage.getByRole('option', { name: 'text/html' }).click();
     await contentPage.waitForTimeout(300);
     // 输入HTML内容
     const rawTextarea = contentPage.locator('.raw-textarea textarea, .raw-editor textarea, [data-testid="raw-body-input"]');
@@ -111,9 +109,11 @@ test.describe('RawParams', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     // 验证请求头自动包含Content-Type: text/html
     await expect(responseBody).toContainText('text/html', { timeout: 10000 });
     // 验证服务器接收到HTML内容
@@ -135,15 +135,14 @@ test.describe('RawParams', () => {
     await fileNameInput.fill('Raw XML参数测试');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 选择POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
-    await postOption.click();
+    await contentPage.getByRole('option', { name: 'POST' }).click();
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
@@ -153,10 +152,9 @@ test.describe('RawParams', () => {
     await rawRadio.click();
     await contentPage.waitForTimeout(300);
     // 选择XML格式
-    const rawTypeSelect = contentPage.locator('.raw-type-select');
+    const rawTypeSelect = contentPage.getByTestId('raw-body-type-select');
     await rawTypeSelect.click();
-    const xmlOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'application/xml' });
-    await xmlOption.click();
+    await contentPage.getByRole('option', { name: 'application/xml' }).click();
     await contentPage.waitForTimeout(300);
     // 输入XML内容
     const rawTextarea = contentPage.locator('.raw-textarea textarea, .raw-editor textarea, [data-testid="raw-body-input"]');
@@ -171,9 +169,11 @@ test.describe('RawParams', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     // 验证请求头自动包含Content-Type: application/xml
     await expect(responseBody).toContainText('application/xml', { timeout: 10000 });
     // 验证服务器接收到正确的XML数据
@@ -196,15 +196,14 @@ test.describe('RawParams', () => {
     await fileNameInput.fill('Raw JavaScript参数测试');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 选择POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
-    await postOption.click();
+    await contentPage.getByRole('option', { name: 'POST' }).click();
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
@@ -214,10 +213,9 @@ test.describe('RawParams', () => {
     await rawRadio.click();
     await contentPage.waitForTimeout(300);
     // 选择JavaScript格式
-    const rawTypeSelect = contentPage.locator('.raw-type-select');
+    const rawTypeSelect = contentPage.getByTestId('raw-body-type-select');
     await rawTypeSelect.click();
-    const jsOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'text/javascript' });
-    await jsOption.click();
+    await contentPage.getByRole('option', { name: 'text/javascript' }).click();
     await contentPage.waitForTimeout(300);
     // 输入JavaScript代码
     const rawTextarea = contentPage.locator('.raw-textarea textarea, .raw-editor textarea, [data-testid="raw-body-input"]');
@@ -232,9 +230,11 @@ test.describe('RawParams', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     // 验证请求头自动包含Content-Type: text/javascript
     await expect(responseBody).toContainText('text/javascript', { timeout: 10000 });
     // 验证服务器接收到JavaScript代码
@@ -254,15 +254,14 @@ test.describe('RawParams', () => {
     await fileNameInput.fill('Raw空值参数测试');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 选择POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
-    await postOption.click();
+    await contentPage.getByRole('option', { name: 'POST' }).click();
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
@@ -272,18 +271,19 @@ test.describe('RawParams', () => {
     await rawRadio.click();
     await contentPage.waitForTimeout(300);
     // 选择Text格式但不输入任何内容
-    const rawTypeSelect = contentPage.locator('.raw-type-select');
+    const rawTypeSelect = contentPage.getByTestId('raw-body-type-select');
     await rawTypeSelect.click();
-    const textOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'text/plain' });
-    await textOption.click();
+    await contentPage.getByRole('option', { name: 'text/plain' }).click();
     await contentPage.waitForTimeout(300);
     // 不在编辑器中输入任何内容(保持为空)
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证响应
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     // 验证请求成功返回
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证服务器接收到空的body

@@ -66,6 +66,7 @@
       </SJsonEditor>
       <div class="raw-type">
         <el-select
+          data-testid="raw-body-type-select"
           :model-value="rawType"
           :size="config.renderConfig.layout.size"
           class="w-100"
@@ -775,6 +776,9 @@ const recordRawDataOperation = (oldValue: { data: string; dataType: string }, ne
         cursor: pointer;
       }
     }
+  }
+  .json-tip img {
+    pointer-events: none;
   }
   .binary-wrap {
     border-top: 1px dashed var(--gray-400);

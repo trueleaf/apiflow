@@ -25,8 +25,7 @@ test.describe('BinaryParams', () => {
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(200);
-    const postOption = contentPage.locator('.el-select-dropdown__item', { hasText: 'POST' });
-    await postOption.click();
+    await contentPage.getByRole('option', { name: 'POST' }).click();
     await contentPage.waitForTimeout(300);
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
@@ -52,10 +51,11 @@ test.describe('BinaryParams', () => {
     // 点击发送按钮
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(1000);
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
     // 验证显示错误提示
-    const errorMessage = contentPage.locator('.el-message--error, .response-error, .error-tip');
-    await expect(errorMessage).toBeVisible({ timeout: 5000 });
+    const errorMessage = responseArea.getByTestId('response-error');
+    await expect(errorMessage).toBeVisible({ timeout: 10000 });
   });
   // 变量模式,输入有效变量,请求头自动添加contentType并正确发送
   test('变量模式下有效变量正确发送', async ({ contentPage, clearCache, createProject }) => {
@@ -109,8 +109,7 @@ test.describe('BinaryParams', () => {
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(200);
-    const postOption = contentPage.locator('.el-select-dropdown__item', { hasText: 'POST' });
-    await postOption.click();
+    await contentPage.getByRole('option', { name: 'POST' }).click();
     await contentPage.waitForTimeout(300);
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
@@ -136,8 +135,10 @@ test.describe('BinaryParams', () => {
     // 点击发送按钮
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 清理测试文件
     if (fs.existsSync(testFilePath)) {
@@ -164,8 +165,7 @@ test.describe('BinaryParams', () => {
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(200);
-    const postOption = contentPage.locator('.el-select-dropdown__item', { hasText: 'POST' });
-    await postOption.click();
+    await contentPage.getByRole('option', { name: 'POST' }).click();
     await contentPage.waitForTimeout(300);
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
@@ -187,10 +187,11 @@ test.describe('BinaryParams', () => {
     // 不选择任何文件，直接发送
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(1000);
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
     // 验证显示错误提示
-    const errorMessage = contentPage.locator('.el-message--error, .response-error, .error-tip');
-    await expect(errorMessage).toBeVisible({ timeout: 5000 });
+    const errorMessage = responseArea.getByTestId('response-error');
+    await expect(errorMessage).toBeVisible({ timeout: 10000 });
   });
   // 文件模式,选择正确的文件,请求头自动添加contentType并正确发送
   test('文件模式下选择文件正确发送', async ({ contentPage, clearCache, createProject }) => {
@@ -221,8 +222,7 @@ test.describe('BinaryParams', () => {
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(200);
-    const postOption = contentPage.locator('.el-select-dropdown__item', { hasText: 'POST' });
-    await postOption.click();
+    await contentPage.getByRole('option', { name: 'POST' }).click();
     await contentPage.waitForTimeout(300);
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
@@ -250,8 +250,10 @@ test.describe('BinaryParams', () => {
     // 点击发送按钮
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 清理测试文件
     if (fs.existsSync(testFilePath)) {

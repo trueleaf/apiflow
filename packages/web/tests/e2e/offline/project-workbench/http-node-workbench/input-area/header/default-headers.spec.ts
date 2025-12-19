@@ -17,16 +17,18 @@ test.describe('DefaultHeaders', () => {
     await fileNameInput.fill('默认请求头测试');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证响应中包含默认请求头
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     // 验证请求包含Host请求头
     await expect(responseBody).toContainText('host', { timeout: 10000 });
     // 验证请求包含Accept-Encoding请求头
@@ -52,7 +54,7 @@ test.describe('DefaultHeaders', () => {
     await fileNameInput.fill('隐藏请求头修改测试');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -65,14 +67,14 @@ test.describe('DefaultHeaders', () => {
     await toggleHiddenHeadersBtn.click();
     await contentPage.waitForTimeout(300);
     // 找到User-Agent并修改值
-    const userAgentRow = contentPage.locator('.default-headers-wrap .params-tree-item').filter({ hasText: 'User-Agent' });
+    const userAgentRow = contentPage.locator('.default-headers-wrap [data-testid="params-tree-row"]').filter({ hasText: /user-agent/i });
     const userAgentValueInput = userAgentRow.locator('[data-testid="params-tree-value-input"]');
     await userAgentValueInput.click();
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('CustomUserAgent/1.0');
     await contentPage.waitForTimeout(300);
     // 找到Accept并修改值
-    const acceptRow = contentPage.locator('.default-headers-wrap .params-tree-item').filter({ hasText: 'Accept' }).first();
+    const acceptRow = contentPage.locator('.default-headers-wrap [data-testid="params-tree-row"]').filter({ hasText: /^accept$/i }).first();
     const acceptValueInput = acceptRow.locator('[data-testid="params-tree-value-input"]');
     await acceptValueInput.click();
     await contentPage.keyboard.press('ControlOrMeta+a');
@@ -81,9 +83,11 @@ test.describe('DefaultHeaders', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证响应中包含修改后的请求头
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toContainText('CustomUserAgent/1.0', { timeout: 10000 });
     await expect(responseBody).toContainText('application/json', { timeout: 10000 });
   });
@@ -101,7 +105,7 @@ test.describe('DefaultHeaders', () => {
     await fileNameInput.fill('隐藏请求头展开收起测试');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 点击Header标签页
     const headerTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
     await headerTab.click();
@@ -138,15 +142,14 @@ test.describe('DefaultHeaders', () => {
     await fileNameInput.fill('ContentType自动添加测试');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 选择POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
-    await postOption.click();
+    await contentPage.getByRole('option', { name: 'POST' }).click();
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
@@ -165,9 +168,11 @@ test.describe('DefaultHeaders', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证响应中包含application/json的Content-Type
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toContainText('application/json', { timeout: 10000 });
   });
   // 测试用例5: 自动添加的content-type值允许修改,调用echo接口返回请求头参数正确
@@ -184,15 +189,14 @@ test.describe('DefaultHeaders', () => {
     await fileNameInput.fill('ContentType覆盖测试');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 选择POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
-    await postOption.click();
+    await contentPage.getByRole('option', { name: 'POST' }).click();
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
@@ -222,9 +226,11 @@ test.describe('DefaultHeaders', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证响应中包含自定义的Content-Type
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toContainText('application/custom', { timeout: 10000 });
   });
 });

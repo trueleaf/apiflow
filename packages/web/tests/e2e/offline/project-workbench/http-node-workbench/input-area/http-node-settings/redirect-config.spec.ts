@@ -35,9 +35,11 @@ test.describe('RedirectConfig', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证响应 - 应该是最终/echo接口的响应,而不是重定向响应
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含echo接口返回的数据,说明已经跟随重定向到最终接口
     await expect(responseBody).toContainText('/echo', { timeout: 10000 });
@@ -75,9 +77,8 @@ test.describe('RedirectConfig', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证响应区域显示重定向信息
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     // 应该看到重定向标识或302状态码
     const statusCodeArea = responseArea.locator('[data-testid="status-code"]').first();
@@ -119,16 +120,11 @@ test.describe('RedirectConfig', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(3000);
     // 验证响应区域显示错误信息(超过最大重定向次数)
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     // 应该显示错误信息,表示重定向次数超过限制
-    const errorText = contentPage
-      .getByTestId('response-tab-body')
-      .locator('.s-json-editor')
-      .first()
-      .or(contentPage.locator('.response-error, .error-tip, .el-message--error').first());
+    const errorText = responseArea.locator('.s-json-editor').first().or(responseArea.getByTestId('response-error').first());
     await expect(errorText).toContainText(/redirect|重定向|error|错误/i, { timeout: 10000 });
   });
 });

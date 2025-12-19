@@ -39,11 +39,14 @@ test.describe('AfRequestApi', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证实际请求使用了修改后的前缀
-    const responseText = await responseBody.textContent();
-    expect(responseText).toContain('127.0.0.1');
+    await expect(responseBody).toContainText('127.0.0.1', { timeout: 10000 });
   });
   // 测试用例2: 使用af.request.path获取并修改请求路径,发送请求后验证路径已更改
   test('使用af.request.path修改请求路径', async ({ contentPage, clearCache, createProject }) => {
@@ -81,11 +84,14 @@ test.describe('AfRequestApi', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证实际请求使用了修改后的路径
-    const responseText = await responseBody.textContent();
-    expect(responseText).toContain('/echo');
+    await expect(responseBody).toContainText('/echo', { timeout: 10000 });
   });
   // 测试用例3: 使用af.request.headers获取并修改请求头,发送请求后验证请求头已更改
   test('使用af.request.headers修改请求头', async ({ contentPage, clearCache, createProject }) => {
@@ -123,12 +129,15 @@ test.describe('AfRequestApi', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含自定义请求头
-    const responseText = await responseBody.textContent();
-    expect(responseText?.toLowerCase()).toContain('x-custom-header');
-    expect(responseText).toContain('custom-value-123');
+    await expect(responseBody).toContainText(/x-custom-header/i, { timeout: 10000 });
+    await expect(responseBody).toContainText('custom-value-123', { timeout: 10000 });
   });
   // 测试用例4: 使用af.request.queryParams获取并修改Query参数,发送请求后验证参数已更改
   test('使用af.request.queryParams修改Query参数', async ({ contentPage, clearCache, createProject }) => {
@@ -167,13 +176,16 @@ af.request.queryParams["newParam"] = "newValue";`;
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含修改后的查询参数
-    const responseText = await responseBody.textContent();
-    expect(responseText).toContain('999');
-    expect(responseText).toContain('newParam');
-    expect(responseText).toContain('newValue');
+    await expect(responseBody).toContainText('999', { timeout: 10000 });
+    await expect(responseBody).toContainText('newParam', { timeout: 10000 });
+    await expect(responseBody).toContainText('newValue', { timeout: 10000 });
   });
   // 测试用例5: 使用af.request.pathParams获取并修改Path参数,发送请求后验证参数已更改
   test('使用af.request.pathParams修改Path参数', async ({ contentPage, clearCache, createProject }) => {
@@ -222,11 +234,14 @@ af.request.queryParams["newParam"] = "newValue";`;
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中的路径参数已被修改
-    const responseText = await responseBody.textContent();
-    expect(responseText).toContain('999');
+    await expect(responseBody).toContainText('999', { timeout: 10000 });
   });
   // 测试用例6: 使用af.request.body.json获取并修改JSON body,发送请求后验证body已更改
   test('使用af.request.body.json修改JSON body', async ({ contentPage, clearCache, createProject }) => {
@@ -250,8 +265,7 @@ af.request.queryParams["newParam"] = "newValue";`;
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(300);
-    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
-    await postOption.click();
+    await contentPage.getByRole('option', { name: 'POST' }).click();
     await contentPage.waitForTimeout(300);
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
@@ -287,13 +301,16 @@ af.request.body.json.newField = "addedValue";`;
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含修改后的JSON数据
-    const responseText = await responseBody.textContent();
-    expect(responseText).toContain('newuser');
-    expect(responseText).toContain('newField');
-    expect(responseText).toContain('addedValue');
+    await expect(responseBody).toContainText('newuser', { timeout: 10000 });
+    await expect(responseBody).toContainText('newField', { timeout: 10000 });
+    await expect(responseBody).toContainText('addedValue', { timeout: 10000 });
   });
   // 测试用例7: 使用af.request.body.formdata获取并修改formdata body,发送请求后验证body已更改
   test('使用af.request.body.formdata修改formdata body', async ({ contentPage, clearCache, createProject }) => {
@@ -317,8 +334,7 @@ af.request.body.json.newField = "addedValue";`;
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(300);
-    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
-    await postOption.click();
+    await contentPage.getByRole('option', { name: 'POST' }).click();
     await contentPage.waitForTimeout(300);
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
@@ -355,11 +371,14 @@ af.request.body.json.newField = "addedValue";`;
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含修改后的formdata数据
-    const responseText = await responseBody.textContent();
-    expect(responseText).toContain('newvalue-from-script');
+    await expect(responseBody).toContainText('newvalue-from-script', { timeout: 10000 });
   });
   // 测试用例8: 使用af.request.method获取并修改请求方法,发送请求后验证方法已更改
   test('使用af.request.method修改请求方法', async ({ contentPage, clearCache, createProject }) => {
@@ -383,8 +402,7 @@ af.request.body.json.newField = "addedValue";`;
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.waitForTimeout(300);
-    const getOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'GET' });
-    await getOption.click();
+    await contentPage.getByRole('option', { name: 'GET' }).click();
     await contentPage.waitForTimeout(300);
     // 点击前置脚本标签页
     const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
@@ -404,11 +422,14 @@ af.request.body.json.newField = "addedValue";`;
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中的method字段已变为PUT
-    const responseText = await responseBody.textContent();
-    expect(responseText).toContain('PUT');
+    await expect(responseBody).toContainText('PUT', { timeout: 10000 });
   });
   // 测试用例9: 使用af.request.replaceUrl()替换整个URL,发送请求后验证URL已更改
   test('使用af.request.replaceUrl替换整个URL', async ({ contentPage, clearCache, createProject }) => {
@@ -446,13 +467,16 @@ af.request.body.json.newField = "addedValue";`;
     await sendBtn.click();
     await contentPage.waitForTimeout(3000);
     // 验证响应区域存在
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含替换后的URL信息
-    const responseText = await responseBody.textContent();
-    expect(responseText).toContain('/echo');
-    expect(responseText).toContain('replaced');
-    expect(responseText).toContain('true');
-    expect(responseText).toContain('123');
+    await expect(responseBody).toContainText('/echo', { timeout: 10000 });
+    await expect(responseBody).toContainText('replaced', { timeout: 10000 });
+    await expect(responseBody).toContainText('true', { timeout: 10000 });
+    await expect(responseBody).toContainText('123', { timeout: 10000 });
   });
 });

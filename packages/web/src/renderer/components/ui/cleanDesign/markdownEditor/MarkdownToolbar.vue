@@ -142,6 +142,7 @@
       class="toolbar-btn"
       :class="{ 'is-active': editor.isActive('link') }"
       :title="`${t('链接')} (Ctrl+K)`"
+      data-testid="markdown-toolbar-link-btn"
       @click="handleLink"
     >
       <Link2 :size="16" />

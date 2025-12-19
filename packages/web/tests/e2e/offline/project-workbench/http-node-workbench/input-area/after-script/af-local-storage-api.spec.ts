@@ -34,9 +34,8 @@ test.describe('AfLocalStorageApi', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求成功（状态码200表示脚本执行无误）
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
@@ -81,9 +80,8 @@ test.describe('AfLocalStorageApi', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求成功
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
@@ -128,9 +126,8 @@ test.describe('AfLocalStorageApi', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求成功
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
@@ -188,9 +185,8 @@ test.describe('AfLocalStorageApi', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求成功
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
@@ -237,9 +233,8 @@ test.describe('AfLocalStorageApi', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求成功
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });

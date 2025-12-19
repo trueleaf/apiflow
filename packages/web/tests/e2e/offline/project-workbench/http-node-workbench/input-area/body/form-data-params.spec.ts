@@ -19,7 +19,7 @@ test.describe('FormDataParams', () => {
       await fileNameInput.fill('FormData自动新增测试');
       const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmAddBtn.click();
-      await contentPage.waitForTimeout(500);
+      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
@@ -34,7 +34,7 @@ test.describe('FormDataParams', () => {
       // 在第一行formdata参数的key输入框中输入username
       await keyInputs.first().fill('username');
       // 点击key输入框外的区域使其失焦
-      await contentPage.locator('.url-input').click();
+      await contentPage.locator('[data-testid="url-input"]').click();
       await contentPage.waitForTimeout(300);
       // 验证自动新增第二行空的formdata参数行
       const newCount = await keyInputs.count();
@@ -57,15 +57,14 @@ test.describe('FormDataParams', () => {
       await fileNameInput.fill('FormData发送测试');
       const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmAddBtn.click();
-      await contentPage.waitForTimeout(500);
+      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
-      const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
-      await postOption.click();
+      await contentPage.getByRole('option', { name: 'POST' }).click();
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
@@ -89,9 +88,11 @@ test.describe('FormDataParams', () => {
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
-      await contentPage.waitForTimeout(2000);
       // 验证响应
-      const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+      const responseArea = contentPage.getByTestId('response-area');
+      await expect(responseArea).toBeVisible({ timeout: 10000 });
+      await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+      const responseBody = responseArea.locator('.s-json-editor').first();
       // 验证Content-Type包含multipart/form-data
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
       // 验证表单数据正确发送
@@ -135,15 +136,14 @@ test.describe('FormDataParams', () => {
       await fileNameInput.fill('FormData变量测试');
       const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmAddBtn.click();
-      await contentPage.waitForTimeout(500);
+      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
-      const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
-      await postOption.click();
+      await contentPage.getByRole('option', { name: 'POST' }).click();
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
@@ -167,9 +167,11 @@ test.describe('FormDataParams', () => {
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
-      await contentPage.waitForTimeout(2000);
       // 验证响应
-      const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+      const responseArea = contentPage.getByTestId('response-area');
+      await expect(responseArea).toBeVisible({ timeout: 10000 });
+      await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+      const responseBody = responseArea.locator('.s-json-editor').first();
       // 验证变量被正确替换
       await expect(responseBody).toContainText('mobile_app', { timeout: 10000 });
       await expect(responseBody).toContainText('token_abc123', { timeout: 10000 });
@@ -188,15 +190,14 @@ test.describe('FormDataParams', () => {
       await fileNameInput.fill('FormData Mock测试');
       const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmAddBtn.click();
-      await contentPage.waitForTimeout(500);
+      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
-      const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
-      await postOption.click();
+      await contentPage.getByRole('option', { name: 'POST' }).click();
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
@@ -220,9 +221,11 @@ test.describe('FormDataParams', () => {
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
-      await contentPage.waitForTimeout(2000);
       // 验证响应
-      const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+      const responseArea = contentPage.getByTestId('response-area');
+      await expect(responseArea).toBeVisible({ timeout: 10000 });
+      await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+      const responseBody = responseArea.locator('.s-json-editor').first();
       // 验证Content-Type包含multipart/form-data
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
       // 验证mock数据已生成(不包含@符号说明已被替换)
@@ -259,15 +262,14 @@ test.describe('FormDataParams', () => {
       await fileNameInput.fill('FormData混合变量测试');
       const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmAddBtn.click();
-      await contentPage.waitForTimeout(500);
+      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
-      const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
-      await postOption.click();
+      await contentPage.getByRole('option', { name: 'POST' }).click();
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
@@ -291,9 +293,11 @@ test.describe('FormDataParams', () => {
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
-      await contentPage.waitForTimeout(2000);
       // 验证响应
-      const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+      const responseArea = contentPage.getByTestId('response-area');
+      await expect(responseArea).toBeVisible({ timeout: 10000 });
+      await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+      const responseBody = responseArea.locator('.s-json-editor').first();
       // 验证混合变量被正确替换
       await expect(responseBody).toContainText('user_query', { timeout: 10000 });
       await expect(responseBody).toContainText('REQ_', { timeout: 10000 });
@@ -312,15 +316,14 @@ test.describe('FormDataParams', () => {
       await fileNameInput.fill('FormData发送控制测试');
       const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmAddBtn.click();
-      await contentPage.waitForTimeout(500);
+      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
-      const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
-      await postOption.click();
+      await contentPage.getByRole('option', { name: 'POST' }).click();
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
@@ -341,16 +344,19 @@ test.describe('FormDataParams', () => {
       await valueInputs.nth(1).click();
       await contentPage.keyboard.type('123456');
       await contentPage.waitForTimeout(300);
-      // 取消勾选password参数的"是否发送"checkbox
-      const sendCheckboxes = contentPage.locator('[data-testid="params-tree-send-checkbox"]');
-      await sendCheckboxes.nth(1).click();
+      // 取消勾选password参数的"是否发送"checkbox (el-tree内置复选框)
+      const treeNodes = contentPage.locator('.body-params .el-tree-node');
+      const secondNodeCheckbox = treeNodes.nth(1).locator('.el-checkbox');
+      await secondNodeCheckbox.click();
       await contentPage.waitForTimeout(300);
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
-      await contentPage.waitForTimeout(2000);
       // 验证响应 - 只包含username,不包含password
-      const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+      const responseArea = contentPage.getByTestId('response-area');
+      await expect(responseArea).toBeVisible({ timeout: 10000 });
+      await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+      const responseBody = responseArea.locator('.s-json-editor').first();
       await expect(responseBody).toContainText('username', { timeout: 10000 });
       await expect(responseBody).toContainText('admin', { timeout: 10000 });
       // 验证password没有被发送

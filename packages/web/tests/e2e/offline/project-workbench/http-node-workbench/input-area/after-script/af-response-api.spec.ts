@@ -34,9 +34,8 @@ test.describe('AfResponseApi', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求成功（状态码200表示脚本执行无误）
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
@@ -72,14 +71,13 @@ test.describe('AfResponseApi', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求成功（状态码200表示脚本执行无误）
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
     // 验证响应头信息存在
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toContainText('content-type', { timeout: 10000 });
   });
   // 测试用例3: 使用af.response.cookies获取响应Cookie
@@ -113,9 +111,8 @@ test.describe('AfResponseApi', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求成功（状态码200表示脚本执行无误）
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
@@ -151,14 +148,13 @@ test.describe('AfResponseApi', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求成功（状态码200表示脚本执行无误）
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
     // 验证响应体存在
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例5: 使用af.response.rt获取响应时长
@@ -192,9 +188,8 @@ test.describe('AfResponseApi', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求成功（状态码200表示脚本执行无误）
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
@@ -230,9 +225,8 @@ test.describe('AfResponseApi', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求成功（状态码200表示脚本执行无误）
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
@@ -268,14 +262,13 @@ test.describe('AfResponseApi', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求成功（状态码200表示脚本执行无误）
-    const responseArea = contentPage.locator('[data-testid="response-tabs"]');
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
     // 验证响应体存在（包含 ip 字段）
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toContainText('ip', { timeout: 10000 });
   });
 });

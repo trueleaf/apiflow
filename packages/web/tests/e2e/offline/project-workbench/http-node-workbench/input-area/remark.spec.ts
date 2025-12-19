@@ -15,11 +15,10 @@ test.describe('Remark', () => {
     await fileNameInput.fill('Markdown备注测试接口');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 切换到备注标签页
     const remarksTab = contentPage.locator('[data-testid="http-params-tab-remarks"]');
     await remarksTab.click();
-    await contentPage.waitForTimeout(300);
     // 在备注编辑器中输入Markdown格式内容
     const markdownEditor = contentPage.locator('.markdown-editor');
     await expect(markdownEditor).toBeVisible({ timeout: 5000 });
@@ -47,11 +46,10 @@ test.describe('Remark', () => {
     await fileNameInput.fill('备注持久化测试接口');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 切换到备注标签页
     const remarksTab = contentPage.locator('[data-testid="http-params-tab-remarks"]');
     await remarksTab.click();
-    await contentPage.waitForTimeout(300);
     // 在备注编辑器中输入普通文本
     const markdownEditor = contentPage.locator('.markdown-editor');
     const editorContent = markdownEditor.locator('.ProseMirror');
@@ -92,11 +90,10 @@ test.describe('Remark', () => {
     await fileNameInput.fill('Markdown标题测试接口');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 切换到备注标签页
     const remarksTab = contentPage.locator('[data-testid="http-params-tab-remarks"]');
     await remarksTab.click();
-    await contentPage.waitForTimeout(300);
     // 在备注编辑器中输入标题
     const markdownEditor = contentPage.locator('.markdown-editor');
     const editorContent = markdownEditor.locator('.ProseMirror');
@@ -125,11 +122,10 @@ test.describe('Remark', () => {
     await fileNameInput.fill('Markdown粗体测试接口');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 切换到备注标签页
     const remarksTab = contentPage.locator('[data-testid="http-params-tab-remarks"]');
     await remarksTab.click();
-    await contentPage.waitForTimeout(300);
     // 在备注编辑器中输入粗体文本
     const markdownEditor = contentPage.locator('.markdown-editor');
     const editorContent = markdownEditor.locator('.ProseMirror');
@@ -137,7 +133,7 @@ test.describe('Remark', () => {
     // 使用工具栏的粗体按钮或快捷键
     await editorContent.pressSequentially('普通文本 ', { delay: 50 });
     // 使用Ctrl+B快捷键启用粗体
-    await contentPage.keyboard.press('Control+b');
+    await contentPage.keyboard.press('ControlOrMeta+b');
     await editorContent.pressSequentially('粗体文本', { delay: 50 });
     await contentPage.keyboard.press('Control+b');
     await contentPage.waitForTimeout(300);
@@ -159,18 +155,24 @@ test.describe('Remark', () => {
     await fileNameInput.fill('Markdown链接测试接口');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 切换到备注标签页
     const remarksTab = contentPage.locator('[data-testid="http-params-tab-remarks"]');
     await remarksTab.click();
-    await contentPage.waitForTimeout(300);
     // 在备注编辑器中输入链接
     const markdownEditor = contentPage.locator('.markdown-editor');
     const editorContent = markdownEditor.locator('.ProseMirror');
     await editorContent.click();
-    // 输入Markdown格式链接
-    await editorContent.pressSequentially('[示例链接](https://example.com)', { delay: 30 });
-    await contentPage.waitForTimeout(500);
+    // 输入链接文本，并通过工具栏插入链接
+    await editorContent.pressSequentially('示例链接', { delay: 30 });
+    await contentPage.waitForTimeout(300);
+    await editorContent.click();
+    await editorContent.press('ControlOrMeta+a');
+    contentPage.once('dialog', async (dialog) => {
+      await dialog.accept('https://example.com');
+    });
+    await markdownEditor.getByTestId('markdown-toolbar-link-btn').click();
+    await contentPage.waitForTimeout(300);
     // 验证链接正确渲染（a 标签）
     const linkElement = editorContent.locator('a');
     await expect(linkElement).toBeVisible({ timeout: 5000 });
@@ -190,11 +192,10 @@ test.describe('Remark', () => {
     await fileNameInput.fill('Markdown代码块测试接口');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 切换到备注标签页
     const remarksTab = contentPage.locator('[data-testid="http-params-tab-remarks"]');
     await remarksTab.click();
-    await contentPage.waitForTimeout(300);
     // 在备注编辑器中输入代码块
     const markdownEditor = contentPage.locator('.markdown-editor');
     const editorContent = markdownEditor.locator('.ProseMirror');
@@ -222,7 +223,7 @@ test.describe('Remark', () => {
     await fileNameInput.fill('未保存标记测试接口');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 先保存确保初始状态没有未保存标记
     const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
@@ -230,7 +231,6 @@ test.describe('Remark', () => {
     // 切换到备注标签页
     const remarksTab = contentPage.locator('[data-testid="http-params-tab-remarks"]');
     await remarksTab.click();
-    await contentPage.waitForTimeout(300);
     // 在备注编辑器中修改内容
     const markdownEditor = contentPage.locator('.markdown-editor');
     const editorContent = markdownEditor.locator('.ProseMirror');
@@ -260,11 +260,10 @@ test.describe('Remark', () => {
     await fileNameInput.fill('撤销操作测试接口');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 切换到备注标签页
     const remarksTab = contentPage.locator('[data-testid="http-params-tab-remarks"]');
     await remarksTab.click();
-    await contentPage.waitForTimeout(300);
     // 在备注编辑器中输入文本
     const markdownEditor = contentPage.locator('.markdown-editor');
     const editorContent = markdownEditor.locator('.ProseMirror');
@@ -275,8 +274,9 @@ test.describe('Remark', () => {
     await contentPage.waitForTimeout(300);
     // 验证内容已输入
     await expect(editorContent).toContainText('第一段内容 第二段内容', { timeout: 5000 });
+    await expect(editorContent).toContainText('第一段内容 第二段内容', { timeout: 10000 });
     // 按Ctrl+Z撤销
-    await contentPage.keyboard.press('Control+z');
+    await contentPage.keyboard.press('ControlOrMeta+z');
     await contentPage.waitForTimeout(300);
     // 验证最后的输入被撤销
     await expect(editorContent).toContainText('第一段内容', { timeout: 5000 });
@@ -296,29 +296,29 @@ test.describe('Remark', () => {
     await fileNameInput.fill('重做操作测试接口');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 切换到备注标签页
     const remarksTab = contentPage.locator('[data-testid="http-params-tab-remarks"]');
     await remarksTab.click();
-    await contentPage.waitForTimeout(300);
     // 在备注编辑器中输入文本
     const markdownEditor = contentPage.locator('.markdown-editor');
     const editorContent = markdownEditor.locator('.ProseMirror');
     await editorContent.click();
-    await editorContent.pressSequentially('原始内容', { delay: 50 });
+    await editorContent.pressSequentially('原始内容', { delay: 20 });
     await contentPage.waitForTimeout(300);
-    await editorContent.pressSequentially(' 新增内容', { delay: 50 });
+    await editorContent.pressSequentially(' 新增内容', { delay: 20 });
     await contentPage.waitForTimeout(300);
+    await expect(editorContent).toContainText(/原始内容\s*新增内容/, { timeout: 10000 });
     // 按Ctrl+Z撤销
-    await contentPage.keyboard.press('Control+z');
+    await contentPage.keyboard.press('ControlOrMeta+z');
     await contentPage.waitForTimeout(300);
     // 验证内容被撤销
     await expect(editorContent).toContainText('原始内容', { timeout: 5000 });
     await expect(editorContent).not.toContainText('新增内容', { timeout: 5000 });
     // 按Ctrl+Shift+Z重做
-    await contentPage.keyboard.press('Control+Shift+z');
+    await contentPage.keyboard.press('ControlOrMeta+Shift+z');
     await contentPage.waitForTimeout(300);
     // 验证撤销的内容被恢复
-    await expect(editorContent).toContainText('原始内容 新增内容', { timeout: 5000 });
+    await expect(editorContent).toContainText(/原始内容\s*新增内容/, { timeout: 10000 });
   });
 });

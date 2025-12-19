@@ -27,9 +27,11 @@ test.describe('RequestMethodValidation', () => {
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(contentPage.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     // 验证响应
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toContainText('"method": "GET"', { timeout: 10000 });
   });
   // 验证POST方法能正常发送
@@ -53,15 +55,16 @@ test.describe('RequestMethodValidation', () => {
     // 选择POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
-    await postOption.click();
+    await contentPage.getByRole('option', { name: 'POST' }).click();
     await expect(methodSelect).toContainText('POST');
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(contentPage.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     // 验证响应
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toContainText('"method": "POST"', { timeout: 10000 });
   });
   // 验证PUT方法能正常发送
@@ -85,15 +88,16 @@ test.describe('RequestMethodValidation', () => {
     // 选择PUT方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    const putOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'PUT' });
-    await putOption.click();
+    await contentPage.getByRole('option', { name: 'PUT' }).click();
     await expect(methodSelect).toContainText('PUT');
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(contentPage.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     // 验证响应
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toContainText('"method": "PUT"', { timeout: 10000 });
   });
   // 验证DELETE方法能正常发送
@@ -117,15 +121,16 @@ test.describe('RequestMethodValidation', () => {
     // 选择DELETE方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    const deleteOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^DEL$/ });
-    await deleteOption.click();
+    await contentPage.getByRole('option', { name: 'DEL' }).click();
     await expect(methodSelect).toContainText(/DEL/);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(contentPage.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     // 验证响应
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toContainText('"method": "DELETE"', { timeout: 10000 });
   });
   // 验证PATCH方法能正常发送
@@ -149,15 +154,16 @@ test.describe('RequestMethodValidation', () => {
     // 选择PATCH方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    const patchOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'PATCH' });
-    await patchOption.click();
+    await contentPage.getByRole('option', { name: 'PATCH' }).click();
     await expect(methodSelect).toContainText('PATCH');
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(contentPage.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     // 验证响应
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toContainText('"method": "PATCH"', { timeout: 10000 });
   });
   // 验证HEAD方法响应不包含body
@@ -181,15 +187,16 @@ test.describe('RequestMethodValidation', () => {
     // 选择HEAD方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    const headOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'HEAD' });
-    await headOption.click();
+    await contentPage.getByRole('option', { name: 'HEAD' }).click();
     await expect(methodSelect).toContainText('HEAD');
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(contentPage.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     // 验证HEAD方法响应不包含body（响应体应为空或显示无数据）
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseBody = responseArea.locator('.s-json-editor').first();
     // HEAD请求不应返回响应体内容，可能显示为空或无数据提示
     const hasContent = await responseBody.textContent();
     // HEAD方法返回的body应该是空的或不包含method字段
@@ -216,15 +223,16 @@ test.describe('RequestMethodValidation', () => {
     // 选择OPTIONS方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    const optionsOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'OPTIONS' });
-    await optionsOption.click();
+    await contentPage.getByRole('option', { name: 'OPTIONS' }).click();
     await expect(methodSelect).toContainText('OPTIONS');
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(contentPage.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     // 验证响应
-    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toContainText('"method": "OPTIONS"', { timeout: 10000 });
   });
   // 验证方法切换后UI立即更新显示新的方法
@@ -247,23 +255,23 @@ test.describe('RequestMethodValidation', () => {
     await expect(methodSelect).toContainText('GET');
     // 切换到POST
     await methodSelect.click();
-    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).click();
+    await contentPage.getByRole('option', { name: 'POST' }).click();
     await expect(methodSelect).toContainText('POST');
     // 切换到PUT
     await methodSelect.click();
-    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'PUT' }).click();
+    await contentPage.getByRole('option', { name: 'PUT' }).click();
     await expect(methodSelect).toContainText('PUT');
     // 切换到DELETE
     await methodSelect.click();
-    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^DEL$/ }).click();
+    await contentPage.getByRole('option', { name: 'DEL' }).click();
     await expect(methodSelect).toContainText(/DEL/);
     // 切换到PATCH
     await methodSelect.click();
-    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'PATCH' }).click();
+    await contentPage.getByRole('option', { name: 'PATCH' }).click();
     await expect(methodSelect).toContainText('PATCH');
     // 切换回GET
     await methodSelect.click();
-    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'GET' }).click();
+    await contentPage.getByRole('option', { name: 'GET' }).click();
     await expect(methodSelect).toContainText('GET');
   });
 });
