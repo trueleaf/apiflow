@@ -376,40 +376,56 @@ class AppState {
       localStorage.setItem(cacheKey.appState.httpNode.responseCollapse, '{}');
     }
   }
-  // 获取AI对话框宽度
-  getAiDialogWidth(): number | null {
+  // 获取AI对话框矩形信息
+  getAiDialogRect(): { width: number | null, height: number | null, x: number | null, y: number | null } {
     try {
       const width = localStorage.getItem(cacheKey.appState.aiDialog.width);
-      return width ? parseInt(width, 10) : null;
-    } catch (error) {
-      logger.error('获取AI对话框宽度失败', { error });
-      return null;
-    }
-  }
-  // 设置AI对话框宽度
-  setAiDialogWidth(width: number) {
-    try {
-      localStorage.setItem(cacheKey.appState.aiDialog.width, width.toString());
-    } catch (error) {
-      logger.error('设置AI对话框宽度失败', { error });
-    }
-  }
-  // 获取AI对话框高度
-  getAiDialogHeight(): number | null {
-    try {
       const height = localStorage.getItem(cacheKey.appState.aiDialog.height);
-      return height ? parseInt(height, 10) : null;
+      const position = localStorage.getItem(cacheKey.appState.aiDialog.position);
+      const rect: { width: number | null, height: number | null, x: number | null, y: number | null } = {
+        width: width ? parseInt(width, 10) : null,
+        height: height ? parseInt(height, 10) : null,
+        x: null,
+        y: null
+      };
+      if (position) {
+        const parsedPosition = JSON.parse(position);
+        if (parsedPosition && typeof parsedPosition.x === 'number' && typeof parsedPosition.y === 'number') {
+          rect.x = parsedPosition.x;
+          rect.y = parsedPosition.y;
+        }
+      }
+      return rect;
     } catch (error) {
-      logger.error('获取AI对话框高度失败', { error });
-      return null;
+      logger.error('获取AI对话框矩形信息失败', { error });
+      return {
+        width: null,
+        height: null,
+        x: null,
+        y: null
+      };
     }
   }
-  // 设置AI对话框高度
-  setAiDialogHeight(height: number) {
+  // 设置AI对话框矩形信息
+  setAiDialogRect(rect: { width: number | null, height: number | null, x: number | null, y: number | null }) {
     try {
-      localStorage.setItem(cacheKey.appState.aiDialog.height, height.toString());
+      if (rect.width === null) {
+        localStorage.removeItem(cacheKey.appState.aiDialog.width);
+      } else {
+        localStorage.setItem(cacheKey.appState.aiDialog.width, rect.width.toString());
+      }
+      if (rect.height === null) {
+        localStorage.removeItem(cacheKey.appState.aiDialog.height);
+      } else {
+        localStorage.setItem(cacheKey.appState.aiDialog.height, rect.height.toString());
+      }
+      if (rect.x === null || rect.y === null) {
+        localStorage.removeItem(cacheKey.appState.aiDialog.position);
+      } else {
+        localStorage.setItem(cacheKey.appState.aiDialog.position, JSON.stringify({ x: rect.x, y: rect.y }));
+      }
     } catch (error) {
-      logger.error('设置AI对话框高度失败', { error });
+      logger.error('设置AI对话框矩形信息失败', { error });
     }
   }
   // 获取AI对话框模式
@@ -452,24 +468,6 @@ class AppState {
       localStorage.setItem(cacheKey.appState.aiDialog.model, model);
     } catch (error) {
       logger.error('设置AI对话框模型失败', { error });
-    }
-  }
-  // 获取AI对话框位置
-  getAiDialogPosition(): { x: number, y: number } | null {
-    try {
-      const position = localStorage.getItem(cacheKey.appState.aiDialog.position);
-      return position ? JSON.parse(position) : null;
-    } catch (error) {
-      logger.error('获取AI对话框位置失败', { error });
-      return null;
-    }
-  }
-  // 设置AI对话框位置
-  setAiDialogPosition(position: { x: number, y: number }) {
-    try {
-      localStorage.setItem(cacheKey.appState.aiDialog.position, JSON.stringify(position));
-    } catch (error) {
-      logger.error('设置AI对话框位置失败', { error });
     }
   }
   // 获取HTTP Mock日志视图模式

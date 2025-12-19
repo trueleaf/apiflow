@@ -3,6 +3,7 @@ import type { ChatRequestBody, OpenAiResponseBody } from '@src/types/ai/agent.ty
 import { createEmptyHttpNode, createEmptyFolderNode, generateId } from '@/composables/useImport'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import type { HttpNodeContentType, HttpNodeBodyMode, HttpNodeRequestMethod } from '@src/types/httpNode/types'
+import { aiImportPrompt, codeAnalyzePrompt, projectAnalyzePrompt, apiExtractPrompt } from '@/store/ai/prompt/prompt'
 
 // AI 识别的 API 结构
 type AiRecognizedApi = {
@@ -25,71 +26,6 @@ type AiImportResponse = {
   apis: AiRecognizedApi[]
   folders?: string[]
 }
-// AI 导入 Prompt 模板
-const AI_IMPORT_PROMPT = `你是一个 API 文档解析专家。请分析以下数据，提取所有 API 接口信息。
-
-## 输出要求
-请严格按照以下 JSON 格式输出，不要输出任何其他内容：
-
-{
-  "apis": [
-    {
-      "name": "接口名称",
-      "method": "GET/POST/PUT/DELETE/PATCH",
-      "url": "/api/path/:param",
-      "description": "接口描述",
-      "folder": "所属文件夹名称（可选）",
-      "headers": [{ "key": "头名称", "value": "示例值", "description": "说明" }],
-      "queryParams": [{ "key": "参数名", "value": "示例值", "description": "说明" }],
-      "pathParams": [{ "key": "参数名", "value": "示例值", "description": "说明" }],
-      "requestBody": {
-        "contentType": "application/json",
-        "json": "JSON字符串格式的请求体示例"
-      }
-    }
-  ],
-  "folders": ["文件夹1", "文件夹2"]
-}
-
-## 注意事项
-1. method 必须是大写的 HTTP 方法
-2. url 中的路径参数用 :paramName 格式
-3. requestBody.json 必须是有效的 JSON 字符串
-4. 如果数据中有分组/分类信息，请提取到 folder 字段
-5. 尽可能提取完整的接口信息
-
-## 待分析数据
-`
-// 代码仓库分析 Prompt 模板
-const CODE_ANALYZE_PROMPT = `你是一个后端代码分析专家。请分析以下代码，提取所有 API 路由定义。
-
-## 框架信息
-框架类型: {framework}
-语言: {language}
-
-## 输出要求
-请严格按照以下 JSON 格式输出：
-
-{
-  "apis": [
-    {
-      "name": "接口名称（从注释或函数名推断）",
-      "method": "GET/POST/PUT/DELETE/PATCH",
-      "url": "/api/path/:param",
-      "description": "接口描述（从注释提取）",
-      "folder": "所属模块/控制器名称",
-      "queryParams": [{ "key": "参数名", "value": "", "description": "说明" }],
-      "pathParams": [{ "key": "参数名", "value": "", "description": "说明" }],
-      "requestBody": {
-        "contentType": "application/json",
-        "json": "{}"
-      }
-    }
-  ]
-}
-
-## 代码内容
-`
 // 获取 Content-Type 对应的 Body Mode
 const getBodyMode = (contentType?: string): HttpNodeBodyMode => {
   if (!contentType) return 'none'
@@ -112,7 +48,7 @@ export class AiImportTranslator {
   }
   // 分析数据并返回 HttpNode 列表
   async analyze(rawData: string): Promise<(HttpNode | FolderNode)[]> {
-    const prompt = AI_IMPORT_PROMPT + rawData
+    const prompt = aiImportPrompt + rawData
     const body: ChatRequestBody = {
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 8000,
@@ -129,7 +65,7 @@ export class AiImportTranslator {
   }
   // 分析代码仓库
   async analyzeCode(code: string, framework: string, language: string): Promise<(HttpNode | FolderNode)[]> {
-    const prompt = CODE_ANALYZE_PROMPT
+    const prompt = codeAnalyzePrompt
       .replace('{framework}', framework)
       .replace('{language}', language) + code
     const body: ChatRequestBody = {
@@ -248,50 +184,6 @@ type ProjectFile = {
   path: string
   content: string
 }
-// 项目分析 Prompt - 用于分析项目结构和识别框架
-const PROJECT_ANALYZE_PROMPT = `你是一个专业的代码分析专家。请分析以下项目文件，识别项目使用的技术栈和框架，并找出最可能包含 API 路由定义的文件。
-
-项目文件列表：
-{fileList}
-
-请返回 JSON 格式的分析结果：
-{
-  "framework": "检测到的框架名称，如 Express、Koa、NestJS、Spring、FastAPI、Gin 等",
-  "language": "主要编程语言",
-  "routeFiles": ["可能包含 API 路由定义的文件路径数组，最多5个最相关的文件"],
-  "confidence": "分析置信度：high、medium、low"
-}
-
-只返回 JSON，不要其他内容。`
-// API 提取 Prompt - 用于从代码中提取 API
-const API_EXTRACT_PROMPT = `你是一个专业的代码分析专家。请从以下 {framework} 代码中提取所有 API 接口定义。
-
-代码内容：
-{codeContent}
-
-请识别所有 HTTP API 接口，返回 JSON 格式：
-{
-  "apis": [
-    {
-      "method": "GET|POST|PUT|DELETE|PATCH",
-      "url": "/api/path",
-      "name": "接口名称",
-      "description": "接口描述",
-      "folder": "所属分组（根据文件名或路由模块推断）",
-      "headers": [{"key": "键", "value": "值", "description": "描述"}],
-      "queryParams": [{"key": "键", "value": "默认值", "description": "描述"}],
-      "pathParams": [{"key": "键", "value": "示例值", "description": "描述"}],
-      "requestBody": {
-        "contentType": "application/json",
-        "json": "请求体JSON字符串（如有）",
-        "formData": [{"key": "键", "value": "值", "type": "string|file"}]
-      }
-    }
-  ],
-  "folders": ["从代码中发现的所有接口分组名称"]
-}
-
-只返回 JSON，不要其他内容。如果无法识别任何 API，返回空的 apis 数组。`
 // 项目分析结果
 type ProjectAnalysisResult = {
   framework: string
@@ -310,7 +202,7 @@ const analyzeProjectStructure = async (
     messages: [
       {
         role: 'user',
-        content: PROJECT_ANALYZE_PROMPT.replace('{fileList}', fileList),
+        content: projectAnalyzePrompt.replace('{fileList}', fileList),
       },
     ],
     max_tokens: 2000,
@@ -421,7 +313,7 @@ const extractApisFromCode = async (
     messages: [
       {
         role: 'user',
-        content: API_EXTRACT_PROMPT
+        content: apiExtractPrompt
           .replace('{framework}', framework)
           .replace('{codeContent}', codeContent),
       },

@@ -10,6 +10,7 @@ import { HttpNode, FolderNode, HttpMockNode } from '@src/types'
 import { WebSocketNode } from '@src/types/websocketNode'
 import { useSkill } from '../skillStore'
 import { useLLMClientStore } from '../llmClientStore'
+import { folderAutoRenameSystemPrompt, buildFolderAutoRenameUserPrompt } from '@/store/ai/prompt/prompt'
 
 type ApidocBannerWithProjectId = ApidocBanner & { projectId: string }
 type NodeMoveDropType = 'before' | 'after' | 'inner'
@@ -1069,14 +1070,8 @@ export const nodeOperationTools: AgentTool[] = [
       if (foldersToRename.length === 0) {
         return { code: 0, data: { success: true, message: '没有需要重命名的文件夹', renamed: [] } }
       }
-      const systemPrompt = '你是一个命名助手，根据内容生成简洁有意义的文件夹名称。只返回JSON数据，不要包含任何其他内容。'
-      const userMessage = `根据以下文件夹及其子节点内容，为每个文件夹生成一个有意义的名称（不超过10个字）。
-
-文件夹结构：
-${JSON.stringify(folderData, null, 2)}
-
-请严格按以下JSON格式返回，不要包含任何其他内容：
-[{"_id": "文件夹ID", "newName": "新名称"}]`
+      const systemPrompt = folderAutoRenameSystemPrompt
+      const userMessage = buildFolderAutoRenameUserPrompt(folderData)
       try {
         const response = await llmClientStore.chat({
           messages: [

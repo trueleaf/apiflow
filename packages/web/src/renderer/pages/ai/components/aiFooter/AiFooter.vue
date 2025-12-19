@@ -39,30 +39,6 @@
             </button>
           </div>
         </div>
-        <div class="ai-input-trigger-group">
-          <button
-            class="ai-input-trigger"
-            type="button"
-            @click="handleToggleModelMenu"
-          >
-            <span>{{ modelDisplayName }}</span>
-            <ChevronDown :size="14" />
-          </button>
-          <div v-if="isModelMenuVisible" class="ai-dropdown">
-            <button
-              v-for="item in modelOptions"
-              :key="item"
-              type="button"
-              class="ai-dropdown-item"
-              @click="handleSelectModel(item)"
-            >
-              <span class="ai-dropdown-icon">
-                <Check v-if="model === item" :size="14" />
-              </span>
-              <span class="ai-dropdown-label">{{ t(modelLabelMap[item]) }}</span>
-            </button>
-          </div>
-        </div>
       </div>
       <div class="ai-input-toolbar">
         <button
@@ -111,12 +87,6 @@ const modeLabelMap: Record<AiMode, string> = {
   agent: 'Agent',
   ask: 'Ask'
 }
-const modelOptions = ['deepseek'] as const
-type AiModel = typeof modelOptions[number]
-const modelLabelMap: Record<AiModel, string> = {
-  deepseek: 'DeepSeek'
-}
-const model = ref<AiModel>('deepseek')
 const emit = defineEmits<{
   'send': []
   'stop': []
@@ -129,9 +99,7 @@ const inputWrapperRef = ref<HTMLElement | null>(null)
 const isModeMenuVisible = ref(false)
 const isProjectEditPage = computed(() => route.path.includes('/v1/apidoc/doc-edit'))
 const projectName = computed(() => projectWorkbench.projectName)
-const isModelMenuVisible = ref(false)
 
-const modelDisplayName = computed(() => t(modelLabelMap[model.value]))
 const inputPlaceholder = computed(() => {
   const shortcutKey = isMacOS ? 'Shift+Return' : 'Shift+Enter'
   return t('描述你的问题...（{shortcut} 换行）', { shortcut: shortcutKey })
@@ -139,24 +107,10 @@ const inputPlaceholder = computed(() => {
 const handleToggleModeMenu = (event: MouseEvent) => {
   event.stopPropagation()
   isModeMenuVisible.value = !isModeMenuVisible.value
-  if (isModeMenuVisible.value) {
-    isModelMenuVisible.value = false
-  }
-}
-const handleToggleModelMenu = (event: MouseEvent) => {
-  event.stopPropagation()
-  isModelMenuVisible.value = !isModelMenuVisible.value
-  if (isModelMenuVisible.value) {
-    isModeMenuVisible.value = false
-  }
 }
 const handleSelectMode = (value: AiMode) => {
   agentViewStore.setMode(value)
   isModeMenuVisible.value = false
-}
-const handleSelectModel = (value: AiModel) => {
-  model.value = value
-  isModelMenuVisible.value = false
 }
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Enter' && !event.shiftKey) {
@@ -168,7 +122,6 @@ const handleKeydown = (event: KeyboardEvent) => {
 }
 const handleInputFocus = () => {
   isModeMenuVisible.value = false
-  isModelMenuVisible.value = false
 }
 const handleClickOutside = (event: MouseEvent) => {
   if (!inputWrapperRef.value) return
@@ -177,11 +130,9 @@ const handleClickOutside = (event: MouseEvent) => {
     return
   }
   isModeMenuVisible.value = false
-  isModelMenuVisible.value = false
 }
 const closeMenus = () => {
   isModeMenuVisible.value = false
-  isModelMenuVisible.value = false
 }
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)

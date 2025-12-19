@@ -107,6 +107,7 @@ import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import type { HttpMockNode } from '@src/types'
 import type { ChatRequestBody, OpenAiResponseBody } from '@src/types/ai/agent.type'
 import { message } from '@/helper'
+import { aiDataGeneratePrompt } from '@/store/ai/prompt/prompt'
 
 type ResponseItem = HttpMockNode['response'][0]
 
@@ -155,7 +156,7 @@ const handleGeneratePreview = async () => {
       messages: [
         {
           role: 'system',
-          content: '你是一个专业的数据生成助手。请根据用户的要求生成符合规范的JSON格式数据。你的回答必须是合法的JSON格式，不要包含任何解释性文字或markdown标记。'
+          content: aiDataGeneratePrompt
         },
         {
           role: 'user',

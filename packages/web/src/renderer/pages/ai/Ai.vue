@@ -90,31 +90,54 @@ const handleClose = () => {
 // 拖拽结束
 const handleDragEnd = (pos: { x: number, y: number }) => {
   position.value = { x: pos.x, y: pos.y }
-  appState.setAiDialogPosition(pos)
+  appState.setAiDialogRect({
+    width: dialogWidth.value,
+    height: dialogHeight.value,
+    x: pos.x,
+    y: pos.y
+  })
 }
 // 调整大小结束
 const handleResizeEnd = (size: { width: number, height: number }) => {
   dialogWidth.value = size.width
   dialogHeight.value = size.height
-  appState.setAiDialogWidth(size.width)
-  appState.setAiDialogHeight(size.height)
+  appState.setAiDialogRect({
+    width: size.width,
+    height: size.height,
+    x: position.value.x,
+    y: position.value.y
+  })
 }
 // 重置宽度
 const handleResetWidth = () => {
   dialogWidth.value = config.renderConfig.aiDialog.defaultWidth
-  appState.setAiDialogWidth(dialogWidth.value)
+  appState.setAiDialogRect({
+    width: dialogWidth.value,
+    height: dialogHeight.value,
+    x: position.value.x,
+    y: position.value.y
+  })
 }
 // 重置高度
 const handleResetHeight = () => {
   dialogHeight.value = config.renderConfig.aiDialog.defaultHeight
-  appState.setAiDialogHeight(dialogHeight.value)
+  appState.setAiDialogRect({
+    width: dialogWidth.value,
+    height: dialogHeight.value,
+    x: position.value.x,
+    y: position.value.y
+  })
 }
 // 重置角落
 const handleResetCorner = () => {
   dialogWidth.value = config.renderConfig.aiDialog.defaultWidth
   dialogHeight.value = config.renderConfig.aiDialog.defaultHeight
-  appState.setAiDialogWidth(dialogWidth.value)
-  appState.setAiDialogHeight(dialogHeight.value)
+  appState.setAiDialogRect({
+    width: dialogWidth.value,
+    height: dialogHeight.value,
+    x: position.value.x,
+    y: position.value.y
+  })
 }
 // 停止对话
 const handleStop = async () => {
@@ -248,21 +271,25 @@ const clampPositionToBounds = (pos: { x: number, y: number }, width: number, hei
 }
 // 初始化对话框状态
 const initDialogState = () => {
-  const cachedWidth = appState.getAiDialogWidth()
-  const cachedHeight = appState.getAiDialogHeight()
-  const cachedPosition = appState.getAiDialogPosition()
-  if (cachedWidth !== null) {
-    dialogWidth.value = cachedWidth
+  const cachedRect = appState.getAiDialogRect()
+  if (cachedRect.width !== null) {
+    dialogWidth.value = cachedRect.width
   }
-  if (cachedHeight !== null) {
-    dialogHeight.value = cachedHeight
+  if (cachedRect.height !== null) {
+    dialogHeight.value = cachedRect.height
   }
   agentViewStore.initMode()
-  if (cachedPosition !== null) {
+  if (cachedRect.x !== null && cachedRect.y !== null) {
+    const cachedPosition = { x: cachedRect.x, y: cachedRect.y }
     const clampedPosition = clampPositionToBounds(cachedPosition, dialogWidth.value, dialogHeight.value)
     position.value = clampedPosition
     if (clampedPosition.x !== cachedPosition.x || clampedPosition.y !== cachedPosition.y) {
-      appState.setAiDialogPosition(clampedPosition)
+      appState.setAiDialogRect({
+        width: dialogWidth.value,
+        height: dialogHeight.value,
+        x: clampedPosition.x,
+        y: clampedPosition.y
+      })
     }
     return
   }
@@ -271,7 +298,12 @@ const initDialogState = () => {
     const anchorTop = config.mainConfig.topbarViewHeight + agentViewStore.agentViewAnchorRect.y + agentViewStore.agentViewAnchorRect.height + 12
     const anchoredPosition = clampPositionToBounds({ x: anchorCenterX, y: anchorTop }, dialogWidth.value, dialogHeight.value)
     position.value = anchoredPosition
-    appState.setAiDialogPosition(anchoredPosition)
+    appState.setAiDialogRect({
+      width: dialogWidth.value,
+      height: dialogHeight.value,
+      x: anchoredPosition.x,
+      y: anchoredPosition.y
+    })
   }
 }
 

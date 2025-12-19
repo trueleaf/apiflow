@@ -126,6 +126,7 @@ import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import type { HttpMockNode } from '@src/types'
 import type { ChatRequestBody, OpenAiResponseBody } from '@src/types/ai/agent.type'
 import { message } from '@/helper'
+import { aiTextGeneratePrompt } from '@/store/ai/prompt/prompt'
 type ResponseItem = HttpMockNode['response'][0]
 
 type Props = {
@@ -189,7 +190,7 @@ const handleGenerateTextPreview = async () => {
       messages: [
         {
           role: 'system',
-          content: '你是一个专业的文案助手。请根据用户指令输出文本内容。'
+          content: aiTextGeneratePrompt
         },
         {
           role: 'user',

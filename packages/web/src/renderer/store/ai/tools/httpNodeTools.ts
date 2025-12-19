@@ -4,6 +4,7 @@ import { AgentTool } from '@src/types/ai'
 import { HttpNodeRequestMethod, ApidocProperty, HttpNodeContentType, HttpNodeBodyMode, HttpNodeBodyRawType, HttpNodeResponseParams } from '@src/types'
 import { CreateHttpNodeOptions } from '@src/types/ai/tools.type'
 import { nanoid } from 'nanoid'
+import { simpleCreateHttpNodePrompt } from '@/store/ai/prompt/prompt'
 
 type LLMInferredParam = {
   key?: string
@@ -94,34 +95,10 @@ export const httpNodeTools: AgentTool[] = [
       const projectId = args.projectId as string
       const description = args.description as string
       const pid = typeof args.pid === 'string' ? args.pid : ''
-      const systemPrompt = `你是一个API设计专家。根据用户的自然语言描述，推断出完整的HTTP接口参数。
-返回严格的JSON格式，不要有任何其他内容。
-
-JSON结构：
-{
-  "name": "接口名称",
-  "method": "GET|POST|PUT|DELETE|PATCH",
-  "urlPath": "/api/xxx",
-  "description": "接口描述",
-  "bodyMode": "json|formdata|urlencoded|none",
-  "rawJson": "JSON body字符串（如果有body的话）",
-  "queryParams": [{ "key": "xxx", "value": "", "description": "xxx" }],
-  "headers": [{ "key": "xxx", "value": "xxx", "description": "xxx" }]
-}
-
-规则：
-1. GET请求通常不需要body，使用queryParams
-2. POST/PUT/PATCH通常需要body，优先使用json格式
-3. 登录/注册类接口使用POST
-4. 获取列表/详情使用GET
-5. 删除使用DELETE
-6. urlPath使用RESTful风格，如/api/users, /api/users/{id}
-7. 如果不需要body则bodyMode为none，不要设置rawJson
-8. queryParams和headers如果没有则返回空数组`
       try {
         const response = await llmClientStore.chat({
           messages: [
-            { role: 'system', content: systemPrompt },
+            { role: 'system', content: simpleCreateHttpNodePrompt },
             { role: 'user', content: description }
           ],
           response_format: { type: 'json_object' }

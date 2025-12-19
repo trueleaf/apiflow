@@ -333,6 +333,7 @@ import { appState } from '@/cache/appState/appStateCache';
 import { useVariable } from '@/store/projectWorkbench/variablesStore';
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { isEqual } from 'lodash-es';
+import { apiParamsParsePrompt } from '@/store/ai/prompt/prompt';
 /*
 |--------------------------------------------------------------------------
 | Props 和 Emits 定义
@@ -1018,7 +1019,7 @@ const handleAiParse = async () => {
       messages: [
         {
           role: 'system',
-          content: '你是一个专业的API参数解析助手。请将用户提供的任意格式文本解析为标准的参数格式。输出格式必须严格遵循：每行一个参数，格式为 *key=value //description 或 key=value //description，其中 * 表示必填参数，// 后面是参数描述。只输出解析结果，不要有任何额外说明。'
+          content: apiParamsParsePrompt
         },
         {
           role: 'user',
