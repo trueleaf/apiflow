@@ -14,6 +14,7 @@ export const cacheKey = {
       width: 'appState/aiDialog/width',
       height: 'appState/aiDialog/height',
       position: 'appState/aiDialog/position',
+      view: 'appState/aiDialog/view',
       mode: 'appState/aiDialog/mode',
       model: 'appState/aiDialog/model',
     },

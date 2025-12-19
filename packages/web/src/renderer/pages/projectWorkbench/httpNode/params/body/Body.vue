@@ -128,7 +128,7 @@
 import { computed, ref, onMounted, onUnmounted, Ref, watch } from 'vue'
 import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType, ApidocProperty } from '@src/types'
 import { useI18n } from 'vue-i18n'
-import { appState } from '@/cache/appState/appStateCache'
+import { appStateCache } from '@/cache/appState/appStateCache'
 import { useVariable } from '@/store/projectWorkbench/variablesStore';
 import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 import { config } from '@src/config/config';
@@ -214,7 +214,7 @@ const { t } = useI18n()
 
 const jsonBodyVisible = ref(false);
 const handleHideTip = () => {
-  appState.setJsonBodyHintVisible(false);
+  appStateCache.setJsonBodyHintVisible(false);
   jsonBodyVisible.value = false;
 }
 //body类型
@@ -594,7 +594,7 @@ watch(urlencodedParamsTreeRef, (instance) => {
 |--------------------------------------------------------------------------
 */
 onMounted(async () => {
-  jsonBodyVisible.value = appState.getJsonBodyHintVisible();
+  jsonBodyVisible.value = appStateCache.getJsonBodyHintVisible();
   document.body.addEventListener('click', bindGlobalClick);
   window.addEventListener('storage', handleStorageChange);
 });

@@ -121,7 +121,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Loading, Top } from '@element-plus/icons-vue'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
-import { appState } from '@/cache/appState/appStateCache'
+import { appStateCache } from '@/cache/appState/appStateCache'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import type { HttpMockNode } from '@src/types'
 import type { ChatRequestBody, OpenAiResponseBody } from '@src/types/ai/agent.type'
@@ -172,7 +172,7 @@ const isSendDisabled = computed(() => {
 // 处理"不再提示"点击
 const handleDismissHint = () => {
   showRandomTextSizeHint.value = false
-  appState.setMockTextRandomSizeHintVisible(false)
+  appStateCache.setMockTextRandomSizeHintVisible(false)
 }
 
 // 处理 Text AI生成预览
@@ -219,7 +219,7 @@ const handleGenerateTextPreview = async () => {
 }
 
 onMounted(() => {
-  showRandomTextSizeHint.value = appState.getMockTextRandomSizeHintVisible()
+  showRandomTextSizeHint.value = appStateCache.getMockTextRandomSizeHintVisible()
 })
 </script>
 

@@ -96,7 +96,7 @@ import { useRouter } from 'vue-router'
 import { useDebounceFn } from '@vueuse/core'
 import { ArrowLeft, ArrowRight } from 'lucide-vue-next'
 import { IPC_EVENTS } from '@src/types/ipc'
-import { appState } from '@/cache/appState/appStateCache'
+import { appStateCache } from '@/cache/appState/appStateCache'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { useAgentViewStore } from '@/store/ai/agentView'
 import type { LLMProviderType } from '@src/types/ai/agent.type'
@@ -158,7 +158,7 @@ const handleProviderChange = (type: LLMProviderType) => {
 }
 // 跳转完整设置页
 const handleGoToFullSettings = () => {
-  appState.setActiveLocalDataMenu('ai-settings')
+  appStateCache.setActiveLocalDataMenu('ai-settings')
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab)
   router.push('/settings')
 }

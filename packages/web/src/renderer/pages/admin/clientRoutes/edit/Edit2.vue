@@ -21,16 +21,15 @@ import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
   editData: {
     type: Object as PropType<PermissionClientRoute[]>,
     default: () => []
   },
 })
-const emits = defineEmits(['update:modelValue', 'success'])
+const modelValue = defineModel<boolean>({
+  default: false
+})
+const emits = defineEmits(['success'])
 const { t } = useI18n()
 
 const loading = ref(false);
@@ -70,7 +69,7 @@ const handleSaveClientRoute = () => {
 }
 //关闭弹窗
 const handleClose = () => {
-  emits('update:modelValue', false);
+  modelValue.value = false;
 }
 </script>
 

@@ -31,11 +31,10 @@ import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
 import { computed, nextTick, onMounted, onUnmounted, PropType, ref } from 'vue';
 import { config } from '@src/config/config';
 
+const modelValue = defineModel<string>({
+  default: ''
+})
 const props = defineProps({
-  modelValue: {
-    type: String,
-    default: '',
-  },
   placeholder: {
     type: String,
     default: '',
@@ -61,7 +60,7 @@ const props = defineProps({
     default: () => []
   },
 })
-const emits = defineEmits(['update:modelValue', 'remote-select', 'focus', 'blur']);
+const emits = defineEmits(['remote-select', 'focus', 'blur']);
 const focusX = ref(0);
 const focusY = ref(0);
 const isFocus = ref(false); //是否focus
@@ -71,10 +70,10 @@ const currentSelectIndex = ref(0);
 const textarea = ref<HTMLTextAreaElement>()
 const mindWrap = ref<HTMLDivElement>()
 const realSelectData = computed(() => {
-  if (!props.modelValue) {
+  if (!modelValue.value) {
     return [];
   }
-  return props.selectData.filter(v => v.key.toLowerCase().includes(props.modelValue.toLowerCase()))
+  return props.selectData.filter(v => v.key.toLowerCase().includes(modelValue.value.toLowerCase()))
 })
 
 /*
@@ -84,12 +83,12 @@ const realSelectData = computed(() => {
 */
 //键盘输入
 const handleInput = (e: Event) => {
-  emits('update:modelValue', (e.target as HTMLInputElement).value);
+  modelValue.value = (e.target as HTMLInputElement).value;
   isInput.value = true;
 }
 //键盘输入
 const handleInput2 = (value: string) => {
-  emits('update:modelValue', value);
+  modelValue.value = value;
   isInput.value = true;
 }
 //处理focus
@@ -99,8 +98,8 @@ const handleFocus = (e: FocusEvent) => {
   const iptRect = iptDom.getBoundingClientRect();
   focusX.value = iptRect.left;
   focusY.value = iptRect.top + 30;
-  const exactMatchData = props.selectData.find(v => v.key === props.modelValue);
-  const hasData = props.selectData.filter(v => v.key.includes(props.modelValue));
+  const exactMatchData = props.selectData.find(v => v.key === modelValue.value);
+  const hasData = props.selectData.filter(v => v.key.includes(modelValue.value));
   if (hasData && !exactMatchData) {
     isFocus.value = true;
   }
@@ -121,7 +120,7 @@ const handleBlur = () => {
 //选择参数
 const handleSelectItem = () => {
   const selectData = realSelectData.value[currentSelectIndex.value];
-  emits('update:modelValue', selectData.key || '');
+  modelValue.value = selectData.key || '';
   emits('remote-select', selectData);
   isInput.value = false;
 }
@@ -161,7 +160,7 @@ const handleInputKeydown = (e: KeyboardEvent) => {
   }
   if (e.ctrlKey && (e.key === 'v' || e.key === 'V')) {
     setTimeout(() => {
-      const exactMatchData = props.selectData.find(v => v.key === props.modelValue);
+      const exactMatchData = props.selectData.find(v => v.key === modelValue.value);
       if (exactMatchData) {
         emits('remote-select', exactMatchData);
       }

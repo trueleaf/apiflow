@@ -4,7 +4,7 @@ import type { ChatRequestBody, LLMessage } from '@src/types/ai/agent.type';
 import type { AgentViewMessage, AskMessage, TextResponseMessage, LoadingMessage, ErrorMessage } from '@src/types/ai';
 import { agentViewCache } from '@/cache/ai/agentViewCache';
 import { llmProviderCache } from '@/cache/ai/llmProviderCache';
-import { appState } from '@/cache/appState/appStateCache';
+import { appStateCache } from '@/cache/appState/appStateCache';
 import { nanoid } from 'nanoid/non-secure';
 import { logger } from '@/helper';
 import type { AnchorRect } from '@src/types/common';
@@ -17,7 +17,11 @@ export const useAgentViewStore = defineStore('agentView', () => {
   const agentViewDialogVisible = ref(false);
   const agentViewAnchorRect = ref<AnchorRect | null>(null);
   // 视图状态
-  const currentView = ref<'chat' | 'history' | 'agent' | 'config'>('chat');
+  const currentView = ref<'chat' | 'history' | 'agent' | 'config'>('agent');
+  const setCurrentView = (view: 'chat' | 'history' | 'agent' | 'config'): void => {
+    currentView.value = view;
+    appStateCache.setAiDialogView(view);
+  };
   const mode = ref<'agent' | 'ask'>('ask');
   const inputMessage = ref('');
   // 流式请求状态
@@ -177,32 +181,38 @@ export const useAgentViewStore = defineStore('agentView', () => {
   */
   // 切换到聊天视图
   const switchToChat = (): void => {
-    currentView.value = mode.value === 'agent' ? 'agent' : 'chat';
+    setCurrentView('chat');
   };
   // 切换到历史视图
   const switchToHistory = (): void => {
-    currentView.value = 'history';
+    setCurrentView('history');
   };
   // 切换到配置视图
   const switchToConfig = (): void => {
-    currentView.value = 'config';
+    setCurrentView('config');
   };
   // 设置模式
   const setMode = (newMode: 'agent' | 'ask'): void => {
     mode.value = newMode;
-    appState.setAiDialogMode(newMode);
-    currentView.value = newMode === 'agent' ? 'agent' : 'chat';
+    appStateCache.setAiDialogMode(newMode);
   };
   // 初始化模式（从缓存读取）
   const initMode = (): void => {
-    const cachedMode = appState.getAiDialogMode();
+    const cachedMode = appStateCache.getAiDialogMode();
     if (cachedMode === 'agent' || cachedMode === 'ask') {
       mode.value = cachedMode;
-      currentView.value = cachedMode === 'agent' ? 'agent' : 'chat';
-    } else {
-      mode.value = 'ask';
-      currentView.value = 'chat';
+      return;
     }
+    mode.value = 'ask';
+  };
+  // 初始化视图（从缓存读取）
+  const initView = (): void => {
+    const cachedView = appStateCache.getAiDialogView();
+    if (cachedView === 'chat' || cachedView === 'history' || cachedView === 'agent' || cachedView === 'config') {
+      currentView.value = cachedView;
+      return;
+    }
+    setCurrentView('agent');
   };
   /*
   |--------------------------------------------------------------------------
@@ -392,20 +402,23 @@ export const useAgentViewStore = defineStore('agentView', () => {
     if (currentMessageList.value.length > 0) {
       createNewSession();
     }
-    currentView.value = mode.value === 'agent' ? 'agent' : 'chat';
+    const nextView = mode.value === 'agent' ? 'agent' : mode.value === 'ask' ? 'chat' : 'agent';
+    setCurrentView(nextView);
   };
   // 从历史返回聊天
   const handleBackToChat = (): void => {
     const firstMessage = currentMessageList.value[0];
     const sessionMode = firstMessage?.mode || mode.value;
     mode.value = sessionMode;
-    currentView.value = sessionMode === 'agent' ? 'agent' : 'chat';
+    const nextView = sessionMode === 'ask' ? 'chat' : sessionMode === 'agent' ? 'agent' : 'agent';
+    setCurrentView(nextView);
   };
   // 选择历史会话
   const handleSelectSession = async (sessionId: string, sessionMode: 'agent' | 'ask'): Promise<void> => {
     await loadSession(sessionId);
     mode.value = sessionMode;
-    currentView.value = sessionMode === 'agent' ? 'agent' : 'chat';
+    const nextView = sessionMode === 'ask' ? 'chat' : sessionMode === 'agent' ? 'agent' : 'agent';
+    setCurrentView(nextView);
   };
   return {
     currentMessageList,
@@ -445,6 +458,7 @@ export const useAgentViewStore = defineStore('agentView', () => {
     switchToConfig,
     setMode,
     initMode,
+    initView,
     detectErrorType,
     buildOpenAIRequestBody,
     resetStreamState,

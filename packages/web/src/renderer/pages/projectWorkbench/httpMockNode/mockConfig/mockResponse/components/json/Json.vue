@@ -102,7 +102,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Loader2, Send } from 'lucide-vue-next'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
-import { appState } from '@/cache/appState/appStateCache'
+import { appStateCache } from '@/cache/appState/appStateCache'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import type { HttpMockNode } from '@src/types'
 import type { ChatRequestBody, OpenAiResponseBody } from '@src/types/ai/agent.type'
@@ -138,7 +138,7 @@ const isSendDisabled = computed(() => {
 
 const handleDismissHint = () => {
   showRandomSizeHint.value = false
-  appState.setMockJsonRandomSizeHintVisible(false)
+  appStateCache.setMockJsonRandomSizeHintVisible(false)
 }
 
 const handleGeneratePreview = async () => {
@@ -191,7 +191,7 @@ const handleGeneratePreview = async () => {
 }
 
 onMounted(() => {
-  showRandomSizeHint.value = appState.getMockJsonRandomSizeHintVisible()
+  showRandomSizeHint.value = appStateCache.getMockJsonRandomSizeHintVisible()
 })
 </script>
 

@@ -17,17 +17,16 @@ import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker&in
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker&inline'
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker&inline'
 
+const modelValue = defineModel<string>({
+  default: ''
+})
 const props = defineProps({
-  modelValue: {
-    type: String,
-    default: ''
-  },
   manualUndoRedo: {
     type: Boolean,
     default: false
   }
 });
-const emits = defineEmits(['update:modelValue', 'undo', 'redo'])
+const emits = defineEmits(['undo', 'redo'])
 const { t } = useI18n()
 
 const afterEditor: Ref<HTMLElement | null> = ref(null);
@@ -36,11 +35,11 @@ let monacoCompletionItem: monaco.IDisposable | null = null;
 let monacoHoverProvider: monaco.IDisposable | null = null;
 let isDisposed = false; // 标记编辑器是否已被销毁
 
-watch(() => props.modelValue, (newValue) => {
+watch(modelValue, (newValue) => {
   const value = monacoInstance?.getValue();
   if (newValue !== value) {
     const cursorPosition = monacoInstance?.getPosition();
-    monacoInstance?.setValue(props.modelValue)
+    monacoInstance?.setValue(newValue ?? '')
     if (cursorPosition) {
       monacoInstance?.setPosition(cursorPosition);
     }
@@ -66,7 +65,7 @@ onMounted(() => {
   }
   monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ noLib: true, allowNonTsExtensions: true });
   monacoInstance = monaco.editor.create(afterEditor.value as HTMLElement, {
-    value: props.modelValue,
+    value: modelValue.value,
     language: 'javascript',
     automaticLayout: true,
     parameterHints: {
@@ -87,7 +86,7 @@ onMounted(() => {
   monacoCompletionItem = useCompletionItem();
   monacoHoverProvider = useHoverProvider();
   monacoInstance.onDidChangeModelContent(() => {
-    emits('update:modelValue', monacoInstance?.getValue())
+    modelValue.value = monacoInstance?.getValue() ?? ''
   })
   if (props.manualUndoRedo) {
     monacoInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyZ, () => {
@@ -137,7 +136,7 @@ onBeforeUnmount(() => {
 })
 //格式化数据
 const handleFormat = () => {
-  const formatStr = beautify(props.modelValue, { indent_size: 4 });
+  const formatStr = beautify(modelValue.value, { indent_size: 4 });
   monacoInstance?.setValue(formatStr)
 }
 //获取光标位置

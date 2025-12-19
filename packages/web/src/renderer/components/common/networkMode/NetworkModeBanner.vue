@@ -19,19 +19,19 @@ import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Info, X } from 'lucide-vue-next';
 import { useRuntime } from '@/store/runtime/runtimeStore';
-import { appState } from '@/cache/appState/appStateCache';
+import { appStateCache } from '@/cache/appState/appStateCache';
 // 保存横幅是否被关闭
 const runtimeStore = useRuntime();
 const { t } = useI18n();
-const dismissed = ref(appState.getNetworkModeBannerDismissed());
+const dismissed = ref(appStateCache.getNetworkModeBannerDismissed());
 const visible = computed(() => runtimeStore.networkMode === 'online' && !dismissed.value);
 const handleClose = () => {
   dismissed.value = true;
-  appState.setNetworkModeBannerDismissed(true);
+  appStateCache.setNetworkModeBannerDismissed(true);
 }
 // 如果网络模式从 offline 切换到 online，且缓存没有被dismiss，保持显示
 watch(() => runtimeStore.networkMode, (mode) => {
-  if (mode === 'online' && !appState.getNetworkModeBannerDismissed()) {
+  if (mode === 'online' && !appStateCache.getNetworkModeBannerDismissed()) {
     dismissed.value = false;
   }
 });

@@ -54,17 +54,16 @@ type RoleInfo = {
   serverRoutes: string[],
 }
 
+const modelValue = defineModel<boolean>({
+  default: false
+})
 const props = defineProps({
   userId: {
     type: String,
     default: ''
   },
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
 })
-const emits = defineEmits(['update:modelValue', 'success']);
+const emits = defineEmits(['success']);
 const { t } = useI18n()
 
 const formInfo = ref({
@@ -162,7 +161,7 @@ const handleEditRole = () => {
 }
 //关闭弹窗
 const handleClose = () => {
-  emits('update:modelValue', false);
+  modelValue.value = false;
 }
 onMounted(() => {
   getRoleInfo();

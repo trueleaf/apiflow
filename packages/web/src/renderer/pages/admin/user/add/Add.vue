@@ -32,13 +32,10 @@ import SFormItem from '@/components/common/forms/form/ClFormItem.vue'
 
 
 import { message } from '@/helper'
-defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
+const modelValue = defineModel<boolean>({
+  default: false
 })
-const emits = defineEmits(['success', 'update:modelValue']);
+const emits = defineEmits(['success']);
 const roleIds = ref<string[]>([]);
 const roleEnum = ref<PermissionRoleEnum>([]);
 const { t } = useI18n()
@@ -92,7 +89,7 @@ const handleAddUser = ()  => {
 }
 //关闭弹窗
 const handleClose = () => {
-  emits('update:modelValue', false);
+  modelValue.value = false;
 }
 
 onMounted(() => {

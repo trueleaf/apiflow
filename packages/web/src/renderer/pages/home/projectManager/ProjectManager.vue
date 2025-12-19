@@ -228,7 +228,7 @@ import { apiNodesCache } from '@/cache/nodes/nodesCache'
 import { useProjectManagerStore } from '@/store/projectManager/projectManagerStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
-import { appState } from '@/cache/appState/appStateCache';
+import { appStateCache } from '@/cache/appState/appStateCache';
 import { IPC_EVENTS } from '@src/types/ipc';
 
 //变量
@@ -463,7 +463,7 @@ const handleUnStar = async (item: ApidocProjectInfo) => {
 }
 //初始化缓存
 const initCahce = () => {
-  const savedState = appState.getProjectManagerSearchState();
+  const savedState = appStateCache.getProjectManagerSearchState();
   if (savedState) {
     projectName.value = savedState.keyword || '';
     showAdvancedSearch.value = savedState.showAdvancedSearch || false;
@@ -651,7 +651,7 @@ watch(searchConditions, () => {
 }, { deep: true });
 // 保存搜索状态
 const saveSearchState = () => {
-  appState.setProjectManagerSearchState({
+  appStateCache.setProjectManagerSearchState({
     keyword: projectName.value,
     showAdvancedSearch: showAdvancedSearch.value,
     searchMode: searchMode.value,

@@ -76,14 +76,11 @@ import RemoteSelectorItem from '@/components/common/remoteSelect/ClRemoteSelectI
 
 
 import { message } from '@/helper'
-defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
+const modelValue = defineModel<boolean>({
+  default: false
 })
 const form = ref<FormInstance>()
-const emits = defineEmits(['update:modelValue', 'success'])
+const emits = defineEmits(['success'])
 const { t } = useI18n()
 
 const formInfo = ref({
@@ -174,7 +171,7 @@ const handleDeleteMember = (index: number) => {
 }
 //关闭弹窗
 const handleClose = () => {
-  emits('update:modelValue', false);
+  modelValue.value = false;
 }
 
 </script>

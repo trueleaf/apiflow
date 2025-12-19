@@ -31,17 +31,16 @@ import SFormItem from '@/components/common/forms/form/ClFormItem.vue'
 
 
 import { message } from '@/helper'
+const modelValue = defineModel<boolean>({
+  default: false
+})
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
   userId: {
     type: String,
     default: ''
   },
 })
-const emits = defineEmits(['success', 'update:modelValue'])
+const emits = defineEmits(['success'])
 const formInfo = ref<Record<string, unknown>>({}) //用户基本信息
 const roleIds = ref<string[]>([]) //角色id列表
 const roleEnum = ref<PermissionRoleEnum>([]) //角色枚举信息
@@ -115,7 +114,7 @@ const handleEditUser = () => {
 }
 //关闭弹窗
 const handleClose = () => {
-  emits('update:modelValue', false);
+  modelValue.value = false;
 }
 
 onMounted(() => {

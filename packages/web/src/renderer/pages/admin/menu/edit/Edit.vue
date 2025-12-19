@@ -20,17 +20,16 @@ import { useI18n } from 'vue-i18n'
 import { FormInstance } from 'element-plus'
 import { request } from '@/api/api'
 
+const modelValue = defineModel<boolean>({
+  default: false
+})
 defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
   data: {
     type: Object as PropType<any>,
     default: ( ) => null,
   },
 })
-const emits = defineEmits(['update:modelValue', 'success'])
+const emits = defineEmits(['success'])
 const { t } = useI18n()
 
 const loading = ref(false);
@@ -42,7 +41,7 @@ const form = ref<FormInstance>()
 */
 //关闭弹窗
 const handleClose = () => {
-  emits('update:modelValue', false);
+  modelValue.value = false;
 }
 //编辑菜单
 const handleEditMenu = () => {

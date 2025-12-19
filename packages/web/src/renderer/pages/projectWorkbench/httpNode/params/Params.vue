@@ -309,7 +309,7 @@
 import type { DebouncedFunc } from 'lodash-es'
 import type { HttpNode } from '@src/types'
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts'
-import { appState } from '@/cache/appState/appStateCache.ts'
+import { appStateCache } from '@/cache/appState/appStateCache.ts'
 import { commonHeaderCache } from '@/cache/project/commonHeadersCache'
 import { checkPropertyIsEqual } from '@/helper'
 import { debounce } from "lodash-es"
@@ -469,7 +469,7 @@ const getComponent = () => {
 //初始化tab缓存
 const initTabCache = () => {
   if (currentSelectNav) {
-    const cachedTab = appState.getHttpNodeActiveParamsTab(currentSelectNav.value?._id || "");
+    const cachedTab = appStateCache.getHttpNodeActiveParamsTab(currentSelectNav.value?._id || "");
     const allowedTabs: ActiceName[] = [
       'SParams',
       'SRequestBody',
@@ -936,7 +936,7 @@ const handleOpenVariable = () => {
 */
 watch(() => activeName.value, (val: string) => {
   if (currentSelectNav.value) {
-    appState.setHttpNodeActiveParamsTab(currentSelectNav.value._id, val);
+    appStateCache.setHttpNodeActiveParamsTab(currentSelectNav.value._id, val);
   }
 })
 watch(() => currentSelectNav.value, () => {

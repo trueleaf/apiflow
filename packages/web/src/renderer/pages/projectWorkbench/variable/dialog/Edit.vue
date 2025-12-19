@@ -94,17 +94,16 @@ import { useRoute } from 'vue-router';
 import { nodeVariableCache } from '@/cache/variable/nodeVariableCache';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { message } from '@/helper'
+const modelValue = defineModel<boolean>({
+  default: false
+})
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
   editData: {
     type: Object as PropType<AddProjectVariableParams | null>,
     default: () => ({}),
   },
 })
-const emits = defineEmits(['update:modelValue', 'success'])
+const emits = defineEmits(['success'])
 const formInfo = ref<AddProjectVariableFormInfo>({
   name: '',
   stringValue: '',
@@ -180,7 +179,7 @@ const handleExceed: UploadProps['onExceed'] = (files) => {
   }
 }
 const handleClose = () => {
-  emits('update:modelValue', false)
+  modelValue.value = false
 }
 //修改变量
 const handleEditVariable = () => {

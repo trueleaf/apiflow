@@ -77,21 +77,20 @@ import type { HttpNode, WebSocketNode, HttpMockNode } from '@src/types';
 import { ArrowRight } from 'lucide-vue-next';
 import { llmProviderCache } from '@/cache/ai/llmProviderCache';
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
-import { appState } from '@/cache/appState/appStateCache';
+import { appStateCache } from '@/cache/appState/appStateCache';
 import { IPC_EVENTS } from '@src/types/ipc';
 
+const modelValue = defineModel<boolean>({
+  default: false
+})
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
   //父元素id，没有则代表在根元素上新增节点
   pid: {
     type: String,
     default: '',
   },
 })
-const emits = defineEmits(['update:modelValue', 'success']);
+const emits = defineEmits(['success']);
 const { t } = useI18n()
 
 const runtimeStore = useRuntime();
@@ -133,7 +132,7 @@ const editorConfig = {
 }
 
 let keydownHandler: ((e: KeyboardEvent) => void) | null = null;
-watch(() => props.modelValue, (newVal) => {
+watch(modelValue, (newVal) => {
   if (newVal) {
     keydownHandler = (e: KeyboardEvent) => {
       if (e.key === 'Enter' && !loading.value) {
@@ -560,7 +559,7 @@ const handleAddFile = () => {
   });
 }
 const handleOpenAiSettings = () => {
-  appState.setActiveLocalDataMenu('ai-settings')
+  appStateCache.setActiveLocalDataMenu('ai-settings')
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab)
   router.push('/settings')
 }
@@ -569,7 +568,7 @@ const handleClose = () => {
   formData.value.name = '';
   formData.value.aiPrompt = '';
   form.value?.resetFields();
-  emits('update:modelValue', false);
+  modelValue.value = false;
 }
 
 </script>

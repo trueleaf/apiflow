@@ -184,7 +184,7 @@ import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseC
 import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache'
 import { message, getCompiledTemplate } from '@/helper'
 import { useVariable } from '@/store/projectWorkbench/variablesStore'
-import { appState } from '@/cache/appState/appStateCache'
+import { appStateCache } from '@/cache/appState/appStateCache'
 
 const { t } = useI18n()
 const projectNavStore = useProjectNav()
@@ -245,7 +245,7 @@ const initCollapseState = () => {
   if (!nodeId) return
   const states: Record<string, boolean> = {}
   messageBlocks.value.forEach(block => {
-    states[block.id] = appState.getWsMessageBlockCollapseState(nodeId, block.id)
+    states[block.id] = appStateCache.getWsMessageBlockCollapseState(nodeId, block.id)
   })
   collapsedBlocks.value = states
 }
@@ -256,7 +256,7 @@ const handleToggleCollapse = (blockId: string) => {
   if (!nodeId) return
   const newState = !collapsedBlocks.value[blockId]
   collapsedBlocks.value[blockId] = newState
-  appState.setWsMessageBlockCollapseState(nodeId, blockId, newState)
+  appStateCache.setWsMessageBlockCollapseState(nodeId, blockId, newState)
 }
 
 // 弹窗打开时初始化临时变量

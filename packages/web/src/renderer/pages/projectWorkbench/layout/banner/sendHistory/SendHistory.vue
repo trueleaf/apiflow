@@ -83,7 +83,7 @@ import { useRuntime } from '@/store/runtime/runtimeStore'
 import { router } from '@/router/index'
 import { storeToRefs } from 'pinia'
 import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache'
-import { appState } from '@/cache/appState/appStateCache'
+import { appStateCache } from '@/cache/appState/appStateCache'
 import type { SendHistoryItem, SendHistoryItemWithStatus } from '@src/types/history/sendHistory'
 import type { ApidocBanner } from '@src/types'
 
@@ -95,11 +95,11 @@ const runtimeStore = useRuntime()
 
 const { sendHistoryList, loading, hasMore, hasLoadedMore } = storeToRefs(sendHistoryStore)
 
-const searchValue = ref(appState.getHistoryFilterText())
+const searchValue = ref(appStateCache.getHistoryFilterText())
 const listRef = ref<HTMLElement | null>(null)
 const searchTimer = ref<number | null>(null)
 watch(searchValue, (newVal) => {
-  appState.setHistoryFilterText(newVal)
+  appStateCache.setHistoryFilterText(newVal)
 })
 
 // 获取项目ID

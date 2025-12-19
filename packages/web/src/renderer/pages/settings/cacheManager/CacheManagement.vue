@@ -121,7 +121,7 @@ import { useI18n } from 'vue-i18n'
 import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/apidoc/cache'
 import { formatUnit } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
-import { appState } from '@/cache/appState/appStateCache.ts'
+import { appStateCache } from '@/cache/appState/appStateCache.ts'
 import { appSettingsCache } from '@/cache/settings/appSettingsCache'
 import LocalStorageDetail from './components/LocalStorageDetail.vue'
 import IndexedDBDetail from './components/IndexedDBDetail.vue'
@@ -139,7 +139,7 @@ const { t } = useI18n()
 const indexedDBLoading = ref(false)
 const localStorageLoading = ref(false)
 const indexedDBWorkerRef = ref<Worker | null>(null)
-const selectedCacheType = ref<'localStorage' | 'indexedDB' | 'backup' | 'restore'>(appState.getSelectedCacheType())
+const selectedCacheType = ref<'localStorage' | 'indexedDB' | 'backup' | 'restore'>(appStateCache.getSelectedCacheType())
 const cacheInfo = ref<CacheInfo>({
   localStroageSize: 0,
   indexedDBSize: -1,
@@ -304,7 +304,7 @@ const getIndexedDB = async () => {
 const handleSelectCacheType = (type: 'localStorage' | 'indexedDB' | 'backup' | 'restore'): void => {
   selectedCacheType.value = type
   // 缓存用户选择的卡片类型
-  appState.setSelectedCacheType(type)
+  appStateCache.setSelectedCacheType(type)
   if (type === 'localStorage' && cacheInfo.value.localStorageDetails.length === 0) {
     scheduleDeferredTask(() => {
       getLocalStorage()

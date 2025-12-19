@@ -107,13 +107,10 @@ import dayjs from 'dayjs'
 import { message } from '@/helper'
 
 //=========================================================================//
-defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
-});
-const emits = defineEmits(['update:modelValue', 'success'])
+const modelValue = defineModel<boolean>({
+  default: false
+})
+const emits = defineEmits(['success'])
 //=========================================================================//
 const bannerStore = useBanner()
 //生成链接额外配置信息
@@ -139,7 +136,7 @@ const loading = ref(false); //生成项目分享加载
 const shareLink = ref(''); //项目分享地址
 //关闭页面
 const handleClose = () => {
-  emits('update:modelValue', false);
+  modelValue.value = false;
 }
 //生成项目分享
 const handleGenerateLink = () => {

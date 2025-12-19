@@ -206,7 +206,7 @@ import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { Trash2, FileText, AlertCircle, AlertTriangle, Info, List, LayoutList } from 'lucide-vue-next'
 import { IPC_EVENTS } from '@src/types/ipc'
-import { appState } from '@/cache/appState/appStateCache'
+import { appStateCache } from '@/cache/appState/appStateCache'
 import MockLogItem from './MockLogItem.vue'
 
 const { t } = useI18n()
@@ -318,13 +318,13 @@ const currentNodeId = computed(() => currentSelectNav.value?._id || '')
 // 初始化视图模式
 watch(currentNodeId, (newId) => {
   if (newId) {
-    viewMode.value = appState.getHttpMockLogViewMode(newId)
+    viewMode.value = appStateCache.getHttpMockLogViewMode(newId)
   }
 }, { immediate: true })
 // 监听视图模式变化，持久化到缓存
 watch(viewMode, (newMode) => {
   if (currentNodeId.value) {
-    appState.setHttpMockLogViewMode(currentNodeId.value, newMode)
+    appStateCache.setHttpMockLogViewMode(currentNodeId.value, newMode)
   }
 })
 // 从缓存加载日志

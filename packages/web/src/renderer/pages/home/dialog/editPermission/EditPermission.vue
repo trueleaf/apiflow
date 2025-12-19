@@ -87,18 +87,17 @@ type MemberInfo = {
   users: ApidocGroupUser[]
 }
 
+const modelValue = defineModel<boolean>({
+  default: false
+})
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
   projectId: {
     type: String,
     default: '',
   },
 })
 
-const emits = defineEmits(['update:modelValue', 'leave'])
+const emits = defineEmits(['leave'])
 const { t } = useI18n()
 const runtimeStore = useRuntime()
 const remoteUserOrGroupList = ref<ApidocProjectMemberInfo[]>([])
@@ -297,7 +296,7 @@ const handleChangePermission = (row: MemberWithOldPermission) => {
   }
 }
 const handleClose = () => {
-  emits('update:modelValue', false);
+  modelValue.value = false;
 }
 onMounted(() => {
   getApidocProjectUserInfo();

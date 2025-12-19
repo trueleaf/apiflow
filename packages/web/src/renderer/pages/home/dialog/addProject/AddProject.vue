@@ -71,11 +71,10 @@ import { useProjectManagerStore } from '@/store/projectManager/projectManagerSto
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { message } from '@/helper'
 
+const modelValue = defineModel<boolean>({
+  default: false
+})
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
   isFocus: {
     type: Boolean,
     default: true,
@@ -83,7 +82,7 @@ const props = defineProps({
 })
 const form = ref<FormInstance>()
 const projectNameInput = ref()
-const emits = defineEmits(['update:modelValue', 'success'])
+const emits = defineEmits(['success'])
 const { t } = useI18n()
 
 const runtimeStore = useRuntime();
@@ -201,7 +200,7 @@ const handleDeleteMember = (index: number) => {
 }
 //关闭弹窗
 const handleClose = () => {
-  emits('update:modelValue', false);
+  modelValue.value = false;
 }
 
 </script>

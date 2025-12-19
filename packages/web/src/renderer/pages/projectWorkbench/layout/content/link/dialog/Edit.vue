@@ -124,17 +124,16 @@ type EditData = {
   selectedDocs: string[],
   _id: string,
 }
+const modelValue = defineModel<boolean>({
+  default: false
+})
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
   data: {
     type: Object as PropType<EditData>,
     default: () => ({})
   },
 });
-const emits = defineEmits(['update:modelValue', 'success']);
+const emits = defineEmits(['success']);
 const bannerStore = useBanner()
 //=========================================================================//
 //生成链接额外配置信息
@@ -183,7 +182,7 @@ const loading = ref(false); //生成项目分享加载
 const shareLink = ref(''); //项目分享地址
 //关闭页面
 const handleClose = () => {
-  emits('update:modelValue', false);
+  modelValue.value = false;
 }
 //修改项目分享
 const handleEditLink = () => {

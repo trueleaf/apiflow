@@ -64,6 +64,7 @@
           type="button"
           @click="emit('send')"
           :title="t('发送')"
+          :disabled="isSendDisabled"
         >
           <Send :size="16" />
         </button>
@@ -99,6 +100,7 @@ const inputWrapperRef = ref<HTMLElement | null>(null)
 const isModeMenuVisible = ref(false)
 const isProjectEditPage = computed(() => route.path.includes('/v1/apidoc/doc-edit'))
 const projectName = computed(() => projectWorkbench.projectName)
+const isSendDisabled = computed(() => !agentViewStore.isAiConfigValid)
 
 const inputPlaceholder = computed(() => {
   const shortcutKey = isMacOS ? 'Shift+Return' : 'Shift+Enter'
@@ -115,7 +117,7 @@ const handleSelectMode = (value: AiMode) => {
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault()
-    if (agentViewStore.workingStatus !== 'working') {
+    if (agentViewStore.workingStatus !== 'working' && !isSendDisabled.value) {
       emit('send')
     }
   }

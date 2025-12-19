@@ -21,11 +21,10 @@ import { nextTick, ref, watch } from 'vue';
 import { useProjectManagerStore } from '@/store/projectManager/projectManagerStore';
 import { message } from '@/helper'
 
+const modelValue = defineModel<boolean>({
+  default: false
+})
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
   projectId: {
     type: String,
     default: '',
@@ -39,7 +38,7 @@ const props = defineProps({
     default: true,
   },
 })
-const emits = defineEmits(['update:modelValue', 'success'])
+const emits = defineEmits(['success'])
 const { t } = useI18n()
 
 const projectManagerStore = useProjectManagerStore();
@@ -82,7 +81,7 @@ watch(() => props.projectName, (val) => {
 }, { immediate: true })
 
 const handleClose = () => {
-  emits('update:modelValue', false)
+  modelValue.value = false
 }
 //修改项目
 const handleEditProject = () => {

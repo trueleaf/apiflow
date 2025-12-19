@@ -44,13 +44,10 @@ import { FormInstance } from 'element-plus'
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
 
-defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
+const modelValue = defineModel<boolean>({
+  default: false
 })
-const emits = defineEmits(['update:modelValue', 'success']);
+const emits = defineEmits(['success']);
 const formInfo = ref<{
   clientBanner: string[];
   clientRoutes: string[]; 
@@ -84,7 +81,7 @@ const handleChangeClientMenus = (val: string[]) => {
 }
 //关闭弹窗
 const handleClose = () => {
-  emits('update:modelValue', false);
+  modelValue.value = false;
 }
 //保存角色
 const handleSaveRole = () => {

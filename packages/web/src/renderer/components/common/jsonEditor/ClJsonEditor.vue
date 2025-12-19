@@ -21,11 +21,10 @@ import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 | 变量定义
 |--------------------------------------------------------------------------
 */
+const modelValue = defineModel<string>({
+  default: ''
+})
 const props = defineProps({
-  modelValue: {
-    type: String,
-    default: ''
-  },
   readOnly: {
     type: Boolean,
     default: false,
@@ -57,7 +56,7 @@ const props = defineProps({
   }
 });
 
-const emits = defineEmits(['update:modelValue', 'change', 'ready', 'undo', 'redo'])
+const emits = defineEmits(['change', 'ready', 'undo', 'redo'])
 
 const monacoDom: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
@@ -88,11 +87,11 @@ const editorStyle = computed(() => {
 | 监听器
 |--------------------------------------------------------------------------
 */
-watch(() => props.modelValue, (newValue) => {
+watch(modelValue, (newValue) => {
   const value = monacoInstance?.getValue();
   if (newValue !== value) {
     const position = monacoInstance?.getPosition();
-    monacoInstance?.setValue(props.modelValue)
+    monacoInstance?.setValue(newValue ?? '')
     if (position) {
       monacoInstance?.setPosition(position);
     }
@@ -242,7 +241,7 @@ onMounted(() => {
   })
   
   monacoInstance = monaco.editor.create(monacoDom.value as HTMLElement, {
-    value: props.modelValue,
+    value: modelValue.value,
     language: 'json',
     parameterHints: {
       enabled: true,
@@ -272,8 +271,9 @@ onMounted(() => {
   monacoInstance.onDidChangeModelContent(() => {
     // 中文输入过程中不触发 update:modelValue
     if (!isComposing) {
-      emits('update:modelValue', monacoInstance?.getValue())
-      emits('change', monacoInstance?.getValue())
+      const currentValue = monacoInstance?.getValue() ?? ''
+      modelValue.value = currentValue
+      emits('change', currentValue)
     }
     if (props.autoHeight) {
       // 使用 nextTick 确保内容更新后再调整高度
@@ -299,8 +299,9 @@ onMounted(() => {
     editorDom.addEventListener('compositionend', () => {
       isComposing = false;
       // 中文输入结束后手动触发一次事件
-      emits('update:modelValue', monacoInstance?.getValue())
-      emits('change', monacoInstance?.getValue())
+      const currentValue = monacoInstance?.getValue() ?? ''
+      modelValue.value = currentValue
+      emits('change', currentValue)
     });
   }
   
@@ -353,7 +354,7 @@ onBeforeUnmount(() => {
 })
 
 const format = () => {
-  const formatStr = beautify(props.modelValue, { indent_size: 4 });
+  const formatStr = beautify(modelValue.value, { indent_size: 4 });
   monacoInstance?.setValue(formatStr)
 }
 

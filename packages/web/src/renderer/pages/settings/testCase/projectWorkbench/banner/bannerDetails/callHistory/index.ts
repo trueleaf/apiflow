@@ -62,7 +62,7 @@ const node: ModelNode = {
         },
         {
           "id": "5",
-          "name": "Tab状态持久化到appState.setBannerViewMode()"
+          "name": "Tab状态持久化到appStateCache.setBannerViewMode()"
         },
         {
           "id": "6",
@@ -98,7 +98,7 @@ const node: ModelNode = {
         },
         {
           "id": "2",
-          "name": "bannerViewMode状态通过appState持久化,页面刷新后保持上次选择"
+          "name": "bannerViewMode状态通过appStateCache持久化,页面刷新后保持上次选择"
         },
         {
           "id": "3",
@@ -179,7 +179,7 @@ const node: ModelNode = {
         },
         {
           "id": "7",
-          "name": "搜索状态通过appState.setHistoryFilterText()持久化"
+          "name": "搜索状态通过appStateCache.setHistoryFilterText()持久化"
         }
       ],
       "checkpoints": [
@@ -197,7 +197,7 @@ const node: ModelNode = {
         },
         {
           "id": "4",
-          "name": "SendHistory.vue第98行:searchValue初始化从appState获取"
+          "name": "SendHistory.vue第98行:searchValue初始化从appStateCache获取"
         },
         {
           "id": "5",

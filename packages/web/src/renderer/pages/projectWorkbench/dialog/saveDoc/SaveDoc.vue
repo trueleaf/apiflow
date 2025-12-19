@@ -54,14 +54,11 @@ type FormInfo = {
   pid: string, //需要挂载的目录
 }
 const folderUrl = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href;
-defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
+const modelValue = defineModel<boolean>({
+  default: false
 })
 const { t } = useI18n()
-const emits = defineEmits(['update:modelValue', 'success']);
+const emits = defineEmits(['success']);
 const formInfo: Ref<FormInfo> = ref({
   name: t('未命名的接口'),
   pid: ''
@@ -113,7 +110,7 @@ onMounted(async () => {
   });
 })
 const handleClose = () => {
-  emits('update:modelValue', false)
+  modelValue.value = false
   eventEmitter.emit('tabs/cancelSaveTab')
 }
 const handleSaveDoc = async () => {
@@ -146,7 +143,7 @@ const handleSaveDoc = async () => {
       })
       eventEmitter.emit('tabs/saveTabSuccess')
     })
-    emits('update:modelValue', false)
+    modelValue.value = false
   }
 
   const params = {

@@ -51,7 +51,7 @@
 <script setup lang="ts">
 import { ref, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { appState } from '@/cache/appState/appStateCache.ts'
+import { appStateCache } from '@/cache/appState/appStateCache.ts'
 import CacheManagement from './cacheManager/CacheManagement.vue'
 import CommonSettings from './commonSettings/CommonSettings.vue'
 import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
@@ -70,7 +70,7 @@ type TabItem = {
   action: string
 };
 
-const activeTab = ref(appState.getActiveLocalDataMenu() || 'common-settings')
+const activeTab = ref(appStateCache.getActiveLocalDataMenu() || 'common-settings')
 const showUpdateBadge = ref(false)
 const tabs: TabItem[] = [
   { name: t('通用配置'), icon: UserCircle, action: 'common-settings' },
@@ -94,7 +94,7 @@ const handleUpdateBadge = (show: boolean) => {
   showUpdateBadge.value = show
 }
 watch(activeTab, (newValue) => {
-  appState.setActiveLocalDataMenu(newValue)
+  appStateCache.setActiveLocalDataMenu(newValue)
 }, { immediate: false })
 </script>
 

@@ -47,7 +47,7 @@ import { useI18n } from 'vue-i18n'
 import { nanoid } from 'nanoid/non-secure'
 import type { ErrorMessage } from '@src/types/ai'
 import { config } from '@src/config/config'
-import { appState } from '@/cache/appState/appStateCache'
+import { appStateCache } from '@/cache/appState/appStateCache'
 import { useAgentViewStore } from '@/store/ai/agentView'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { useAgentStore } from '@/store/ai/agentStore'
@@ -63,26 +63,11 @@ const visible = defineModel<boolean>('visible', { default: false })
 const agentViewStore = useAgentViewStore()
 const llmClientStore = useLLMClientStore()
 const agentStore = useAgentStore()
-const aiFooterRef = ref<InstanceType<typeof AiFooter> | null>(null)
 const { t } = useI18n()
 const position = ref<{ x: number | null, y: number | null }>({ x: null, y: null })
 const dialogWidth = ref(config.renderConfig.aiDialog.defaultWidth)
 const dialogHeight = ref(config.renderConfig.aiDialog.defaultHeight)
 
-watch(visible, value => {
-  if (!value) {
-    aiFooterRef.value?.closeMenus()
-    agentViewStore.switchToChat()
-  }
-})
-watch(() => agentViewStore.agentViewDialogVisible, (newValue) => {
-  if (newValue) {
-    nextTick(() => {
-      const inputNode = document.querySelector<HTMLTextAreaElement>('.ai-input')
-      inputNode?.focus()
-    })
-  }
-})
 // 关闭对话框
 const handleClose = () => {
   visible.value = false
@@ -90,7 +75,7 @@ const handleClose = () => {
 // 拖拽结束
 const handleDragEnd = (pos: { x: number, y: number }) => {
   position.value = { x: pos.x, y: pos.y }
-  appState.setAiDialogRect({
+  appStateCache.setAiDialogRect({
     width: dialogWidth.value,
     height: dialogHeight.value,
     x: pos.x,
@@ -101,7 +86,7 @@ const handleDragEnd = (pos: { x: number, y: number }) => {
 const handleResizeEnd = (size: { width: number, height: number }) => {
   dialogWidth.value = size.width
   dialogHeight.value = size.height
-  appState.setAiDialogRect({
+  appStateCache.setAiDialogRect({
     width: size.width,
     height: size.height,
     x: position.value.x,
@@ -111,7 +96,7 @@ const handleResizeEnd = (size: { width: number, height: number }) => {
 // 重置宽度
 const handleResetWidth = () => {
   dialogWidth.value = config.renderConfig.aiDialog.defaultWidth
-  appState.setAiDialogRect({
+  appStateCache.setAiDialogRect({
     width: dialogWidth.value,
     height: dialogHeight.value,
     x: position.value.x,
@@ -121,7 +106,7 @@ const handleResetWidth = () => {
 // 重置高度
 const handleResetHeight = () => {
   dialogHeight.value = config.renderConfig.aiDialog.defaultHeight
-  appState.setAiDialogRect({
+  appStateCache.setAiDialogRect({
     width: dialogWidth.value,
     height: dialogHeight.value,
     x: position.value.x,
@@ -132,7 +117,7 @@ const handleResetHeight = () => {
 const handleResetCorner = () => {
   dialogWidth.value = config.renderConfig.aiDialog.defaultWidth
   dialogHeight.value = config.renderConfig.aiDialog.defaultHeight
-  appState.setAiDialogRect({
+  appStateCache.setAiDialogRect({
     width: dialogWidth.value,
     height: dialogHeight.value,
     x: position.value.x,
@@ -150,10 +135,6 @@ const handleStop = async () => {
 }
 // 发送消息
 const handleSend = async () => {
-  if (!agentViewStore.isAiConfigValid) {
-    ElMessage.warning(t('请先配置 AI API Key'))
-    return
-  }
   const message = agentViewStore.inputMessage.trim()
   if (!message) return
   agentViewStore.inputMessage = ''
@@ -271,7 +252,7 @@ const clampPositionToBounds = (pos: { x: number, y: number }, width: number, hei
 }
 // 初始化对话框状态
 const initDialogState = () => {
-  const cachedRect = appState.getAiDialogRect()
+  const cachedRect = appStateCache.getAiDialogRect()
   if (cachedRect.width !== null) {
     dialogWidth.value = cachedRect.width
   }
@@ -279,12 +260,13 @@ const initDialogState = () => {
     dialogHeight.value = cachedRect.height
   }
   agentViewStore.initMode()
+  agentViewStore.initView()
   if (cachedRect.x !== null && cachedRect.y !== null) {
     const cachedPosition = { x: cachedRect.x, y: cachedRect.y }
     const clampedPosition = clampPositionToBounds(cachedPosition, dialogWidth.value, dialogHeight.value)
     position.value = clampedPosition
     if (clampedPosition.x !== cachedPosition.x || clampedPosition.y !== cachedPosition.y) {
-      appState.setAiDialogRect({
+      appStateCache.setAiDialogRect({
         width: dialogWidth.value,
         height: dialogHeight.value,
         x: clampedPosition.x,
@@ -298,7 +280,7 @@ const initDialogState = () => {
     const anchorTop = config.mainConfig.topbarViewHeight + agentViewStore.agentViewAnchorRect.y + agentViewStore.agentViewAnchorRect.height + 12
     const anchoredPosition = clampPositionToBounds({ x: anchorCenterX, y: anchorTop }, dialogWidth.value, dialogHeight.value)
     position.value = anchoredPosition
-    appState.setAiDialogRect({
+    appStateCache.setAiDialogRect({
       width: dialogWidth.value,
       height: dialogHeight.value,
       x: anchoredPosition.x,

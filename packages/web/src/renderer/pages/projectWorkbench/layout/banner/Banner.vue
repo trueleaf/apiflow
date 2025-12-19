@@ -285,7 +285,7 @@ import { useBanner } from '@/store/projectWorkbench/bannerStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { getAllAncestorIds, findNodeById } from '@/helper'
-import { appState } from '@/cache/appState/appStateCache'
+import { appStateCache } from '@/cache/appState/appStateCache'
 
 
 //搜索数据
@@ -307,9 +307,9 @@ type ApidocBannerWithProjectId = ApidocBanner & { projectId: string }
 const { t } = useI18n()
 const projectId = ref(router.currentRoute.value.query.id as string);
 const docTree: Ref<TreeNodeOptions['store'] | null | TreeNodeOptions> = ref(null);
-const bannerViewMode = ref<'list' | 'history'>(appState.getBannerViewMode());
+const bannerViewMode = ref<'list' | 'history'>(appStateCache.getBannerViewMode());
 watch(bannerViewMode, (newVal) => {
-  appState.setBannerViewMode(newVal)
+  appStateCache.setBannerViewMode(newVal)
 })
 const pasteValue: Ref<ApidocBanner[] | null> = ref(null); //需要粘贴的数据
 const selectNodes: Ref<ApidocBannerWithProjectId[]> = ref([]); //当前选中节点

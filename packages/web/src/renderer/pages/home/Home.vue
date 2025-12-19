@@ -37,10 +37,10 @@ import tabA from './projectManager/ProjectManager.vue'
 import tabB from './groupManager/GroupManager.vue'
 import { useI18n } from 'vue-i18n'
 import { TabPaneName } from 'element-plus'
-import { appState } from '@/cache/appState/appStateCache.ts'
+import { appStateCache } from '@/cache/appState/appStateCache.ts'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 
-const { getActiveHomeTab, setActiveHomeTab } = appState
+const { getActiveHomeTab, setActiveHomeTab } = appStateCache
 const { t } = useI18n()
 
 const activeName = ref('projectList'); //当前被选中的tab

@@ -10,7 +10,7 @@ type ProjectManagerSearchState = {
   searchConditions: AdvancedSearchConditions;
   isFold: boolean;
 };
-class AppState {
+class AppStateCache {
   // 获取项目管理页搜索状态
   getProjectManagerSearchState(): ProjectManagerSearchState | null {
     try {
@@ -428,6 +428,27 @@ class AppState {
       logger.error('设置AI对话框矩形信息失败', { error });
     }
   }
+  // 获取AI对话框视图
+  getAiDialogView(): 'chat' | 'history' | 'agent' | 'config' | null {
+    try {
+      const view = localStorage.getItem(cacheKey.appState.aiDialog.view);
+      if (view === 'chat' || view === 'history' || view === 'agent' || view === 'config') {
+        return view;
+      }
+      return null;
+    } catch (error) {
+      logger.error('获取AI对话框视图失败', { error });
+      return null;
+    }
+  }
+  // 设置AI对话框视图
+  setAiDialogView(view: 'chat' | 'history' | 'agent' | 'config') {
+    try {
+      localStorage.setItem(cacheKey.appState.aiDialog.view, view);
+    } catch (error) {
+      logger.error('设置AI对话框视图失败', { error });
+    }
+  }
   // 获取AI对话框模式
   getAiDialogMode(): 'agent' | 'ask' | null {
     try {
@@ -580,4 +601,4 @@ class AppState {
     }
   }
 }
-export const appState = new AppState();
+export const appStateCache = new AppStateCache();

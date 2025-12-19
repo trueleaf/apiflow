@@ -1,7 +1,7 @@
 import { defineStore } from "pinia"
 import { ref } from "vue";
 import { projectWorkbenchCache } from '@/cache/projectWorkbench/projectWorkbenchCache.ts';
-import { appState } from '@/cache/appState/appStateCache';
+import { appStateCache } from '@/cache/appState/appStateCache';
 import { request } from '@/api/api';
 import { ApidocProjectBaseInfoState, CommonResponse } from "@src/types";
 import { useVariable } from './variablesStore';
@@ -38,12 +38,12 @@ export const useProjectWorkbench = defineStore('projectWorkbench', () => {
   //改变响应区域高度
   const changeResponseHeight = (height: number): void => {
     responseHeight.value = height;
-    appState.setResponseHeight(height);
+    appStateCache.setResponseHeight(height);
     updateResponseHeightCssVar(height);
   }
   //初始化响应区域高度
   const initResponseHeight = (): void => {
-    responseHeight.value = appState.getResponseHeight();
+    responseHeight.value = appStateCache.getResponseHeight();
     updateResponseHeightCssVar(responseHeight.value);
   }
   //初始化项目基本信息

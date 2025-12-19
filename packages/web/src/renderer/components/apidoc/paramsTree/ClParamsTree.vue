@@ -329,7 +329,7 @@ import { llmProviderCache } from '@/cache/ai/llmProviderCache';
 import { useLLMClientStore } from '@/store/ai/llmClientStore';
 import type { ChatRequestBody } from '@src/types/ai/agent.type';
 import { useRouter } from 'vue-router';
-import { appState } from '@/cache/appState/appStateCache';
+import { appStateCache } from '@/cache/appState/appStateCache';
 import { useVariable } from '@/store/projectWorkbench/variablesStore';
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { isEqual } from 'lodash-es';
@@ -998,7 +998,7 @@ const handleMultilineTextChange = () => {
 // AI点击处理
 const handleAiClick = () => {
   if (!isAiConfigValid.value) {
-    appState.setActiveLocalDataMenu('ai-settings');
+    appStateCache.setActiveLocalDataMenu('ai-settings');
     router.push('/settings');
     return;
   }

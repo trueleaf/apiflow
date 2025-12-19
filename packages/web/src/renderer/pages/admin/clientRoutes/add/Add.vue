@@ -22,13 +22,10 @@ import SFormItem from '@/components/common/forms/form/ClFormItem.vue'
 import { request } from '@/api/api';
 
 
-defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
+const modelValue = defineModel<boolean>({
+  default: false
 })
-const emits = defineEmits(['update:modelValue', 'success'])
+const emits = defineEmits(['success'])
 const { t } = useI18n()
 
 const formInfo = ref({
@@ -45,7 +42,7 @@ const form = ref<FormInstance>();
 */
 //关闭弹窗
 const handleClose = () => {
-  emits('update:modelValue', false);
+  modelValue.value = false;
 }
 const handleSaveClientRoute = () => {
   form.value?.validate((valid) => {

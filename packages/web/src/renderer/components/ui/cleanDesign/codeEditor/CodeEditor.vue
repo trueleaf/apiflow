@@ -25,11 +25,10 @@ import { useHoverProvider } from './useHoverProvider'
 import type { EditorConfig } from './types'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 
+const modelValue = defineModel<string>({
+  default: ''
+})
 const props = defineProps({
-  modelValue: {
-    type: String,
-    default: ''
-  },
   readOnly: {
     type: Boolean,
     default: false,
@@ -73,7 +72,7 @@ const props = defineProps({
     default: false
   }
 });
-const emits = defineEmits(['update:modelValue', 'change', 'ready', 'undo', 'redo'])
+const emits = defineEmits(['change', 'ready', 'undo', 'redo'])
 const appSettingsStore = useAppSettings()
 const editorDom: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
@@ -98,11 +97,11 @@ const editorStyle = computed(() => {
     overflow: 'hidden'
   };
 });
-watch(() => props.modelValue, (newValue) => {
+watch(modelValue, (newValue) => {
   const value = monacoInstance?.getValue();
   if (newValue !== value) {
     const position = monacoInstance?.getPosition();
-    monacoInstance?.setValue(props.modelValue)
+    monacoInstance?.setValue(newValue ?? '')
     if (position) {
       monacoInstance?.setPosition(position);
     }
@@ -257,7 +256,7 @@ const initEnvironment = () => {
   }
 }
 const handleFormat = () => {
-  const formatStr = beautify(props.modelValue, { indent_size: 4 });
+  const formatStr = beautify(modelValue.value, { indent_size: 4 });
   monacoInstance?.setValue(formatStr)
 }
 const changeLanguage = (lang: string) => {
@@ -275,8 +274,9 @@ const initEvent = () => {
   if (!monacoInstance) return;
   monacoInstance.onDidChangeModelContent(() => {
     if (!isComposing) {
-      emits('update:modelValue', monacoInstance?.getValue())
-      emits('change', monacoInstance?.getValue())
+      const currentValue = monacoInstance?.getValue() ?? ''
+      modelValue.value = currentValue
+      emits('change', currentValue)
     }
     if (props.autoHeight) {
       setTimeout(() => {
@@ -293,7 +293,7 @@ const initEvent = () => {
 const initEditor = () => {
   if (!editorDom.value) return
   const defaultOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
-    value: props.modelValue,
+    value: modelValue.value,
     language: props.language,
     theme: getMonacoTheme(),
     automaticLayout: false,
@@ -344,8 +344,9 @@ const initEditor = () => {
     });
     editorDomElement.addEventListener('compositionend', () => {
       isComposing = false;
-      emits('update:modelValue', monacoInstance?.getValue())
-      emits('change', monacoInstance?.getValue())
+      const currentValue = monacoInstance?.getValue() ?? ''
+      modelValue.value = currentValue
+      emits('change', currentValue)
     });
   }
   initResizeLister();

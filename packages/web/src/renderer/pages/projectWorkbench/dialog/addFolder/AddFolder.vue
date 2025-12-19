@@ -25,11 +25,10 @@ import { nanoid } from 'nanoid';
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 
+const modelValue = defineModel<boolean>({
+  default: false
+})
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
   //父元素id，没有则代表在根元素上新增节点
   pid: {
     type: String,
@@ -38,7 +37,7 @@ const props = defineProps({
 })
 
 const form = ref<FormInstance>();
-const emits = defineEmits(["update:modelValue", "success"]);
+const emits = defineEmits(["success"]);
 const { t } = useI18n()
 
 const runtimeStore = useRuntime();
@@ -47,7 +46,7 @@ const route = useRoute()
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
 
 let keydownHandler: ((e: KeyboardEvent) => void) | null = null;
-watch(() => props.modelValue, (newVal) => {
+watch(modelValue, (newVal) => {
   if (newVal) {
     keydownHandler = (e: KeyboardEvent) => {
       if (e.key === 'Enter' && !loading.value) {
@@ -123,7 +122,7 @@ const handleAddFolder = () => {
 }
 //关闭弹窗
 const handleClose = () => {
-  emits('update:modelValue', false);
+  modelValue.value = false;
 }
 
 </script>

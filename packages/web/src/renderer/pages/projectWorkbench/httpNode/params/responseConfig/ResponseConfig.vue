@@ -116,7 +116,7 @@ import { Effect } from 'element-plus';
 import { ArrowDown, CaretRight, CaretBottom } from '@element-plus/icons-vue'
 import { Pencil, Plus, Trash2 } from 'lucide-vue-next'
 import type { HttpNodeResponseParams, HttpNodeResponseContentType, HttpNodeContentType } from '@src/types'
-import { appState } from '@/cache/appState/appStateCache.ts'
+import { appStateCache } from '@/cache/appState/appStateCache.ts'
 import SStatus from './children/Status.vue'
 import SMime from './children/Mime.vue'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
@@ -338,10 +338,10 @@ const collapseState: Ref<Record<string, boolean>> = ref({});
 const toggleCollapseCard = (itemId: string) => {
   const currentState = collapseState.value[itemId] !== false;
   collapseState.value[itemId] = !currentState;
-  appState.setHttpNodeResponseCollapseState(itemId, !currentState);
+  appStateCache.setHttpNodeResponseCollapseState(itemId, !currentState);
 }
 onMounted(() => {
-  collapseState.value = appState.getHttpNodeResponseCollapseState();
+  collapseState.value = appStateCache.getHttpNodeResponseCollapseState();
 })
 
 //响应参数记录函数
