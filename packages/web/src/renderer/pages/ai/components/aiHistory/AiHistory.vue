@@ -83,10 +83,6 @@ type SessionInfo = {
 
 const { t } = useI18n()
 const agentViewStore = useAgentViewStore()
-const emit = defineEmits<{
-  (event: 'back'): void
-  (event: 'select', sessionId: string, mode: 'agent' | 'ask'): void
-}>()
 
 const sessionList = ref<SessionInfo[]>([])
 const loading = ref(false)
@@ -145,13 +141,13 @@ const formatTime = (timestamp: string): string => {
   }
 }
 const handleBack = () => {
-  emit('back')
+  agentViewStore.handleBackToChat()
 }
 const handleSelectSession = (sessionId: string) => {
   if (sessionId === agentViewStore.currentSessionId) {
-    emit('back')
+    agentViewStore.handleBackToChat()
   } else {
-    emit('select', sessionId, getSessionMode(sessionId))
+    agentViewStore.handleSelectSession(sessionId, getSessionMode(sessionId))
   }
 }
 const handleDeleteSession = async (sessionId: string) => {

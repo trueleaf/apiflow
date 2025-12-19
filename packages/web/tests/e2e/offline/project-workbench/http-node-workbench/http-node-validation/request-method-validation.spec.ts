@@ -195,12 +195,9 @@ test.describe('RequestMethodValidation', () => {
     const responseArea = contentPage.getByTestId('response-area');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     await expect(contentPage.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
-    // 验证HEAD方法响应不包含body（响应体应为空或显示无数据）
-    const responseBody = responseArea.locator('.s-json-editor').first();
-    // HEAD请求不应返回响应体内容，可能显示为空或无数据提示
-    const hasContent = await responseBody.textContent();
-    // HEAD方法返回的body应该是空的或不包含method字段
-    expect(hasContent?.includes('"method":')).toBeFalsy();
+    // 验证HEAD方法响应不包含body（响应区域展示空态文案：数据为空）
+    await expect(responseArea).toContainText('数据为空', { timeout: 10000 });
+    await expect(responseArea).not.toContainText('"method":');
   });
   // 验证OPTIONS方法能正常发送
   test('验证OPTIONS方法能正常发送', async ({ contentPage, clearCache, createProject }) => {

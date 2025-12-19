@@ -1,7 +1,7 @@
 <template>
   <div class="ai-config-view">
     <div class="ai-config-header">
-      <button class="ai-back-btn" type="button" @click="emit('back')">
+      <button class="ai-back-btn" type="button" @click="agentViewStore.switchToChat()">
         <ArrowLeft :size="16" />
         <span>{{ t('返回') }}</span>
       </button>
@@ -80,7 +80,7 @@
         </template>
       </div>
       <div class="config-footer">
-        <button class="ai-config-btn" type="button" @click="emit('go-to-full-settings')">
+        <button class="ai-config-btn" type="button" @click="handleGoToFullSettings">
           <span>{{ t('更多设置') }}</span>
           <ArrowRight :size="14" class="config-icon" />
         </button>
@@ -92,18 +92,19 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { useDebounceFn } from '@vueuse/core'
 import { ArrowLeft, ArrowRight } from 'lucide-vue-next'
+import { IPC_EVENTS } from '@src/types/ipc'
+import { appState } from '@/cache/appState/appStateCache'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
+import { useAgentViewStore } from '@/store/ai/agentView'
 import type { LLMProviderType } from '@src/types/ai/agent.type'
 
 const { t } = useI18n()
-const emit = defineEmits<{
-  'back': []
-  'go-to-full-settings': []
-}>()
-
+const router = useRouter()
 const llmClientStore = useLLMClientStore()
+const agentViewStore = useAgentViewStore()
 
 const providerType = ref<LLMProviderType>('DeepSeek')
 const localApiKey = ref('')
@@ -154,6 +155,12 @@ const handleProviderChange = (type: LLMProviderType) => {
     })
   }
   syncFromStore()
+}
+// 跳转完整设置页
+const handleGoToFullSettings = () => {
+  appState.setActiveLocalDataMenu('ai-settings')
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab)
+  router.push('/settings')
 }
 // 监听配置变化，自动保存
 watch([providerType, localApiKey, localBaseURL, localModel], () => {

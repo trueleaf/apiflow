@@ -43,6 +43,7 @@ test.describe('AfLocalStorageApi', () => {
     const storedValue = await contentPage.evaluate(() => {
       return localStorage.getItem('af_user_id');
     });
+    console.log('Stored Value:', storedValue);
     expect(storedValue).toBe('"12345"');
   });
   // 测试用例2: 使用af.localStorage.get(key)获取持久数据

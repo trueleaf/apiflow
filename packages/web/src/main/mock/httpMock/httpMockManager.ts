@@ -514,7 +514,6 @@ export class HttpMockManager {
         jsonStrict: false,    //允许解析非对象/数组的JSON（如 true/"xxx"）
         text: true,
         includeUnparsed: true,  // 保留原始请求体到 rawBody
-        parsedMethods: ['POST', 'PUT', 'PATCH', 'DELETE', 'GET', 'HEAD', 'OPTIONS'],  // 确保所有方法都解析 body
         extendTypes: {
           text: [
             'text/plain',

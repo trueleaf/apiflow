@@ -1,10 +1,10 @@
 <template>
   <div class="ai-chat-view">
     <div class="ai-messages" ref="messagesRef">
-      <div v-if="!isConfigValid" class="ai-empty-state ai-empty-state-setup">
+      <div v-if="!agentViewStore.isAiConfigValid" class="ai-empty-state ai-empty-state-setup">
         <AlertTriangle class="ai-empty-icon" :size="48" />
         <p class="ai-empty-text mb-2">{{ t('请先前往AI设置配置apiKey与apiUrl') }}</p>
-        <button class="ai-config-btn" type="button" @click="emit('open-settings')">
+        <button class="ai-config-btn" type="button" @click="agentViewStore.switchToConfig()">
           <span>{{ t('配置ApiKey') }}</span>
           <ArrowRight :size="14" class="config-icon"/>
         </button>
@@ -37,11 +37,7 @@ import TextResponseMessageItem from './components/TextResponseMessageItem.vue'
 import InfoMessageItem from './components/InfoMessageItem.vue'
 import ErrorMessageItem from './components/ErrorMessageItem.vue'
 
-defineProps<{
-  isConfigValid: boolean
-}>()
 const emit = defineEmits<{
-  'open-settings': []
   'retry': [originalPrompt: string, mode: 'agent' | 'ask', messageId: string]
 }>()
 const { t } = useI18n()

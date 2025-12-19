@@ -8,7 +8,7 @@
         </div>
       </div>
       <textarea
-        v-model="localInputMessage"
+        v-model="agentViewStore.inputMessage"
         class="ai-input"
         :placeholder="inputPlaceholder"
         @keydown="handleKeydown"
@@ -21,7 +21,7 @@
             type="button"
             @click="handleToggleModeMenu"
           >
-            <span>{{ t(modeLabelMap[mode]) }}</span>
+            <span>{{ t(modeLabelMap[agentViewStore.mode]) }}</span>
             <ChevronDown :size="14" />
           </button>
           <div v-if="isModeMenuVisible" class="ai-dropdown">
@@ -33,7 +33,7 @@
               @click="handleSelectMode(item)"
             >
               <span class="ai-dropdown-icon">
-                <Check v-if="mode === item" :size="14" />
+                <Check v-if="agentViewStore.mode === item" :size="14" />
               </span>
               <span class="ai-dropdown-label">{{ t(modeLabelMap[item]) }}</span>
             </button>
@@ -68,13 +68,13 @@
         <button
           class="ai-new-chat-btn"
           type="button"
-          @click="emit('create-conversation')"
+          @click="agentViewStore.handleCreateConversation()"
           :title="t('新建对话')"
         >
           <Plus :size="20" />
         </button>
         <button
-          v-if="isWorking"
+          v-if="agentViewStore.workingStatus === 'working'"
           class="ai-stop-btn"
           type="button"
           @click="emit('stop')"
@@ -102,6 +102,7 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { Send, ChevronDown, Check, StopCircle, Plus, FolderKanban } from 'lucide-vue-next'
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
+import { useAgentViewStore } from '@/store/ai/agentView'
 
 const isMacOS = navigator.platform.toUpperCase().includes('MAC')
 const modeOptions = ['agent', 'ask'] as const
@@ -115,29 +116,20 @@ type AiModel = typeof modelOptions[number]
 const modelLabelMap: Record<AiModel, string> = {
   deepseek: 'DeepSeek'
 }
-const props = defineProps<{
-  isWorking: boolean
-}>()
-const inputMessage = defineModel<string>('inputMessage', { required: true })
-const mode = defineModel<AiMode>('mode', { required: true })
-const model = defineModel<AiModel>('model', { required: true })
+const model = ref<AiModel>('deepseek')
 const emit = defineEmits<{
   'send': []
   'stop': []
-  'create-conversation': []
 }>()
 const { t } = useI18n()
 const route = useRoute()
 const projectWorkbench = useProjectWorkbench()
+const agentViewStore = useAgentViewStore()
 const inputWrapperRef = ref<HTMLElement | null>(null)
 const isModeMenuVisible = ref(false)
 const isProjectEditPage = computed(() => route.path.includes('/v1/apidoc/doc-edit'))
 const projectName = computed(() => projectWorkbench.projectName)
 const isModelMenuVisible = ref(false)
-const localInputMessage = computed({
-  get: () => inputMessage.value,
-  set: (val) => { inputMessage.value = val }
-})
 
 const modelDisplayName = computed(() => t(modelLabelMap[model.value]))
 const inputPlaceholder = computed(() => {
@@ -159,7 +151,7 @@ const handleToggleModelMenu = (event: MouseEvent) => {
   }
 }
 const handleSelectMode = (value: AiMode) => {
-  mode.value = value
+  agentViewStore.setMode(value)
   isModeMenuVisible.value = false
 }
 const handleSelectModel = (value: AiModel) => {
@@ -169,7 +161,7 @@ const handleSelectModel = (value: AiModel) => {
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault()
-    if (!props.isWorking) {
+    if (agentViewStore.workingStatus !== 'working') {
       emit('send')
     }
   }
