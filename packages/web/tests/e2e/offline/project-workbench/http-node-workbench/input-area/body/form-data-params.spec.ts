@@ -25,7 +25,7 @@ test.describe('FormDataParams', () => {
       await bodyTab.click();
       await contentPage.waitForTimeout(300);
       // 选择FormData类型
-      const formdataRadio = contentPage.locator('.el-radio').filter({ hasText: 'formdata' });
+      const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
       await contentPage.waitForTimeout(300);
       // 获取初始行数
@@ -70,7 +70,7 @@ test.describe('FormDataParams', () => {
       await bodyTab.click();
       await contentPage.waitForTimeout(300);
       // 选择FormData类型
-      const formdataRadio = contentPage.locator('.el-radio').filter({ hasText: 'formdata' });
+      const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
       await contentPage.waitForTimeout(300);
       // 添加表单字段: username=admin
@@ -149,7 +149,7 @@ test.describe('FormDataParams', () => {
       await bodyTab.click();
       await contentPage.waitForTimeout(300);
       // 选择FormData类型
-      const formdataRadio = contentPage.locator('.el-radio').filter({ hasText: 'formdata' });
+      const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
       await contentPage.waitForTimeout(300);
       // 添加表单字段: app_id={{app_id}} (项目变量)
@@ -203,7 +203,7 @@ test.describe('FormDataParams', () => {
       await bodyTab.click();
       await contentPage.waitForTimeout(300);
       // 选择FormData类型
-      const formdataRadio = contentPage.locator('.el-radio').filter({ hasText: 'formdata' });
+      const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
       await contentPage.waitForTimeout(300);
       // 添加表单字段: phone=@phone (mock数据)
@@ -275,7 +275,7 @@ test.describe('FormDataParams', () => {
       await bodyTab.click();
       await contentPage.waitForTimeout(300);
       // 选择FormData类型
-      const formdataRadio = contentPage.locator('.el-radio').filter({ hasText: 'formdata' });
+      const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
       await contentPage.waitForTimeout(300);
       // 添加表单字段: action={{service}}_query (变量混合文本)
@@ -329,7 +329,7 @@ test.describe('FormDataParams', () => {
       await bodyTab.click();
       await contentPage.waitForTimeout(300);
       // 选择FormData类型
-      const formdataRadio = contentPage.locator('.el-radio').filter({ hasText: 'formdata' });
+      const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
       await contentPage.waitForTimeout(300);
       // 添加表单字段: username=admin (已勾选)
@@ -346,7 +346,7 @@ test.describe('FormDataParams', () => {
       await contentPage.waitForTimeout(300);
       // 取消勾选password参数的"是否发送"checkbox (el-tree内置复选框)
       const treeNodes = contentPage.locator('.body-params .el-tree-node');
-      const secondNodeCheckbox = treeNodes.nth(1).locator('.el-checkbox');
+      const secondNodeCheckbox = treeNodes.nth(1).locator('.el-tree-node__content > .el-checkbox').first();
       await secondNodeCheckbox.click();
       await contentPage.waitForTimeout(300);
       // 发送请求

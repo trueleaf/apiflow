@@ -24,7 +24,8 @@ test.describe('RawParams', () => {
     // 选择POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    await contentPage.getByRole('option', { name: 'POST' }).click();
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    await postOption.click();
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
@@ -36,17 +37,15 @@ test.describe('RawParams', () => {
     // 选择Text格式
     const rawTypeSelect = contentPage.getByTestId('raw-body-type-select');
     await rawTypeSelect.click();
-    await contentPage.getByRole('option', { name: 'text/plain' }).click();
+    const textPlainOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^text$/ });
+    await textPlainOption.click();
     await contentPage.waitForTimeout(300);
     // 输入纯文本内容
-    const rawTextarea = contentPage.locator('.raw-textarea textarea, .raw-editor textarea, [data-testid="raw-body-input"]');
-    if (await rawTextarea.count() > 0) {
-      await rawTextarea.fill('This is plain text content');
-    } else {
-      const monacoEditor = contentPage.locator('.s-monaco-editor').first();
-      await monacoEditor.click();
-      await contentPage.keyboard.type('This is plain text content');
-    }
+    const monacoEditor = contentPage.locator('.s-json-editor').first();
+    await monacoEditor.click({ force: true });
+    await contentPage.waitForTimeout(300);
+    await contentPage.keyboard.press('ControlOrMeta+a');
+    await contentPage.keyboard.type('This is plain text content');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -82,7 +81,8 @@ test.describe('RawParams', () => {
     // 选择POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    await contentPage.getByRole('option', { name: 'POST' }).click();
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    await postOption.click();
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
@@ -94,17 +94,15 @@ test.describe('RawParams', () => {
     // 选择HTML格式
     const rawTypeSelect = contentPage.getByTestId('raw-body-type-select');
     await rawTypeSelect.click();
-    await contentPage.getByRole('option', { name: 'text/html' }).click();
+    const textHtmlOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^html$/ });
+    await textHtmlOption.click();
     await contentPage.waitForTimeout(300);
     // 输入HTML内容
-    const rawTextarea = contentPage.locator('.raw-textarea textarea, .raw-editor textarea, [data-testid="raw-body-input"]');
-    if (await rawTextarea.count() > 0) {
-      await rawTextarea.fill('<html><body>Hello World</body></html>');
-    } else {
-      const monacoEditor = contentPage.locator('.s-monaco-editor').first();
-      await monacoEditor.click();
-      await contentPage.keyboard.type('<html><body>Hello World</body></html>');
-    }
+    const monacoEditor = contentPage.locator('.s-json-editor').first();
+    await monacoEditor.click({ force: true });
+    await contentPage.waitForTimeout(300);
+    await contentPage.keyboard.press('ControlOrMeta+a');
+    await contentPage.keyboard.type('<html><body>Hello World</body></html>');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -142,7 +140,8 @@ test.describe('RawParams', () => {
     // 选择POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    await contentPage.getByRole('option', { name: 'POST' }).click();
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    await postOption.click();
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
@@ -154,17 +153,15 @@ test.describe('RawParams', () => {
     // 选择XML格式
     const rawTypeSelect = contentPage.getByTestId('raw-body-type-select');
     await rawTypeSelect.click();
-    await contentPage.getByRole('option', { name: 'application/xml' }).click();
+    const xmlOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^xml$/ });
+    await xmlOption.click();
     await contentPage.waitForTimeout(300);
     // 输入XML内容
-    const rawTextarea = contentPage.locator('.raw-textarea textarea, .raw-editor textarea, [data-testid="raw-body-input"]');
-    if (await rawTextarea.count() > 0) {
-      await rawTextarea.fill('<?xml version="1.0"?><root><item>test</item></root>');
-    } else {
-      const monacoEditor = contentPage.locator('.s-monaco-editor').first();
-      await monacoEditor.click();
-      await contentPage.keyboard.type('<?xml version="1.0"?><root><item>test</item></root>');
-    }
+    const monacoEditor = contentPage.locator('.s-json-editor').first();
+    await monacoEditor.click({ force: true });
+    await contentPage.waitForTimeout(300);
+    await contentPage.keyboard.press('ControlOrMeta+a');
+    await contentPage.keyboard.type('<?xml version="1.0"?><root><item>test</item></root>');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -203,7 +200,8 @@ test.describe('RawParams', () => {
     // 选择POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    await contentPage.getByRole('option', { name: 'POST' }).click();
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    await postOption.click();
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
@@ -215,17 +213,15 @@ test.describe('RawParams', () => {
     // 选择JavaScript格式
     const rawTypeSelect = contentPage.getByTestId('raw-body-type-select');
     await rawTypeSelect.click();
-    await contentPage.getByRole('option', { name: 'text/javascript' }).click();
+    const javascriptOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^javascript$/ });
+    await javascriptOption.click();
     await contentPage.waitForTimeout(300);
     // 输入JavaScript代码
-    const rawTextarea = contentPage.locator('.raw-textarea textarea, .raw-editor textarea, [data-testid="raw-body-input"]');
-    if (await rawTextarea.count() > 0) {
-      await rawTextarea.fill('var x = 123;');
-    } else {
-      const monacoEditor = contentPage.locator('.s-monaco-editor').first();
-      await monacoEditor.click();
-      await contentPage.keyboard.type('var x = 123;');
-    }
+    const monacoEditor = contentPage.locator('.s-json-editor').first();
+    await monacoEditor.click({ force: true });
+    await contentPage.waitForTimeout(300);
+    await contentPage.keyboard.press('ControlOrMeta+a');
+    await contentPage.keyboard.type('var x = 123;');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -261,7 +257,8 @@ test.describe('RawParams', () => {
     // 选择POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    await contentPage.getByRole('option', { name: 'POST' }).click();
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    await postOption.click();
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
@@ -273,7 +270,8 @@ test.describe('RawParams', () => {
     // 选择Text格式但不输入任何内容
     const rawTypeSelect = contentPage.getByTestId('raw-body-type-select');
     await rawTypeSelect.click();
-    await contentPage.getByRole('option', { name: 'text/plain' }).click();
+    const textPlainOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^text$/ });
+    await textPlainOption.click();
     await contentPage.waitForTimeout(300);
     // 不在编辑器中输入任何内容(保持为空)
     // 发送请求

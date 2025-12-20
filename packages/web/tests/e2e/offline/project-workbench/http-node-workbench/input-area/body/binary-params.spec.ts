@@ -80,31 +80,27 @@ test.describe('BinaryParams', () => {
     const confirmBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
-    // 先添加变量
-    const variableBtn = contentPage.locator('.variable-btn, [data-testid="variable-btn"]');
-    if (await variableBtn.isVisible()) {
-      await variableBtn.click();
-      await contentPage.waitForTimeout(300);
-      const variableDialog = contentPage.locator('.el-dialog').filter({ hasText: /变量/ });
-      if (await variableDialog.isVisible()) {
-        const addBtn = variableDialog.locator('.el-button', { hasText: /新增|添加/ }).first();
-        if (await addBtn.isVisible()) {
-          await addBtn.click();
-          await contentPage.waitForTimeout(200);
-          const keyInput = variableDialog.locator('input').first();
-          await keyInput.fill('binaryFilePath');
-          const valueInput = variableDialog.locator('input').nth(1);
-          await valueInput.fill(testFilePath);
-          const saveBtn = variableDialog.locator('.el-button--primary').last();
-          await saveBtn.click();
-          await contentPage.waitForTimeout(300);
-        }
-        const closeBtn = variableDialog.locator('.el-dialog__close, .el-icon-close').first();
-        if (await closeBtn.isVisible()) {
-          await closeBtn.click();
-        }
-      }
-    }
+    // 打开变量管理页签并创建变量
+    const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
+    await variableBtn.click();
+    await contentPage.waitForTimeout(300);
+    const variableTab = contentPage.locator('[data-testid="project-nav-tab-variable"]');
+    await expect(variableTab).toHaveClass(/active/, { timeout: 5000 });
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    const addPanel = variablePage.locator('.left');
+    const nameFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ });
+    await nameFormItem.locator('input').first().fill('binaryFilePath');
+    const valueFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ });
+    await valueFormItem.locator('textarea').first().fill(testFilePath);
+    const confirmAddBtn2 = addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first();
+    await confirmAddBtn2.click();
+    await contentPage.waitForTimeout(500);
+    await expect(variablePage.locator('.right')).toContainText('binaryFilePath', { timeout: 5000 });
+    // 切回HTTP节点页签
+    const httpTab = contentPage.locator('.nav .item').filter({ hasText: 'Binary变量模式有效变量测试' }).first();
+    await httpTab.click();
+    await contentPage.waitForTimeout(300);
     // 设置POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
@@ -243,10 +239,8 @@ test.describe('BinaryParams', () => {
     await contentPage.waitForTimeout(300);
     // 使用文件输入选择文件
     const fileInput = contentPage.locator('.file-mode input[type="file"]');
-    if (await fileInput.count() > 0) {
-      await fileInput.setInputFiles(testFilePath);
-      await contentPage.waitForTimeout(500);
-    }
+    await fileInput.setInputFiles(testFilePath);
+    await contentPage.waitForTimeout(500);
     // 点击发送按钮
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
