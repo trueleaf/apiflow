@@ -66,12 +66,12 @@
 import { ref, onMounted, onUnmounted, watch, computed, ComponentPublicInstance } from 'vue'
 import draggable from 'vuedraggable'
 import { Language } from '@src/types'
+import type { AnchorRect } from '@src/types/common'
 import type { AppWorkbenchHeaderTab } from '@src/types/appWorkbench/appWorkbenchType'
 import type { RuntimeNetworkMode } from '@src/types/runtime'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { Folder, Settings, Bot } from 'lucide-vue-next'
-import type { AnchorRect } from '@src/types/common'
 import { changeLanguage } from '@/i18n'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
@@ -250,17 +250,7 @@ const handleAddProject = () => {
   emit('createProject')
 }
 const handleShowAiDialog = () => {
-  let position: AnchorRect | undefined
-  if (aiButtonRef.value) {
-    const rect = aiButtonRef.value.getBoundingClientRect()
-    position = {
-      x: rect.left,
-      y: rect.top,
-      width: rect.width,
-      height: rect.height
-    }
-  }
-  agentViewStore.showAgentViewDialog(position)
+  agentViewStore.showAgentViewDialog()
 }
 // 添加项目 Tab
 const addProjectTab = (projectId: string, projectName: string) => {

@@ -21,7 +21,7 @@
             type="button"
             @click="handleToggleModeMenu"
           >
-            <span>{{ t(modeLabelMap[agentViewStore.mode]) }}</span>
+            <span>{{ modeLabelMap[agentViewStore.mode] }}</span>
             <ChevronDown :size="14" />
           </button>
           <div v-if="isModeMenuVisible" class="ai-dropdown">
@@ -35,7 +35,7 @@
               <span class="ai-dropdown-icon">
                 <Check v-if="agentViewStore.mode === item" :size="14" />
               </span>
-              <span class="ai-dropdown-label">{{ t(modeLabelMap[item]) }}</span>
+              <span class="ai-dropdown-label">{{ modeLabelMap[item] }}</span>
             </button>
           </div>
         </div>
@@ -53,7 +53,7 @@
           v-if="agentViewStore.workingStatus === 'working'"
           class="ai-stop-btn"
           type="button"
-          @click="emit('stop')"
+          @click="handleStop"
           :title="t('停止')"
         >
           <StopCircle :size="16" />
@@ -62,7 +62,7 @@
           v-else
           class="ai-send-btn"
           type="button"
-          @click="emit('send')"
+          @click="handleSend"
           :title="t('发送')"
           :disabled="isSendDisabled"
         >
@@ -80,6 +80,7 @@ import { useI18n } from 'vue-i18n'
 import { Send, ChevronDown, Check, StopCircle, Plus, FolderKanban } from 'lucide-vue-next'
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import { useAgentViewStore } from '@/store/ai/agentView'
+import { useAgentStore } from '@/store/ai/agentStore'
 
 const isMacOS = navigator.platform.toUpperCase().includes('MAC')
 const modeOptions = ['agent', 'ask'] as const
@@ -88,14 +89,11 @@ const modeLabelMap: Record<AiMode, string> = {
   agent: 'Agent',
   ask: 'Ask'
 }
-const emit = defineEmits<{
-  'send': []
-  'stop': []
-}>()
 const { t } = useI18n()
 const route = useRoute()
 const projectWorkbench = useProjectWorkbench()
 const agentViewStore = useAgentViewStore()
+const agentStore = useAgentStore()
 const inputWrapperRef = ref<HTMLElement | null>(null)
 const isModeMenuVisible = ref(false)
 const isProjectEditPage = computed(() => route.path.includes('/v1/apidoc/doc-edit'))
@@ -118,7 +116,7 @@ const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault()
     if (agentViewStore.workingStatus !== 'working' && !isSendDisabled.value) {
-      emit('send')
+      handleSend()
     }
   }
 }
@@ -136,6 +134,33 @@ const handleClickOutside = (event: MouseEvent) => {
 const closeMenus = () => {
   isModeMenuVisible.value = false
 }
+const handleStop = async () => {
+  if (agentViewStore.mode === 'agent') {
+    agentStore.stopAgent()
+    agentViewStore.setWorkingStatus('finish')
+    return
+  }
+  await agentViewStore.stopCurrentConversation()
+}
+const handleSend = async () => {
+  if (agentViewStore.mode === 'agent') {
+    const message = agentViewStore.inputMessage.trim()
+    if (!message) return
+    agentViewStore.inputMessage = ''
+    agentViewStore.lastAskPrompt = message
+    const askMessage = agentViewStore.createAskMessage(message, 'agent')
+    await agentViewStore.addCurrentMessage(askMessage)
+    agentViewStore.setWorkingStatus('working')
+    const result = await agentStore.runAgent({ prompt: message })
+    agentViewStore.setWorkingStatus('finish')
+    if (result.code !== 0) {
+      const errorMessage = agentViewStore.createErrorMessage(result.msg, message, 'agent')
+      agentViewStore.addCurrentMessage(errorMessage)
+    }
+    return
+  }
+  await agentViewStore.sendAskFromInput()
+}
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
 })
@@ -143,7 +168,9 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 defineExpose({
-  closeMenus
+  closeMenus,
+  handleSend,
+  handleStop
 })
 </script>
 

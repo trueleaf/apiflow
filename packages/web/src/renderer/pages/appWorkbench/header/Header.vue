@@ -73,7 +73,6 @@ import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { Folder, Settings, Bot } from 'lucide-vue-next'
 import Update from './components/update/Update.vue'
-import type { AnchorRect } from '@src/types/common'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { changeLanguage } from '@/i18n'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
@@ -273,19 +272,7 @@ const toggleNetworkMode = () => {
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, newMode)
 }
 const handleAddProject = () => window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.createProject)
-const handleShowAiDialog = () => {
-  let position: AnchorRect | undefined
-  if (aiButtonRef.value) {
-    const rect = aiButtonRef.value.getBoundingClientRect()
-    position = {
-      x: rect.left,
-      y: rect.top,
-      width: rect.width,
-      height: rect.height
-    }
-  }
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.showAiDialog, { position })
-}
+const handleShowAiDialog = () => window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.showAiDialog)
 // 绑定事件
 const bindEvent = () => {
   window.electronAPI?.windowManager.onWindowResize(handleWindowResize)

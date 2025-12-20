@@ -30,8 +30,11 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { nanoid } from 'nanoid/non-secure'
 import { Sparkles, AlertTriangle, ArrowRight } from 'lucide-vue-next'
+import type { ErrorMessage } from '@src/types/ai'
 import { useAgentViewStore } from '@/store/ai/agentView'
+import { useAgentStore } from '@/store/ai/agentStore'
 import AskMessageItem from '../aiAsk/components/AskMessageItem.vue'
 import LoadingMessageItem from '../aiAsk/components/LoadingMessageItem.vue'
 import TextResponseMessageItem from '../aiAsk/components/TextResponseMessageItem.vue'
@@ -39,11 +42,9 @@ import InfoMessageItem from '../aiAsk/components/InfoMessageItem.vue'
 import ErrorMessageItem from '../aiAsk/components/ErrorMessageItem.vue'
 import AgentExecutionMessageItem from './components/AgentExecutionMessageItem.vue'
 
-const emit = defineEmits<{
-  'retry': [originalPrompt: string, mode: 'agent' | 'ask', messageId: string]
-}>()
 const { t } = useI18n()
 const agentViewStore = useAgentViewStore()
+const agentStore = useAgentStore()
 const messagesRef = ref<HTMLElement | null>(null)
 const filteredMessages = computed(() => agentViewStore.currentMessageList.filter(msg => msg.mode === 'agent'))
 const scrollToBottom = () => {
@@ -56,8 +57,26 @@ const scrollToBottom = () => {
 watch(() => filteredMessages.value.length, () => {
   scrollToBottom()
 })
-const handleRetry = (originalPrompt: string, mode: 'agent' | 'ask', messageId: string) => {
-  emit('retry', originalPrompt, mode, messageId)
+const handleRetry = async (originalPrompt: string, _mode: 'agent' | 'ask', messageId: string) => {
+  agentViewStore.deleteCurrentMessageById(messageId)
+  agentViewStore.setWorkingStatus('working')
+  const result = await agentStore.runAgent({ prompt: originalPrompt })
+  agentViewStore.setWorkingStatus('finish')
+  if (result.code !== 0 && result.code !== -2) {
+    const errorMessage: ErrorMessage = {
+      id: nanoid(),
+      type: 'error',
+      errorType: agentViewStore.detectErrorType(result.msg),
+      content: result.msg,
+      errorDetail: result.msg,
+      originalPrompt,
+      timestamp: new Date().toISOString(),
+      sessionId: agentViewStore.currentSessionId,
+      mode: 'agent',
+      canBeContext: false
+    }
+    agentViewStore.addCurrentMessage(errorMessage)
+  }
 }
 defineExpose({
   scrollToBottom

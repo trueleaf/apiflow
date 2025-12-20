@@ -7,7 +7,9 @@ import { llmProviderCache } from '@/cache/ai/llmProviderCache';
 import { appStateCache } from '@/cache/appState/appStateCache';
 import { nanoid } from 'nanoid/non-secure';
 import { logger } from '@/helper';
-import type { AnchorRect } from '@src/types/common';
+import { config } from '@src/config/config';
+import { i18n } from '@/i18n';
+import { useLLMClientStore } from '../llmClientStore';
 
 export const useAgentViewStore = defineStore('agentView', () => {
   const currentMessageList = ref<AgentViewMessage[]>([]);
@@ -15,7 +17,6 @@ export const useAgentViewStore = defineStore('agentView', () => {
   const isLoadingSessionData = ref(false);
   const workingStatus = ref<'working' | 'finish'>('finish');
   const agentViewDialogVisible = ref(false);
-  const agentViewAnchorRect = ref<AnchorRect | null>(null);
   // 视图状态
   const currentView = ref<'chat' | 'history' | 'agent' | 'config'>('agent');
   const setCurrentView = (view: 'chat' | 'history' | 'agent' | 'config'): void => {
@@ -165,14 +166,25 @@ export const useAgentViewStore = defineStore('agentView', () => {
     workingStatus.value = status;
   };
   // 显示AgentView弹窗
-  const showAgentViewDialog = (anchorRect?: AnchorRect): void => {
-    agentViewAnchorRect.value = anchorRect ?? null;
+  const showAgentViewDialog = (): void => {
+    const cachedRect = appStateCache.getAiDialogRect();
+    if (cachedRect.x === null || cachedRect.y === null) {
+      const dialogWidth = cachedRect.width ?? config.renderConfig.aiDialog.defaultWidth;
+      const dialogHeight = cachedRect.height ?? config.renderConfig.aiDialog.defaultHeight;
+      const x = Math.max(0, Math.round((window.innerWidth - dialogWidth) / 2));
+      const y = Math.max(0, Math.round((window.innerHeight - dialogHeight) / 2));
+      appStateCache.setAiDialogRect({
+        width: cachedRect.width,
+        height: cachedRect.height,
+        x,
+        y
+      });
+    }
     agentViewDialogVisible.value = true;
   };
   // 隐藏AgentView弹窗
   const hideAgentViewDialog = (): void => {
     agentViewDialogVisible.value = false;
-    agentViewAnchorRect.value = null;
   };
   /*
   |--------------------------------------------------------------------------
@@ -279,6 +291,77 @@ export const useAgentViewStore = defineStore('agentView', () => {
     }
     resetStreamState();
     setWorkingStatus('finish');
+  };
+  // 发送 Ask 消息（从输入框读取）
+  const sendAskFromInput = async (): Promise<void> => {
+    if (mode.value !== 'ask') return;
+    if (!isAiConfigValid.value) return;
+    if (isStreaming.value) return;
+    const message = inputMessage.value.trim();
+    if (!message) return;
+    inputMessage.value = '';
+    lastAskPrompt.value = message;
+    const askMessage = createAskMessage(message, 'ask');
+    const loadingMessage = createLoadingMessage();
+    const requestId = nanoid();
+    await addCurrentMessage(askMessage);
+    await addCurrentMessage(loadingMessage);
+    isStreaming.value = true;
+    currentStreamRequestId.value = requestId;
+    loadingMessageId.value = loadingMessage.id;
+    isFirstChunk.value = true;
+    streamingMessageId.value = null;
+    setWorkingStatus('working');
+    const requestBody = buildOpenAIRequestBody(message);
+    const llmClientStore = useLLMClientStore();
+    if (!llmClientStore.isAvailable()) {
+      if (loadingMessageId.value) {
+        deleteCurrentMessageById(loadingMessageId.value);
+        loadingMessageId.value = null;
+      }
+      const errorMessage = createErrorMessage(i18n.global.t('AI功能不可用'), message, 'ask');
+      void addCurrentMessage(errorMessage);
+      resetStreamState();
+      setWorkingStatus('finish');
+      return;
+    }
+    try {
+      const textDecoder = new TextDecoder('utf-8');
+      const streamController = llmClientStore.chatStream(
+        requestBody,
+        {
+          onData: (chunk: Uint8Array) => {
+            const chunkStr = textDecoder.decode(chunk, { stream: true });
+            handleStreamData(requestId, chunkStr);
+          },
+          onEnd: () => {
+            handleStreamEnd(requestId);
+          },
+          onError: (err: Error | string) => {
+            const errorMsg = err instanceof Error ? err.message : String(err);
+            handleStreamError(requestId, errorMsg);
+          }
+        }
+      );
+      cancelCurrentStream.value = async () => {
+        streamController?.abort();
+      };
+    } catch (error) {
+      if (loadingMessageId.value) {
+        deleteCurrentMessageById(loadingMessageId.value);
+        loadingMessageId.value = null;
+      }
+      const errorDetail = error instanceof Error ? error.message : i18n.global.t('未知错误');
+      const errorMessage = createErrorMessage(errorDetail, message, 'ask');
+      void addCurrentMessage(errorMessage);
+      resetStreamState();
+      setWorkingStatus('finish');
+    }
+  };
+  // 发送 Ask 消息（指定 prompt）
+  const sendAskPrompt = async (prompt: string): Promise<void> => {
+    inputMessage.value = prompt;
+    await sendAskFromInput();
   };
   // 处理流数据
   const handleStreamData = (requestId: string, chunk: string): void => {
@@ -426,7 +509,6 @@ export const useAgentViewStore = defineStore('agentView', () => {
     isLoadingSessionData,
     workingStatus,
     agentViewDialogVisible,
-    agentViewAnchorRect,
     currentView,
     mode,
     inputMessage,
@@ -463,6 +545,8 @@ export const useAgentViewStore = defineStore('agentView', () => {
     buildOpenAIRequestBody,
     resetStreamState,
     stopCurrentConversation,
+    sendAskFromInput,
+    sendAskPrompt,
     handleStreamData,
     handleStreamEnd,
     handleStreamError,

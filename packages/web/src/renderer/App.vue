@@ -13,7 +13,7 @@
       </div>
     </div>
     <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
-    <Ai v-show="agentViewDialogVisible" v-model:visible="agentViewDialogVisible" />
+    <Ai v-show="agentViewDialogVisible" />
     <!-- Electron 环境：语言菜单由 IPC 控制显示 -->
     <LanguageMenu
       v-if="isElectronEnv"
@@ -49,7 +49,6 @@ import { appWorkbenchCache } from '@/cache/appWorkbench/appWorkbenchCache';
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
 import type { MockLog } from '@src/types/mockNode';
 import { IPC_EVENTS } from '@src/types/ipc';
-import type { AnchorRect } from '@src/types/common';
 import { useAppSettings } from '@/store/appSettings/appSettingsStore';
 import { shortcutManager } from '@/shortcut/index.ts';
 import { useAgentViewStore } from '@/store/ai/agentView';
@@ -174,8 +173,8 @@ const initAppHeaderEvent = () => {
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.createProject, () => {
     dialogVisible.value = true;
   });
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.showAiDialog, (payload?: { position?: AnchorRect }) => {
-    agentViewStore.showAgentViewDialog(payload?.position);
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.showAiDialog, () => {
+    agentViewStore.showAgentViewDialog();
   });
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.changeRoute, (path: string) => {
     router.push(path)

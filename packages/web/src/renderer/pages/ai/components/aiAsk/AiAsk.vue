@@ -37,14 +37,10 @@ import TextResponseMessageItem from './components/TextResponseMessageItem.vue'
 import InfoMessageItem from './components/InfoMessageItem.vue'
 import ErrorMessageItem from './components/ErrorMessageItem.vue'
 
-const emit = defineEmits<{
-  'retry': [originalPrompt: string, mode: 'agent' | 'ask', messageId: string]
-}>()
 const { t } = useI18n()
 const agentViewStore = useAgentViewStore()
 const messagesRef = ref<HTMLElement | null>(null)
 const filteredMessages = computed(() => agentViewStore.currentMessageList.filter(msg => msg.mode === 'ask'))
-
 const scrollToBottom = () => {
   nextTick(() => {
     if (messagesRef.value) {
@@ -55,8 +51,9 @@ const scrollToBottom = () => {
 watch(() => filteredMessages.value.length, () => {
   scrollToBottom()
 })
-const handleRetry = (originalPrompt: string, mode: 'agent' | 'ask', messageId: string) => {
-  emit('retry', originalPrompt, mode, messageId)
+const handleRetry = async (originalPrompt: string, _mode: 'agent' | 'ask', messageId: string) => {
+  agentViewStore.deleteCurrentMessageById(messageId)
+  await agentViewStore.sendAskPrompt(originalPrompt)
 }
 defineExpose({
   scrollToBottom
