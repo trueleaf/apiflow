@@ -233,6 +233,7 @@ const handleMoveRight = () => {
 }
 //=====================================contextmenu====================================//
 const handleContextmenu = async (e: MouseEvent, item: ApidocTab) => {
+  eventEmitter.emit('nav:contextmenu:open');
   currentOperationNode.value = item;
   contextmenuLeft.value = e.clientX;
   contextmenuTop.value = e.clientY;
@@ -611,6 +612,9 @@ const handleAddFileSuccess = (data: ApidocBanner) => {
 onMounted(() => {
   document.body.addEventListener('click', bindGlobalClick);
   document.body.addEventListener('contextmenu', bindGlobalClick);
+  eventEmitter.on('banner:contextmenu:open', () => {
+    showContextmenu.value = false;
+  });
   projectNavStore.initLocalNavs({
     projectId: router.currentRoute.value.query.id as string
   })
@@ -619,6 +623,7 @@ onMounted(() => {
 onUnmounted(() => {
   document.body.removeEventListener('click', bindGlobalClick);
   document.body.removeEventListener('contextmenu', bindGlobalClick);
+  eventEmitter.off('banner:contextmenu:open');
   eventEmitter.off('apidoc/tabs/addOrDeleteTab');
 })
 </script>

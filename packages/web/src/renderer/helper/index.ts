@@ -51,6 +51,8 @@ const emitter = mitt<{
   'tabs/deleteTab': ApidocTab,
   'websocket/editor/removePreEditor': void;
   'websocket/editor/removeAfterEditor': void;
+  'banner:contextmenu:open': void;
+  'nav:contextmenu:open': void;
 }>()
 
 export const eventEmitter = emitter;

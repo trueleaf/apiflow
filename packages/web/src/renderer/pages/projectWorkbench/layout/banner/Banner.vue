@@ -284,7 +284,7 @@ import { requestMethods } from '@/data/data'
 import { useBanner } from '@/store/projectWorkbench/bannerStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { IPC_EVENTS } from '@src/types/ipc'
-import { getAllAncestorIds, findNodeById } from '@/helper'
+import { getAllAncestorIds, findNodeById, eventEmitter } from '@/helper'
 import { appStateCache } from '@/cache/appState/appStateCache'
 
 
@@ -341,6 +341,7 @@ const contextmenuLeft = ref(0); //contextmenu left值
 const contextmenuTop = ref(0); //contextmenu top值
 
 const handleShowContextmenu = async (e: MouseEvent, data: ApidocBanner) => {
+  eventEmitter.emit('banner:contextmenu:open');
   showContextmenu.value = true;
   const isAlreadySelected = selectNodes.value.find(v => v._id === data._id);
   if (!isAlreadySelected) {
@@ -365,6 +366,7 @@ const handleShowContextmenu = async (e: MouseEvent, data: ApidocBanner) => {
   currentOperationalNode.value = data;
 }
 const handleWrapContextmenu = async (e: MouseEvent) => {
+  eventEmitter.emit('banner:contextmenu:open');
   selectNodes.value = [];
   try {
     const copyData = await navigator.clipboard.readText();
@@ -774,6 +776,9 @@ onMounted(async () => {
   }
   document.documentElement.addEventListener('click', handleGlobalClick);
   document.addEventListener('keyup', handleNodeKeyUp);
+  eventEmitter.on('nav:contextmenu:open', () => {
+    showContextmenu.value = false;
+  });
   if (window.electronAPI?.ipcManager?.onMain) {
     window.electronAPI.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.statusChanged, handleMockStatusChanged);
     window.electronAPI.ipcManager.onMain(IPC_EVENTS.websocketMock.mainToRenderer.statusChanged, handleWebSocketMockStatusChanged);
@@ -782,6 +787,7 @@ onMounted(async () => {
 onUnmounted(() => {
   document.documentElement.removeEventListener('click', handleGlobalClick);
   document.removeEventListener('keyup', handleNodeKeyUp);
+  eventEmitter.off('nav:contextmenu:open');
   if (window.electronAPI?.ipcManager?.removeListener) {
     window.electronAPI.ipcManager.removeListener(IPC_EVENTS.mock.mainToRenderer.statusChanged, handleMockStatusChanged);
     window.electronAPI.ipcManager.removeListener(IPC_EVENTS.websocketMock.mainToRenderer.statusChanged, handleWebSocketMockStatusChanged);
