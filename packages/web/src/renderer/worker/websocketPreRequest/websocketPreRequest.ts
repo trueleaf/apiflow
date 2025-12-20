@@ -1,6 +1,6 @@
 import { WS, InitDataMessage, EvalMessage, OnSetLocalStorageEvent, OnDeleteLocalStorageEvent, OnSetSessionStorageEvent, OnDeleteSessionStorageEvent } from './types/types.ts';
-import { variables } from '../preRequest/variables/index.ts'
-import { cookies } from '../preRequest/cookies/index.ts'
+import { variables } from '../httpNodePreRequest/variables/index.ts'
+import { cookies } from '../httpNodePreRequest/cookies/index.ts'
 import axios from 'axios'
 
 // WebSocket 专用的 localStorage 和 sessionStorage（发送不同的消息类型）
