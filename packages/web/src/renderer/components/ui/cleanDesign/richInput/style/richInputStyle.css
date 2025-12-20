@@ -60,6 +60,7 @@
   color: inherit;
   cursor: text;
   font-size: 12px;
+  word-break: break-all;
 }
 
 /* 段落样式 */

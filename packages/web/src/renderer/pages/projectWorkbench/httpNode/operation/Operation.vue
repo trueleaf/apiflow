@@ -19,6 +19,7 @@
         disable-history
         @update:modelValue="handleChangeUrl"
         @blur="handleFormatUrl"
+        @before-paste="handleBeforePaste"
       >
         <template #variable="{ label }">
           <div v-if="getVariableValue(label)" class="variable-popover">
@@ -59,11 +60,11 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, reactive } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { Refresh, Warning } from '@element-plus/icons-vue'
-import { Effect } from 'element-plus'
+import { Effect, ElMessageBox, ElMessage } from 'element-plus'
 import { config } from '@src/config/config'
 import { validateUrl, type UrlValidationResult } from '@/helper'
 import { router } from '@/router/index'
@@ -78,6 +79,7 @@ import { useHttpNodeResponse } from '@/store/httpNode/httpNodeResponseStore'
 import { useHttpNodeRequest } from '@/store/httpNode/httpNodeRequestStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useVariable } from '@/store/projectWorkbench/variablesStore'
+import { isCurlCommand, parseCurlToHttpNode } from '@/helper/curlParser'
 
 const projectNavStore = useProjectNav()
 const variableStore = useVariable()
@@ -115,6 +117,35 @@ const handleGoToVariableManage = () => {
     fixed: true,
     selected: true,
   })
+}
+/*
+|--------------------------------------------------------------------------
+| curl 解析相关
+|--------------------------------------------------------------------------
+*/
+const handleBeforePaste = async (text: string, shouldPrevent: { value: boolean }) => {
+  if (isCurlCommand(text)) {
+    shouldPrevent.value = true
+    try {
+      await ElMessageBox.confirm(
+        t('是否解析为请求？'),
+        t('检测到 cURL 命令'),
+        {
+          confirmButtonText: t('确定'),
+          cancelButtonText: t('取消'),
+        }
+      )
+      const parsedData = parseCurlToHttpNode(text)
+      if (parsedData) {
+        httpNodeStore.updateHttpNodeFromCurl(parsedData)
+        ElMessage.success(t('解析成功'))
+      } else {
+        ElMessage.error(t('解析失败，请检查 cURL 格式'))
+      }
+    } catch {
+      // 用户取消操作，不做任何处理
+    }
+  }
 }
 /*
 |--------------------------------------------------------------------------

@@ -193,6 +193,30 @@ export const useHttpNode = defineStore('httpNode', () => {
   const handleChangeBinaryInfo = (payload: DeepPartial<HttpNodeBodyParams['binary']>) => {
     assign(httpNodeInfo.value.item.requestBody.binary, payload)
   }
+  //从 curl 命令批量更新 HttpNode 数据
+  const updateHttpNodeFromCurl = (curlData: Partial<HttpNode>): void => {
+    if (curlData.item) {
+      if (curlData.item.method) {
+        httpNodeInfo.value.item.method = curlData.item.method
+      }
+      if (curlData.item.url) {
+        httpNodeInfo.value.item.url.prefix = curlData.item.url.prefix
+        httpNodeInfo.value.item.url.path = curlData.item.url.path
+      }
+      if (curlData.item.queryParams) {
+        httpNodeInfo.value.item.queryParams = curlData.item.queryParams
+      }
+      if (curlData.item.headers) {
+        httpNodeInfo.value.item.headers = curlData.item.headers
+      }
+      if (curlData.item.requestBody) {
+        httpNodeInfo.value.item.requestBody = curlData.item.requestBody
+      }
+      if (curlData.item.contentType) {
+        changeContentType(curlData.item.contentType)
+      }
+    }
+  }
   /*
     |--------------------------------------------------------------------------
     | response参数
@@ -716,5 +740,6 @@ export const useHttpNode = defineStore('httpNode', () => {
     changeAfterRequest,
     changeFormDataErrorInfoById,
     handleChangeBinaryInfo,
+    updateHttpNodeFromCurl,
   }
 })
