@@ -1,6 +1,9 @@
 import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const MOCK_SERVER_PORT = 3456;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 test.describe('FormDataParams', () => {
   // ========== stringOnlyFormdata: 类型全为string的formdata参数 ==========
@@ -368,30 +371,780 @@ test.describe('FormDataParams', () => {
   // ========== fileOnlyFormdata: 类型全为file的formdata参数 ==========
   test.describe('FileOnlyFormdata', () => {
     // 测试用例1: value模式切换后要清空之前的数据
-    test.skip('value模式切换后要清空之前的数据', async () => {});
+    test('value模式切换后要清空之前的数据', async ({ contentPage, clearCache, createProject }) => {
+      await clearCache();
+      await createProject();
+      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      // 新增HTTP节点
+      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+      await addFileBtn.click();
+      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const fileNameInput = addFileDialog.locator('input').first();
+      await fileNameInput.fill('FileOnlyFormData模式切换测试');
+      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+      await confirmAddBtn.click();
+      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      // 点击Body标签页
+      const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+      await bodyTab.click();
+      await contentPage.waitForTimeout(300);
+      // 选择FormData类型
+      const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
+      await formdataRadio.click();
+      await contentPage.waitForTimeout(300);
+      // 设置第一行key和type=file
+      const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+      await keyInputs.first().fill('avatar');
+      await contentPage.waitForTimeout(300);
+      const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
+      await typeSelects.first().click();
+      const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
+      await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
+      await contentPage.waitForTimeout(300);
+      // 选择文件模式并选择文件
+      const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
+      const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
+      const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
+      const selectLabel = fileValueWrapper.locator('[data-testid="params-tree-file-select-label"]');
+      if (await varInput.isVisible()) {
+        await toggleBtn.dispatchEvent('click');
+        await contentPage.waitForTimeout(300);
+      }
+      await expect(selectLabel).toBeVisible({ timeout: 5000 });
+      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
+      const fileInput = fileValueWrapper.locator('[data-testid="params-tree-file-input"]');
+      await fileInput.setInputFiles(logoFilePath);
+      await contentPage.waitForTimeout(500);
+      const fileText = fileValueWrapper.locator('.file-mode-wrap .text-wrap');
+      await expect(fileText).toContainText('logo.png', { timeout: 5000 });
+      // 切换到变量模式，应清空之前的文件选择
+      await toggleBtn.dispatchEvent('click');
+      await contentPage.waitForTimeout(300);
+      await expect(varInput).toBeVisible({ timeout: 5000 });
+      await expect(varInput).toHaveValue('', { timeout: 5000 });
+      // 再切回文件模式，仍应为空
+      await toggleBtn.dispatchEvent('click');
+      await contentPage.waitForTimeout(300);
+      await expect(selectLabel).toBeVisible({ timeout: 5000 });
+      await expect(fileText).not.toContainText('logo.png', { timeout: 5000 });
+    });
     // 测试用例2: value如果为文件模式,选择文件,调用echo接口返回结果正确
-    test.skip('value如果为文件模式选择文件调用echo接口返回结果正确', async () => {});
+    test('value如果为文件模式选择文件调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+      await clearCache();
+      await createProject();
+      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      // 新增HTTP节点
+      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+      await addFileBtn.click();
+      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const fileNameInput = addFileDialog.locator('input').first();
+      await fileNameInput.fill('FileOnlyFormData文件模式发送测试');
+      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+      await confirmAddBtn.click();
+      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      // 设置请求URL
+      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      // 选择POST方法
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await methodSelect.click();
+      await contentPage.getByRole('option', { name: 'POST' }).click();
+      // 点击Body标签页
+      const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+      await bodyTab.click();
+      await contentPage.waitForTimeout(300);
+      // 选择FormData类型
+      const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
+      await formdataRadio.click();
+      await contentPage.waitForTimeout(300);
+      // 设置第一行key和type=file
+      const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+      await keyInputs.first().fill('avatar');
+      await contentPage.waitForTimeout(300);
+      const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
+      await typeSelects.first().click();
+      const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
+      await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
+      await contentPage.waitForTimeout(300);
+      // 选择文件模式并选择文件
+      const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
+      const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
+      const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
+      const selectLabel = fileValueWrapper.locator('[data-testid="params-tree-file-select-label"]');
+      if (await varInput.isVisible()) {
+        await toggleBtn.click();
+        await contentPage.waitForTimeout(300);
+      }
+      await expect(selectLabel).toBeVisible({ timeout: 5000 });
+      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
+      await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
+      await contentPage.waitForTimeout(500);
+      // 发送请求
+      const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+      await sendBtn.click();
+      // 验证响应
+      const responseArea = contentPage.getByTestId('response-area');
+      await expect(responseArea).toBeVisible({ timeout: 10000 });
+      await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+      const responseBody = responseArea.locator('.s-json-editor').first();
+      await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
+      await expect(responseBody).toContainText('avatar', { timeout: 10000 });
+      await expect(responseBody).toContainText('File:', { timeout: 10000 });
+      await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
+    });
     // 测试用例3: value如果为文件模式,未选择文件,value输入框下方提示文件不存在
-    test.skip('value如果为文件模式未选择文件时提示文件不存在', async () => {});
+    test('value如果为文件模式未选择文件时提示文件不存在', async ({ contentPage, clearCache, createProject }) => {
+      await clearCache();
+      await createProject();
+      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      // 新增HTTP节点
+      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+      await addFileBtn.click();
+      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const fileNameInput = addFileDialog.locator('input').first();
+      await fileNameInput.fill('FileOnlyFormData文件模式未选文件测试');
+      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+      await confirmAddBtn.click();
+      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      // 设置请求URL
+      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      // 选择POST方法
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await methodSelect.click();
+      await contentPage.getByRole('option', { name: 'POST' }).click();
+      // 点击Body标签页
+      const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+      await bodyTab.click();
+      await contentPage.waitForTimeout(300);
+      // 选择FormData类型
+      const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
+      await formdataRadio.click();
+      await contentPage.waitForTimeout(300);
+      // 设置第一行key和type=file
+      const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+      await keyInputs.first().fill('avatar');
+      await contentPage.waitForTimeout(300);
+      const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
+      await typeSelects.first().click();
+      const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
+      await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
+      await contentPage.waitForTimeout(300);
+      // 选择文件模式，但不选择文件
+      const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
+      const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
+      const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
+      const selectLabel = fileValueWrapper.locator('[data-testid="params-tree-file-select-label"]');
+      if (await varInput.isVisible()) {
+        await toggleBtn.click();
+        await contentPage.waitForTimeout(300);
+      }
+      await expect(selectLabel).toBeVisible({ timeout: 5000 });
+      // 点击发送
+      const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+      await sendBtn.click();
+      const fileError = fileValueWrapper.locator('.file-error');
+      await expect(fileError).toBeVisible({ timeout: 10000 });
+      await expect(fileError).toContainText(/不存在/, { timeout: 10000 });
+      const responseArea = contentPage.getByTestId('response-area');
+      await expect(responseArea).toBeVisible({ timeout: 10000 });
+      const responseError = responseArea.getByTestId('response-error');
+      await expect(responseError).toBeVisible({ timeout: 10000 });
+    });
     // 测试用例4: value如果为变量模式,并且值为文件类型变量,并且文件存在,调用echo接口返回结果正确
-    test.skip('value如果为变量模式且文件存在调用echo接口返回结果正确', async () => {});
+    test('value如果为变量模式且文件存在调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+      await clearCache();
+      await createProject();
+      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      // 打开变量管理页面并创建变量
+      const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+      await moreBtn.click();
+      const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
+      await variableOption.click();
+      await contentPage.waitForTimeout(500);
+      const variablePage = contentPage.locator('.s-variable');
+      await expect(variablePage).toBeVisible({ timeout: 5000 });
+      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
+      const nameInput = variablePage.locator('.left input').first();
+      const valueTextarea = variablePage.locator('.left textarea');
+      const addBtn = variablePage.locator('.left .el-button--primary');
+      await nameInput.fill('avatar_path');
+      await valueTextarea.fill(logoFilePath);
+      await addBtn.click();
+      await contentPage.waitForTimeout(500);
+      // 新增HTTP节点
+      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+      await addFileBtn.click();
+      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const fileNameInput = addFileDialog.locator('input').first();
+      await fileNameInput.fill('FileOnlyFormData变量模式文件存在测试');
+      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+      await confirmAddBtn.click();
+      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      // 设置请求URL
+      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      // 选择POST方法
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await methodSelect.click();
+      await contentPage.getByRole('option', { name: 'POST' }).click();
+      // 点击Body标签页
+      const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+      await bodyTab.click();
+      await contentPage.waitForTimeout(300);
+      // 选择FormData类型
+      const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
+      await formdataRadio.click();
+      await contentPage.waitForTimeout(300);
+      // 设置第一行key和type=file
+      const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+      await keyInputs.first().fill('avatar');
+      await contentPage.waitForTimeout(300);
+      const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
+      await typeSelects.first().click();
+      const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
+      await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
+      await contentPage.waitForTimeout(300);
+      // 切换为变量模式并输入变量
+      const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
+      const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
+      const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
+      if (!(await varInput.isVisible())) {
+        await toggleBtn.click();
+        await contentPage.waitForTimeout(300);
+      }
+      await varInput.fill('{{avatar_path}}');
+      await contentPage.waitForTimeout(300);
+      // 发送请求
+      const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+      await sendBtn.click();
+      // 验证响应
+      const responseArea = contentPage.getByTestId('response-area');
+      await expect(responseArea).toBeVisible({ timeout: 10000 });
+      await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+      const responseBody = responseArea.locator('.s-json-editor').first();
+      await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
+      await expect(responseBody).toContainText('avatar', { timeout: 10000 });
+      await expect(responseBody).toContainText('File:', { timeout: 10000 });
+      await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
+    });
     // 测试用例5: value如果为变量模式,并且值为文件类型变量,并且文件不存在,提示文件不存在
-    test.skip('value如果为变量模式且文件不存在时提示文件不存在', async () => {});
+    test('value如果为变量模式且文件不存在时提示文件不存在', async ({ contentPage, clearCache, createProject }) => {
+      await clearCache();
+      await createProject();
+      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      // 打开变量管理页面并创建变量
+      const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+      await moreBtn.click();
+      const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
+      await variableOption.click();
+      await contentPage.waitForTimeout(500);
+      const variablePage = contentPage.locator('.s-variable');
+      await expect(variablePage).toBeVisible({ timeout: 5000 });
+      const notExistFilePath = path.resolve(process.cwd(), 'temp', `file-only-formdata-not-exist-${Date.now()}.txt`);
+      const nameInput = variablePage.locator('.left input').first();
+      const valueTextarea = variablePage.locator('.left textarea');
+      const addBtn = variablePage.locator('.left .el-button--primary');
+      await nameInput.fill('missing_path');
+      await valueTextarea.fill(notExistFilePath);
+      await addBtn.click();
+      await contentPage.waitForTimeout(500);
+      // 新增HTTP节点
+      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+      await addFileBtn.click();
+      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const fileNameInput = addFileDialog.locator('input').first();
+      await fileNameInput.fill('FileOnlyFormData变量模式文件不存在测试');
+      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+      await confirmAddBtn.click();
+      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      // 设置请求URL
+      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      // 选择POST方法
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await methodSelect.click();
+      await contentPage.getByRole('option', { name: 'POST' }).click();
+      // 点击Body标签页
+      const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+      await bodyTab.click();
+      await contentPage.waitForTimeout(300);
+      // 选择FormData类型
+      const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
+      await formdataRadio.click();
+      await contentPage.waitForTimeout(300);
+      // 设置第一行key和type=file
+      const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+      await keyInputs.first().fill('avatar');
+      await contentPage.waitForTimeout(300);
+      const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
+      await typeSelects.first().click();
+      const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
+      await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
+      await contentPage.waitForTimeout(300);
+      // 变量模式输入缺失文件变量
+      const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
+      const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
+      const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
+      if (!(await varInput.isVisible())) {
+        await toggleBtn.click();
+        await contentPage.waitForTimeout(300);
+      }
+      await varInput.fill('{{missing_path}}');
+      await contentPage.waitForTimeout(300);
+      // 发送请求
+      const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+      await sendBtn.click();
+      const fileError = fileValueWrapper.locator('.file-error');
+      await expect(fileError).toBeVisible({ timeout: 10000 });
+      await expect(fileError).toContainText(/不存在/, { timeout: 10000 });
+      const responseArea = contentPage.getByTestId('response-area');
+      await expect(responseArea).toBeVisible({ timeout: 10000 });
+      await expect(responseArea.getByTestId('response-error')).toBeVisible({ timeout: 10000 });
+    });
     // 测试用例6: value如果为变量模式,并且值不是变量,提示文件不存在
-    test.skip('value如果为变量模式但值不是变量时提示文件不存在', async () => {});
+    test('value如果为变量模式但值不是变量时提示文件不存在', async ({ contentPage, clearCache, createProject }) => {
+      await clearCache();
+      await createProject();
+      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      // 新增HTTP节点
+      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+      await addFileBtn.click();
+      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const fileNameInput = addFileDialog.locator('input').first();
+      await fileNameInput.fill('FileOnlyFormData变量模式非变量值测试');
+      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+      await confirmAddBtn.click();
+      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      // 设置请求URL
+      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      // 选择POST方法
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await methodSelect.click();
+      await contentPage.getByRole('option', { name: 'POST' }).click();
+      // 点击Body标签页
+      const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+      await bodyTab.click();
+      await contentPage.waitForTimeout(300);
+      // 选择FormData类型
+      const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
+      await formdataRadio.click();
+      await contentPage.waitForTimeout(300);
+      // 设置第一行key和type=file
+      const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+      await keyInputs.first().fill('avatar');
+      await contentPage.waitForTimeout(300);
+      const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
+      await typeSelects.first().click();
+      const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
+      await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
+      await contentPage.waitForTimeout(300);
+      // 变量模式输入普通文本
+      const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
+      const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
+      const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
+      if (!(await varInput.isVisible())) {
+        await toggleBtn.click();
+        await contentPage.waitForTimeout(300);
+      }
+      await varInput.fill('invalid_file_path');
+      await contentPage.waitForTimeout(300);
+      // 发送请求
+      const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+      await sendBtn.click();
+      const fileError = fileValueWrapper.locator('.file-error');
+      await expect(fileError).toBeVisible({ timeout: 10000 });
+      await expect(fileError).toContainText(/不存在|无效/, { timeout: 10000 });
+      const responseArea = contentPage.getByTestId('response-area');
+      await expect(responseArea).toBeVisible({ timeout: 10000 });
+      await expect(responseArea.getByTestId('response-error')).toBeVisible({ timeout: 10000 });
+    });
     // 测试用例7: value值合法,formdata参数key为变量,调用echo接口返回结果正确
-    test.skip('formdata参数key为变量调用echo接口返回结果正确', async () => {});
+    test('formdata参数key为变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+      await clearCache();
+      await createProject();
+      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      // 打开变量管理页面并创建变量
+      const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+      await moreBtn.click();
+      const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
+      await variableOption.click();
+      await contentPage.waitForTimeout(500);
+      const variablePage = contentPage.locator('.s-variable');
+      await expect(variablePage).toBeVisible({ timeout: 5000 });
+      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
+      const nameInput = variablePage.locator('.left input').first();
+      const valueTextarea = variablePage.locator('.left textarea');
+      const addBtn = variablePage.locator('.left .el-button--primary');
+      await nameInput.fill('upload_key');
+      await valueTextarea.fill('avatar');
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
+      // 新增HTTP节点
+      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+      await addFileBtn.click();
+      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const fileNameInput = addFileDialog.locator('input').first();
+      await fileNameInput.fill('FileOnlyFormData key变量测试');
+      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+      await confirmAddBtn.click();
+      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      // 设置请求URL
+      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      // 选择POST方法
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await methodSelect.click();
+      await contentPage.getByRole('option', { name: 'POST' }).click();
+      // 点击Body标签页
+      const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+      await bodyTab.click();
+      await contentPage.waitForTimeout(300);
+      // 选择FormData类型
+      const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
+      await formdataRadio.click();
+      await contentPage.waitForTimeout(300);
+      // key使用变量，type=file
+      const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+      await keyInputs.first().fill('{{upload_key}}');
+      await contentPage.waitForTimeout(300);
+      const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
+      await typeSelects.first().click();
+      const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
+      await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
+      await contentPage.waitForTimeout(300);
+      // 文件模式选择文件
+      const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
+      const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
+      const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
+      const selectLabel = fileValueWrapper.locator('[data-testid="params-tree-file-select-label"]');
+      if (await varInput.isVisible()) {
+        await toggleBtn.click();
+        await contentPage.waitForTimeout(300);
+      }
+      await expect(selectLabel).toBeVisible({ timeout: 5000 });
+      await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
+      await contentPage.waitForTimeout(500);
+      // 发送请求
+      const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+      await sendBtn.click();
+      // 验证响应
+      const responseArea = contentPage.getByTestId('response-area');
+      await expect(responseArea).toBeVisible({ timeout: 10000 });
+      await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+      const responseBody = responseArea.locator('.s-json-editor').first();
+      await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
+      await expect(responseBody).toContainText('avatar', { timeout: 10000 });
+      await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
+      const responseText = await responseBody.textContent();
+      expect(responseText || '').not.toContain('{{upload_key}}');
+    });
     // 测试用例8: value值合法,formdata参数key为mock,调用echo接口返回结果正确
-    test.skip('formdata参数key为mock调用echo接口返回结果正确', async () => {});
+    test('formdata参数key为mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+      await clearCache();
+      await createProject();
+      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      // 新增HTTP节点
+      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+      await addFileBtn.click();
+      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const fileNameInput = addFileDialog.locator('input').first();
+      await fileNameInput.fill('FileOnlyFormData key mock测试');
+      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+      await confirmAddBtn.click();
+      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      // 设置请求URL
+      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      // 选择POST方法
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await methodSelect.click();
+      await contentPage.getByRole('option', { name: 'POST' }).click();
+      // 点击Body标签页
+      const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+      await bodyTab.click();
+      await contentPage.waitForTimeout(300);
+      // 选择FormData类型
+      const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
+      await formdataRadio.click();
+      await contentPage.waitForTimeout(300);
+      // key使用mock，type=file
+      const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+      await keyInputs.first().fill('@id');
+      await contentPage.waitForTimeout(300);
+      const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
+      await typeSelects.first().click();
+      const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
+      await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
+      await contentPage.waitForTimeout(300);
+      // 文件模式选择文件
+      const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
+      const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
+      const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
+      const selectLabel = fileValueWrapper.locator('[data-testid="params-tree-file-select-label"]');
+      if (await varInput.isVisible()) {
+        await toggleBtn.click();
+        await contentPage.waitForTimeout(300);
+      }
+      await expect(selectLabel).toBeVisible({ timeout: 5000 });
+      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
+      await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
+      await contentPage.waitForTimeout(500);
+      // 发送请求
+      const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+      await sendBtn.click();
+      // 验证响应
+      const responseArea = contentPage.getByTestId('response-area');
+      await expect(responseArea).toBeVisible({ timeout: 10000 });
+      await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+      const responseBody = responseArea.locator('.s-json-editor').first();
+      await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
+      await expect(responseBody).toContainText('File:', { timeout: 10000 });
+      await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
+      const responseText = await responseBody.textContent();
+      expect(responseText || '').toContain('@id');
+    });
     // 测试用例9: value值合法,formdata参数key为混合变量,调用echo接口返回结果正确
-    test.skip('formdata参数key为混合变量调用echo接口返回结果正确', async () => {});
+    test('formdata参数key为混合变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+      await clearCache();
+      await createProject();
+      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      // 打开变量管理页面并创建变量
+      const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+      await moreBtn.click();
+      const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
+      await variableOption.click();
+      await contentPage.waitForTimeout(500);
+      const variablePage = contentPage.locator('.s-variable');
+      await expect(variablePage).toBeVisible({ timeout: 5000 });
+      const nameInput = variablePage.locator('.left input').first();
+      const valueTextarea = variablePage.locator('.left textarea');
+      const addBtn = variablePage.locator('.left .el-button--primary');
+      await nameInput.fill('service');
+      await valueTextarea.fill('user');
+      await addBtn.click();
+      await contentPage.waitForTimeout(500);
+      // 新增HTTP节点
+      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+      await addFileBtn.click();
+      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const fileNameInput = addFileDialog.locator('input').first();
+      await fileNameInput.fill('FileOnlyFormData key 混合变量测试');
+      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+      await confirmAddBtn.click();
+      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      // 设置请求URL
+      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      // 选择POST方法
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await methodSelect.click();
+      await contentPage.getByRole('option', { name: 'POST' }).click();
+      // 点击Body标签页
+      const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+      await bodyTab.click();
+      await contentPage.waitForTimeout(300);
+      // 选择FormData类型
+      const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
+      await formdataRadio.click();
+      await contentPage.waitForTimeout(300);
+      // key使用混合变量，type=file
+      const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+      await keyInputs.first().fill('file_{{service}}');
+      await contentPage.waitForTimeout(300);
+      const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
+      await typeSelects.first().click();
+      const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
+      await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
+      await contentPage.waitForTimeout(300);
+      // 文件模式选择文件
+      const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
+      const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
+      const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
+      const selectLabel = fileValueWrapper.locator('[data-testid="params-tree-file-select-label"]');
+      if (await varInput.isVisible()) {
+        await toggleBtn.click();
+        await contentPage.waitForTimeout(300);
+      }
+      await expect(selectLabel).toBeVisible({ timeout: 5000 });
+      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
+      await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
+      await contentPage.waitForTimeout(500);
+      // 发送请求
+      const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+      await sendBtn.click();
+      // 验证响应
+      const responseArea = contentPage.getByTestId('response-area');
+      await expect(responseArea).toBeVisible({ timeout: 10000 });
+      await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+      const responseBody = responseArea.locator('.s-json-editor').first();
+      await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
+      await expect(responseBody).toContainText('file_user', { timeout: 10000 });
+      await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
+      const responseText = await responseBody.textContent();
+      expect(responseText || '').not.toContain('{{service}}');
+    });
     // 测试用例10: file类型formdata参数是否发送未勾选那么当前参数不会发送
-    test.skip('file类型formdata参数是否发送未勾选那么当前参数不会发送', async () => {});
+    test('file类型formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject }) => {
+      await clearCache();
+      await createProject();
+      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      // 新增HTTP节点
+      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+      await addFileBtn.click();
+      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const fileNameInput = addFileDialog.locator('input').first();
+      await fileNameInput.fill('FileOnlyFormData是否发送控制测试');
+      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+      await confirmAddBtn.click();
+      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      // 设置请求URL
+      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      // 选择POST方法
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await methodSelect.click();
+      await contentPage.getByRole('option', { name: 'POST' }).click();
+      // 点击Body标签页
+      const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+      await bodyTab.click();
+      await contentPage.waitForTimeout(300);
+      // 选择FormData类型
+      const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
+      await formdataRadio.click();
+      await contentPage.waitForTimeout(300);
+      // 第一行string: username=admin
+      const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+      const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+      await keyInputs.first().fill('username');
+      await valueInputs.first().click();
+      await contentPage.keyboard.type('admin');
+      await contentPage.waitForTimeout(300);
+      // 第二行file: avatar=logo.png
+      await keyInputs.nth(1).fill('avatar');
+      await contentPage.waitForTimeout(300);
+      const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
+      await typeSelects.nth(1).click();
+      const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
+      await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
+      await contentPage.waitForTimeout(300);
+      const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
+      const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
+      const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
+      const selectLabel = fileValueWrapper.locator('[data-testid="params-tree-file-select-label"]');
+      if (await varInput.isVisible()) {
+        await toggleBtn.click();
+        await contentPage.waitForTimeout(300);
+      }
+      await expect(selectLabel).toBeVisible({ timeout: 5000 });
+      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
+      await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
+      await contentPage.waitForTimeout(500);
+      // 取消勾选第二行参数的"是否发送"checkbox
+      const treeNodes = contentPage.locator('.body-params .el-tree-node');
+      const secondNodeCheckbox = treeNodes.nth(1).locator('.el-tree-node__content > .el-checkbox').first();
+      await secondNodeCheckbox.click();
+      await contentPage.waitForTimeout(300);
+      // 发送请求
+      const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+      await sendBtn.click();
+      // 验证响应 - 只包含username,不包含avatar
+      const responseArea = contentPage.getByTestId('response-area');
+      await expect(responseArea).toBeVisible({ timeout: 10000 });
+      await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+      const responseBody = responseArea.locator('.s-json-editor').first();
+      await expect(responseBody).toContainText('username', { timeout: 10000 });
+      await expect(responseBody).toContainText('admin', { timeout: 10000 });
+      const responseText = await responseBody.textContent();
+      expect(responseText || '').not.toContain('avatar');
+      expect(responseText || '').not.toContain('logo.png');
+    });
   });
 
   // ========== mixedFormdata: 类型为file和string的混合类型的formdata参数 ==========
   test.describe('MixedFormdata', () => {
     // 测试用例1: 存在string类型value和file类型value时候,调用echo接口返回结果正确
-    test.skip('存在string类型value和file类型value时候调用echo接口返回结果正确', async () => {});
+    test('存在string类型value和file类型value时候调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+      await clearCache();
+      await createProject();
+      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      // 新增HTTP节点
+      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+      await addFileBtn.click();
+      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const fileNameInput = addFileDialog.locator('input').first();
+      await fileNameInput.fill('MixedFormData发送测试');
+      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+      await confirmAddBtn.click();
+      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      // 设置请求URL
+      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      // 选择POST方法
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await methodSelect.click();
+      await contentPage.getByRole('option', { name: 'POST' }).click();
+      // 点击Body标签页
+      const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+      await bodyTab.click();
+      await contentPage.waitForTimeout(300);
+      // 选择FormData类型
+      const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
+      await formdataRadio.click();
+      await contentPage.waitForTimeout(300);
+      // 第一行string: username=testuser
+      const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+      const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+      await keyInputs.first().fill('username');
+      await valueInputs.first().click();
+      await contentPage.keyboard.type('testuser');
+      await contentPage.waitForTimeout(300);
+      // 第二行file: avatar=logo.png
+      await keyInputs.nth(1).fill('avatar');
+      await contentPage.waitForTimeout(300);
+      const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
+      await typeSelects.nth(1).click();
+      const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
+      await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
+      await contentPage.waitForTimeout(300);
+      const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
+      const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
+      const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
+      const selectLabel = fileValueWrapper.locator('[data-testid="params-tree-file-select-label"]');
+      if (await varInput.isVisible()) {
+        await toggleBtn.click();
+        await contentPage.waitForTimeout(300);
+      }
+      await expect(selectLabel).toBeVisible({ timeout: 5000 });
+      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
+      await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
+      await contentPage.waitForTimeout(500);
+      // 发送请求
+      const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+      await sendBtn.click();
+      // 验证响应
+      const responseArea = contentPage.getByTestId('response-area');
+      await expect(responseArea).toBeVisible({ timeout: 10000 });
+      await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+      const responseBody = responseArea.locator('.s-json-editor').first();
+      await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
+      await expect(responseBody).toContainText('username', { timeout: 10000 });
+      await expect(responseBody).toContainText('testuser', { timeout: 10000 });
+      await expect(responseBody).toContainText('avatar', { timeout: 10000 });
+      await expect(responseBody).toContainText('File:', { timeout: 10000 });
+      await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
+    });
   });
 });
