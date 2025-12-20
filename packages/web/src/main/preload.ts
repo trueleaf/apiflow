@@ -2,11 +2,13 @@
 import {contextBridge, ipcRenderer, webUtils } from 'electron'
 import ip from 'ip'
 import { gotRequest } from './sendRequest'
+import { got } from 'got'
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts'
 import { WindowState } from '@src/types/index.ts'
 import { IPC_EVENTS } from '@src/types/ipc'
 import type { ChatRequestBody, LLMProviderSetting, OpenAiResponseBody, ChatStreamCallbacks } from '@src/types/ai/agent.type'
 import { globalLLMClient } from './ai/agent.ts'
+import type { Method } from 'got'
 const openDevTools = () => {
   ipcRenderer.send(IPC_EVENTS.window.rendererToMain.openDevTools)
 }
@@ -47,6 +49,73 @@ const exportHtml = async (params: StandaloneExportHtmlParams) => {
 }
 const exportWord = async (params: StandaloneExportHtmlParams) => {
   return ipcRenderer.invoke('apiflow-export-word', params)
+}
+
+// 前置脚本专用 http 请求(走 got，不自动携带环境参数)
+const afHttpRequest = async (options: {
+  url: string;
+  method: string;
+  headers?: Record<string, string>;
+  params?: Record<string, string | number | boolean | null | undefined>;
+  body?: unknown;
+  timeout?: number;
+}): Promise<{
+  statusCode: number;
+  statusMessage: string;
+  headers: Record<string, string | string[] | undefined>;
+  body: string;
+  json: unknown | null;
+}> => {
+  const url = new URL(options.url);
+  if (options.params) {
+    Object.keys(options.params).forEach((key) => {
+      const value = options.params?.[key];
+      if (value === undefined || value === null) {
+        return;
+      }
+      url.searchParams.set(key, String(value));
+    });
+  }
+  const method = options.method.toUpperCase() as Method;
+  const headers: Record<string, string> = { ...(options.headers ?? {}) };
+  let body: string | undefined = undefined;
+  if (options.body !== undefined) {
+    if (typeof options.body === 'string') {
+      body = options.body;
+    } else {
+      body = JSON.stringify(options.body);
+      if (!headers['content-type'] && !headers['Content-Type']) {
+        headers['content-type'] = 'application/json';
+      }
+    }
+  }
+  const response = await got(url.toString(), {
+    method,
+    headers,
+    timeout: { request: options.timeout ?? 60000 },
+    throwHttpErrors: false,
+    retry: { limit: 0 },
+    body,
+    responseType: 'text',
+  });
+  const json = (() => {
+    const text = response.body;
+    if (!text || !text.trim()) {
+      return null;
+    }
+    try {
+      return JSON.parse(text) as unknown;
+    } catch {
+      return null;
+    }
+  })();
+  return {
+    statusCode: response.statusCode,
+    statusMessage: response.statusMessage ?? '',
+    headers: response.headers,
+    body: response.body,
+    json,
+  };
 }
 
 const sendToMain = (channel: string, ...args: any[]) => {
@@ -225,6 +294,7 @@ const setUpdateSource = async (params: { sourceType: 'github' | 'custom'; custom
 contextBridge.exposeInMainWorld('electronAPI', {
   ip: ip.address(),
   sendRequest: gotRequest,
+  afHttpRequest,
   openDevTools,
   exportHtml,
   exportWord,

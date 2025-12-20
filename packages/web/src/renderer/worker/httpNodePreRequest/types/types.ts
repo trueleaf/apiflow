@@ -41,6 +41,47 @@ export type EvalMessage = {
   type: 'eval';
   code: string;
 };
+
+export type AfHttpRequestOptions = {
+  url: string;
+  method: string;
+  headers?: Record<string, string>;
+  params?: Record<string, string | number | boolean | null | undefined>;
+  body?: unknown;
+  timeout?: number;
+};
+
+export type AfHttpResponse = {
+  statusCode: number;
+  statusMessage: string;
+  headers: Record<string, string | string[] | undefined>;
+  body: string;
+  json: unknown | null;
+};
+
+export type OnHttpRequestEvent = {
+  type: 'pre-request-http-request';
+  value: {
+    requestId: string;
+    options: AfHttpRequestOptions;
+  };
+};
+
+export type HttpResponseMessage = {
+  type: 'pre-request-http-response';
+  value: {
+    requestId: string;
+    response: AfHttpResponse;
+  };
+};
+
+export type HttpErrorMessage = {
+  type: 'pre-request-http-error';
+  value: {
+    requestId: string;
+    message: string;
+  };
+};
 export type OnSetQueryParamsEvent = {
   type: 'pre-request-set-query-params';
   value: Record<string, string>;
@@ -162,15 +203,15 @@ export type OnDeleteCookieEvent = {
 //========================================================================//
 export type OnEvalSuccess = {
   type: 'pre-request-eval-success';
-  value: any;
+  value: unknown;
 };
 export type onEvalError = {
   type: 'pre-request-eval-error';
-  value: any;
+  value: unknown;
 };
 export type OnInitSuccess = {
   type: 'pre-request-init-success';
-  value: any;
+  value: unknown;
 };
 
 export type ReceivedEvent =
@@ -199,6 +240,7 @@ export type ReceivedEvent =
   | OnSetCookieEvent
   | OnDeleteCookieEvent
   | OnDeleteBinaryBodyEvent
+  | OnHttpRequestEvent
   | OnEvalSuccess
   | onEvalError
   | OnInitSuccess;
@@ -227,7 +269,16 @@ export type AF = {
     bodyType: 'json' | 'urlencoded' | 'formdata' | 'raw' | 'binary' | 'none';
   };
   variables: { [key: string]: BasicJSON };
-  sessionStorage: Record<string, any>;
-  localStorage: Record<string, any>;
+  sessionStorage: Record<string, unknown>;
+  localStorage: Record<string, unknown>;
   cookies: Record<string, string>;
+  http?: {
+    request: (url: string, options?: Omit<AfHttpRequestOptions, 'url'>) => Promise<AfHttpResponse>;
+    get: (url: string, options?: Omit<AfHttpRequestOptions, 'url' | 'method'>) => Promise<AfHttpResponse>;
+    post: (url: string, options?: Omit<AfHttpRequestOptions, 'url' | 'method'>) => Promise<AfHttpResponse>;
+    put: (url: string, options?: Omit<AfHttpRequestOptions, 'url' | 'method'>) => Promise<AfHttpResponse>;
+    delete: (url: string, options?: Omit<AfHttpRequestOptions, 'url' | 'method'>) => Promise<AfHttpResponse>;
+  };
 };
+
+export type WorkerMessage = InitDataMessage | EvalMessage | HttpResponseMessage | HttpErrorMessage;

@@ -1,5 +1,5 @@
 
-import { AF, InitDataMessage, EvalMessage } from './types/types.ts';
+import { AF, WorkerMessage, AfHttpRequestOptions, AfHttpResponse, HttpErrorMessage, HttpResponseMessage, OnHttpRequestEvent } from './types/types.ts';
 import { createRequestProxy } from './request/index.ts'
 import { variables } from './variables/index.ts'
 import { cookies } from './cookies/index.ts'
@@ -7,6 +7,68 @@ import { localStorage } from './localStorage/index.ts'
 import { sessionStorage } from './sessionStorage/index.ts'
 import axios from 'axios'
 import JSONbig from 'json-bigint';
+
+// 生成请求 id
+const createRequestId = (() => {
+  let index = 0;
+  return () => {
+    index += 1;
+    return `${Date.now()}-${index}`;
+  };
+})();
+
+// 发送 http 请求（由 renderer 转发到 preload/got 执行）
+const createHttpClient = () => {
+  const pending = new Map<string, { resolve: (response: AfHttpResponse) => void; reject: (error: Error) => void }>();
+  const request = async (url: string, options?: Omit<AfHttpRequestOptions, 'url'>): Promise<AfHttpResponse> => {
+    const requestId = createRequestId();
+    const message: OnHttpRequestEvent = {
+      type: 'pre-request-http-request',
+      value: {
+        requestId,
+        options: {
+          url,
+          method: options?.method ?? 'GET',
+          headers: options?.headers,
+          params: options?.params,
+          body: options?.body,
+          timeout: options?.timeout,
+        },
+      },
+    };
+    self.postMessage(message);
+    return new Promise<AfHttpResponse>((resolve, reject) => {
+      pending.set(requestId, { resolve, reject });
+    });
+  };
+  const resolve = (payload: HttpResponseMessage['value']) => {
+    const task = pending.get(payload.requestId);
+    if (!task) {
+      return;
+    }
+    pending.delete(payload.requestId);
+    task.resolve(payload.response);
+  };
+  const reject = (payload: HttpErrorMessage['value']) => {
+    const task = pending.get(payload.requestId);
+    if (!task) {
+      return;
+    }
+    pending.delete(payload.requestId);
+    task.reject(new Error(payload.message));
+  };
+  return {
+    request,
+    get: (url: string, options?: Omit<AfHttpRequestOptions, 'url' | 'method'>) => request(url, { ...options, method: 'GET' }),
+    post: (url: string, options?: Omit<AfHttpRequestOptions, 'url' | 'method'>) => request(url, { ...options, method: 'POST' }),
+    put: (url: string, options?: Omit<AfHttpRequestOptions, 'url' | 'method'>) => request(url, { ...options, method: 'PUT' }),
+    delete: (url: string, options?: Omit<AfHttpRequestOptions, 'url' | 'method'>) => request(url, { ...options, method: 'DELETE' }),
+    resolve,
+    reject,
+  };
+};
+
+const httpClient = createHttpClient();
 
 
 const af: AF = new Proxy({
@@ -17,9 +79,16 @@ const af: AF = new Proxy({
   sessionStorage,
   localStorage,
   cookies,
+  http: {
+    request: httpClient.request,
+    get: httpClient.get,
+    post: httpClient.post,
+    put: httpClient.put,
+    delete: httpClient.delete,
+  }
 }, {
   deleteProperty(target, key) {
-    if (key === 'nodeId' || key === 'request' || key === 'variables' || key === 'sessionStorage' || key === 'localStorage' || key === 'cookies') {
+    if (key === 'nodeId' || key === 'request' || key === 'variables' || key === 'sessionStorage' || key === 'localStorage' || key === 'cookies' || key === 'http') {
       return true;
     }
     return Reflect.deleteProperty(target, key);
@@ -36,9 +105,8 @@ const options = {
   axios,
 }
 
-self.onmessage = (e: MessageEvent<InitDataMessage | EvalMessage>) => {
+self.onmessage = (e: MessageEvent<WorkerMessage>) => {
   if (e.data.type === "initData") {
-    console.log('initData', e.data)
     const { reqeustInfo } = e.data;
     af.request.method = reqeustInfo.item.method;
     af.nodeId = reqeustInfo._id;
@@ -67,6 +135,12 @@ self.onmessage = (e: MessageEvent<InitDataMessage | EvalMessage>) => {
       type: 'pre-request-init-success',
     });
   }
+  if (e.data.type === 'pre-request-http-response') {
+    httpClient.resolve(e.data.value);
+  }
+  if (e.data.type === 'pre-request-http-error') {
+    httpClient.reject(e.data.value);
+  }
   if (e.data.type === "eval") {
     const { code } = e.data;
     try {
@@ -85,7 +159,6 @@ self.onmessage = (e: MessageEvent<InitDataMessage | EvalMessage>) => {
           value: JSON.parse(JSON.stringify(af)),
         });
       }).catch((error: Error) => {
-        console.error(error);
         self.postMessage({
           type: 'pre-request-eval-error',
           value: {
@@ -95,7 +168,6 @@ self.onmessage = (e: MessageEvent<InitDataMessage | EvalMessage>) => {
         });
       });
     } catch (error) {
-      console.error(error);
       self.postMessage({
         type: 'pre-request-eval-error',
         value: (error as Error)?.message,

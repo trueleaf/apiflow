@@ -803,6 +803,37 @@ export const sendRequest = async () => {
       httpNodeCache.setPreRequestLocalStorage(projectId, e.data.value);
     } else if (e.data.type === 'pre-request-delete-local-storage') {
       httpNodeCache.setPreRequestLocalStorage(projectId, {});
+    } else if (e.data.type === 'pre-request-http-request') {
+      const { requestId, options } = e.data.value;
+      try {
+        const response = await window.electronAPI?.afHttpRequest(options);
+        if (!response) {
+          worker.postMessage({
+            type: 'pre-request-http-error',
+            value: {
+              requestId,
+              message: 'afHttpRequest不可用',
+            }
+          });
+          return;
+        }
+        worker.postMessage({
+          type: 'pre-request-http-response',
+          value: {
+            requestId,
+            response,
+          }
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        worker.postMessage({
+          type: 'pre-request-http-error',
+          value: {
+            requestId,
+            message,
+          }
+        });
+      }
     }
   })
   worker.addEventListener('message', async (e: MessageEvent<OnEvalSuccess>) => {

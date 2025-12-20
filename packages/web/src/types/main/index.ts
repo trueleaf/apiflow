@@ -35,6 +35,20 @@ export type WindowState = {
 export type ElectronAPI = {
   ip: string,
   sendRequest: (options: GotRequestOptions) => Promise<void>,
+  afHttpRequest: (options: {
+    url: string;
+    method: string;
+    headers?: Record<string, string>;
+    params?: Record<string, string | number | boolean | null | undefined>;
+    body?: unknown;
+    timeout?: number;
+  }) => Promise<{
+    statusCode: number;
+    statusMessage: string;
+    headers: Record<string, string | string[] | undefined>;
+    body: string;
+    json: unknown | null;
+  }>,
   openDevTools: () => void,
   exportHtml: (params: StandaloneExportHtmlParams) => Promise<string>;
   exportWord: (params: StandaloneExportHtmlParams) => Promise<Uint8Array>;

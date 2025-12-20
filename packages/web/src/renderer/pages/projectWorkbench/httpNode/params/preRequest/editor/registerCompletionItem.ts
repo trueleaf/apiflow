@@ -182,7 +182,7 @@ const httpSuggestions = [
     },
     sortText: '1',
     kind: monaco.languages.CompletionItemKind.Method,
-    insertText: 'get("请求url", { headers: {}, params: {}, body: {} })',
+    insertText: 'get("请求url", { headers: {}, params: {}, timeout: 60000 })',
     keyword: 'af.http.get',
   }, {
     label: {
@@ -191,7 +191,7 @@ const httpSuggestions = [
     },
     sortText: '2',
     kind: monaco.languages.CompletionItemKind.Method,
-    insertText: 'post("请求url", { headers: {}, params: {}, body: {} })',
+    insertText: 'post("请求url", { headers: {}, params: {}, body: {}, timeout: 60000 })',
     keyword: 'af.http.post',
   }, {
     label: {
@@ -200,7 +200,7 @@ const httpSuggestions = [
     },
     sortText: '3',
     kind: monaco.languages.CompletionItemKind.Method,
-    insertText: 'put("请求url", { headers: {}, params: {}, body: {} })',
+    insertText: 'put("请求url", { headers: {}, params: {}, body: {}, timeout: 60000 })',
     keyword: 'af.http.put',
   }, {
     label: {
@@ -209,7 +209,7 @@ const httpSuggestions = [
     },
     sortText: '4',
     kind: monaco.languages.CompletionItemKind.Method,
-    insertText: 'delete("请求url", { headers: {}, params: {}, body: {} })',
+    insertText: 'delete("请求url", { headers: {}, params: {}, timeout: 60000 })',
     keyword: 'af.http.delete',
   }
 ]
