@@ -113,22 +113,22 @@
   <teleport to="body">
     <!-- 单个节点操作 -->
     <SContextmenu v-if="showContextmenu" :left="contextmenuLeft" :top="contextmenuTop">
+      <template v-if="currentOperationNode && currentOperationNode.tabType === 'httpMock'">
+        <SContextmenuItem v-if="!isMockServerRunning" :label="t('启动mock')" @click="handleStartMockServer"></SContextmenuItem>
+        <SContextmenuItem v-else :label="t('停止mock')" @click="handleStopMockServer"></SContextmenuItem>
+        <SContextmenuItem type="divider"></SContextmenuItem>
+      </template>
+      <template v-if="currentOperationNode && currentOperationNode.tabType === 'websocketMock'">
+        <SContextmenuItem v-if="!isWsMockServerRunning" :label="t('启动mock')" @click="handleStartWsMockServer"></SContextmenuItem>
+        <SContextmenuItem v-else :label="t('停止mock')" @click="handleStopWsMockServer"></SContextmenuItem>
+        <SContextmenuItem type="divider"></SContextmenuItem>
+      </template>
       <SContextmenuItem :label="t('关闭')" hot-key="Ctrl + W" @click="handleCloseCurrentTab()"></SContextmenuItem>
       <SContextmenuItem :label="t('关闭左侧')" @click="handleCloseLeftTab"></SContextmenuItem>
       <SContextmenuItem :label="t('关闭右侧')" @click="handleCloseRightTab"></SContextmenuItem>
       <SContextmenuItem :label="t('关闭其他')" @click="handleCloseOtherTab"></SContextmenuItem>
       <SContextmenuItem :label="t('全部关闭')" @click="handleCloseAllTab"></SContextmenuItem>
       <SContextmenuItem :label="t('强制全部关闭')" @click="handleForceCloseAllTab"></SContextmenuItem>
-      <template v-if="currentOperationNode && currentOperationNode.tabType === 'httpMock'">
-        <SContextmenuItem type="divider"></SContextmenuItem>
-        <SContextmenuItem v-if="!isMockServerRunning" :label="t('启动Mock服务器')" @click="handleStartMockServer"></SContextmenuItem>
-        <SContextmenuItem v-else :label="t('停止Mock服务器')" @click="handleStopMockServer"></SContextmenuItem>
-      </template>
-      <template v-if="currentOperationNode && currentOperationNode.tabType === 'websocketMock'">
-        <SContextmenuItem type="divider"></SContextmenuItem>
-        <SContextmenuItem v-if="!isWsMockServerRunning" :label="t('启动Mock服务器')" @click="handleStartWsMockServer"></SContextmenuItem>
-        <SContextmenuItem v-else :label="t('停止Mock服务器')" @click="handleStopWsMockServer"></SContextmenuItem>
-      </template>
       <!-- <SContextmenuItem v-if="currentOperationNode && currentOperationNode.tabType === 'http'" type="divider"></SContextmenuItem> -->
       <!-- <SContextmenuItem v-if="currentOperationNode && currentOperationNode.tabType === 'http'" :label="t('复制url')"></SContextmenuItem>
             <SContextmenuItem v-if="currentOperationNode && currentOperationNode.tabType === 'http'" :label="t('刷新')"></SContextmenuItem> -->
@@ -245,7 +245,7 @@ const handleContextmenu = async (e: MouseEvent, item: ApidocTab) => {
     isWsMockServerRunning.value = await websocketMockNodeStore.checkMockNodeEnabledStatus(item._id);
   }
 }
-// 启动Mock服务器
+// 启动mock
 const handleStartMockServer = async () => {
   if (!currentOperationNode.value) return;
   try {
@@ -283,28 +283,30 @@ const handleStartMockServer = async () => {
     const result = await window.electronAPI?.mock?.startServer(JSON.parse(JSON.stringify(mockDataWithProject)));
     if (result?.code === 0) {
       isMockServerRunning.value = true;
-      ElMessage.success(t('启动Mock服务器成功'));
+      eventEmitter.emit('mock/server/statusChanged', { nodeId: currentOperationNode.value._id, status: 'running' });
+      ElMessage.success(t('启动mock成功'));
     } else {
-      console.error('启动Mock服务器失败:', result);
-      ElMessage.error(result?.msg || t('启动Mock服务器失败'));
+      console.error('启动mock失败:', result);
+      ElMessage.error(result?.msg || t('启动mock失败'));
     }
   } catch (error) {
-    console.error('启动Mock服务器异常:', error);
-    ElMessage.error(t('启动Mock服务器失败'));
+    console.error('启动mock异常:', error);
+    ElMessage.error(t('启动mock失败'));
   }
 }
-// 停止Mock服务器
+// 停止mock
 const handleStopMockServer = async () => {
   if (!currentOperationNode.value) return;
   try {
     const result = await window.electronAPI?.mock?.stopServer(currentOperationNode.value._id);
     if (result?.code === 0) {
       isMockServerRunning.value = false;
+      eventEmitter.emit('mock/server/statusChanged', { nodeId: currentOperationNode.value._id, status: 'stopped' });
     } else {
-      ElMessage.error(result?.msg || t('停止Mock服务器失败'));
+      ElMessage.error(result?.msg || t('停止mock失败'));
     }
   } catch (error) {
-    ElMessage.error(t('停止Mock服务器失败'));
+    ElMessage.error(t('停止mock失败'));
   }
 }
 // 启动WebSocket Mock服务器
@@ -335,12 +337,12 @@ const handleStartWsMockServer = async () => {
     const result = await window.electronAPI?.websocketMock?.startServer(JSON.parse(JSON.stringify(mockDataWithProject)));
     if (result?.code === 0) {
       isWsMockServerRunning.value = true;
-      ElMessage.success(t('启动Mock服务器成功'));
+      ElMessage.success(t('启动mock成功'));
     } else {
-      ElMessage.error(result?.msg || t('启动Mock服务器失败'));
+      ElMessage.error(result?.msg || t('启动mock失败'));
     }
   } catch (error) {
-    ElMessage.error(t('启动Mock服务器失败'));
+    ElMessage.error(t('启动mock失败'));
   }
 }
 // 停止WebSocket Mock服务器
@@ -351,10 +353,10 @@ const handleStopWsMockServer = async () => {
     if (result?.code === 0) {
       isWsMockServerRunning.value = false;
     } else {
-      ElMessage.error(result?.msg || t('停止Mock服务器失败'));
+      ElMessage.error(result?.msg || t('停止mock失败'));
     }
   } catch (error) {
-    ElMessage.error(t('停止Mock服务器失败'));
+    ElMessage.error(t('停止mock失败'));
   }
 }
 // 中键点击关闭Tab

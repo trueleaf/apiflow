@@ -194,9 +194,9 @@ export const IPC_EVENTS = {
     rendererToMain: {
       /** 根据节点ID获取Mock配置 */
       getByNodeId: 'mock:renderer:to:main:get-by-node-id',
-      /** 启动Mock服务器 */
+      /** 启动mock */
       startServer: 'mock:renderer:to:main:start-server',
-      /** 停止Mock服务器 */
+      /** 停止mock */
       stopServer: 'mock:renderer:to:main:stop-server',
       /** 根据ID替换Mock配置 */
       replaceById: 'mock:renderer:to:main:replace-by-id',

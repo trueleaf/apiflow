@@ -220,6 +220,11 @@
       <!-- 单个节点操作 -->
       <SContextmenu v-if="showContextmenu && selectNodes.length <= 1" :left="contextmenuLeft"
         :top="contextmenuTop">
+        <template v-if="currentOperationalNode && currentOperationalNode.type === 'httpMock'">
+          <SContextmenuItem v-if="!isMockServerRunning" :label="t('启动mock')" @click="handleStartMockServer"></SContextmenuItem>
+          <SContextmenuItem v-else :label="t('停止mock')" @click="handleStopMockServer"></SContextmenuItem>
+          <SContextmenuItem type="divider"></SContextmenuItem>
+        </template>
         <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.type === 'folder'" :label="t('新建接口')"
           @click="handleOpenAddFileDialog"></SContextmenuItem>
         <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.type === 'folder'" :label="t('新建文件夹')"
@@ -260,6 +265,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, Ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { storeToRefs } from 'pinia'
 import { MoreFilled } from '@element-plus/icons-vue'
 import { Radio } from 'lucide-vue-next'
 import type { ApidocBanner } from '@src/types'
@@ -283,6 +289,7 @@ import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.t
 import { requestMethods } from '@/data/data'
 import { useBanner } from '@/store/projectWorkbench/bannerStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
+import { useHttpMockNode } from '@/store/httpMockNode/httpMockNodeStore'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { getAllAncestorIds, findNodeById, eventEmitter } from '@/helper'
 import { appStateCache } from '@/cache/appState/appStateCache'
@@ -318,8 +325,10 @@ const showMoreNodeInfo = ref(false); //banner是否显示更多内容
 const enableDrag = ref(true);//是否允许拖拽
 const bannerStore = useBanner();
 const projectNavStore = useProjectNav();
+const httpMockNodeStore = useHttpMockNode();
 const { bannerLoading: loading, defaultExpandedKeys, foldersWithRunningMock } = storeToRefs(bannerStore)
 const { getBannerData } = useBannerData();
+const isMockServerRunning = ref(false)
 
 const activeNode = computed(() => projectNavStore.navs[projectId.value]?.find((v) => v.selected));
 const bannerData = computed(() => {
@@ -349,6 +358,9 @@ const handleShowContextmenu = async (e: MouseEvent, data: ApidocBanner) => {
       ...data,
       projectId: projectId.value,
     }];
+  }
+  if (data.type === 'httpMock') {
+    isMockServerRunning.value = await httpMockNodeStore.checkMockNodeEnabledStatus(data._id);
   }
   try {
     
@@ -531,6 +543,61 @@ const handleJumpToCommonHeader = (e: MouseEvent) => {
 //删除节点
 const handleDeleteNodes = () => {
   deleteNode.call(this, selectNodes.value);
+}
+//启动mock
+const handleStartMockServer = async () => {
+  if (!currentOperationalNode.value) return;
+  try {
+    let mockData = null;
+    if (currentOperationalNode.value._id === httpMockNodeStore.httpMock._id) {
+      mockData = httpMockNodeStore.httpMock;
+    } else {
+      mockData = httpMockNodeStore.getCachedHttpMockNodeById(currentOperationalNode.value._id);
+    }
+    if (!mockData) {
+      await httpMockNodeStore.getHttpMockNodeDetail({
+        id: currentOperationalNode.value._id,
+        projectId: projectId.value,
+      });
+      mockData = httpMockNodeStore.httpMock;
+    }
+    if (!mockData) {
+      message.error(t('获取Mock配置失败'));
+      return;
+    }
+    const mockDataWithProject = {
+      ...mockData,
+      projectId: projectId.value,
+    };
+    const result = await window.electronAPI?.mock?.startServer(JSON.parse(JSON.stringify(mockDataWithProject)));
+    if (result?.code === 0) {
+      isMockServerRunning.value = true;
+      eventEmitter.emit('mock/server/statusChanged', { nodeId: currentOperationalNode.value._id, status: 'running' });
+      message.success(t('启动mock成功'));
+    } else {
+      console.error('启动mock失败:', result);
+      message.error(result?.msg || t('启动mock失败'));
+    }
+  } catch (error) {
+    console.error('启动mock异常:', error);
+    message.error(t('启动mock失败'));
+  }
+}
+//停止mock
+const handleStopMockServer = async () => {
+  if (!currentOperationalNode.value) return;
+  try {
+    const result = await window.electronAPI?.mock?.stopServer(currentOperationalNode.value._id);
+    if (result?.code === 0) {
+      isMockServerRunning.value = false;
+      eventEmitter.emit('mock/server/statusChanged', { nodeId: currentOperationalNode.value._id, status: 'stopped' });
+      message.success(t('停止mock成功'));
+    } else {
+      message.error(result?.msg || t('停止mock失败'));
+    }
+  } catch (error) {
+    message.error(t('停止mock失败'));
+  }
 }
 //剪切节点
 const cutNodes: Ref<ApidocBannerWithProjectId[]> = ref([]);

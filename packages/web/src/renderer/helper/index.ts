@@ -53,6 +53,7 @@ const emitter = mitt<{
   'websocket/editor/removeAfterEditor': void;
   'banner:contextmenu:open': void;
   'nav:contextmenu:open': void;
+  'mock/server/statusChanged': { nodeId: string; status: 'running' | 'stopped' };
 }>()
 
 export const eventEmitter = emitter;

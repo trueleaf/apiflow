@@ -93,7 +93,7 @@
 </template>
 
 <script lang="ts" setup>
-import { watch, ref, onMounted, computed } from 'vue'
+import { watch, ref, onMounted, onUnmounted, computed } from 'vue'
 import { ElSwitch, ElInputNumber, ElCheckboxGroup, ElCheckbox, ElIcon, ElTooltip } from 'element-plus'
 import { CopyDocument } from '@element-plus/icons-vue'
 import { CircleHelp } from 'lucide-vue-next'
@@ -102,7 +102,7 @@ import { storeToRefs } from 'pinia'
 import { useHttpMockNode } from '@/store/httpMockNode/httpMockNodeStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { router } from '@/router/index.ts'
-import { isElectron } from '@/helper'
+import { isElectron, eventEmitter } from '@/helper'
 
 const { t } = useI18n()
 const httpMockNodeStore = useHttpMockNode()
@@ -266,7 +266,17 @@ const checkEnabledStatus = () => {
 // 组件挂载时初始化
 onMounted(() => {
   checkEnabledStatus()
+  eventEmitter.on('mock/server/statusChanged', handleMockStatusChanged)
 })
+onUnmounted(() => {
+  eventEmitter.off('mock/server/statusChanged', handleMockStatusChanged)
+})
+// 处理mock服务器状态变化事件
+const handleMockStatusChanged = (data: { nodeId: string; status: 'running' | 'stopped' }) => {
+  if (data.nodeId === currentSelectNav.value?._id) {
+    checkEnabledStatus()
+  }
+}
 </script>
 
 <style scoped>

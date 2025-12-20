@@ -70,7 +70,7 @@ const node: ModelNode = {
       },
       {
         "id": "5",
-        "name": "如果httpMockNode处于running状态,删除时会自动停止Mock服务器"
+        "name": "如果httpMockNode处于running状态,删除时会自动停止mock"
       },
       {
         "id": "6",
