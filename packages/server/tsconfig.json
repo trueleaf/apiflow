@@ -12,6 +12,7 @@
     "noUnusedLocals": true,
     "stripInternal": true,
     "skipLibCheck": true,
+    "noEmitOnError": false,
     "pretty": true,
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
