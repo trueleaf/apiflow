@@ -1,7 +1,8 @@
 node_modules
 .git
 dist
-*.log
 .DS_Store
 npm-debug.log*
 docker-compose.override.yml
+.vscode
+.idea
