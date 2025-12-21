@@ -478,7 +478,7 @@ export class DocService {
     const nodeType = result.info?.type;
     if (nodeType === 'websocket' && result.websocketItem) {
       // WebSocket节点：将websocketItem的内容提取到根级别
-      const wsItem = result.websocketItem.item || {};
+      const wsItem = result.websocketItem.item;
       const websocketData = {
         _id: result._id,
         pid: result.pid || '',
@@ -487,11 +487,11 @@ export class DocService {
         isFolder: result.isFolder,
         info: result.info,
         item: {
-          protocol: wsItem.protocol || 'ws',
-          url: wsItem.url || { path: '', prefix: '' },
-          queryParams: wsItem.queryParams || [],
-          headers: wsItem.headers || [],
-          messageBlocks: wsItem.messageBlocks || [],
+          protocol: wsItem?.protocol || 'ws',
+          url: wsItem?.url || { path: '', prefix: '' },
+          queryParams: wsItem?.queryParams || [],
+          headers: wsItem?.headers || [],
+          messageBlocks: wsItem?.messageBlocks || [],
         },
         config: result.websocketItem.config || {
           autoSend: false,
