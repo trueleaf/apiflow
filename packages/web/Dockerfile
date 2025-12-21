@@ -24,8 +24,8 @@ RUN npm run build:web
 # Production Stage
 FROM nginx:alpine
 
-# Copy built files from builder
-COPY --from=builder /app/packages/web/dist /usr/share/nginx/html
+# Copy built files from builder (Vite outputs web build to dist/web)
+COPY --from=builder /app/packages/web/dist/web /usr/share/nginx/html
 
 # Copy nginx configuration
 COPY packages/web/nginx.conf /etc/nginx/conf.d/default.conf

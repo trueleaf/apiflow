@@ -66,7 +66,7 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "start": "cross-env NODE_ENV=production node ./bootstrap.js",
+    "start": "node ./bootstrap.js",
     "dev": "cross-env NODE_ENV=local mwtsc --watch --run @midwayjs/mock/app",
     "test": "cross-env NODE_ENV=unittest mocha",
     "cov": "cross-env c8 --all --reporter=text --reporter=lcovonly npm run test",

@@ -40,6 +40,9 @@ COPY --from=builder /app/packages/server/public ./packages/server/public
 
 WORKDIR /app/packages/server
 
+# Set production env var so we don't need cross-env at runtime
+ENV NODE_ENV=production
+
 # Expose port
 EXPOSE 7001
 

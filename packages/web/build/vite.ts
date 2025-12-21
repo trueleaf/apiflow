@@ -2,7 +2,6 @@ import { ViteDevServer } from 'vite';
 import { spawn, ChildProcess } from 'child_process';
 import { rolldown } from 'rolldown';
 import { replacePlugin } from 'rolldown/plugins';
-import electron from 'electron';
 import path from 'path'
 import chokidar from 'chokidar';
 import type { AddressInfo } from 'net';
@@ -50,11 +49,22 @@ const buildElectron = async (mode: string, command: 'build' | 'serve') => {
     entryFileNames: '[name].mjs',
   });
 }
-const startElectronProcess = (server: ViteDevServer,) => {
+const startElectronProcess = async (server: ViteDevServer,) => {
   const addressInfo = server.httpServer?.address() as AddressInfo;
   const httpAddress = `http://${addressInfo?.address}:${addressInfo?.port}`;
+
+  // Lazy import electron so that web-only builds won't try to load it
+  let electronModule: any;
+  try {
+    electronModule = await import('electron');
+  } catch (err) {
+    console.error('Failed to import electron:', err);
+    return;
+  }
+  const electronBinary = (electronModule && (electronModule.default ?? electronModule)).toString();
+
   processWithElectron.electronProcess?.removeAllListeners()
-  processWithElectron.electronProcess = spawn(electron.toString(), ['./main.mjs', httpAddress], {
+  processWithElectron.electronProcess = spawn(electronBinary, ['./main.mjs', httpAddress], {
     cwd: path.resolve(process.cwd(), './dist/main'),
     stdio: 'inherit',
   });
@@ -66,7 +76,7 @@ const startElectronProcess = (server: ViteDevServer,) => {
     console.error(err)
   })
   isKilling = false;
-}
+} 
 export const viteElectronPlugin = (mode: string, command: 'build' | 'serve') => {
   const debounceReloadMain = debounce(async (server: ViteDevServer) => {
     if (processWithElectron.electronProcess?.pid && !isKilling) {
@@ -87,7 +97,7 @@ export const viteElectronPlugin = (mode: string, command: 'build' | 'serve') => 
       }
       server.httpServer?.once('listening', async () => {
         await buildElectron(mode, command)
-        startElectronProcess(server);
+        await startElectronProcess(server);
         const watcher = chokidar.watch(
           path.resolve(process.cwd(), './src/main'),
           {
