@@ -2,21 +2,28 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import path from 'path'
-import { viteElectronPlugin } from './build/vite';
 import dayjs from 'dayjs'
 import { resolve } from 'path';
 import AutoImport from 'unplugin-auto-import/rolldown'
 import Components from 'unplugin-vue-components/rolldown'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
-export default defineConfig(({ mode, command }) => {
+export default defineConfig(async ({ mode, command }) => {
   // 检测是否为纯 Web 构建模式
   const isWebOnly = process.env.BUILD_TARGET === 'web'
+  
+  // 仅在非 Web 模式下动态导入 Electron 插件
+  let viteElectronPlugin = null
+  if (!isWebOnly) {
+    const electronModule = await import('./build/vite')
+    viteElectronPlugin = electronModule.viteElectronPlugin(mode, command)
+  }
+  
   return {
     base: './',
     plugins: [
       // 仅在非 Web 模式下加载 Electron 插件
-      !isWebOnly && viteElectronPlugin(mode, command),
+      viteElectronPlugin,
       vue(),
       vueJsx({
         // 配置JSX选项
