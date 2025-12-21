@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   # MongoDB Database
@@ -39,8 +38,6 @@ services:
     build:
       context: .
       dockerfile: packages/web/Dockerfile
-      platforms:
-        - linux/amd64
     container_name: apiflow-web
     restart: unless-stopped
     ports:
