@@ -13,6 +13,13 @@ services:
       MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
     networks:
       - apiflow-network
+    healthcheck:
+      test: |
+        mongosh --eval 'db.adminCommand("ping")' --quiet || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # Server Service
   server:
@@ -25,9 +32,15 @@ services:
       - "7001:7001"
     environment:
       - NODE_ENV=production
-      - MONGODB_URI=mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${MONGO_DATABASE}?authSource=admin
+      # NOTE: Avoid embedding username/password in the URI, because special characters (e.g. '@', ':', '/')
+      # in passwords must be URL-encoded and can break parsing.
+      - MONGODB_URI=mongodb://mongodb:27017/${MONGO_DATABASE}
+      - MONGODB_USER=${MONGO_ROOT_USERNAME}
+      - MONGODB_PASS=${MONGO_ROOT_PASSWORD}
+      - MONGODB_AUTH_SOURCE=admin
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     networks:
       - apiflow-network
     volumes:

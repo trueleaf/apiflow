@@ -21,6 +21,17 @@ import { Group } from '../entity/security/group.js';
 import { GlobalCommonHeader } from '../entity/project/project_common_headers.js';
 
 export default (): MidwayConfig => {
+  const mongooseOptions: Record<string, unknown> = {};
+  if (process.env.MONGODB_USER) {
+    mongooseOptions.user = process.env.MONGODB_USER;
+  }
+  if (process.env.MONGODB_PASS) {
+    mongooseOptions.pass = process.env.MONGODB_PASS;
+  }
+  if (process.env.MONGODB_AUTH_SOURCE) {
+    mongooseOptions.authSource = process.env.MONGODB_AUTH_SOURCE;
+  }
+
   return {
     keys: 'apiflow',
     koa: {
@@ -47,10 +58,9 @@ export default (): MidwayConfig => {
     mongoose: {
       dataSource: {
         default: {
-          uri: 'mongodb://localhost:27017/apiflow',
+          uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/apiflow',
           options: {
-            user: '',
-            pass: '',
+            ...mongooseOptions,
           },
           // 关联实体
           entities: [
@@ -72,7 +82,7 @@ export default (): MidwayConfig => {
             ProjectRules,
             Attachment,
             Group,
-            GlobalCommonHeader
+            GlobalCommonHeader,
           ],
         },
       },

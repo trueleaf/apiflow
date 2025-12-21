@@ -6,6 +6,9 @@ WORKDIR /app
 # Copy root package files
 COPY package.json package-lock.json* ./
 
+# Copy root scripts used by preinstall
+COPY scripts ./scripts
+
 # Copy web package files
 COPY packages/web/package.json ./packages/web/
 

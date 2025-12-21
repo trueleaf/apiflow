@@ -5,6 +5,7 @@
     "packages/*"
   ],
   "scripts": {
+    "preinstall": "node scripts/setup-npm-registry.js",
     "web:dev": "npm run dev -w apiflow",
     "web:web": "npm run web -w apiflow",
     "web:share": "npm run share -w apiflow",
