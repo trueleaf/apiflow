@@ -11,8 +11,8 @@ COPY packages/web/package.json ./packages/web/
 
 # Install dependencies (skip electron binary download, keep dev deps for build)
 ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1
-# Use npm ci for reproducible installs and skip optional deps (like optional native modules)
-RUN npm ci --omit=optional
+# Use npm ci for reproducible installs and include optional deps for platform-specific native modules
+RUN npm ci
 
 # Copy web source code
 COPY packages/web ./packages/web
