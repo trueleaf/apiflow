@@ -215,9 +215,6 @@ const handleCleanDeletedHistory = async () => {
       .filter(item => item.isDeleted)
       .map(item => item._id)
     const success = await sendHistoryStore.cleanDeletedHistory(deletedIds)
-    if (success) {
-      ElMessage.success(t('清理成功'))
-    }
   } catch {
     // 用户取消
   }

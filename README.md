@@ -68,6 +68,30 @@ npm run build:app:mac    # macOS
 npm run build:app:linux  # Linux
 ```
 
+### Docker Deployment
+
+Requirements: **Docker** and **Docker Compose**
+
+```bash
+# Clone the repository
+git clone https://github.com/trueleaf/apiflow
+cd apiflow
+
+# Start all services with Docker Compose
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+Services will be available at:
+- **Web UI**: http://localhost
+- **API Server**: http://localhost:7001
+- **MongoDB**: localhost:27017
+
 ## Tech Stack
 
 | Category | Technology |
