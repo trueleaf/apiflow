@@ -77,6 +77,10 @@ Requirements: **Docker** and **Docker Compose**
 git clone https://github.com/trueleaf/apiflow
 cd apiflow
 
+# Configure environment variables
+cp .env.example .env
+# Edit .env file to set MongoDB credentials
+
 # Start all services with Docker Compose
 docker compose up -d
 
@@ -87,10 +91,17 @@ docker compose logs -f
 docker compose down
 ```
 
+**Environment Configuration** (`.env` file):
+```bash
+MONGO_ROOT_USERNAME=admin              # MongoDB admin username
+MONGO_ROOT_PASSWORD=your_password      # MongoDB admin password (change to a strong password)
+MONGO_DATABASE=apiflow                 # Database name
+```
+
 Services will be available at:
 - **Web UI**: http://localhost
 - **API Server**: http://localhost:7001
-- **MongoDB**: localhost:27017
+- **MongoDB**: Internal Docker network only (not exposed externally)
 
 ## Tech Stack
 

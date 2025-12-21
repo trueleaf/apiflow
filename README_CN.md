@@ -145,6 +145,10 @@ npm run build:app:linux  # Linux
 git clone https://gitee.com/wildsell/apiflow.git
 cd apiflow
 
+# 配置环境变量
+cp .env.example .env
+# 编辑 .env 文件，设置 MongoDB 账号密码
+
 # 启动全部服务
 docker compose up -d
 
@@ -155,10 +159,17 @@ docker compose logs -f
 docker compose down
 ```
 
+**环境变量配置** (`.env` 文件)：
+```bash
+MONGO_ROOT_USERNAME=admin              # MongoDB 管理员用户名
+MONGO_ROOT_PASSWORD=your_password      # MongoDB 管理员密码（请修改为强密码）
+MONGO_DATABASE=apiflow                 # 数据库名称
+```
+
 服务可访问于：
 - **Web UI**: http://localhost
 - **API Server**: http://localhost:7001
-- **MongoDB**: localhost:27017
+- **MongoDB**: 仅 Docker 内部网络可访问（不对外暴露）
 
 
 
