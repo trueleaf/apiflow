@@ -14,3 +14,4 @@ run/
 release/
 CLAUDE.md
 .claude
+.env

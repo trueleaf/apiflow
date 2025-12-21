@@ -214,7 +214,6 @@ const handleCleanDeletedHistory = async () => {
     const deletedIds = sendHistoryListWithStatus.value
       .filter(item => item.isDeleted)
       .map(item => item._id)
-    const success = await sendHistoryStore.cleanDeletedHistory(deletedIds)
   } catch {
     // 用户取消
   }

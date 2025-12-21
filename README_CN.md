@@ -136,6 +136,32 @@ npm run build:app:linux  # Linux
 - [x] English (en)
 - [x] 日本語 (ja)
 
+## Docker 部署 🐳
+
+**要求**：**Docker** 和 **Docker Compose**
+
+```bash
+# 克隆仓库
+git clone https://gitee.com/wildsell/apiflow.git
+cd apiflow
+
+# 启动全部服务
+docker compose up -d
+
+# 查看日志
+docker compose logs -f
+
+# 停止服务
+docker compose down
+```
+
+服务可访问于：
+- **Web UI**: http://localhost
+- **API Server**: http://localhost:7001
+- **MongoDB**: localhost:27017
+
+
+
 ## 文档
 
 - [产品介绍](https://www.yuque.com/apiflow/as0gig/fayyy6)

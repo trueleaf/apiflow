@@ -9,8 +9,9 @@ COPY package.json package-lock.json* ./
 # Copy web package files
 COPY packages/web/package.json ./packages/web/
 
-# Install dependencies
-RUN npm install
+# Install dependencies (skip electron binary download)
+ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1
+RUN npm install --omit=dev
 
 # Copy web source code
 COPY packages/web ./packages/web

@@ -78,13 +78,13 @@ git clone https://github.com/trueleaf/apiflow
 cd apiflow
 
 # Start all services with Docker Compose
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Stop services
-docker-compose down
+docker compose down
 ```
 
 Services will be available at:
