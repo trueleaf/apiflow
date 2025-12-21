@@ -147,5 +147,31 @@ class AppSettingsCache {
       logger.error('设置更新源配置失败', { error });
     }
   }
+  // 获取服务器地址
+  getServerUrl(): string {
+    try {
+      const serverUrl = localStorage.getItem(cacheKey.settings.app.serverUrl);
+      return serverUrl || config.renderConfig.httpRequest.url;
+    } catch (error) {
+      logger.error('获取服务器地址失败', { error });
+      return config.renderConfig.httpRequest.url;
+    }
+  }
+  // 设置服务器地址
+  setServerUrl(serverUrl: string) {
+    try {
+      localStorage.setItem(cacheKey.settings.app.serverUrl, serverUrl);
+    } catch (error) {
+      logger.error('设置服务器地址失败', { error });
+    }
+  }
+  // 重置服务器地址
+  resetServerUrl() {
+    try {
+      localStorage.removeItem(cacheKey.settings.app.serverUrl);
+    } catch (error) {
+      logger.error('重置服务器地址失败', { error });
+    }
+  }
 }
 export const appSettingsCache = new AppSettingsCache();

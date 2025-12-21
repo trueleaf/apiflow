@@ -7,12 +7,17 @@ import { parseUrl, getStrParams, getStrHeader, getStrJsonBody, getHashedContent 
 import { i18n } from '@/i18n';
 import { runtimeCache } from '@/cache/runtime/runtimeCache';
 import { message } from '@/helper';
+import { appSettingsCache } from '@/cache/settings/appSettingsCache';
 
 const axiosInstance = Axios.create();
 axiosInstance.defaults.withCredentials = config.renderConfig.httpRequest.withCredentials;//允许携带cookie
 axiosInstance.defaults.timeout = config.renderConfig.httpRequest.timeout;//超时时间
-axiosInstance.defaults.baseURL = config.renderConfig.httpRequest.url;//请求地址
+axiosInstance.defaults.baseURL = appSettingsCache.getServerUrl();//请求地址
 let isExpire = false; //是否登录过期
+//更新axios baseURL
+export const updateAxiosBaseURL = (url: string): void => {
+  axiosInstance.defaults.baseURL = url;
+}
 
 //===============================axiosInstance请求钩子==========================================//
 axiosInstance.interceptors.request.use(async (reqConfig) => {

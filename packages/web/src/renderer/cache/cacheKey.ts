@@ -95,6 +95,7 @@ export const cacheKey = {
       title: 'settings/app/title',
       logo: 'settings/app/logo',
       theme: 'settings/app/theme',
+      serverUrl: 'settings/app/serverUrl',
     },
     shortcuts: 'settings/shortcuts',
     updater: {

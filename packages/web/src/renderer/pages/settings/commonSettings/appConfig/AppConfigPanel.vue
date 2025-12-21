@@ -50,11 +50,10 @@
               {{ t('应用名称') }}
             </div>
             <el-input
-              v-model="appTitle"
+              v-model="localAppTitle"
               :placeholder="t('请输入应用名称')"
               clearable
               class="form-input"
-              @blur="handleTitleBlur"
             />
           </div>
 
@@ -64,13 +63,26 @@
               {{ t('应用主题') }}
             </div>
             <div class="theme-placeholder" aria-disabled="true">
-              <el-radio-group v-model="appTheme" class="theme-radio-group" :disabled="true">
+              <el-radio-group v-model="localAppTheme" class="theme-radio-group" :disabled="true">
                 <el-radio value="light" class="theme-radio" :disabled="true">{{ t('浅色') }}</el-radio>
                 <el-radio value="dark" class="theme-radio" :disabled="true">{{ t('深色') }}</el-radio>
                 <el-radio value="auto" class="theme-radio" :disabled="true">{{ t('跟随系统') }}</el-radio>
               </el-radio-group>
               <div class="coming-soon">{{ t('敬请期待') }}</div>
             </div>
+          </div>
+
+          <div class="form-item form-item-full">
+            <div class="form-label">
+              <Globe :size="18" class="label-icon" />
+              {{ t('接口调用地址') }}
+            </div>
+            <el-input
+              v-model="localServerUrl"
+              :placeholder="t('请输入接口调用地址')"
+              clearable
+              class="form-input"
+            />
           </div>
         </div>
       </div>
@@ -79,43 +91,46 @@
       <el-button @click="handleReset">
         {{ t('重置') }}
       </el-button>
+      <el-button type="primary" @click="handleSave" :disabled="!hasChanges">
+        {{ t('保存') }}
+      </el-button>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 import { processImageUpload } from '@/utils/imageHelper'
 import { ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
-import { AppWindow, Palette } from 'lucide-vue-next'
+import { AppWindow, Palette, Globe } from 'lucide-vue-next'
 import type { UploadFile } from 'element-plus'
 import type { AppTheme } from '@src/types'
 import { message } from '@/helper'
+import { updateAxiosBaseURL } from '@/api/api'
 
 const { t } = useI18n()
 const appSettingsStore = useAppSettings()
 const isLogoHover = ref(false)
 const isLogoUploading = ref(false)
 const logoTrigger = ref()
-const appTitle = computed({
-  get: () => appSettingsStore.appTitle,
-  set: (value: string) => {
-    const trimmed = value.trim()
-    if (trimmed && trimmed !== appSettingsStore.appTitle) {
-      appSettingsStore.setAppTitle(trimmed)
-      message.success(t('应用名称已更新'))
-    }
-  }
+const localAppTitle = ref(appSettingsStore.appTitle)
+const localAppTheme = ref<AppTheme>(appSettingsStore.appTheme)
+const localServerUrl = ref(appSettingsStore.serverUrl)
+const hasChanges = computed(() => {
+  return localAppTitle.value.trim() !== appSettingsStore.appTitle ||
+    localAppTheme.value !== appSettingsStore.appTheme ||
+    localServerUrl.value.trim() !== appSettingsStore.serverUrl
 })
-const appTheme = computed({
-  get: () => appSettingsStore.appTheme,
-  set: (value: AppTheme) => {
-    if (value !== appSettingsStore.appTheme) {
-      appSettingsStore.setAppTheme(value)
-    }
-  }
+watch(() => appSettingsStore.appTitle, (newVal) => {
+  localAppTitle.value = newVal
+})
+watch(() => appSettingsStore.appTheme, (newVal) => {
+  localAppTheme.value = newVal
+})
+watch(() => appSettingsStore.serverUrl, (newVal) => {
+  localServerUrl.value = newVal
 })
 const triggerLogoUpload = () => {
   logoTrigger.value?.click()
@@ -134,10 +149,33 @@ const handleLogoChange = async (uploadFile: UploadFile) => {
     message.error(result.message || t('图片上传失败'))
   }
 }
-const handleTitleBlur = () => {
-  if (!appTitle.value.trim()) {
-    message.warning(t('应用名称不能为空'))
+const validateUrl = (url: string): boolean => {
+  if (!url.trim()) {
+    return false
   }
+  try {
+    const urlObj = new URL(url)
+    return urlObj.protocol === 'http:' || urlObj.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+const handleSave = () => {
+  const trimmedTitle = localAppTitle.value.trim()
+  const trimmedUrl = localServerUrl.value.trim()
+  if (!trimmedTitle) {
+    message.warning(t('应用名称不能为空'))
+    return
+  }
+  if (!validateUrl(trimmedUrl)) {
+    message.warning(t('请输入有效的接口调用地址'))
+    return
+  }
+  appSettingsStore.setAppTitle(trimmedTitle)
+  appSettingsStore.setAppTheme(localAppTheme.value)
+  appSettingsStore.setServerUrl(trimmedUrl)
+  updateAxiosBaseURL(trimmedUrl)
+  message.success(t('保存成功'))
 }
 const handleReset = async () => {
   try {
@@ -153,6 +191,8 @@ const handleReset = async () => {
     return
   }
   appSettingsStore.resetAllSettings()
+  updateAxiosBaseURL(appSettingsStore.serverUrl)
+  message.success(t('重置成功'))
 }
 </script>
 
@@ -209,6 +249,10 @@ const handleReset = async () => {
   display: flex;
   flex-direction: column;
   gap: 8px;
+
+  &.form-item-full {
+    grid-column: 1 / -1;
+  }
 }
 
 .form-label {

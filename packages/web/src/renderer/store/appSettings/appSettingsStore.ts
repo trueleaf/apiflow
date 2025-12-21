@@ -9,6 +9,7 @@ export const useAppSettings = defineStore('appSettings', () => {
   const appTitle = ref(appSettingsCache.getAppTitle())
   const _appLogo = ref(appSettingsCache.getAppLogo())
   const appTheme = ref<AppTheme>(appSettingsCache.getAppTheme())
+  const serverUrl = ref(appSettingsCache.getServerUrl())
   
   const appLogo = computed(() => _appLogo.value || defaultLogoImg)
 
@@ -17,7 +18,8 @@ export const useAppSettings = defineStore('appSettings', () => {
       window.electronAPI.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.appSettingsChanged, {
         appTitle: appTitle.value,
         appLogo: appLogo.value,
-        appTheme: appTheme.value
+        appTheme: appTheme.value,
+        serverUrl: serverUrl.value
       })
     }
   }
@@ -68,12 +70,23 @@ export const useAppSettings = defineStore('appSettings', () => {
     appSettingsCache.resetAppTheme()
     appTheme.value = appSettingsCache.getAppTheme()
   }
+  // 设置服务器地址
+  const setServerUrl = (url: string): void => {
+    serverUrl.value = url
+    appSettingsCache.setServerUrl(url)
+  }
+  // 重置服务器地址
+  const resetServerUrl = (): void => {
+    appSettingsCache.resetServerUrl()
+    serverUrl.value = appSettingsCache.getServerUrl()
+  }
 
   // 重置所有应用设置
   const resetAllSettings = (): void => {
     resetAppTitle()
     resetAppLogo()
     resetAppTheme()
+    resetServerUrl()
     notifyAppSettingsChanged()
   }
 
@@ -82,23 +95,29 @@ export const useAppSettings = defineStore('appSettings', () => {
     appTitle.value = appSettingsCache.getAppTitle()
     _appLogo.value = appSettingsCache.getAppLogo()
     appTheme.value = appSettingsCache.getAppTheme()
+    serverUrl.value = appSettingsCache.getServerUrl()
   }
   // 从IPC数据直接更新设置（用于topBarView接收contentView的设置变更）
-  const updateFromIPC = (data: { appTitle: string, appLogo: string, appTheme: AppTheme }): void => {
+  const updateFromIPC = (data: { appTitle: string, appLogo: string, appTheme: AppTheme, serverUrl?: string }): void => {
     appTitle.value = data.appTitle
     // 如果传入的logo是默认logo，则将_appLogo设为空字符串，让computed使用默认值
     // 否则直接设置传入的logo
     _appLogo.value = data.appLogo === defaultLogoImg ? '' : data.appLogo
     appTheme.value = data.appTheme
+    if (data.serverUrl !== undefined) {
+      serverUrl.value = data.serverUrl
+    }
   }
 
   return {
     appTitle,
     appLogo,
     appTheme,
+    serverUrl,
     setAppTitle,
     setAppLogo,
     setAppTheme,
+    setServerUrl,
     resetAllSettings,
     refreshSettings,
     updateFromIPC,

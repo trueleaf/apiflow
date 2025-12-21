@@ -1382,6 +1382,9 @@ export default {
     '应用名称': 'App Name',
     '请输入应用名称': 'Please enter app name',
     '应用主题': 'App Theme',
+    '接口调用地址': 'API Server URL',
+    '请输入接口调用地址': 'Please enter API server URL',
+    '请输入有效的接口调用地址': 'Please enter a valid API server URL',
     '浅色': 'Light',
     '深色': 'Dark',
     '跟随系统': 'Follow System',
@@ -1391,6 +1394,7 @@ export default {
     'Logo已更新': 'Logo updated',
     '图片上传失败': 'Image upload failed',
     '应用名称不能为空': 'App name cannot be empty',
+    '重置成功': 'Reset successfully',
     '确认将所有配置恢复为默认值吗？': 'Confirm to restore all settings to default?',
     '已恢复默认配置': 'Default settings restored',
 
