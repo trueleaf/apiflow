@@ -368,6 +368,7 @@ export default {
   导出类型: 'Export Type',
   JSON文档: 'JSON Documentation',
   'OpenAPI导出仅支持离线模式': 'OpenAPI export only supports offline mode',
+  '仅离线模式可用': 'Only available in offline mode',
   导出到其他项目: 'Export to Other Projects',
   额外配置: 'Additional Configuration',
   选择导出: 'Select Export',

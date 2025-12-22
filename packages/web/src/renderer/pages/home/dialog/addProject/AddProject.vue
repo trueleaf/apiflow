@@ -5,7 +5,7 @@
         <el-input ref="projectNameInput" v-model="formInfo.projectName" :size="config.renderConfig.layout.size" :placeholder="t('请输入项目名称')" data-testid="add-project-name-input" @keydown.enter="handleAddProject"></el-input>
       </el-form-item>
       <el-form-item v-if="!isStandalone" :label="`${t('选择成员或组')}：`">
-        <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserOrGroupByName" :loading="loading" :placeholder="t('输入【用户名】| 【完整手机号】 | 【组名称】')" data-testid="add-project-member-select">
+        <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserOrGroupByName" :loading="loading" :placeholder="t('输入【用户名 | 【组名称】')" data-testid="add-project-member-select">
           <RemoteSelectorItem v-for="(item, index) in remoteUserOrGroupList" :key="index">
             <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">
               <span>{{ item.name }}</span>

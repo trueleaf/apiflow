@@ -10,7 +10,7 @@
               data-testid="home-search-clear-btn" @click.stop="handleClearSearch">
               <CircleCloseIcon />
             </el-icon>
-            <el-icon :title="t('高级搜索')" class="cursor-pointer" :color="showAdvancedSearch ? 'var(--el-color-primary)' : 'var(--gray-400)'" data-testid="home-advanced-search-btn" @click.stop="toggleAdvancedSearch">
+            <el-icon :title="isStandalone ? t('高级搜索') : t('仅离线模式可用')" :class="[{ 'cursor-pointer': isStandalone }, { 'disabled': !isStandalone }]" :color="showAdvancedSearch ? 'var(--el-color-primary)' : (isStandalone ? 'var(--gray-400)' : 'var(--gray-300)')" data-testid="home-advanced-search-btn" @click.stop="handleAdvancedSearchClick">
               <Tools />
             </el-icon>
           </div>
@@ -587,6 +587,11 @@ const toggleAdvancedSearch = () => {
     searchConditions.value.keyword = '';
   }
 };
+// 处理高级搜索图标点击事件
+const handleAdvancedSearchClick = () => {
+  if (!isStandalone.value) return;
+  toggleAdvancedSearch();
+};
 // 重置搜索
 const handleResetSearch = () => {
   const currentKeyword = searchConditions.value.keyword;
@@ -677,6 +682,12 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  .search-item {
+    .el-icon.disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
   }
 
   .project-wrap {
