@@ -10,15 +10,22 @@ const path = require('path');
 
 // Read .env file
 function loadEnv() {
+  const env = {};
+
+  // Prefer environment variables (works in Docker build where .env is not in the image)
+  if (process.env.USE_NPM_MIRROR != null) {
+    env.USE_NPM_MIRROR = String(process.env.USE_NPM_MIRROR).trim();
+  }
+
   const envPath = path.join(__dirname, '..', '.env');
-  
   if (!fs.existsSync(envPath)) {
-    console.log('ℹ️  No .env file found. Using default npm registry.');
-    return {};
+    if (Object.keys(env).length === 0) {
+      console.log('ℹ️  No .env file found. Using default npm registry.');
+    }
+    return env;
   }
 
   const envContent = fs.readFileSync(envPath, 'utf-8');
-  const env = {};
   
   envContent.split('\n').forEach(line => {
     const trimmedLine = line.trim();
@@ -27,7 +34,10 @@ function loadEnv() {
     
     const [key, ...valueParts] = trimmedLine.split('=');
     if (key && valueParts.length > 0) {
-      env[key.trim()] = valueParts.join('=').trim();
+      const envKey = key.trim();
+      if (env[envKey] == null) {
+        env[envKey] = valueParts.join('=').trim();
+      }
     }
   });
   
@@ -68,7 +78,7 @@ registry=https://registry.npmmirror.com
 // Main execution
 try {
   const env = loadEnv();
-  const useMirror = env.USE_NPM_MIRROR === 'true';
+  const useMirror = String(env.USE_NPM_MIRROR || '').toLowerCase() === 'true';
   
   console.log('🔧 Configuring NPM registry...');
   console.log(`   USE_NPM_MIRROR: ${useMirror ? 'true (using mirror)' : 'false (using default)'}`);

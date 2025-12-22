@@ -1,6 +1,9 @@
 # Build Stage
 FROM node:20-alpine AS builder
 
+ARG USE_NPM_MIRROR=false
+ENV USE_NPM_MIRROR=$USE_NPM_MIRROR
+
 WORKDIR /app
 
 # Copy root package files
@@ -24,6 +27,9 @@ RUN npm run build
 
 # Production Stage
 FROM node:20-alpine
+
+ARG USE_NPM_MIRROR=false
+ENV USE_NPM_MIRROR=$USE_NPM_MIRROR
 
 WORKDIR /app
 

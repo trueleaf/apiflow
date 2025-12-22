@@ -149,6 +149,10 @@ cd apiflow
 cp .env.example .env
 # 编辑 .env 文件，设置 MongoDB 账号密码
 
+# 可选：控制 Docker 构建镜像时的 NPM 源
+# USE_NPM_MIRROR=true  -> 使用 npmmirror.com
+# USE_NPM_MIRROR=false -> 使用默认 npmjs.org
+
 # 启动全部服务
 docker compose up -d
 
@@ -164,6 +168,9 @@ docker compose down
 MONGO_ROOT_USERNAME=admin              # MongoDB 管理员用户名
 MONGO_ROOT_PASSWORD=your_password      # MongoDB 管理员密码（请修改为强密码）
 MONGO_DATABASE=apiflow                 # 数据库名称
+
+# 可选（影响 Docker 构建阶段依赖安装）
+USE_NPM_MIRROR=false
 ```
 
 服务可访问于：

@@ -26,6 +26,8 @@ services:
     build:
       context: .
       dockerfile: packages/server/Dockerfile
+      args:
+        USE_NPM_MIRROR: ${USE_NPM_MIRROR:-false}
     container_name: apiflow-server
     restart: unless-stopped
     ports:
@@ -51,6 +53,8 @@ services:
     build:
       context: .
       dockerfile: packages/web/Dockerfile
+      args:
+        USE_NPM_MIRROR: ${USE_NPM_MIRROR:-false}
     container_name: apiflow-web
     restart: unless-stopped
     ports:

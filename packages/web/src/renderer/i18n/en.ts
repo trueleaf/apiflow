@@ -1015,6 +1015,7 @@ export default {
   '请在左侧输入提示词并点击"生成预览"': 'Please enter prompt on the left and click "Generate Preview"',
   '请输入JSON数据生成提示词，例如：生成一个用户列表，包含姓名、年龄、邮箱等字段': 'Please enter JSON data generation prompt, e.g.: Generate a user list with name, age, email fields',
   '请输入文本生成提示词，例如：生成一篇关于人工智能的简短介绍': 'Please enter text generation prompt, e.g.: Generate a brief introduction about AI',
+  '加载失败请重试': 'Failed to load, please try again',
   '达到数量后结束推送': 'End push after reaching count',
   '重试间隔': 'Retry Interval',
   '随机Text返回': 'Random Text Response',

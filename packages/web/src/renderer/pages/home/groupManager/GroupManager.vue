@@ -338,7 +338,7 @@ const getGroupList = () => {
   loading.value = true
   request.get<CommonResponse<ApidocGroupItem[]>, CommonResponse<ApidocGroupItem[]>>('/api/group/list').then(res => {
     groupList.value = res.data;
-    selectedGroupId.value = res.data[0]._id;
+    selectedGroupId.value = res.data[0]?._id || '';
     groupInfo.value = cloneDeep(res.data[0]);
     originGroupInfo.value = cloneDeep(res.data[0])
   }).catch(err => {

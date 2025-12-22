@@ -1,6 +1,9 @@
 # Build Stage
 FROM node:20 AS builder
 
+ARG USE_NPM_MIRROR=false
+ENV USE_NPM_MIRROR=$USE_NPM_MIRROR
+
 WORKDIR /app
 
 # Copy root package files

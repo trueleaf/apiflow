@@ -44,8 +44,10 @@ import { useRouter } from 'vue-router';
 import AddProjectDialog from '@/pages/home/dialog/addProject/AddProject.vue';
 import Ai from '@/pages/ai/Ai.vue';
 import { projectCache } from '@/cache/project/projectCache';
+import { request } from '@/api/api';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { useProjectWorkbench } from './store/projectWorkbench/projectWorkbenchStore';
+import type { ApidocProjectInfo, ApidocProjectListInfo, CommonResponse } from '@src/types';
 import { Language } from '@src/types';
 import LanguageMenu from '@/components/common/language/Language.vue';
 import UserMenu from '@/components/common/userMenu/UserMenu.vue'
@@ -242,9 +244,24 @@ const initAppHeaderEvent = () => {
 
   // 监听项目切换事件
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.changeProject, async (data: { projectId: string, projectName: string }) => {
-    let matchedProject = null;
-    const projectList = await projectCache.getProjectList();
-    matchedProject = projectList.find(p => p._id === data.projectId);
+    let matchedProject: ApidocProjectInfo | null = null;
+
+    if (runtimeStore.networkMode === 'offline') {
+      const projectList = await projectCache.getProjectList();
+      matchedProject = projectList.find(p => p._id === data.projectId) || null;
+    } else {
+      try {
+        const res = await request.get<CommonResponse<ApidocProjectListInfo>, CommonResponse<ApidocProjectListInfo>>('/api/project/project_list');
+        matchedProject = res.data.list.find(p => p._id === data.projectId) || null;
+      } catch {
+        ElMessage({
+          message: t('加载失败请重试'),
+          grouping: true,
+          type: 'error'
+        })
+        return
+      }
+    }
 
     if (!matchedProject) {
       ElMessageBox.alert(`${data.projectName}${t('已被删除')}`, t('提示'), {
