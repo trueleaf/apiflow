@@ -15,6 +15,9 @@ COPY scripts ./scripts
 # Copy server package files
 COPY packages/server/package.json ./packages/server/
 
+# Debug: Show environment variable
+RUN echo "USE_NPM_MIRROR is set to: $USE_NPM_MIRROR"
+
 # Install dependencies
 RUN npm install
 
@@ -41,6 +44,9 @@ COPY scripts ./scripts
 
 # Copy server package files
 COPY packages/server/package.json ./packages/server/
+
+# Debug: Show environment variable
+RUN echo "USE_NPM_MIRROR is set to: $USE_NPM_MIRROR"
 
 # Install production dependencies only
 RUN npm install --production
