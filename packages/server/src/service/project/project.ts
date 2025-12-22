@@ -277,6 +277,8 @@ export class ProjectService {
       starProjects: [],
     };
     result.list = await this.projectModel.find(query, { isEnabled: 0, createdAt: 0 }).skip(skipNum).limit(limit).sort({ updatedAt: -1 });
+    console.log(visitAndStar)
+    
     result.recentVisitProjects = visitAndStar.recentVisitProjects || [];
     result.starProjects = visitAndStar.starProjects || [];
     return result;

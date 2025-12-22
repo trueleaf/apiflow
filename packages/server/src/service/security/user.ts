@@ -570,7 +570,7 @@ export class UserService {
     const fileName = '用户批量导入模板';
     const filePath = path.join(this.appDir, 'public','用户批量导入模板.xlsx');
     const file = await fs.readFile(filePath);
-    const typeInfo = await fileTypeFromBuffer(file);
+    const typeInfo = await fileTypeFromBuffer(new Uint8Array(file as Buffer));
     this.ctx.set('content-type', typeInfo.mime);
     this.ctx.set('content-disposition', `attachment;filename=${encodeURIComponent(fileName)}`);
     return file;

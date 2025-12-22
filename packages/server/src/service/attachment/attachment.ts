@@ -71,7 +71,7 @@ export class AttachmentService {
   // 计算 SHA-256 哈希
   private async calculateHash(buffer: Buffer) {
     return createHash('sha256')
-      .update(buffer)
+      .update(new Uint8Array(buffer))
       .digest('hex');
   }
 

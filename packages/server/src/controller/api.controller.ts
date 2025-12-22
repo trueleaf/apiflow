@@ -358,7 +358,7 @@ export class APIController {
     this.ctx.set('Content-Type', contentType);
 
     // 生成指定大小的模拟图片数据
-    let imageBuffer: Buffer;
+    let imageBuffer: Buffer | Uint8Array;
     if (imgType.toLowerCase() === 'png') {
       // PNG文件头 (89 50 4E 47 0D 0A 1A 0A)
       const pngHeader = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
@@ -384,7 +384,18 @@ export class APIController {
       for (let i = 0; i < dataSize; i++) {
         dataBuffer[i] = (i % 256);
       }
-      imageBuffer = Buffer.concat([pngHeader, ihdrChunk, dataBuffer, iendChunk]);
+      // 手动拼接为 Uint8Array，避免 Buffer/Uint8Array 类型不兼容问题
+      const totalSize = headerSize + dataSize;
+      const concatenated = new Uint8Array(totalSize);
+      let offset = 0;
+      concatenated.set(new Uint8Array(pngHeader), offset);
+      offset += pngHeader.length;
+      concatenated.set(new Uint8Array(ihdrChunk), offset);
+      offset += ihdrChunk.length;
+      concatenated.set(new Uint8Array(dataBuffer), offset);
+      offset += dataBuffer.length;
+      concatenated.set(new Uint8Array(iendChunk), offset);
+      imageBuffer = concatenated;
     } else {
       // 对于其他格式，直接生成指定大小的二进制数据
       imageBuffer = Buffer.alloc(size);
