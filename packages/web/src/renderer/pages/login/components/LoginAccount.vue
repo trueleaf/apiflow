@@ -52,7 +52,8 @@ import { FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { router } from '@/router';
 import { useRuntime } from '@/store/runtime/runtimeStore';
-
+import { useAppSettings } from '@/store/appSettings/appSettingsStore';
+import { IPC_EVENTS } from '@src/types/ipc'
 
 import { message } from '@/helper'
 const emits = defineEmits(['jumpToRegister', 'jumpToResetPassword'])
@@ -74,8 +75,9 @@ const rules = ref({
 const random = ref(Math.random()) //--------验证码随机参数
 const isShowCapture = ref(false) //---------是否展示验证码
 const loading = ref(false) //---------------登录按钮loading
+const appSettingsStore = useAppSettings()
 const captchaUrl = computed(() => {
-  const requestUrl = config.renderConfig.httpRequest.url;
+  const requestUrl = appSettingsStore.serverUrl || config.renderConfig.httpRequest.url;
   return `${requestUrl}/api/security/captcha?width=120&height=40&random=${random.value}`;
 })
 //登录
@@ -90,6 +92,7 @@ const handleLogin = async () => {
         } else {
           // 登录成功，更新用户信息到store
           runtimeStore.updateUserInfo(res.data);
+          window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { token: res.data.token, avatar: res.data.avatar })
           router.push('/home');
           // $store.dispatch('permission/getPermission')
         }

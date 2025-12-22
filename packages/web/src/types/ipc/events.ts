@@ -39,6 +39,10 @@ export const IPC_EVENTS = {
       showLanguageMenu: 'apiflow:topbar:to:content:show-language-menu',
       /** 隐藏语言菜单 */
       hideLanguageMenu: 'apiflow:topbar:to:content:hide-language-menu',
+      /** 显示用户菜单 */
+      showUserMenu: 'apiflow:topbar:to:content:show-user-menu',
+      /** 隐藏用户菜单 */
+      hideUserMenu: 'apiflow:topbar:to:content:hide-user-menu',
       /** Header Tabs 列表已更新 */
       tabsUpdated: 'apiflow:topbar:to:content:tabs-updated',
       /** Header 激活的 Tab 已变化 */
@@ -75,6 +79,8 @@ export const IPC_EVENTS = {
       projectRenamed: 'apiflow:content:to:topbar:project-renamed',
       /** 语言已变更 */
       languageChanged: 'apiflow:content:to:topbar:language-changed',
+      /** 用户信息已变更 */
+      userInfoChanged: 'apiflow:content:to:topbar:user-info-changed',
       /** 显示语言菜单 */
       showLanguageMenu: 'apiflow:content:to:topbar:show-language-menu',
       /** 隐藏语言菜单 */

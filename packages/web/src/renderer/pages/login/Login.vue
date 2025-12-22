@@ -36,6 +36,14 @@
           <span>{{ config.appConfig.appTitle }}</span>
           <span v-if="config.appConfig.version">({{ config.appConfig.version }})</span>
         </h2>
+        <div class="server-config d-flex a-center mb-2">
+          <Globe :size="18" class="label-icon" />
+          <el-input v-model="localServerUrl" :placeholder="t('请输入接口调用地址')" clearable class="form-input" />
+          <div class="server-actions d-flex a-center">
+            <el-button @click="handleReset">{{ t('重置') }}</el-button>
+            <el-button type="primary" @click="handleSave" :disabled="!hasChanges">{{ t('保存') }}</el-button>
+          </div>
+        </div>
         <el-tabs v-model="activeName" class="w-100" data-testid="login-tabs">
           <!-- 账号登录 -->
           <el-tab-pane :label="$t('账号登录')" name="loginAccount" data-testid="login-tab-account">
@@ -56,14 +64,66 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { config as globalConfig } from '@src/config/config'
 import LoginAccount from './components/LoginAccount.vue';
 import LoginPhone from './components/LoginPhone.vue';
 import Register from './components/Register.vue';
 import ResetPassword from './components/ResetPassword.vue';
+import { useI18n } from 'vue-i18n'
+import { useAppSettings } from '@/store/appSettings/appSettingsStore'
+import { Globe } from 'lucide-vue-next'
+import { ElMessageBox } from 'element-plus'
+import { message } from '@/helper'
+import { updateAxiosBaseURL } from '@/api/api'
 const config = ref(globalConfig);
+const { t } = useI18n()
+const appSettingsStore = useAppSettings()
+const localServerUrl = ref(appSettingsStore.serverUrl)
+watch(() => appSettingsStore.serverUrl, (newVal) => {
+  localServerUrl.value = newVal
+})
 const activeName = ref('loginAccount');
+const hasChanges = computed(() => localServerUrl.value.trim() !== appSettingsStore.serverUrl)
+const validateUrl = (url: string): boolean => {
+  if (!url.trim()) {
+    return false
+  }
+  try {
+    const urlObj = new URL(url)
+    return urlObj.protocol === 'http:' || urlObj.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+const handleSave = () => {
+  const trimmedUrl = localServerUrl.value.trim()
+  if (!validateUrl(trimmedUrl)) {
+    message.warning(t('请输入有效的接口调用地址'))
+    return
+  }
+  appSettingsStore.setServerUrl(trimmedUrl)
+  updateAxiosBaseURL(trimmedUrl)
+  message.success(t('保存成功'))
+}
+const handleReset = async () => {
+  try {
+    await ElMessageBox.confirm(
+      t('确认将所有配置恢复为默认值吗？'),
+      {
+        type: 'warning',
+        confirmButtonText: t('确定'),
+        cancelButtonText: t('取消'),
+      }
+    )
+  } catch {
+    return
+  }
+  appSettingsStore.resetServerUrl()
+  updateAxiosBaseURL(appSettingsStore.serverUrl)
+  localServerUrl.value = appSettingsStore.serverUrl
+  message.success(t('重置成功'))
+}
 
 //跳转注册页面
 const handleJumpToRegister = () => {
@@ -174,6 +234,18 @@ const eventListeners = computed(() => {
           width: 200px;
           height: 40px;
         }
+      }
+      .server-config {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 12px 0;
+      }
+      .server-config .form-input {
+        flex: 1;
+      }
+      .server-config .server-actions .el-button {
+        margin-left: 8px;
       }
     }
   }

@@ -152,8 +152,9 @@ router.beforeEach(async (to, _, next) => {
     next();
     return;
   }
+  const anonymousAllowedPaths = ['/login', '/settings'];
   if (!runtimeStore.userInfo.id) {
-    if (to.path !== '/login') {
+    if (!anonymousAllowedPaths.includes(to.path)) {
       next('/login');
       return;
     }

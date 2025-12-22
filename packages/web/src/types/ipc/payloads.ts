@@ -7,6 +7,7 @@
  */
 
 import type { AnchorRect } from '@src/types/common';
+import type { PermissionUserInfo } from '@src/types/project';
 import type { IPC_EVENTS } from './events';
 
 /**
@@ -68,6 +69,16 @@ export interface IPCEventMap {
   };
 
   [IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu]: {
+    request: void;
+    response: void;
+  };
+
+  [IPC_EVENTS.apiflow.topBarToContent.showUserMenu]: {
+    request: { position: AnchorRect };
+    response: void;
+  };
+
+  [IPC_EVENTS.apiflow.topBarToContent.hideUserMenu]: {
     request: void;
     response: void;
   };
@@ -145,6 +156,11 @@ export interface IPCEventMap {
 
   [IPC_EVENTS.apiflow.contentToTopBar.languageChanged]: {
     request: string;
+    response: void;
+  };
+
+  [IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged]: {
+    request: Partial<PermissionUserInfo>;
     response: void;
   };
 

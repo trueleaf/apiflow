@@ -14,6 +14,7 @@ import { getWindowState, execCodeInContext } from '../utils/index.ts';
 // import { IPCProjectData, WindowState } from '@src/types/index.ts';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import type { AnchorRect } from '@src/types/common';
+import type { PermissionUserInfo } from '@src/types/project';
 
 import { mockManager, updateManager, websocketMockManager } from '../main.ts';
 import { MockUtils } from '../mock/mockUtils.ts';
@@ -499,6 +500,16 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu)
   })
 
+  // 显示用户菜单
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.showUserMenu, (_, data: { position: AnchorRect }) => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.showUserMenu, data)
+  })
+
+  // 隐藏用户菜单
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu, () => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu)
+  })
+
   // 语言切换
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.languageChanged, (_, language: string) => {
     // 更新运行时语言状态
@@ -507,6 +518,11 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     // 同时通知 topBarView 和 contentView 更新语言显示
     contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.languageChanged, language)
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.languageChanged, language)
+  })
+
+  // 用户信息变更
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, (_, payload: Partial<PermissionUserInfo>) => {
+    topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, payload)
   })
 
   // 刷新contentView

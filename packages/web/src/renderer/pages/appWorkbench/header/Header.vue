@@ -52,6 +52,17 @@
           <i class="iconfont network-icon" :class="networkMode === 'online' ? 'iconwifi' : 'iconwifi-off-line'"></i>
           <span class="network-text">{{ networkMode === 'online' ? t('联网模式') : t('离线模式') }}</span>
         </el-icon>
+        <button
+          v-if="networkMode === 'online' && runtimeStore.userInfo.token"
+          class="icon user-avatar-btn"
+          :title="runtimeStore.userInfo.realName || runtimeStore.userInfo.loginName"
+          data-testid="header-user-menu-btn"
+          @click.stop="handleOpenUserMenu"
+          ref="userAvatarButtonRef"
+        >
+          <img v-if="runtimeStore.userInfo.avatar" class="user-avatar-img" :src="runtimeStore.userInfo.avatar" draggable="false" />
+          <User v-else :size="16" />
+        </button>
       </div>
       <div class="window-control">
         <i class="iconfont iconjianhao" id="minimize" :title="t('最小化')" data-testid="header-minimize-btn" @click="minimize"></i>
@@ -71,12 +82,14 @@ import type { AppWorkbenchHeaderTab } from '@src/types/appWorkbench/appWorkbench
 import type { RuntimeNetworkMode } from '@src/types/runtime'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
-import { Folder, Settings, Bot } from 'lucide-vue-next'
+import { Folder, Settings, Bot, User } from 'lucide-vue-next'
 import Update from './components/update/Update.vue'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { changeLanguage } from '@/i18n'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 import { useTheme } from '@/hooks/useTheme'
+import { useRuntime } from '@/store/runtime/runtimeStore'
+import type { PermissionUserInfo } from '@src/types/project'
 
 const appSettingsStore = useAppSettings()
 const tabs = ref<AppWorkbenchHeaderTab[]>([])
@@ -87,6 +100,7 @@ const aiButtonRef = ref<HTMLElement>()
 const { t } = useI18n()
 const language = ref<Language>('zh-cn')
 const networkMode = ref<RuntimeNetworkMode>('offline')
+const runtimeStore = useRuntime()
 const filteredTabs = computed(() => {
   return tabs.value.filter(tab => tab.network === networkMode.value)
 })
@@ -168,6 +182,7 @@ const currentLanguageDisplay = computed(() => {
 const languageButtonRef = ref<HTMLElement>()
 const handleChangeLanguage = () => {
   if (languageButtonRef.value) {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu)
     const rect = languageButtonRef.value.getBoundingClientRect()
     const buttonPosition = {
       x: rect.left,
@@ -180,6 +195,23 @@ const handleChangeLanguage = () => {
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.showLanguageMenu, {
       position: buttonPosition,
       currentLanguage: language.value
+    })
+  }
+}
+
+const userAvatarButtonRef = ref<HTMLElement>()
+const handleOpenUserMenu = () => {
+  if (userAvatarButtonRef.value) {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu)
+    const rect = userAvatarButtonRef.value.getBoundingClientRect()
+    const buttonPosition = {
+      x: rect.left,
+      y: 0,
+      width: rect.width,
+      height: rect.height
+    }
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.showUserMenu, {
+      position: buttonPosition
     })
   }
 }
@@ -334,7 +366,6 @@ const bindEvent = () => {
 
   // 监听来自 App.vue 的初始化数据
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.initTabsData, (data: { tabs: AppWorkbenchHeaderTab[], activeTabId: string, language: Language, networkMode: RuntimeNetworkMode }) => {
-    console.log('init tabs')
     tabs.value = data.tabs || [];
     activeTabId.value = data.activeTabId || '';
     language.value = data.language || 'zh-cn';
@@ -359,6 +390,10 @@ const bindEvent = () => {
     const { applyTheme } = useTheme()
     applyTheme(appSettingsStore.appTheme)
   });
+
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, (payload: Partial<PermissionUserInfo>) => {
+    runtimeStore.updateUserInfo(payload)
+  })
 }
 
 // 处理document点击事件以关闭语言菜单
@@ -366,9 +401,13 @@ const handleDocumentClick = (event: MouseEvent) => {
   if (languageButtonRef.value && !languageButtonRef.value.contains(event.target as Node)) {
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu)
   }
+  if (userAvatarButtonRef.value && !userAvatarButtonRef.value.contains(event.target as Node)) {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu)
+  }
 }
 
 onMounted(async () => {
+  runtimeStore.initUserInfo()
   bindEvent()
   scrollToActiveTab()
   // 确保事件监听器已注册后再发送就绪信号
@@ -378,7 +417,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleDocumentClick)
+  window.removeEventListener('click', handleDocumentClick)
 })
 
 watch(() => networkMode.value, (mode, prevMode) => {
@@ -687,6 +726,19 @@ body {
   }
   .network-icon {
     font-size: 14px;
+  }
+
+  .user-avatar-btn {
+    padding: 0;
+    border: none;
+    background: transparent;
+  }
+
+  .user-avatar-img {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: block;
   }
 }
 

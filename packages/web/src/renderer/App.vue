@@ -23,6 +23,13 @@
       @language-select="handleLanguageSelect"
       @close="hideLanguageMenu"
     />
+    <UserMenu
+      v-if="isElectronEnv"
+      :visible="userMenuVisible"
+      :position="userMenuPosition"
+      @logout="handleLogout"
+      @close="hideUserMenu"
+    />
   </div>
 </template>
 
@@ -41,10 +48,12 @@ import { ElMessageBox, ElMessage } from 'element-plus';
 import { useProjectWorkbench } from './store/projectWorkbench/projectWorkbenchStore';
 import { Language } from '@src/types';
 import LanguageMenu from '@/components/common/language/Language.vue';
+import UserMenu from '@/components/common/userMenu/UserMenu.vue'
 import NetworkModeBanner from '@/components/common/networkMode/NetworkModeBanner.vue';
 import BrowserHeader from '@/components/common/browserHeader/BrowserHeader.vue';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import { useRuntime } from './store/runtime/runtimeStore.ts';
+import type { AnchorRect } from '@src/types/common'
 import { appWorkbenchCache } from '@/cache/appWorkbench/appWorkbenchCache';
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
 import type { MockLog } from '@src/types/mockNode';
@@ -73,6 +82,8 @@ const browserHeaderRef = ref<InstanceType<typeof BrowserHeader> | null>(null)
 // 语言菜单相关状态（仅 Electron 环境使用）
 const languageMenuVisible = ref(false)
 const languageMenuPosition = ref({ x: 0, y: 0, width: 0, height: 0 })
+const userMenuVisible = ref(false)
+const userMenuPosition = ref<AnchorRect>({ x: 0, y: 0, width: 0, height: 0 })
 
 const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
   dialogVisible.value = false;
@@ -131,6 +142,22 @@ const showLanguageMenu = (data: { position: any, currentLanguage: string }) => {
 
 const hideLanguageMenu = () => {
   languageMenuVisible.value = false
+}
+
+const showUserMenu = (data: { position: AnchorRect }) => {
+  userMenuPosition.value = data.position
+  userMenuVisible.value = true
+}
+
+const hideUserMenu = () => {
+  userMenuVisible.value = false
+}
+
+const handleLogout = () => {
+  runtimeStore.clearUserInfo()
+  hideUserMenu()
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { token: '', avatar: '' })
+  router.push('/login')
 }
 
 const handleLanguageSelect = (language: Language) => {
@@ -201,6 +228,16 @@ const initAppHeaderEvent = () => {
   // 隐藏语言菜单事件监听
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu, () => {
     hideLanguageMenu()
+  })
+
+  // 显示用户菜单事件监听
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.showUserMenu, (data: { position: AnchorRect }) => {
+    showUserMenu(data)
+  })
+
+  // 隐藏用户菜单事件监听
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu, () => {
+    hideUserMenu()
   })
 
   // 监听项目切换事件
