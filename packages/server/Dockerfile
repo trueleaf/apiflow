@@ -15,8 +15,8 @@ COPY scripts ./scripts
 # Copy server package files
 COPY packages/server/package.json ./packages/server/
 
-# Debug: Show environment variable
-RUN echo "USE_NPM_MIRROR is set to: $USE_NPM_MIRROR"
+# Configure NPM registry based on USE_NPM_MIRROR environment variable
+RUN node scripts/setup-npm-registry.js && npm config get registry
 
 # Install dependencies
 RUN npm install
@@ -45,8 +45,8 @@ COPY scripts ./scripts
 # Copy server package files
 COPY packages/server/package.json ./packages/server/
 
-# Debug: Show environment variable
-RUN echo "USE_NPM_MIRROR is set to: $USE_NPM_MIRROR"
+# Configure NPM registry based on USE_NPM_MIRROR environment variable
+RUN node scripts/setup-npm-registry.js && npm config get registry
 
 # Install production dependencies only
 RUN npm install --production
