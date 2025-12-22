@@ -732,6 +732,28 @@ body {
     padding: 0;
     border: none;
     background: transparent;
+    width: 30px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-white);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  .user-avatar-btn:hover {
+    background-color: var(--bg-white-10);
+  }
+  .user-avatar-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.06);
+  }
+  .user-avatar-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    color: inherit;
   }
 
   .user-avatar-img {
@@ -739,6 +761,8 @@ body {
     height: 18px;
     border-radius: 50%;
     display: block;
+    object-fit: cover;
+    background-color: transparent;
   }
 }
 

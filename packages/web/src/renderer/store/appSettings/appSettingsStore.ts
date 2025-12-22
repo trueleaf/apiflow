@@ -121,5 +121,6 @@ export const useAppSettings = defineStore('appSettings', () => {
     resetAllSettings,
     refreshSettings,
     updateFromIPC,
+    resetServerUrl,
   }
 })
