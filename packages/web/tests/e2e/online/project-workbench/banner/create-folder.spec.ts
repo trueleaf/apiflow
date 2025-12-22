@@ -33,11 +33,11 @@ test.describe('OnlineCreateFolder', () => {
     await contentPage.goto(`${baseUrl}#/login`);
     await expect(contentPage.locator('[data-testid="login-form"]')).toBeVisible({ timeout: 5000 });
 
-    await contentPage.locator('[data-testid="login-username-input"] input').fill(loginName!);
-    await contentPage.locator('[data-testid="login-password-input"] input').fill(password!);
+    await contentPage.locator('[data-testid="login-username-input"]').fill(loginName!);
+    await contentPage.locator('[data-testid="login-password-input"]').fill(password!);
     await contentPage.locator('[data-testid="login-submit-btn"]').click();
 
-    const captchaInput = contentPage.locator('[data-testid="login-captcha-input"] input');
+    const captchaInput = contentPage.locator('[data-testid="login-captcha-input"]');
     if (await captchaInput.isVisible()) {
       if (!captcha) {
         throw new Error('后端要求验证码，请在 .env.test 中配置 TEST_LOGIN_CAPTCHA');
