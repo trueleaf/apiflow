@@ -1,0 +1,209 @@
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture.ts';
+
+const MOCK_SERVER_PORT = 3456;
+
+test.describe('RequestConfig', () => {
+  test.beforeEach(async ({ topBarPage, contentPage, clearCache }) => {
+    const serverUrl = process.env.TEST_SERVER_URL;
+    const loginName = process.env.TEST_LOGIN_NAME;
+    const password = process.env.TEST_LOGIN_PASSWORD;
+    const captcha = process.env.TEST_LOGIN_CAPTCHA;
+    if (!serverUrl) {
+      test.skip(true, '缺少环境变量 TEST_SERVER_URL（由 .env.test 提供）');
+    }
+    if (!loginName || !password) {
+      test.skip(true, '缺少环境变量 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD（由 .env.test 提供）');
+    }
+    await clearCache();
+    const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
+    const networkText = await networkToggle.textContent();
+    if (networkText?.includes('离线模式') || networkText?.includes('offline mode')) {
+      await networkToggle.click();
+      await contentPage.waitForTimeout(500);
+    }
+    await topBarPage.locator('[data-testid="header-settings-btn"]').click();
+    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
+    await contentPage.locator('[data-testid="settings-menu-common-settings"]').click();
+    const serverUrlInput = contentPage.getByPlaceholder(/请输入接口调用地址|Please enter.*address/i);
+    await serverUrlInput.fill(serverUrl!);
+    const saveBtn = contentPage.getByRole('button', { name: /保存|Save/i });
+    if (await saveBtn.isEnabled()) {
+      await saveBtn.click();
+      await expect(contentPage.getByText(/保存成功|Saved successfully/i)).toBeVisible({ timeout: 5000 });
+    }
+    const baseUrl = contentPage.url().split('#')[0];
+    await contentPage.goto(`${baseUrl}#/login`);
+    await expect(contentPage.locator('[data-testid="login-form"]')).toBeVisible({ timeout: 5000 });
+    await contentPage.locator('[data-testid="login-username-input"]').fill(loginName!);
+    await contentPage.locator('[data-testid="login-password-input"]').fill(password!);
+    await contentPage.locator('[data-testid="login-submit-btn"]').click();
+    const captchaInput = contentPage.locator('[data-testid="login-captcha-input"]');
+    if (await captchaInput.isVisible()) {
+      if (!captcha) {
+        throw new Error('后端要求验证码，请在 .env.test 中配置 TEST_LOGIN_CAPTCHA');
+      }
+      await captchaInput.fill(captcha);
+      await contentPage.locator('[data-testid="login-submit-btn"]').click();
+    }
+    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
+    await contentPage.locator('[data-testid="home-add-project-btn"]').click();
+    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: / 新建项目|新增项目|Create Project/ });
+    await expect(projectDialog).toBeVisible({ timeout: 5000 });
+    await projectDialog.locator('input').first().fill(`在线项目-${Date.now()}`);
+    await projectDialog.locator('.el-button--primary').last().click();
+    await expect(projectDialog).toBeHidden({ timeout: 10000 });
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 15000 });
+  });
+  // 修改最大文本Body大小配置,验证超过限制时的处理
+  test('修改最大文本Body大小配置', async ({ contentPage }) => {
+
+    // 创建HTTP节点
+    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await expect(addHttpBtn).toBeVisible({ timeout: 10000 });
+    await addHttpBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 10000 });
+    const nameInput = addFileDialog.locator('input').first();
+    await nameInput.fill('最大文本Body大小测试');
+    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmBtn.click();
+
+    // 切换到设置标签
+    const settingsTab = contentPage.locator('[data-testid="http-params-tab-settings"]');
+    await expect(settingsTab).toBeVisible({ timeout: 10000 });
+    await settingsTab.click();
+
+    const settingsPanel = contentPage.locator('.request-settings');
+    await expect(settingsPanel).toBeVisible({ timeout: 10000 });
+
+    // 找到"最大文本Body大小"配置项
+    const maxBodySizeInput = contentPage.locator('.request-settings .config-item .control-number input').first();
+    await expect(maxBodySizeInput).toBeVisible({ timeout: 5000 });
+    await maxBodySizeInput.click();
+    await maxBodySizeInput.fill('1');
+  });
+  // 修改最大原始Body大小配置,验证超过限制时的处理
+  test('修改最大原始Body大小配置', async ({ contentPage }) => {
+
+    // 创建HTTP节点
+    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await expect(addHttpBtn).toBeVisible({ timeout: 10000 });
+    await addHttpBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 10000 });
+    const nameInput = addFileDialog.locator('input').first();
+    await nameInput.fill('最大原始Body大小测试');
+    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmBtn.click();
+
+    // 切换到设置标签
+    const settingsTab = contentPage.locator('[data-testid="http-params-tab-settings"]');
+    await expect(settingsTab).toBeVisible({ timeout: 10000 });
+    await settingsTab.click();
+
+    const settingsPanel = contentPage.locator('.request-settings');
+    await expect(settingsPanel).toBeVisible({ timeout: 10000 });
+
+    const maxRawBodySizeInput = contentPage.locator('.request-settings .config-item .control-number input').nth(1);
+    await expect(maxRawBodySizeInput).toBeVisible({ timeout: 5000 });
+    await maxRawBodySizeInput.click();
+    await maxRawBodySizeInput.fill('1');
+  });
+  // 修改自定义User-Agent配置,发送请求后验证User-Agent已更改
+  test('修改自定义User-Agent配置', async ({ contentPage }) => {
+
+    // 创建HTTP节点
+    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await expect(addHttpBtn).toBeVisible({ timeout: 10000 });
+    await addHttpBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 10000 });
+    const nameInput = addFileDialog.locator('input').first();
+    await nameInput.fill('自定义User-Agent测试');
+    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmBtn.click();
+
+    // 设置请求URL
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await expect(urlInput).toBeVisible({ timeout: 10000 });
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+
+    // 切换到设置标签
+    const settingsTab = contentPage.locator('[data-testid="http-params-tab-settings"]');
+    await expect(settingsTab).toBeVisible({ timeout: 10000 });
+    await settingsTab.click();
+
+    const settingsPanel = contentPage.locator('.request-settings');
+    await expect(settingsPanel).toBeVisible({ timeout: 10000 });
+
+    // 找到"自定义User-Agent"配置项并修改
+    const userAgentInput = contentPage.locator('.request-settings .control-text input').first();
+    await expect(userAgentInput).toBeVisible({ timeout: 5000 });
+    await userAgentInput.click();
+    await userAgentInput.fill('CustomTestAgent/1.0');
+
+    // 点击发送按钮
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    // 验证响应区域有内容（请求成功发送）
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+  });
+  // 修改请求头值最大展示长度配置,验证请求头展示截断正确
+  test('修改请求头值最大展示长度配置', async ({ contentPage }) => {
+
+    // 创建HTTP节点
+    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await expect(addHttpBtn).toBeVisible({ timeout: 10000 });
+    await addHttpBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 10000 });
+    const nameInput = addFileDialog.locator('input').first();
+    await nameInput.fill('请求头展示长度测试');
+    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmBtn.click();
+
+    // 设置请求URL
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await expect(urlInput).toBeVisible({ timeout: 10000 });
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+
+    // 切换到设置标签
+    const settingsTab = contentPage.locator('[data-testid="http-params-tab-settings"]');
+    await expect(settingsTab).toBeVisible({ timeout: 10000 });
+    await settingsTab.click();
+
+    const settingsPanel = contentPage.locator('.request-settings');
+    await expect(settingsPanel).toBeVisible({ timeout: 10000 });
+
+    const maxHeaderValueDisplayLengthInput = contentPage.locator('.request-settings .config-item .control-number input').nth(2);
+    await expect(maxHeaderValueDisplayLengthInput).toBeVisible({ timeout: 5000 });
+    await maxHeaderValueDisplayLengthInput.click();
+    await maxHeaderValueDisplayLengthInput.fill('50');
+
+    // 切换到Headers标签添加长请求头
+    const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
+    await expect(headersTab).toBeVisible({ timeout: 10000 });
+    await headersTab.click();
+
+    // 添加一个很长的自定义请求头
+    const headersTree = contentPage.locator('.cl-params-tree').first();
+    const headerKeyInput = headersTree.locator('[data-testid="params-tree-key-input"]').first();
+    const headerValueInput = headersTree.locator('[data-testid="params-tree-value-input"]').first().locator('[contenteditable="true"]');
+    await expect(headerKeyInput).toBeVisible({ timeout: 10000 });
+    await headerKeyInput.fill('X-Long-Header');
+    await headerValueInput.click();
+    await contentPage.keyboard.type('This is a very long header value that should be truncated based on the max display length configuration setting');
+
+    // 点击发送按钮
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    // 验证响应区域有内容（请求成功发送）
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.getByTestId('status-code');
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+  });
+});

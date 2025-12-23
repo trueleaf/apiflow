@@ -10,11 +10,12 @@ COPY packages/web/package.json ./packages/web/
 RUN if [ "$USE_NPM_MIRROR" = "true" ]; then npm config set registry https://registry.npmmirror.com; fi
 
 WORKDIR /app/packages/web
-RUN npm install
+RUN npm install --omit=optional
 
 COPY packages/web/ ./
 RUN npm run build:web
 
 FROM nginx:1.27-alpine AS runtime
-COPY --from=build /app/packages/web/dist /usr/share/nginx/html
+COPY --from=build /app/packages/web/dist/web/ /usr/share/nginx/html/
+COPY packages/web/nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80

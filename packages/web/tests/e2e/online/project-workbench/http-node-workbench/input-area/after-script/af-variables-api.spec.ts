@@ -1,0 +1,185 @@
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture.ts';
+
+const MOCK_SERVER_PORT = 3456;
+
+test.describe('AfVariablesApi', () => {
+  test.beforeEach(async ({ topBarPage, contentPage, clearCache }) => {
+    const serverUrl = process.env.TEST_SERVER_URL;
+    const loginName = process.env.TEST_LOGIN_NAME;
+    const password = process.env.TEST_LOGIN_PASSWORD;
+    const captcha = process.env.TEST_LOGIN_CAPTCHA;
+    if (!serverUrl) {
+      test.skip(true, '缺少环境变量 TEST_SERVER_URL（由 .env.test 提供）');
+    }
+    if (!loginName || !password) {
+      test.skip(true, '缺少环境变量 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD（由 .env.test 提供）');
+    }
+    await clearCache();
+    const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
+    const networkText = await networkToggle.textContent();
+    if (networkText?.includes('离线模式') || networkText?.includes('offline mode')) {
+      await networkToggle.click();
+      await contentPage.waitForTimeout(500);
+    }
+    await topBarPage.locator('[data-testid="header-settings-btn"]').click();
+    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
+    await contentPage.locator('[data-testid="settings-menu-common-settings"]').click();
+    const serverUrlInput = contentPage.getByPlaceholder(/请输入接口调用地址|Please enter.*address/i);
+    await serverUrlInput.fill(serverUrl!);
+    const saveBtn = contentPage.getByRole('button', { name: /保存|Save/i });
+    if (await saveBtn.isEnabled()) {
+      await saveBtn.click();
+      await expect(contentPage.getByText(/保存成功|Saved successfully/i)).toBeVisible({ timeout: 5000 });
+    }
+    const baseUrl = contentPage.url().split('#')[0];
+    await contentPage.goto(`${baseUrl}#/login`);
+    await expect(contentPage.locator('[data-testid="login-form"]')).toBeVisible({ timeout: 5000 });
+    await contentPage.locator('[data-testid="login-username-input"]').fill(loginName!);
+    await contentPage.locator('[data-testid="login-password-input"]').fill(password!);
+    await contentPage.locator('[data-testid="login-submit-btn"]').click();
+    const captchaInput = contentPage.locator('[data-testid="login-captcha-input"]');
+    if (await captchaInput.isVisible()) {
+      if (!captcha) {
+        throw new Error('后端要求验证码，请在 .env.test 中配置 TEST_LOGIN_CAPTCHA');
+      }
+      await captchaInput.fill(captcha);
+      await contentPage.locator('[data-testid="login-submit-btn"]').click();
+    }
+    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
+    await contentPage.locator('[data-testid="home-add-project-btn"]').click();
+    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: / 新建项目|新增项目|Create Project/ });
+    await expect(projectDialog).toBeVisible({ timeout: 5000 });
+    await projectDialog.locator('input').first().fill(`在线项目-${Date.now()}`);
+    await projectDialog.locator('.el-button--primary').last().click();
+    await expect(projectDialog).toBeHidden({ timeout: 10000 });
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 15000 });
+  });
+  // 使用af.variables.get(name)获取指定变量值
+  test('使用af.variables.get(name)获取指定变量值', async ({ contentPage }) => {
+    // 新增HTTP节点
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('变量获取测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 设置请求URL
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    // 切换到后置脚本Tab
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
+    await afterScriptTab.click();
+    await contentPage.waitForTimeout(300);
+    // 在后置脚本编辑器中输入代码：先设置变量再获取
+    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+    await monacoEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('af.variables.set("api_url", "https://example.com/api");\nconst apiUrl = af.variables.get("api_url");\nconsole.log("apiUrl:", apiUrl);');
+    await contentPage.waitForTimeout(300);
+    // 发送请求
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    // 验证请求成功（状态码200表示脚本执行无误）
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+  });
+  // 使用af.variables.set(name, value)设置变量值
+  test('使用af.variables.set(name, value)设置变量值', async ({ contentPage }) => {
+    // 新增HTTP节点
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('变量设置测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 设置请求URL
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    // 切换到后置脚本Tab
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
+    await afterScriptTab.click();
+    await contentPage.waitForTimeout(300);
+    // 在后置脚本编辑器中输入代码设置变量
+    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+    await monacoEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('af.variables.set("next_page", 2);\nconsole.log("变量已设置:", af.variables.get("next_page"));');
+    await contentPage.waitForTimeout(300);
+    // 发送请求
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    // 验证请求成功（状态码200表示脚本执行无误）
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+  });
+  // 后置脚本中设置的变量在下次请求中可以使用
+  test('后置脚本中设置的变量在下次请求中可以使用', async ({ contentPage }) => {
+    // 新增第一个HTTP节点用于设置变量
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('设置Token接口');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 设置第一个请求的URL
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    // 切换到后置脚本Tab
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
+    await afterScriptTab.click();
+    await contentPage.waitForTimeout(300);
+    // 在第一个请求的后置脚本中设置变量
+    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+    await monacoEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('af.variables.set("token_from_response", "test_token_abc123");\nconsole.log("Token变量已设置");');
+    await contentPage.waitForTimeout(300);
+    // 发送第一个请求
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    // 验证第一个请求成功（状态码200表示脚本执行无误）
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    // 新增第二个HTTP节点用于验证变量
+    await addFileBtn.click();
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput2 = addFileDialog.locator('input').first();
+    await fileNameInput2.fill('验证Token接口');
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 设置第二个请求的URL，使用变量
+    const urlInput2 = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput2.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?token={{token_from_response}}`);
+    // 切换到后置脚本Tab
+    await afterScriptTab.click();
+    await contentPage.waitForTimeout(300);
+    // 在第二个请求的后置脚本中读取并验证变量
+    const monacoEditor2 = contentPage.locator('.s-monaco-editor').first();
+    await monacoEditor2.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('const token = af.variables.get("token_from_response");\nconsole.log("获取到的Token:", token);');
+    await contentPage.waitForTimeout(300);
+    // 发送第二个请求
+    await sendBtn.click();
+    // 验证第二个请求成功（状态码200表示脚本执行无误，变量被正确使用）
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    // 验证URL中变量被正确替换
+    const responseBody = responseArea.locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('test_token_abc123', { timeout: 10000 });
+  });
+});

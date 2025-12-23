@@ -29,8 +29,6 @@ services:
     environment:
       NODE_ENV: production
       MONGODB_URI: "mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongo:27017/${MONGO_DATABASE}?authSource=admin"
-    ports:
-      - "7001:7001"
 
   web:
     build:
@@ -42,7 +40,7 @@ services:
     depends_on:
       - server
     ports:
-      - "8080:80"
+      - "80:80"
 
 volumes:
   mongo_data:
