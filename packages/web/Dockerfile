@@ -6,25 +6,24 @@ ENV USE_NPM_MIRROR=$USE_NPM_MIRROR
 
 WORKDIR /app
 
-# Copy root package files
-COPY package.json package-lock.json* ./
-
 # Copy root scripts used by preinstall
 COPY scripts ./scripts
 
-# Copy workspace package files for npm workspaces resolution
-COPY packages/*/package.json ./packages/*/
+# Copy web package files for isolated install
+COPY packages/web/package.json packages/web/package-lock.json* ./packages/web/
 
 # Configure NPM registry based on USE_NPM_MIRROR environment variable
 RUN node scripts/setup-npm-registry.js && npm config get registry
 
 # Install dependencies (skip electron binary download, keep dev deps for build)
+WORKDIR /app/packages/web
 ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1
-# Use npm ci for reproducible installs and include optional deps for platform-specific native modules
-RUN npm ci
+# Use npm install to tolerate local lockfile drift in isolated package builds
+RUN npm install
 
 # Copy web source code
-COPY packages/web ./packages/web
+WORKDIR /app
+COPY packages/web /app/packages/web
 
 # Build the web application
 WORKDIR /app/packages/web

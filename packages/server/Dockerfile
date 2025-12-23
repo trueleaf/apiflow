@@ -6,23 +6,22 @@ ENV USE_NPM_MIRROR=$USE_NPM_MIRROR
 
 WORKDIR /app
 
-# Copy root package files
-COPY package.json package-lock.json* ./
-
 # Copy root scripts used by preinstall
 COPY scripts ./scripts
 
-# Copy workspace package files for npm workspaces resolution
-COPY packages/*/package.json ./packages/*/
+# Copy server package files for isolated install
+COPY packages/server/package.json ./packages/server/
 
 # Configure NPM registry based on USE_NPM_MIRROR environment variable
 RUN node scripts/setup-npm-registry.js && npm config get registry
 
 # Install dependencies
+WORKDIR /app/packages/server
 RUN npm install
 
 # Copy server source code
-COPY packages/server ./packages/server
+WORKDIR /app
+COPY packages/server /app/packages/server
 
 # Build the server application
 WORKDIR /app/packages/server
@@ -36,20 +35,18 @@ ENV USE_NPM_MIRROR=$USE_NPM_MIRROR
 
 WORKDIR /app
 
-# Copy root package files
-COPY package.json package-lock.json* ./
-
 # Copy root scripts used by preinstall
 COPY scripts ./scripts
 
-# Copy workspace package files for npm workspaces resolution
-COPY packages/*/package.json ./packages/*/
+# Copy server package files for isolated install
+COPY packages/server/package.json ./packages/server/
 
 # Configure NPM registry based on USE_NPM_MIRROR environment variable
 RUN node scripts/setup-npm-registry.js && npm config get registry
 
 # Install production dependencies only
-RUN npm install --production
+WORKDIR /app/packages/server
+RUN npm install --omit=dev
 
 # Copy built files from builder
 COPY --from=builder /app/packages/server/dist ./packages/server/dist
