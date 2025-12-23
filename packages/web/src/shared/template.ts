@@ -1,16 +1,7 @@
 import type { ApidocVariable } from '@src/types';
 import Mock from 'mockjs';
 import { faker } from '@faker-js/faker';
-
-// 环境自适应的代码执行函数
-const execCode = async (code: string, scope: Record<string, any>): Promise<{ code: number; data: any; msg: string }> => {
-  if (typeof window !== 'undefined' && (window as any).electronAPI) {
-    return (window as any).electronAPI.execCode(code, scope);
-  } else {
-    const { execCodeInContext } = await import('../main/utils/index.ts');
-    return execCodeInContext(code, scope);
-  }
-};
+import { execCode } from '@shared/execCode';
 
 // 将 ApidocVariable[] 转换为 Record<string, any>
 export const getObjectVariable = async (variables: ApidocVariable[]) => {

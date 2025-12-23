@@ -10,7 +10,8 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@src/*": ["./src/*"]
+      "@src/*": ["./src/*"],
+      "@shared/*": ["./src/shared/*"]
     }
   },
   "include": ["vite.config.ts", "./build/vite.ts", "./src/main/**/*"]

@@ -20,8 +20,10 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
+      "@shared/execCode": path.resolve(__dirname, '../../src/shared/execCode.web.ts'),
       "@": path.resolve(__dirname, '../../src/renderer'),
       "@src": path.resolve(__dirname, "../../src"),
+      "@shared": path.resolve(__dirname, "../../src/shared"),
     }
   },
   define: {

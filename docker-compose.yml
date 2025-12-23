@@ -28,7 +28,10 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
+      LOG_DIR: /app/logs
       MONGODB_URI: "mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongo:27017/${MONGO_DATABASE}?authSource=admin"
+    volumes:
+      - server_logs:/app/logs
 
   web:
     build:
@@ -44,3 +47,4 @@ services:
 
 volumes:
   mongo_data:
+  server_logs:

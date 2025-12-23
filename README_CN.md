@@ -156,8 +156,12 @@ cp .env.example .env
 # 启动全部服务
 docker compose up -d
 
-# 查看日志
-docker compose logs -f
+# 查看容器日志（stdout）
+docker compose logs -f server
+
+# 查看文件日志（容器内 /app/logs，已持久化）
+docker compose exec server ls /app/logs
+docker compose exec server tail -f /app/logs/*.log
 
 # 停止服务
 docker compose down
@@ -177,6 +181,10 @@ USE_NPM_MIRROR=false
 - **Web UI**: http://localhost
 - **API Server**: http://localhost:7001
 - **MongoDB**: 仅 Docker 内部网络可访问（不对外暴露）
+
+日志说明：
+- 文件日志目录：`/app/logs`（docker-compose 已挂载为 `server_logs`）
+- 轮转策略：按天轮转、单文件 100MB、保留 14 天
 
 
 

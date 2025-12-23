@@ -11,6 +11,9 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 export default defineConfig(async ({ mode, command }) => {
   // 检测是否为纯 Web 构建模式
   const isWebOnly = process.env.BUILD_TARGET === 'web'
+  const execCodeModule = isWebOnly
+    ? path.resolve(__dirname, './src/shared/execCode.web.ts')
+    : path.resolve(__dirname, './src/shared/execCode.renderer.ts')
   
   // 仅在非 Web 模式下动态导入 Electron 插件
   let viteElectronPlugin = null
@@ -48,6 +51,7 @@ export default defineConfig(async ({ mode, command }) => {
     },
     resolve: {
       alias: {
+        "@shared/execCode": execCodeModule,
         "@": path.resolve(__dirname, './src/renderer'),
         "@src": path.resolve(__dirname, "./src"),
         "@shared": path.resolve(__dirname, "./src/shared"),

@@ -33,6 +33,8 @@ const buildElectron = async (mode: string, command: 'build' | 'serve') => {
     resolve: {
       alias: {
         '@src': path.resolve(process.cwd(), './src'),
+        '@shared/execCode': path.resolve(process.cwd(), './src/shared/execCode.node.ts'),
+        '@shared': path.resolve(process.cwd(), './src/shared'),
       }
     },
     plugins: [

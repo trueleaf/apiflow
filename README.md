@@ -88,8 +88,12 @@ cp .env.example .env
 # Start all services with Docker Compose
 docker compose up -d
 
-# View logs
-docker compose logs -f
+# View container logs (stdout)
+docker compose logs -f server
+
+# View file logs (inside /app/logs, persisted)
+docker compose exec server ls /app/logs
+docker compose exec server tail -f /app/logs/*.log
 
 # Stop services
 docker compose down
@@ -109,6 +113,10 @@ Services will be available at:
 - **Web UI**: http://localhost
 - **API Server**: http://localhost:7001
 - **MongoDB**: Internal Docker network only (not exposed externally)
+
+Log notes:
+- File log directory: `/app/logs` (docker-compose volume `server_logs`)
+- Rotation: daily, 100MB per file, retain 14 days
 
 ## Tech Stack
 

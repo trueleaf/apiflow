@@ -22,6 +22,11 @@ export class APIController {
   @InjectEntityModel(User)
     userModel: ReturnModelType<typeof User>;
 
+  @Get('/health')
+  async health() {
+    return { status: 'ok' };
+  }
+
 
   @All('/test/request_method')
   async methodTest() {

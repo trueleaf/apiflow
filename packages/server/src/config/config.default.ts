@@ -55,6 +55,16 @@ export default (): MidwayConfig => {
         },
       },
     },
+    logger: {
+      dir: process.env.LOG_DIR || 'logs',
+      level: 'info',
+      consoleLevel: 'info',
+    },
+    logrotator: {
+      maxDays: 14,
+      maxFileSize: '100m',
+      rotateDuration: '1d',
+    },
     mongoose: {
       dataSource: {
         default: {
@@ -126,6 +136,7 @@ export default (): MidwayConfig => {
       isFree: false,
       whiteList: [
         '/api/test/**',
+        '/api/health',
         '/mock/image',
         '/mock',
         '/api/security/register',
