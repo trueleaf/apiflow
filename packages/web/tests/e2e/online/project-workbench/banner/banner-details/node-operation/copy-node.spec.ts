@@ -6,12 +6,6 @@ test.describe('OnlineCopyNode', () => {
     const loginName = process.env.TEST_LOGIN_NAME;
     const password = process.env.TEST_LOGIN_PASSWORD;
     const captcha = process.env.TEST_LOGIN_CAPTCHA;
-    if (!serverUrl) {
-      test.skip(true, '缺少环境变量 TEST_SERVER_URL（由 .env.test 提供）');
-    }
-    if (!loginName || !password) {
-      test.skip(true, '缺少环境变量 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD（由 .env.test 提供）');
-    }
     await clearCache();
     const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
     const networkText = await networkToggle.textContent();
@@ -82,12 +76,6 @@ test.describe('OnlineCopyNode', () => {
     const loginName = process.env.TEST_LOGIN_NAME;
     const password = process.env.TEST_LOGIN_PASSWORD;
     const captcha = process.env.TEST_LOGIN_CAPTCHA;
-    if (!serverUrl) {
-      test.skip(true, '缺少环境变量 TEST_SERVER_URL（由 .env.test 提供）');
-    }
-    if (!loginName || !password) {
-      test.skip(true, '缺少环境变量 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD（由 .env.test 提供）');
-    }
     await clearCache();
     const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
     const networkText = await networkToggle.textContent();
@@ -166,12 +154,6 @@ test.describe('OnlineCopyNode', () => {
     const loginName = process.env.TEST_LOGIN_NAME;
     const password = process.env.TEST_LOGIN_PASSWORD;
     const captcha = process.env.TEST_LOGIN_CAPTCHA;
-    if (!serverUrl) {
-      test.skip(true, '缺少环境变量 TEST_SERVER_URL（由 .env.test 提供）');
-    }
-    if (!loginName || !password) {
-      test.skip(true, '缺少环境变量 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD（由 .env.test 提供）');
-    }
     await clearCache();
     const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
     const networkText = await networkToggle.textContent();
@@ -257,12 +239,6 @@ test.describe('OnlineCopyNode', () => {
     const loginName = process.env.TEST_LOGIN_NAME;
     const password = process.env.TEST_LOGIN_PASSWORD;
     const captcha = process.env.TEST_LOGIN_CAPTCHA;
-    if (!serverUrl) {
-      test.skip(true, '缺少环境变量 TEST_SERVER_URL（由 .env.test 提供）');
-    }
-    if (!loginName || !password) {
-      test.skip(true, '缺少环境变量 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD（由 .env.test 提供）');
-    }
     await clearCache();
     const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
     const networkText = await networkToggle.textContent();
@@ -334,12 +310,6 @@ test.describe('OnlineCopyNode', () => {
     const loginName = process.env.TEST_LOGIN_NAME;
     const password = process.env.TEST_LOGIN_PASSWORD;
     const captcha = process.env.TEST_LOGIN_CAPTCHA;
-    if (!serverUrl) {
-      test.skip(true, '缺少环境变量 TEST_SERVER_URL（由 .env.test 提供）');
-    }
-    if (!loginName || !password) {
-      test.skip(true, '缺少环境变量 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD（由 .env.test 提供）');
-    }
     await clearCache();
     const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
     const networkText = await networkToggle.textContent();
@@ -416,12 +386,6 @@ test.describe('OnlineCopyNode', () => {
     const loginName = process.env.TEST_LOGIN_NAME;
     const password = process.env.TEST_LOGIN_PASSWORD;
     const captcha = process.env.TEST_LOGIN_CAPTCHA;
-    if (!serverUrl) {
-      test.skip(true, '缺少环境变量 TEST_SERVER_URL（由 .env.test 提供）');
-    }
-    if (!loginName || !password) {
-      test.skip(true, '缺少环境变量 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD（由 .env.test 提供）');
-    }
     await clearCache();
     const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
     const networkText = await networkToggle.textContent();
@@ -493,12 +457,6 @@ test.describe('OnlineCopyNode', () => {
     const loginName = process.env.TEST_LOGIN_NAME;
     const password = process.env.TEST_LOGIN_PASSWORD;
     const captcha = process.env.TEST_LOGIN_CAPTCHA;
-    if (!serverUrl) {
-      test.skip(true, '缺少环境变量 TEST_SERVER_URL（由 .env.test 提供）');
-    }
-    if (!loginName || !password) {
-      test.skip(true, '缺少环境变量 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD（由 .env.test 提供）');
-    }
     await clearCache();
     const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
     const networkText = await networkToggle.textContent();
@@ -575,12 +533,6 @@ test.describe('OnlineCopyNode', () => {
     const loginName = process.env.TEST_LOGIN_NAME;
     const password = process.env.TEST_LOGIN_PASSWORD;
     const captcha = process.env.TEST_LOGIN_CAPTCHA;
-    if (!serverUrl) {
-      test.skip(true, '缺少环境变量 TEST_SERVER_URL（由 .env.test 提供）');
-    }
-    if (!loginName || !password) {
-      test.skip(true, '缺少环境变量 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD（由 .env.test 提供）');
-    }
     await clearCache();
     const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
     const networkText = await networkToggle.textContent();
@@ -651,12 +603,6 @@ test.describe('OnlineCopyNode', () => {
     const loginName = process.env.TEST_LOGIN_NAME;
     const password = process.env.TEST_LOGIN_PASSWORD;
     const captcha = process.env.TEST_LOGIN_CAPTCHA;
-    if (!serverUrl) {
-      test.skip(true, '缺少环境变量 TEST_SERVER_URL（由 .env.test 提供）');
-    }
-    if (!loginName || !password) {
-      test.skip(true, '缺少环境变量 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD（由 .env.test 提供）');
-    }
     await clearCache();
     const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
     const networkText = await networkToggle.textContent();
@@ -733,12 +679,6 @@ test.describe('OnlineCopyNode', () => {
     const loginName = process.env.TEST_LOGIN_NAME;
     const password = process.env.TEST_LOGIN_PASSWORD;
     const captcha = process.env.TEST_LOGIN_CAPTCHA;
-    if (!serverUrl) {
-      test.skip(true, '缺少环境变量 TEST_SERVER_URL（由 .env.test 提供）');
-    }
-    if (!loginName || !password) {
-      test.skip(true, '缺少环境变量 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD（由 .env.test 提供）');
-    }
     await clearCache();
     const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
     const networkText = await networkToggle.textContent();
@@ -806,12 +746,6 @@ test.describe('OnlineCopyNode', () => {
     const loginName = process.env.TEST_LOGIN_NAME;
     const password = process.env.TEST_LOGIN_PASSWORD;
     const captcha = process.env.TEST_LOGIN_CAPTCHA;
-    if (!serverUrl) {
-      test.skip(true, '缺少环境变量 TEST_SERVER_URL（由 .env.test 提供）');
-    }
-    if (!loginName || !password) {
-      test.skip(true, '缺少环境变量 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD（由 .env.test 提供）');
-    }
     await clearCache();
     const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
     const networkText = await networkToggle.textContent();
@@ -910,12 +844,6 @@ test.describe('OnlineCopyNode', () => {
     const loginName = process.env.TEST_LOGIN_NAME;
     const password = process.env.TEST_LOGIN_PASSWORD;
     const captcha = process.env.TEST_LOGIN_CAPTCHA;
-    if (!serverUrl) {
-      test.skip(true, '缺少环境变量 TEST_SERVER_URL（由 .env.test 提供）');
-    }
-    if (!loginName || !password) {
-      test.skip(true, '缺少环境变量 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD（由 .env.test 提供）');
-    }
     await clearCache();
     const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
     const networkText = await networkToggle.textContent();
@@ -1008,12 +936,6 @@ test.describe('OnlineCopyNode', () => {
     const loginName = process.env.TEST_LOGIN_NAME;
     const password = process.env.TEST_LOGIN_PASSWORD;
     const captcha = process.env.TEST_LOGIN_CAPTCHA;
-    if (!serverUrl) {
-      test.skip(true, '缺少环境变量 TEST_SERVER_URL（由 .env.test 提供）');
-    }
-    if (!loginName || !password) {
-      test.skip(true, '缺少环境变量 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD（由 .env.test 提供）');
-    }
     await clearCache();
     const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
     const networkText = await networkToggle.textContent();

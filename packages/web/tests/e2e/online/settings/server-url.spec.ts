@@ -3,9 +3,6 @@ import { test, expect } from '../../../fixtures/electron-online.fixture.ts';
 test.describe('OnlineServerUrl', () => {
   test('通过设置页 UI 设置 serverUrl（来自 .env.test）', async ({ topBarPage, contentPage, clearCache }) => {
     const serverUrl = process.env.TEST_SERVER_URL;
-    if (!serverUrl) {
-      test.skip(true, '缺少环境变量 TEST_SERVER_URL（由 .env.test 提供）');
-    }
 
     await clearCache();
 
