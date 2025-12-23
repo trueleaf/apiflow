@@ -1,4 +1,4 @@
-FROM node:20-alpine AS build
+FROM node:20-bookworm-slim AS build
 
 ARG USE_NPM_MIRROR=false
 ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1
@@ -10,7 +10,7 @@ COPY packages/web/package.json ./packages/web/
 RUN if [ "$USE_NPM_MIRROR" = "true" ]; then npm config set registry https://registry.npmmirror.com; fi
 
 WORKDIR /app/packages/web
-RUN npm install --omit=optional
+RUN npm install --include=optional
 
 COPY packages/web/ ./
 RUN npm run build:web
