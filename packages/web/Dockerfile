@@ -12,8 +12,8 @@ COPY package.json package-lock.json* ./
 # Copy root scripts used by preinstall
 COPY scripts ./scripts
 
-# Copy web package files
-COPY packages/web/package.json ./packages/web/
+# Copy workspace package files for npm workspaces resolution
+COPY packages/*/package.json ./packages/*/
 
 # Configure NPM registry based on USE_NPM_MIRROR environment variable
 RUN node scripts/setup-npm-registry.js && npm config get registry
