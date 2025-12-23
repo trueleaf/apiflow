@@ -2,8 +2,8 @@
   "name": "apiflow",
   "private": true,
   "scripts": {
-    "preinstall": "node scripts/setup-npm-registry.js",
     "install": "npm --prefix packages/web install && npm --prefix packages/server install",
+    "i": "npm --prefix packages/web install && npm --prefix packages/server install",
     "web:dev": "npm --prefix packages/web run dev",
     "web:web": "npm --prefix packages/web run web",
     "web:share": "npm --prefix packages/web run share",
