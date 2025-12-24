@@ -20,6 +20,7 @@ ENV NODE_ENV=production
 COPY --from=build /app/packages/server/package.json ./
 COPY --from=build /app/packages/server/node_modules ./node_modules
 COPY --from=build /app/packages/server/dist ./dist
+COPY --from=build /app/packages/server/public ./public
 COPY --from=build /app/packages/server/bootstrap.js ./bootstrap.js
 
 EXPOSE 7001

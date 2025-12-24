@@ -13,7 +13,7 @@ WORKDIR /app/packages/web
 RUN npm install --include=optional
 
 COPY packages/web/ ./
-RUN npm run build:web
+RUN npm run build:web:lowmem
 
 FROM nginx:1.27-alpine AS runtime
 COPY --from=build /app/packages/web/dist/web/ /usr/share/nginx/html/

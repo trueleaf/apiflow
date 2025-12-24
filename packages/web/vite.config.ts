@@ -91,6 +91,8 @@ export default defineConfig(async ({ mode, command }) => {
       target: 'esnext',
       outDir: isWebOnly ? 'dist/web' : 'dist/renderer',
       emptyOutDir: true,
+      sourcemap: false,
+      reportCompressedSize: false,
       rollupOptions: {
         input: isWebOnly
           ? { index: resolve(__dirname, './index.html') }
@@ -98,6 +100,15 @@ export default defineConfig(async ({ mode, command }) => {
               header: resolve(__dirname, './header.html'),
               index: resolve(__dirname, './index.html'),
             },
+        output: {
+          manualChunks(id) {
+            if (!id.includes('node_modules')) return;
+            if (id.includes('monaco-editor')) return 'monaco';
+            if (id.includes('element-plus')) return 'element-plus';
+            if (id.includes('vue') || id.includes('pinia')) return 'vue';
+            return 'vendor';
+          },
+        },
       },
     }
   }
