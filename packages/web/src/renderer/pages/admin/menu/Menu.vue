@@ -68,9 +68,7 @@ import { request } from '@/api/api'
 import { findParentById, forEachForest } from '@/helper'
 import { ElMessageBox } from 'element-plus'
 import { message } from '@/helper'
-type TreeNode = Node & {
-  data: PermissionClientMenu,
-}
+
 
 const fileUrl = new URL('@/assets/imgs/apidoc/file.png', import.meta.url).href;
 const treeData = ref<PermissionClientMenu[]>([])
@@ -155,38 +153,40 @@ const handleDeleteCurrentNode = (data: PermissionClientMenu | null) => {
 }
 //=====================================节点操作====================================//
 //拖拽成功
-const handleNodeDropSuccess = (node: TreeNode, dropNode: TreeNode, type: 'inner' | 'before' | 'after') => {
+const handleNodeDropSuccess = (node: Node, dropNode: Node, type: 'inner' | 'before' | 'after') => {
+  const nodeData = (node as unknown as Node).data as unknown as PermissionClientMenu;
+  const dropData = (dropNode as unknown as Node).data as unknown as PermissionClientMenu;
   const params = {
-    _id: node.data._id, //当前节点id
+    _id: nodeData._id, //当前节点id
     pid: '', //父元素
     sort: 0, //当前节点排序效果
   };
   const nodeIsSameLevel = node.level === dropNode.level;
   let pNode = null;
   if ((!nodeIsSameLevel) || (nodeIsSameLevel && type === 'inner')) { //将节点放入子节点中
-    pNode = findParentById(treeData.value, node.data._id);
+    pNode = findParentById(treeData.value, nodeData._id);
     params.pid = pNode ? pNode._id : '';
     while (pNode != null) {
       pNode = findParentById(treeData.value, pNode._id);
     }
   } else if (nodeIsSameLevel && type !== 'inner') {
-    params.pid = node.data.pid || '';
-    pNode = findParentById(treeData.value, node.data._id);
+    params.pid = nodeData.pid || '';
+    pNode = findParentById(treeData.value, nodeData._id);
     while (pNode != null) {
       pNode = findParentById(treeData.value, pNode._id);
     }
   }
   if (type === 'after') { //说明这个节点是第一个节点
-    params.sort = dropNode.data.sort - 1;
+    params.sort = dropData.sort - 1;
   } else if (type === 'before') {
-    params.sort = dropNode.data.sort + 1;
+    params.sort = dropData.sort + 1;
   } else if (type === 'inner') {
     params.sort = Date.now();
   }
   request.put('/api/security/client_menu_position', params).catch((err) => {
     console.error(err);
   });
-}
+} 
 //点击节点
 const handleNodeClick = (data: string) => {
   console.log(data)
@@ -194,11 +194,12 @@ const handleNodeClick = (data: string) => {
   // defaultExpandKeys.push(data._id);
 }
 //处理contextmenu事件
-const handleContextmenu = (e: MouseEvent, treeData: PermissionClientMenu) => {
+const handleContextmenu = (evt: Event, data: any) => {
+  const e = evt as MouseEvent;
   ctxLeft.value = e.clientX;
   ctxTop.value = e.clientY;
-  currentCtxNode.value = treeData;
-}
+  currentCtxNode.value = data as PermissionClientMenu;
+} 
 //清除鼠标右键dom节点信息
 const clearContextNode = () => {
   currentCtxNode.value = null;

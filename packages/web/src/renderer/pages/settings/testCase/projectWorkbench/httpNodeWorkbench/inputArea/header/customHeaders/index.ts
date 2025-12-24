@@ -139,9 +139,8 @@ const node: ModelNode = {
       }
     ]
   },
-  [
-    {
-      "purpose": "header参数key输入值以后,如果不存在next节点,则自动新增一行数据,自动新增数据需要被选中",
+  {
+    "purpose": "header参数key输入值以后,如果不存在next节点,则自动新增一行数据,自动新增数据需要被选中",
       "precondition": [
         {
           "id": "1",
@@ -435,7 +434,6 @@ const node: ModelNode = {
       ]
     }
   ]
-],
 }
 
 export default node

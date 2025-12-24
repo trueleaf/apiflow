@@ -75,7 +75,7 @@
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Search, Loading, Delete } from '@element-plus/icons-vue'
-import { ElMessageBox, ElMessage } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import { useSendHistory } from './sendHistoryStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { useBanner } from '@/store/projectWorkbench/bannerStore'
@@ -211,9 +211,7 @@ const handleCleanDeletedHistory = async () => {
         type: 'warning'
       }
     )
-    const deletedIds = sendHistoryListWithStatus.value
-      .filter(item => item.isDeleted)
-      .map(item => item._id)
+    // 已删除记录id列表（目前只统计，不直接操作）
   } catch {
     // 用户取消
   }

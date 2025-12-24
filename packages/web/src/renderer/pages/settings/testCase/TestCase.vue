@@ -67,35 +67,35 @@
                 <div v-if="func.precondition.length" class="func-section">
                   <span class="section-label">{{ $t('前置条件') }}:</span>
                   <ul>
-                    <li v-for="item in func.precondition" :key="item.id">{{ item.name }}</li>
+                    <li v-for="item in func.precondition" :key="typeof item === 'string' ? item : item.id">{{ typeof item === 'string' ? item : item.name }}</li>
                   </ul>
                 </div>
 
                 <div v-if="func.operationSteps.length" class="func-section">
                   <span class="section-label">{{ $t('操作步骤') }}:</span>
                   <ol>
-                    <li v-for="item in func.operationSteps" :key="item.id">{{ item.name }}</li>
+                    <li v-for="item in func.operationSteps" :key="typeof item === 'string' ? item : item.id">{{ typeof item === 'string' ? item : item.name }}</li>
                   </ol>
                 </div>
 
                 <div v-if="func.expectedResults.length" class="func-section">
                   <span class="section-label">{{ $t('预期结果') }}:</span>
                   <ul>
-                    <li v-for="item in func.expectedResults" :key="item.id">{{ item.name }}</li>
+                    <li v-for="item in func.expectedResults" :key="typeof item === 'string' ? item : item.id">{{ typeof item === 'string' ? item : item.name }}</li>
                   </ul>
                 </div>
 
                 <div v-if="func.checkpoints.length" class="func-section">
                   <span class="section-label">{{ $t('检查点') }}:</span>
                   <ul>
-                    <li v-for="item in func.checkpoints" :key="item.id">{{ item.name }}</li>
+                    <li v-for="item in func.checkpoints" :key="typeof item === 'string' ? item : item.id">{{ typeof item === 'string' ? item : item.name }}</li>
                   </ul>
                 </div>
 
                 <div v-if="func.notes.length" class="func-section">
                   <span class="section-label">{{ $t('备注') }}:</span>
                   <ul>
-                    <li v-for="item in func.notes" :key="item.id">{{ item.name }}</li>
+                    <li v-for="item in func.notes" :key="typeof item === 'string' ? item : item.id">{{ typeof item === 'string' ? item : item.name }}</li>
                   </ul>
                 </div>
               </div>

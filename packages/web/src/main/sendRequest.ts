@@ -4,8 +4,8 @@ import {
   RendererFormDataBody,
   ChunkWithTimestampe,
 } from '@src/types';
-import { Options, got} from 'got';
-import type { OptionsInit, PlainResponse, RequestError } from 'got'
+import { got } from 'got';
+import type { OptionsInit, PlainResponse, RequestError, Method } from 'got'
 import FormData from 'form-data';
 import { fileTypeFromBuffer } from 'file-type';
 import mime from "mime";
@@ -231,14 +231,15 @@ export const gotRequest = async (options: GotRequestOptions) => {
           options.onError(error)
           return Promise.reject(error)
         }],
-        beforeRedirect: [(updatedOptions: Options, plainResponse: PlainResponse) => {
+        beforeRedirect: [(updatedOptions, plainResponse) => {
+          const u = updatedOptions as unknown as { headers?: Record<string, string | string[] | undefined>; method?: string };
           options.beforeRedirect({
             plainResponse,
-            requestHeaders: updatedOptions.headers,
-            method: updatedOptions.method,
+            requestHeaders: u.headers ?? {},
+            method: (u.method as unknown as Method) ?? 'GET',
           })
         }],
-        beforeRequest: [(reqeustOptions: Options) => {
+        beforeRequest: [(reqeustOptions) => {
           options.beforeRequest?.(JSON.parse(JSON.stringify(reqeustOptions)))
         }],
         beforeRetry: [(error: RequestError, retryCount: number) => {

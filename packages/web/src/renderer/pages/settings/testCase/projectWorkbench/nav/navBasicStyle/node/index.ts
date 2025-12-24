@@ -1,8 +1,8 @@
 import { type ModelNode } from '../../../../types'
 
 const node: ModelNode = {
-  modelName: undefined,
-  description: undefined,
+  modelName: '',
+  description: '',
   children: [],
 }
 

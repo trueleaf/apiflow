@@ -848,11 +848,11 @@ const handleFocusDescription = (data: ApidocProperty<'string' | 'file'>) => {
 |--------------------------------------------------------------------------
 */
 // 判断是否允许放置
-const handleAllowDrop = (_: Node, __drop: Node, type: 'inner' | 'prev' | 'next') => {
+const handleAllowDrop = (_: Node, __drop: Node, type: 'before' | 'after' | 'inner' | 'next' | 'prev') => {
   return type !== 'inner';
 };
 // 节点拖拽完成
-const handleNodeDrop = (_dragNode: Node, _dropNode: Node, type: 'inner' | 'prev' | 'next') => {
+const handleNodeDrop = (_dragNode: Node, _dropNode: Node, type: 'before' | 'after' | 'inner' | 'next' | 'prev') => {
   if (type === 'inner') {
     return;
   }

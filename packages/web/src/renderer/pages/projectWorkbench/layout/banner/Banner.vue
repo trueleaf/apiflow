@@ -349,18 +349,20 @@ const showContextmenu = ref(false); //是否显示contextmenu
 const contextmenuLeft = ref(0); //contextmenu left值
 const contextmenuTop = ref(0); //contextmenu top值
 
-const handleShowContextmenu = async (e: MouseEvent, data: ApidocBanner) => {
+const handleShowContextmenu = async (evt: Event, data: any) => {
+  const e = evt as MouseEvent;
+  const bannerData = data as ApidocBanner;
   eventEmitter.emit('banner:contextmenu:open');
   showContextmenu.value = true;
-  const isAlreadySelected = selectNodes.value.find(v => v._id === data._id);
+  const isAlreadySelected = selectNodes.value.find(v => v._id === bannerData._id);
   if (!isAlreadySelected) {
     selectNodes.value = [{
-      ...data,
+      ...bannerData,
       projectId: projectId.value,
     }];
   }
-  if (data.type === 'httpMock') {
-    isMockServerRunning.value = await httpMockNodeStore.checkMockNodeEnabledStatus(data._id);
+  if (bannerData.type === 'httpMock') {
+    isMockServerRunning.value = await httpMockNodeStore.checkMockNodeEnabledStatus(bannerData._id);
   }
   try {
     

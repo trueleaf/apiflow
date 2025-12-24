@@ -40,7 +40,6 @@
 import type { GroupedSearchResults, SearchResultItem as ResultItem } from '@src/types/advancedSearch';
 import SearchResultItem from './SearchResultItem.vue';
 import Loading from '@/components/common/loading/ClLoading.vue';
-import { Search } from 'lucide-vue-next';
 defineProps<{
   results: GroupedSearchResults[];
   loading: boolean;

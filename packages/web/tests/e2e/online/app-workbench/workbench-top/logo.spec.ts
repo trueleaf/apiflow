@@ -1,12 +1,13 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/electron-online.fixture';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 test.describe('Logo', () => {
-  test('点击logo跳转主页面', async ({ topBarPage, contentPage, clearCache }) => {
+  test('点击logo跳转主页面', async ({ topBarPage, contentPage, clearCache, loginAccount }) => {
     await clearCache();
+    await loginAccount();
     // 先跳转到设置页面
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     await expect(settingsBtn).toBeVisible();
@@ -23,7 +24,8 @@ test.describe('Logo', () => {
     const projectSearchInput = contentPage.locator('[data-testid="home-project-search-input"]');
     await expect(projectSearchInput).toBeVisible({ timeout: 5000 });
   });
-  test('设置页面更改应用图标后logo立马被更新, 刷新页面保持更新后的图标', async ({ topBarPage, contentPage }) => {
+  test('设置页面更改应用图标后logo立马被更新, 刷新页面保持更新后的图标', async ({ topBarPage, contentPage, loginAccount }) => {
+    await loginAccount();
     // 获取初始Logo的src
     const logo = topBarPage.locator('.logo-img');
     await expect(logo).toBeVisible();
@@ -79,7 +81,8 @@ test.describe('Logo', () => {
     // 等待 topBarView 的 logo 更新为 base64 格式（通过 IPC 从 contentView 同步）
     await expect(logoAfterRefresh).toHaveAttribute('src', /^data:image\//, { timeout: 5000 });
   });
-  test('点击重置后，图标恢复为默认', async ({ topBarPage, contentPage }) => {
+  test('点击重置后，图标恢复为默认', async ({ topBarPage, contentPage, loginAccount }) => {
+    await loginAccount();
     // 先上传自定义图标
     const logo = topBarPage.locator('.logo-img');
     await expect(logo).toBeVisible();

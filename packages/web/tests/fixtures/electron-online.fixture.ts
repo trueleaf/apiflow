@@ -11,6 +11,7 @@ type ElectronFixtures = {
   topBarPage: Page;
   contentPage: Page;
   clearCache: () => Promise<void>;
+  loginAccount: () => Promise<void>;
 };
 // 等待指定窗口加载完成
 const waitForWindow = async (electronApp: ElectronApplication, predicate: (url: string) => boolean, timeout = 10000): Promise<Page> => {
@@ -111,6 +112,41 @@ export const test = base.extend<ElectronFixtures>({
       await contentPage.waitForTimeout(500);
     };
     await use(clear);
+  },
+  loginAccount: async ({ topBarPage, contentPage }, use) => {
+    const login = async () => {
+      const serverUrl = process.env.TEST_SERVER_URL;
+      const loginName = process.env.TEST_LOGIN_NAME;
+      const password = process.env.TEST_LOGIN_PASSWORD;
+      if (!serverUrl || !loginName || !password) {
+        throw new Error('缺少登录相关环境变量');
+      }
+      const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
+      await expect(networkToggle).toBeVisible({ timeout: 5000 });
+      const networkText = await networkToggle.locator('.network-text').innerText();
+      if (/离线|Offline/i.test(networkText)) {
+        await networkToggle.click();
+      }
+      await contentPage.waitForURL(/.*#\/login.*/, { timeout: 10000 });
+      await expect(contentPage.locator('[data-testid="login-tabs"]')).toBeVisible({ timeout: 5000 });
+      await contentPage.locator('.el-tabs__item').filter({ hasText: /设置|Setting/i }).click();
+      const serverUrlInput = contentPage.getByPlaceholder(/请输入接口调用地址|Please enter.*address/i);
+      await expect(serverUrlInput).toBeVisible({ timeout: 5000 });
+      await serverUrlInput.fill(serverUrl);
+      const saveBtn = contentPage.getByRole('button', { name: /保存|Save/i });
+      if (await saveBtn.isEnabled()) {
+        await saveBtn.click();
+        await expect(contentPage.getByText(/保存成功|Saved successfully/i)).toBeVisible({ timeout: 5000 });
+      }
+      await contentPage.locator('.el-tabs__item').filter({ hasText: /账号登录|Account/i }).click();
+      await expect(contentPage.locator('[data-testid="login-form"]')).toBeVisible({ timeout: 5000 });
+      await contentPage.locator('[data-testid="login-username-input"]').fill(loginName);
+      await contentPage.locator('[data-testid="login-password-input"]').fill(password);
+      await contentPage.locator('[data-testid="login-submit-btn"]').click();
+      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
+      await expect(contentPage.locator('[data-testid="home-add-project-btn"]')).toBeVisible({ timeout: 10000 });
+    };
+    await use(login);
   },
 });
 

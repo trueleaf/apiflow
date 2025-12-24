@@ -364,9 +364,9 @@ const handleChangeIsCover = (val: string | number | boolean | undefined) => {
   }
 }
 // 节点选中状态改变
-const handleCheckChange = (data: HttpNode, { checkedKeys }: { checkedKeys: HttpNode[] }) => {
+const handleCheckChange = (data: any, checkedInfo: { checkedKeys: (string | number)[] }) => {
   docTree2.value?.setCheckedKeys([])
-  if (checkedKeys.length > 0) {
+  if (checkedInfo.checkedKeys.length > 0) {
     docTree2.value?.setCheckedKeys([data._id])
   }
   currentMountedNode.value = data

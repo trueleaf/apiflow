@@ -85,12 +85,12 @@ const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
 const docTree: Ref<TreeNodeOptions['store'] | null> = ref(null);
 const currentMountedNode: Ref<HttpNode | null> = ref(null);
 //节点选中状态改变时候
-const handleCheckChange = (data: HttpNode, { checkedKeys }: { checkedKeys: HttpNode[] }) => {
+const handleCheckChange = (data: any, checkedInfo: { checkedKeys: (string | number)[] }) => {
   docTree.value?.setCheckedKeys([]);
-  if (checkedKeys.length > 0) {
+  if (checkedInfo.checkedKeys.length > 0) {
     docTree.value?.setCheckedKeys([data._id]);
   }
-  currentMountedNode.value = data;
+  currentMountedNode.value = data as HttpNode;
 }
 onMounted(async () => {
   if (isStandalone.value) {

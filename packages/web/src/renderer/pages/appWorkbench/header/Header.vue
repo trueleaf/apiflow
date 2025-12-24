@@ -381,9 +381,14 @@ const bindEvent = () => {
     networkMode.value = mode;
   });
 
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.appSettingsChanged, (data?: { appTitle: string, appLogo: string, appTheme: string }) => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.appSettingsChanged, (data?: { appTitle: string, appLogo: string, appTheme: string, serverUrl?: string }) => {
     if (data) {
-      appSettingsStore.updateFromIPC(data)
+      appSettingsStore.updateFromIPC({
+        appTitle: data.appTitle,
+        appLogo: data.appLogo,
+        appTheme: data.appTheme as unknown as import('@src/types').AppTheme,
+        serverUrl: data?.serverUrl
+      })
     } else {
       appSettingsStore.refreshSettings()
     }

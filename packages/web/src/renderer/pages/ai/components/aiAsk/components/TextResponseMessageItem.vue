@@ -33,7 +33,7 @@ const markdownOptions = {
 const allowedTags = ['thinking', 'result', 'context', 'instruction']
 // 处理自定义标签，将白名单标签转换为带样式类的 div，非白名单标签转义
 const processCustomTags = (html: string, escapeHtml: (str: string) => string): string => {
-  return html.replace(/<\/?(\w+)([^>]*)>/g, (match, tagName, attrs) => {
+  return html.replace(/<\/?(\w+)([^>]*)>/g, (match, tagName, _attrs) => {
     const lowerTag = tagName.toLowerCase()
     if (allowedTags.includes(lowerTag)) {
       const isClosing = match.startsWith('</')

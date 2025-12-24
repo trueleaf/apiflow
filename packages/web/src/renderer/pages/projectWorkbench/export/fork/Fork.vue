@@ -237,7 +237,7 @@ const checkTargetCouldDrop = (_draggingNode: unknown, _dropNode: unknown, type: 
 }
 
 //目标树dragStart
-const handleTargetDragStart = (event: Event, node: Node) => {
+const handleTargetDragStart = (node: Node, event: Event) => {
   console.log('target start', node, event)
   isInSource.value = false;
 }
