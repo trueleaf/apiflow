@@ -5,8 +5,8 @@
       <div class="form-item flex-item">
         <label class="form-label">{{ t('图片模式') }}</label>
         <el-radio-group v-model="response.imageConfig.mode">
-          <el-radio label="random">{{ t('随机图片') }}</el-radio>
-          <el-radio label="fixed">{{ t('固定图片') }}</el-radio>
+          <el-radio value="random">{{ t('随机图片') }}</el-radio>
+          <el-radio value="fixed">{{ t('固定图片') }}</el-radio>
         </el-radio-group>
       </div>
     </div>
@@ -18,10 +18,10 @@
         <div class="form-item flex-item">
           <label class="form-label mb-1">{{ t('图片格式') }}</label>
           <el-radio-group v-model="response.imageConfig.imageConfig" size="small">
-            <el-radio-button label="png">PNG</el-radio-button>
-            <el-radio-button label="jpg">JPG</el-radio-button>
-            <el-radio-button label="webp">WEBP</el-radio-button>
-            <el-radio-button label="svg">SVG</el-radio-button>
+            <el-radio-button value="png">PNG</el-radio-button>
+            <el-radio-button value="jpg">JPG</el-radio-button>
+            <el-radio-button value="webp">WEBP</el-radio-button>
+            <el-radio-button value="svg">SVG</el-radio-button>
           </el-radio-group>
         </div>
       </div>

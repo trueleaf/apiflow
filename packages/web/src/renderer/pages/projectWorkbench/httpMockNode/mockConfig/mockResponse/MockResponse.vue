@@ -103,13 +103,13 @@
           <div class="form-item flex-item">
             <label class="form-label mb-1">{{ t('返回数据结构') }}</label>
             <el-radio-group v-model="currentResponse.dataType" size="small">
-              <el-radio-button label="json">JSON</el-radio-button>
-              <el-radio-button label="text">Text</el-radio-button>
-              <el-radio-button label="image">Image</el-radio-button>
-              <el-radio-button label="file">File</el-radio-button>
-              <el-radio-button label="binary">Binary</el-radio-button>
-              <el-radio-button label="sse">SSE</el-radio-button>
-              <el-radio-button label="redirect">{{ t('重定向') }}</el-radio-button>
+              <el-radio-button value="json">JSON</el-radio-button>
+              <el-radio-button value="text">Text</el-radio-button>
+              <el-radio-button value="image">Image</el-radio-button>
+              <el-radio-button value="file">File</el-radio-button>
+              <el-radio-button value="binary">Binary</el-radio-button>
+              <el-radio-button value="sse">SSE</el-radio-button>
+              <el-radio-button value="redirect">{{ t('重定向') }}</el-radio-button>
             </el-radio-group>
           </div>
         </div>

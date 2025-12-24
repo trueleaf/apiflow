@@ -5,9 +5,9 @@
       <div class="form-item flex-item">
         <label class="form-label">{{ t('数据模式') }}</label>
         <el-radio-group v-model="response.textConfig.mode">
-          <el-radio label="fixed">{{ t('固定Text返回') }}</el-radio>
-          <el-radio label="randomAi">{{ t('AI生成') }}</el-radio>
-          <el-radio label="random">{{ t('随机Text返回') }}</el-radio>
+          <el-radio value="fixed">{{ t('固定Text返回') }}</el-radio>
+          <el-radio value="randomAi">{{ t('AI生成') }}</el-radio>
+          <el-radio value="random">{{ t('随机Text返回') }}</el-radio>
         </el-radio-group>
       </div>
 

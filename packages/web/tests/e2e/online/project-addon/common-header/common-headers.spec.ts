@@ -1,55 +1,13 @@
-import { test, expect } from '../../../../fixtures/electron-online.fixture.ts';
+import { test, expect } from '../../../../fixtures/electron.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('CommonHeaders', () => {
-  test.beforeEach(async ({ topBarPage, contentPage, clearCache }) => {
-    const serverUrl = process.env.TEST_SERVER_URL;
-    const loginName = process.env.TEST_LOGIN_NAME;
-    const password = process.env.TEST_LOGIN_PASSWORD;
-    const captcha = process.env.TEST_LOGIN_CAPTCHA;
-    await clearCache();
-    const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
-    const networkText = await networkToggle.textContent();
-    if (networkText?.includes('离线模式') || networkText?.includes('offline mode')) {
-      await networkToggle.click();
-      await contentPage.waitForTimeout(500);
-    }
-    await topBarPage.locator('[data-testid="header-settings-btn"]').click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
-    await contentPage.locator('[data-testid="settings-menu-common-settings"]').click();
-    const serverUrlInput = contentPage.getByPlaceholder(/请输入接口调用地址|Please enter.*address/i);
-    await serverUrlInput.fill(serverUrl!);
-    const saveBtn = contentPage.getByRole('button', { name: /保存|Save/i });
-    if (await saveBtn.isEnabled()) {
-      await saveBtn.click();
-      await expect(contentPage.getByText(/保存成功|Saved successfully/i)).toBeVisible({ timeout: 5000 });
-    }
-    const baseUrl = contentPage.url().split('#')[0];
-    await contentPage.goto(`${baseUrl}#/login`);
-    await expect(contentPage.locator('[data-testid="login-form"]')).toBeVisible({ timeout: 5000 });
-    await contentPage.locator('[data-testid="login-username-input"]').fill(loginName!);
-    await contentPage.locator('[data-testid="login-password-input"]').fill(password!);
-    await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    const captchaInput = contentPage.locator('[data-testid="login-captcha-input"]');
-    if (await captchaInput.isVisible()) {
-      if (!captcha) {
-        throw new Error('后端要求验证码，请在 .env.test 中配置 TEST_LOGIN_CAPTCHA');
-      }
-      await captchaInput.fill(captcha);
-      await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    }
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
-    await contentPage.locator('[data-testid="home-add-project-btn"]').click();
-    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: / 新建项目|新增项目|Create Project/ });
-    await expect(projectDialog).toBeVisible({ timeout: 5000 });
-    await projectDialog.locator('input').first().fill(`在线项目-${Date.now()}`);
-    await projectDialog.locator('.el-button--primary').last().click();
-    await expect(projectDialog).toBeHidden({ timeout: 10000 });
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 15000 });
-  });
   // 测试用例1: 为folder节点设置公共请求头,该folder下所有接口自动继承这些请求头
-  test('为folder节点设置公共请求头,该folder下所有接口自动继承这些请求头', async ({ contentPage }) => {
+  test('为folder节点设置公共请求头,该folder下所有接口自动继承这些请求头', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 创建一个folder节点
@@ -119,7 +77,10 @@ test.describe('CommonHeaders', () => {
     await expect(requestInfo).toContainText('Bearer testtoken', { timeout: 10000 });
   });
   // 测试用例2: 公共请求头支持表格模式和多行编辑模式切换,两种模式数据同步
-  test('公共请求头支持表格模式和多行编辑模式切换,两种模式数据同步', async ({ contentPage }) => {
+  test('公共请求头支持表格模式和多行编辑模式切换,两种模式数据同步', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 打开全局公共请求头设置
@@ -181,7 +142,10 @@ test.describe('CommonHeaders', () => {
     expect(finalKeyValue).toBe('Content-Type');
   });
   // 测试用例3: 批量模式应用参数后自动在尾部添加空行
-  test('批量模式应用参数后自动在尾部添加空行', async ({ contentPage }) => {
+  test('批量模式应用参数后自动在尾部添加空行', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 打开全局公共请求头设置
@@ -233,7 +197,10 @@ test.describe('CommonHeaders', () => {
     expect(secondValueValue).toBe('*/*');
   });
   // 测试用例4: 公共请求头顺序在刷新后保持一致，且在HTTP节点中展示顺序相同
-  test('公共请求头顺序在刷新后保持一致,且在HTTP节点中展示顺序相同', async ({ contentPage }) => {
+  test('公共请求头顺序在刷新后保持一致,且在HTTP节点中展示顺序相同', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 打开全局公共请求头设置
@@ -305,7 +272,10 @@ test.describe('CommonHeaders', () => {
     expect(thirdRowKey?.trim()).toBe('c');
   });
   // 测试用例5: 在目录A中设置公共请求头,在A目录下创建的httpNode继承A目录的公共请求头
-  test('在目录下创建的httpNode继承该目录的公共请求头', async ({ contentPage }) => {
+  test('在目录下创建的httpNode继承该目录的公共请求头', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 创建一个folder节点
@@ -371,7 +341,10 @@ test.describe('CommonHeaders', () => {
     await expect(requestInfo).toContainText('folder-a-value', { timeout: 10000 });
   });
   // 测试用例6: 多层目录嵌套的公共请求头继承场景
-  test('多层目录嵌套的公共请求头继承场景', async ({ contentPage }) => {
+  test('多层目录嵌套的公共请求头继承场景', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 创建第一层目录: 目录Level1
@@ -505,7 +478,10 @@ test.describe('CommonHeaders', () => {
     await expect(requestInfo).toContainText('level3-value', { timeout: 10000 });
   });
   // 测试用例7: 子目录公共请求头优先级高于父目录（相同key的情况）
-  test('子目录公共请求头优先级高于父目录', async ({ contentPage }) => {
+  test('子目录公共请求头优先级高于父目录', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 创建父目录

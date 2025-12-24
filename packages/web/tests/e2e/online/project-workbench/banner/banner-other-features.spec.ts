@@ -1,105 +1,30 @@
-import { test, expect } from '../../../../fixtures/electron-online.fixture.ts';
+import { test, expect } from '../../../../fixtures/electron.fixture';
 
-test.describe('OnlineBannerOtherFeatures', () => {
-  test('banner区域拖拽条可见', async ({ topBarPage, contentPage, clearCache }) => {
-    const serverUrl = process.env.TEST_SERVER_URL;
-    const loginName = process.env.TEST_LOGIN_NAME;
-    const password = process.env.TEST_LOGIN_PASSWORD;
-    const captcha = process.env.TEST_LOGIN_CAPTCHA;
+test.describe('BannerOtherFeatures', () => {
+  // ========================= 拖拽功能测试 =========================
+  // 测试用例1: banner区域拖拽条可见
+  test('banner区域拖拽条可见', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
-    const networkText = await networkToggle.textContent();
-    if (networkText?.includes('离线模式') || networkText?.includes('offline mode')) {
-      await networkToggle.click();
-      await contentPage.waitForTimeout(500);
-    }
-    await topBarPage.locator('[data-testid="header-settings-btn"]').click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
-    await contentPage.locator('[data-testid="settings-menu-common-settings"]').click();
-    const serverUrlInput = contentPage.getByPlaceholder(/请输入接口调用地址|Please enter.*address/i);
-    await serverUrlInput.fill(serverUrl!);
-    const saveBtn = contentPage.getByRole('button', { name: /保存|Save/i });
-    if (await saveBtn.isEnabled()) {
-      await saveBtn.click();
-      await expect(contentPage.getByText(/保存成功|Saved successfully/i)).toBeVisible({ timeout: 5000 });
-    }
-    const baseUrl = contentPage.url().split('#')[0];
-    await contentPage.goto(`${baseUrl}#/login`);
-    await expect(contentPage.locator('[data-testid="login-form"]')).toBeVisible({ timeout: 5000 });
-    await contentPage.locator('[data-testid="login-username-input"]').fill(loginName!);
-    await contentPage.locator('[data-testid="login-password-input"]').fill(password!);
-    await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    const captchaInput = contentPage.locator('[data-testid="login-captcha-input"]');
-    if (await captchaInput.isVisible()) {
-      if (!captcha) {
-        throw new Error('后端要求验证码，请在 .env.test 中配置 TEST_LOGIN_CAPTCHA');
-      }
-      await captchaInput.fill(captcha);
-      await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    }
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
-    const projectName = `在线拖拽条-${Date.now()}`;
-    await contentPage.locator('[data-testid="home-add-project-btn"]').click();
-    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
-    await expect(projectDialog).toBeVisible({ timeout: 5000 });
-    await projectDialog.locator('input').first().fill(projectName);
-    await projectDialog.locator('.el-button--primary').last().click();
-    await expect(projectDialog).toBeHidden({ timeout: 10000 });
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 15000 });
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
+    // 验证SResizeX组件的拖拽条存在
     const dragBar = contentPage.locator('.banner .bar');
     await expect(dragBar).toBeVisible({ timeout: 5000 });
   });
 
-  test('拖拽改变banner宽度', async ({ topBarPage, contentPage, clearCache }) => {
-    const serverUrl = process.env.TEST_SERVER_URL;
-    const loginName = process.env.TEST_LOGIN_NAME;
-    const password = process.env.TEST_LOGIN_PASSWORD;
-    const captcha = process.env.TEST_LOGIN_CAPTCHA;
+  // 测试用例2: 拖拽改变banner宽度
+  test('拖拽改变banner宽度', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
-    const networkText = await networkToggle.textContent();
-    if (networkText?.includes('离线模式') || networkText?.includes('offline mode')) {
-      await networkToggle.click();
-      await contentPage.waitForTimeout(500);
-    }
-    await topBarPage.locator('[data-testid="header-settings-btn"]').click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
-    await contentPage.locator('[data-testid="settings-menu-common-settings"]').click();
-    const serverUrlInput = contentPage.getByPlaceholder(/请输入接口调用地址|Please enter.*address/i);
-    await serverUrlInput.fill(serverUrl!);
-    const saveBtn = contentPage.getByRole('button', { name: /保存|Save/i });
-    if (await saveBtn.isEnabled()) {
-      await saveBtn.click();
-      await expect(contentPage.getByText(/保存成功|Saved successfully/i)).toBeVisible({ timeout: 5000 });
-    }
-    const baseUrl = contentPage.url().split('#')[0];
-    await contentPage.goto(`${baseUrl}#/login`);
-    await expect(contentPage.locator('[data-testid="login-form"]')).toBeVisible({ timeout: 5000 });
-    await contentPage.locator('[data-testid="login-username-input"]').fill(loginName!);
-    await contentPage.locator('[data-testid="login-password-input"]').fill(password!);
-    await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    const captchaInput = contentPage.locator('[data-testid="login-captcha-input"]');
-    if (await captchaInput.isVisible()) {
-      if (!captcha) {
-        throw new Error('后端要求验证码，请在 .env.test 中配置 TEST_LOGIN_CAPTCHA');
-      }
-      await captchaInput.fill(captcha);
-      await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    }
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
-    const projectName = `在线拖拽宽度-${Date.now()}`;
-    await contentPage.locator('[data-testid="home-add-project-btn"]').click();
-    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
-    await expect(projectDialog).toBeVisible({ timeout: 5000 });
-    await projectDialog.locator('input').first().fill(projectName);
-    await projectDialog.locator('.el-button--primary').last().click();
-    await expect(projectDialog).toBeHidden({ timeout: 10000 });
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 15000 });
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
+    // 获取拖拽条和banner容器
     const dragBar = contentPage.locator('.banner .bar');
     const banner = contentPage.locator('.banner.drag-wrap');
-    const initialWidth = await banner.evaluate((el) => el.getBoundingClientRect().width);
+    // 获取初始宽度
+    const initialWidth = await banner.evaluate(el => el.getBoundingClientRect().width);
+    // 执行拖拽操作(向右拖拽50px)
     const barBox = await dragBar.boundingBox();
     if (barBox) {
       await contentPage.mouse.move(barBox.x + barBox.width / 2, barBox.y + barBox.height / 2);
@@ -108,117 +33,44 @@ test.describe('OnlineBannerOtherFeatures', () => {
       await contentPage.mouse.up();
     }
     await contentPage.waitForTimeout(300);
-    const newWidth = await banner.evaluate((el) => el.getBoundingClientRect().width);
+    // 验证宽度发生变化
+    const newWidth = await banner.evaluate(el => el.getBoundingClientRect().width);
     expect(newWidth).not.toBe(initialWidth);
   });
 
-  test('拖拽时显示宽度指示器', async ({ topBarPage, contentPage, clearCache }) => {
-    const serverUrl = process.env.TEST_SERVER_URL;
-    const loginName = process.env.TEST_LOGIN_NAME;
-    const password = process.env.TEST_LOGIN_PASSWORD;
-    const captcha = process.env.TEST_LOGIN_CAPTCHA;
+  // 测试用例3: 拖拽时显示宽度指示器
+  test('拖拽时显示宽度指示器', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
-    const networkText = await networkToggle.textContent();
-    if (networkText?.includes('离线模式') || networkText?.includes('offline mode')) {
-      await networkToggle.click();
-      await contentPage.waitForTimeout(500);
-    }
-    await topBarPage.locator('[data-testid="header-settings-btn"]').click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
-    await contentPage.locator('[data-testid="settings-menu-common-settings"]').click();
-    const serverUrlInput = contentPage.getByPlaceholder(/请输入接口调用地址|Please enter.*address/i);
-    await serverUrlInput.fill(serverUrl!);
-    const saveBtn = contentPage.getByRole('button', { name: /保存|Save/i });
-    if (await saveBtn.isEnabled()) {
-      await saveBtn.click();
-      await expect(contentPage.getByText(/保存成功|Saved successfully/i)).toBeVisible({ timeout: 5000 });
-    }
-    const baseUrl = contentPage.url().split('#')[0];
-    await contentPage.goto(`${baseUrl}#/login`);
-    await expect(contentPage.locator('[data-testid="login-form"]')).toBeVisible({ timeout: 5000 });
-    await contentPage.locator('[data-testid="login-username-input"]').fill(loginName!);
-    await contentPage.locator('[data-testid="login-password-input"]').fill(password!);
-    await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    const captchaInput = contentPage.locator('[data-testid="login-captcha-input"]');
-    if (await captchaInput.isVisible()) {
-      if (!captcha) {
-        throw new Error('后端要求验证码，请在 .env.test 中配置 TEST_LOGIN_CAPTCHA');
-      }
-      await captchaInput.fill(captcha);
-      await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    }
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
-    const projectName = `在线拖拽指示-${Date.now()}`;
-    await contentPage.locator('[data-testid="home-add-project-btn"]').click();
-    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
-    await expect(projectDialog).toBeVisible({ timeout: 5000 });
-    await projectDialog.locator('input').first().fill(projectName);
-    await projectDialog.locator('.el-button--primary').last().click();
-    await expect(projectDialog).toBeHidden({ timeout: 10000 });
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 15000 });
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
+    // 获取拖拽条
     const dragBar = contentPage.locator('.banner .bar');
     const indicator = contentPage.locator('.banner .indicator');
+    // 开始拖拽
     const barBox = await dragBar.boundingBox();
     if (barBox) {
       await contentPage.mouse.move(barBox.x + barBox.width / 2, barBox.y + barBox.height / 2);
       await contentPage.mouse.down();
       await contentPage.mouse.move(barBox.x + 20, barBox.y + barBox.height / 2);
+      // 验证拖拽时指示器显示
       await expect(indicator).toBeVisible({ timeout: 5000 });
+      // 验证指示器包含"双击还原"提示
       await expect(indicator).toContainText('双击还原');
       await contentPage.mouse.up();
     }
   });
 
-  test('宽度不会小于最小值', async ({ topBarPage, contentPage, clearCache }) => {
-    const serverUrl = process.env.TEST_SERVER_URL;
-    const loginName = process.env.TEST_LOGIN_NAME;
-    const password = process.env.TEST_LOGIN_PASSWORD;
-    const captcha = process.env.TEST_LOGIN_CAPTCHA;
+  // 测试用例4: 宽度不会小于最小值
+  test('宽度不会小于最小值', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
-    const networkText = await networkToggle.textContent();
-    if (networkText?.includes('离线模式') || networkText?.includes('offline mode')) {
-      await networkToggle.click();
-      await contentPage.waitForTimeout(500);
-    }
-    await topBarPage.locator('[data-testid="header-settings-btn"]').click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
-    await contentPage.locator('[data-testid="settings-menu-common-settings"]').click();
-    const serverUrlInput = contentPage.getByPlaceholder(/请输入接口调用地址|Please enter.*address/i);
-    await serverUrlInput.fill(serverUrl!);
-    const saveBtn = contentPage.getByRole('button', { name: /保存|Save/i });
-    if (await saveBtn.isEnabled()) {
-      await saveBtn.click();
-      await expect(contentPage.getByText(/保存成功|Saved successfully/i)).toBeVisible({ timeout: 5000 });
-    }
-    const baseUrl = contentPage.url().split('#')[0];
-    await contentPage.goto(`${baseUrl}#/login`);
-    await expect(contentPage.locator('[data-testid="login-form"]')).toBeVisible({ timeout: 5000 });
-    await contentPage.locator('[data-testid="login-username-input"]').fill(loginName!);
-    await contentPage.locator('[data-testid="login-password-input"]').fill(password!);
-    await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    const captchaInput = contentPage.locator('[data-testid="login-captcha-input"]');
-    if (await captchaInput.isVisible()) {
-      if (!captcha) {
-        throw new Error('后端要求验证码，请在 .env.test 中配置 TEST_LOGIN_CAPTCHA');
-      }
-      await captchaInput.fill(captcha);
-      await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    }
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
-    const projectName = `在线最小宽度-${Date.now()}`;
-    await contentPage.locator('[data-testid="home-add-project-btn"]').click();
-    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
-    await expect(projectDialog).toBeVisible({ timeout: 5000 });
-    await projectDialog.locator('input').first().fill(projectName);
-    await projectDialog.locator('.el-button--primary').last().click();
-    await expect(projectDialog).toBeHidden({ timeout: 10000 });
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 15000 });
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
+    // 获取拖拽条和banner容器
     const dragBar = contentPage.locator('.banner .bar');
     const banner = contentPage.locator('.banner.drag-wrap');
+    // 向左拖拽很大距离(尝试超过最小值限制)
     const barBox = await dragBar.boundingBox();
     if (barBox) {
       await contentPage.mouse.move(barBox.x + barBox.width / 2, barBox.y + barBox.height / 2);
@@ -227,58 +79,21 @@ test.describe('OnlineBannerOtherFeatures', () => {
       await contentPage.mouse.up();
     }
     await contentPage.waitForTimeout(300);
-    const width = await banner.evaluate((el) => el.getBoundingClientRect().width);
+    // 验证宽度不小于最小值280px
+    const width = await banner.evaluate(el => el.getBoundingClientRect().width);
     expect(width).toBeGreaterThanOrEqual(280);
   });
 
-  test('宽度不会大于最大值', async ({ topBarPage, contentPage, clearCache }) => {
-    const serverUrl = process.env.TEST_SERVER_URL;
-    const loginName = process.env.TEST_LOGIN_NAME;
-    const password = process.env.TEST_LOGIN_PASSWORD;
-    const captcha = process.env.TEST_LOGIN_CAPTCHA;
+  // 测试用例5: 宽度不会大于最大值
+  test('宽度不会大于最大值', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
-    const networkText = await networkToggle.textContent();
-    if (networkText?.includes('离线模式') || networkText?.includes('offline mode')) {
-      await networkToggle.click();
-      await contentPage.waitForTimeout(500);
-    }
-    await topBarPage.locator('[data-testid="header-settings-btn"]').click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
-    await contentPage.locator('[data-testid="settings-menu-common-settings"]').click();
-    const serverUrlInput = contentPage.getByPlaceholder(/请输入接口调用地址|Please enter.*address/i);
-    await serverUrlInput.fill(serverUrl!);
-    const saveBtn = contentPage.getByRole('button', { name: /保存|Save/i });
-    if (await saveBtn.isEnabled()) {
-      await saveBtn.click();
-      await expect(contentPage.getByText(/保存成功|Saved successfully/i)).toBeVisible({ timeout: 5000 });
-    }
-    const baseUrl = contentPage.url().split('#')[0];
-    await contentPage.goto(`${baseUrl}#/login`);
-    await expect(contentPage.locator('[data-testid="login-form"]')).toBeVisible({ timeout: 5000 });
-    await contentPage.locator('[data-testid="login-username-input"]').fill(loginName!);
-    await contentPage.locator('[data-testid="login-password-input"]').fill(password!);
-    await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    const captchaInput = contentPage.locator('[data-testid="login-captcha-input"]');
-    if (await captchaInput.isVisible()) {
-      if (!captcha) {
-        throw new Error('后端要求验证码，请在 .env.test 中配置 TEST_LOGIN_CAPTCHA');
-      }
-      await captchaInput.fill(captcha);
-      await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    }
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
-    const projectName = `在线最大宽度-${Date.now()}`;
-    await contentPage.locator('[data-testid="home-add-project-btn"]').click();
-    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
-    await expect(projectDialog).toBeVisible({ timeout: 5000 });
-    await projectDialog.locator('input').first().fill(projectName);
-    await projectDialog.locator('.el-button--primary').last().click();
-    await expect(projectDialog).toBeHidden({ timeout: 10000 });
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 15000 });
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
+    // 获取拖拽条和banner容器
     const dragBar = contentPage.locator('.banner .bar');
     const banner = contentPage.locator('.banner.drag-wrap');
+    // 向右拖拽很大距离(尝试超过最大值限制)
     const barBox = await dragBar.boundingBox();
     if (barBox) {
       await contentPage.mouse.move(barBox.x + barBox.width / 2, barBox.y + barBox.height / 2);
@@ -287,64 +102,21 @@ test.describe('OnlineBannerOtherFeatures', () => {
       await contentPage.mouse.up();
     }
     await contentPage.waitForTimeout(300);
-    const width = await banner.evaluate((el) => el.getBoundingClientRect().width);
+    // 验证宽度不大于最大值450px
+    const width = await banner.evaluate(el => el.getBoundingClientRect().width);
     expect(width).toBeLessThanOrEqual(450);
   });
 
-  test('双击拖拽条还原默认宽度', async ({ topBarPage, contentPage, clearCache }) => {
-    const serverUrl = process.env.TEST_SERVER_URL;
-    const loginName = process.env.TEST_LOGIN_NAME;
-    const password = process.env.TEST_LOGIN_PASSWORD;
-    const captcha = process.env.TEST_LOGIN_CAPTCHA;
-    if (!serverUrl) {
-      test.skip(true, '缺少环境变量 TEST_SERVER_URL（由 .env.test 提供）');
-    }
-    if (!loginName || !password) {
-      test.skip(true, '缺少环境变量 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD（由 .env.test 提供）');
-    }
+  // 测试用例6: 双击拖拽条还原默认宽度
+  test('双击拖拽条还原默认宽度', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
-    const networkText = await networkToggle.textContent();
-    if (networkText?.includes('离线模式') || networkText?.includes('offline mode')) {
-      await networkToggle.click();
-      await contentPage.waitForTimeout(500);
-    }
-    await topBarPage.locator('[data-testid="header-settings-btn"]').click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
-    await contentPage.locator('[data-testid="settings-menu-common-settings"]').click();
-    const serverUrlInput = contentPage.getByPlaceholder(/请输入接口调用地址|Please enter.*address/i);
-    await serverUrlInput.fill(serverUrl!);
-    const saveBtn = contentPage.getByRole('button', { name: /保存|Save/i });
-    if (await saveBtn.isEnabled()) {
-      await saveBtn.click();
-      await expect(contentPage.getByText(/保存成功|Saved successfully/i)).toBeVisible({ timeout: 5000 });
-    }
-    const baseUrl = contentPage.url().split('#')[0];
-    await contentPage.goto(`${baseUrl}#/login`);
-    await expect(contentPage.locator('[data-testid="login-form"]')).toBeVisible({ timeout: 5000 });
-    await contentPage.locator('[data-testid="login-username-input"]').fill(loginName!);
-    await contentPage.locator('[data-testid="login-password-input"]').fill(password!);
-    await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    const captchaInput = contentPage.locator('[data-testid="login-captcha-input"]');
-    if (await captchaInput.isVisible()) {
-      if (!captcha) {
-        throw new Error('后端要求验证码，请在 .env.test 中配置 TEST_LOGIN_CAPTCHA');
-      }
-      await captchaInput.fill(captcha);
-      await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    }
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
-    const projectName = `在线还原宽度-${Date.now()}`;
-    await contentPage.locator('[data-testid="home-add-project-btn"]').click();
-    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
-    await expect(projectDialog).toBeVisible({ timeout: 5000 });
-    await projectDialog.locator('input').first().fill(projectName);
-    await projectDialog.locator('.el-button--primary').last().click();
-    await expect(projectDialog).toBeHidden({ timeout: 10000 });
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 15000 });
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
+    // 获取拖拽条和banner容器
     const dragBar = contentPage.locator('.banner .bar');
     const banner = contentPage.locator('.banner.drag-wrap');
+    // 先拖拽改变宽度
     const barBox = await dragBar.boundingBox();
     if (barBox) {
       await contentPage.mouse.move(barBox.x + barBox.width / 2, barBox.y + barBox.height / 2);
@@ -353,69 +125,47 @@ test.describe('OnlineBannerOtherFeatures', () => {
       await contentPage.mouse.up();
     }
     await contentPage.waitForTimeout(300);
-    const changedWidth = await banner.evaluate((el) => el.getBoundingClientRect().width);
+    const changedWidth = await banner.evaluate(el => el.getBoundingClientRect().width);
+    // 双击拖拽条还原
     await dragBar.dblclick();
     await contentPage.waitForTimeout(300);
-    const restoredWidth = await banner.evaluate((el) => el.getBoundingClientRect().width);
+    // 验证宽度还原为默认值300px
+    const restoredWidth = await banner.evaluate(el => el.getBoundingClientRect().width);
     expect(restoredWidth).toBe(300);
     expect(restoredWidth).not.toBe(changedWidth);
   });
 
-  test('拖拽时拖拽条高亮', async ({ topBarPage, contentPage, clearCache }) => {
-    const serverUrl = process.env.TEST_SERVER_URL;
-    const loginName = process.env.TEST_LOGIN_NAME;
-    const password = process.env.TEST_LOGIN_PASSWORD;
-    const captcha = process.env.TEST_LOGIN_CAPTCHA;
-
+  // 测试用例7: 拖拽时拖拽条高亮
+  test('拖拽时拖拽条高亮', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
-    const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
-    const networkText = await networkToggle.textContent();
-    if (networkText?.includes('离线模式') || networkText?.includes('offline mode')) {
-      await networkToggle.click();
-      await contentPage.waitForTimeout(500);
-    }
-    await topBarPage.locator('[data-testid="header-settings-btn"]').click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
-    await contentPage.locator('[data-testid="settings-menu-common-settings"]').click();
-    const serverUrlInput = contentPage.getByPlaceholder(/请输入接口调用地址|Please enter.*address/i);
-    await serverUrlInput.fill(serverUrl!);
-    const saveBtn = contentPage.getByRole('button', { name: /保存|Save/i });
-    if (await saveBtn.isEnabled()) {
-      await saveBtn.click();
-      await expect(contentPage.getByText(/保存成功|Saved successfully/i)).toBeVisible({ timeout: 5000 });
-    }
-    const baseUrl = contentPage.url().split('#')[0];
-    await contentPage.goto(`${baseUrl}#/login`);
-    await expect(contentPage.locator('[data-testid="login-form"]')).toBeVisible({ timeout: 5000 });
-    await contentPage.locator('[data-testid="login-username-input"]').fill(loginName!);
-    await contentPage.locator('[data-testid="login-password-input"]').fill(password!);
-    await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    const captchaInput = contentPage.locator('[data-testid="login-captcha-input"]');
-    if (await captchaInput.isVisible()) {
-      if (!captcha) {
-        throw new Error('后端要求验证码，请在 .env.test 中配置 TEST_LOGIN_CAPTCHA');
-      }
-      await captchaInput.fill(captcha);
-      await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    }
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
-    const projectName = `在线拖拽高亮-${Date.now()}`;
-    await contentPage.locator('[data-testid="home-add-project-btn"]').click();
-    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
-    await expect(projectDialog).toBeVisible({ timeout: 5000 });
-    await projectDialog.locator('input').first().fill(projectName);
-    await projectDialog.locator('.el-button--primary').last().click();
-    await expect(projectDialog).toBeHidden({ timeout: 10000 });
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 15000 });
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
+    // 获取拖拽条
     const dragBar = contentPage.locator('.banner .bar');
+    // 开始拖拽
     const barBox = await dragBar.boundingBox();
     if (barBox) {
       await contentPage.mouse.move(barBox.x + barBox.width / 2, barBox.y + barBox.height / 2);
       await contentPage.mouse.down();
       await contentPage.mouse.move(barBox.x + 20, barBox.y + barBox.height / 2);
+      // 验证拖拽时拖拽条有active类
       await expect(dragBar).toHaveClass(/active/);
       await contentPage.mouse.up();
     }
+  });
+
+  // ========================= Mock呼吸动画测试 =========================
+  // 测试用例8: httpMockNode存在时可以创建Mock节点
+  test.skip('httpMockNode启动后显示呼吸动画', async ({ contentPage, clearCache, createProject }) => {
+    // 此测试需要先创建httpMockNode并启动Mock服务
+    // 由于离线模式下创建Mock节点流程较复杂,暂时跳过
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    // TODO: 创建httpMockNode
+    // TODO: 启动Mock服务
+    // TODO: 验证banner区域显示呼吸动画指示器
   });
 });

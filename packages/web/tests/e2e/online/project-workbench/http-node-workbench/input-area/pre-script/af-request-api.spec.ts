@@ -1,55 +1,13 @@
-import { test, expect } from '../../../../../../fixtures/electron-online.fixture.ts';
+import { test, expect } from '../../../../../../fixtures/electron.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('AfRequestApi', () => {
-  test.beforeEach(async ({ topBarPage, contentPage, clearCache }) => {
-    const serverUrl = process.env.TEST_SERVER_URL;
-    const loginName = process.env.TEST_LOGIN_NAME;
-    const password = process.env.TEST_LOGIN_PASSWORD;
-    const captcha = process.env.TEST_LOGIN_CAPTCHA;
-    await clearCache();
-    const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
-    const networkText = await networkToggle.textContent();
-    if (networkText?.includes('离线模式') || networkText?.includes('offline mode')) {
-      await networkToggle.click();
-      await contentPage.waitForTimeout(500);
-    }
-    await topBarPage.locator('[data-testid="header-settings-btn"]').click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
-    await contentPage.locator('[data-testid="settings-menu-common-settings"]').click();
-    const serverUrlInput = contentPage.getByPlaceholder(/请输入接口调用地址|Please enter.*address/i);
-    await serverUrlInput.fill(serverUrl!);
-    const saveBtn = contentPage.getByRole('button', { name: /保存|Save/i });
-    if (await saveBtn.isEnabled()) {
-      await saveBtn.click();
-      await expect(contentPage.getByText(/保存成功|Saved successfully/i)).toBeVisible({ timeout: 5000 });
-    }
-    const baseUrl = contentPage.url().split('#')[0];
-    await contentPage.goto(`${baseUrl}#/login`);
-    await expect(contentPage.locator('[data-testid="login-form"]')).toBeVisible({ timeout: 5000 });
-    await contentPage.locator('[data-testid="login-username-input"]').fill(loginName!);
-    await contentPage.locator('[data-testid="login-password-input"]').fill(password!);
-    await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    const captchaInput = contentPage.locator('[data-testid="login-captcha-input"]');
-    if (await captchaInput.isVisible()) {
-      if (!captcha) {
-        throw new Error('后端要求验证码，请在 .env.test 中配置 TEST_LOGIN_CAPTCHA');
-      }
-      await captchaInput.fill(captcha);
-      await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    }
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
-    await contentPage.locator('[data-testid="home-add-project-btn"]').click();
-    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: / 新建项目|新增项目|Create Project/ });
-    await expect(projectDialog).toBeVisible({ timeout: 5000 });
-    await projectDialog.locator('input').first().fill(`在线项目-${Date.now()}`);
-    await projectDialog.locator('.el-button--primary').last().click();
-    await expect(projectDialog).toBeHidden({ timeout: 10000 });
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 15000 });
-  });
   // 测试用例1: 使用af.request.prefix获取并修改请求前缀,发送请求后验证前缀已更改
-  test('使用af.request.prefix修改请求前缀', async ({ contentPage }) => {
+  test('使用af.request.prefix修改请求前缀', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -91,7 +49,10 @@ test.describe('AfRequestApi', () => {
     await expect(responseBody).toContainText('127.0.0.1', { timeout: 10000 });
   });
   // 测试用例2: 使用af.request.path获取并修改请求路径,发送请求后验证路径已更改
-  test('使用af.request.path修改请求路径', async ({ contentPage }) => {
+  test('使用af.request.path修改请求路径', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -133,7 +94,10 @@ test.describe('AfRequestApi', () => {
     await expect(responseBody).toContainText('/echo', { timeout: 10000 });
   });
   // 测试用例3: 使用af.request.headers获取并修改请求头,发送请求后验证请求头已更改
-  test('使用af.request.headers修改请求头', async ({ contentPage }) => {
+  test('使用af.request.headers修改请求头', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -176,7 +140,10 @@ test.describe('AfRequestApi', () => {
     await expect(responseBody).toContainText('custom-value-123', { timeout: 10000 });
   });
   // 测试用例4: 使用af.request.queryParams获取并修改Query参数,发送请求后验证参数已更改
-  test('使用af.request.queryParams修改Query参数', async ({ contentPage }) => {
+  test('使用af.request.queryParams修改Query参数', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -221,7 +188,10 @@ af.request.queryParams["newParam"] = "newValue";`;
     await expect(responseBody).toContainText('newValue', { timeout: 10000 });
   });
   // 测试用例5: 使用af.request.pathParams获取并修改Path参数,发送请求后验证参数已更改
-  test('使用af.request.pathParams修改Path参数', async ({ contentPage }) => {
+  test('使用af.request.pathParams修改Path参数', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -274,7 +244,10 @@ af.request.queryParams["newParam"] = "newValue";`;
     await expect(responseBody).toContainText('999', { timeout: 10000 });
   });
   // 测试用例6: 使用af.request.body.json获取并修改JSON body,发送请求后验证body已更改
-  test('使用af.request.body.json修改JSON body', async ({ contentPage }) => {
+  test('使用af.request.body.json修改JSON body', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -340,7 +313,10 @@ af.request.body.json.newField = "addedValue";`;
     await expect(responseBody).toContainText('addedValue', { timeout: 10000 });
   });
   // 测试用例7: 使用af.request.body.formdata获取并修改formdata body,发送请求后验证body已更改
-  test('使用af.request.body.formdata修改formdata body', async ({ contentPage }) => {
+  test('使用af.request.body.formdata修改formdata body', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -405,7 +381,10 @@ af.request.body.json.newField = "addedValue";`;
     await expect(responseBody).toContainText('newvalue-from-script', { timeout: 10000 });
   });
   // 测试用例8: 使用af.request.method获取并修改请求方法,发送请求后验证方法已更改
-  test('使用af.request.method修改请求方法', async ({ contentPage }) => {
+  test('使用af.request.method修改请求方法', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -453,7 +432,10 @@ af.request.body.json.newField = "addedValue";`;
     await expect(responseBody).toContainText('PUT', { timeout: 10000 });
   });
   // 测试用例9: 使用af.request.replaceUrl()替换整个URL,发送请求后验证URL已更改
-  test('使用af.request.replaceUrl替换整个URL', async ({ contentPage }) => {
+  test('使用af.request.replaceUrl替换整个URL', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();

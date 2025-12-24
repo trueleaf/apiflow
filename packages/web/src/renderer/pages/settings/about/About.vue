@@ -96,8 +96,8 @@
               <span class="config-label">{{ t('更新源') }}</span>
               <div class="config-control">
                 <el-radio-group v-model="updateSourceType" @change="handleUpdateSourceChange" size="small">
-                  <el-radio value="github" label="github">GitHub</el-radio>
-                  <el-radio value="custom" label="custom">{{ t('自定义') }}</el-radio>
+                  <el-radio value="github">GitHub</el-radio>
+                  <el-radio value="custom">{{ t('自定义') }}</el-radio>
                 </el-radio-group>
                 
                 <div v-if="updateSourceType === 'custom'" class="custom-url-input">

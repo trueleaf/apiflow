@@ -31,8 +31,8 @@
       </el-form-item>
       <!-- 布尔值 -->
       <el-form-item v-if="formInfo.type === 'boolean'" :label="`${t('变量值')}：`" prop="value">
-        <el-radio v-model="formInfo.booleanValue" :label="true">ture</el-radio>
-        <el-radio v-model="formInfo.booleanValue" :label="false">false</el-radio>
+        <el-radio v-model="formInfo.booleanValue" :value="true">ture</el-radio>
+        <el-radio v-model="formInfo.booleanValue" :value="false">false</el-radio>
       </el-form-item>
       <!-- 文件值 -->
       <el-form-item v-if="formInfo.type === 'file'" :label="`${t('变量值')}：`" prop="value">

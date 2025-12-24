@@ -33,8 +33,8 @@
         </div>
         <div class="form-control-wrapper">
           <el-radio-group v-model="response.sseConfig.event.data.mode" size="small">
-            <el-radio-button label="json">JSON</el-radio-button>
-            <el-radio-button label="string">Text</el-radio-button>
+            <el-radio-button value="json">JSON</el-radio-button>
+            <el-radio-button value="string">Text</el-radio-button>
           </el-radio-group>
         </div>
       </div>
@@ -47,9 +47,9 @@
         </div>
         <div class="form-control-wrapper" v-if="response.sseConfig.event.id.enable">
           <el-radio-group v-model="response.sseConfig.event.id.valueMode" size="small">
-            <el-radio-button label="increment">{{ t('自增') }}</el-radio-button>
-            <el-radio-button label="timestamp">{{ t('时间戳') }}</el-radio-button>
-            <el-radio-button label="random">{{ t('随机') }}</el-radio-button>
+            <el-radio-button value="increment">{{ t('自增') }}</el-radio-button>
+            <el-radio-button value="timestamp">{{ t('时间戳') }}</el-radio-button>
+            <el-radio-button value="random">{{ t('随机') }}</el-radio-button>
           </el-radio-group>
         </div>
       </div>

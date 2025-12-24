@@ -1,53 +1,10 @@
-import { test, expect } from '../../../fixtures/electron-online.fixture.ts';
+import { test, expect } from '../../../fixtures/electron.fixture';
 
 test.describe('CookieManagement', () => {
-  test.beforeEach(async ({ topBarPage, contentPage, clearCache }) => {
-    const serverUrl = process.env.TEST_SERVER_URL;
-    const loginName = process.env.TEST_LOGIN_NAME;
-    const password = process.env.TEST_LOGIN_PASSWORD;
-    const captcha = process.env.TEST_LOGIN_CAPTCHA;
+  test('打开Cookie管理页面,显示Cookie列表和操作按钮', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
-    const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
-    const networkText = await networkToggle.textContent();
-    if (networkText?.includes('离线模式') || networkText?.includes('offline mode')) {
-      await networkToggle.click();
-      await contentPage.waitForTimeout(500);
-    }
-    await topBarPage.locator('[data-testid="header-settings-btn"]').click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
-    await contentPage.locator('[data-testid="settings-menu-common-settings"]').click();
-    const serverUrlInput = contentPage.getByPlaceholder(/请输入接口调用地址|Please enter.*address/i);
-    await serverUrlInput.fill(serverUrl!);
-    const saveBtn = contentPage.getByRole('button', { name: /保存|Save/i });
-    if (await saveBtn.isEnabled()) {
-      await saveBtn.click();
-      await expect(contentPage.getByText(/保存成功|Saved successfully/i)).toBeVisible({ timeout: 5000 });
-    }
-    const baseUrl = contentPage.url().split('#')[0];
-    await contentPage.goto(`${baseUrl}#/login`);
-    await expect(contentPage.locator('[data-testid="login-form"]')).toBeVisible({ timeout: 5000 });
-    await contentPage.locator('[data-testid="login-username-input"]').fill(loginName!);
-    await contentPage.locator('[data-testid="login-password-input"]').fill(password!);
-    await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    const captchaInput = contentPage.locator('[data-testid="login-captcha-input"]');
-    if (await captchaInput.isVisible()) {
-      if (!captcha) {
-        throw new Error('后端要求验证码，请在 .env.test 中配置 TEST_LOGIN_CAPTCHA');
-      }
-      await captchaInput.fill(captcha);
-      await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    }
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
-    await contentPage.locator('[data-testid="home-add-project-btn"]').click();
-    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: / 新建项目|新增项目|Create Project/ });
-    await expect(projectDialog).toBeVisible({ timeout: 5000 });
-    await projectDialog.locator('input').first().fill(`在线项目-${Date.now()}`);
-    await projectDialog.locator('.el-button--primary').last().click();
-    await expect(projectDialog).toBeHidden({ timeout: 10000 });
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 15000 });
-  });
-
-  test('打开Cookie管理页面,显示Cookie列表和操作按钮', async ({ contentPage }) => {
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
@@ -66,8 +23,10 @@ test.describe('CookieManagement', () => {
     const batchDeleteBtn = cookiePage.locator('.el-button--danger').filter({ hasText: /批量删除/ });
     await expect(batchDeleteBtn).toBeVisible();
   });
-
-  test('新增Cookie成功,Cookie显示在列表中', async ({ contentPage }) => {
+  test('新增Cookie成功,Cookie显示在列表中', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
@@ -91,8 +50,10 @@ test.describe('CookieManagement', () => {
     await expect(cookieTable).toContainText('testCookie');
     await expect(cookieTable).toContainText('testValue123');
   });
-
-  test('编辑Cookie成功,Cookie值被更新', async ({ contentPage }) => {
+  test('编辑Cookie成功,Cookie值被更新', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
@@ -124,8 +85,10 @@ test.describe('CookieManagement', () => {
     const cookieTable = cookiePage.locator('.el-table');
     await expect(cookieTable).toContainText('updatedValue');
   });
-
-  test('删除Cookie成功,Cookie从列表中移除', async ({ contentPage }) => {
+  test('删除Cookie成功,Cookie从列表中移除', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
@@ -155,8 +118,10 @@ test.describe('CookieManagement', () => {
     await contentPage.waitForTimeout(500);
     await expect(cookieTable).not.toContainText('deletableCookie');
   });
-
-  test('按名称搜索Cookie,列表显示匹配的Cookie', async ({ contentPage }) => {
+  test('按名称搜索Cookie,列表显示匹配的Cookie', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });

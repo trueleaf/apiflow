@@ -52,12 +52,12 @@
           </div>
           <div class="section-content date-content">
             <el-radio-group v-model="localConditions.dateRange.type" class="date-radio-group">
-              <el-radio label="unlimited">{{ $t('不限制') }}</el-radio>
-              <el-radio label="recent3days">{{ $t('最近3天') }}</el-radio>
-              <el-radio label="recent1week">{{ $t('最近1周') }}</el-radio>
-              <el-radio label="recent1month">{{ $t('最近1月') }}</el-radio>
-              <el-radio label="recent3months">{{ $t('最近3月') }}</el-radio>
-              <el-radio label="custom">{{ $t('自定义') }}</el-radio>
+              <el-radio value="unlimited">{{ $t('不限制') }}</el-radio>
+              <el-radio value="recent3days">{{ $t('最近3天') }}</el-radio>
+              <el-radio value="recent1week">{{ $t('最近1周') }}</el-radio>
+              <el-radio value="recent1month">{{ $t('最近1月') }}</el-radio>
+              <el-radio value="recent3months">{{ $t('最近3月') }}</el-radio>
+              <el-radio value="custom">{{ $t('自定义') }}</el-radio>
             </el-radio-group>
             <el-date-picker
               v-if="localConditions.dateRange.type === 'custom'"

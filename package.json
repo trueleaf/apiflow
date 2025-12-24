@@ -10,7 +10,6 @@
     "web:build": "npm --prefix packages/web run build:web",
     "web:build:share": "npm --prefix packages/web run build:share",
     "web:build:web": "npm --prefix packages/web run build:web",
-    "web:build:lowmem": "npm --prefix packages/web run build:web:lowmem",
     "web:build:font": "npm --prefix packages/web run build:font",
     "web:preview": "npm --prefix packages/web run preview",
     "web:type-check": "npm --prefix packages/web run type-check",

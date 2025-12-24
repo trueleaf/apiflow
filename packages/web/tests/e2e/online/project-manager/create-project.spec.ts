@@ -1,69 +1,98 @@
-import { test, expect } from '../../../fixtures/electron-online.fixture.ts';
+import { test, expect } from '../../../fixtures/electron.fixture';
 
-test.describe('OnlineCreateProject', () => {
-  test('登录后创建项目并进入工作台', async ({ topBarPage, contentPage, clearCache }) => {
-    const serverUrl = process.env.TEST_SERVER_URL;
-    const loginName = process.env.TEST_LOGIN_NAME;
-    const password = process.env.TEST_LOGIN_PASSWORD;
-    const captcha = process.env.TEST_LOGIN_CAPTCHA;
-    await clearCache();
-
-    const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
-    await settingsBtn.click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
-
-    const commonSettingsMenu = contentPage.locator('[data-testid="settings-menu-common-settings"]');
-    await commonSettingsMenu.click();
-
-    await expect(contentPage.getByText(/应用配置|App Config/i)).toBeVisible({ timeout: 5000 });
-
-    const serverUrlInput = contentPage.getByPlaceholder(/请输入接口调用地址|Please enter.*address/i);
-    await serverUrlInput.fill(serverUrl!);
-
-    const saveBtn = contentPage.getByRole('button', { name: /保存|Save/i });
-    if (await saveBtn.isEnabled()) {
-      await saveBtn.click();
-      await expect(contentPage.getByText(/保存成功|Saved successfully/i)).toBeVisible({ timeout: 5000 });
-    }
-
-    const baseUrl = contentPage.url().split('#')[0];
-    await contentPage.goto(`${baseUrl}#/login`);
-    await expect(contentPage.locator('[data-testid="login-form"]')).toBeVisible({ timeout: 5000 });
-
-    await contentPage.locator('[data-testid="login-username-input"]').fill(loginName!);
-    await contentPage.locator('[data-testid="login-password-input"]').fill(password!);
-    await contentPage.locator('[data-testid="login-submit-btn"]').click();
-
-    const captchaInput = contentPage.locator('[data-testid="login-captcha-input"]');
-    if (await captchaInput.isVisible()) {
-      if (!captcha) {
-        throw new Error('后端要求验证码，请在 .env.test 中配置 TEST_LOGIN_CAPTCHA');
-      }
-      await captchaInput.fill(captcha);
-      await contentPage.locator('[data-testid="login-submit-btn"]').click();
-    }
-
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
-    await expect(contentPage.locator('[data-testid="home-add-project-btn"]')).toBeVisible({ timeout: 10000 });
-
-    const projectName = `在线项目-${Date.now()}`;
-    const addProjectBtn = contentPage.locator('[data-testid="home-add-project-btn"]');
+test.describe('CreateProject', () => {
+  test('点击顶部栏新建项目按钮打开弹窗,输入框自动聚焦', async ({ topBarPage, contentPage }) => {
+    const addProjectBtn = topBarPage.locator('[data-testid="header-add-project-btn"]');
     await addProjectBtn.click();
-
     const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
     await expect(projectDialog).toBeVisible({ timeout: 5000 });
-
+    await contentPage.waitForTimeout(500);
     const projectNameInput = projectDialog.locator('input').first();
-    await projectNameInput.fill(projectName);
+    await expect(projectNameInput).toBeFocused({ timeout: 3000 });
+  });
 
+  test('点击首页内容区新建项目按钮打开弹窗,输入框自动聚焦', async ({ topBarPage, contentPage, clearCache }) => {
+    await clearCache();
+    const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+    await homeBtn.click();
+    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    const addProjectBtn = contentPage.locator('[data-testid="home-add-project-btn"]');
+    await addProjectBtn.click();
+    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
+    await expect(projectDialog).toBeVisible({ timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    const projectNameInput = projectDialog.locator('input').first();
+    await expect(projectNameInput).toBeFocused({ timeout: 3000 });
+  });
+
+  test('不输入项目名称直接点击确定,显示必填错误提示', async ({ topBarPage, contentPage }) => {
+    const addProjectBtn = topBarPage.locator('[data-testid="header-add-project-btn"]');
+    await addProjectBtn.click();
+    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
+    await expect(projectDialog).toBeVisible({ timeout: 5000 });
     const confirmBtn = projectDialog.locator('.el-button--primary').last();
     await confirmBtn.click();
+    const errorMessage = projectDialog.locator('.el-form-item__error');
+    await expect(errorMessage).toBeVisible({ timeout: 3000 });
+    await expect(errorMessage).toContainText(/请填写项目名称/);
+    await expect(projectDialog).toBeVisible();
+  });
 
-    await expect(projectDialog).toBeHidden({ timeout: 10000 });
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 15000 });
+  test('输入纯空格作为项目名称,显示空格校验错误提示', async ({ topBarPage, contentPage }) => {
+    const addProjectBtn = topBarPage.locator('[data-testid="header-add-project-btn"]');
+    await addProjectBtn.click();
+    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
+    await expect(projectDialog).toBeVisible({ timeout: 5000 });
+    const projectNameInput = projectDialog.locator('input').first();
+    await projectNameInput.fill('   ');
+    await projectDialog.locator('.el-dialog__header').click();
+    await contentPage.waitForTimeout(300);
+    const errorMessage = projectDialog.locator('.el-form-item__error');
+    await expect(errorMessage).toBeVisible({ timeout: 3000 });
+    await expect(errorMessage).toContainText(/项目名称不能为空或仅包含空格/);
+  });
 
+  test('新建项目后自动跳转项目详情,顶部新增高亮Tab', async ({ topBarPage, contentPage }) => {
+    const projectName = `测试新项目-${Date.now()}`;
+    const addProjectBtn = topBarPage.locator('[data-testid="header-add-project-btn"]');
+    await addProjectBtn.click();
+    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
+    await expect(projectDialog).toBeVisible({ timeout: 5000 });
+    const projectNameInput = projectDialog.locator('input').first();
+    await projectNameInput.fill(projectName);
+    const confirmBtn = projectDialog.locator('.el-button--primary').last();
+    await confirmBtn.click();
+    await expect(projectDialog).toBeHidden({ timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    const url = contentPage.url();
+    expect(url).toContain('mode=edit');
     const activeTab = topBarPage.locator('.tab-item.active');
-    await expect(activeTab).toBeVisible({ timeout: 5000 });
+    await expect(activeTab).toBeVisible({ timeout: 3000 });
     await expect(activeTab).toContainText(projectName);
+  });
+
+  test('新建项目后返回首页,新项目排在全部项目列表第一位', async ({ topBarPage, contentPage, clearCache }) => {
+    await clearCache();
+    await contentPage.reload();
+    await contentPage.waitForTimeout(500);
+    const projectName = `排序测试项目-${Date.now()}`;
+    const addProjectBtn = topBarPage.locator('[data-testid="header-add-project-btn"]');
+    await addProjectBtn.click();
+    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
+    await expect(projectDialog).toBeVisible({ timeout: 5000 });
+    const projectNameInput = projectDialog.locator('input').first();
+    await projectNameInput.fill(projectName);
+    const confirmBtn = projectDialog.locator('.el-button--primary').last();
+    await confirmBtn.click();
+    await expect(projectDialog).toBeHidden({ timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+    await homeBtn.click();
+    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    const firstProjectCard = contentPage.locator('[data-testid="home-project-card-0"]');
+    await expect(firstProjectCard).toBeVisible({ timeout: 5000 });
+    await expect(firstProjectCard).toContainText(projectName);
   });
 });
