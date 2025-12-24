@@ -1,9 +1,10 @@
-import { test, expect } from '../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../fixtures/electron-online.fixture';
 
 test.describe('CallHistory', () => {
   // 测试用例1: 切换到调用历史Tab页,验证Tab切换功能和UI展示
-  test('切换到调用历史Tab页,验证Tab切换功能', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('切换到调用历史Tab页,验证Tab切换功能', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -30,8 +31,9 @@ test.describe('CallHistory', () => {
   });
 
   // 测试用例2: 调用历史搜索框功能验证
-  test('调用历史搜索框功能验证,包括placeholder和清空按钮', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('调用历史搜索框功能验证,包括placeholder和清空按钮', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -74,8 +76,9 @@ test.describe('CallHistory', () => {
   });
 
   // 测试用例3: 清空所有历史记录功能验证
-  test('清空所有历史记录功能验证,包括确认弹窗', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('清空所有历史记录功能验证,包括确认弹窗', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -107,8 +110,9 @@ test.describe('CallHistory', () => {
   });
 
   // 测试用例4: 历史记录列表展示验证
-  test('历史记录列表展示验证,包括空状态', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('历史记录列表展示验证,包括空状态', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -127,8 +131,9 @@ test.describe('CallHistory', () => {
   });
 
   // 测试用例5: 点击历史记录项打开对应接口Tab页
-  test('点击历史记录项打开对应接口Tab页', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('点击历史记录项打开对应接口Tab页', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -182,8 +187,9 @@ test.describe('CallHistory', () => {
   });
 
   // 测试用例6: 已删除接口的历史记录标记验证
-  test('已删除接口的历史记录标记验证', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('已删除接口的历史记录标记验证', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -238,8 +244,9 @@ test.describe('CallHistory', () => {
   });
 
   // 测试用例7: 历史记录滚动加载更多功能验证
-  test('历史记录滚动加载验证', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('历史记录滚动加载验证', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -304,8 +311,9 @@ test.describe('CallHistory', () => {
   });
 
   // 测试用例8: 清理已删除接口历史功能验证
-  test('清理已删除接口历史功能验证', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('清理已删除接口历史功能验证', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);

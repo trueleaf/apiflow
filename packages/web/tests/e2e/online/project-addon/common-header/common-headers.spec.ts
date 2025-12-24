@@ -1,11 +1,12 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('CommonHeaders', () => {
   // 测试用例1: 为folder节点设置公共请求头,该folder下所有接口自动继承这些请求头
-  test('为folder节点设置公共请求头,该folder下所有接口自动继承这些请求头', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('为folder节点设置公共请求头,该folder下所有接口自动继承这些请求头', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
@@ -77,8 +78,9 @@ test.describe('CommonHeaders', () => {
     await expect(requestInfo).toContainText('Bearer testtoken', { timeout: 10000 });
   });
   // 测试用例2: 公共请求头支持表格模式和多行编辑模式切换,两种模式数据同步
-  test('公共请求头支持表格模式和多行编辑模式切换,两种模式数据同步', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('公共请求头支持表格模式和多行编辑模式切换,两种模式数据同步', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
@@ -142,8 +144,9 @@ test.describe('CommonHeaders', () => {
     expect(finalKeyValue).toBe('Content-Type');
   });
   // 测试用例3: 批量模式应用参数后自动在尾部添加空行
-  test('批量模式应用参数后自动在尾部添加空行', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('批量模式应用参数后自动在尾部添加空行', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
@@ -197,8 +200,9 @@ test.describe('CommonHeaders', () => {
     expect(secondValueValue).toBe('*/*');
   });
   // 测试用例4: 公共请求头顺序在刷新后保持一致，且在HTTP节点中展示顺序相同
-  test('公共请求头顺序在刷新后保持一致,且在HTTP节点中展示顺序相同', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('公共请求头顺序在刷新后保持一致,且在HTTP节点中展示顺序相同', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
@@ -272,8 +276,9 @@ test.describe('CommonHeaders', () => {
     expect(thirdRowKey?.trim()).toBe('c');
   });
   // 测试用例5: 在目录A中设置公共请求头,在A目录下创建的httpNode继承A目录的公共请求头
-  test('在目录下创建的httpNode继承该目录的公共请求头', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('在目录下创建的httpNode继承该目录的公共请求头', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
@@ -341,8 +346,9 @@ test.describe('CommonHeaders', () => {
     await expect(requestInfo).toContainText('folder-a-value', { timeout: 10000 });
   });
   // 测试用例6: 多层目录嵌套的公共请求头继承场景
-  test('多层目录嵌套的公共请求头继承场景', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('多层目录嵌套的公共请求头继承场景', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
@@ -478,8 +484,9 @@ test.describe('CommonHeaders', () => {
     await expect(requestInfo).toContainText('level3-value', { timeout: 10000 });
   });
   // 测试用例7: 子目录公共请求头优先级高于父目录（相同key的情况）
-  test('子目录公共请求头优先级高于父目录', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('子目录公共请求头优先级高于父目录', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);

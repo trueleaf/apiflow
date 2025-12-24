@@ -1,10 +1,11 @@
-import { test, expect } from '../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('PathParamsValidation', () => {
-  test('调用echo接口验证path参数是否正常返回', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('调用echo接口验证path参数是否正常返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -54,8 +55,9 @@ test.describe('PathParamsValidation', () => {
     await expect(responseBody).toContainText('456', { timeout: 10000 });
   });
 
-  test('调用echo接口验证单个path参数是否正常返回', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('调用echo接口验证单个path参数是否正常返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -93,8 +95,9 @@ test.describe('PathParamsValidation', () => {
     await expect(responseBody).toContainText('item_001', { timeout: 10000 });
   });
 
-  test('调用echo接口验证中文path参数是否正常返回', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('调用echo接口验证中文path参数是否正常返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -132,8 +135,9 @@ test.describe('PathParamsValidation', () => {
     await expect(responseBody).toContainText('param', { timeout: 10000 });
   });
 
-  test('调用echo接口验证使用变量的path参数是否正常返回', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('调用echo接口验证使用变量的path参数是否正常返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 打开变量管理页面并创建变量
@@ -186,8 +190,9 @@ test.describe('PathParamsValidation', () => {
     await expect(responseBody).toContainText('/echo/users/user_12345', { timeout: 10000 });
   });
 
-  test('调用echo接口验证多个path参数混合URL编码是否正常返回', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('调用echo接口验证多个path参数混合URL编码是否正常返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

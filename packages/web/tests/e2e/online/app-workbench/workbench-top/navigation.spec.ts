@@ -1,7 +1,8 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/electron-online.fixture';
 
 test.describe('Navigation', () => {
-  test('项目tab显示项目图标,设置tab显示设置图标', async ({ topBarPage, contentPage, createProject }) => {
+  test('项目tab显示项目图标,设置tab显示设置图标', async ({ topBarPage, contentPage, createProject, loginAccount }) => {
+    await loginAccount();
     const uniqueProjectName = await createProject(`图标验证项目-${Date.now()}`);
     // 验证项目Tab存在且显示Folder图标
     const projectTab = topBarPage.locator('.tab-item').filter({ hasText: uniqueProjectName });
@@ -24,7 +25,8 @@ test.describe('Navigation', () => {
     await expect(settingsTabIcon).toHaveClass(/tab-icon/);
   });
 
-  test('新建项目会新增tab并自动高亮', async ({ topBarPage, createProject }) => {
+  test('新建项目会新增tab并自动高亮', async ({ topBarPage, createProject, loginAccount }) => {
+    await loginAccount();
     // 记录初始Tab数量
     const initialTabCount = await topBarPage.locator('.tab-item').count();
     const uniqueProjectName = await createProject(`新建项目-${Date.now()}`);
@@ -36,7 +38,8 @@ test.describe('Navigation', () => {
     await expect(activeTab).toContainText(uniqueProjectName);
   });
 
-  test('打开设置会新增设置tab并自动高亮', async ({ topBarPage, contentPage }) => {
+  test('打开设置会新增设置tab并自动高亮', async ({ topBarPage, contentPage, loginAccount }) => {
+    await loginAccount();
     // 点击设置按钮
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     await settingsBtn.click();
@@ -53,7 +56,8 @@ test.describe('Navigation', () => {
     await expect(contentPage).toHaveURL(/.*#\/settings.*/);
   });
 
-  test('点击编辑按钮打开不存在的项目tab会新增tab并高亮', async ({ topBarPage, contentPage, createProject }) => {
+  test('点击编辑按钮打开不存在的项目tab会新增tab并高亮', async ({ topBarPage, contentPage, createProject, loginAccount }) => {
+    await loginAccount();
     // 首先创建一个项目
     const projectName = await createProject(`编辑按钮测试-${Date.now()}`);
     // 关闭当前项目Tab
@@ -92,7 +96,8 @@ test.describe('Navigation', () => {
     await expect(activeTab).toContainText(projectName);
   });
 
-  test('点击已存在的tab高亮而不新增', async ({ topBarPage, contentPage, createProject }) => {
+  test('点击已存在的tab高亮而不新增', async ({ topBarPage, contentPage, createProject, loginAccount }) => {
+    await loginAccount();
     const uniqueProjectName = await createProject(`切换测试-${Date.now()}`);
     // 打开设置Tab
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
@@ -122,7 +127,8 @@ test.describe('Navigation', () => {
     await expect(activeTabAfterSettings).toContainText(/设置|Settings/);
   });
 
-  test('tab默认排序:项目在前,设置在后', async ({ topBarPage, contentPage, createProject }) => {
+  test('tab默认排序:项目在前,设置在后', async ({ topBarPage, contentPage, createProject, loginAccount }) => {
+    await loginAccount();
     const projectAName = await createProject(`排序项目A-${Date.now()}`);
     // 打开设置Tab
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
@@ -147,7 +153,8 @@ test.describe('Navigation', () => {
     expect(projectBIndex).toBeLessThan(settingsIndex);
   });
 
-  test('可以拖拽tab改变顺序', async ({ topBarPage, createProject }) => {
+  test('可以拖拽tab改变顺序', async ({ topBarPage, createProject, loginAccount }) => {
+    await loginAccount();
     // 创建3个项目
     const projectAName = await createProject(`拖拽A-${Date.now()}`);
     const projectBName = await createProject(`拖拽B-${Date.now()}`);
@@ -187,7 +194,8 @@ test.describe('Navigation', () => {
     expect(afterBIndex).toBeLessThan(afterAIndex);
   });
 
-  test('关闭高亮Tab后自动高亮右侧Tab', async ({ topBarPage, createProject }) => {
+  test('关闭高亮Tab后自动高亮右侧Tab', async ({ topBarPage, createProject, loginAccount }) => {
+    await loginAccount();
     const projectAName = await createProject(`高亮右侧A-${Date.now()}`);
     const projectBName = await createProject(`高亮右侧B-${Date.now()}`);
     const projectCName = await createProject(`高亮右侧C-${Date.now()}`);
@@ -210,8 +218,9 @@ test.describe('Navigation', () => {
     await expect(activeTab).toContainText(projectCName);
   });
 
-  test('关闭最右侧高亮Tab后高亮左侧最近的Tab', async ({ topBarPage, createProject, clearCache }) => {
-    await clearCache();
+  test('关闭最右侧高亮Tab后高亮左侧最近的Tab', async ({ topBarPage, createProject, clearCache, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     const projectAName = await createProject(`最右侧A-${Date.now()}`);
     const projectBName = await createProject(`最右侧B-${Date.now()}`);
     const projectCName = await createProject(`最右侧C-${Date.now()}`);
@@ -232,7 +241,8 @@ test.describe('Navigation', () => {
     await expect(activeTab).toContainText(projectCName);
   });
 
-  test('关闭非高亮Tab不影响当前高亮状态', async ({ topBarPage, createProject }) => {
+  test('关闭非高亮Tab不影响当前高亮状态', async ({ topBarPage, createProject, loginAccount }) => {
+    await loginAccount();
     const projectAName = await createProject(`非高亮A-${Date.now()}`);
     const projectBName = await createProject(`非高亮B-${Date.now()}`);
     // 当前项目B应该被高亮
@@ -250,7 +260,8 @@ test.describe('Navigation', () => {
     await expect(activeTab).toContainText(projectBName);
   });
 
-  test('更新项目名称后tab页签名称同步更新', async ({ topBarPage, contentPage, createProject }) => {
+  test('更新项目名称后tab页签名称同步更新', async ({ topBarPage, contentPage, createProject, loginAccount }) => {
+    await loginAccount();
     const originalName = `原名称-${Date.now()}`;
     const newName = `新名称-${Date.now()}`;
     // 创建项目
@@ -298,7 +309,8 @@ test.describe('Navigation', () => {
     await expect(oldTab).toBeHidden();
   });
 
-  test('删除项目后对应的tab页签关闭', async ({ topBarPage, contentPage, createProject }) => {
+  test('删除项目后对应的tab页签关闭', async ({ topBarPage, contentPage, createProject, loginAccount }) => {
+    await loginAccount();
     const projectAName = await createProject(`删除测试A-${Date.now()}`);
     const projectBName = await createProject(`删除测试B-${Date.now()}`);
     await topBarPage.waitForTimeout(500);

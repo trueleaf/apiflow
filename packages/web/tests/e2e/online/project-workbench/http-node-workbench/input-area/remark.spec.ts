@@ -1,9 +1,10 @@
-import { test, expect } from '../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../fixtures/electron-online.fixture';
 
 test.describe('Remark', () => {
   // 测试用例1: 备注编辑器支持Markdown格式输入和预览
-  test('备注编辑器支持Markdown格式输入和预览', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('备注编辑器支持Markdown格式输入和预览', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -33,8 +34,9 @@ test.describe('Remark', () => {
     await expect(editorContent).toContainText('这是一段普通文本', { timeout: 5000 });
   });
   // 测试用例2: 输入普通文本后保存,刷新页面内容保持不变
-  test('输入普通文本后保存,刷新页面内容保持不变', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('输入普通文本后保存,刷新页面内容保持不变', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -77,8 +79,9 @@ test.describe('Remark', () => {
     await expect(editorContentAfterReload).toContainText(testRemark, { timeout: 5000 });
   });
   // 测试用例3: 输入Markdown标题(# 标题)正确渲染为标题样式
-  test('输入Markdown标题正确渲染为标题样式', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('输入Markdown标题正确渲染为标题样式', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -109,8 +112,9 @@ test.describe('Remark', () => {
     await expect(h2Element).toContainText('二级标题', { timeout: 5000 });
   });
   // 测试用例4: 输入Markdown粗体(**粗体**)正确渲染为粗体样式
-  test('输入Markdown粗体正确渲染为粗体样式', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('输入Markdown粗体正确渲染为粗体样式', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -142,8 +146,9 @@ test.describe('Remark', () => {
     await expect(strongElement).toContainText('粗体文本', { timeout: 5000 });
   });
   // 测试用例5: 输入Markdown链接([文字](url))正确渲染为可点击链接
-  test('输入Markdown链接正确渲染为可点击链接', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('输入Markdown链接正确渲染为可点击链接', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -179,8 +184,9 @@ test.describe('Remark', () => {
     await expect(linkElement).toHaveAttribute('href', 'https://example.com');
   });
   // 测试用例6: 输入Markdown代码块正确渲染并支持语法高亮
-  test('输入Markdown代码块正确渲染', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('输入Markdown代码块正确渲染', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -210,8 +216,9 @@ test.describe('Remark', () => {
     await expect(codeElement.first()).toBeVisible({ timeout: 5000 });
   });
   // 测试用例7: 备注内容变更后出现未保存小圆点,保存后小圆点消失
-  test('备注内容变更后出现未保存小圆点,保存后小圆点消失', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('备注内容变更后出现未保存小圆点,保存后小圆点消失', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -247,8 +254,9 @@ test.describe('Remark', () => {
     await expect(unsavedIndicator).toBeHidden({ timeout: 5000 });
   });
   // 测试用例8: 备注支持撤销操作,ctrl+z可以撤销输入
-  test('备注支持撤销操作,ctrl+z可以撤销输入', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('备注支持撤销操作,ctrl+z可以撤销输入', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -283,8 +291,9 @@ test.describe('Remark', () => {
     await expect(editorContent).not.toContainText('第二段内容', { timeout: 5000 });
   });
   // 测试用例9: 备注支持重做操作,ctrl+shift+z可以重做撤销的操作
-  test('备注支持重做操作,ctrl+shift+z可以重做撤销的操作', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('备注支持重做操作,ctrl+shift+z可以重做撤销的操作', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

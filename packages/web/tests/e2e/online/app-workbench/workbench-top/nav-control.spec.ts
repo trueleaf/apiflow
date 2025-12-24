@@ -1,7 +1,8 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/electron-online.fixture';
 
 test.describe('NavControl', () => {
-  test('点击刷新按钮后Tab状态保持', async ({ topBarPage, contentPage, createProject }) => {
+  test('点击刷新按钮后Tab状态保持', async ({ topBarPage, contentPage, createProject, loginAccount }) => {
+    await loginAccount();
     const projectName = await createProject(`刷新测试-${Date.now()}`);
     // 验证项目Tab存在且被高亮
     const projectTab = topBarPage.locator('.tab-item').filter({ hasText: projectName });
@@ -28,7 +29,8 @@ test.describe('NavControl', () => {
     await expect(projectTabAfterRefresh).toHaveClass(/active/);
   });
 
-  test('前进后退按钮按历史栈导航', async ({ topBarPage, contentPage, createProject }) => {
+  test('前进后退按钮按历史栈导航', async ({ topBarPage, contentPage, createProject, loginAccount }) => {
+    await loginAccount();
     // 创建三个项目
     const projectAName = await createProject(`项目A-${Date.now()}`);
     await createProject(`项目B-${Date.now()}`);
@@ -63,7 +65,8 @@ test.describe('NavControl', () => {
     await expect(settingsTab).toBeVisible();
   });
 
-  test('多次后退和前进验证完整历史栈', async ({ topBarPage, contentPage, createProject }) => {
+  test('多次后退和前进验证完整历史栈', async ({ topBarPage, contentPage, createProject, loginAccount }) => {
+    await loginAccount();
     // 创建三个项目
     const projectAName = await createProject(`历史A-${Date.now()}`);
     const projectBName = await createProject(`历史B-${Date.now()}`);
@@ -101,8 +104,9 @@ test.describe('NavControl', () => {
     await expect(settingsTab).toBeVisible();
   });
 
-  test('历史栈为空时后退到主页面', async ({ topBarPage, contentPage, clearCache }) => {
-    await clearCache();
+  test('历史栈为空时后退到主页面', async ({ topBarPage, contentPage, clearCache, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     // 刷新页面使缓存清除生效
     await contentPage.reload();
     await contentPage.waitForLoadState('domcontentloaded');

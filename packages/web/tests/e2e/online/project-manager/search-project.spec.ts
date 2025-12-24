@@ -1,9 +1,10 @@
-import { test, expect } from '../../../fixtures/electron.fixture';
+import { test, expect } from '../../../fixtures/electron-online.fixture';
 
 test.describe('SearchProject', () => {
   // 测试用例1: 搜索无结果展示
-  test('输入不存在的项目名称,显示空状态提示', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('输入不存在的项目名称,显示空状态提示', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     const projectName = await createProject();
     await contentPage.waitForTimeout(500);
     // 返回首页
@@ -28,8 +29,9 @@ test.describe('SearchProject', () => {
     await expect(emptyContainer).toBeVisible({ timeout: 5000 });
   });
 
-  test('清空搜索框后,项目列表恢复显示', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('清空搜索框后,项目列表恢复显示', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     const projectName = await createProject();
     await contentPage.waitForTimeout(500);
     // 返回首页
@@ -53,8 +55,9 @@ test.describe('SearchProject', () => {
     await expect(projectCard).toBeVisible({ timeout: 5000 });
   });
 
-  test('搜索匹配项目名称,项目列表正确过滤', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('搜索匹配项目名称,项目列表正确过滤', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     // 创建两个项目
     const project1 = await createProject('测试项目AAA');
     await contentPage.waitForTimeout(300);
@@ -82,8 +85,9 @@ test.describe('SearchProject', () => {
   });
 
   // 测试用例2: 高级搜索面板展示
-  test('点击高级搜索按钮后,高级搜索面板与选项正确展示', async ({ contentPage, clearCache }) => {
-    await clearCache();
+  test('点击高级搜索按钮后,高级搜索面板与选项正确展示', async ({ contentPage, clearCache, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await contentPage.waitForTimeout(500);
     // 点击高级搜索按钮
     const advancedSearchBtn = contentPage.locator('[data-testid="home-advanced-search-btn"]');
@@ -136,8 +140,9 @@ test.describe('SearchProject', () => {
   });
 
   // 测试用例3: 搜索条件功能验证
-  test('高级搜索可以按节点名称搜索', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('高级搜索可以按节点名称搜索', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     const projectName = await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -169,8 +174,9 @@ test.describe('SearchProject', () => {
     await expect(searchResults).toBeVisible({ timeout: 5000 });
   });
 
-  test('高级搜索基础信息选项均可生效', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('高级搜索基础信息选项均可生效', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     const projectKeyword = `ADV_PROJECT_${Date.now()}`;
     const docKeyword = `ADV_DOC_${Date.now()}`;
     const urlKeyword = `ADV_URL_${Date.now()}`;
@@ -245,8 +251,9 @@ test.describe('SearchProject', () => {
     await assertMatch(/备注/, remarkKeyword, '备注');
   });
 
-  test('高级搜索节点类型筛选选项均可生效', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('高级搜索节点类型筛选选项均可生效', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     const folderKeyword = `ADV_FOLDER_${Date.now()}`;
     const httpKeyword = `ADV_HTTP_${Date.now()}`;
     const wsKeyword = `ADV_WS_${Date.now()}`;
@@ -337,9 +344,10 @@ test.describe('SearchProject', () => {
     await assertNodeType(/HTTP Mock/, mockKeyword, 'HTTP Mock');
   });
 
-  test('高级搜索请求参数选项均可生效', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+  test('高级搜索请求参数选项均可生效', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
     test.setTimeout(120000);
-    await clearCache();
+    await clearCache();
+    await loginAccount();
     const queryKeyword = `ADV_QUERY_${Date.now()}`;
     const pathKeyword = `ADV_PATH_${Date.now()}`;
     const headerKeyword = `ADV_HEADER_${Date.now()}`;
@@ -493,8 +501,9 @@ test.describe('SearchProject', () => {
     await assertParam(/WebSocket消息/, wsMessageKeyword, 'WebSocket消息');
   });
 
-  test('高级搜索更新日期选项均可生效', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('高级搜索更新日期选项均可生效', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     const docKeyword = `ADV_DATE_${Date.now()}`;
     await createProject(`更新日期项目-${Date.now()}`);
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -570,8 +579,9 @@ test.describe('SearchProject', () => {
   });
 
   // 测试用例4: 搜索结果UI显示
-  test('搜索结果按项目分组显示', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('搜索结果按项目分组显示', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     const projectName = await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -612,8 +622,9 @@ test.describe('SearchProject', () => {
     await expect(groupCount).toBeVisible();
   });
 
-  test('搜索结果项显示节点类型和名称', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('搜索结果项显示节点类型和名称', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -652,8 +663,9 @@ test.describe('SearchProject', () => {
     await expect(nodeName).toBeVisible();
   });
 
-  test('搜索结果项显示匹配字段信息', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('搜索结果项显示匹配字段信息', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -691,8 +703,9 @@ test.describe('SearchProject', () => {
     await expect(matchLabel).toBeVisible();
   });
 
-  test('点击搜索结果项跳转到对应节点', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('点击搜索结果项跳转到对应节点', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -727,8 +740,9 @@ test.describe('SearchProject', () => {
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
   });
 
-  test('高级搜索无结果时显示空状态提示', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('高级搜索无结果时显示空状态提示', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -753,8 +767,9 @@ test.describe('SearchProject', () => {
     await expect(elEmpty).toBeVisible();
   });
 
-  test('重置按钮恢复所有搜索条件为默认值', async ({ contentPage, clearCache }) => {
-    await clearCache();
+  test('重置按钮恢复所有搜索条件为默认值', async ({ contentPage, clearCache, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await contentPage.waitForTimeout(500);
     // 展开高级搜索面板
     const advancedSearchBtn = contentPage.locator('[data-testid="home-advanced-search-btn"]');

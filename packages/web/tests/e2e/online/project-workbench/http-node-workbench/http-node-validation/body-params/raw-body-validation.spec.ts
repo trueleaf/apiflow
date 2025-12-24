@@ -1,11 +1,12 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('RawBodyValidation', () => {
   // 测试用例1: 调用echo接口验证text格式参数是否正常返回,content-type是否设置正确
-  test('调用echo接口验证text格式参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('调用echo接口验证text格式参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -64,8 +65,9 @@ test.describe('RawBodyValidation', () => {
   });
 
   // 测试用例2: 调用echo接口验证html格式参数是否正常返回,content-type是否设置正确
-  test('调用echo接口验证html格式参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('调用echo接口验证html格式参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -128,8 +130,9 @@ test.describe('RawBodyValidation', () => {
   });
 
   // 测试用例3: 调用echo接口验证xml格式参数是否正常返回,content-type是否设置正确
-  test('调用echo接口验证xml格式参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('调用echo接口验证xml格式参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -191,8 +194,9 @@ test.describe('RawBodyValidation', () => {
   });
 
   // 测试用例4: 调用echo接口验证javascript格式参数是否正常返回,content-type是否设置正确
-  test('调用echo接口验证javascript格式参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('调用echo接口验证javascript格式参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

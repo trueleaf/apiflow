@@ -1,10 +1,11 @@
-import { test, expect } from '../../../fixtures/electron.fixture';
+import { test, expect } from '../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('Export', () => {
-  test('导出弹窗显示HTML、WORD、JSON文档、OpenAPI四种导出类型', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('导出弹窗显示HTML、WORD、JSON文档、OpenAPI四种导出类型', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -23,8 +24,9 @@ test.describe('Export', () => {
     const openapiOption = exportPage.locator('.item').filter({ hasText: 'OpenAPI' });
     await expect(openapiOption).toBeVisible();
   });
-  test('选择JSON文档类型后显示active状态', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('选择JSON文档类型后显示active状态', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -38,8 +40,9 @@ test.describe('Export', () => {
     await jsonOption.click();
     await expect(jsonOption).toHaveClass(/active/);
   });
-  test('选择OpenAPI类型后显示active状态', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('选择OpenAPI类型后显示active状态', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -53,8 +56,9 @@ test.describe('Export', () => {
     await openapiOption.click();
     await expect(openapiOption).toHaveClass(/active/);
   });
-  test('开启选择导出后显示el-tree节点树', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('开启选择导出后显示el-tree节点树', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
@@ -82,8 +86,9 @@ test.describe('Export', () => {
     const treeNode = tree.locator('.el-tree-node');
     await expect(treeNode.first()).toBeVisible();
   });
-  test('导出JSON文档格式,点击确定导出按钮触发下载', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('导出JSON文档格式,点击确定导出按钮触发下载', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
@@ -131,8 +136,9 @@ test.describe('Export', () => {
     });
     expect(filenames.some((name) => name.endsWith('.json'))).toBeTruthy();
   });
-  test('导出OpenAPI格式,点击确定导出按钮触发下载', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('导出OpenAPI格式,点击确定导出按钮触发下载', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');

@@ -1,10 +1,11 @@
-import { test, expect } from '../../../fixtures/electron.fixture';
+import { test, expect } from '../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('Variable', () => {
-  test('打开变量管理页面,显示新增变量表单和变量列表', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('打开变量管理页面,显示新增变量表单和变量列表', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -20,8 +21,9 @@ test.describe('Variable', () => {
     await expect(variableList).toBeVisible();
   });
 
-  test('新增string类型变量成功,变量列表中显示新增的变量', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('新增string类型变量成功,变量列表中显示新增的变量', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -44,8 +46,9 @@ test.describe('Variable', () => {
     await expect(variableTable).toContainText('string');
   });
 
-  test('新增number类型变量成功', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('新增number类型变量成功', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -73,8 +76,9 @@ test.describe('Variable', () => {
     await expect(variableTable).toContainText('number');
   });
 
-  test('新增boolean类型变量成功', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('新增boolean类型变量成功', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -102,8 +106,9 @@ test.describe('Variable', () => {
     await expect(variableTable).toContainText('boolean');
   });
 
-  test('新增重复变量名显示错误提示', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('新增重复变量名显示错误提示', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -128,8 +133,9 @@ test.describe('Variable', () => {
     await expect(errorMessage).toBeVisible({ timeout: 3000 });
   });
 
-  test('删除变量成功,变量从列表中移除', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('删除变量成功,变量从列表中移除', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -156,8 +162,9 @@ test.describe('Variable', () => {
     await expect(variableTable).not.toContainText('toBeDeleted');
   });
 
-  test('编辑变量成功,变量值更新', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('编辑变量成功,变量值更新', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -188,8 +195,9 @@ test.describe('Variable', () => {
     await expect(variableTable).toContainText('updated value');
   });
 
-  test('在请求Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('在请求Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -245,8 +253,9 @@ test.describe('Variable', () => {
     await expect(responseBody).toContainText('variable_value', { timeout: 10000 });
   });
 
-  test('在请求URL中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('在请求URL中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -281,8 +290,9 @@ test.describe('Variable', () => {
     await expect(responseBody).toContainText('/echo', { timeout: 10000 });
   });
 
-  test('在请求Headers中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('在请求Headers中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -325,8 +335,9 @@ test.describe('Variable', () => {
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('Bearer test-token-123', { timeout: 10000 });
   });
-  test('新增any类型变量执行JavaScript表达式,动态时间戳', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('新增any类型变量执行JavaScript表达式,动态时间戳', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -355,8 +366,9 @@ test.describe('Variable', () => {
     await expect(variableTable).toContainText('timestamp');
     await expect(variableTable).toContainText('any');
   });
-  test('使用不存在的变量时保留原始文本', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用不存在的变量时保留原始文本', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');

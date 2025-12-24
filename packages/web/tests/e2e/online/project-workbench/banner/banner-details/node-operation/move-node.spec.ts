@@ -1,10 +1,11 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
 
 test.describe('MoveNode', () => {
   test.describe('移动单个httpNode节点', () => {
     // 拖拽单个httpNode节点到banner空白区域,移动到根节点下
-    test('拖拽单个httpNode节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('拖拽单个httpNode节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -62,8 +63,9 @@ test.describe('MoveNode', () => {
       await expect(rootHttpNode).toBeVisible({ timeout: 5000 });
     });
     // 拖拽单个httpNode节点到folder节点上,移动到folder节点下
-    test('拖拽单个httpNode节点到folder节点上,移动到folder节点下', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('拖拽单个httpNode节点到folder节点上,移动到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -139,8 +141,9 @@ test.describe('MoveNode', () => {
       await expect(movedNode).toBeVisible({ timeout: 5000 });
     });
     // 拖拽单个httpNode节点调整在同一层级的顺序
-    test('拖拽单个httpNode节点调整在同一层级的顺序', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('拖拽单个httpNode节点调整在同一层级的顺序', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -188,8 +191,9 @@ test.describe('MoveNode', () => {
       expect(firstNodeText).toContain('HTTP节点B');
     });
     // 拖拽httpNode节点到非folder节点(如httpNode)中,操作被阻止
-    test('拖拽httpNode节点到非folder节点中,操作被阻止', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('拖拽httpNode节点到非folder节点中,操作被阻止', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -237,8 +241,9 @@ test.describe('MoveNode', () => {
 
   test.describe('移动单个websocketNode节点', () => {
     // 拖拽单个websocketNode节点到banner空白区域,移动到根节点下
-    test('拖拽单个websocketNode节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('拖拽单个websocketNode节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -297,8 +302,9 @@ test.describe('MoveNode', () => {
       await expect(rootWsNode).toBeVisible({ timeout: 5000 });
     });
     // 拖拽单个websocketNode节点到folder节点上,移动到folder节点下
-    test('拖拽单个websocketNode节点到folder节点上,移动到folder节点下', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('拖拽单个websocketNode节点到folder节点上,移动到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -381,8 +387,9 @@ test.describe('MoveNode', () => {
 
   test.describe('移动单个httpMockNode节点', () => {
     // 拖拽单个httpMockNode节点到banner空白区域,移动到根节点下
-    test('拖拽单个httpMockNode节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('拖拽单个httpMockNode节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -441,8 +448,9 @@ test.describe('MoveNode', () => {
       await expect(rootMockNode).toBeVisible({ timeout: 5000 });
     });
     // 拖拽单个httpMockNode节点到folder节点上,移动到folder节点下
-    test('拖拽单个httpMockNode节点到folder节点上,移动到folder节点下', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('拖拽单个httpMockNode节点到folder节点上,移动到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -525,8 +533,9 @@ test.describe('MoveNode', () => {
 
   test.describe('移动单个websocketMockNode节点', () => {
     // 拖拽单个websocketMockNode节点到banner空白区域,移动到根节点下
-    test('拖拽单个websocketMockNode节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('拖拽单个websocketMockNode节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -585,8 +594,9 @@ test.describe('MoveNode', () => {
       await expect(rootWsMockNode).toBeVisible({ timeout: 5000 });
     });
     // 拖拽单个websocketMockNode节点到folder节点上,移动到folder节点下
-    test('拖拽单个websocketMockNode节点到folder节点上,移动到folder节点下', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('拖拽单个websocketMockNode节点到folder节点上,移动到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -669,8 +679,9 @@ test.describe('MoveNode', () => {
 
   test.describe('移动单个folder节点', () => {
     // 拖拽单个folder节点到banner空白区域,移动到根节点下
-    test('拖拽单个folder节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('拖拽单个folder节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -725,8 +736,9 @@ test.describe('MoveNode', () => {
       await expect(rootChildFolder).toBeVisible({ timeout: 5000 });
     });
     // 拖拽单个folder节点到folder节点上,移动到folder节点下作为子节点
-    test('拖拽单个folder节点到folder节点上,移动到folder节点下作为子节点', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('拖拽单个folder节点到folder节点上,移动到folder节点下作为子节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -774,8 +786,9 @@ test.describe('MoveNode', () => {
       await expect(movedFolder).toBeVisible({ timeout: 5000 });
     });
     // 拖拽folder节点调整在同一层级的顺序
-    test('拖拽folder节点调整在同一层级的顺序', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('拖拽folder节点调整在同一层级的顺序', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -822,8 +835,9 @@ test.describe('MoveNode', () => {
       expect(firstFolderText).toContain('文件夹B');
     });
     // 拖拽folder节点到其自身子节点下,操作被阻止
-    test('拖拽folder节点到其自身子节点下,操作被阻止', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('拖拽folder节点到其自身子节点下,操作被阻止', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -878,8 +892,9 @@ test.describe('MoveNode', () => {
       await expect(rootParentFolder).toBeVisible({ timeout: 5000 });
     });
     // 移动包含多层嵌套的folder节点,层级结构保持不变
-    test('移动包含多层嵌套的folder节点,层级结构保持不变', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('移动包含多层嵌套的folder节点,层级结构保持不变', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);

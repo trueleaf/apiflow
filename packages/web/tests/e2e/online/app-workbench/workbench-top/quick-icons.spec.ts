@@ -1,8 +1,9 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/electron-online.fixture';
 
 test.describe('QuickIcons', () => {
   test.describe('AI助理按钮', () => {
-    test('点击AI助理按钮弹出AI助理弹窗', async ({ contentPage, topBarPage }) => {
+    test('点击AI助理按钮弹出AI助理弹窗', async ({ contentPage, topBarPage, loginAccount }) => {
+      await loginAccount();
       const aiBtn = topBarPage.locator('[data-testid="header-ai-btn"]');
       await expect(aiBtn).toBeVisible();
       await aiBtn.click();
@@ -10,7 +11,8 @@ test.describe('QuickIcons', () => {
       const aiDialog = contentPage.locator('.ai-dialog');
       await expect(aiDialog).toBeVisible({ timeout: 5000 });
     });
-    test('多次点击AI助理按钮不会关闭弹窗', async ({ contentPage, topBarPage }) => {
+    test('多次点击AI助理按钮不会关闭弹窗', async ({ contentPage, topBarPage, loginAccount }) => {
+      await loginAccount();
       const aiBtn = topBarPage.locator('[data-testid="header-ai-btn"]');
       await aiBtn.click();
       const aiDialog = contentPage.locator('.ai-dialog');
@@ -28,7 +30,8 @@ test.describe('QuickIcons', () => {
   });
 
   test.describe('多语言切换', () => {
-    test('点击语言按钮显示语言选择菜单', async ({ contentPage, topBarPage }) => {
+    test('点击语言按钮显示语言选择菜单', async ({ contentPage, topBarPage, loginAccount }) => {
+      await loginAccount();
       const languageBtn = topBarPage.locator('[data-testid="header-language-btn"]');
       await expect(languageBtn).toBeVisible();
       // 验证按钮显示当前语言标识
@@ -39,7 +42,8 @@ test.describe('QuickIcons', () => {
       const languageMenu = contentPage.locator('.language-dropdown-menu');
       await expect(languageMenu).toBeVisible({ timeout: 5000 });
     });
-    test('语言菜单包含4种语言选项', async ({ contentPage, topBarPage }) => {
+    test('语言菜单包含4种语言选项', async ({ contentPage, topBarPage, loginAccount }) => {
+      await loginAccount();
       const languageBtn = topBarPage.locator('[data-testid="header-language-btn"]');
       await languageBtn.click();
       const languageMenu = contentPage.locator('.language-dropdown-menu');
@@ -50,7 +54,8 @@ test.describe('QuickIcons', () => {
       await expect(languageMenu.locator('text=English')).toBeVisible();
       await expect(languageMenu.locator('text=日本語')).toBeVisible();
     });
-    test('点击语言选项切换语言', async ({ contentPage, topBarPage }) => {
+    test('点击语言选项切换语言', async ({ contentPage, topBarPage, loginAccount }) => {
+      await loginAccount();
       const languageBtn = topBarPage.locator('[data-testid="header-language-btn"]');
       await languageBtn.click();
       const languageMenu = contentPage.locator('.language-dropdown-menu');
@@ -71,7 +76,8 @@ test.describe('QuickIcons', () => {
       await topBarPage.waitForTimeout(500);
       await expect(languageBtn).toHaveText('中');
     });
-    test('点击内容区域关闭语言菜单', async ({ contentPage, topBarPage }) => {
+    test('点击内容区域关闭语言菜单', async ({ contentPage, topBarPage, loginAccount }) => {
+      await loginAccount();
       const languageBtn = topBarPage.locator('[data-testid="header-language-btn"]');
       await languageBtn.click();
       const languageMenu = contentPage.locator('.language-dropdown-menu');
@@ -84,14 +90,16 @@ test.describe('QuickIcons', () => {
   });
 
   test.describe('网络模式切换', () => {
-    test('网络模式按钮显示当前模式', async ({ topBarPage }) => {
+    test('网络模式按钮显示当前模式', async ({ topBarPage, loginAccount }) => {
+      await loginAccount();
       const networkBtn = topBarPage.locator('[data-testid="header-network-toggle"]');
       await expect(networkBtn).toBeVisible();
       // 验证按钮显示模式文字
       const btnText = await networkBtn.textContent();
       expect(btnText).toMatch(/联网模式|离线模式|Online|Offline/);
     });
-    test('点击网络模式按钮切换模式', async ({ topBarPage }) => {
+    test('点击网络模式按钮切换模式', async ({ topBarPage, loginAccount }) => {
+      await loginAccount();
       const networkBtn = topBarPage.locator('[data-testid="header-network-toggle"]');
       // 获取当前模式
       const initialText = await networkBtn.textContent();
@@ -113,7 +121,8 @@ test.describe('QuickIcons', () => {
         await expect(networkBtn).toContainText(/离线模式|Offline/);
       }
     });
-    test('网络模式切换后Tab列表按模式过滤', async ({ topBarPage, createProject }) => {
+    test('网络模式切换后Tab列表按模式过滤', async ({ topBarPage, createProject, loginAccount }) => {
+      await loginAccount();
       // 创建一个离线模式的项目
       const networkBtn = topBarPage.locator('[data-testid="header-network-toggle"]');
       const initialText = await networkBtn.textContent();

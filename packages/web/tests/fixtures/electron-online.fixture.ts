@@ -11,6 +11,7 @@ type ElectronFixtures = {
   topBarPage: Page;
   contentPage: Page;
   clearCache: () => Promise<void>;
+  createProject: (name?: string) => Promise<string>;
   loginAccount: () => Promise<void>;
 };
 // 等待指定窗口加载完成
@@ -112,6 +113,23 @@ export const test = base.extend<ElectronFixtures>({
       await contentPage.waitForTimeout(500);
     };
     await use(clear);
+  },
+  createProject: async ({ topBarPage, contentPage }, use) => {
+    const create = async (name?: string) => {
+      const projectName = name || `测试项目-${Date.now()}`;
+      const addProjectBtn = topBarPage.locator('[data-testid="header-add-project-btn"]');
+      await addProjectBtn.click();
+      const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
+      await expect(projectDialog).toBeVisible({ timeout: 5000 });
+      const projectNameInput = projectDialog.locator('input').first();
+      await projectNameInput.fill(projectName);
+      const confirmBtn = projectDialog.locator('.el-button--primary').last();
+      await confirmBtn.click();
+      await expect(projectDialog).toBeHidden({ timeout: 5000 });
+      await topBarPage.waitForTimeout(500);
+      return projectName;
+    };
+    await use(create);
   },
   loginAccount: async ({ topBarPage, contentPage }, use) => {
     const login = async () => {

@@ -755,8 +755,8 @@ body {
     box-shadow: 0 0 0 2px rgba(255,255,255,0.06);
   }
   .user-avatar-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     stroke: currentColor;
     color: inherit;
   }

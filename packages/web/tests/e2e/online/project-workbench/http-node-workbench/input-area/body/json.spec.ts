@@ -1,11 +1,12 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('Json', () => {
   // 测试用例1: 输入满足json5格式数据以后,调用echo接口返回结果body参数正确,并且content-type为application/json
-  test('输入json5格式数据调用echo接口返回结果正确且content-type为application/json', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('输入json5格式数据调用echo接口返回结果正确且content-type为application/json', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -63,8 +64,9 @@ test.describe('Json', () => {
     await expect(responseTabs).toContainText('25', { timeout: 10000 });
   });
   // 测试用例2: json数据的值字段支持变量,调用echo接口返回结果body参数正确
-  test('json数据值字段支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('json数据值字段支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -137,8 +139,9 @@ test.describe('Json', () => {
     await expect(responseTabs).toContainText('user_id', { timeout: 10000 });
   });
   // 测试用例3: json数据支持超大数字
-  test('json数据支持超大数字调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('json数据支持超大数字调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

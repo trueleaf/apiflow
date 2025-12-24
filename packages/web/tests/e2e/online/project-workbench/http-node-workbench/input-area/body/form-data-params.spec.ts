@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -9,8 +9,9 @@ test.describe('FormDataParams', () => {
   // ========== stringOnlyFormdata: 类型全为string的formdata参数 ==========
   test.describe('StringOnlyFormdata', () => {
     // 测试用例1: formdata参数key输入值以后,如果不存在next节点,则自动新增一行数据,自动新增数据需要被选中
-    test('formdata参数key输入值以后自动新增一行数据', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('formdata参数key输入值以后自动新增一行数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 新增HTTP节点
@@ -47,8 +48,9 @@ test.describe('FormDataParams', () => {
       expect(firstKeyValue).toBe('username');
     });
     // 测试用例2: formdata参数key,value,description输入值以后,调用echo接口返回结果正确
-    test('formdata参数key,value输入值以后调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('formdata参数key,value输入值以后调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 新增HTTP节点
@@ -105,8 +107,9 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('123456', { timeout: 10000 });
     });
     // 测试用例3: formdata参数key,value支持变量,调用echo接口返回结果正确
-    test('formdata参数key,value支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('formdata参数key,value支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 打开变量管理页面并创建变量
@@ -180,8 +183,9 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('token_abc123', { timeout: 10000 });
     });
     // 测试用例4: formdata参数key,value支持mock,调用echo接口返回结果正确
-    test('formdata参数key,value支持mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('formdata参数key,value支持mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 新增HTTP节点
@@ -236,8 +240,9 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('user_id', { timeout: 10000 });
     });
     // 测试用例5: formdata参数key,value支持混合变量,调用echo接口返回结果正确
-    test('formdata参数key,value支持混合变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('formdata参数key,value支持混合变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 打开变量管理页面并创建变量
@@ -306,8 +311,9 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('REQ_', { timeout: 10000 });
     });
     // 测试用例6: formdata参数是否发送未勾选那么当前参数不会发送
-    test('formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 新增HTTP节点
@@ -371,8 +377,9 @@ test.describe('FormDataParams', () => {
   // ========== fileOnlyFormdata: 类型全为file的formdata参数 ==========
   test.describe('FileOnlyFormdata', () => {
     // 测试用例1: value模式切换后要清空之前的数据
-    test('value模式切换后要清空之前的数据', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('value模式切换后要清空之前的数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 新增HTTP节点
@@ -430,8 +437,9 @@ test.describe('FormDataParams', () => {
       await expect(fileText).not.toContainText('logo.png', { timeout: 5000 });
     });
     // 测试用例2: value如果为文件模式,选择文件,调用echo接口返回结果正确
-    test('value如果为文件模式选择文件调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('value如果为文件模式选择文件调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 新增HTTP节点
@@ -495,8 +503,9 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
     });
     // 测试用例3: value如果为文件模式,未选择文件,value输入框下方提示文件不存在
-    test('value如果为文件模式未选择文件时提示文件不存在', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('value如果为文件模式未选择文件时提示文件不存在', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 新增HTTP节点
@@ -555,8 +564,9 @@ test.describe('FormDataParams', () => {
       await expect(responseError).toBeVisible({ timeout: 10000 });
     });
     // 测试用例4: value如果为变量模式,并且值为文件类型变量,并且文件存在,调用echo接口返回结果正确
-    test('value如果为变量模式且文件存在调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('value如果为变量模式且文件存在调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 打开变量管理页面并创建变量
@@ -633,8 +643,9 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
     });
     // 测试用例5: value如果为变量模式,并且值为文件类型变量,并且文件不存在,提示文件不存在
-    test('value如果为变量模式且文件不存在时提示文件不存在', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('value如果为变量模式且文件不存在时提示文件不存在', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 打开变量管理页面并创建变量
@@ -708,8 +719,9 @@ test.describe('FormDataParams', () => {
       await expect(responseArea.getByTestId('response-error')).toBeVisible({ timeout: 10000 });
     });
     // 测试用例6: value如果为变量模式,并且值不是变量,提示文件不存在
-    test('value如果为变量模式但值不是变量时提示文件不存在', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('value如果为变量模式但值不是变量时提示文件不存在', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 新增HTTP节点
@@ -767,8 +779,9 @@ test.describe('FormDataParams', () => {
       await expect(responseArea.getByTestId('response-error')).toBeVisible({ timeout: 10000 });
     });
     // 测试用例7: value值合法,formdata参数key为变量,调用echo接口返回结果正确
-    test('formdata参数key为变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('formdata参数key为变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 打开变量管理页面并创建变量
@@ -848,8 +861,9 @@ test.describe('FormDataParams', () => {
       expect(responseText || '').not.toContain('{{upload_key}}');
     });
     // 测试用例8: value值合法,formdata参数key为mock,调用echo接口返回结果正确
-    test('formdata参数key为mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('formdata参数key为mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 新增HTTP节点
@@ -914,8 +928,9 @@ test.describe('FormDataParams', () => {
       expect(responseText || '').toContain('@id');
     });
     // 测试用例9: value值合法,formdata参数key为混合变量,调用echo接口返回结果正确
-    test('formdata参数key为混合变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('formdata参数key为混合变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 打开变量管理页面并创建变量
@@ -995,8 +1010,9 @@ test.describe('FormDataParams', () => {
       expect(responseText || '').not.toContain('{{service}}');
     });
     // 测试用例10: file类型formdata参数是否发送未勾选那么当前参数不会发送
-    test('file类型formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('file类型formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 新增HTTP节点
@@ -1075,8 +1091,9 @@ test.describe('FormDataParams', () => {
   // ========== mixedFormdata: 类型为file和string的混合类型的formdata参数 ==========
   test.describe('MixedFormdata', () => {
     // 测试用例1: 存在string类型value和file类型value时候,调用echo接口返回结果正确
-    test('存在string类型value和file类型value时候调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('存在string类型value和file类型value时候调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 新增HTTP节点

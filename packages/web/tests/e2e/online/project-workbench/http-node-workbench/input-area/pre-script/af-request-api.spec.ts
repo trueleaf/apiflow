@@ -1,11 +1,12 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('AfRequestApi', () => {
   // 测试用例1: 使用af.request.prefix获取并修改请求前缀,发送请求后验证前缀已更改
-  test('使用af.request.prefix修改请求前缀', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.request.prefix修改请求前缀', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -49,8 +50,9 @@ test.describe('AfRequestApi', () => {
     await expect(responseBody).toContainText('127.0.0.1', { timeout: 10000 });
   });
   // 测试用例2: 使用af.request.path获取并修改请求路径,发送请求后验证路径已更改
-  test('使用af.request.path修改请求路径', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.request.path修改请求路径', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -94,8 +96,9 @@ test.describe('AfRequestApi', () => {
     await expect(responseBody).toContainText('/echo', { timeout: 10000 });
   });
   // 测试用例3: 使用af.request.headers获取并修改请求头,发送请求后验证请求头已更改
-  test('使用af.request.headers修改请求头', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.request.headers修改请求头', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -140,8 +143,9 @@ test.describe('AfRequestApi', () => {
     await expect(responseBody).toContainText('custom-value-123', { timeout: 10000 });
   });
   // 测试用例4: 使用af.request.queryParams获取并修改Query参数,发送请求后验证参数已更改
-  test('使用af.request.queryParams修改Query参数', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.request.queryParams修改Query参数', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -188,8 +192,9 @@ af.request.queryParams["newParam"] = "newValue";`;
     await expect(responseBody).toContainText('newValue', { timeout: 10000 });
   });
   // 测试用例5: 使用af.request.pathParams获取并修改Path参数,发送请求后验证参数已更改
-  test('使用af.request.pathParams修改Path参数', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.request.pathParams修改Path参数', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -244,8 +249,9 @@ af.request.queryParams["newParam"] = "newValue";`;
     await expect(responseBody).toContainText('999', { timeout: 10000 });
   });
   // 测试用例6: 使用af.request.body.json获取并修改JSON body,发送请求后验证body已更改
-  test('使用af.request.body.json修改JSON body', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.request.body.json修改JSON body', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -313,8 +319,9 @@ af.request.body.json.newField = "addedValue";`;
     await expect(responseBody).toContainText('addedValue', { timeout: 10000 });
   });
   // 测试用例7: 使用af.request.body.formdata获取并修改formdata body,发送请求后验证body已更改
-  test('使用af.request.body.formdata修改formdata body', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.request.body.formdata修改formdata body', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -381,8 +388,9 @@ af.request.body.json.newField = "addedValue";`;
     await expect(responseBody).toContainText('newvalue-from-script', { timeout: 10000 });
   });
   // 测试用例8: 使用af.request.method获取并修改请求方法,发送请求后验证方法已更改
-  test('使用af.request.method修改请求方法', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.request.method修改请求方法', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -432,8 +440,9 @@ af.request.body.json.newField = "addedValue";`;
     await expect(responseBody).toContainText('PUT', { timeout: 10000 });
   });
   // 测试用例9: 使用af.request.replaceUrl()替换整个URL,发送请求后验证URL已更改
-  test('使用af.request.replaceUrl替换整个URL', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.request.replaceUrl替换整个URL', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

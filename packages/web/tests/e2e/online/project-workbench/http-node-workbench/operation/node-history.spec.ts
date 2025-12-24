@@ -1,11 +1,12 @@
-import { test, expect } from '../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('NodeHistory', () => {
   // 测试用例1: 点击历史记录按钮,展示当前节点的发送历史列表,列表按时间倒序排列
-  test('点击历史记录按钮,展示当前节点的发送历史列表', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('点击历史记录按钮,展示当前节点的发送历史列表', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -54,8 +55,9 @@ test.describe('NodeHistory', () => {
     await expect.poll(async () => historyItems.count(), { timeout: 20000 }).toBeGreaterThanOrEqual(3);
   });
   // 测试用例2: 点击历史记录项可以查看该次请求的详细信息
-  test('点击历史记录项可以查看该次请求的详细信息', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('点击历史记录项可以查看该次请求的详细信息', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -101,8 +103,9 @@ test.describe('NodeHistory', () => {
     await expect(historyDetail).toContainText('echo', { timeout: 5000 });
   });
   // 测试用例3: 节点没有历史记录时展示空状态提示
-  test('节点没有历史记录时展示空状态提示', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('节点没有历史记录时展示空状态提示', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点(不发送任何请求)

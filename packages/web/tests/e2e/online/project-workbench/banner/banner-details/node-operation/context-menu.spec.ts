@@ -1,10 +1,11 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
 
 test.describe('ContextMenu', () => {
   test.describe('空白区域右键菜单', () => {
     // 鼠标右键空白区域,出现新建接口,新建文件夹,设置公共请求头,粘贴节点(可能置灰)等功能
-    test('鼠标右键空白区域,出现新建接口,新建文件夹,设置公共请求头,粘贴节点(可能置灰)等功能', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键空白区域,出现新建接口,新建文件夹,设置公共请求头,粘贴节点(可能置灰)等功能', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -36,8 +37,9 @@ test.describe('ContextMenu', () => {
       await expect(deleteItem).toBeHidden();
     });
     // 鼠标右键空白区域,点击新建接口,成功后在根节点末尾生成节点
-    test('鼠标右键空白区域,点击新建接口,成功后在根节点末尾生成节点', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键空白区域,点击新建接口,成功后在根节点末尾生成节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -65,8 +67,9 @@ test.describe('ContextMenu', () => {
       await expect(newNode).toBeVisible({ timeout: 5000 });
     });
     // 鼠标右键空白区域,点击新建文件夹,成功后在根节点最后一个目录节点下面生成目录节点
-    test('鼠标右键空白区域,点击新建文件夹,成功后在根节点最后一个目录节点下面生成目录节点', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键空白区域,点击新建文件夹,成功后在根节点最后一个目录节点下面生成目录节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -92,8 +95,9 @@ test.describe('ContextMenu', () => {
       await expect(folderNode).toBeVisible({ timeout: 5000 });
     });
     // 鼠标右键空白区域,点击设置公共请求头,导航区域增加公共请求头标签,内容区域出现公共请求头设置内容
-    test('鼠标右键空白区域,点击设置公共请求头,导航区域增加公共请求头标签', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键空白区域,点击设置公共请求头,导航区域增加公共请求头标签', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -111,8 +115,9 @@ test.describe('ContextMenu', () => {
       await expect(commonHeaderTab).toBeVisible({ timeout: 5000 });
     });
     // 鼠标右键空白区域,点击粘贴,可以粘贴节点
-    test('鼠标右键空白区域,点击粘贴,可以粘贴节点', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键空白区域,点击粘贴,可以粘贴节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -152,8 +157,9 @@ test.describe('ContextMenu', () => {
   });
   test.describe('Folder节点右键菜单', () => {
     // 鼠标右键folder节点,出现新建接口,新建文件夹,设置公共请求头,剪切,复制,粘贴(可能置灰),重命名,删除等功能
-    test('鼠标右键folder节点,出现新建接口,新建文件夹,设置公共请求头,剪切,复制,粘贴,重命名,删除等功能', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键folder节点,出现新建接口,新建文件夹,设置公共请求头,剪切,复制,粘贴,重命名,删除等功能', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -196,8 +202,9 @@ test.describe('ContextMenu', () => {
       await expect(deleteItem).toBeVisible();
     });
     // 鼠标右键folder节点,点击新建接口,成功后在当前folder内生成节点,并且生成的节点排在末尾
-    test('鼠标右键folder节点,点击新建接口,成功后在当前folder内生成节点', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键folder节点,点击新建接口,成功后在当前folder内生成节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -239,8 +246,9 @@ test.describe('ContextMenu', () => {
       await expect(childNode).toBeVisible({ timeout: 5000 });
     });
     // 鼠标右键folder节点,点击新建文件夹,成功后在当前folder内生成节点
-    test('鼠标右键folder节点,点击新建文件夹,成功后在当前folder内生成节点', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键folder节点,点击新建文件夹,成功后在当前folder内生成节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -282,8 +290,9 @@ test.describe('ContextMenu', () => {
       await expect(childFolder).toBeVisible({ timeout: 5000 });
     });
     // 鼠标右键folder节点,点击设置公共请求头,导航区域增加公共请求头标签
-    test('鼠标右键folder节点,点击设置公共请求头,导航区域增加公共请求头标签', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键folder节点,点击设置公共请求头,导航区域增加公共请求头标签', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -315,8 +324,9 @@ test.describe('ContextMenu', () => {
       await expect(commonHeaderTab).toBeVisible({ timeout: 5000 });
     });
     // 鼠标右键folder节点,点击剪切,被剪切节点样式发生改变,点击粘贴可以粘贴节点
-    test('鼠标右键folder节点,点击剪切,被剪切节点样式发生改变,粘贴可以移动节点', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键folder节点,点击剪切,被剪切节点样式发生改变,粘贴可以移动节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -372,8 +382,9 @@ test.describe('ContextMenu', () => {
       await expect(movedFolder).toBeVisible({ timeout: 5000 });
     });
     // 鼠标右键folder节点,点击复制,点击粘贴可以粘贴节点
-    test('鼠标右键folder节点,点击复制,粘贴可以复制节点', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键folder节点,点击复制,粘贴可以复制节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -410,8 +421,9 @@ test.describe('ContextMenu', () => {
       await expect(allSourceFolders).toHaveCount(2, { timeout: 5000 });
     });
     // 鼠标右键folder节点,点击重命名(或f2),可以正常重命名
-    test('鼠标右键folder节点,点击重命名,可以正常重命名', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键folder节点,点击重命名,可以正常重命名', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -452,8 +464,9 @@ test.describe('ContextMenu', () => {
       await expect(oldFolder).toBeHidden();
     });
     // 鼠标右键folder节点,点击删除(或delete),可以正常删除目录
-    test('鼠标右键folder节点,点击删除,可以正常删除目录', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键folder节点,点击删除,可以正常删除目录', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -494,8 +507,9 @@ test.describe('ContextMenu', () => {
   });
   test.describe('非Folder节点右键菜单', () => {
     // 鼠标右键非folder节点,出现剪切,复制,生成副本,重命名,删除等功能
-    test('鼠标右键非folder节点,出现剪切,复制,生成副本,重命名,删除等功能', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键非folder节点,出现剪切,复制,生成副本,重命名,删除等功能', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -537,8 +551,9 @@ test.describe('ContextMenu', () => {
       await expect(newFolderInNode).toBeHidden();
     });
     // 鼠标右键非folder节点,点击剪切,被剪切节点样式发生改变,粘贴可以移动节点
-    test('鼠标右键非folder节点,点击剪切,被剪切节点样式发生改变,粘贴可以移动节点', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键非folder节点,点击剪切,被剪切节点样式发生改变,粘贴可以移动节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -594,8 +609,9 @@ test.describe('ContextMenu', () => {
       await expect(movedNode).toBeVisible({ timeout: 5000 });
     });
     // 鼠标右键非folder节点,点击复制,粘贴可以复制节点
-    test('鼠标右键非folder节点,点击复制,粘贴可以复制节点', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键非folder节点,点击复制,粘贴可以复制节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -632,8 +648,9 @@ test.describe('ContextMenu', () => {
       await expect(allSourceNodes).toHaveCount(2, { timeout: 5000 });
     });
     // 鼠标右键非folder节点,点击生成副本,可以在当前节点后面生成副本节点
-    test('鼠标右键非folder节点,点击生成副本,可以在当前节点后面生成副本节点', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键非folder节点,点击生成副本,可以在当前节点后面生成副本节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -664,8 +681,9 @@ test.describe('ContextMenu', () => {
       await expect(allSourceNodes).toHaveCount(2, { timeout: 5000 });
     });
     // 鼠标右键非folder节点,点击重命名(或f2),可以正常重命名
-    test('鼠标右键非folder节点,点击重命名,可以正常重命名', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键非folder节点,点击重命名,可以正常重命名', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -706,8 +724,9 @@ test.describe('ContextMenu', () => {
       await expect(oldNode).toBeHidden();
     });
     // 鼠标右键非folder节点,点击删除(或delete),可以正常删除节点
-    test('鼠标右键非folder节点,点击删除,可以正常删除节点', async ({ contentPage, clearCache, createProject }) => {
-      await clearCache();
+    test('鼠标右键非folder节点,点击删除,可以正常删除节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);

@@ -1,11 +1,12 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('EnvVariableAccess', () => {
   // 测试用例1: 使用af.envs获取所有环境变量列表
-  test('使用af.envs获取所有环境变量列表', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.envs获取所有环境变量列表', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 打开变量管理页面并创建变量
@@ -64,8 +65,9 @@ test.describe('EnvVariableAccess', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例2: 使用af.currentEnv获取当前激活的环境变量
-  test('使用af.currentEnv获取当前激活的环境变量', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.currentEnv获取当前激活的环境变量', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 打开变量管理页面并创建变量

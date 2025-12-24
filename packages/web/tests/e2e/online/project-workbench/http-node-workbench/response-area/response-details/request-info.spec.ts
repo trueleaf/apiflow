@@ -1,11 +1,12 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('RequestInfo', () => {
   // 测试用例1: 请求信息区域基本信息正确展示
-  test('请求信息区域基本信息正确展示', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('请求信息区域基本信息正确展示', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -36,8 +37,9 @@ test.describe('RequestInfo', () => {
     }
   });
   // 测试用例2: 请求头和请求body正确展示
-  test('POST请求的请求头和请求body正确展示', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('POST请求的请求头和请求body正确展示', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

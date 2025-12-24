@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
 import path from 'path';
 import fs from 'fs';
 
@@ -6,8 +6,9 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('BinaryParams', () => {
   // 变量模式,若没有输入有效变量,发送返回值中正确提示发送被终止
-  test('变量模式下无效变量发送被阻止', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('变量模式下无效变量发送被阻止', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -58,8 +59,9 @@ test.describe('BinaryParams', () => {
     await expect(errorMessage).toBeVisible({ timeout: 10000 });
   });
   // 变量模式,输入有效变量,请求头自动添加contentType并正确发送
-  test('变量模式下有效变量正确发送', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('变量模式下有效变量正确发送', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -142,8 +144,9 @@ test.describe('BinaryParams', () => {
     }
   });
   // 文件模式,未选择文件,发送返回值中正确提示发送被终止
-  test('文件模式下未选择文件发送被阻止', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('文件模式下未选择文件发送被阻止', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -190,8 +193,9 @@ test.describe('BinaryParams', () => {
     await expect(errorMessage).toBeVisible({ timeout: 10000 });
   });
   // 文件模式,选择正确的文件,请求头自动添加contentType并正确发送
-  test('文件模式下选择文件正确发送', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('文件模式下选择文件正确发送', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);

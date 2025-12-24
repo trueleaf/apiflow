@@ -1,11 +1,12 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('UrlencodedParams', () => {
   // 测试用例1: urlencoded参数key输入值以后,如果不存在next节点,则自动新增一行数据,自动新增数据需要被选中
-  test('urlencoded参数key输入值以后自动新增一行数据', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('urlencoded参数key输入值以后自动新增一行数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -42,8 +43,9 @@ test.describe('UrlencodedParams', () => {
     expect(firstKeyValue).toBe('username');
   });
   // 测试用例2: urlencoded参数key,value输入值以后,调用echo接口返回结果正确
-  test('urlencoded参数key,value输入值以后调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('urlencoded参数key,value输入值以后调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -99,8 +101,9 @@ test.describe('UrlencodedParams', () => {
     await expect(responseBody).toContainText('secret', { timeout: 10000 });
   });
   // 测试用例3: urlencoded参数key,value支持变量,调用echo接口返回结果正确
-  test('urlencoded参数key,value支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('urlencoded参数key,value支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 打开变量管理页面并创建变量
@@ -162,8 +165,9 @@ test.describe('UrlencodedParams', () => {
     await expect(responseBody).toContainText('user123', { timeout: 10000 });
   });
   // 测试用例4: urlencoded参数key,value支持mock,调用echo接口返回结果正确
-  test('urlencoded参数key,value支持mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('urlencoded参数key,value支持mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -217,8 +221,9 @@ test.describe('UrlencodedParams', () => {
     await expect(responseBody).toContainText('email', { timeout: 10000 });
   });
   // 测试用例5: urlencoded参数key,value支持混合变量,调用echo接口返回结果正确
-  test('urlencoded参数key,value支持混合变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('urlencoded参数key,value支持混合变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 打开变量管理页面并创建变量
@@ -286,8 +291,9 @@ test.describe('UrlencodedParams', () => {
     await expect(responseBody).toContainText('REQ_', { timeout: 10000 });
   });
   // 测试用例6: urlencoded参数是否发送未勾选那么当前参数不会发送
-  test('urlencoded参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('urlencoded参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

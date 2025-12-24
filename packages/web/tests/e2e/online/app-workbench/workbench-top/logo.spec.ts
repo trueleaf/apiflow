@@ -24,7 +24,8 @@ test.describe('Logo', () => {
     const projectSearchInput = contentPage.locator('[data-testid="home-project-search-input"]');
     await expect(projectSearchInput).toBeVisible({ timeout: 5000 });
   });
-  test('设置页面更改应用图标后logo立马被更新, 刷新页面保持更新后的图标', async ({ topBarPage, contentPage, loginAccount }) => {
+  test('设置页面更改应用图标后logo立马被更新, 刷新页面保持更新后的图标', async ({ topBarPage, contentPage, clearCache, loginAccount }) => {
+    await clearCache();
     await loginAccount();
     // 获取初始Logo的src
     const logo = topBarPage.locator('.logo-img');
@@ -81,7 +82,8 @@ test.describe('Logo', () => {
     // 等待 topBarView 的 logo 更新为 base64 格式（通过 IPC 从 contentView 同步）
     await expect(logoAfterRefresh).toHaveAttribute('src', /^data:image\//, { timeout: 5000 });
   });
-  test('点击重置后，图标恢复为默认', async ({ topBarPage, contentPage, loginAccount }) => {
+  test('点击重置后，图标恢复为默认', async ({ topBarPage, contentPage, clearCache, loginAccount }) => {
+    await clearCache();
     await loginAccount();
     // 先上传自定义图标
     const logo = topBarPage.locator('.logo-img');

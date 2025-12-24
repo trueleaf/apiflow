@@ -88,6 +88,8 @@ export class ContainerLifeCycle {
       return {
         around: async (joinPoint: JoinPoint) => {
           const { ttl, max, limitBy = 'user', limitExtraKey, errorMsg, enableGlobalLimit } = options.metadata as ReqLimit;
+          // 本地(local)环境下把 max 扩大 100 倍以方便本地调试，仅限 local
+          const effectiveMax = process.env.NODE_ENV === 'local' && typeof max === 'number' ? max * 100 : max;
           const instance = joinPoint.target;
           const ctx = instance[REQUEST_OBJ_CTX_KEY] as koa.Context;
           const reqBody = ctx.request.body;
@@ -117,8 +119,8 @@ export class ContainerLifeCycle {
           const reqCount: number = await this.cache.get(limitKey) || 0;
           const globalReqCount: number = await this.cache.get(globalLimitKey) || 0;
           
-          // 检查是否超过单次限制
-          if (reqCount >= max) {
+          // 检查是否超过单次限制（使用 effectiveMax）
+          if (reqCount >= effectiveMax) {
             await this.cache.set(globalLimitKey, globalReqCount + 1, ttl);
             return throwError(4029, errorMsg ?? '接口调用过于频繁');
           }

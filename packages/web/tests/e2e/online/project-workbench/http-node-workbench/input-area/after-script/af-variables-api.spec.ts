@@ -1,11 +1,12 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('AfVariablesApi', () => {
   // 使用af.variables.get(name)获取指定变量值
-  test('使用af.variables.get(name)获取指定变量值', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.variables.get(name)获取指定变量值', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -41,8 +42,9 @@ test.describe('AfVariablesApi', () => {
     await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 使用af.variables.set(name, value)设置变量值
-  test('使用af.variables.set(name, value)设置变量值', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.variables.set(name, value)设置变量值', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -78,8 +80,9 @@ test.describe('AfVariablesApi', () => {
     await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 后置脚本中设置的变量在下次请求中可以使用
-  test('后置脚本中设置的变量在下次请求中可以使用', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('后置脚本中设置的变量在下次请求中可以使用', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增第一个HTTP节点用于设置变量

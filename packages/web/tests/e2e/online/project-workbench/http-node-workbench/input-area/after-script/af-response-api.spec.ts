@@ -1,11 +1,12 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('AfResponseApi', () => {
   // 测试用例1: 使用af.response.statusCode获取响应状态码
-  test('使用af.response.statusCode获取响应状态码', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.response.statusCode获取响应状态码', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -41,8 +42,9 @@ test.describe('AfResponseApi', () => {
     await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 测试用例2: 使用af.response.headers获取响应头
-  test('使用af.response.headers获取响应头', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.response.headers获取响应头', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -81,8 +83,9 @@ test.describe('AfResponseApi', () => {
     await expect(responseBody).toContainText('content-type', { timeout: 10000 });
   });
   // 测试用例3: 使用af.response.cookies获取响应Cookie
-  test('使用af.response.cookies获取响应Cookie', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.response.cookies获取响应Cookie', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -118,8 +121,9 @@ test.describe('AfResponseApi', () => {
     await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 测试用例4: 使用af.response.body获取响应体数据
-  test('使用af.response.body获取响应体数据', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.response.body获取响应体数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -158,8 +162,9 @@ test.describe('AfResponseApi', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例5: 使用af.response.rt获取响应时长
-  test('使用af.response.rt获取响应时长', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.response.rt获取响应时长', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -195,8 +200,9 @@ test.describe('AfResponseApi', () => {
     await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 测试用例6: 使用af.response.size获取响应大小
-  test('使用af.response.size获取响应大小', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.response.size获取响应大小', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -232,8 +238,9 @@ test.describe('AfResponseApi', () => {
     await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 测试用例7: 使用af.response.ip获取远端IP地址
-  test('使用af.response.ip获取远端IP地址', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('使用af.response.ip获取远端IP地址', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

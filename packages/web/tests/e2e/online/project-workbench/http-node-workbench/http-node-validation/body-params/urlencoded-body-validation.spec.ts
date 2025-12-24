@@ -1,10 +1,11 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('UrlencodedBodyValidation', () => {
-  test('调用echo接口验证urlencoded参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('调用echo接口验证urlencoded参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -82,8 +83,9 @@ test.describe('UrlencodedBodyValidation', () => {
     await expect(statusCode).toContainText('200');
   });
 
-  test('PUT方法配合URLEncoded请求体验证', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('PUT方法配合URLEncoded请求体验证', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

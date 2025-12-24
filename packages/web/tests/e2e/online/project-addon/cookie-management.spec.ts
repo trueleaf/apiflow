@@ -1,8 +1,9 @@
-import { test, expect } from '../../../fixtures/electron.fixture';
+import { test, expect } from '../../../fixtures/electron-online.fixture';
 
 test.describe('CookieManagement', () => {
-  test('打开Cookie管理页面,显示Cookie列表和操作按钮', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('打开Cookie管理页面,显示Cookie列表和操作按钮', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -23,8 +24,9 @@ test.describe('CookieManagement', () => {
     const batchDeleteBtn = cookiePage.locator('.el-button--danger').filter({ hasText: /批量删除/ });
     await expect(batchDeleteBtn).toBeVisible();
   });
-  test('新增Cookie成功,Cookie显示在列表中', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('新增Cookie成功,Cookie显示在列表中', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -50,8 +52,9 @@ test.describe('CookieManagement', () => {
     await expect(cookieTable).toContainText('testCookie');
     await expect(cookieTable).toContainText('testValue123');
   });
-  test('编辑Cookie成功,Cookie值被更新', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('编辑Cookie成功,Cookie值被更新', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -85,8 +88,9 @@ test.describe('CookieManagement', () => {
     const cookieTable = cookiePage.locator('.el-table');
     await expect(cookieTable).toContainText('updatedValue');
   });
-  test('删除Cookie成功,Cookie从列表中移除', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('删除Cookie成功,Cookie从列表中移除', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -118,8 +122,9 @@ test.describe('CookieManagement', () => {
     await contentPage.waitForTimeout(500);
     await expect(cookieTable).not.toContainText('deletableCookie');
   });
-  test('按名称搜索Cookie,列表显示匹配的Cookie', async ({ topBarPage, contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('按名称搜索Cookie,列表显示匹配的Cookie', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');

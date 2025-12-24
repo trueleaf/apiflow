@@ -1,10 +1,11 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('NoneBodyValidation', () => {
-  test.beforeEach(async ({ createProject, contentPage, clearCache }) => {
-    await clearCache();
+  test.beforeEach(async ({ createProject, contentPage, clearCache, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);

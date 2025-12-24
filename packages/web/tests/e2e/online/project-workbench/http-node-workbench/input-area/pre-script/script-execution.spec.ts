@@ -1,11 +1,12 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('PreScriptExecution', () => {
   // 测试用例1: 前置脚本语法错误时,发送请求后在响应区域展示脚本错误信息
-  test('前置脚本语法错误时展示脚本错误信息', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('前置脚本语法错误时展示脚本错误信息', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -44,8 +45,9 @@ test.describe('PreScriptExecution', () => {
     await expect(responseError).toContainText(/error|错误/i, { timeout: 10000 });
   });
   // 测试用例2: 前置脚本运行时错误时,发送请求后在响应区域展示运行时错误信息
-  test('前置脚本运行时错误时展示运行时错误信息', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('前置脚本运行时错误时展示运行时错误信息', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -84,8 +86,9 @@ test.describe('PreScriptExecution', () => {
     await expect(responseError).toContainText(/error|错误/i, { timeout: 10000 });
   });
   // 测试用例3: 前置脚本正常执行后,主请求继续发送
-  test('前置脚本正常执行后主请求继续发送', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('前置脚本正常执行后主请求继续发送', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

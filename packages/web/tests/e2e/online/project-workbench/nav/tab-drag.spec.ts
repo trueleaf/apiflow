@@ -1,9 +1,10 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/electron-online.fixture';
 
 test.describe('TabDrag', () => {
   // 测试用例1: 拖拽tab页签改变顺序
-  test('拖拽tab页签改变顺序', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('拖拽tab页签改变顺序', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增多个HTTP节点
@@ -42,8 +43,9 @@ test.describe('TabDrag', () => {
     expect(newFirstTabText).toContain('接口3');
   });
   // 测试用例2: 拖拽tab页签后激活状态保持
-  test('拖拽tab页签后激活状态保持', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('拖拽tab页签后激活状态保持', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增两个HTTP节点
@@ -77,8 +79,9 @@ test.describe('TabDrag', () => {
     await expect(activeTab).toContainText('拖拽A');
   });
   // 测试用例3: 拖拽后页签数量不变
-  test('拖拽后页签数量不变', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('拖拽后页签数量不变', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增三个HTTP节点
@@ -107,8 +110,9 @@ test.describe('TabDrag', () => {
     expect(finalCount).toBe(initialCount);
   });
   // 测试用例4: 拖拽单个tab时无变化
-  test('只有单个tab时拖拽无变化', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('只有单个tab时拖拽无变化', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增一个HTTP节点
@@ -134,8 +138,9 @@ test.describe('TabDrag', () => {
     await expect(tab).toContainText('单个拖拽测试');
   });
   // 测试用例5: 拖拽后固定状态保持
-  test('拖拽后固定状态保持', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('拖拽后固定状态保持', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增两个HTTP节点（新增时为固定状态）

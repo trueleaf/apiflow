@@ -1,11 +1,12 @@
-import { test, expect } from '../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('ResponseBasicInfo', () => {
   // 测试用例1: 未发送请求时,响应基本信息展示:状态码,时长,大小,格式显示为?图标
-  test('未发送请求时响应基本信息显示问号图标', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('未发送请求时响应基本信息显示问号图标', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -34,8 +35,9 @@ test.describe('ResponseBasicInfo', () => {
     await expect(responseSummary).toContainText(/格式|Format/);
   });
   // 测试用例2: 发送请求成功,展示正确的http状态码和颜色
-  test('发送请求成功展示正确的状态码和颜色', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('发送请求成功展示正确的状态码和颜色', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -72,8 +74,9 @@ test.describe('ResponseBasicInfo', () => {
     await expect(status404).toBeVisible({ timeout: 5000 });
   });
   // 测试用例3: 发送请求成功,展示正确的时长
-  test('发送请求成功展示正确的响应时长', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('发送请求成功展示正确的响应时长', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -100,8 +103,9 @@ test.describe('ResponseBasicInfo', () => {
     await expect(responseSummary).toContainText(/\d+\s*(ms|s|毫秒|秒)/);
   });
   // 测试用例4: 发送请求成功,展示正确的返回大小
-  test('发送请求成功展示正确的返回大小', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('发送请求成功展示正确的返回大小', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -128,8 +132,9 @@ test.describe('ResponseBasicInfo', () => {
     await expect(responseSummary).toContainText(/\d+(\.\d+)?\s*(B|KB|MB|bytes|字节)/);
   });
   // 测试用例5: 发送请求成功,展示正确的返回格式
-  test('发送请求成功展示正确的返回格式', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('发送请求成功展示正确的返回格式', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

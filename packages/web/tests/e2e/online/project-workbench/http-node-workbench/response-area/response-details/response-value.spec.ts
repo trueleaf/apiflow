@@ -1,11 +1,12 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('ResponseValue', () => {
   // 测试用例1: 返回值类型为json格式,正确展示json数据
-  test('JSON格式返回值正确展示', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('JSON格式返回值正确展示', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -34,8 +35,9 @@ test.describe('ResponseValue', () => {
     expect(responseText).toContain('GET');
   });
   // 测试用例2: JSON返回值区域距离底部有合理的距离
-  test('JSON返回值区域可以正常滚动查看完整内容', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
+  test('JSON返回值区域可以正常滚动查看完整内容', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

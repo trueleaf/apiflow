@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron.fixture';
+import { test, expect } from '../../../fixtures/electron-online.fixture';
 
 // 辅助函数：初始化测试环境
 const initTestEnv = async (topBarPage: any, contentPage: any, clearCache: () => Promise<void>) => {
@@ -30,8 +30,9 @@ const createProjectAndGoHome = async (topBarPage: any, contentPage: any, createP
 };
 
 test.describe('ProjectList', () => {
-  test('项目列表以卡片形式展示,卡片包含:项目名称,修改图标,删除图标,收藏图标,创建者,最新更新日期,接口总数,编辑按钮', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+  test('项目列表以卡片形式展示,卡片包含:项目名称,修改图标,删除图标,收藏图标,创建者,最新更新日期,接口总数,编辑按钮', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
     const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
+    await loginAccount();
     const projectName = await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
     // 定位项目卡片
     const projectCard = contentPage.locator('[data-testid="home-project-card-0"]');
@@ -63,8 +64,9 @@ test.describe('ProjectList', () => {
     await expect(enterBtn).toBeVisible();
   });
 
-  test('点击编辑按钮,跳转对应项目工作区', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+  test('点击编辑按钮,跳转对应项目工作区', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
     const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
+    await loginAccount();
     const projectName = await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
     // 定位项目卡片并点击编辑按钮
     const projectCard = contentPage.locator('[data-testid="home-project-card-0"]');
@@ -83,8 +85,9 @@ test.describe('ProjectList', () => {
     await expect(projectTab).toHaveClass(/active/);
   });
 
-  test('点击修改按钮,弹出修改名称弹窗,并且输入框选中对应项目名称', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+  test('点击修改按钮,弹出修改名称弹窗,并且输入框选中对应项目名称', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
     const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
+    await loginAccount();
     const projectName = await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
     // 定位项目卡片并点击编辑图标(使用title属性定位)
     const projectCard = contentPage.locator('[data-testid="home-project-card-0"]');
@@ -100,8 +103,9 @@ test.describe('ProjectList', () => {
     await expect(projectNameInput).toHaveValue(projectName);
   });
 
-  test('点击修改按钮,弹出修改名称弹窗,点击确认后项目列表卡片名称更新为最新,顶部导航栏项目名称更新为最新', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+  test('点击修改按钮,弹出修改名称弹窗,点击确认后项目列表卡片名称更新为最新,顶部导航栏项目名称更新为最新', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
     const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
+    await loginAccount();
     const projectName = await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
     // 先点击编辑按钮进入项目工作区，创建Tab
     const projectCard = contentPage.locator('[data-testid="home-project-card-0"]');
@@ -144,8 +148,9 @@ test.describe('ProjectList', () => {
     await expect(projectTab).toBeVisible({ timeout: 5000 });
   });
 
-  test('未收藏项目,点击收藏图标,图标变为已收藏图标,并且在收藏的项目中展示被收藏项目', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+  test('未收藏项目,点击收藏图标,图标变为已收藏图标,并且在收藏的项目中展示被收藏项目', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
     const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
+    await loginAccount();
     const projectName = await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
     // 定位项目卡片
     const projectCard = contentPage.locator('[data-testid="home-project-card-0"]');
@@ -168,8 +173,9 @@ test.describe('ProjectList', () => {
     await expect(starProjectName).toContainText(projectName);
   });
 
-  test('如果不存在收藏的项目,不展示收藏的项目标题', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+  test('如果不存在收藏的项目,不展示收藏的项目标题', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
     const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
+    await loginAccount();
     await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
     // 验证"收藏的项目"区域不显示
     const starProjectsWrap = contentPage.locator('[data-testid="home-star-projects-wrap"]');
@@ -179,8 +185,9 @@ test.describe('ProjectList', () => {
     await expect(allProjectsTitle).toBeVisible({ timeout: 5000 });
   });
 
-  test('收藏的项目,点击收藏图标,图标变为未收藏图标,并且从收藏的项目中移除', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+  test('收藏的项目,点击收藏图标,图标变为未收藏图标,并且从收藏的项目中移除', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
     const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
+    await loginAccount();
     await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
     // 先收藏项目
     const projectCard = contentPage.locator('[data-testid="home-project-card-0"]');
@@ -205,8 +212,9 @@ test.describe('ProjectList', () => {
     await expect(starBtnAfterUnstar).toBeVisible({ timeout: 5000 });
   });
 
-  test('点击删除项目图标,提示用户是否删除,确认后删除项目,在左下角出现撤回倒计时,在倒计时时间内允许用户撤回删除的项目', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+  test('点击删除项目图标,提示用户是否删除,确认后删除项目,在左下角出现撤回倒计时,在倒计时时间内允许用户撤回删除的项目', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
     const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
+    await loginAccount();
     const projectName = await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
     // 定位项目卡片并点击删除图标
     const projectCard = contentPage.locator('[data-testid="home-project-card-0"]');
@@ -239,8 +247,9 @@ test.describe('ProjectList', () => {
     await expect(restoredProjectName).toContainText(projectName);
   });
 
-  test('接口数量需要正确展示,folder节点不计入接口总数', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+  test('接口数量需要正确展示,folder节点不计入接口总数', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
     const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
+    await loginAccount();
     await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
     // 进入项目工作区
     const projectCard = contentPage.locator('[data-testid="home-project-card-0"]');
@@ -358,3 +367,9 @@ test.describe('ProjectList', () => {
     await expect(docNumInfo).toContainText('4');
   });
 });
+
+
+
+
+
+
