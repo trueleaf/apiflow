@@ -9,8 +9,13 @@ test.describe('SearchProject', () => {
     await contentPage.waitForTimeout(500);
     // 返回首页
     const logo = topBarPage.locator('.logo-img');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await logo.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromise, urlPromise]);
     await contentPage.waitForTimeout(500);
     // 验证项目卡片存在
     const projectCard = contentPage.locator('[data-testid="home-project-card-0"]');
@@ -36,8 +41,13 @@ test.describe('SearchProject', () => {
     await contentPage.waitForTimeout(500);
     // 返回首页
     const logo = topBarPage.locator('.logo-img');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await logo.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromise, urlPromise]);
     await contentPage.waitForTimeout(500);
     // 定位搜索输入框
     const searchInput = contentPage.locator('[data-testid="home-project-search-input"]');
@@ -63,14 +73,24 @@ test.describe('SearchProject', () => {
     await contentPage.waitForTimeout(300);
     // 返回首页
     const logo = topBarPage.locator('.logo-img');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await logo.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromise, urlPromise]);
     await contentPage.waitForTimeout(300);
     const project2 = await createProject('另一个项目BBB');
     await contentPage.waitForTimeout(300);
     // 返回首页
+    const projectListPromiseAfterSecondClick = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const secondUrlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await logo.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromiseAfterSecondClick, secondUrlPromise]);
     await contentPage.waitForTimeout(500);
     // 搜索第一个项目
     const searchInput = contentPage.locator('[data-testid="home-project-search-input"]');
@@ -158,8 +178,13 @@ test.describe('SearchProject', () => {
     await contentPage.waitForTimeout(500);
     // 返回首页
     const logo = topBarPage.locator('.logo-img');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await logo.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromise, urlPromise]);
     await contentPage.waitForTimeout(500);
     // 展开高级搜索面板
     const advancedSearchBtn = contentPage.locator('[data-testid="home-advanced-search-btn"]');
@@ -217,8 +242,13 @@ test.describe('SearchProject', () => {
     await saveBtn.click();
     await contentPage.waitForTimeout(800);
     const logo = topBarPage.locator('.logo-img');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await logo.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromise, urlPromise]);
     await contentPage.waitForTimeout(500);
     const advancedSearchBtn = contentPage.locator('[data-testid="home-advanced-search-btn"]');
     await advancedSearchBtn.click();
@@ -307,8 +337,13 @@ test.describe('SearchProject', () => {
     await mockDialog.locator('.el-button--primary').last().click();
     await contentPage.waitForTimeout(500);
     const logo = topBarPage.locator('.logo-img');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await logo.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromise, urlPromise]);
     await contentPage.waitForTimeout(500);
     const advancedSearchBtn = contentPage.locator('[data-testid="home-advanced-search-btn"]');
     await advancedSearchBtn.click();
@@ -464,8 +499,13 @@ test.describe('SearchProject', () => {
     await wsSaveBtn.click();
     await contentPage.waitForTimeout(800);
     const logo = topBarPage.locator('.logo-img');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await logo.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromise, urlPromise]);
     await contentPage.waitForTimeout(500);
     const advancedSearchBtn = contentPage.locator('[data-testid="home-advanced-search-btn"]');
     await advancedSearchBtn.click();
@@ -521,8 +561,13 @@ test.describe('SearchProject', () => {
     await addFileDialog.locator('.el-button--primary').last().click();
     await contentPage.waitForTimeout(800);
     const logo = topBarPage.locator('.logo-img');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await logo.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromise, urlPromise]);
     await contentPage.waitForTimeout(500);
     const advancedSearchBtn = contentPage.locator('[data-testid="home-advanced-search-btn"]');
     await advancedSearchBtn.click();
@@ -597,8 +642,13 @@ test.describe('SearchProject', () => {
     await contentPage.waitForTimeout(500);
     // 返回首页
     const logo = topBarPage.locator('.logo-img');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await logo.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromise, urlPromise]);
     await contentPage.waitForTimeout(500);
     // 展开高级搜索面板
     const advancedSearchBtn = contentPage.locator('[data-testid="home-advanced-search-btn"]');
@@ -640,8 +690,13 @@ test.describe('SearchProject', () => {
     await contentPage.waitForTimeout(500);
     // 返回首页
     const logo = topBarPage.locator('.logo-img');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await logo.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromise, urlPromise]);
     await contentPage.waitForTimeout(500);
     // 展开高级搜索面板
     const advancedSearchBtn = contentPage.locator('[data-testid="home-advanced-search-btn"]');
@@ -681,8 +736,13 @@ test.describe('SearchProject', () => {
     await contentPage.waitForTimeout(500);
     // 返回首页
     const logo = topBarPage.locator('.logo-img');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await logo.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromise, urlPromise]);
     await contentPage.waitForTimeout(500);
     // 展开高级搜索面板
     const advancedSearchBtn = contentPage.locator('[data-testid="home-advanced-search-btn"]');
@@ -721,8 +781,13 @@ test.describe('SearchProject', () => {
     await contentPage.waitForTimeout(500);
     // 返回首页
     const logo = topBarPage.locator('.logo-img');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await logo.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromise, urlPromise]);
     await contentPage.waitForTimeout(500);
     // 展开高级搜索面板
     const advancedSearchBtn = contentPage.locator('[data-testid="home-advanced-search-btn"]');

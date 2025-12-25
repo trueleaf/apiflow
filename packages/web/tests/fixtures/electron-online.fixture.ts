@@ -144,6 +144,15 @@ export const test = base.extend<ElectronFixtures>({
       const networkText = await networkToggle.locator('.network-text').innerText();
       if (/离线|Offline/i.test(networkText)) {
         await networkToggle.click();
+      } else {
+        const userMenuBtn = topBarPage.locator('[data-testid="header-user-menu-btn"]');
+        const hasUserMenu = await userMenuBtn.isVisible({ timeout: 1000 }).catch(() => false);
+        if (hasUserMenu) {
+          await userMenuBtn.click();
+          const logoutBtn = contentPage.getByText(/退出登录|Logout/i);
+          await expect(logoutBtn).toBeVisible({ timeout: 5000 });
+          await logoutBtn.click();
+        }
       }
       await contentPage.waitForURL(/.*#\/login.*/, { timeout: 10000 });
       await expect(contentPage.locator('[data-testid="login-tabs"]')).toBeVisible({ timeout: 5000 });

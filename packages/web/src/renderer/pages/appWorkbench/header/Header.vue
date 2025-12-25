@@ -479,7 +479,7 @@ body {
 }
 
 .home {
-  width: 80px;
+  flex: 0 0 80px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -521,9 +521,8 @@ body {
   align-items: center;
   overflow-x: auto;
   overflow-y: hidden;
-  max-width: 600px;
+  max-width: 60%;
   scrollbar-width: none;
-
   &:hover {
     &::-webkit-scrollbar {
       display: block;

@@ -15,9 +15,14 @@ test.describe('Logo', () => {
     await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
     // 点击logo跳转主页面
     const logo = topBarPage.locator('.logo-img');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await expect(logo).toBeVisible();
     await logo.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromise, urlPromise]);
     // 验证主页面元素存在
     const homeTabs = contentPage.locator('[data-testid="home-tabs"]');
     await expect(homeTabs).toBeVisible({ timeout: 5000 });

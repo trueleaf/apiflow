@@ -1,11 +1,24 @@
 import { test, expect } from '../../../../fixtures/electron-online.fixture';
+import type { Page } from '@playwright/test';
 
 const MOCK_SERVER_PORT = 3456;
+const COMMON_HEADERS_TIMEOUT = 20000;
+const waitForCommonHeaderFetch = (page: Page) =>
+  page.waitForResponse(
+    (response) => response.ok() && (response.url().includes('/api/project/global_common_headers') || response.url().includes('/api/project/common_header_by_id')),
+    { timeout: COMMON_HEADERS_TIMEOUT },
+  );
+const waitForCommonHeaderSave = (page: Page) =>
+  page.waitForResponse(
+    (response) => response.ok() && (response.url().includes('/api/project/replace_global_common_headers') || response.url().includes('/api/project/common_header')),
+    { timeout: COMMON_HEADERS_TIMEOUT },
+  );
 
 test.describe('CommonHeaders', () => {
   // 测试用例1: 为folder节点设置公共请求头,该folder下所有接口自动继承这些请求头
   test('为folder节点设置公共请求头,该folder下所有接口自动继承这些请求头', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -30,8 +43,9 @@ test.describe('CommonHeaders', () => {
     await folderNode.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
     const commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchCommonHeader = waitForCommonHeaderFetch(contentPage);
     await commonHeaderItem.click();
-    await contentPage.waitForTimeout(500);
+    await fetchCommonHeader;
     // 验证公共请求头配置页面打开
     const commonHeaderPage = contentPage.locator('.common-header');
     await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
@@ -48,8 +62,10 @@ test.describe('CommonHeaders', () => {
     // await contentPage.waitForTimeout(300);
     // 点击确认修改按钮保存
     const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveCommonHeader = waitForCommonHeaderSave(contentPage);
     await confirmBtn.click();
     await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveCommonHeader;
     // 在folder下创建一个HTTP节点
     await folderNode.click({ button: 'right' });
     // await contentPage.waitForTimeout(300);
@@ -79,7 +95,8 @@ test.describe('CommonHeaders', () => {
   });
   // 测试用例2: 公共请求头支持表格模式和多行编辑模式切换,两种模式数据同步
   test('公共请求头支持表格模式和多行编辑模式切换,两种模式数据同步', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -90,7 +107,9 @@ test.describe('CommonHeaders', () => {
     // await contentPage.waitForTimeout(300);
     const contextMenu = contentPage.locator('.s-contextmenu');
     const commonHeaderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchCommonHeader = waitForCommonHeaderFetch(contentPage);
     await commonHeaderItem.click();
+    await fetchCommonHeader;
     // await contentPage.waitForTimeout(500);
     // 验证公共请求头配置页面打开
     const commonHeaderPage = contentPage.locator('.common-header');
@@ -145,7 +164,8 @@ test.describe('CommonHeaders', () => {
   });
   // 测试用例3: 批量模式应用参数后自动在尾部添加空行
   test('批量模式应用参数后自动在尾部添加空行', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -156,8 +176,9 @@ test.describe('CommonHeaders', () => {
     // await contentPage.waitForTimeout(300);
     const contextMenu = contentPage.locator('.s-contextmenu');
     const commonHeaderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchCommonHeader = waitForCommonHeaderFetch(contentPage);
     await commonHeaderItem.click();
-    // await contentPage.waitForTimeout(500);
+    await fetchCommonHeader;
     // 验证公共请求头配置页面打开
     const commonHeaderPage = contentPage.locator('.common-header');
     await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
@@ -201,7 +222,8 @@ test.describe('CommonHeaders', () => {
   });
   // 测试用例4: 公共请求头顺序在刷新后保持一致，且在HTTP节点中展示顺序相同
   test('公共请求头顺序在刷新后保持一致,且在HTTP节点中展示顺序相同', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -233,12 +255,15 @@ test.describe('CommonHeaders', () => {
     // await contentPage.waitForTimeout(300);
     // 点击确认修改按钮保存
     const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveCommonHeader = waitForCommonHeaderSave(contentPage);
     await confirmBtn.click();
     await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveCommonHeader;
     // 点击刷新按钮重新加载数据
     const refreshBtn = commonHeaderPage.locator('.el-button--primary').filter({ hasText: /刷新/ });
+    const refreshPromise = waitForCommonHeaderFetch(contentPage);
     await refreshBtn.click();
-    // await contentPage.waitForTimeout(500);
+    await refreshPromise;
     // 验证刷新后顺序保持为 a, b, c
     const refreshedKeyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
     const firstKey = await refreshedKeyInputs.nth(0).inputValue();
@@ -277,7 +302,8 @@ test.describe('CommonHeaders', () => {
   });
   // 测试用例5: 在目录A中设置公共请求头,在A目录下创建的httpNode继承A目录的公共请求头
   test('在目录下创建的httpNode继承该目录的公共请求头', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -302,8 +328,9 @@ test.describe('CommonHeaders', () => {
     await folderNode.click({ button: 'right' });
     // await contentPage.waitForTimeout(300);
     const commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchCommonHeader = waitForCommonHeaderFetch(contentPage);
     await commonHeaderItem.click();
-    // await contentPage.waitForTimeout(500);
+    await fetchCommonHeader;
     const commonHeaderPage = contentPage.locator('.common-header');
     await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
     // 添加公共请求头
@@ -315,8 +342,10 @@ test.describe('CommonHeaders', () => {
     // await contentPage.waitForTimeout(300);
     // 保存公共请求头
     const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveCommonHeader = waitForCommonHeaderSave(contentPage);
     await confirmBtn.click();
     await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveCommonHeader;
     // await contentPage.waitForTimeout(500);
     // 在folder下创建一个HTTP节点
     await folderNode.click({ button: 'right' });
@@ -347,7 +376,8 @@ test.describe('CommonHeaders', () => {
   });
   // 测试用例6: 多层目录嵌套的公共请求头继承场景
   test('多层目录嵌套的公共请求头继承场景', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -372,8 +402,9 @@ test.describe('CommonHeaders', () => {
     await level1Folder.click({ button: 'right' });
     // await contentPage.waitForTimeout(300);
     let commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchCommonHeaderLevel1 = waitForCommonHeaderFetch(contentPage);
     await commonHeaderItem.click();
-    // await contentPage.waitForTimeout(500);
+    await fetchCommonHeaderLevel1;
     let commonHeaderPage = contentPage.locator('.common-header');
     await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
     let keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
@@ -383,8 +414,10 @@ test.describe('CommonHeaders', () => {
     await contentPage.keyboard.type('level1-value');
     // await contentPage.waitForTimeout(300);
     let confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveCommonHeaderLevel1 = waitForCommonHeaderSave(contentPage);
     await confirmBtn.click();
     await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveCommonHeaderLevel1;
     // await contentPage.waitForTimeout(500);
     // 在Level1下创建第二层目录: 目录Level2
     await level1Folder.click({ button: 'right' });
@@ -405,8 +438,9 @@ test.describe('CommonHeaders', () => {
     await level2Folder.click({ button: 'right' });
     // await contentPage.waitForTimeout(300);
     commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchCommonHeaderLevel2 = waitForCommonHeaderFetch(contentPage);
     await commonHeaderItem.click();
-    // await contentPage.waitForTimeout(500);
+    await fetchCommonHeaderLevel2;
     commonHeaderPage = contentPage.locator('.common-header');
     await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
     keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
@@ -416,8 +450,10 @@ test.describe('CommonHeaders', () => {
     await contentPage.keyboard.type('level2-value');
     // await contentPage.waitForTimeout(300);
     confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveCommonHeaderLevel2 = waitForCommonHeaderSave(contentPage);
     await confirmBtn.click();
     await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveCommonHeaderLevel2;
     // await contentPage.waitForTimeout(500);
     // 在Level2下创建第三层目录: 目录Level3
     await level2Folder.click({ button: 'right' });
@@ -438,8 +474,9 @@ test.describe('CommonHeaders', () => {
     await level3Folder.click({ button: 'right' });
     // await contentPage.waitForTimeout(300);
     commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchCommonHeaderLevel3 = waitForCommonHeaderFetch(contentPage);
     await commonHeaderItem.click();
-    // await contentPage.waitForTimeout(500);
+    await fetchCommonHeaderLevel3;
     commonHeaderPage = contentPage.locator('.common-header');
     await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
     keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
@@ -449,8 +486,10 @@ test.describe('CommonHeaders', () => {
     await contentPage.keyboard.type('level3-value');
     // await contentPage.waitForTimeout(300);
     confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveCommonHeaderLevel3 = waitForCommonHeaderSave(contentPage);
     await confirmBtn.click();
     await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveCommonHeaderLevel3;
     // await contentPage.waitForTimeout(500);
     // 在Level3下创建一个HTTP节点
     await level3Folder.click({ button: 'right' });
@@ -485,7 +524,8 @@ test.describe('CommonHeaders', () => {
   });
   // 测试用例7: 子目录公共请求头优先级高于父目录（相同key的情况）
   test('子目录公共请求头优先级高于父目录', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -510,8 +550,9 @@ test.describe('CommonHeaders', () => {
     await parentFolder.click({ button: 'right' });
     // await contentPage.waitForTimeout(300);
     let commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchCommonHeaderParent = waitForCommonHeaderFetch(contentPage);
     await commonHeaderItem.click();
-    // await contentPage.waitForTimeout(500);
+    await fetchCommonHeaderParent;
     let commonHeaderPage = contentPage.locator('.common-header');
     await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
     let keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
@@ -521,8 +562,10 @@ test.describe('CommonHeaders', () => {
     await contentPage.keyboard.type('parent-value');
     // await contentPage.waitForTimeout(300);
     let confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveCommonHeaderParent = waitForCommonHeaderSave(contentPage);
     await confirmBtn.click();
     await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveCommonHeaderParent;
     // await contentPage.waitForTimeout(500);
     // 在父目录下创建子目录
     await parentFolder.click({ button: 'right' });
@@ -543,8 +586,9 @@ test.describe('CommonHeaders', () => {
     await childFolder.click({ button: 'right' });
     // await contentPage.waitForTimeout(300);
     commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchCommonHeaderChild = waitForCommonHeaderFetch(contentPage);
     await commonHeaderItem.click();
-    // await contentPage.waitForTimeout(500);
+    await fetchCommonHeaderChild;
     commonHeaderPage = contentPage.locator('.common-header');
     await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
     keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
@@ -554,8 +598,10 @@ test.describe('CommonHeaders', () => {
     await contentPage.keyboard.type('child-value');
     // await contentPage.waitForTimeout(300);
     confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveCommonHeaderChild = waitForCommonHeaderSave(contentPage);
     await confirmBtn.click();
     await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveCommonHeaderChild;
     // await contentPage.waitForTimeout(500);
     // 在子目录下创建HTTP节点
     await childFolder.click({ button: 'right' });

@@ -4,14 +4,15 @@ ARG USE_NPM_MIRROR=false
 
 WORKDIR /app
 
-COPY packages/server/package.json ./packages/server/
+COPY packages/server/package.json packages/server/package-lock.json ./packages/server/
 RUN if [ "$USE_NPM_MIRROR" = "true" ]; then npm config set registry https://registry.npmmirror.com; fi
 
 WORKDIR /app/packages/server
-RUN npm install
+RUN npm ci
 
 COPY packages/server/ ./
 RUN npm run build
+RUN npm prune --omit=dev
 
 FROM node:20-alpine AS runtime
 WORKDIR /app

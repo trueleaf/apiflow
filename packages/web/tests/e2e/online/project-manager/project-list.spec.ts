@@ -5,7 +5,12 @@ const initTestEnv = async (topBarPage: any, contentPage: any, clearCache: () => 
   await clearCache();
   // 先点击首页按钮确保在首页
   const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+  const projectListPromise = contentPage.waitForResponse(
+    (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+    { timeout: 20000 },
+  );
   await homeBtn.click();
+  await projectListPromise;
   await contentPage.waitForTimeout(300);
   // 刷新页面使缓存清除生效
   await contentPage.reload();
@@ -17,8 +22,13 @@ const initTestEnv = async (topBarPage: any, contentPage: any, clearCache: () => 
 const createProjectAndGoHome = async (topBarPage: any, contentPage: any, createProject: (name?: string) => Promise<string>, homeBtn: any, projectName?: string) => {
   const name = await createProject(projectName);
   // 返回首页
+  const projectListPromise = contentPage.waitForResponse(
+    (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+    { timeout: 20000 },
+  );
   await homeBtn.click();
   await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+  await projectListPromise;
   await contentPage.waitForTimeout(500);
   // 关闭可能的提示弹窗
   const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
@@ -357,8 +367,13 @@ test.describe('ProjectList', () => {
     await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     // 返回首页查看接口总数
     const logo = topBarPage.locator('.logo-img');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await logo.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromise, urlPromise]);
     await contentPage.waitForTimeout(500);
     // 验证接口总数为4(folder不计入)
     const projectCardAfterReturn = contentPage.locator('[data-testid="home-project-card-0"]');

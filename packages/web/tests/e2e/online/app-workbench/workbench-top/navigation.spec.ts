@@ -69,8 +69,13 @@ test.describe('Navigation', () => {
     await expect(projectTab).toBeHidden();
     // 跳转到首页
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await homeBtn.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromise, urlPromise]);
     // 等待页面完全加载，并关闭可能的提示弹窗
     await topBarPage.waitForTimeout(500);
     const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
@@ -271,8 +276,13 @@ test.describe('Navigation', () => {
     await expect(projectTab).toBeVisible();
     // 跳转到首页修改项目名称
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await homeBtn.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromise, urlPromise]);
     await topBarPage.waitForTimeout(500);
     // 关闭可能的提示弹窗
     const msgBoxConfirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
@@ -321,8 +331,13 @@ test.describe('Navigation', () => {
     await expect(projectBTab).toBeVisible();
     // 跳转到首页删除项目A
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
+    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
     await homeBtn.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await Promise.all([projectListPromise, urlPromise]);
     await topBarPage.waitForTimeout(500);
     // 关闭可能的提示弹窗
     const msgBoxConfirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');

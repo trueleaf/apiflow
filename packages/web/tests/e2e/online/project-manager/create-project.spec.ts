@@ -16,8 +16,13 @@ test.describe('CreateProject', () => {
     await clearCache();
     await loginAccount();
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+    const projectListPromise = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
     await homeBtn.click();
     await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await projectListPromise;
     await contentPage.waitForTimeout(500);
     const addProjectBtn = contentPage.locator('[data-testid="home-add-project-btn"]');
     await addProjectBtn.click();
@@ -94,8 +99,13 @@ test.describe('CreateProject', () => {
     await expect(projectDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+    const projectListPromiseAfterCreate = contentPage.waitForResponse(
+      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+      { timeout: 20000 },
+    );
     await homeBtn.click();
     await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await projectListPromiseAfterCreate;
     await contentPage.waitForTimeout(500);
     const firstProjectCard = contentPage.locator('[data-testid="home-project-card-0"]');
     await expect(firstProjectCard).toBeVisible({ timeout: 5000 });

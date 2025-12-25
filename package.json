@@ -26,7 +26,8 @@
     "web:build:app:pack": "npm --prefix packages/web run build:app:pack",
     "web:build:app:win": "npm --prefix packages/web run build:app:win",
     "web:build:app:mac": "npm --prefix packages/web run build:app:mac",
-    "web:build:app:linux": "npm --prefix packages/web run build:app:linux"
+    "web:build:app:linux": "npm --prefix packages/web run build:app:linux",
+    "docker:publish": "node scripts/publish-docker.js"
   },
   "devDependencies": {
     "@types/koa-bodyparser": "^4.3.12",

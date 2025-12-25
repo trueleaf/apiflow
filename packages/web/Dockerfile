@@ -6,11 +6,11 @@ ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
 WORKDIR /app
 
-COPY packages/web/package.json ./packages/web/
+COPY packages/web/package.json packages/web/package-lock.json ./packages/web/
 RUN if [ "$USE_NPM_MIRROR" = "true" ]; then npm config set registry https://registry.npmmirror.com; fi
 
 WORKDIR /app/packages/web
-RUN npm install --include=optional
+RUN npm ci --include=optional
 
 COPY packages/web/ ./
 RUN npm run build:web
