@@ -40,18 +40,43 @@ export const useAgentStore = defineStore('agent', () => {
 	}
 	const buildHistoryMessages = (): LLMessage[] => {
 		const agentViewStore = useAgentViewStore()
+		// 获取最近的消息，但只保留最近1轮对话用于上下文
 		const recentMessages = agentViewStore.getLatestMessages(10)
 		const historyMessages: LLMessage[] = []
-		for (const msg of recentMessages) {
+		
+		// 反向遍历找到最后一轮对话（最后一个用户消息和它之后的第一个助手响应）
+		let lastUserMessage: LLMessage | null = null
+		let lastAssistantMessage: LLMessage | null = null
+		
+		// 从后往前找最后一个用户消息
+		for (let i = recentMessages.length - 1; i >= 0; i--) {
+			const msg = recentMessages[i]
 			if (!msg.canBeContext) continue
+			
 			if (msg.type === 'ask') {
-				historyMessages.push({ role: 'user', content: msg.content })
-			} else if (msg.type === 'textResponse') {
-				historyMessages.push({ role: 'assistant', content: msg.content })
-			} else if (msg.type === 'agentExecution' && msg.status === 'success' && msg.thinkingContent) {
-				historyMessages.push({ role: 'assistant', content: msg.thinkingContent })
+				lastUserMessage = { role: 'user', content: msg.content }
+				// 继续找这个用户消息之前的助手响应
+				for (let j = i - 1; j >= 0; j--) {
+					const prevMsg = recentMessages[j]
+					if (!prevMsg.canBeContext) continue
+					if (prevMsg.type === 'textResponse') {
+						lastAssistantMessage = { role: 'assistant', content: prevMsg.content }
+						break
+					}
+				}
+				break
 			}
 		}
+		
+		// 构建历史消息：只包含最近1轮（先助手响应，再用户消息）
+		if (lastAssistantMessage) {
+			historyMessages.push(lastAssistantMessage)
+		}
+		if (lastUserMessage) {
+			historyMessages.push(lastUserMessage)
+		}
+		
+		// 注意：工具执行结果不加入历史，避免干扰新任务的理解
 		return historyMessages
 	}
 	const selectToolsByLLM = async (params: { prompt: string; contextText: string; signal?: AbortSignal }): Promise<{ tools: OpenAiToolDefinition[]; totalTokens: number }> => {
@@ -233,11 +258,13 @@ JSON：${JSON.stringify({ project: context.project, activeTab: context.activeTab
 			}, 1000)
 			const { tools: selectedTools, totalTokens } = await selectToolsByLLM({ prompt, contextText, signal })
 			agentViewStore.deleteCurrentMessageById(loadingMessage.id)
+			const toolNames = selectedTools.map(tool => tool.function.name)
 			const infoMessage = generateInfoMessage(
 				agentViewStore.currentSessionId,
 				`已挑选${selectedTools.length}个工具`,
 				'agent',
-				totalTokens
+				totalTokens,
+				toolNames
 			)
 			agentViewStore.currentMessageList.push(infoMessage)
 			agentViewStore.currentMessageList.push(agentMessage)

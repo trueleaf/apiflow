@@ -161,7 +161,7 @@ export const generateCompletionMessage = (sessionId: string, content: string): i
   canBeContext: true
 })
 // 生成信息消息
-export const generateInfoMessage = (sessionId: string, content: string, mode: 'agent' | 'ask', totalTokens?: number): import('@src/types/ai').InfoMessage => ({
+export const generateInfoMessage = (sessionId: string, content: string, mode: 'agent' | 'ask', totalTokens?: number, toolNames?: string[]): import('@src/types/ai').InfoMessage => ({
   id: nanoid(),
   type: 'info',
   content,
@@ -169,7 +169,8 @@ export const generateInfoMessage = (sessionId: string, content: string, mode: 'a
   sessionId,
   mode,
   canBeContext: false,
-  totalTokens
+  totalTokens,
+  toolNames
 })
 /*
 |--------------------------------------------------------------------------

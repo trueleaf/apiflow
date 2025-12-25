@@ -81,6 +81,7 @@ export type InfoMessage = {
   mode: 'agent' | 'ask';
   canBeContext: boolean;
   totalTokens?: number;
+  toolNames?: string[];
 }
 export type AgentViewMessage = AskMessage | LoadingMessage | TextResponseMessage | AgentExecutionMessage | ErrorMessage | InfoMessage;
 

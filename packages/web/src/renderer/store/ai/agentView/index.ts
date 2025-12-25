@@ -247,24 +247,45 @@ export const useAgentViewStore = defineStore('agentView', () => {
   const buildOpenAIRequestBody = (userMessage: string): ChatRequestBody => {
     const messages: LLMessage[] = [];
     const recentMessages = getLatestMessages(10);
-    for (const msg of recentMessages) {
+    
+    // 只保留最近1轮对话（最后一个用户消息和它之前的第一个助手响应）
+    let lastUserMessage: LLMessage | null = null;
+    let lastAssistantMessage: LLMessage | null = null;
+    
+    // 从后往前找最后一个用户消息
+    for (let i = recentMessages.length - 1; i >= 0; i--) {
+      const msg = recentMessages[i];
       if (!msg.canBeContext) continue;
+      
       if (msg.type === 'ask') {
-        messages.push({
-          role: 'user',
-          content: msg.content
-        });
-      } else if (msg.type === 'textResponse') {
-        messages.push({
-          role: 'assistant',
-          content: msg.content
-        });
+        lastUserMessage = { role: 'user', content: msg.content };
+        // 继续找这个用户消息之前的助手响应
+        for (let j = i - 1; j >= 0; j--) {
+          const prevMsg = recentMessages[j];
+          if (!prevMsg.canBeContext) continue;
+          if (prevMsg.type === 'textResponse') {
+            lastAssistantMessage = { role: 'assistant', content: prevMsg.content };
+            break;
+          }
+        }
+        break;
       }
     }
+    
+    // 构建消息数组：先加上一轮历史（如果有），再加当前消息
+    if (lastAssistantMessage) {
+      messages.push(lastAssistantMessage);
+    }
+    if (lastUserMessage) {
+      messages.push(lastUserMessage);
+    }
+    
+    // 添加当前用户消息
     messages.push({
       role: 'user',
       content: userMessage
     });
+    
     return {
       messages,
       max_tokens: 4096,

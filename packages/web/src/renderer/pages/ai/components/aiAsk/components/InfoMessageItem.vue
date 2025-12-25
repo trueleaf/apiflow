@@ -12,7 +12,7 @@
           </span>
         </div>
         <button
-          v-if="isOverflowing"
+          v-if="hasToolNames || isOverflowing"
           class="expand-btn"
           type="button"
           @click="toggleExpand"
@@ -21,23 +21,33 @@
           <ChevronUp v-else :size="14" />
           {{ isExpanded ? t('收起') : t('展开') }}
         </button>
+        <div v-if="hasToolNames && isExpanded" class="tool-list">
+          <span v-for="toolName in message.toolNames" :key="toolName" class="tool-tag">
+            {{ toolName }}
+          </span>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Info, ChevronDown, ChevronUp } from 'lucide-vue-next'
 import type { InfoMessage } from '@src/types/ai'
 
-defineProps<{
+const props = defineProps<{
   message: InfoMessage
 }>()
 const { t } = useI18n()
 const isExpanded = ref(false)
 const isOverflowing = ref(false)
+
+const hasToolNames = computed(() => {
+  return props.message.toolNames && props.message.toolNames.length > 0
+})
+
 const checkOverflow = () => {
   nextTick(() => {
     const el = document.querySelector('.info-text') as HTMLElement
@@ -148,5 +158,27 @@ onMounted(() => {
 }
 .expand-btn:hover {
   background: var(--ai-hover-bg);
+}
+.tool-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  width: 100%;
+}
+.tool-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  background: var(--ai-tag-bg);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--ai-text-primary);
+  font-family: 'Consolas', 'Monaco', monospace;
+  border: 1px solid var(--ai-border-color);
+  transition: all 0.2s;
+}
+.tool-tag:hover {
+  background: var(--ai-hover-bg);
+  border-color: var(--ai-primary-color);
 }
 </style>
