@@ -17,11 +17,7 @@ services:
       retries: 5
 
   server:
-    build:
-      context: .
-      dockerfile: packages/server/Dockerfile
-      args:
-        USE_NPM_MIRROR: ${USE_NPM_MIRROR:-false}
+    image: xiaoxiaoshu/apiflow-server:latest
     restart: unless-stopped
     depends_on:
       mongo:
@@ -34,11 +30,7 @@ services:
       - server_logs:/app/logs
 
   web:
-    build:
-      context: .
-      dockerfile: packages/web/Dockerfile
-      args:
-        USE_NPM_MIRROR: ${USE_NPM_MIRROR:-false}
+    image: xiaoxiaoshu/apiflow-web:latest
     restart: unless-stopped
     depends_on:
       - server

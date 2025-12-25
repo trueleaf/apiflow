@@ -90,7 +90,8 @@ test.describe('QuickIcons', () => {
   });
 
   test.describe('网络模式切换', () => {
-    test('网络模式按钮显示当前模式', async ({ topBarPage, loginAccount }) => {
+    test('网络模式按钮显示当前模式', async ({ topBarPage, loginAccount, clearCache }) => {
+      await clearCache();
       await loginAccount();
       const networkBtn = topBarPage.locator('[data-testid="header-network-toggle"]');
       await expect(networkBtn).toBeVisible();
@@ -98,7 +99,8 @@ test.describe('QuickIcons', () => {
       const btnText = await networkBtn.textContent();
       expect(btnText).toMatch(/联网模式|离线模式|Online|Offline/);
     });
-    test('点击网络模式按钮切换模式', async ({ topBarPage, loginAccount }) => {
+    test('点击网络模式按钮切换模式', async ({ topBarPage, loginAccount,clearCache }) => {
+      await clearCache();
       await loginAccount();
       const networkBtn = topBarPage.locator('[data-testid="header-network-toggle"]');
       // 获取当前模式
@@ -121,7 +123,8 @@ test.describe('QuickIcons', () => {
         await expect(networkBtn).toContainText(/离线模式|Offline/);
       }
     });
-    test('网络模式切换后Tab列表按模式过滤', async ({ topBarPage, createProject, loginAccount }) => {
+    test('网络模式切换后Tab列表按模式过滤', async ({ topBarPage, clearCache, createProject, loginAccount }) => {
+      await clearCache()
       await loginAccount();
       // 创建一个离线模式的项目
       const networkBtn = topBarPage.locator('[data-testid="header-network-toggle"]');

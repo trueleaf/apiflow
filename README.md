@@ -81,9 +81,12 @@ cd apiflow
 cp .env.example .env
 # Edit .env file to set MongoDB credentials
 
-# Optional: control NPM registry during Docker image build
-# USE_NPM_MIRROR=true  -> use npmmirror.com
-# USE_NPM_MIRROR=false -> use default npmjs.org
+# Use Docker Hub images (default)
+# server: xiaoxiaoshu/apiflow-server:latest
+# web: xiaoxiaoshu/apiflow-web:latest
+
+# Pull images
+docker compose pull
 
 # Start all services with Docker Compose
 docker compose up -d
@@ -104,9 +107,6 @@ docker compose down
 MONGO_ROOT_USERNAME=admin              # MongoDB admin username
 MONGO_ROOT_PASSWORD=your_password      # MongoDB admin password (change to a strong password)
 MONGO_DATABASE=apiflow                 # Database name
-
-# Optional (affects Docker build dependency install)
-USE_NPM_MIRROR=false
 ```
 
 Services will be available at:

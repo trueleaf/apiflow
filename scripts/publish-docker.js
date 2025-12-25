@@ -34,6 +34,7 @@ function parseArgs(argv) {
       case "--use-npm-mirror":
         args.useNpmMirror = true;
         break;
+
       case "--help":
       case "-h":
         printUsage();
@@ -52,9 +53,9 @@ function printUsage() {
 
 Options:
   -u, --user <name>           Docker Hub username (or env DOCKERHUB_USER)
-  --server-image <name>       Server image name (default: apiflow-server)
+  --server-image <name>       Server image name (default: apiflow-server)       
   --web-image <name>          Web image name (default: apiflow-web)
-  --platforms <list>          Platforms (default: linux/amd64,linux/arm64)
+  --platforms <list>          Platforms (default: linux/amd64,linux/arm64)      
   --use-npm-mirror            Use npm mirror during build
   -h, --help                  Show help
 `);

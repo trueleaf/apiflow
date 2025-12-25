@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { viteSingleFile } from 'vite-plugin-singlefile'
+// import { viteSingleFile } from 'vite-plugin-singlefile'
 // import { visualizer } from 'rollup-plugin-visualizer'
 import path, { resolve } from 'path'
 import dayjs from 'dayjs'
@@ -9,7 +9,7 @@ export default defineConfig({
   root: __dirname, // 设置根目录为当前目录
   plugins: [
     vue(),
-    viteSingleFile(), // 启用单文件输出
+    // viteSingleFile(), // 启用单文件输出
     // visualizer({
     //   filename: 'dist/bundle-analysis.html', // 输出分析报告的路径
     //   open: true, // 构建完成后自动打开分析报告
