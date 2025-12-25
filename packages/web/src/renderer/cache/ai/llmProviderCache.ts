@@ -11,6 +11,9 @@ class LLMProviderCache {
         if (!parsed.customHeaders) {
           parsed.customHeaders = [];
         }
+        if (typeof parsed.extraBody !== 'string') {
+          parsed.extraBody = '';
+        }
         return parsed;
       }
     } catch (error) {

@@ -1306,6 +1306,7 @@ export default {
     'Base URL': 'Base URL',
     '请输入 API Base URL': 'Enter API Base URL',
     'Custom Headers': 'Custom Headers',
+    '额外请求体': 'Extra Body',
     '(可选)': '(Optional)',
     'Header Key': 'Header Key',
     'Header Value': 'Header Value',

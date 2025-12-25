@@ -1708,6 +1708,7 @@ export default {
   'Model ID': 'Model ID',
   '请输入模型 ID': '请输入模型 ID',
   'Custom Headers': 'Custom Headers',
+  '额外请求体': '额外请求体',
   '(可选)': '(可选)',
   'Header Key': 'Header Key',
   'Header Value': 'Header Value',

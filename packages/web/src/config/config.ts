@@ -21,7 +21,7 @@ export const config: Config = {
     },
     //Agent相关配置
     agentConfig: {
-      maxIterations: 10,
+      maxIterations: 100,
     },
     //http请求相关
     httpRequest: {

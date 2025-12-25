@@ -15,8 +15,20 @@ export class LLMClient {
     if (!this.config) {
       throw new Error('LLM 配置未初始化，请先配置 API Key 和 Base URL');
     }
-    const { apiKey, baseURL, model, customHeaders } = this.config;
-    const requestBody = { ...body, model, stream: false };
+    const { apiKey, baseURL, model, customHeaders, extraBody } = this.config;
+    const extraBodyText = extraBody?.trim() ?? '';
+    let resolvedExtraBody: Record<string, unknown> = {};
+    if (extraBodyText) {
+      try {
+        const parsed: unknown = JSON.parse(extraBodyText);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          resolvedExtraBody = parsed as Record<string, unknown>;
+        }
+      } catch {
+        resolvedExtraBody = {};
+      }
+    }
+    const requestBody = { ...resolvedExtraBody, ...body, model, stream: false };
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json'
@@ -40,8 +52,20 @@ export class LLMClient {
   }
   // 流式聊天(原始方法)
   chatStream(body: ChatRequestBody, callbacks: ChatStreamCallbacks) {
-    const { apiKey, baseURL, model, customHeaders } = this.config;
-    const requestBody = { ...body, model, stream: true };
+    const { apiKey, baseURL, model, customHeaders, extraBody } = this.config;
+    const extraBodyText = extraBody?.trim() ?? '';
+    let resolvedExtraBody: Record<string, unknown> = {};
+    if (extraBodyText) {
+      try {
+        const parsed: unknown = JSON.parse(extraBodyText);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          resolvedExtraBody = parsed as Record<string, unknown>;
+        }
+      } catch {
+        resolvedExtraBody = {};
+      }
+    }
+    const requestBody = { ...resolvedExtraBody, ...body, model, stream: true };
     const abortController = new AbortController();
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${apiKey}`,

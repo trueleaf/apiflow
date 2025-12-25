@@ -90,6 +90,20 @@
               </div>
             </div>
           </template>
+          <div class="form-item full-row">
+            <div class="form-label">
+              {{ t('额外请求体') }}
+              <span class="label-hint">{{ t('(可选)') }}</span>
+            </div>
+            <div class="extra-body-editor">
+              <SJsonEditor
+                v-model="localExtraBody"
+                :auto-height="true"
+                :max-height="260"
+                :min-height="140"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -117,6 +131,7 @@ import { useDebounceFn } from '@vueuse/core'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import type { LLMProviderType, CustomHeader } from '@src/types/ai/agent.type'
 import { message } from '@/helper'
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 
 defineProps<{
   isLoading: boolean
@@ -137,6 +152,7 @@ const localApiKey = ref('')
 const localBaseURL = ref('')
 const localModel = ref('')
 const localCustomHeaders = ref<CustomHeader[]>([])
+const localExtraBody = ref('')
 const showApiKey = ref(false)
 // 判断配置是否有效
 const isConfigValid = computed(() => {
@@ -159,6 +175,7 @@ const autoSave = useDebounceFn(() => {
     baseURL: providerType.value === 'DeepSeek' ? 'https://api.deepseek.com/chat/completions' : localBaseURL.value,
     model: localModel.value,
     customHeaders: validHeaders,
+    extraBody: localExtraBody.value,
   })
 }, 300)
 // 从 store 同步数据到本地状态
@@ -170,6 +187,7 @@ const syncFromStore = () => {
   localBaseURL.value = provider.baseURL
   localModel.value = provider.model
   localCustomHeaders.value = [...provider.customHeaders.map(h => ({ ...h }))]
+  localExtraBody.value = provider.extraBody
   nextTick(() => {
     isSyncingFromStore = false
   })
@@ -207,7 +225,7 @@ const handleReset = () => {
   message.success(t('配置已重置'))
 }
 // 监听配置变化，自动保存
-watch([providerType, localApiKey, localBaseURL, localModel, localCustomHeaders], () => {
+watch([providerType, localApiKey, localBaseURL, localModel, localCustomHeaders, localExtraBody], () => {
   autoSave()
 }, { deep: true })
 // 监听 store 变化（禁用深度监听，避免循环触发）
@@ -333,6 +351,11 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+.extra-body-editor {
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .panel-actions {

@@ -137,6 +137,7 @@ export const generateDeepSeekProvider = (): LLMProviderSetting => ({
   baseURL: 'https://api.deepseek.com/chat/completions',
   model: 'deepseek-chat',
   customHeaders: [],
+  extraBody: '',
 })
 // 生成 Agent 执行消息
 export const generateAgentExecutionMessage = (sessionId: string): import('@src/types/ai').AgentExecutionMessage => ({

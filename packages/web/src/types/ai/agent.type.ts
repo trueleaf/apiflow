@@ -18,6 +18,7 @@ export type LLMProviderSetting = {
   baseURL: string;
   model: string;
   customHeaders: CustomHeader[];
+  extraBody: string;
 }
 
 export type OpenAiToolCall = {

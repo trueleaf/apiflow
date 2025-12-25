@@ -18,6 +18,18 @@ const webChat = async (body: ChatRequestBody, config: LLMProviderSetting, signal
   config.customHeaders?.forEach(h => {
     if (h.key) headers[h.key] = h.value;
   });
+  const extraBodyText = config.extraBody?.trim() ?? '';
+  let extraBody: Record<string, unknown> = {};
+  if (extraBodyText) {
+    try {
+      const parsed: unknown = JSON.parse(extraBodyText);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        extraBody = parsed as Record<string, unknown>;
+      }
+    } catch {
+      extraBody = {};
+    }
+  }
   // 创建超时控制器
   const timeoutController = new AbortController();
   const timeoutId = setTimeout(() => timeoutController.abort(), AI_REQUEST_TIMEOUT);
@@ -29,7 +41,7 @@ const webChat = async (body: ChatRequestBody, config: LLMProviderSetting, signal
     const response = await fetch(config.baseURL, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ ...body, model: config.model, stream: false }),
+      body: JSON.stringify({ ...extraBody, ...body, model: config.model, stream: false }),
       signal: combinedSignal
     });
     if (!response.ok) {
@@ -65,12 +77,24 @@ const webChatStream = (body: ChatRequestBody, config: LLMProviderSetting, callba
   config.customHeaders?.forEach(h => {
     if (h.key) headers[h.key] = h.value;
   });
+  const extraBodyText = config.extraBody?.trim() ?? '';
+  let extraBody: Record<string, unknown> = {};
+  if (extraBodyText) {
+    try {
+      const parsed: unknown = JSON.parse(extraBodyText);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        extraBody = parsed as Record<string, unknown>;
+      }
+    } catch {
+      extraBody = {};
+    }
+  }
   (async () => {
     try {
       const response = await fetch(config.baseURL, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ ...body, model: config.model, stream: true }),
+        body: JSON.stringify({ ...extraBody, ...body, model: config.model, stream: true }),
         signal: abortController.signal
       });
       if (!response.ok) {
