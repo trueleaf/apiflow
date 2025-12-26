@@ -1,0 +1,5 @@
+services:
+  server:
+    image: crpi-pg92ewko9k2kfyck.cn-hangzhou.personal.cr.aliyuncs.com/apiflow_docker/apiflow-server:latest
+  web:
+    image: crpi-pg92ewko9k2kfyck.cn-hangzhou.personal.cr.aliyuncs.com/apiflow_docker/apiflow-web:latest

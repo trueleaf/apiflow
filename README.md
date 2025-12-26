@@ -91,6 +91,10 @@ docker compose pull
 # Start all services with Docker Compose
 docker compose up -d
 
+# Verify deployment
+curl http://localhost
+curl http://localhost/api/health
+
 # View container logs (stdout)
 docker compose logs -f server
 
@@ -111,7 +115,7 @@ MONGO_DATABASE=apiflow                 # Database name
 
 Services will be available at:
 - **Web UI**: http://localhost
-- **API Server**: http://localhost:7001
+- **API Server**: http://localhost/api (proxied; not exposed as `:7001`)
 - **MongoDB**: Internal Docker network only (not exposed externally)
 
 Log notes:

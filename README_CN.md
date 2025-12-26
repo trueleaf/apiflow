@@ -140,6 +140,8 @@ npm run build:app:linux  # Linux
 
 **要求**：**Docker** 和 **Docker Compose**
 
+### 通用准备
+
 ```bash
 # 克隆仓库
 git clone https://gitee.com/wildsell/apiflow.git
@@ -147,17 +149,38 @@ cd apiflow
 
 # 配置环境变量
 cp .env.example .env
-# 编辑 .env 文件，设置 MongoDB 账号密码
+# 编辑 .env 文件，设置 MongoDB 账号密码 !!!强烈建议修改默认密码
+```
 
-# 使用 Docker Hub 镜像（默认）
-# server: xiaoxiaoshu/apiflow-server:latest
-# web: xiaoxiaoshu/apiflow-web:latest
+### 方案一：使用国内源（推荐）
 
+```bash
+# 拉取镜像（国内源）
+docker compose -f docker-compose.yml -f docker-compose.cn.yml pull
+
+# 启动全部服务（国内源）
+docker compose -f docker-compose.yml -f docker-compose.cn.yml up -d
+
+# 验证部署
+curl http://localhost
+curl http://localhost/api/health
+
+# 停止服务
+docker compose -f docker-compose.yml -f docker-compose.cn.yml down
+```
+
+### 方案二：使用 Docker Hub
+
+```bash
 # 拉取镜像
 docker compose pull
 
 # 启动全部服务
 docker compose up -d
+
+# 验证部署
+curl http://localhost
+curl http://localhost/api/health
 
 # 查看容器日志（stdout）
 docker compose logs -f server
@@ -179,7 +202,7 @@ MONGO_DATABASE=apiflow                 # 数据库名称
 
 服务可访问于：
 - **Web UI**: http://localhost
-- **API Server**: http://localhost:7001
+- **API Server**: http://localhost/api（通过 Web 代理，不再直接暴露 `:7001`）
 - **MongoDB**: 仅 Docker 内部网络可访问（不对外暴露）
 
 日志说明：
@@ -201,3 +224,6 @@ MONGO_DATABASE=apiflow                 # 数据库名称
 ## License
 
 [MIT](./LICENSE)
+
+
+

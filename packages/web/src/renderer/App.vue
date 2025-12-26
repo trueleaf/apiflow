@@ -1,11 +1,7 @@
 <template>
   <div class="app-layout">
     <!-- 浏览器环境：单视图架构，内嵌 Header -->
-    <BrowserHeader 
-      v-if="!isElectronEnv" 
-      ref="browserHeaderRef"
-      @create-project="handleBrowserCreateProject" 
-    />
+    <BrowserHeader v-if="!isElectronEnv" ref="browserHeaderRef" @create-project="handleBrowserCreateProject" />
     <div class="app-main">
       <NetworkModeBanner />
       <div class="app-content">
@@ -15,21 +11,10 @@
     <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
     <Ai v-show="agentViewDialogVisible" />
     <!-- Electron 环境：语言菜单由 IPC 控制显示 -->
-    <LanguageMenu
-      v-if="isElectronEnv"
-      :visible="languageMenuVisible"
-      :position="languageMenuPosition"
-      :current-language="runtimeStore.language"
-      @language-select="handleLanguageSelect"
-      @close="hideLanguageMenu"
-    />
-    <UserMenu
-      v-if="isElectronEnv"
-      :visible="userMenuVisible"
-      :position="userMenuPosition"
-      @logout="handleLogout"
-      @close="hideUserMenu"
-    />
+    <LanguageMenu v-if="isElectronEnv" :visible="languageMenuVisible" :position="languageMenuPosition"
+      :current-language="runtimeStore.language" @language-select="handleLanguageSelect" @close="hideLanguageMenu" />
+    <UserMenu v-if="isElectronEnv" :visible="userMenuVisible" :position="userMenuPosition" @logout="handleLogout"
+      @close="hideUserMenu" />
   </div>
 </template>
 
@@ -289,7 +274,7 @@ const initAppHeaderEvent = () => {
       }
     })
   })
-  
+
   // 监听 Header Tabs 更新事件,进行缓存
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.tabsUpdated, (tabs: any[]) => {
     appWorkbenchCache.setAppWorkbenchHeaderTabs(tabs)
@@ -336,16 +321,21 @@ const initAppHeaderTabs = async () => {
 
 const initWelcom = () => {
   if (!config.isDev) {
+    console.log(
+      '%cApiflow',
+      `
+  color: #00c6ff;
+  font-size: 48px;
+  font-weight: bold;
+  text-shadow:
+    1px 1px 0 #000,
+    2px 2px 0 #333,
+    3px 3px 0 #666;
+  `
+    );
     console.log(`
-              _ _            _ _           _ _ _ _ _ _ _     _ _      _ _    _ _        _ _
-            / _ \\          / _ \\         / _ _ _ _ _ _ \\    \\   \\   /   /   |  |       |  |
-            / / \\ \\        / / \\ \\       / /           \\ \\    \\   \\ /   /    |  |       |  |
-          / /   \\ \\      / /   \\ \\     | |             | |    \\   /   /     |  |       |  |
-          / /     \\ \\    / /     \\ \\    | |             | |     \\ /   /      |  |       |  |
-        / /       \\ \\  / /       \\ \\    \\ \\_ _ _ _ _ _/ /       /   /       \\ _|_ _ _ _| _/
-        /_/         \\_\\/_/         \\_\\    \\_ _ _ _ _ _ _/       /_ _/         \\ _ _ _ _ _ /
+        ${t('官网地址')}：https://apiflow.cn
 
-        ${t('基于Vue和Electron的接口文档工具')}
 
         ${t('GitHub地址')}：https://github.com/trueleaf/apiflow
 
@@ -468,7 +458,7 @@ onMounted(() => {
   initTheme();
   initAppTitle();
   llmClientStore.initLLMConfig();
-  
+
   if (isElectronEnv) {
     // Electron 环境初始化
     initMockLogsListener();
@@ -488,18 +478,21 @@ onMounted(() => {
   width: 100%;
   height: 100%;
 }
+
 .app-layout {
   display: flex;
   flex-direction: column;
   height: 100vh;
   width: 100%;
 }
+
 .app-main {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
+
 .app-content {
   flex: 1;
   min-height: 0;
