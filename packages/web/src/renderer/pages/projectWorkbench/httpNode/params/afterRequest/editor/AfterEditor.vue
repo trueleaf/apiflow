@@ -11,6 +11,7 @@ import { useCompletionItem } from './registerCompletionItem'
 import { useHoverProvider } from './registerHoverProvider'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
+import 'monaco-editor/esm/vs/language/typescript/monaco.contribution'
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker&inline'
 import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker&inline'
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker&inline'

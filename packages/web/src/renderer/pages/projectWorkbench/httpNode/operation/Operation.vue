@@ -16,6 +16,7 @@
         :placeholder="t('path参数') + ' eg: http://test.com/{id}'"
         :trim-on-paste="true"
         :min-height="30"
+        :expand-on-focus="true"
         disable-history
         @update:modelValue="handleChangeUrl"
         @blur="handleFormatUrl"
@@ -281,17 +282,20 @@ watch(
 
     .url-rich-input {
       flex: 1;
-      border: 1px solid var(--el-border-color);
+      height: 30px;
+      position: relative;
       :deep(.cl-rich-input__editor) {
-        // padding: 5px 0;
+        border: 1px solid var(--el-border-color);
       }
       :deep(.cl-rich-input__editor .ProseMirror p) {
         font-size: 13px;
-        height: 28px;
         line-height: 28px;
       }
       &:focus-within {
-        border-color: var(--el-color-primary);
+        z-index: var(--cl-rich-input-pinned-z-index);
+        :deep(.cl-rich-input__editor) {
+          border-color: var(--el-color-primary);
+        }
       }
     }
 
