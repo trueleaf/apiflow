@@ -9,6 +9,9 @@ function parseArgs(argv) {
     webImage: "apiflow-web",
     platforms: "linux/amd64,linux/arm64",
     useNpmMirror: false,
+    pushMongo: false,
+    mongoImage: "mongo",
+    mongoTag: "6",
   };
 
   for (let i = 2; i < argv.length; i += 1) {
@@ -34,6 +37,17 @@ function parseArgs(argv) {
       case "--use-npm-mirror":
         args.useNpmMirror = true;
         break;
+      case "--push-mongo":
+        args.pushMongo = true;
+        break;
+      case "--mongo-image":
+        args.mongoImage = argv[i + 1] || args.mongoImage;
+        i += 1;
+        break;
+      case "--mongo-tag":
+        args.mongoTag = argv[i + 1] || args.mongoTag;
+        i += 1;
+        break;
 
       case "--help":
       case "-h":
@@ -57,6 +71,9 @@ Options:
   --web-image <name>          Web image name (default: apiflow-web)
   --platforms <list>          Platforms (default: linux/amd64,linux/arm64)      
   --use-npm-mirror            Use npm mirror during build
+  --push-mongo                Mirror mongo image to the same registry
+  --mongo-image <name>        Target mongo image name (default: mongo)
+  --mongo-tag <tag>           Mongo image tag to mirror (default: 6)
   -h, --help                  Show help
 `);
 }
@@ -128,6 +145,13 @@ function buildAndPush({
   run("docker", buildArgs);
 }
 
+function mirrorMongo({ dockerHubUser, mongoImage, mongoTag }) {
+  const source = `mongo:${mongoTag}`;
+  const target = `${dockerHubUser}/${mongoImage}:${mongoTag}`;
+  console.log(`Mirroring ${source} to ${target}`);
+  run("docker", ["buildx", "imagetools", "create", "-t", target, source]);
+}
+
 function main() {
   const args = parseArgs(process.argv);
   if (!args.user) {
@@ -180,6 +204,14 @@ function main() {
     useNpmMirror: args.useNpmMirror,
     gitSha,
   });
+
+  if (args.pushMongo) {
+    mirrorMongo({
+      dockerHubUser: args.user,
+      mongoImage: args.mongoImage,
+      mongoTag: args.mongoTag,
+    });
+  }
 }
 
 main();

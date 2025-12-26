@@ -117,7 +117,10 @@
       <el-button v-if="isLoading" type="danger" @click="$emit('cancel')">
             {{ t('取消') }}
           </el-button>
-      <el-button @click="handleReset">
+      <el-button type="primary" :loading="isSaving" :disabled="isSaving" @click="handleSave">
+        {{ t('保存') }}
+      </el-button>
+      <el-button :disabled="isSaving" @click="handleReset">
         {{ t('重置') }}
       </el-button>
     </div>
@@ -125,12 +128,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick, defineAsyncComponent } from 'vue'
+import { ref, computed, onMounted, watch, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useDebounceFn } from '@vueuse/core'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import type { LLMProviderType, CustomHeader } from '@src/types/ai/agent.type'
-import { message } from '@/helper'
+import { generateDeepSeekProvider } from '@/helper'
 const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 defineProps<{
@@ -154,20 +156,42 @@ const localModel = ref('')
 const localCustomHeaders = ref<CustomHeader[]>([])
 const localExtraBody = ref('')
 const showApiKey = ref(false)
+const isSaving = ref(false)
 // 判断配置是否有效
 const isConfigValid = computed(() => {
-  const hasApiKey = localApiKey.value.trim() !== ''
-  if (providerType.value === 'OpenAICompatible') {
-    return hasApiKey && localBaseURL.value.trim() !== '' && localModel.value.trim() !== ''
+  const config = llmClientStore.LLMConfig
+  const hasApiKey = config.apiKey.trim() !== ''
+  if (config.provider === 'OpenAICompatible') {
+    return hasApiKey && config.baseURL.trim() !== '' && config.model.trim() !== ''
   }
-  return hasApiKey && localModel.value.trim() !== ''
+  return hasApiKey && config.model.trim() !== ''
 })
-// 标记是否正在从 store 同步数据
-let isSyncingFromStore = false
-// 自动保存函数（防抖 300ms）
-const autoSave = useDebounceFn(() => {
-  if (isSyncingFromStore) return
-  if (!isConfigValid.value) return
+// 从 store 同步数据到本地状态
+const syncFromStore = () => {
+  const provider = llmClientStore.LLMConfig
+  providerType.value = provider.provider
+  localApiKey.value = provider.apiKey
+  localBaseURL.value = provider.baseURL
+  localModel.value = provider.model
+  localCustomHeaders.value = [...provider.customHeaders.map(h => ({ ...h }))]
+  localExtraBody.value = provider.extraBody
+}
+// 处理 Provider 类型变更
+const handleProviderChange = (type: LLMProviderType) => {
+  if (type === 'DeepSeek') {
+    const defaults = generateDeepSeekProvider()
+    localBaseURL.value = defaults.baseURL
+    localModel.value = defaults.model
+    localCustomHeaders.value = []
+  } else {
+    localBaseURL.value = ''
+    localModel.value = ''
+  }
+}
+// 保存配置
+const handleSave = () => {
+  if (isSaving.value) return
+  isSaving.value = true
   const validHeaders = localCustomHeaders.value.filter(h => h.key.trim() !== '')
   llmClientStore.updateLLMConfig({
     provider: providerType.value,
@@ -177,38 +201,10 @@ const autoSave = useDebounceFn(() => {
     customHeaders: validHeaders,
     extraBody: localExtraBody.value,
   })
-}, 300)
-// 从 store 同步数据到本地状态
-const syncFromStore = () => {
-  isSyncingFromStore = true
-  const provider = llmClientStore.LLMConfig
-  providerType.value = provider.provider
-  localApiKey.value = provider.apiKey
-  localBaseURL.value = provider.baseURL
-  localModel.value = provider.model
-  localCustomHeaders.value = [...provider.customHeaders.map(h => ({ ...h }))]
-  localExtraBody.value = provider.extraBody
-  nextTick(() => {
-    isSyncingFromStore = false
-  })
-}
-// 处理 Provider 类型变更
-const handleProviderChange = (type: LLMProviderType) => {
-  if (type === 'DeepSeek') {
-    llmClientStore.updateLLMConfig({
-      provider: type,
-      baseURL: 'https://api.deepseek.com/chat/completions',
-      model: 'deepseek-chat',
-      customHeaders: []
-    })
-  } else {
-    llmClientStore.updateLLMConfig({
-      provider: type,
-      baseURL: '',
-      model: ''
-    })
-  }
   syncFromStore()
+  setTimeout(() => {
+    isSaving.value = false
+  }, 500)
 }
 // 添加自定义请求头
 const addHeader = () => {
@@ -220,14 +216,14 @@ const removeHeader = (index: number) => {
 }
 // 重置配置
 const handleReset = () => {
-  llmClientStore.resetLLMConfig()
-  syncFromStore()
-  message.success(t('配置已重置'))
+  const defaults = generateDeepSeekProvider()
+  providerType.value = defaults.provider
+  localApiKey.value = defaults.apiKey
+  localBaseURL.value = defaults.baseURL
+  localModel.value = defaults.model
+  localCustomHeaders.value = [...defaults.customHeaders.map(h => ({ ...h }))]
+  localExtraBody.value = defaults.extraBody
 }
-// 监听配置变化，自动保存
-watch([providerType, localApiKey, localBaseURL, localModel, localCustomHeaders, localExtraBody], () => {
-  autoSave()
-}, { deep: true })
 // 监听 store 变化（禁用深度监听，避免循环触发）
 watch(() => llmClientStore.LLMConfig, () => {
   syncFromStore()

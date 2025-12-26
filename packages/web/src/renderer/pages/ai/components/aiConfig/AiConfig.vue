@@ -1,7 +1,7 @@
 <template>
   <div class="ai-config-view">
     <div class="ai-config-header">
-      <button class="ai-back-btn" type="button" @click="agentViewStore.switchToChat()">
+      <button class="ai-back-btn" type="button" @click="agentViewStore.handleBackToChat()">
         <ArrowLeft :size="16" />
         <span>{{ t('返回') }}</span>
       </button>
@@ -80,6 +80,12 @@
         </template>
       </div>
       <div class="config-footer">
+        <button class="ai-config-btn" type="button" :disabled="isSaving" @click="handleSave">
+          <span>{{ isSaving ? `${t('保存')}...` : t('保存') }}</span>
+        </button>
+        <button class="ai-config-btn" type="button" :disabled="isSaving" @click="handleReset">
+          <span>{{ t('重置') }}</span>
+        </button>
         <button class="ai-config-btn" type="button" @click="handleGoToFullSettings">
           <span>{{ t('更多设置') }}</span>
           <ArrowRight :size="14" class="config-icon" />
@@ -90,15 +96,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, nextTick } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { useDebounceFn } from '@vueuse/core'
 import { ArrowLeft, ArrowRight } from 'lucide-vue-next'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { appStateCache } from '@/cache/appState/appStateCache'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { useAgentViewStore } from '@/store/ai/agentView'
+import { generateDeepSeekProvider } from '@/helper'
 import type { LLMProviderType } from '@src/types/ai/agent.type'
 
 const { t } = useI18n()
@@ -111,50 +117,26 @@ const localApiKey = ref('')
 const localBaseURL = ref('')
 const localModel = ref('')
 const showApiKey = ref(false)
+const isSaving = ref(false)
 
-let isSyncingFromStore = false
-// 自动保存函数（防抖 300ms）
-const autoSave = useDebounceFn(() => {
-  if (isSyncingFromStore) return
-  const hasApiKey = localApiKey.value.trim() !== ''
-  if (!hasApiKey) return
-  llmClientStore.updateLLMConfig({
-    provider: providerType.value,
-    apiKey: localApiKey.value,
-    baseURL: providerType.value === 'DeepSeek' ? 'https://api.deepseek.com/chat/completions' : localBaseURL.value,
-    model: localModel.value,
-    customHeaders: llmClientStore.LLMConfig.customHeaders,
-  })
-}, 300)
 // 从 store 同步数据到本地状态
 const syncFromStore = () => {
-  isSyncingFromStore = true
   const provider = llmClientStore.LLMConfig
   providerType.value = provider.provider
   localApiKey.value = provider.apiKey
   localBaseURL.value = provider.baseURL
   localModel.value = provider.model
-  nextTick(() => {
-    isSyncingFromStore = false
-  })
 }
 // 处理 Provider 类型变更
 const handleProviderChange = (type: LLMProviderType) => {
   if (type === 'DeepSeek') {
-    llmClientStore.updateLLMConfig({
-      provider: type,
-      baseURL: 'https://api.deepseek.com/chat/completions',
-      model: 'deepseek-chat',
-      customHeaders: []
-    })
+    const defaults = generateDeepSeekProvider()
+    localBaseURL.value = defaults.baseURL
+    localModel.value = defaults.model
   } else {
-    llmClientStore.updateLLMConfig({
-      provider: type,
-      baseURL: '',
-      model: ''
-    })
+    localBaseURL.value = ''
+    localModel.value = ''
   }
-  syncFromStore()
 }
 // 跳转完整设置页
 const handleGoToFullSettings = () => {
@@ -162,10 +144,27 @@ const handleGoToFullSettings = () => {
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab)
   router.push('/settings')
 }
-// 监听配置变化，自动保存
-watch([providerType, localApiKey, localBaseURL, localModel], () => {
-  autoSave()
-})
+const handleSave = () => {
+  if (isSaving.value) return
+  isSaving.value = true
+  llmClientStore.updateLLMConfig({
+    provider: providerType.value,
+    apiKey: localApiKey.value,
+    baseURL: providerType.value === 'DeepSeek' ? 'https://api.deepseek.com/chat/completions' : localBaseURL.value,
+    model: localModel.value,
+    customHeaders: llmClientStore.LLMConfig.customHeaders,
+  })
+  setTimeout(() => {
+    isSaving.value = false
+  }, 500)
+}
+const handleReset = () => {
+  const defaults = generateDeepSeekProvider()
+  providerType.value = defaults.provider
+  localApiKey.value = defaults.apiKey
+  localBaseURL.value = defaults.baseURL
+  localModel.value = defaults.model
+}
 // 监听 store 变化
 watch(() => llmClientStore.LLMConfig, () => {
   syncFromStore()
@@ -253,6 +252,8 @@ onMounted(() => {
   padding-top: 20px;
   display: flex;
   justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 .ai-config-btn {
   display: flex;

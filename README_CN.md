@@ -154,6 +154,7 @@ cp .env.example .env
 
 ### 方案一：使用国内源（推荐）
 
+
 ```bash
 # 拉取镜像（国内源）
 docker compose -f docker-compose.yml -f docker-compose.cn.yml pull
