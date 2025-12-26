@@ -10,7 +10,7 @@ function parseArgs(argv) {
     platforms: "linux/amd64,linux/arm64",
     useNpmMirror: false,
     pushMongo: false,
-    mongoImage: "mongo",
+    mongoImage: "apiflow-mongo",
     mongoTag: "6",
   };
 
@@ -72,7 +72,7 @@ Options:
   --platforms <list>          Platforms (default: linux/amd64,linux/arm64)      
   --use-npm-mirror            Use npm mirror during build
   --push-mongo                Mirror mongo image to the same registry
-  --mongo-image <name>        Target mongo image name (default: mongo)
+  --mongo-image <name>        Target mongo image name (default: apiflow-mongo)
   --mongo-tag <tag>           Mongo image tag to mirror (default: 6)
   -h, --help                  Show help
 `);

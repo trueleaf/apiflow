@@ -1,6 +1,6 @@
 services:
   mongo:
-    image: crpi-pg92ewko9k2kfyck.cn-hangzhou.personal.cr.aliyuncs.com/apiflow_docker/mongo:6
+    image: crpi-pg92ewko9k2kfyck.cn-hangzhou.personal.cr.aliyuncs.com/apiflow_docker/apiflow-mongo:6
   server:
     image: crpi-pg92ewko9k2kfyck.cn-hangzhou.personal.cr.aliyuncs.com/apiflow_docker/apiflow-server:latest
   web:

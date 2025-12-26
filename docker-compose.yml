@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   mongo:
-    image: mongo:6
+    image: xiaoxiaoshu/apiflow-mongo:6
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
