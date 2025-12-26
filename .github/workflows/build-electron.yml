@@ -1,5 +1,4 @@
 name: Build Electron
-
 on:
   push:
     tags:
