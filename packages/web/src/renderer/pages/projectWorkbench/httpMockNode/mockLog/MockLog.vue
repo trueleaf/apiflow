@@ -196,18 +196,19 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { ElEmpty, ElButton, ElInput, ElSelect, ElOption, ElDialog, ElMessageBox } from 'element-plus'
 import type { MockLog } from '@src/types/mockNode'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache'
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { Trash2, FileText, AlertCircle, AlertTriangle, Info, List, LayoutList } from 'lucide-vue-next'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { appStateCache } from '@/cache/appState/appStateCache'
 import MockLogItem from './MockLogItem.vue'
+
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 const { t } = useI18n()
 

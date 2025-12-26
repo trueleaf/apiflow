@@ -99,9 +99,11 @@
 </template>
 
 <script lang="ts" setup>
+import { defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import type { HttpMockNode } from '@src/types'
+
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 type ResponseItem = HttpMockNode['response'][0]
 

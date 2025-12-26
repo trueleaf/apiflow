@@ -3,7 +3,6 @@ import { ref, computed } from 'vue';
 import type { ChatRequestBody, LLMessage } from '@src/types/ai/agent.type';
 import type { AgentViewMessage, AskMessage, TextResponseMessage, LoadingMessage, ErrorMessage } from '@src/types/ai';
 import { agentViewCache } from '@/cache/ai/agentViewCache';
-import { llmProviderCache } from '@/cache/ai/llmProviderCache';
 import { appStateCache } from '@/cache/appState/appStateCache';
 import { nanoid } from 'nanoid/non-secure';
 import { logger } from '@/helper';
@@ -12,6 +11,7 @@ import { i18n } from '@/i18n';
 import { useLLMClientStore } from '../llmClientStore';
 
 export const useAgentViewStore = defineStore('agentView', () => {
+  const llmClientStore = useLLMClientStore();
   const currentMessageList = ref<AgentViewMessage[]>([]);
   const currentSessionId = ref('');
   const isLoadingSessionData = ref(false);
@@ -35,8 +35,7 @@ export const useAgentViewStore = defineStore('agentView', () => {
   const cancelCurrentStream = ref<(() => Promise<void>) | null>(null);
   // 计算属性：AI 配置是否有效
   const isAiConfigValid = computed(() => {
-    const provider = llmProviderCache.getLLMProvider();
-    return !!(provider?.apiKey?.trim() && provider?.baseURL?.trim());
+    return llmClientStore.isAvailable();
   });
   /*
   |--------------------------------------------------------------------------
@@ -207,6 +206,9 @@ export const useAgentViewStore = defineStore('agentView', () => {
   const setMode = (newMode: 'agent' | 'ask'): void => {
     mode.value = newMode;
     appStateCache.setAiDialogMode(newMode);
+    if (currentView.value === 'chat' || currentView.value === 'agent') {
+      setCurrentView(newMode === 'agent' ? 'agent' : 'chat');
+    }
   };
   // 初始化模式（从缓存读取）
   const initMode = (): void => {
@@ -220,11 +222,20 @@ export const useAgentViewStore = defineStore('agentView', () => {
   // 初始化视图（从缓存读取）
   const initView = (): void => {
     const cachedView = appStateCache.getAiDialogView();
-    if (cachedView === 'chat' || cachedView === 'history' || cachedView === 'agent' || cachedView === 'config') {
+    const modeView = mode.value === 'agent' ? 'agent' : 'chat';
+    if (cachedView === 'history' || cachedView === 'config') {
       currentView.value = cachedView;
       return;
     }
-    setCurrentView('agent');
+    if (cachedView === 'chat' || cachedView === 'agent') {
+      if (cachedView === modeView) {
+        currentView.value = cachedView;
+      } else {
+        setCurrentView(modeView);
+      }
+      return;
+    }
+    setCurrentView(modeView);
   };
   /*
   |--------------------------------------------------------------------------
@@ -334,7 +345,6 @@ export const useAgentViewStore = defineStore('agentView', () => {
     streamingMessageId.value = null;
     setWorkingStatus('working');
     const requestBody = buildOpenAIRequestBody(message);
-    const llmClientStore = useLLMClientStore();
     if (!llmClientStore.isAvailable()) {
       if (loadingMessageId.value) {
         deleteCurrentMessageById(loadingMessageId.value);

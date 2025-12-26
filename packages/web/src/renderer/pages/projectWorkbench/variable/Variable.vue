@@ -209,12 +209,11 @@ import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import STable from '@/components/common/table/ClTable.vue'
 import { config } from '@src/config/config'
 import { useI18n } from 'vue-i18n'
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, defineAsyncComponent } from 'vue';
 import { ElMessageBox, FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
 import { request } from '@/api/api';
 import { message } from '@/helper';
 import { useRoute } from 'vue-router';
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import EditDialog from './dialog/Edit.vue'
 import { useVariable } from '@/store/projectWorkbench/variablesStore';
 import { CommonResponse, ApidocVariable } from '@src/types';
@@ -222,6 +221,8 @@ import { request as axiosInstance } from '@/api/api'
 import { nodeVariableCache } from '@/cache/variable/nodeVariableCache';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { onUnmounted } from 'vue';
+
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 export type AddProjectVariableParams = {
   _id?: string;

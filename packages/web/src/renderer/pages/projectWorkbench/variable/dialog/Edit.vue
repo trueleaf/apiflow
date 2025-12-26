@@ -87,13 +87,13 @@ import { request } from '@/api/api';
 import { config } from '@src/config/config';
 import { FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
 import { useI18n } from 'vue-i18n'
-import { computed, nextTick, PropType, ref, watch } from 'vue';
+import { computed, nextTick, PropType, ref, watch, defineAsyncComponent } from 'vue';
 import { AddProjectVariableFormInfo, AddProjectVariableParams } from '../Variable.vue';
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { useRoute } from 'vue-router';
 import { nodeVariableCache } from '@/cache/variable/nodeVariableCache';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { message } from '@/helper'
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 const modelValue = defineModel<boolean>({
   default: false
 })

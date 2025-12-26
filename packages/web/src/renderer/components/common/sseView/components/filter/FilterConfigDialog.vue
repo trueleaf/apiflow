@@ -38,12 +38,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, onMounted, computed } from 'vue';
+import { ref, watch, onMounted, computed, defineAsyncComponent } from 'vue';
 import DraggableDialog from '@/components/ui/cleanDesign/draggableDialog/DraggableDialog.vue';
-import CodeEditor from '@/components/ui/cleanDesign/codeEditor/CodeEditor.vue';
 import { Filter } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 import type { FilterConfigDialogProps, FilterConfigDialogEmits, FilteredDataPayload } from '@src/types/components/components';
+
+const CodeEditor = defineAsyncComponent(() => import('@/components/ui/cleanDesign/codeEditor/CodeEditor.vue'));
 
 const DEFAULT_FILTER_CODE = `const buffer = [];
 function filter(chunk) {

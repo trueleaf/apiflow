@@ -26,12 +26,13 @@
 <script lang="ts" setup>
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
 import { useHttpNodeResponse } from '@/store/httpNode/httpNodeResponseStore';
-import { computed, ref, watch, onMounted } from 'vue';
+import { computed, ref, watch, onMounted, defineAsyncComponent } from 'vue';
 import { downloadStringAsText } from '@/helper'
 import { formatUnit } from '@/helper'
 import { useI18n } from 'vue-i18n'
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { useHttpNodeConfig } from '@/store/httpNode/httpNodeConfigStore';
+
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 const projectWorkbenchStore = useProjectWorkbench();
 const httpNodeResponseStore = useHttpNodeResponse();

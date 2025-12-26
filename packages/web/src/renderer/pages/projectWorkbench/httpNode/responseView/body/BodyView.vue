@@ -312,12 +312,11 @@
 <script lang="ts" setup>
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
 import { useHttpNodeResponse } from '@/store/httpNode/httpNodeResponseStore';
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { downloadStringAsText } from '@/helper'
 import { formatHeader, formatUnit } from '@/helper'
 import { config } from '@src/config/config'
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import SSseView from '@/components/common/sseView/ClSseView.vue'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { useHttpNode } from '@/store/httpNode/httpNodeStore';
@@ -326,6 +325,8 @@ import { ElDialog } from 'element-plus';
 import beautify, { html as htmlBeautify, css as cssBeautify } from 'js-beautify';
 import worker from '@/worker/prettier.worker.ts?worker&inline';
 import { Download, Loading } from '@element-plus/icons-vue';
+
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 const prettierWorker = new worker();
 type WorkerFormatType = 'format-json' | 'format-html' | 'format-css' | 'format-js' | 'format-xml' | 'format-csv';

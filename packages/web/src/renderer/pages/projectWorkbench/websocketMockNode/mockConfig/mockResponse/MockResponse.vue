@@ -65,10 +65,12 @@
 </template>
 
 <script lang="ts" setup>
+import { defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useWebSocketMockNode } from '@/store/websocketMockNode/websocketMockNodeStore'
-import CodeEditor from '@/components/ui/cleanDesign/codeEditor/CodeEditor.vue'
+
+const CodeEditor = defineAsyncComponent(() => import('@/components/ui/cleanDesign/codeEditor/CodeEditor.vue'))
 
 const { t } = useI18n()
 const websocketMockNodeStore = useWebSocketMockNode()

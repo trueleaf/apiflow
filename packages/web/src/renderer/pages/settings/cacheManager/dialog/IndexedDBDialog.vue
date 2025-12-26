@@ -81,13 +81,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { IndexedDBItem, StoreDetailResponse, StoreDetailItem } from '@src/types/apidoc/cache'
 import { formatUnit } from '@/helper'
 import { ElMessageBox } from 'element-plus'
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { message } from '@/helper'
+
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 const { t } = useI18n()
 

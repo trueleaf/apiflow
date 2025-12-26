@@ -163,7 +163,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, onUnmounted } from 'vue'
+import { ref, computed, watch, onUnmounted, defineAsyncComponent } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
@@ -176,7 +176,6 @@ import {
   Rank,
 } from '@element-plus/icons-vue'
 import { ChevronDown, ChevronRight } from 'lucide-vue-next'
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import draggable from 'vuedraggable'
 import type { WebsocketMessageType, WebsocketMessageBlock } from '@src/types/websocketNode'
 import { nanoid } from 'nanoid/non-secure'
@@ -185,6 +184,8 @@ import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache'
 import { message, getCompiledTemplate } from '@/helper'
 import { useVariable } from '@/store/projectWorkbench/variablesStore'
 import { appStateCache } from '@/cache/appState/appStateCache'
+
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 const { t } = useI18n()
 const projectNavStore = useProjectNav()

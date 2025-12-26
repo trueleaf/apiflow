@@ -98,16 +98,17 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Loader2, Send } from 'lucide-vue-next'
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { appStateCache } from '@/cache/appState/appStateCache'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import type { HttpMockNode } from '@src/types'
 import type { ChatRequestBody, OpenAiResponseBody } from '@src/types/ai/agent.type'
 import { message } from '@/helper'
 import { aiDataGeneratePrompt } from '@/store/ai/prompt/prompt'
+
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 type ResponseItem = HttpMockNode['response'][0]
 

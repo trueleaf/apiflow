@@ -72,13 +72,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, defineAsyncComponent } from 'vue';
 import { isJsonString } from '@/helper';
 import dayjs from 'dayjs';
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue';
 import type { WebsocketResponse } from '@src/types/websocketNode';
 import { useI18n } from 'vue-i18n';
 import type { WebsocketPopoverProps, WebsocketPopoverEmits } from '@src/types/components/components';
+
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'));
 
 const { t } = useI18n();
 

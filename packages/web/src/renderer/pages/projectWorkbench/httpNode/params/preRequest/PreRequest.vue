@@ -12,14 +12,15 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
-import PreEditor from './editor/PreEditor.vue'
+import { computed, ref, defineAsyncComponent } from 'vue'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { router } from '@/router'
 import { cloneDeep } from 'lodash-es'
 import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api'
+
+const PreEditor = defineAsyncComponent(() => import('./editor/PreEditor.vue'))
 
 const httpNodeStore = useHttpNode()
 const httpRedoUndoStore = useHttpRedoUndo()

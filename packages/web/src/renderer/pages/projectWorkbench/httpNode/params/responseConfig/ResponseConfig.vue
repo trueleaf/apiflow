@@ -111,7 +111,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { computed, ref, Ref, onMounted, onUnmounted, watch } from 'vue'
+import { computed, ref, Ref, onMounted, onUnmounted, watch, defineAsyncComponent } from 'vue'
 import { Effect } from 'element-plus';
 import { ArrowDown, CaretRight, CaretBottom } from '@element-plus/icons-vue'
 import { Pencil, Plus, Trash2 } from 'lucide-vue-next'
@@ -119,13 +119,14 @@ import type { HttpNodeResponseParams, HttpNodeResponseContentType, HttpNodeConte
 import { appStateCache } from '@/cache/appState/appStateCache.ts'
 import SStatus from './children/Status.vue'
 import SMime from './children/Mime.vue'
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { router } from '@/router'
 import { cloneDeep } from 'lodash-es'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore';
+
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 const httpNodeStore = useHttpNode();
 const projectWorkbenchStore = useProjectWorkbench()

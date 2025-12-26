@@ -125,14 +125,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, onMounted, onUnmounted, Ref, watch } from 'vue'
+import { computed, ref, onMounted, onUnmounted, Ref, watch, defineAsyncComponent } from 'vue'
 import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType, ApidocProperty } from '@src/types'
 import { useI18n } from 'vue-i18n'
 import { appStateCache } from '@/cache/appState/appStateCache'
 import { useVariable } from '@/store/projectWorkbench/variablesStore';
 import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 import { config } from '@src/config/config';
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import SContextmenu from '@/components/common/contextmenu/ClContextmenu.vue'
 import SContextmenuItem from '@/components/common/contextmenu/ClContextmenuItem.vue'
@@ -148,6 +147,8 @@ import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { bodyModeOrderCache } from '@/cache/httpNode/bodyModeOrderCache'
 import { cacheKey } from '@/cache/cacheKey'
 import draggable from 'vuedraggable'
+
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 const bodyTipUrl = new URL('@/assets/imgs/apidoc/body-tip.png', import.meta.url).href
 const rawEditor = ref<{

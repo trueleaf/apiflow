@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { ChatRequestBody, OpenAiResponseBody, LLMProviderSetting, ChatStreamCallbacks } from '@src/types/ai/agent.type';
-import { generateDeepSeekProvider, isElectron } from '@/helper';
+import { generateDeepSeekProvider, isElectron, logger } from '@/helper';
 import { llmProviderCache } from '@/cache/ai/llmProviderCache';
 
 // AI 请求超时时间（60秒）
@@ -37,11 +37,14 @@ const webChat = async (body: ChatRequestBody, config: LLMProviderSetting, signal
   const combinedSignal = signal
     ? AbortSignal.any([signal, timeoutController.signal])
     : timeoutController.signal;
+  const requestBody = { ...extraBody, ...body, model: config.model, stream: false };
+  const requestInfo = { url: config.baseURL, method: 'POST', headers, body: requestBody };
+  logger.info('llmRequestParams', { payload: JSON.stringify(requestInfo) });
   try {
     const response = await fetch(config.baseURL, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ ...extraBody, ...body, model: config.model, stream: false }),
+      body: JSON.stringify(requestBody),
       signal: combinedSignal
     });
     if (!response.ok) {
@@ -89,12 +92,15 @@ const webChatStream = (body: ChatRequestBody, config: LLMProviderSetting, callba
       extraBody = {};
     }
   }
+  const requestBody = { ...extraBody, ...body, model: config.model, stream: true };
+  const requestInfo = { url: config.baseURL, method: 'POST', headers, body: requestBody };
+  logger.info('llmRequestParams', { payload: JSON.stringify(requestInfo) });
   (async () => {
     try {
       const response = await fetch(config.baseURL, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ ...extraBody, ...body, model: config.model, stream: true }),
+        body: JSON.stringify(requestBody),
         signal: abortController.signal
       });
       if (!response.ok) {

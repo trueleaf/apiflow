@@ -62,7 +62,7 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
 import { CommonResponse, ApidocBanner } from '@src/types'
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, defineAsyncComponent } from 'vue';
 import { FormInstance, ElInput } from 'element-plus';
 import { request } from '@/api/api';
 import { message } from '@/helper'
@@ -71,7 +71,6 @@ import { generateEmptyHttpMockNode, generateEmptyHttpNode, generateEmptyWebsocke
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';
-import CodeEditor from '@/components/ui/cleanDesign/codeEditor/CodeEditor.vue';
 import type { ChatRequestBody } from '@src/types/ai/agent.type';
 import type { HttpNode, WebSocketNode, HttpMockNode } from '@src/types';
 import { ArrowRight } from 'lucide-vue-next';
@@ -79,6 +78,8 @@ import { llmProviderCache } from '@/cache/ai/llmProviderCache';
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { appStateCache } from '@/cache/appState/appStateCache';
 import { IPC_EVENTS } from '@src/types/ipc';
+
+const CodeEditor = defineAsyncComponent(() => import('@/components/ui/cleanDesign/codeEditor/CodeEditor.vue'));
 
 const modelValue = defineModel<boolean>({
   default: false

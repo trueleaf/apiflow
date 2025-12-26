@@ -61,6 +61,8 @@ watch(modelValue, (newVal) => {
       keydownHandler = null;
     }
   }
+}, {
+  immediate: true,
 });
 /*
 |--------------------------------------------------------------------------

@@ -31,11 +31,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, defineAsyncComponent } from 'vue'
 import { formatUnit } from '@/helper'
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { LocalStorageItem } from '@src/types/apidoc/cache'
 import { useI18n } from 'vue-i18n'
+
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 // 获取翻译函数
 const { t } = useI18n()

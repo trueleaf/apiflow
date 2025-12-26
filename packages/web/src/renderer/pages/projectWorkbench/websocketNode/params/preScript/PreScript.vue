@@ -5,10 +5,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
-import PreEditor from './editor/PreEditor.vue'
+import { computed, defineAsyncComponent } from 'vue'
 import { useWebSocket } from '@/store/websocketNode/websocketNodeStore';
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
+const PreEditor = defineAsyncComponent(() => import('./editor/PreEditor.vue'))
 
 const websocketStore = useWebSocket()
 const redoUndoStore = useWsRedoUndo()

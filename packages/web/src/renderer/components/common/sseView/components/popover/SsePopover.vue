@@ -89,12 +89,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
+import { ref, watch, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { isJsonString } from '@/helper';
 import dayjs from 'dayjs';
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue';
 import type { SsePopoverProps, SsePopoverEmits } from '@src/types/components/components';
+
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'));
 
 const { t } = useI18n();
 

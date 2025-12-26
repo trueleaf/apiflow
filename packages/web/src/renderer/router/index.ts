@@ -1,7 +1,6 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
-import docEdit from "@/pages/projectWorkbench/ProjectWorkbench.vue";
 import { useRuntime } from "@/store/runtime/runtimeStore.ts";
 import { projectCache } from '@/cache/project/projectCache';
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
@@ -58,7 +57,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/v1/apidoc/doc-edit",
     name: "DocEdit",
-    component: docEdit,
+    component: () => import("@/pages/projectWorkbench/ProjectWorkbench.vue"),
   },
   {
     path: "/share",
@@ -117,7 +116,7 @@ const routerConfig = {
     {
       path: "/v1/apidoc/doc-edit",
       name: "DocEdit",
-      component: docEdit,
+      component: () => import("@/pages/projectWorkbench/ProjectWorkbench.vue"),
     },
     {
       path: "/share",

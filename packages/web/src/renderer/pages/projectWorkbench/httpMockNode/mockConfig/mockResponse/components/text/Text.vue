@@ -117,10 +117,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Loading, Top } from '@element-plus/icons-vue'
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { appStateCache } from '@/cache/appState/appStateCache'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import type { HttpMockNode } from '@src/types'
@@ -128,6 +127,8 @@ import type { ChatRequestBody, OpenAiResponseBody } from '@src/types/ai/agent.ty
 import { message } from '@/helper'
 import { aiTextGeneratePrompt } from '@/store/ai/prompt/prompt'
 type ResponseItem = HttpMockNode['response'][0]
+
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 type Props = {
   response: ResponseItem

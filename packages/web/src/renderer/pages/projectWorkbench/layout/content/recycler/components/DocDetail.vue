@@ -246,7 +246,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, onMounted, computed } from 'vue'
+import { ref, Ref, onMounted, computed, defineAsyncComponent } from 'vue'
 import { Close } from '@element-plus/icons-vue'
 import type { ApiNode, HttpNode, WebSocketNode, HttpMockNode, WebSocketMockNode, CommonResponse } from '@src/types';
 import { router } from '@/router/index'
@@ -255,11 +255,12 @@ import { useI18n } from 'vue-i18n'
 import SLoading from '@/components/common/loading/ClLoading.vue'
 import SLableValue from '@/components/common/labelValue/ClLabelValue.vue'
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { formatDate } from '@/helper'
 import { requestMethods as validRequestMethods } from '@/data/data'
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { useRuntime } from '@/store/runtime/runtimeStore';
+
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 const emits = defineEmits(['close'])
 const props = defineProps({

@@ -199,10 +199,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watchEffect } from 'vue';
+import { ref, computed, watchEffect, defineAsyncComponent } from 'vue';
 import { storeToRefs } from 'pinia'
 import { ArrowDown } from '@element-plus/icons-vue';
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue';
 import { formatDate } from '@/helper'
 import { getCompiledTemplate } from '@/helper';
 import { defaultRequestMethods } from '../common';
@@ -211,6 +210,8 @@ import { useShareStore } from '../store';
 import { useRoute } from 'vue-router';
 import { appStateCache } from '@/cache/appState/appStateCache.ts';
 import type { ApidocProperty } from '@src/types';
+
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'));
 ;
 
 const route = useRoute();

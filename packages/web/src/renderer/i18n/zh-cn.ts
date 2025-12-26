@@ -2067,6 +2067,7 @@ export default {
   'log.清空数据失败': 'log.清空数据失败',
   'log.无效的数据项': 'log.无效的数据项',
   'log.选择文件失败': 'log.选择文件失败',
+  'log.llmRequestParams': '大模型请求参数: {payload}',
   'mime类型': 'mime类型',
   'Mock地址': 'Mock地址',
   'Mock路径': 'Mock路径',

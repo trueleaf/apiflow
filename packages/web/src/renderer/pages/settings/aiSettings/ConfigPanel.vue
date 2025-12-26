@@ -125,13 +125,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, watch, nextTick, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useDebounceFn } from '@vueuse/core'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import type { LLMProviderType, CustomHeader } from '@src/types/ai/agent.type'
 import { message } from '@/helper'
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 defineProps<{
   isLoading: boolean

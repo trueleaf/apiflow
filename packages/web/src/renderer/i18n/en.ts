@@ -1725,4 +1725,5 @@ export default {
   '文件夹创建成功': 'Folder created successfully',
   '文件夹列表不能为空': 'Folder list cannot be empty',
   '批量创建文件夹完成': 'Batch folder creation completed',
+  'log.llmRequestParams': 'LLM request params: {payload}',
 }

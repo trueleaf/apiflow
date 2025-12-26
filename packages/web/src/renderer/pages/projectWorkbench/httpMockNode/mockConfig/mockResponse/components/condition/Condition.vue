@@ -34,18 +34,17 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessageBox } from 'element-plus'
 import { Close, ArrowRight, ArrowDown } from '@element-plus/icons-vue'
-import CodeEditor from '@/components/ui/cleanDesign/codeEditor/CodeEditor.vue'
 import { reqCompletionSuggestions } from './completionSuggestions'
 import { appStateCache } from '@/cache/appState/appStateCache'
 import type { HttpMockNode } from '@src/types/mockNode'
 import type { EditorConfig } from '@/components/ui/cleanDesign/codeEditor/types'
-
-
 import { message } from '@/helper'
+
+const CodeEditor = defineAsyncComponent(() => import('@/components/ui/cleanDesign/codeEditor/CodeEditor.vue'))
 type Props = {
   response: HttpMockNode['response'][0]
   responseIndex: number

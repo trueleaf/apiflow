@@ -83,7 +83,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { computed, reactive } from 'vue'
+import { computed, reactive, defineAsyncComponent } from 'vue'
 import beautify from 'js-beautify'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 import { ChevronDown, ChevronRight } from 'lucide-vue-next'
@@ -92,7 +92,7 @@ import { useHttpNodeResponse } from '@/store/httpNode/httpNodeResponseStore';
 import { downloadStringAsText } from '@/helper'
 import { formatUnit } from '@/helper'
 import { storeToRefs } from 'pinia';
-import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
+const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 const httpNodeStore = useHttpNode();
 const projectWorkbenchStore = useProjectWorkbench();
