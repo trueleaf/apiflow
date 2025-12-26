@@ -83,8 +83,13 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: 安装依赖
+      - name: 安装依赖 (web)
         run: npm ci
+        working-directory: packages/web
+
+      - name: 安装依赖 (server)
+        run: npm ci
+        working-directory: packages/server
         
       - name: 安装 Linux 依赖
         run: |

@@ -26,7 +26,7 @@
         </svg>
         <div class="mt-1">GitHub</div>
       </a>
-      <a href="https://gitee.com/shuzhikai/apiflow" target="_blank" class="d-flex flex-column j-center a-center">
+      <a href="https://gitee.com/wildsell/apiflow" target="_blank" class="d-flex flex-column j-center a-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('跳转码云')">
           <use xlink:href="#icongitee"></use>
         </svg>
