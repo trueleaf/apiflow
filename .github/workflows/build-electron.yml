@@ -82,6 +82,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+          cache-dependency-path: |
+            packages/web/package-lock.json
+            packages/server/package-lock.json
 
       - name: 安装依赖 (web)
         run: npm ci
@@ -132,9 +135,17 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+          cache-dependency-path: |
+            packages/web/package-lock.json
+            packages/server/package-lock.json
 
-      - name: 安装依赖
+      - name: 安装依赖 (web)
         run: npm ci
+        working-directory: packages/web
+
+      - name: 安装依赖 (server)
+        run: npm ci
+        working-directory: packages/server
 
       - name: 打包 Windows
         run: npm run web:build:app:win
@@ -212,9 +223,17 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+          cache-dependency-path: |
+            packages/web/package-lock.json
+            packages/server/package-lock.json
 
-      - name: 安装依赖
+      - name: 安装依赖 (web)
         run: npm ci
+        working-directory: packages/web
+
+      - name: 安装依赖 (server)
+        run: npm ci
+        working-directory: packages/server
 
       - name: 打包 Linux
         run: npm run web:build:app:linux
@@ -292,9 +311,17 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+          cache-dependency-path: |
+            packages/web/package-lock.json
+            packages/server/package-lock.json
 
-      - name: 安装依赖
+      - name: 安装依赖 (web)
         run: npm ci
+        working-directory: packages/web
+
+      - name: 安装依赖 (server)
+        run: npm ci
+        working-directory: packages/server
 
       - name: 打包 macOS
         run: npm run web:build:app:mac

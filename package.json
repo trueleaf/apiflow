@@ -2,8 +2,8 @@
   "name": "apiflow",
   "private": true,
   "scripts": {
-    "install": "npm --prefix packages/web install && npm --prefix packages/server install",
-    "i": "npm --prefix packages/web install && npm --prefix packages/server install",
+    "bootstrap": "npm --prefix packages/web ci && npm --prefix packages/server ci",
+    "i": "npm run bootstrap",
     "web:dev": "npm --prefix packages/web run dev",
     "web:web": "npm --prefix packages/web run web",
     "web:share": "npm --prefix packages/web run share",

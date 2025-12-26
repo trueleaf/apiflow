@@ -56,7 +56,7 @@ git clone https://github.com/trueleaf/apiflow
 cd apiflow
 
 # 安装依赖
-npm install
+npm run bootstrap
 
 # 启动开发模式
 cd packages/web
