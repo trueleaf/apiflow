@@ -165,6 +165,22 @@ const getEditorDom = (): HTMLElement | null => {
     return null
   }
 }
+const insertText = (text: string, shouldTrim?: boolean) => {
+  if (!editor.value || !editor.value.view) {
+    return false
+  }
+  const useTrim = shouldTrim ?? props.trimOnPaste
+  const content = useTrim ? text.trim() : text
+  const view = editor.value.view
+  const { state } = view
+  const { from, to } = state.selection
+  if (content === '') {
+    view.dispatch(state.tr.deleteRange(from, to))
+    return true
+  }
+  view.dispatch(state.tr.insertText(content, from, to))
+  return true
+}
 //创建编辑器扩展列表
 const createEditorExtensions = () => {
   const starterKitConfig: Record<string, boolean | undefined> = {
@@ -497,6 +513,7 @@ onBeforeUnmount(() => {
 })
 
 defineExpose({
-  hideVariablePopover: closeVariablePopover
+  hideVariablePopover: closeVariablePopover,
+  insertText
 })
 </script>

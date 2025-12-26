@@ -448,9 +448,9 @@ jobs:
             - macOS: ${{ needs.build-macos.result }}
             
             **下载链接:**
-            ${{ needs.build-windows.result == 'success' && '- Windows: ' + needs.build-windows.outputs.asset_name || '' }}
-            ${{ needs.build-linux.result == 'success' && '- Linux: ' + needs.build-linux.outputs.asset_name || '' }}
-            ${{ needs.build-macos.result == 'success' && '- macOS: ' + needs.build-macos.outputs.asset_name || '' }}
+            ${{ needs.build-windows.result == 'success' && format('- Windows: {0}', needs.build-windows.outputs.asset_name) || '' }}
+            ${{ needs.build-linux.result == 'success' && format('- Linux: {0}', needs.build-linux.outputs.asset_name) || '' }}
+            ${{ needs.build-macos.result == 'success' && format('- macOS: {0}', needs.build-macos.outputs.asset_name) || '' }}
             
             **使用说明:**
             1. 下载对应平台的安装程序

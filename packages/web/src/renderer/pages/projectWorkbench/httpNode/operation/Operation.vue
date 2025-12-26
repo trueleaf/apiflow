@@ -143,7 +143,7 @@ const handleBeforePaste = async (text: string, shouldPrevent: { value: boolean }
         ElMessage.error(t('解析失败，请检查 cURL 格式'))
       }
     } catch {
-      // 用户取消操作，不做任何处理
+      urlRichInputRef.value?.insertText(text, false)
     }
   }
 }
