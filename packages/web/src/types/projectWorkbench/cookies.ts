@@ -8,4 +8,6 @@ export type ApidocCookie = {
   httpOnly: boolean;
   secure: boolean;
   sameSite: string;
+  hostOnly?: boolean;
+  creationTime?: number;
 };

@@ -8,7 +8,21 @@ import dayjs from "dayjs";
 import type { ApidocCookie } from '@src/types/projectWorkbench/cookies';
 
 const isSameCookie = (a: ApidocCookie, b: ApidocCookie) => {
-  return a.name === b.name && a.domain === b.domain && a.path === b.path;
+  return a.name === b.name && a.domain === b.domain && a.path === b.path && !!a.hostOnly === !!b.hostOnly;
+}
+const normalizeHost = (host: string) => {
+  return host.trim().toLowerCase().replace(/\.$/, '');
+}
+const domainMatches = (requestHost: string, cookieDomain: string) => {
+  if (requestHost === cookieDomain) return true;
+  return requestHost.endsWith(`.${cookieDomain}`);
+}
+const getDefaultPath = (requestPath: string) => {
+  if (!requestPath.startsWith('/')) return '/';
+  if (requestPath === '/') return '/';
+  const rightMostSlashIndex = requestPath.lastIndexOf('/');
+  if (rightMostSlashIndex <= 0) return '/';
+  return requestPath.slice(0, rightMostSlashIndex);
 }
 
 export const useCookies = defineStore('projectCookies', () => {
@@ -28,31 +42,47 @@ export const useCookies = defineStore('projectCookies', () => {
     cookies.value = httpNodeCache.getHttpNodeCookies(projectId) || [];
   };
   // 通过Set-Cookie头批量更新
-  const updateCookiesBySetCookieHeader = (setCookieStrList: string[], defaultDomain = '', projectId = '') => {
+  const updateCookiesBySetCookieHeader = (setCookieStrList: string[], requestUrl = '', projectId = '') => {
+    const urlInfo = parseUrlInfo(requestUrl);
+    const requestHost = normalizeHost(urlInfo.domain);
+    const requestPath = urlInfo.path || '/';
     const objCookies = setCookieStrList.map((str) => {
       const res = parse([str], { map: false });
       return res[0];
     });
     objCookies.forEach((objCookie) => {
-      let realDomain = objCookie.domain
-      if (realDomain && /^[\w.-]+\.[a-zA-Z]{2,}$/.test(realDomain)) {
-        realDomain = '.' + realDomain.replace(/^\./, '');
-      } else {
-        realDomain = defaultDomain;
-      }
-      if (!objCookie.path) objCookie.path = '/';
-      const newCookie: ApidocCookie = {
+      const now = Date.now();
+      const hasDomainAttr = typeof objCookie.domain === 'string' && objCookie.domain.trim() !== '';
+      const hostOnly = !hasDomainAttr;
+      const normalizedDomainAttr = hasDomainAttr ? normalizeHost(objCookie.domain!.replace(/^\./, '')) : '';
+      const cookieDomain = hostOnly ? requestHost : normalizedDomainAttr;
+      if (!cookieDomain) return;
+      if (!hostOnly && !domainMatches(requestHost, cookieDomain)) return;
+      const hasPathAttr = typeof objCookie.path === 'string' && objCookie.path.trim() !== '';
+      const cookiePath = hasPathAttr ? objCookie.path! : getDefaultPath(requestPath);
+      const realPath = cookiePath.startsWith('/') ? cookiePath : '/';
+      const maxAge = typeof objCookie.maxAge === 'number' ? objCookie.maxAge : undefined;
+      const expiresDate = maxAge !== undefined ? new Date(now + maxAge * 1000) : objCookie.expires;
+      const expires = expiresDate ? expiresDate.toISOString() : '';
+      const isExpired = maxAge !== undefined ? maxAge <= 0 : (expiresDate ? expiresDate.getTime() <= now : false);
+      const nextCookie: ApidocCookie = {
         id: nanoid(),
         name: objCookie.name,
         value: objCookie.value,
-        domain: realDomain,
-        path: objCookie.path,
-        expires: typeof objCookie.expires === 'string' ? objCookie.expires : (objCookie.expires ? objCookie.expires.toISOString() : ''),
+        domain: cookieDomain,
+        path: realPath,
+        expires,
         httpOnly: !!objCookie.httpOnly,
         secure: !!objCookie.secure,
         sameSite: objCookie.sameSite || '',
+        hostOnly,
+        creationTime: now,
       };
-      addCookie(projectId, newCookie);
+      if (isExpired) {
+        deleteCookieByKey(projectId, nextCookie);
+        return;
+      }
+      addCookie(projectId, nextCookie);
     });
   };
   // 新增cookie
@@ -66,6 +96,13 @@ export const useCookies = defineStore('projectCookies', () => {
     httpNodeCache.setHttpNodeCookies(projectId, cookies.value);
   };
   // 根据id修改cookie
+  const deleteCookieByKey = (projectId: string, cookie: ApidocCookie) => {
+    const idx = cookies.value.findIndex(c => isSameCookie(c, cookie));
+    if (idx !== -1) {
+      cookies.value.splice(idx, 1);
+      httpNodeCache.setHttpNodeCookies(projectId, cookies.value);
+    }
+  };
   const updateCookiesById = (projectId: string, id: string, cookieInfo: Partial<ApidocCookie>) => {
     const idx = cookies.value.findIndex(c => c.id === id);
     if (idx !== -1) {
@@ -84,20 +121,20 @@ export const useCookies = defineStore('projectCookies', () => {
   // 获取匹配的cookie列表
   const getMachtedCookies = (url: string) => {
     const urlInfo = parseUrlInfo(url);
-    const requestDomain = urlInfo.domain;
+    const requestDomain = normalizeHost(urlInfo.domain);
     const requestPath = urlInfo.path;
+    const requestProtocol = urlInfo.protocol;
     const matchedCookies = cookies.value.filter(cookie => {
       // 域名匹配：如果是.开头的域名则匹配根域名和子域名，否则只匹配完全相同的域名
-      const cookieIsDotDomain = cookie.domain.startsWith('.'); 
-      const withoutDotCookieDomain = cookie.domain.replace(/^\./, '');
-      const isEmptyDomain = withoutDotCookieDomain === '';
+      if (cookie.secure && requestProtocol !== 'https:') return false;
+      const isEmptyDomain = cookie.domain === '';
       let isDomainMatch = false;
       if (isEmptyDomain) {
         isDomainMatch = true; // 空域名匹配所有域名,这种方式只能是用户手动创建的cookie才行
-      } else if (cookieIsDotDomain) {
-        isDomainMatch = requestDomain === withoutDotCookieDomain || requestDomain.endsWith('.' + withoutDotCookieDomain);
-      } else {
+      } else if (cookie.hostOnly) {
         isDomainMatch = requestDomain === cookie.domain;
+      } else {
+        isDomainMatch = domainMatches(requestDomain, cookie.domain);
       }
       // 路径匹配（RFC6265）
       let isPathMatch = false;
@@ -113,7 +150,13 @@ export const useCookies = defineStore('projectCookies', () => {
       const notExpired = !cookie.expires || dayjs(cookie.expires).isAfter(dayjs());
       return isDomainMatch && isPathMatch && notExpired;
     });
-    return JSON.parse(JSON.stringify(matchedCookies)) as ApidocCookie[]; // 防止修改请求头导致原数据被修改
+    const sortedCookies = [...matchedCookies].sort((a, b) => {
+      if (a.path.length !== b.path.length) return b.path.length - a.path.length;
+      const aTime = a.creationTime ?? 0;
+      const bTime = b.creationTime ?? 0;
+      return aTime - bTime;
+    });
+    return JSON.parse(JSON.stringify(sortedCookies)) as ApidocCookie[]; // 防止修改请求头导致原数据被修改
   }
 
   return {
