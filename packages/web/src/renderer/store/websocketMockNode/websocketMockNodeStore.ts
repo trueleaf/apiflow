@@ -11,6 +11,8 @@ import { logger, generateEmptyWebSocketMockNode } from '@/helper';
 import { apiNodesCache } from "@/cache/nodes/nodesCache";
 import { nanoid } from 'nanoid/non-secure';
 import { i18n } from "@/i18n";
+import { request as axiosInstance } from '@/api/api';
+import { CommonResponse } from '@src/types';
 
 // WebSocket Mock 节点缓存
 const websocketMockNodeCacheMap = new Map<string, WebSocketMockNode>();
@@ -122,7 +124,39 @@ export const useWebSocketMockNode = defineStore('websocketMockNode', () => {
       cacheWebSocketMockNode();
       return;
     }
-    // 在线模式暂不支持
+
+    const params = {
+      projectId: payload.projectId,
+      _id: payload.id,
+    };
+    try {
+      const res = await axiosInstance.get<CommonResponse<WebSocketMockNode>, CommonResponse<WebSocketMockNode>>('/api/project/doc_detail', {
+        params,
+      });
+      if (res.data === null) {
+        ElMessageBox.confirm(i18n.global.t('当前 WebSocket Mock 不存在，可能已经被删除'), i18n.global.t('提示'), {
+          confirmButtonText: i18n.global.t('关闭接口'),
+          cancelButtonText: i18n.global.t('取消'),
+          type: 'warning',
+        }).then(() => {
+          return deleteNavByIds({
+            ids: [payload.id],
+            projectId: payload.projectId,
+            force: true,
+          });
+        }).catch((err) => {
+          if (err === 'cancel' || err === 'close') {
+            return;
+          }
+        });
+        return;
+      }
+      replaceWebSocketMockNode(res.data);
+      replaceOriginWebSocketMockNode();
+      cacheWebSocketMockNode();
+    } catch (err) {
+      console.error(err);
+    }
   };
   // 保存 WebSocketMock 配置
   const saveWebSocketMockNode = async (): Promise<void> => {
@@ -171,7 +205,56 @@ export const useWebSocketMockNode = defineStore('websocketMockNode', () => {
       setTimeout(() => {
         saveLoading.value = false;
       }, 100);
+      return;
     }
+
+    const websocketMockDetail = cloneDeep(websocketMock.value);
+    const params = {
+      _id: currentSelectNav._id,
+      projectId,
+      info: {
+        type: 'websocketMock' as const,
+        name: websocketMockDetail.info.name,
+        description: websocketMockDetail.info.description,
+      },
+      websocketMockItem: {
+        requestCondition: websocketMockDetail.requestCondition,
+        config: websocketMockDetail.config,
+        response: websocketMockDetail.response,
+      },
+    };
+
+    axiosInstance.post('/api/project/fill_doc', params).then(() => {
+      changeNavInfoById({
+        id: currentSelectNav._id,
+        field: 'head',
+        value: {
+          icon: 'websocketMock',
+          color: '',
+        },
+      })
+      changeBannerInfoById({
+        id: currentSelectNav._id,
+        field: 'path' as unknown as 'name',
+        value: websocketMockDetail.requestCondition.path,
+      })
+      replaceOriginWebSocketMockNode();
+      changeNavInfoById({
+        id: currentSelectNav._id,
+        field: 'saved',
+        value: true,
+      })
+      cacheWebSocketMockNode();
+    }).catch((err) => {
+      changeNavInfoById({
+        id: currentSelectNav._id,
+        field: 'saved',
+        value: false,
+      })
+      console.error(err);
+    }).finally(() => {
+      saveLoading.value = false;
+    });
   };
   // 检查 Mock 是否已启用
   const checkMockNodeEnabledStatus = async (nodeId: string): Promise<boolean> => {

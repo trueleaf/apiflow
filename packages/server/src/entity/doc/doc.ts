@@ -188,10 +188,10 @@ class Info {
   @prop()
   public version: string;
   /**
-   * 文档类型,   1.文件夹 2.HTTP接口 3.HTTP Mock 4.WebSocket 5.Markdown文档
+   * 文档类型,   1.文件夹 2.HTTP接口 3.HTTP Mock 4.WebSocket 5.WebSocket Mock 6.Markdown文档
    */
   @prop()
-  public type: 'folder' | 'http' | 'httpMock' | 'websocket' | 'markdown';
+  public type: 'folder' | 'http' | 'httpMock' | 'websocket' | 'websocketMock' | 'markdown';
   /**
    * 创建者
    */
@@ -492,9 +492,42 @@ class WebsocketItem {
 }
 
 /*
-|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------     
+| WebSocketMock节点数据
+|--------------------------------------------------------------------------     
+*/
+class WebsocketMockRequestCondition {
+  @prop({ default: '/ws' })
+  public path: string;
+  @prop({ default: 4001 })
+  public port: number;
+}
+
+class WebsocketMockConfig {
+  @prop({ default: 0 })
+  public delay: number;
+  @prop({ default: false })
+  public echoMode: boolean;
+}
+
+class WebsocketMockResponse {
+  @prop({ default: '' })
+  public content: string;
+}
+
+class WebsocketMockItem {
+  @prop({ _id: false })
+  public requestCondition: WebsocketMockRequestCondition;
+  @prop({ _id: false })
+  public config: WebsocketMockConfig;
+  @prop({ _id: false })
+  public response: WebsocketMockResponse;
+}
+
+/*
+|--------------------------------------------------------------------------     
 | HttpMock请求条件
-|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------     
 */
 class HttpMockRequestCondition {
   @prop({ type: () => [String], default: ['ALL'] })
@@ -749,6 +782,11 @@ export class Doc extends Timestamps {
    */
   @prop({ type: () => WebsocketItem, _id: false })
   public websocketItem: WebsocketItem;
+  /**
+   * WebSocketMock节点数据
+   */
+  @prop({ type: () => WebsocketMockItem, _id: false })
+  public websocketMockItem: WebsocketMockItem;
   /**
    * HttpMock节点数据
    */
