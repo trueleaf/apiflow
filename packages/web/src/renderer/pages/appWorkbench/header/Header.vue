@@ -14,7 +14,7 @@
       <draggable ref="tabListRef" v-model="draggableTabs" class="tab-list" :animation="150" ghost-class="sortable-ghost"
         chosen-class="sortable-chosen" drag-class="sortable-drag" item-key="id">
         <template #item="{ element: tab }">
-          <li :class="['tab-item', { active: tab.id === activeTabId }]" :title="tab.title" :data-id="tab.id" @click="switchTab(tab.id)">
+          <li :class="['tab-item', { active: tab.id === activeTabId }]" :title="tab.title" :data-id="tab.id" @click="switchTab(tab.id)" @contextmenu.stop.prevent="handleTabContextmenu($event, tab)">
             <Folder v-if="tab.type === 'project'" class="tab-icon" :size="14" />
             <Settings v-if="tab.type === 'settings'" class="tab-icon" :size="14" />
             <span class="tab-title">{{ tab.title }}</span>
@@ -78,7 +78,7 @@
 import { ref, onMounted, onUnmounted, watch, computed, ComponentPublicInstance } from 'vue'
 import draggable from 'vuedraggable'
 import { Language, WindowState } from '@src/types'
-import type { AppWorkbenchHeaderTab } from '@src/types/appWorkbench/appWorkbenchType'
+import type { AppWorkbenchHeaderTab, AppWorkbenchHeaderTabContextActionPayload } from '@src/types/appWorkbench/appWorkbenchType'
 import type { RuntimeNetworkMode } from '@src/types/runtime'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
@@ -183,6 +183,7 @@ const languageButtonRef = ref<HTMLElement>()
 const handleChangeLanguage = () => {
   if (languageButtonRef.value) {
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu)
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideHeaderTabContextmenu)
     const rect = languageButtonRef.value.getBoundingClientRect()
     const buttonPosition = {
       x: rect.left,
@@ -203,6 +204,7 @@ const userAvatarButtonRef = ref<HTMLElement>()
 const handleOpenUserMenu = () => {
   if (userAvatarButtonRef.value) {
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu)
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideHeaderTabContextmenu)
     const rect = userAvatarButtonRef.value.getBoundingClientRect()
     const buttonPosition = {
       x: rect.left,
@@ -274,10 +276,74 @@ const switchTab = (tabId: string) => {
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.navigate, '/settings')
   }
 }
+const deleteTabsByIds = (tabIds: string[], preferredActiveTabId?: string) => {
+  if (tabIds.length === 0) return
+  const wasActiveDeleted = tabIds.includes(activeTabId.value)
+  tabs.value = tabs.value.filter(t => !tabIds.includes(t.id))
+  syncTabsToContentView()
+  const currentNetworkTabs = tabs.value.filter(tab => tab.network === networkMode.value)
+  if (currentNetworkTabs.length === 0) {
+    jumpToHome()
+    return
+  }
+  if (!wasActiveDeleted) return
+  const nextActiveTabId = preferredActiveTabId && currentNetworkTabs.some(t => t.id === preferredActiveTabId)
+    ? preferredActiveTabId
+    : currentNetworkTabs[currentNetworkTabs.length - 1].id
+  switchTab(nextActiveTabId)
+}
+const handleHeaderTabContextAction = (payload: AppWorkbenchHeaderTabContextActionPayload) => {
+  const currentNetworkTabs = tabs.value.filter(tab => tab.network === networkMode.value)
+  const currentIndex = currentNetworkTabs.findIndex(t => t.id === payload.tabId)
+  if (payload.action === 'close') {
+    deleteTab(payload.tabId)
+    return
+  }
+  if (payload.action === 'closeLeft') {
+    if (currentIndex <= 0) return
+    deleteTabsByIds(currentNetworkTabs.slice(0, currentIndex).map(t => t.id), payload.tabId)
+    return
+  }
+  if (payload.action === 'closeRight') {
+    if (currentIndex === -1 || currentIndex >= currentNetworkTabs.length - 1) return
+    deleteTabsByIds(currentNetworkTabs.slice(currentIndex + 1).map(t => t.id), payload.tabId)
+    return
+  }
+  if (payload.action === 'closeOther') {
+    deleteTabsByIds(currentNetworkTabs.filter(t => t.id !== payload.tabId).map(t => t.id), payload.tabId)
+    return
+  }
+  if (payload.action === 'closeAll') {
+    deleteTabsByIds(currentNetworkTabs.map(t => t.id))
+  }
+}
+const handleTabContextmenu = (e: MouseEvent, tab: AppWorkbenchHeaderTab) => {
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu)
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu)
+  const currentNetworkTabs = filteredTabs.value
+  const tabIndex = currentNetworkTabs.findIndex(t => t.id === tab.id)
+  const hasAny = currentNetworkTabs.length > 0
+  const hasOther = currentNetworkTabs.length > 1
+  const hasLeft = tabIndex > 0
+  const hasRight = tabIndex !== -1 && tabIndex < currentNetworkTabs.length - 1
+  const currentTarget = e.currentTarget as HTMLElement | null
+  const rect = currentTarget?.getBoundingClientRect()
+  const position = rect
+    ? { x: rect.left, y: 0, width: rect.width, height: rect.height }
+    : { x: e.clientX, y: 0, width: 0, height: 0 }
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.showHeaderTabContextmenu, {
+    position,
+    tabId: tab.id,
+    hasLeft,
+    hasRight,
+    hasOther,
+    hasAny
+  })
+}
 /*
-|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------     
 | 其他
-|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------     
 */
 const jumpToHome = () => {
   activeTabId.value = '';
@@ -399,10 +465,15 @@ const bindEvent = () => {
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, (payload: Partial<PermissionUserInfo>) => {
     runtimeStore.updateUserInfo(payload)
   })
+
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.headerTabContextAction, (payload: AppWorkbenchHeaderTabContextActionPayload) => {
+    handleHeaderTabContextAction(payload)
+  })
 }
 
 // 处理document点击事件以关闭语言菜单
 const handleDocumentClick = (event: MouseEvent) => {
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideHeaderTabContextmenu)
   if (languageButtonRef.value && !languageButtonRef.value.contains(event.target as Node)) {
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu)
   }

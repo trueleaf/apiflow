@@ -8,6 +8,7 @@
 
 import type { AnchorRect } from '@src/types/common';
 import type { PermissionUserInfo } from '@src/types/project';
+import type { AppWorkbenchHeaderTabContextActionPayload, AppWorkbenchHeaderTabContextmenuData } from '@src/types/appWorkbench/appWorkbenchType';
 import type { IPC_EVENTS } from './events';
 
 /**
@@ -83,6 +84,16 @@ export interface IPCEventMap {
     response: void;
   };
 
+  [IPC_EVENTS.apiflow.topBarToContent.showHeaderTabContextmenu]: {
+    request: AppWorkbenchHeaderTabContextmenuData;
+    response: void;
+  };
+
+  [IPC_EVENTS.apiflow.topBarToContent.hideHeaderTabContextmenu]: {
+    request: void;
+    response: void;
+  };
+
   [IPC_EVENTS.apiflow.topBarToContent.tabsUpdated]: {
     request: any[];
     response: void;
@@ -116,6 +127,11 @@ export interface IPCEventMap {
 
   [IPC_EVENTS.apiflow.contentToTopBar.initTabs]: {
     request: { tabs: any[]; activeTabId: string };
+    response: void;
+  };
+
+  [IPC_EVENTS.apiflow.contentToTopBar.headerTabContextAction]: {
+    request: AppWorkbenchHeaderTabContextActionPayload;
     response: void;
   };
 

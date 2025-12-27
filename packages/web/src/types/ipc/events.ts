@@ -43,6 +43,10 @@ export const IPC_EVENTS = {
       showUserMenu: 'apiflow:topbar:to:content:show-user-menu',
       /** 隐藏用户菜单 */
       hideUserMenu: 'apiflow:topbar:to:content:hide-user-menu',
+      /** 显示 Header Tab 右键菜单 */
+      showHeaderTabContextmenu: 'apiflow:topbar:to:content:show-header-tab-contextmenu',
+      /** 隐藏 Header Tab 右键菜单 */
+      hideHeaderTabContextmenu: 'apiflow:topbar:to:content:hide-header-tab-contextmenu',
       /** Header Tabs 列表已更新 */
       tabsUpdated: 'apiflow:topbar:to:content:tabs-updated',
       /** Header 激活的 Tab 已变化 */
@@ -95,6 +99,8 @@ export const IPC_EVENTS = {
       confirmDownloadUpdate: 'apiflow:content:to:topbar:confirm-download-update',
       /** 取消下载更新 */
       cancelDownloadUpdate: 'apiflow:content:to:topbar:cancel-download-update',
+      /** Header Tab 右键菜单操作 */
+      headerTabContextAction: 'apiflow:content:to:topbar:header-tab-context-action',
     },
 
     /** 渲染进程 -> 主进程 (请求-响应) */

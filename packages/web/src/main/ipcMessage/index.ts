@@ -15,6 +15,7 @@ import { getWindowState, execCodeInContext } from '../utils/index.ts';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import type { AnchorRect } from '@src/types/common';
 import type { PermissionUserInfo } from '@src/types/project';
+import type { AppWorkbenchHeaderTabContextActionPayload, AppWorkbenchHeaderTabContextmenuData } from '@src/types/appWorkbench/appWorkbenchType';
 
 import { mockManager, updateManager, websocketMockManager } from '../main.ts';
 import { MockUtils } from '../mock/mockUtils.ts';
@@ -510,6 +511,14 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu)
   })
 
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.showHeaderTabContextmenu, (_, data: AppWorkbenchHeaderTabContextmenuData) => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.showHeaderTabContextmenu, data)
+  })
+
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.hideHeaderTabContextmenu, () => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.hideHeaderTabContextmenu)
+  })
+
   // 语言切换
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.languageChanged, (_, language: string) => {
     // 更新运行时语言状态
@@ -523,6 +532,10 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   // 用户信息变更
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, (_, payload: Partial<PermissionUserInfo>) => {
     topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, payload)
+  })
+
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.headerTabContextAction, (_, payload: AppWorkbenchHeaderTabContextActionPayload) => {
+    topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.headerTabContextAction, payload)
   })
 
   // 刷新contentView

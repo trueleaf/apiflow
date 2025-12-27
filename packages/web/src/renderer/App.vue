@@ -15,6 +15,17 @@
       :current-language="runtimeStore.language" @language-select="handleLanguageSelect" @close="hideLanguageMenu" />
     <UserMenu v-if="isElectronEnv" :visible="userMenuVisible" :position="userMenuPosition" @logout="handleLogout"
       @close="hideUserMenu" />
+    <HeaderTabContextmenu
+      v-if="isElectronEnv"
+      :visible="headerTabContextmenuVisible"
+      :position="headerTabContextmenuPosition"
+      :has-left="headerTabContextmenuHasLeft"
+      :has-right="headerTabContextmenuHasRight"
+      :has-other="headerTabContextmenuHasOther"
+      :has-any="headerTabContextmenuHasAny"
+      @action="handleHeaderTabContextAction"
+      @close="hideHeaderTabContextmenu"
+    />
   </div>
 </template>
 
@@ -36,11 +47,13 @@ import type { ApidocProjectInfo, ApidocProjectListInfo, CommonResponse } from '@
 import { Language } from '@src/types';
 import LanguageMenu from '@/components/common/language/Language.vue';
 import UserMenu from '@/components/common/userMenu/UserMenu.vue'
+import HeaderTabContextmenu from '@/components/common/headerTabContextmenu/HeaderTabContextmenu.vue'
 import NetworkModeBanner from '@/components/common/networkMode/NetworkModeBanner.vue';
 import BrowserHeader from '@/components/common/browserHeader/BrowserHeader.vue';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import { useRuntime } from './store/runtime/runtimeStore.ts';
 import type { AnchorRect } from '@src/types/common'
+import type { AppWorkbenchHeaderTabContextAction, AppWorkbenchHeaderTabContextmenuData } from '@src/types/appWorkbench/appWorkbenchType'
 import { appWorkbenchCache } from '@/cache/appWorkbench/appWorkbenchCache';
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
 import type { MockLog } from '@src/types/mockNode';
@@ -71,6 +84,13 @@ const languageMenuVisible = ref(false)
 const languageMenuPosition = ref({ x: 0, y: 0, width: 0, height: 0 })
 const userMenuVisible = ref(false)
 const userMenuPosition = ref<AnchorRect>({ x: 0, y: 0, width: 0, height: 0 })
+const headerTabContextmenuVisible = ref(false)
+const headerTabContextmenuPosition = ref<AnchorRect>({ x: 0, y: 0, width: 0, height: 0 })
+const headerTabContextmenuTabId = ref('')
+const headerTabContextmenuHasLeft = ref(false)
+const headerTabContextmenuHasRight = ref(false)
+const headerTabContextmenuHasOther = ref(false)
+const headerTabContextmenuHasAny = ref(false)
 
 const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
   dialogVisible.value = false;
@@ -123,6 +143,7 @@ const handleGoForward = () => {
 |--------------------------------------------------------------------------
 */
 const showLanguageMenu = (data: { position: any, currentLanguage: string }) => {
+  headerTabContextmenuVisible.value = false
   languageMenuPosition.value = data.position
   languageMenuVisible.value = true
 }
@@ -132,12 +153,35 @@ const hideLanguageMenu = () => {
 }
 
 const showUserMenu = (data: { position: AnchorRect }) => {
+  headerTabContextmenuVisible.value = false
   userMenuPosition.value = data.position
   userMenuVisible.value = true
 }
 
 const hideUserMenu = () => {
   userMenuVisible.value = false
+}
+
+const showHeaderTabContextmenu = (data: AppWorkbenchHeaderTabContextmenuData) => {
+  languageMenuVisible.value = false
+  userMenuVisible.value = false
+  headerTabContextmenuPosition.value = data.position
+  headerTabContextmenuTabId.value = data.tabId
+  headerTabContextmenuHasLeft.value = data.hasLeft
+  headerTabContextmenuHasRight.value = data.hasRight
+  headerTabContextmenuHasOther.value = data.hasOther
+  headerTabContextmenuHasAny.value = data.hasAny
+  headerTabContextmenuVisible.value = true
+}
+const hideHeaderTabContextmenu = () => {
+  headerTabContextmenuVisible.value = false
+}
+const handleHeaderTabContextAction = (action: AppWorkbenchHeaderTabContextAction) => {
+  if (!headerTabContextmenuTabId.value) return
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.headerTabContextAction, {
+    action,
+    tabId: headerTabContextmenuTabId.value
+  })
 }
 
 const handleLogout = () => {
@@ -225,6 +269,14 @@ const initAppHeaderEvent = () => {
   // 隐藏用户菜单事件监听
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu, () => {
     hideUserMenu()
+  })
+
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.showHeaderTabContextmenu, (data: AppWorkbenchHeaderTabContextmenuData) => {
+    showHeaderTabContextmenu(data)
+  })
+
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.hideHeaderTabContextmenu, () => {
+    hideHeaderTabContextmenu()
   })
 
   // 监听项目切换事件
