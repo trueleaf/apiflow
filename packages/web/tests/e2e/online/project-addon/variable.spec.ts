@@ -1,4 +1,6 @@
 import { test, expect } from '../../../fixtures/electron-online.fixture';
+import fs from 'fs';
+import path from 'path';
 
 const MOCK_SERVER_PORT = 3456;
 
@@ -291,7 +293,7 @@ test.describe('Variable', () => {
   });
 
   test('在请求Headers中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -335,8 +337,450 @@ test.describe('Variable', () => {
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('Bearer test-token-123', { timeout: 10000 });
   });
+
+  test('在请求Params(Path/Query)中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
+    await variableOption.click();
+    await contentPage.waitForTimeout(500);
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    const nameInput = variablePage.locator('.left input').first();
+    const valueTextarea = variablePage.locator('.left textarea');
+    const addBtn = variablePage.locator('.left .el-button--primary');
+    await nameInput.fill('pathUserId');
+    await valueTextarea.fill('user_12345');
+    await addBtn.click();
+    await contentPage.waitForTimeout(300);
+    await nameInput.fill('queryKey');
+    await valueTextarea.fill('q');
+    await addBtn.click();
+    await contentPage.waitForTimeout(300);
+    await nameInput.fill('queryValue');
+    await valueTextarea.fill('hello_query');
+    await addBtn.click();
+    await contentPage.waitForTimeout(500);
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('Params变量测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/users/{id}`);
+    await contentPage.waitForTimeout(500);
+    const paramsTab = contentPage.locator('[data-testid="http-params-tab-params"]');
+    await paramsTab.click();
+    await contentPage.waitForTimeout(300);
+    const pathValueInputs = contentPage.locator('.query-path-params .cl-params-tree').last().locator('[data-testid="params-tree-value-input"]');
+    await pathValueInputs.first().click();
+    await contentPage.keyboard.type('{{pathUserId}}');
+    await contentPage.waitForTimeout(200);
+    const queryKeyInput = contentPage.locator('.query-path-params').getByPlaceholder(/输入参数名称自动换行/).first();
+    await queryKeyInput.click();
+    await queryKeyInput.fill('{{queryKey}}');
+    await contentPage.waitForTimeout(200);
+    const queryValueInput = contentPage.locator('.query-path-params [contenteditable="true"]').first();
+    await queryValueInput.click();
+    await queryValueInput.fill('{{queryValue}}');
+    await contentPage.waitForTimeout(200);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('/echo/users/user_12345', { timeout: 10000 });
+    await expect(responseBody).toContainText('userId', { timeout: 10000 });
+    await expect(responseBody).toContainText('user_12345', { timeout: 10000 });
+    await expect(responseBody).toContainText('q=hello_query', { timeout: 10000 });
+  });
+
+  test('在公共请求头(Common Header)中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
+    await variableOption.click();
+    await contentPage.waitForTimeout(500);
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    const nameInput = variablePage.locator('.left input').first();
+    const valueTextarea = variablePage.locator('.left textarea');
+    const addBtn = variablePage.locator('.left .el-button--primary');
+    await nameInput.fill('commonHeaderKey');
+    await valueTextarea.fill('var');
+    await addBtn.click();
+    await contentPage.waitForTimeout(300);
+    await nameInput.fill('commonHeaderValue');
+    await valueTextarea.fill('common-header-value');
+    await addBtn.click();
+    await contentPage.waitForTimeout(500);
+    await contentPage.goBack();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('公共请求头变量测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+
+    const treeWrap = contentPage.locator('.tree-wrap');
+    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
+    await contentPage.waitForTimeout(300);
+    const commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
+    await commonHeaderItem.click();
+    await contentPage.waitForTimeout(500);
+    const commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
+    const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.first().fill('X-Apiflow-{{commonHeaderKey}}');
+    await valueInputs.first().click();
+    await contentPage.keyboard.type('{{commonHeaderValue}}');
+    const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    await confirmBtn.click();
+    await contentPage.waitForTimeout(800);
+    await contentPage.goBack();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('x-apiflow-var', { timeout: 10000 });
+    await expect(responseBody).toContainText('common-header-value', { timeout: 10000 });
+  });
+
+  test('在Cookie值中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
+    await variableOption.click();
+    await contentPage.waitForTimeout(500);
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    const nameInput = variablePage.locator('.left input').first();
+    const valueTextarea = variablePage.locator('.left textarea');
+    const addBtn = variablePage.locator('.left .el-button--primary');
+    await nameInput.fill('cookieValue');
+    await valueTextarea.fill('cookie_value_123');
+    await addBtn.click();
+    await contentPage.waitForTimeout(500);
+    await contentPage.goBack();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+
+    await moreBtn.click();
+    const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
+    await cookieItem.click();
+    await contentPage.waitForTimeout(500);
+    const cookiePage = contentPage.locator('.cookies-page');
+    await expect(cookiePage).toBeVisible({ timeout: 5000 });
+    const addCookieBtn = cookiePage.locator('.el-button--primary').filter({ hasText: /新增 Cookie/ });
+    await addCookieBtn.click();
+    const dialog = contentPage.locator('.el-dialog').filter({ hasText: /新增 Cookie/ });
+    await expect(dialog).toBeVisible({ timeout: 5000 });
+    const cookieNameInput = dialog.locator('.el-form-item').filter({ hasText: /名称/ }).locator('input');
+    await cookieNameInput.fill('var_cookie');
+    const cookieValueInput = dialog.locator('.el-form-item').filter({ hasText: /值/ }).locator('textarea');
+    await cookieValueInput.fill('{{cookieValue}}');
+    const cookieDomainInput = dialog.locator('.el-form-item').filter({ hasText: /域名/ }).locator('input');
+    await cookieDomainInput.fill('127.0.0.1');
+    const cookiePathInput = dialog.locator('.el-form-item').filter({ hasText: /路径/ }).locator('input');
+    await cookiePathInput.fill('/echo');
+    const saveBtn = dialog.locator('.el-button--primary').filter({ hasText: /保存/ });
+    await saveBtn.click();
+    await contentPage.waitForTimeout(500);
+    await expect(dialog).not.toBeVisible({ timeout: 5000 });
+    await contentPage.goBack();
+    await contentPage.waitForTimeout(300);
+    if (!/doc-edit/.test(contentPage.url())) {
+      await contentPage.goBack();
+    }
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('Cookie变量测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('var_cookie=cookie_value_123', { timeout: 10000 });
+  });
+
+  test('在Raw Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
+    await variableOption.click();
+    await contentPage.waitForTimeout(500);
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    const nameInput = variablePage.locator('.left input').first();
+    const valueTextarea = variablePage.locator('.left textarea');
+    const addBtn = variablePage.locator('.left .el-button--primary');
+    await nameInput.fill('rawBodyVar');
+    await valueTextarea.fill('raw_variable_value');
+    await addBtn.click();
+    await contentPage.waitForTimeout(500);
+
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('Raw变量测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    await methodSelect.click();
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    await postOption.click();
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+    await bodyTab.click();
+    await contentPage.waitForTimeout(300);
+    const rawRadio = contentPage.locator('.el-radio').filter({ hasText: 'raw' });
+    await rawRadio.click();
+    await contentPage.waitForTimeout(300);
+    const rawTypeSelect = contentPage.getByTestId('raw-body-type-select');
+    await rawTypeSelect.click();
+    const rawTextOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^text$/ });
+    await rawTextOption.click();
+    await contentPage.waitForTimeout(300);
+    const monacoEditor = contentPage.locator('.s-json-editor').first();
+    await monacoEditor.click({ force: true });
+    await contentPage.keyboard.press('ControlOrMeta+a');
+    await contentPage.keyboard.type('{{rawBodyVar}}');
+    await contentPage.waitForTimeout(300);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('raw_variable_value', { timeout: 10000 });
+  });
+
+  test('在Urlencoded Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
+    await variableOption.click();
+    await contentPage.waitForTimeout(500);
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    const nameInput = variablePage.locator('.left input').first();
+    const valueTextarea = variablePage.locator('.left textarea');
+    const addBtn = variablePage.locator('.left .el-button--primary');
+    await nameInput.fill('urlencodedVar');
+    await valueTextarea.fill('urlencoded_value');
+    await addBtn.click();
+    await contentPage.waitForTimeout(500);
+
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('Urlencoded变量测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    await methodSelect.click();
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    await postOption.click();
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+    await bodyTab.click();
+    await contentPage.waitForTimeout(300);
+    const urlencodedRadio = contentPage.locator('.el-radio').filter({ hasText: 'urlencoded' });
+    await urlencodedRadio.click();
+    await contentPage.waitForTimeout(300);
+    const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.first().fill('v');
+    await valueInputs.first().click();
+    await contentPage.keyboard.press('ControlOrMeta+a');
+    await contentPage.keyboard.type('{{urlencodedVar}}');
+    await contentPage.waitForTimeout(300);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('urlencoded_value', { timeout: 10000 });
+  });
+
+  test('在Form-Data Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
+    await variableOption.click();
+    await contentPage.waitForTimeout(500);
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    const nameInput = variablePage.locator('.left input').first();
+    const valueTextarea = variablePage.locator('.left textarea');
+    const addBtn = variablePage.locator('.left .el-button--primary');
+    await nameInput.fill('formDataVar');
+    await valueTextarea.fill('formdata_value');
+    await addBtn.click();
+    await contentPage.waitForTimeout(500);
+
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('FormData变量测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    await methodSelect.click();
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    await postOption.click();
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+    await bodyTab.click();
+    await contentPage.waitForTimeout(300);
+    const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
+    await formdataRadio.click();
+    await contentPage.waitForTimeout(300);
+    const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.first().fill('v');
+    await valueInputs.first().click();
+    await contentPage.keyboard.press('ControlOrMeta+a');
+    await contentPage.keyboard.type('{{formDataVar}}');
+    await contentPage.waitForTimeout(300);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('formdata_value', { timeout: 10000 });
+  });
+
+  test('在Binary(变量模式)中使用变量,发送请求后rawBody等于文件内容', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    const testContent = 'test binary content';
+    const testFilePath = path.join(process.cwd(), 'temp', `variable-binary-${Date.now()}.txt`);
+    const testDir = path.dirname(testFilePath);
+    if (!fs.existsSync(testDir)) {
+      fs.mkdirSync(testDir, { recursive: true });
+    }
+    fs.writeFileSync(testFilePath, testContent);
+
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
+    await variableOption.click();
+    await contentPage.waitForTimeout(500);
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    const nameInput = variablePage.locator('.left input').first();
+    const valueTextarea = variablePage.locator('.left textarea');
+    const addBtn = variablePage.locator('.left .el-button--primary');
+    await nameInput.fill('binaryFilePath');
+    await valueTextarea.fill(testFilePath);
+    await addBtn.click();
+    await contentPage.waitForTimeout(500);
+
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('Binary变量测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    await methodSelect.click();
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    await postOption.click();
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+    await bodyTab.click();
+    await contentPage.waitForTimeout(300);
+    const binaryRadio = contentPage.locator('.body-params .el-radio', { hasText: /binary/i });
+    await binaryRadio.click();
+    await contentPage.waitForTimeout(300);
+    const binaryWrap = contentPage.locator('.binary-wrap');
+    const varModeRadio = binaryWrap.locator('.el-radio', { hasText: /变量模式/ });
+    await varModeRadio.click();
+    await contentPage.waitForTimeout(300);
+    const varInput = contentPage.locator('.var-mode .el-input input');
+    await varInput.fill('{{binaryFilePath}}');
+    await contentPage.waitForTimeout(300);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseText = (await responseBody.textContent()) || '';
+    expect(responseText).toMatch(/"rawBody"\s*:\s*"test binary content"/);
+
+    if (fs.existsSync(testFilePath)) {
+      fs.unlinkSync(testFilePath);
+    }
+  });
+
   test('新增any类型变量执行JavaScript表达式,动态时间戳', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

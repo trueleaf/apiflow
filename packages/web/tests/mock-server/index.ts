@@ -313,7 +313,7 @@ export const createMockServer = (): Koa => {
       ctx.body = { ok: true, type: 'order' };
       return;
     }
-    if (ctx.path === '/set-cookie/default-path/dir/leaf') {
+    if (ctx.path === '/set-cookie/default-path/dir/leaf' || ctx.path === '/echo/set-cookie/default-path/dir/leaf') {
       const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString();
       ctx.set('Set-Cookie', `af_default_path=1; Expires=${expires}`);
       ctx.body = { ok: true, type: 'default-path' };
