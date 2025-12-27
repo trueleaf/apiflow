@@ -64,9 +64,10 @@ const isMockServerOnPort = async (port: number): Promise<boolean> => {
   }
 };
 // 结束占用端口的旧 mock 进程（Windows）
-const killMockProcessOnWindows = async (port: number): Promise<boolean> => {
+const killMockProcessOnWindows = async (port: number): Promise<boolean> => {    
   const isWindows = process.platform === 'win32';
   if (!isWindows) return false;
+  const currentPid = String(process.pid);
   const result = await new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
     execFile('netstat', ['-ano', '-p', 'tcp'], { windowsHide: true }, (error, stdout, stderr) => {
       if (error) {
@@ -82,7 +83,7 @@ const killMockProcessOnWindows = async (port: number): Promise<boolean> => {
   for (const line of lines) {
     if (!line.includes(portText) || !line.includes('LISTENING')) continue;
     const match = line.trim().match(/\sLISTENING\s+(\d+)$/);
-    if (match?.[1]) pids.add(match[1]);
+    if (match?.[1] && match[1] !== currentPid) pids.add(match[1]);
   }
   if (pids.size === 0) return false;
   for (const pid of pids) {

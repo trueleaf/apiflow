@@ -20,6 +20,205 @@ test.describe('Trash', () => {
     const docNameInput = recyclerPage.locator('.el-input').filter({ hasText: /接口名称/ }).or(recyclerPage.locator('input[placeholder*="接口名称"]'));
     await expect(docNameInput.first()).toBeVisible();
   });
+  test('回收站筛选条件（互联网模式）：操作人员/日期范围/接口名称/接口url', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+
+    const operatorA = { _id: 'op-a', loginName: 'a', realName: '张三' };
+    const operatorB = { _id: 'op-b', loginName: 'b', realName: '李四' };
+
+    const todayStart = new Date(new Date().setHours(0, 0, 0, 0)).valueOf();
+    const yesterdayStart = todayStart - 86400000;
+    const deletedRows = [
+      {
+        _id: 'doc-a-today',
+        pid: '',
+        name: '今天接口A',
+        type: 'http',
+        deletePerson: operatorA.realName,
+        deletePersonId: operatorA._id,
+        updatedAt: todayStart + 10000,
+        method: 'GET',
+        path: '/today/a',
+      },
+      {
+        _id: 'doc-a-yesterday',
+        pid: '',
+        name: '昨天接口A',
+        type: 'http',
+        deletePerson: operatorA.realName,
+        deletePersonId: operatorA._id,
+        updatedAt: yesterdayStart + 10000,
+        method: 'GET',
+        path: '/yesterday/a',
+      },
+      {
+        _id: 'doc-b-today',
+        pid: '',
+        name: '今天接口B',
+        type: 'http',
+        deletePerson: operatorB.realName,
+        deletePersonId: operatorB._id,
+        updatedAt: todayStart + 20000,
+        method: 'GET',
+        path: '/today/b',
+      },
+    ];
+
+    await contentPage.route('**/api/docs/docs_history_operator_enum*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ code: 0, msg: '', data: [operatorA, operatorB] }),
+      });
+    });
+
+    await contentPage.route('**/api/docs/docs_deleted_list', async (route) => {
+      const postData = route.request().postData();
+      let body: unknown = null;
+      if (postData) {
+        try {
+          body = JSON.parse(postData) as unknown;
+        } catch {
+          body = null;
+        }
+      }
+
+      const record = body && typeof body === 'object' && !Array.isArray(body) ? (body as Record<string, unknown>) : {};
+      const docName = typeof record.docName === 'string' ? record.docName : '';
+      const url = typeof record.url === 'string' ? record.url : '';
+      const startTime = typeof record.startTime === 'number' ? record.startTime : null;
+      const endTime = typeof record.endTime === 'number' ? record.endTime : null;
+      const operators = Array.isArray(record.operators) ? record.operators.filter((v): v is string => typeof v === 'string') : [];
+
+      let rows = deletedRows;
+      if (operators.length > 0) {
+        rows = rows.filter(item => operators.includes(item.deletePersonId));
+      }
+      if (startTime !== null && endTime !== null) {
+        rows = rows.filter(item => item.updatedAt >= startTime && item.updatedAt <= endTime);
+      }
+      if (docName) {
+        rows = rows.filter(item => item.name.includes(docName));
+      }
+      if (url) {
+        rows = rows.filter(item => item.path.includes(url));
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ code: 0, msg: '', data: { rows, total: rows.length } }),
+      });
+    });
+
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const recyclerItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /回收站/ });
+    await recyclerItem.click();
+
+    const recyclerPage = contentPage.locator('.recycler');
+    await expect(recyclerPage).toBeVisible({ timeout: 5000 });
+    await expect(recyclerPage.locator('.docinfo')).toHaveCount(3, { timeout: 5000 });
+    const operatorACheckbox = recyclerPage.locator('.el-checkbox').filter({ hasText: operatorA.realName });
+    await expect(operatorACheckbox).toBeVisible({ timeout: 5000 });
+
+    const operatorARequest = contentPage.waitForResponse((response) => {
+      if (!response.url().includes('/api/docs/docs_deleted_list')) return false;
+      if (response.request().method() !== 'POST') return false;
+      const bodyText = response.request().postData();
+      if (!bodyText) return false;
+      try {
+        const parsed = JSON.parse(bodyText) as unknown;
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return false;
+        const operators = (parsed as Record<string, unknown>).operators;
+        return Array.isArray(operators) && operators.some(v => typeof v === 'string' && v === operatorA._id);
+      } catch {
+        return false;
+      }
+    });
+    await operatorACheckbox.click();
+    const operatorAResponse = await operatorARequest;
+    const operatorABodyText = operatorAResponse.request().postData() || '';
+    const operatorABody = JSON.parse(operatorABodyText) as unknown;
+    if (!operatorABody || typeof operatorABody !== 'object' || Array.isArray(operatorABody)) {
+      throw new Error('回收站筛选请求体解析失败（操作人员）');
+    }
+    const operatorAOperators = (operatorABody as Record<string, unknown>).operators;
+    expect(Array.isArray(operatorAOperators) && operatorAOperators.some(v => typeof v === 'string' && v === operatorA._id)).toBeTruthy();
+    await expect(recyclerPage.locator('.docinfo')).toHaveCount(2, { timeout: 5000 });
+    await expect(recyclerPage.locator('.docinfo').filter({ hasText: '今天接口A' })).toBeVisible({ timeout: 5000 });
+    await expect(recyclerPage.locator('.docinfo').filter({ hasText: '昨天接口A' })).toBeVisible({ timeout: 5000 });
+    await expect(recyclerPage.locator('.docinfo').filter({ hasText: '今天接口B' })).toHaveCount(0);
+
+    const todayRequest = contentPage.waitForResponse((response) => {
+      if (!response.url().includes('/api/docs/docs_deleted_list')) return false;
+      if (response.request().method() !== 'POST') return false;
+      const bodyText = response.request().postData();
+      if (!bodyText) return false;
+      try {
+        const parsed = JSON.parse(bodyText) as unknown;
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return false;
+        const record = parsed as Record<string, unknown>;
+        return record.startTime === todayStart && typeof record.endTime === 'number';
+      } catch {
+        return false;
+      }
+    });
+    await recyclerPage.locator('.el-radio').filter({ hasText: /今天/ }).click();
+    const todayResponse = await todayRequest;
+    const todayBodyText = todayResponse.request().postData() || '';
+    const todayBody = JSON.parse(todayBodyText) as unknown;
+    if (!todayBody || typeof todayBody !== 'object' || Array.isArray(todayBody)) {
+      throw new Error('回收站筛选请求体解析失败（今天）');
+    }
+    const todayRecord = todayBody as Record<string, unknown>;
+    expect(todayRecord.startTime).toBe(todayStart);
+    expect(typeof todayRecord.endTime).toBe('number');
+    await expect(recyclerPage.locator('.docinfo')).toHaveCount(1, { timeout: 5000 });
+    await expect(recyclerPage.locator('.docinfo').filter({ hasText: '今天接口A' })).toBeVisible({ timeout: 5000 });
+
+    const docNameRequest = contentPage.waitForResponse((response) => {
+      if (!response.url().includes('/api/docs/docs_deleted_list')) return false;
+      if (response.request().method() !== 'POST') return false;
+      const bodyText = response.request().postData();
+      if (!bodyText) return false;
+      try {
+        const parsed = JSON.parse(bodyText) as unknown;
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return false;
+        return (parsed as Record<string, unknown>).docName === '今天接口A';
+      } catch {
+        return false;
+      }
+    });
+    const docNameInput2 = recyclerPage.locator('input[placeholder*="通过接口名称匹配"]');
+    await expect(docNameInput2).toBeVisible({ timeout: 5000 });
+    await docNameInput2.fill('今天接口A');
+    await docNameRequest;
+    await expect(recyclerPage.locator('.docinfo')).toHaveCount(1, { timeout: 5000 });
+    await expect(recyclerPage.locator('.docinfo').filter({ hasText: '今天接口A' })).toBeVisible({ timeout: 5000 });
+
+    const urlNoMatchRequest = contentPage.waitForResponse((response) => {
+      if (!response.url().includes('/api/docs/docs_deleted_list')) return false;
+      if (response.request().method() !== 'POST') return false;
+      const bodyText = response.request().postData();
+      if (!bodyText) return false;
+      try {
+        const parsed = JSON.parse(bodyText) as unknown;
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return false;
+        return (parsed as Record<string, unknown>).url === '/no-match';
+      } catch {
+        return false;
+      }
+    });
+    const urlInput2 = recyclerPage.locator('input[placeholder*="通过接口url匹配"]');
+    await expect(urlInput2).toBeVisible({ timeout: 5000 });
+    await urlInput2.fill('/no-match');
+    await urlNoMatchRequest;
+    await expect(recyclerPage.locator('.docinfo')).toHaveCount(0, { timeout: 5000 });
+  });
   test('删除接口后在回收站中显示被删除的接口', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
     await loginAccount();

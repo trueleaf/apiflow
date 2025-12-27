@@ -2,13 +2,11 @@ import { test as base, _electron as electron, expect } from '@playwright/test';
 import type { ElectronApplication, Page } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { startServer, stopServer } from '../mock-server/index';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Electron 测试 fixtures 类型定义
 type ElectronFixtures = {
-  mockServer: void;
   electronApp: ElectronApplication;
   topBarPage: Page;
   contentPage: Page;
@@ -44,24 +42,9 @@ const waitForWindow = async (electronApp: ElectronApplication, predicate: (url: 
 };
 // 扩展基础测试，添加 Electron 相关 fixtures
 export const test = base.extend<ElectronFixtures>({
-  mockServer: [
-    async ({}, use: (fixture: void) => Promise<void>) => {
-      try {
-        await startServer();
-      } catch (error) {
-        const errnoError = error as NodeJS.ErrnoException;
-        if (errnoError.code !== 'EADDRINUSE') {
-          throw error;
-        }
-      }
-      await use(undefined);
-      await stopServer();
-    },
-    { auto: true },
-  ],
   // Electron 应用实例 fixture
   electronApp: async ({}, use) => {
-    const mainPath = path.resolve(__dirname, '../../dist/main/main.mjs');
+    const mainPath = path.resolve(__dirname, '../../dist/main/main.mjs');       
     const app = await electron.launch({
       args: [mainPath],
       env: {

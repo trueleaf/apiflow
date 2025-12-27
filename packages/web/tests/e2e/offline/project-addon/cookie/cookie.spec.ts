@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/electron.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 

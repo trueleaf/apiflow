@@ -69,23 +69,37 @@ export const useHttpNode = defineStore('httpNode', () => {
   }], async () => {
     const fullUrl = await getUrl(httpNodeInfo.value);
     const matchedCookies = httpNodeCookies.getMachtedCookies(fullUrl);
-    const property: ApidocProperty<'string'> = generateEmptyProperty();
-    property.key = "Cookie";
-    let cookieValue = '';
-    // console.log('initDefaultHeaders', fullUrl, matchedCookies);
+    const cookieIndex = defaultHeaders.value.findIndex(header => header.key === "Cookie");
+    const autoCookieDescription = i18n.global.t('<发送时候自动计算>');
+    const isAutoCookieHeader = (header: ApidocProperty<'string'> | undefined) => {
+      if (!header) return false;
+      return !!header._disableDelete && !!header._disableKey && !!header._disableDescription && header.description === autoCookieDescription;
+    }
     if (matchedCookies.length > 0) {
-      cookieValue = matchedCookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+      const cookieValue = matchedCookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+      if (cookieIndex !== -1) {
+        const existingHeader = defaultHeaders.value[cookieIndex];
+        if (isAutoCookieHeader(existingHeader)) {
+          defaultHeaders.value[cookieIndex].value = cookieValue;
+        }
+        return;
+      }
+      const property: ApidocProperty<'string'> = generateEmptyProperty();
+      property.key = "Cookie";
       property.value = cookieValue;
-      property.description = i18n.global.t('<发送时候自动计算>');
+      property.description = autoCookieDescription;
       property._disableDelete = true;
       property._disableKey = true;
       property._disableDescription = true;
-      const cookieIndex = defaultHeaders.value.findIndex(header => header.key === "Cookie");
-      if (cookieIndex !== -1) {
-        defaultHeaders.value[cookieIndex].value = cookieValue;
-      } else {
-        defaultHeaders.value.unshift(property);
-      }
+      defaultHeaders.value.unshift(property);
+      return;
+    }
+    if (cookieIndex === -1) {
+      return;
+    }
+    const existingHeader = defaultHeaders.value[cookieIndex];
+    if (isAutoCookieHeader(existingHeader)) {
+      defaultHeaders.value.splice(cookieIndex, 1);
     }
   }, {
     deep: true,

@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/electron.fixture';
 
 test.describe('CookieManagement', () => {
   test('打开Cookie管理页面,显示Cookie列表和操作按钮', async ({ topBarPage, contentPage, clearCache, createProject }) => {

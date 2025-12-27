@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
@@ -91,9 +91,14 @@ test.describe('CookieBusiness', () => {
     const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
     await headersTab.click();
     await contentPage.waitForTimeout(300);
-    const headerKeyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
-    const headerValueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
-    await headerKeyInputs.first().fill('Cookie');
+    const headerKeyAutocomplete = contentPage.getByTestId('params-tree-key-autocomplete');
+    const headerKeyInputs = contentPage.getByTestId('params-tree-key-input');
+    const headerValueInputs = contentPage.getByTestId('params-tree-value-input');
+    if (await headerKeyAutocomplete.count() > 0) {
+      await headerKeyAutocomplete.first().locator('input').fill('Cookie');
+    } else {
+      await headerKeyInputs.first().fill('Cookie');
+    }
     await headerValueInputs.first().click();
     await contentPage.keyboard.type('manual_cookie=1');
     await contentPage.waitForTimeout(300);

@@ -57,11 +57,6 @@ export default defineConfig({
     {
     name: 'electron',
     testMatch: '**/*.spec.ts',
-    use: {
-      trace: 'retain-on-failure',
-      screenshot: 'only-on-failure',
-      video: 'retain-on-failure',
-    },
   },
   ],
   
