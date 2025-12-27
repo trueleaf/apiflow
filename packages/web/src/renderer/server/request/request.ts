@@ -2,7 +2,7 @@ import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 import { ref, toRaw } from 'vue';
 import json5 from 'json5'
 import { HttpNode, ApidocProperty } from '@src/types';
-import { getFormDataFromFormDataParams, getObjectPathParams, getStringFromParams } from '@/helper'
+import { getFormDataFromFormDataParams, getObjectPathParams, getStringFromParams, parseUrlInfo } from '@/helper'
 import { getCompiledTemplate } from '@/helper';
 import { useVariable } from '@/store/projectWorkbench/variablesStore';
 import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/index.ts';
@@ -646,8 +646,7 @@ export const sendRequest = async () => {
         responseInfo.redirectList = cloneDeep(redirectList.value); // 记录重定向列表
         changeResponseInfo(responseInfo);
         changeFileBlobUrl(rawBody as Uint8Array, responseInfo.contentType);
-        updateCookiesBySetCookieHeader(setCookieStrList, copiedApidoc.item.url.prefix, projectId);
-        console.log('responseInfo', responseInfo)
+        updateCookiesBySetCookieHeader(setCookieStrList, parseUrlInfo(url).domain, projectId);
         const storedResponseInfo = cloneDeep(responseInfo);
         storedResponseInfo.body = rawBody;
         if (responseInfo.bodyByteLength > config.cacheConfig.httpNodeResponseCache.singleResponseBodySize) {

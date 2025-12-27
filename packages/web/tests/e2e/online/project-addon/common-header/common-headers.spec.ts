@@ -78,10 +78,11 @@ test.describe('CommonHeaders', () => {
     await fileNameInput.fill('测试接口');
     const fileConfirmBtn = addFileDialog.locator('.el-button--primary').last();
     await fileConfirmBtn.click();
-    // await contentPage.waitForTimeout(500);
+    await contentPage.waitForTimeout(500);
     // 设置请求URL并发送
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    // await contentPage.waitForTimeout(20000);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
@@ -359,7 +360,7 @@ test.describe('CommonHeaders', () => {
     await fileNameInput.fill('测试接口A');
     const fileConfirmBtn = addFileDialog.locator('.el-button--primary').last();
     await fileConfirmBtn.click();
-    // await contentPage.waitForTimeout(500);
+    await contentPage.waitForTimeout(500);
     // 发送请求验证公共请求头被继承
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -503,7 +504,7 @@ test.describe('CommonHeaders', () => {
     await fileNameInput.fill('嵌套测试接口');
     const fileConfirmBtn = addFileDialog.locator('.el-button--primary').last();
     await fileConfirmBtn.click();
-    // await contentPage.waitForTimeout(500);
+    await contentPage.waitForTimeout(500);
     // 发送请求验证多层公共请求头都被继承
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);

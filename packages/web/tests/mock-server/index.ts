@@ -265,6 +265,36 @@ export const createMockServer = (): Koa => {
   // Echo 路由 - 返回完整请求信息
   app.use(async (ctx) => {
     const files = (ctx.request as any).files as Files | undefined;
+    if (ctx.path === '/set-cookie') {
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString();
+      ctx.set('Set-Cookie', `af_set_cookie=1; Path=/; Expires=${expires}`);
+      ctx.body = { ok: true, type: 'set-cookie' };
+      return;
+    }
+    if (ctx.path === '/set-cookie/basic') {
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString();
+      ctx.set('Set-Cookie', `af_basic=basic_value; Path=/; Expires=${expires}`);
+      ctx.body = { ok: true, type: 'basic' };
+      return;
+    }
+    if (ctx.path === '/set-cookie/path') {
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString();
+      ctx.set('Set-Cookie', `af_path=path_value; Path=/echo/path-only; Expires=${expires}`);
+      ctx.body = { ok: true, type: 'path' };
+      return;
+    }
+    if (ctx.path === '/set-cookie/expired') {
+      ctx.set('Set-Cookie', 'af_expired=expired_value; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT');
+      ctx.body = { ok: true, type: 'expired' };
+      return;
+    }
+    if (ctx.path.startsWith('/set-cookie/override/')) {
+      const value = decodeURIComponent(ctx.path.replace('/set-cookie/override/', ''));
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString();
+      ctx.set('Set-Cookie', `af_override=${value}; Path=/; Expires=${expires}`);
+      ctx.body = { ok: true, type: 'override', value };
+      return;
+    }
     // 重定向路由 - 返回301重定向
     if (ctx.path === '/redirect-301') {
       ctx.status = 301;
