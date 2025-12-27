@@ -131,19 +131,208 @@ test.describe('Export', () => {
     });
     expect(filenames.some((name) => name.endsWith('.json'))).toBeTruthy();
   });
-  test('导出OpenAPI格式,点击确定导出按钮触发下载', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+  test('离线模式创建全类型节点与参数组合,导出OpenAPI并校验schema与required', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
-    await createProject();
+    const projectName = '导出OpenAPI全量测试项目';
+    await createProject(projectName);
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('OpenAPI测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
+
+    const addFolderBtn = contentPage.getByTestId('banner-add-folder-btn');
+    await addFolderBtn.click();
+    const addFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增文件夹|新建文件夹|Add Folder/ });
+    await expect(addFolderDialog).toBeVisible({ timeout: 5000 });
+    await addFolderDialog.locator('input').first().fill('导出测试文件夹');
+    await addFolderDialog.locator('.el-button--primary').last().click();
     await contentPage.waitForTimeout(500);
+
+    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+
+    await addFileBtn.click();
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('导出测试WebSocket节点');
+    await addFileDialog.locator('.el-radio').filter({ hasText: 'WebSocket' }).first().click();
+    await addFileDialog.locator('.el-button--primary').last().click();
+    await contentPage.waitForTimeout(500);
+
+    await addFileBtn.click();
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('导出测试HTTP Mock节点');
+    await addFileDialog.locator('.el-radio').filter({ hasText: 'HTTP Mock' }).first().click();
+    await addFileDialog.locator('.el-button--primary').last().click();
+    await contentPage.waitForTimeout(500);
+
+    await addFileBtn.click();
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('导出测试WebSocket Mock节点');
+    await addFileDialog.locator('.el-radio').filter({ hasText: 'WebSocket Mock' }).first().click();
+    await addFileDialog.locator('.el-button--primary').last().click();
+    await contentPage.waitForTimeout(500);
+
+    await addFileBtn.click();
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('OpenAPI-参数组合接口');
+    await addFileDialog.locator('.el-button--primary').last().click();
+    await contentPage.waitForTimeout(500);
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/params/{userId}`);
+    await contentPage.waitForTimeout(500);
+    const paramsTab = contentPage.locator('[data-testid="http-params-tab-params"]');
+    await paramsTab.click();
+    await contentPage.waitForTimeout(300);
+    const queryParamsTree = contentPage.locator('.query-path-params .cl-params-tree').first();
+    const queryRows = queryParamsTree.locator('[data-testid="params-tree-row"]');
+    await queryRows.nth(0).locator('[data-testid="params-tree-key-input"] input').fill('q');
+    await queryRows.nth(0).locator('[data-testid="params-tree-value-input"]').click();
+    await contentPage.keyboard.type('1');
+    await queryRows.nth(0).locator('[data-testid="params-tree-required-checkbox"]').click();
+    await queryRows.nth(0).locator('[data-testid="params-tree-description-input"] input').fill('query必填');
+    await queryRows.nth(1).locator('[data-testid="params-tree-key-input"] input').fill('opt');
+    await queryRows.nth(1).locator('[data-testid="params-tree-value-input"]').click();
+    await contentPage.keyboard.type('2');
+    await queryRows.nth(1).locator('[data-testid="params-tree-description-input"] input').fill('query非必填');
+    const pathParamsTree = contentPage.locator('.query-path-params .cl-params-tree').nth(1);
+    const userIdRow = pathParamsTree.locator('[data-testid="params-tree-row"][data-row-key=\"userId\"]');
+    await userIdRow.locator('[data-testid="params-tree-required-checkbox"]').click();
+    await userIdRow.locator('[data-testid="params-tree-description-input"] input').fill('用户ID');
+    const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
+    await headersTab.click();
+    await contentPage.waitForTimeout(300);
+    const headerTree = contentPage.locator('.header-info .cl-params-tree').last();
+    const headerRows = headerTree.locator('[data-testid="params-tree-row"]');
+    await headerRows.nth(0).locator('[data-testid="params-tree-key-input"] input').fill('X-Token');
+    await headerRows.nth(0).locator('[data-testid="params-tree-value-input"]').click();
+    await contentPage.keyboard.type('token_value');
+    await headerRows.nth(0).locator('[data-testid="params-tree-required-checkbox"]').click();
+    await headerRows.nth(0).locator('[data-testid="params-tree-description-input"] input').fill('令牌');
+    await contentPage.waitForTimeout(300);
+
+    await addFileBtn.click();
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('OpenAPI-JSON请求体接口');
+    await addFileDialog.locator('.el-button--primary').last().click();
+    await contentPage.waitForTimeout(500);
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/json`);
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    await methodSelect.click();
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first().click();
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+    await bodyTab.click();
+    await contentPage.waitForTimeout(300);
+    await contentPage.locator('.body-mode-item').filter({ hasText: /^json$/i }).locator('.el-radio').click();
+    await contentPage.waitForTimeout(300);
+    const jsonEditor = contentPage.locator('.s-json-editor').first();
+    await jsonEditor.click({ force: true });
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('{"name":"test","count":1,"active":true,"tags":["a"],"meta":{"id":1}}');
+    await contentPage.waitForTimeout(300);
+    const responseTab = contentPage.locator('[data-testid="http-params-tab-response"]');
+    await responseTab.click();
+    await contentPage.waitForTimeout(300);
+    const responseParams = contentPage.locator('.response-params');
+    const contentTypeArea = responseParams.locator('.content-type').first();
+    await contentTypeArea.locator('.cursor-pointer').first().click();
+    await contentPage.waitForTimeout(300);
+    await contentPage.locator('.el-popper.el-popover:visible').locator('.item').filter({ hasText: /^JSON$/ }).first().click();
+    await contentPage.waitForTimeout(300);
+    const responseJsonEditor = responseParams.locator('.response-collapse-card').first().locator('.editor-wrap').first();
+    await responseJsonEditor.click({ force: true });
+    await contentPage.keyboard.type('{"ok":true,"data":{"id":1}}');
+    await contentPage.waitForTimeout(300);
+    await responseParams.locator('.card-actions .action-icon').first().click();
+    await contentPage.waitForTimeout(300);
+    const secondCard = responseParams.locator('.response-collapse-card').nth(1);
+    await secondCard.locator('.status-code .cursor-pointer').first().click();
+    await contentPage.waitForTimeout(300);
+    await contentPage.locator('.el-popper.el-popover:visible').filter({ hasText: /400/ }).locator('text=400').first().click();
+    await contentPage.waitForTimeout(300);
+    await secondCard.locator('.content-type .cursor-pointer').first().click();
+    await contentPage.waitForTimeout(300);
+    await contentPage.locator('.el-popper.el-popover:visible').locator('.item').filter({ hasText: /^Text$/ }).first().click();
+    await contentPage.waitForTimeout(300);
+    const secondCardEditor = secondCard.locator('.editor-wrap').first();
+    await secondCardEditor.click({ force: true });
+    await contentPage.keyboard.type('error');
+    await contentPage.waitForTimeout(300);
+
+    await addFileBtn.click();
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('OpenAPI-FormData请求体接口');
+    await addFileDialog.locator('.el-button--primary').last().click();
+    await contentPage.waitForTimeout(500);
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/formdata`);
+    await methodSelect.click();
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first().click();
+    await bodyTab.click();
+    await contentPage.waitForTimeout(300);
+    await contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio').click();
+    await contentPage.waitForTimeout(300);
+    const formTree = contentPage.locator('.body-params .cl-params-tree').first();
+    const formRows = formTree.locator('[data-testid="params-tree-row"]');
+    await formRows.nth(0).locator('[data-testid="params-tree-key-input"] input').fill('file');
+    await formRows.nth(0).locator('[data-testid="params-tree-type-select"]').click();
+    await contentPage.waitForTimeout(200);
+    await contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /^File$/ }).first().click();
+    await contentPage.waitForTimeout(200);
+    await formRows.nth(0).locator('[data-testid="params-tree-required-checkbox"]').click();
+    await formRows.nth(0).locator('[data-testid="params-tree-description-input"] input').fill('上传文件');
+    await formRows.nth(1).locator('[data-testid="params-tree-key-input"] input').fill('name');
+    await formRows.nth(1).locator('[data-testid="params-tree-value-input"]').click();
+    await contentPage.keyboard.type('test');
+    await formRows.nth(1).locator('[data-testid="params-tree-description-input"] input').fill('名称');
+    await contentPage.waitForTimeout(300);
+
+    await addFileBtn.click();
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('OpenAPI-UrlEncoded请求体接口');
+    await addFileDialog.locator('.el-button--primary').last().click();
+    await contentPage.waitForTimeout(500);
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/urlencoded`);
+    await methodSelect.click();
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first().click();
+    await bodyTab.click();
+    await contentPage.waitForTimeout(300);
+    await contentPage.locator('.body-mode-item').filter({ hasText: /^x-www-form-urlencoded$/i }).locator('.el-radio').click();
+    await contentPage.waitForTimeout(300);
+    const urlencodedTree = contentPage.locator('.body-params .cl-params-tree').first();
+    const urlencodedRows = urlencodedTree.locator('[data-testid="params-tree-row"]');
+    await urlencodedRows.nth(0).locator('[data-testid="params-tree-key-input"] input').fill('a');
+    await urlencodedRows.nth(0).locator('[data-testid="params-tree-value-input"]').click();
+    await contentPage.keyboard.type('1');
+    await urlencodedRows.nth(0).locator('[data-testid="params-tree-required-checkbox"]').click();
+    await urlencodedRows.nth(0).locator('[data-testid="params-tree-description-input"] input').fill('a必填');
+    await urlencodedRows.nth(1).locator('[data-testid="params-tree-key-input"] input').fill('b');
+    await urlencodedRows.nth(1).locator('[data-testid="params-tree-value-input"]').click();
+    await contentPage.keyboard.type('2');
+    await urlencodedRows.nth(1).locator('[data-testid="params-tree-description-input"] input').fill('b非必填');
+    await contentPage.waitForTimeout(300);
+
+    await addFileBtn.click();
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('OpenAPI-Raw请求体接口');
+    await addFileDialog.locator('.el-button--primary').last().click();
+    await contentPage.waitForTimeout(500);
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/raw`);
+    await methodSelect.click();
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first().click();
+    await bodyTab.click();
+    await contentPage.waitForTimeout(300);
+    await contentPage.locator('.body-mode-item').filter({ hasText: /^raw$/i }).locator('.el-radio').click();
+    await contentPage.waitForTimeout(300);
+    await contentPage.locator('[data-testid="raw-body-type-select"]').click();
+    await contentPage.waitForTimeout(200);
+    await contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: 'xml' }).first().click();
+    await contentPage.waitForTimeout(200);
+    const rawTextarea = contentPage.locator('.raw-textarea textarea, .raw-editor textarea, [data-testid="raw-body-input"]');
+    if (await rawTextarea.count() > 0) {
+      await rawTextarea.fill('<?xml version="1.0\"?><root><name>test</name></root>');
+    } else {
+      const rawEditor = contentPage.locator('.raw-wrap .s-json-editor').first();
+      await rawEditor.click({ force: true });
+      await contentPage.keyboard.type('<?xml version=\"1.0\"?><root><name>test</name></root>');
+    }
+    await contentPage.waitForTimeout(300);
+
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const exportItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导出文档/ });
@@ -155,29 +344,88 @@ test.describe('Export', () => {
     await openapiOption.click();
     await expect(openapiOption).toHaveClass(/active/);
     await contentPage.evaluate(() => {
-      const w = window as unknown as { __downloadFilenames?: string[] };
-      w.__downloadFilenames = [];
-      const originalClick = HTMLAnchorElement.prototype.click;
-      HTMLAnchorElement.prototype.click = function () {
-        const downloadAttr = this.getAttribute('download');
-        if (downloadAttr) {
-          w.__downloadFilenames?.push(downloadAttr);
-        }
-        return originalClick.apply(this);
+      const w = window as unknown as {
+        __downloadRecords?: { filename: string; href: string; content?: string }[];
+        __originalAnchorClick?: typeof HTMLAnchorElement.prototype.click;
+        __originalRevokeObjectURL?: typeof URL.revokeObjectURL;
       };
+      w.__downloadRecords = [];
+      if (!w.__originalRevokeObjectURL) {
+        w.__originalRevokeObjectURL = URL.revokeObjectURL.bind(URL);
+        URL.revokeObjectURL = () => { };
+      }
+      if (!w.__originalAnchorClick) {
+        w.__originalAnchorClick = HTMLAnchorElement.prototype.click;
+        HTMLAnchorElement.prototype.click = function () {
+          const downloadAttr = this.getAttribute('download');
+          const href = this.getAttribute('href') || '';
+          if (downloadAttr) {
+            const record = { filename: downloadAttr, href };
+            w.__downloadRecords?.push(record);
+            if (href.startsWith('blob:')) {
+              fetch(href).then((r) => r.text()).then((text) => {
+                record.content = text;
+              }).catch(() => { });
+            }
+          }
+          return w.__originalAnchorClick!.apply(this);
+        };
+      }
     });
     const exportBtn = exportPage.locator('.el-button--primary').filter({ hasText: /确定导出/ });
     await exportBtn.click();
     await expect.poll(async () => {
       return await contentPage.evaluate(() => {
-        const w = window as unknown as { __downloadFilenames?: string[] };
-        return w.__downloadFilenames?.length || 0;
+        const w = window as unknown as { __downloadRecords?: { filename: string; href: string; content?: string }[] };
+        return w.__downloadRecords?.filter((r) => r.filename.endsWith('.openapi.json') && !!r.content).length || 0;
       });
     }, { timeout: 5000 }).toBeGreaterThan(0);
-    const filenames = await contentPage.evaluate(() => {
-      const w = window as unknown as { __downloadFilenames?: string[] };
-      return w.__downloadFilenames || [];
+    const openapiJsonText = await contentPage.evaluate(() => {
+      const w = window as unknown as { __downloadRecords?: { filename: string; href: string; content?: string }[] };
+      return w.__downloadRecords?.find((r) => r.filename.endsWith('.openapi.json'))?.content || '';
     });
-    expect(filenames.some((name) => name.endsWith('.openapi.json'))).toBeTruthy();
+    expect(openapiJsonText).toBeTruthy();
+    const openapiJson = JSON.parse(openapiJsonText) as unknown as {
+      openapi: string;
+      info: { title: string };
+      paths: Record<string, Record<string, {
+        summary: string;
+        parameters: { name: string; in: 'path' | 'query' | 'header'; required: boolean; description: string; schema: { type: string } }[];
+        requestBody?: { required: boolean; content: Record<string, { schema: unknown }> };
+        responses: Record<string, { description: string; content?: Record<string, { schema: unknown }> }>;
+      }>>;
+    };
+    expect(openapiJson.openapi).toBe('3.0.3');
+    expect(openapiJson.info.title).toBe(projectName);
+    expect(Object.keys(openapiJson.paths).sort()).toEqual([
+      '/openapi/formdata',
+      '/openapi/json',
+      '/openapi/params/{userId}',
+      '/openapi/raw',
+      '/openapi/urlencoded',
+    ].sort());
+    expect(openapiJson.paths['/openapi/params/{userId}']).toBeTruthy();
+    expect(openapiJson.paths['/openapi/params/{userId}'].get).toBeTruthy();
+    expect(openapiJson.paths['/openapi/params/{userId}'].get.summary).toBe('OpenAPI-参数组合接口');
+    expect(openapiJson.paths['/openapi/params/{userId}'].get.parameters).toEqual(expect.arrayContaining([
+      expect.objectContaining({ name: 'userId', in: 'path', required: true, schema: { type: 'string' } }),
+      expect.objectContaining({ name: 'q', in: 'query', required: true, schema: { type: 'string' } }),
+      expect.objectContaining({ name: 'opt', in: 'query', required: false, schema: { type: 'string' } }),
+      expect.objectContaining({ name: 'X-Token', in: 'header', required: true, schema: { type: 'string' } }),
+    ]));
+    expect(openapiJson.paths['/openapi/json'].post).toBeTruthy();
+    expect(openapiJson.paths['/openapi/json'].post.summary).toBe('OpenAPI-JSON请求体接口');
+    expect(openapiJson.paths['/openapi/json'].post.requestBody?.required).toBe(true);
+    expect(openapiJson.paths['/openapi/json'].post.requestBody?.content['application/json']).toBeTruthy();
+    expect(openapiJson.paths['/openapi/json'].post.responses['200']).toBeTruthy();
+    expect(openapiJson.paths['/openapi/json'].post.responses['200'].content?.['application/json']).toBeTruthy();
+    expect(openapiJson.paths['/openapi/json'].post.responses['400']).toBeTruthy();
+    expect(openapiJson.paths['/openapi/json'].post.responses['400'].content?.['text/plain']).toBeTruthy();
+    expect(openapiJson.paths['/openapi/formdata'].post).toBeTruthy();
+    expect(openapiJson.paths['/openapi/formdata'].post.requestBody?.content['multipart/form-data']).toBeTruthy();
+    expect(openapiJson.paths['/openapi/urlencoded'].post).toBeTruthy();
+    expect(openapiJson.paths['/openapi/urlencoded'].post.requestBody?.content['application/x-www-form-urlencoded']).toBeTruthy();
+    expect(openapiJson.paths['/openapi/raw'].post).toBeTruthy();
+    expect(openapiJson.paths['/openapi/raw'].post.requestBody?.content['application/xml']).toBeTruthy();
   });
 });

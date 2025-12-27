@@ -295,6 +295,30 @@ export const createMockServer = (): Koa => {
       ctx.body = { ok: true, type: 'override', value };
       return;
     }
+    if (ctx.path === '/set-cookie/delete-basic') {
+      ctx.set('Set-Cookie', 'af_basic=; Path=/; Max-Age=0');
+      ctx.body = { ok: true, type: 'delete-basic' };
+      return;
+    }
+    if (ctx.path === '/set-cookie/domain-mismatch') {
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString();
+      ctx.set('Set-Cookie', `af_domain_mismatch=1; Domain=localhost; Path=/; Expires=${expires}`);
+      ctx.body = { ok: true, type: 'domain-mismatch' };
+      return;
+    }
+    if (ctx.path === '/set-cookie/order') {
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString();
+      ctx.append('Set-Cookie', `af_order=short; Path=/echo; Expires=${expires}`);
+      ctx.append('Set-Cookie', `af_order=long; Path=/echo/path-only; Expires=${expires}`);
+      ctx.body = { ok: true, type: 'order' };
+      return;
+    }
+    if (ctx.path === '/set-cookie/default-path/dir/leaf') {
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString();
+      ctx.set('Set-Cookie', `af_default_path=1; Expires=${expires}`);
+      ctx.body = { ok: true, type: 'default-path' };
+      return;
+    }
     // 重定向路由 - 返回301重定向
     if (ctx.path === '/redirect-301') {
       ctx.status = 301;

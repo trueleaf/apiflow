@@ -1104,6 +1104,8 @@ const INITIAL_ROLE = [
     remark: '拥有完整文档操作权限(无法进入管理后台)',
     roleName: '普通用户',
     serverRoutes: [
+      '60ab4dd440b59032c9227302',
+      '60a7483b40b59032c9226fc3',
       '67bd4893d9884f97a42863fe',
       '67bd4893d9884f97a42261ff',
       '67bd4893d9884f97a42861ff',
