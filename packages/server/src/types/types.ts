@@ -120,13 +120,20 @@ export enum DocType {
   HTTP = 'http',
   HTTP_MOCK = 'httpMock',
   WEBSOCKET = 'websocket',
+  WEBSOCKET_MOCK = 'websocketMock',
   MARKDOWN = 'markdown'
 }
 
 /**
  * 文档类型字面量类型
  */
-export type DocTypeString = 'folder' | 'http' | 'httpMock' | 'websocket' | 'markdown';
+export type DocTypeString =
+  | 'folder'
+  | 'http'
+  | 'httpMock'
+  | 'websocket'
+  | 'websocketMock'
+  | 'markdown';
 
 export enum StorageService {
   LOCAL = 'local',

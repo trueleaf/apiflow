@@ -232,7 +232,23 @@ export class DocService {
           ]
         };
         break;
-        
+
+      case 'websocketMock':
+        doc.websocketMockItem = {
+          requestCondition: {
+            port: 4001,
+            path: '/ws',
+          },
+          config: {
+            delay: 0,
+            echoMode: false,
+          },
+          response: {
+            content: '',
+          },
+        };
+        break;
+
       default:
         // 默认情况（包括 markdown 等其他类型），只保留基础信息
         break;
@@ -284,12 +300,20 @@ export class DocService {
       case 'httpMock':
         return {
           ...baseReturn,
-          method: result.httpMockItem?.requestCondition?.method?.[0] || 'ALL',
+          method: result.httpMockItem?.requestCondition?.method?.[0] || 'ALL',  
           url: result.httpMockItem?.requestCondition?.url || '',
           port: result.httpMockItem?.requestCondition?.port || 4000,
           state: 'stopped',
         };
-        
+
+      case 'websocketMock':
+        return {
+          ...baseReturn,
+          path: result.websocketMockItem?.requestCondition?.path || '',
+          port: result.websocketMockItem?.requestCondition?.port || 4001,
+          state: 'stopped',
+        };
+
       default:
         return baseReturn;
     }
@@ -405,7 +429,7 @@ export class DocService {
    * 改变文档请求相关数据
    */
   async updateDoc(params: UpdateDoc) {
-    const { _id, info, item, preRequest, afterRequest, projectId, mockInfo, websocketItem, httpMockItem} = params;
+    const { _id, info, item, preRequest, afterRequest, projectId, mockInfo, websocketItem, httpMockItem, websocketMockItem} = params;
     await this.commonControl.checkDocOperationPermissions(projectId);
     const { tokenInfo } = this.ctx;
     
@@ -442,7 +466,12 @@ export class DocService {
     if (docType === 'httpMock' && httpMockItem) {
       updateInfo.$set.httpMockItem = httpMockItem;
     }
-    
+
+    // WebSocketMock节点更新
+    if (docType === 'websocketMock' && websocketMockItem) {
+      updateInfo.$set.websocketMockItem = websocketMockItem;
+    }
+
     await this.docModel.findByIdAndUpdate({ _id }, updateInfo);
     return;
   }
@@ -529,8 +558,32 @@ export class DocService {
         updatedAt: result.updatedAt,
       };
       return httpMockData;
+    } else if (nodeType === 'websocketMock' && result.websocketMockItem) {
+      const websocketMockData = {
+        _id: result._id,
+        pid: result.pid || '',
+        projectId: result.projectId,
+        sort: result.sort || 0,
+        isFolder: result.isFolder,
+        info: result.info,
+        requestCondition: result.websocketMockItem.requestCondition || {
+          port: 4001,
+          path: '/ws',
+        },
+        config: result.websocketMockItem.config || {
+          delay: 0,
+          echoMode: false,
+        },
+        response: result.websocketMockItem.response || {
+          content: '',
+        },
+        createdAt: result.createdAt,
+        updatedAt: result.updatedAt,
+        isDeleted: !result.isEnabled,
+      };
+      return websocketMockData;
     }
-    
+
     return result;
   }
   /**
@@ -565,7 +618,7 @@ export class DocService {
   /**
    * 以树形结构获取文档
    */
-  async getDocsAsTree(params: GetDocsAsTreeDto, ignorePermission?: boolean) {
+  async getDocsAsTree(params: GetDocsAsTreeDto, ignorePermission?: boolean) {   
     const { projectId } = params;
     if (!ignorePermission) {
       await this.commonControl.checkDocOperationPermissions(projectId, 'readOnly');
@@ -583,6 +636,7 @@ export class DocService {
       'websocketItem.item.protocol': 1,
       'websocketItem.item.url': 1,
       'httpMockItem.requestCondition': 1,
+      'websocketMockItem.requestCondition': 1,
       isFolder: 1,
       sort: 1,
       updatedAt: 1,
@@ -621,9 +675,18 @@ export class DocService {
       if (val.info.type === 'httpMock') {
         return {
           ...baseData,
-          method: val.httpMockItem?.requestCondition?.method?.[0] || 'ALL',
+          method: val.httpMockItem?.requestCondition?.method?.[0] || 'ALL',     
           url: val.httpMockItem?.requestCondition?.url || '',
           port: val.httpMockItem?.requestCondition?.port || 3000,
+          state: 'stopped',
+        };
+      }
+      // WebSocketMock 节点
+      if (val.info.type === 'websocketMock') {
+        return {
+          ...baseData,
+          path: val.websocketMockItem?.requestCondition?.path || '',
+          port: val.websocketMockItem?.requestCondition?.port || 4001,
           state: 'stopped',
         };
       }

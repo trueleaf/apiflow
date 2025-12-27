@@ -2,6 +2,7 @@ import { Rule, RuleType, getSchema } from '@midwayjs/validate';
 import { RequestMethod } from '../../types.js';
 import { WebsocketItem } from './websocket.dto.js';
 import { HttpMockItem } from './httpMock.dto.js';
+import { WebsocketMockItem } from './websocketMock.dto.js';
 
 /*
 |--------------------------------------------------------------------------
@@ -180,8 +181,8 @@ class DocBaseInfo {
   /**
    * 文档类型,   1.文件夹 2.HTTP接口 3.HTTP Mock 4.WebSocket 5.Markdown文档
    */
-  @Rule(RuleType.string().valid('folder', 'http', 'httpMock', 'websocket', 'markdown').required())
-  type: 'folder' | 'http' | 'httpMock' | 'websocket' | 'markdown';
+  @Rule(RuleType.string().valid('folder', 'http', 'httpMock', 'websocket', 'websocketMock', 'markdown').required())
+  type: 'folder' | 'http' | 'httpMock' | 'websocket' | 'websocketMock' | 'markdown';
   /**
    * 创建者
    */
@@ -535,8 +536,8 @@ export class AddEmptyDocDto {
   /**
    * 文档类型
    */
-  @Rule(RuleType.string().valid('folder', 'http', 'httpMock', 'websocket', 'markdown').required())
-  type: 'folder' | 'http' | 'httpMock' | 'websocket' | 'markdown';
+  @Rule(RuleType.string().valid('folder', 'http', 'httpMock', 'websocket', 'websocketMock', 'markdown').required())
+  type: 'folder' | 'http' | 'httpMock' | 'websocket' | 'websocketMock' | 'markdown';
   /**
    * 父元素id
    */
@@ -714,6 +715,11 @@ export class UpdateDoc {
    */
   @Rule(getSchema(HttpMockItem))
   httpMockItem: HttpMockItem;
+  /**
+   * WebSocketMock节点数据
+   */
+  @Rule(getSchema(WebsocketMockItem))
+  websocketMockItem: WebsocketMockItem;
 }
 
 /**
