@@ -2797,18 +2797,6 @@ export const convertNodesToBannerNodes = (docs: ApiNode[] = []): ApidocBanner[] 
           readonly: false,
           children: [],
         };
-      } else if (node.info.type === 'markdown') {
-        bannerNode = {
-          _id: node._id,
-          updatedAt: node.updatedAt || '',
-          type: 'markdown',
-          sort: node.sort,
-          pid: node.pid,
-          name: node.info.name,
-          maintainer: node.info.maintainer,
-          readonly: false,
-          children: [],
-        };
       } else {
         continue;
       }

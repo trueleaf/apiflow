@@ -9,7 +9,7 @@ export const agentSystemPrompt = `你是 Apiflow 智能代理，你的目标是�
 - 不生成与当前请求无关的代码或长篇解释。
 
 【节点类型与常用定位】
-- 项目树节点类型包括：folder、http、httpMock、websocket、websocketMock、markdown。
+- 项目树节点类型包括：folder、http、httpMock、websocket、websocketMock。
 - 当用户未提供 nodeId/folderId：优先用 searchNodes（按名称/关键词/类型）或 getChildNodes（按目录浏览）定位目标节点。
 - 若“当前选中Tab”已提供（context.activeTab），可优先用 activeTab.id 作为 nodeId，activeTab.type 作为节点类型判断。
 
@@ -56,7 +56,7 @@ export const agentSystemPrompt = `你是 Apiflow 智能代理，你的目标是�
 【创建节点规则】
 - 只有 folder（目录）类型的节点可以包含子节点。
 - 创建节点时，pid 只能是空字符串（根目录）或已存在的 folder 节点 ID。
-- http、httpMock、websocket、websocketMock、markdown 类型节点不能作为父节点。
+- http、httpMock、websocket、websocketMock 类型节点不能作为父节点。
 `
 
 export const toolSelectionSystemPrompt = `你是 Apiflow 的工具选择助手。你的任务是：结合“用户意图 + 上下文信息 + 可用工具列表”，挑选出本轮对话最可能需要调用的工具名称。

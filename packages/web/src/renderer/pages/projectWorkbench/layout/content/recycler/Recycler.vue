@@ -109,11 +109,7 @@
                     <span class="mr-2">{{ docInfo.name }}</span>
                     <span class="node-path">{{ docInfo.path }}</span>
                   </template>
-                  <!-- markdown 类型 -->
-                  <template v-else-if="docInfo.type === 'markdown'">
-                    <span class="md-icon">MD</span>
-                    <span>{{ docInfo.name }}</span>
-                  </template>
+
                 </div>
               </div>
             </div>

@@ -72,7 +72,7 @@ export const nodeOperationTools: AgentTool[] = [
         },
         filterType: {
           type: 'string',
-          enum: ['folder', 'http', 'httpMock', 'websocket', 'websocketMock', 'markdown'],
+          enum: ['folder', 'http', 'httpMock', 'websocket', 'websocketMock'],
           description: '可选，按节点类型过滤。不传则返回所有类型的节点',
         },
       },
@@ -653,7 +653,7 @@ export const nodeOperationTools: AgentTool[] = [
       properties: {
         filterType: {
           type: 'string',
-          enum: ['folder', 'http', 'httpMock', 'websocket', 'websocketMock', 'markdown'],
+          enum: ['folder', 'http', 'httpMock', 'websocket', 'websocketMock'],
           description: '可选，按节点类型过滤。不传则返回所有类型的节点',
         },
       },
@@ -811,7 +811,7 @@ export const nodeOperationTools: AgentTool[] = [
         },
         type: {
           type: 'string',
-          enum: ['folder', 'http', 'httpMock', 'websocket', 'websocketMock', 'markdown'],
+          enum: ['folder', 'http', 'httpMock', 'websocket', 'websocketMock'],
           description: '节点类型（精确匹配）',
         },
         name: {

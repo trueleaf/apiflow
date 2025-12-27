@@ -59,7 +59,7 @@ export const useCookies = defineStore('projectCookies', () => {
       if (!cookieDomain) return;
       if (!hostOnly && !domainMatches(requestHost, cookieDomain)) return;
       const hasPathAttr = typeof objCookie.path === 'string' && objCookie.path.trim() !== '';
-      const cookiePath = hasPathAttr ? objCookie.path! : getDefaultPath(requestPath);
+      const cookiePath = hasPathAttr && objCookie.path!.startsWith('/') ? objCookie.path! : getDefaultPath(requestPath);
       const realPath = cookiePath.startsWith('/') ? cookiePath : '/';
       const maxAge = typeof objCookie.maxAge === 'number' ? objCookie.maxAge : undefined;
       const expiresDate = maxAge !== undefined ? new Date(now + maxAge * 1000) : objCookie.expires;

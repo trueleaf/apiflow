@@ -1418,7 +1418,7 @@ const node: ModelNode = {
       },
       {
         "id": "3",
-        "name": "支持的节点类型:http,websocket,httpMock,websocketMock,markdown(folder不计入)"
+        "name": "支持的节点类型:http,websocket,httpMock,websocketMock (folder不计入)"
       },
       {
         "id": "4",

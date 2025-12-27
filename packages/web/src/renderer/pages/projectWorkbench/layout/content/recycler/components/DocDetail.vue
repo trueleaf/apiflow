@@ -63,12 +63,7 @@
             <span>{{ wsMockItem?.requestCondition?.port }}</span>
           </SLableValue>
         </template>
-        <!-- Markdown 类型 -->
-        <template v-else-if="apidocInfo.info.type === 'markdown'">
-          <SLableValue :label="t('文档名称') + '：'" class="w-50">
-            <div>{{ apidocInfo.info.name }}</div>
-          </SLableValue>
-        </template>
+
         <!-- 通用信息 -->
         <div class="base-info">
           <SLableValue :label="t('维护人员') + '：'" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto"
