@@ -13,6 +13,7 @@ export const useRuntime = defineStore('runtime', () => {
     phone: '',
     realName: '',
     roleIds: [],
+    role: 'user',
     token: '',
     avatar: '',
   });
@@ -33,7 +34,10 @@ export const useRuntime = defineStore('runtime', () => {
   const initUserInfo = (): void => {
     const cachedUserInfo = runtimeCache.getUserInfo();
     if (cachedUserInfo) {
-      userInfo.value = cachedUserInfo;
+      userInfo.value = {
+        ...userInfo.value,
+        ...cachedUserInfo,
+      };
     }
   };
   // 清除用户信息
@@ -44,6 +48,7 @@ export const useRuntime = defineStore('runtime', () => {
       phone: '',
       realName: '',
       roleIds: [],
+      role: 'user',
       token: '',
       avatar: '',
     };
@@ -65,4 +70,3 @@ export const useRuntime = defineStore('runtime', () => {
     setLanguage,
   }
 })
-

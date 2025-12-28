@@ -49,7 +49,7 @@ export const usePermissionStore = defineStore('permission', () => {
   //改变当前访问菜单
   const changeMenus = () => {
     const runtimeStore = useRuntime();
-    if (runtimeStore.userInfo.loginName === 'admin') {
+    if (runtimeStore.userInfo.role === 'admin') {
       menus.value = [{
         path: '/home',
         name: 'api文档',

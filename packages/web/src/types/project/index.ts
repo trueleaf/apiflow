@@ -79,6 +79,10 @@ export type PermissionUserInfo = {
    * 角色id列表
    */
   roleIds: string[];
+  /**
+   * 用户角色
+   */
+  role: 'user' | 'admin';
   token: string;
   /**
    * 用户头像（base64字符串）

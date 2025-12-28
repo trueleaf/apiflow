@@ -98,6 +98,7 @@ export type LoginTokenInfo = {
   loginName: User['loginName'];
   realName: User['realName'];
   phone: User['phone'];
+  role: 'user' | 'admin';
   token: string;
 };
 

@@ -140,6 +140,7 @@ const normalizeUserInfo = (info?: PermissionUserInfo | null): PermissionUserInfo
   phone: info?.phone || '',
   realName: info?.realName || 'me',
   roleIds: info?.roleIds || [],
+  role: info?.role || 'user',
   token: info?.token || '',
   avatar: info?.avatar || '',
   email: info?.email || ''

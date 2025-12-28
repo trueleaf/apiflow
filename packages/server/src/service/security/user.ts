@@ -44,6 +44,8 @@ import { ClientRoutes } from '../../entity/security/client_routes.js';
 import { Role } from '../../entity/security/role.js';
 import { Group } from '../../entity/security/group.js';
 
+const ADMIN_ROLE_ID = '5edf71f2193c7d5fa0ec9b98';
+
 
 @Provide()
 export class UserService {
@@ -202,12 +204,14 @@ export class UserService {
       }
     );
 
+    const role: LoginTokenInfo['role'] = userInfo.roleIds?.includes(ADMIN_ROLE_ID) ? 'admin' : 'user';
     const loginInfo: LoginTokenInfo = {
       id: userInfo.id,
       roleIds: userInfo.roleIds,
       loginName: userInfo.loginName,
       realName: userInfo.realName,
       phone: userInfo.phone,
+      role,
       token: '',
     };
     const token = jwt.default.sign(loginInfo, this.jwtConfig.secretOrPrivateKey, {
@@ -241,12 +245,14 @@ export class UserService {
     if (!userInfo.isEnabled) {
       return throwError(2008, '用户被禁止登录，管理员可以启用当前用户');
     }
+    const role: LoginTokenInfo['role'] = userInfo.roleIds?.includes(ADMIN_ROLE_ID) ? 'admin' : 'user';
     const loginInfo: LoginTokenInfo = {
       id: userInfo.id,
       roleIds: userInfo.roleIds,
       loginName: userInfo.loginName,
       realName: userInfo.realName,
       phone: userInfo.phone,
+      role,
       token: '',
     };
     const token = jwt.default.sign(loginInfo, this.jwtConfig.secretOrPrivateKey, {
@@ -726,6 +732,7 @@ export class UserService {
     clientMenuResult = uniqueByKey(clientMenuResult, 'id');
     return {
       ...tokenInfo,
+      role: roleIds.includes(ADMIN_ROLE_ID) ? 'admin' : 'user',
       clientBanner: clientMenuResult.sort((a, b) => {
         return b.sort - a.sort;
       }),

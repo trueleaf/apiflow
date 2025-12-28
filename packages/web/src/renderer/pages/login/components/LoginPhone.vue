@@ -1,4 +1,3 @@
-
 <template>
   <el-form ref="form" :model="userInfo" :rules="rules" @submit.stop.prevent="handleLogin">
     <el-form-item prop="phone">
@@ -33,10 +32,12 @@ import { request } from '@/api/api';
 import { router } from '@/router';
 import { usePermissionStore } from '@/store/permission/permissionStore';
 import { config } from '@src/config/config';
-
-
+import { useRuntime } from '@/store/runtime/runtimeStore'
+import { IPC_EVENTS } from '@src/types/ipc'
 import { message } from '@/helper'
+
 const { t } = useI18n()
+const runtimeStore = useRuntime()
 const userInfo = reactive({
   phone: '', //------------------手机号码
   smsCode: '', //----------------短信验证码
@@ -52,7 +53,6 @@ const form = ref<FormInstance>();
 const smsRef = ref<{ resetState: () => void } | null>(null)
 const captchaData = ref('');
 const permissionStore = usePermissionStore()
-
 
 //校验手机号码
 const smsCodeHook = () => {
@@ -84,15 +84,15 @@ const getSmsCode = () => {
     captcha: userInfo.captcha,
     clientKey
   };
-  request.get<CommonResponse<any>, CommonResponse<any>>('/api/security/sms', { 
+  request.get<CommonResponse<any>, CommonResponse<any>>('/api/security/sms', {
     params,
-   }).then(res => {
+  }).then(res => {
     if (res.code === 4005) {
       getCaptcha();
       smsRef.value?.resetState();
       message.warning(res.msg);
     }
-   }).catch((err) => {
+  }).catch((err) => {
     console.error(err);
     getCaptcha()
   });
@@ -107,9 +107,10 @@ const handleLogin = () => {
         if (res.code === 2006 || res.code === 2003) {
           message.warning(res.msg);
         } else {
+          runtimeStore.updateUserInfo(res.data)
+          window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { token: res.data.token, avatar: res.data.avatar })
           router.push('/home');
           permissionStore.getPermission()
-          
         }
       }).catch((err) => {
         console.error(err);
