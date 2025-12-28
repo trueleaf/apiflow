@@ -11,7 +11,7 @@
     <el-checkbox-group v-model="roleIds">
       <el-checkbox v-for="(item, index) in roleEnum" :key="index" :value="item._id">{{ item.roleName }}</el-checkbox>
     </el-checkbox-group>
-    <el-alert :title="t('新添加用户默认密码：111111')" type="warning" :closable="false" />
+    <el-alert :title="t('新添加的用户默认密码：111111')" type="warning" :closable="false" />
     <template #footer>
       <div>
         <el-button @click="handleClose">{{ t("取消") }}</el-button>

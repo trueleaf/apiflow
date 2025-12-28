@@ -6,15 +6,12 @@ import {
   Put,
   Del,
   Get,
-  Query,
 } from '@midwayjs/core';
-import { 
-  AddClientRoutesDto, 
-  AddMultiClientRoutesDto, 
-  ChangeGroupNameByIds, 
-  DeleteClientRoutesDto, 
-  EditClientRoutesDto, 
-  GetClientRoutesListDto 
+import {
+  AddClientRoutesDto,
+  ChangeGroupNameByIds,
+  DeleteClientRoutesDto,
+  EditClientRoutesDto,
 } from '../../types/dto/security/client.routes.dto.js';
 import { ClientRoutesService } from '../../service/security/client_routes.js';
 
@@ -28,14 +25,6 @@ export class ClientRoutesController {
   @Post('/security/client_routes')
   async addClientRoutes(@Body() params: AddClientRoutesDto) {
     const data = await this.clientRoutesService.addClientRoutes(params);
-    return data;
-  }
-  /**
-   * 批量新增前端路由
-   */
-  @Post('/security/client_routes_multi')
-  async addMultiClientRoutes(@Body() params: AddMultiClientRoutesDto) {
-    const data = await this.clientRoutesService.addMultiClientRoutes(params);
     return data;
   }
   /**
@@ -63,19 +52,11 @@ export class ClientRoutesController {
     return data;
   }
   /**
-   * 以列表形式获取前端路由
-   */
-  @Get('/security/client_routes_list')
-  async getClientRoutesList(@Query() params: GetClientRoutesListDto) {
-    const data = await this.clientRoutesService.getClientRoutesList(params);
-    return data;
-  }
-  /**
    * 获取全部客户端路由
    */
   @Get('/security/client_routes')
   async getAllClientRoutesList() {
-    const data = await this.clientRoutesService.getAllClientRoutesList();
+    const data = await this.clientRoutesService.getAllClientRoutesList();       
     return data;
   }
 }

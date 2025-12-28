@@ -1,5 +1,5 @@
 import { Inject, Controller, Body, Post, Del, Get, Put, Query } from '@midwayjs/core';
-import { AddEmptyDocDto, ChangeDocBaseInfoDto, ChangeDocPositionDto, UpdateDoc, GenerateDocCopyDto, PasteDocsDto, CreateDocDto, GetDocDetailDto, DeleteDocDto, GetMockDataDto, GetDocsAsTreeDto, GetDeletedDocListDto, GetDocHistoryOperatorsDto, RestoreDocDto } from '../../types/dto/doc/doc.dto.js';
+import { AddEmptyDocDto, ChangeDocBaseInfoDto, ChangeDocPositionDto, UpdateDoc, GenerateDocCopyDto, PasteDocsDto, CreateDocDto, GetDocDetailDto, DeleteDocDto, GetDocsAsTreeDto, GetDeletedDocListDto, GetDocHistoryOperatorsDto, RestoreDocDto } from '../../types/dto/doc/doc.dto.js';
 import { DocService } from '../../service/doc/doc.js';
 import { ReqLimit } from '../../decorator/req_limit.decorator.js';
 
@@ -79,14 +79,6 @@ export class DocController {
   @Del('/project/doc')
   async deleteDoc(@Body() params: DeleteDocDto) {
     const data = await this.docService.deleteDoc(params);
-    return data;
-  }
-  /**
-   * 获取mock文档数据
-   */
-  @Get('/project/doc_mock')
-  async getMockData(@Query() params: GetMockDataDto) {
-    const data = await this.docService.getMockData(params);
     return data;
   }
   /**

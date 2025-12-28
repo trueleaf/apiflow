@@ -62,11 +62,6 @@
   - `oldPassword` (string) — 必填
   - `newPassword` (string) — 必填
 
-### [DEL] `/api/security/delete_user`
-- 描述：批量禁用用户
-- 入参（body）：`DisableUserDto`
-  - `ids` (string[]) — 必填
-
 ### [POST] `/api/security/user_reset_password`
 - 描述：重置密码（用户）
 - 入参：`ResetPasswordDto` (body 或 params，函数签名未显式 `@Body`)：
@@ -161,10 +156,6 @@
 - 描述：取消收藏项目
 - 入参（body）：`UnStarProjectDto` — `projectId` (string) — 必填
 
-### [GET] `/api/security/user_base_info`
-- 描述：获取用户基础信息
-- 入参：无
-
 ---
 
 ## Security - 权限、角色、路由、菜单 ✅
@@ -176,7 +167,6 @@
   - `members?` (Member[])
     - Member: `userId` (string), `userName` (string), `realName?`, `permission` ('readOnly'|'readAndWrite'|'admin'), `expireAt?` (Date)
 - [PUT] `/api/group/update` — 更新组 — body: `UpdateGroupDTO` (`_id`, `groupName?`, `description?`, `isEnabled?`, `isAllowInvite`)
-- [GET] `/api/group/detail` — 获取组详情 — query: `GroupDetailDTO` (`id`)
 - [GET] `/api/group/list` — 获取组列表 — 无参数
 - [POST] `/api/group/member/add` — 添加组成员 — body: `AddMemberDTO` (`groupId`, `userId`, `userName`, `permission`, `expireAt?`)
 - [DEL] `/api/group/member/remove` — 移除组成员 — body: `RemoveMemberDTO` (`groupId`, `userId`)
@@ -196,16 +186,13 @@
 - [PUT] `/api/security/server_routes` — 修改 — body: `EditServerRouteDto` (_id, path?, method?, name?, groupName?)
 - [PUT] `/api/security/server_routes_type` — 批量修改分组 — body: `ChangeGroupNameByIdsDto` (ids: string[], groupName?)
 - [DEL] `/api/security/server_routes` — 删除 — body: `DeleteServerRouteDto` (ids: string[])
-- [GET] `/api/security/server_routes_list` — 列表 — query: `GetServerRoutesListDto` (path?)
 - [GET] `/api/security/server_routes` — 获取全部服务端路由 — 无参数
 
 ### Client Routes（前端路由）
 - [POST] `/api/security/client_routes` — 新增 — body: `AddClientRoutesDto` (name, path, groupName?)
-- [POST] `/api/security/client_routes_multi` — 批量新增 — body: `AddMultiClientRoutesDto` (routes: [{name,path}])
 - [PUT] `/api/security/client_routes` — 修改 — body: `EditClientRoutesDto` (_id, name?, path?, groupName?)
 - [DEL] `/api/security/client_routes` — 删除 — body: `DeleteClientRoutesDto` (ids: string[])
 - [PUT] `/api/security/client_routes_type` — 批量修改分组 — body: `ChangeGroupNameByIds` (ids: string[], groupName?)
-- [GET] `/api/security/client_routes_list` — 列表 — query: `GetClientRoutesListDto`
 - [GET] `/api/security/client_routes` — 获取全部前端路由 — 无参数
 
 ### Client Menu（前端菜单）
@@ -233,18 +220,9 @@
 - [DEL] `/api/project/delete_project` — 删除项目 — body: `DeleteProjectDto` (ids: string[])
 - [PUT] `/api/project/edit_project` — 修改项目信息 — body: `EditProjectDto` (_id, projectName?, remark?)
 - [GET] `/api/project/project_list` — 获取项目列表 — query: `GetProjectListDto`
-- [GET] `/api/project/project_info` — 获取项目基本信息 — query: `GetProjectInfoByIdDto` (`_id`)
 - [GET] `/api/project/project_full_info` — 获取项目完整信息 — query: `GetProjectFullInfoByIdDto` (`_id`)
 - [GET] `/api/project/project_members` — 获取项目成员 — query: `GetProjectMembersByIdDto` (`_id`)
 - [GET] `/api/project/project_enum` — 枚举方式获取项目 — 无参数
-- [GET] `/api/project/project_list_by_keyword` — 根据关键字搜索 — query: `GetProjectByKeywordDto` (`keyword`) — 有限流限制
-
-### Project Code（脚本代码）
-- [POST] `/api/apidoc/project/code` — 新增脚本 — body: `AddProjectCodeDto` (projectId, codeName, remark?, code, isPublic?)
-- [PUT] `/api/apidoc/project/code` — 修改脚本 — body: `EditProjectCodeDto` (_id, projectId, codeName?, remark?, code?, isPublic?)
-- [DEL] `/api/apidoc/project/code` — 删除脚本 — body: `DeleteProjectCodeDto` (projectId, ids)
-- [GET] `/api/apidoc/project/code` — 获取脚本列表 — query: `GetProjectCodeListDto` (projectId)
-- [GET] `/api/apidoc/project/code_enum` — 获取脚本枚举 — query: `GetProjectCodeEnumDto` (projectId)
 
 ### Project Common Headers
 - [GET] `/api/project/common_header_by_id` — 获取单个请求头 — query: `GetProjectCommonHeaderByIdDto` (projectId, id)
@@ -253,19 +231,13 @@
 - [GET] `/api/project/global_common_headers` — 获取全局请求头 — query: `GetGlobalProjectCommonHeadersDto` (projectId)
 - [PUT] `/api/project/replace_global_common_headers` — 更新全局请求头 — body: `UpsertGlobalProjectCommonHeaderDto` (projectId, commonHeaders[])
 
-### Project Rules
-- [PUT] `/api/apidoc/project/project_rules` — 修改项目规则 — body: `UpdateProjectRulesDto` (projectId, fileInFolderLimit?, requestMethods[])
-- [GET] `/api/apidoc/project/project_rules` — 查询项目规则 — query: `GetProjectRulesByIdDto` (projectId)
-
 ### Project Share / Export
 - [POST] `/api/project/export/online` — 生成在线链接 — body: `GenerateSharedProjectLinkDto` (shareName, projectId, password?, maxAge?, isCustomDate?, selectedDocs?)
 - [PUT] `/api/project/export/online` — 编辑在线链接 — body: `EditSharedProjectLinkDto` (_id, projectId, shareName?, password?, maxAge?, isCustomDate?, selectedDocs?)
 - [GET] `/api/project/export/online_list` — 获取在线链接列表 — query: `GetSharedProjectLinkListDto` (projectId)
 - [DEL] `/api/project/export/online` — 删除在线链接 — body: `DeleteSharedProjectLinkDto` (projectId, _id)
 - [GET] `/api/project/share_info` — 获取分享信息 — query: `GetSharedLinkInfoDto` (shareId) — `@ReqSign()` & `@ReqLimit`
-- [GET] `/api/project/share_check` — 分享链接密码校验 — query: `CheckOnlineProjectPasswordDto` (shareId, password?)
 - [GET] `/api/project/export/share_banner` — 获取分享文档 banner — query: `GetSharedProjectBannerDto` (shareId, password?)
-- [GET] `/api/project/export/share_project_info` — 获取分享项目信息 — query: `GetSharedProjectInfoDto` (shareId, password?)
 - [GET] `/api/project/share_doc_detail` — 获取分享项目接口详情 — query: `GetSharedDocDetailDto` (docId, shareId, password?)
 - [POST] `/api/project/verify_share_password` — 验证分享密码 — body: `VerifySharePasswordDto` (shareId, password) — `@ReqSign()` & `@ReqLimit`
 
@@ -290,7 +262,6 @@
 - [POST] `/api/project/save_doc` — 创建文档 — body: `CreateDocDto` (docInfo)
 - [GET] `/api/project/doc_detail` — 获取文档详情 — query: `GetDocDetailDto` (_id, projectId) — 有限流
 - [DEL] `/api/project/doc` — 删除文档 — body: `DeleteDocDto` (ids, projectId)
-- [GET] `/api/project/doc_mock` — 获取 mock 数据 — query: `GetMockDataDto` (_id)
 - [GET] `/api/project/doc_tree_node` — 获取文档树 — query: `GetDocsAsTreeDto` (projectId)
 - [GET] `/api/project/doc_tree_folder_node` — 获取文件夹树 — query: `GetDocsAsTreeDto` (projectId)
 - [POST] `/api/docs/docs_deleted_list` — 获取已删除文档列表 — body: `GetDeletedDocListDto`
@@ -303,49 +274,6 @@
 - [POST] `/api/project/export/json` — 导出为 Apiflow JSON — body: `ExportAsApiflowDto`
 - [POST] `/api/project/export/openapi` — 导出为 OpenAPI — body: `ExportAsOpenApiDto`
 - [POST] `/api/project/export/markdown` — 导出为 Markdown — body: `ExportAsMarkdownDto`
-- [POST] `/api/project/import/json` — 导入 Apiflow 文档 — body: `ImportApiflowDto`
-
-### Doc Prefix（接口前缀）
-- [POST] `/api/project/doc_service` — 新增接口前缀 — body: `AddDocPrefixDto` (projectId, name, url)
-- [DEL] `/api/project/doc_service` — 删除前缀 — body: `DeleteDocPrefix` (projectId, ids[])
-- [GET] `/api/project/doc_service` — 列表 — query: `GetDocPrefixList` (projectId)
-- [GET] `/api/project/doc_service_info` — 前缀详情 — query: `GetDocPrefixInfo` (projectId, id)
-- [PUT] `/api/project/doc_service` — 修改前缀 — body: `EditDocPrefix` (projectId, _id, name?, url?)
-
-### Doc Mind Params（联想参数）
-- [POST] `/api/project/doc_params_mind` — 新增联想参数 — body: `AddDocMindParamsDto` (projectId, mindParams[])
-- [DEL] `/api/project/doc_params_mind"` — 删除联想参数 — body: `DeleteDocMindParams` (projectId, ids[])
-- [GET] `/api/project/doc_params_mind"` — 获取联想参数列表 — query: `GetDocMindParamsList` (projectId)
-
----
-
-## Attachment - 文件上传 ✅
-
-### [POST] `/api/attachment/upload`
-- 描述：上传文件
-- 入参：
-  - files: 上传文件（@Files） — `UploadFileInfo[]`
-  - fields (body via @Fields): `FileUploadDTO`
-    - `projectId` (string) — 必填
-    - `fileName` (string) — 必填，最长 100
-- 备注：会校验文件大小（基于 config.uploadConfig.fileSize）
-
----
-
-## Test / Misc
-（部分测试与工具接口，见 `src/controller/api.controller.ts`）
-- /api/test/request_method (ALL) — 返回请求方法
-- /api/test/query_params/* (ALL) — 用于测试 query 参数
-- /api/test/request_info/** (ALL) — 返回请求信息（body/files/headers）
-- /api/test/raw_body (ALL) — 读取原始 body
-- /api/test/binary (ALL) — 二进制测试
-- /api/test/response/** (ALL) — 返回多种文件类型，body: { type, size }
-- /api/test/redirect/** (ALL) — 重定向测试
-- /api/test/cookies/** (POST、GET) — cookie 相关测试
-- /api/test/img (ALL) — 生成指定大小图片（body: { size?, imgType? })
-
----
-
 > 注：
 > - 所有 `@ReqSign()` 的接口需要签名，`@ReqLimit()` 的接口有速率限制，文档中已在备注中标注。  
 > - DTO 中若存在 `@Rule` 注解并标注 `required()` 则视为必填字段，文档中已尽可能标注。  

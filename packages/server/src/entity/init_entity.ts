@@ -84,13 +84,6 @@ const INITIAL_SERVER_ROUTES = [
     path: '/api/group/update',
   },
   {
-    _id: '67bd4893d9884f97a42863ff',
-    groupName: 'api文档-团队(组)相关',
-    method: 'get',
-    name: '获取组详情',
-    path: '/api/group/detail',
-  },
-  {
     _id: '67bd4893d9884f97a42864ff',
     groupName: 'api文档-团队(组)相关',
     method: 'get',
@@ -120,13 +113,6 @@ const INITIAL_SERVER_ROUTES = [
   },
   //附件
   {
-    _id: '64e1d43690009434b395eecf',
-    groupName: 'api文档-附加相关',
-    method: 'post',
-    name: '上传附件',
-    path: '/api/attachment/upload',
-  },
-  {
     _id: '64e1d43690009434b395eeef',
     groupName: 'api文档-项目相关',
     method: 'get',
@@ -149,41 +135,6 @@ const INITIAL_SERVER_ROUTES = [
   },
   //=========================================================================//
   {
-    _id: '64aa7489a9cd132a77e81f5b',
-    groupName: 'api文档-项目相关',
-    method: 'post',
-    name: '新增脚本代码',
-    path: '/api/apidoc/project/code',
-  },
-  {
-    _id: '64aa74cd0e3aa9f43b7f9675',
-    groupName: 'api文档-项目相关',
-    method: 'put',
-    name: '修改脚本代码',
-    path: '/api/apidoc/project/code',
-  },
-  {
-    _id: '64aa74f80e3aa9f43b7f9684',
-    groupName: 'api文档-项目相关',
-    method: 'delete',
-    name: '删除脚本代码',
-    path: '/api/apidoc/project/code',
-  },
-  {
-    _id: '64aa751a0e3aa9f43b7f9693',
-    groupName: 'api文档-项目相关',
-    method: 'get',
-    name: '列表获取脚本代码',
-    path: '/api/apidoc/project/code',
-  },
-  {
-    _id: '64aa755c935ddf872a6d43e4',
-    groupName: 'api文档-项目相关',
-    method: 'get',
-    name: '枚举获取脚本代码',
-    path: '/api/apidoc/project/code_enum',
-  },
-  {
     _id: '5edd91af5fcdf3111671cb15',
     groupName: 'api文档-项目相关',
     method: 'post',
@@ -203,13 +154,6 @@ const INITIAL_SERVER_ROUTES = [
     method: 'get',
     name: '获取项目列表枚举',
     path: '/api/project/project_enum',
-  },
-  {
-    _id: '64a8f5a40558e0ba613f3cb1',
-    groupName: 'api文档-项目相关',
-    method: 'get',
-    name: '根据关键字筛选项目',
-    path: '/api/project/project_list_by_keyword',
   },
   {
     _id: '5edd91af5fcdf3111671cb1b',
@@ -303,20 +247,6 @@ const INITIAL_SERVER_ROUTES = [
     path: '/api/project/filter_doc',
   },
   {
-    _id: '5edd91b05fcdf3111671cb47',
-    groupName: 'api文档-文档辅助',
-    method: 'get',
-    name: '请求参数联想',
-    path: '/api/project/doc_params_mind',
-  },
-  {
-    _id: '64ce39363c6754b86f2f9a73',
-    groupName: 'api文档-文档辅助',
-    method: 'delete',
-    name: '删除联想参数',
-    path: '/api/project/doc_params_mind',
-  },
-  {
     _id: '5edd91b05fcdf3111671cb49',
     groupName: 'api文档-文档辅助',
     method: 'post',
@@ -357,41 +287,6 @@ const INITIAL_SERVER_ROUTES = [
     method: 'get',
     name: '获取预设参数组枚举',
     path: '/api/project/doc_preset_params_enum',
-  },
-  {
-    _id: '5edd91b05fcdf3111671cb55',
-    groupName: 'api文档-文档服务器',
-    method: 'post',
-    name: '新增服务器',
-    path: '/api/project/doc_service',
-  },
-  {
-    _id: '5edd91b05fcdf3111671cb57',
-    groupName: 'api文档-文档服务器',
-    method: 'delete',
-    name: '删除服务器',
-    path: '/api/project/doc_service',
-  },
-  {
-    _id: '5edd91b05fcdf3111671cb59',
-    groupName: 'api文档-文档服务器',
-    method: 'put',
-    name: '编辑服务器',
-    path: '/api/project/doc_service',
-  },
-  {
-    _id: '5edd91b05fcdf3111671cb5b',
-    groupName: 'api文档-文档服务器',
-    method: 'get',
-    name: '获取服务器',
-    path: '/api/project/doc_service',
-  },
-  {
-    _id: '5edd91b05fcdf3111671cb5d',
-    groupName: 'api文档-文档服务器',
-    method: 'get',
-    name: '获取服务器详情',
-    path: '/api/project/doc_service_info',
   },
   {
     _id: '5edd91b15fcdf3111671cb6f',
@@ -471,13 +366,6 @@ const INITIAL_SERVER_ROUTES = [
     path: '/api/security/client_routes',
   },
   {
-    _id: '5edd91b15fcdf3111671cb81',
-    groupName: '权限管理-前端路由',
-    method: 'post',
-    name: '批量新增前端路由',
-    path: '/api/security/client_routes_multi',
-  },
-  {
     _id: '5edd91b15fcdf3111671cb83',
     groupName: '权限管理-前端路由',
     method: 'delete',
@@ -497,13 +385,6 @@ const INITIAL_SERVER_ROUTES = [
     method: 'put',
     name: '批量修改前端路由类型',
     path: '/api/security/client_routes_type',
-  },
-  {
-    _id: '5edd91b15fcdf3111671cb89',
-    groupName: '权限管理-前端路由',
-    method: 'get',
-    name: '获取前端路由',
-    path: '/api/security/client_routes_list',
   },
   {
     _id: '5edd91b15fcdf3111671cb8b',
@@ -546,13 +427,6 @@ const INITIAL_SERVER_ROUTES = [
     method: 'put',
     name: '批量修改后端路由类型',
     path: '/api/security/server_routes_type',
-  },
-  {
-    _id: '5edd91b15fcdf3111671cb97',
-    groupName: '权限管理-后端路由',
-    method: 'get',
-    name: '获取后端路由',
-    path: '/api/security/server_routes_list',
   },
   {
     _id: '5edd91b15fcdf3111671cb99',
@@ -646,13 +520,6 @@ const INITIAL_SERVER_ROUTES = [
     path: '/api/security/useradd',
   },
   {
-    _id: '5ee97f0c3c63cd01a49952e3',
-    groupName: '权限相关-用户管理',
-    method: 'get',
-    name: '获取用户信息和权限',
-    path: '/api/security/user_base_info',
-  },
-  {
     _id: '5ee9a3ecf4365169e46c0b20',
     groupName: '权限相关-用户管理',
     method: 'get',
@@ -681,13 +548,6 @@ const INITIAL_SERVER_ROUTES = [
     path: '/api/security/userOrGroupListByName',
   },
   
-  {
-    _id: '5ef2fd16e06c4e3120525a53',
-    groupName: 'api文档-项目相关',
-    method: 'get',
-    name: '获取项目基本信息',
-    path: '/api/project/project_info',
-  },
   {
     _id: '5f154f56807e656ffc9dc18f',
     groupName: 'api文档-文档操作',
@@ -766,13 +626,6 @@ const INITIAL_SERVER_ROUTES = [
     path: '/api/security/add_user_by_excel',
   },
   {
-    _id: '5f3cf70419d6a04bc0f58ccc',
-    groupName: 'api文档-文档辅助',
-    method: 'post',
-    name: '新增联想参数',
-    path: '/api/project/doc_params_mind',
-  },
-  {
     _id: '5f4cf1ddf8a3c9267429c080',
     groupName: '权限相关-用户管理',
     method: 'get',
@@ -785,13 +638,6 @@ const INITIAL_SERVER_ROUTES = [
     method: 'put',
     name: '修改用户密码',
     path: '/api/security/user_password',
-  },
-  {
-    _id: '5f4e001ba7d77849dc3928af',
-    groupName: 'api文档-文档辅助',
-    method: 'get',
-    name: '获取mock数据',
-    path: '/api/project/doc_mock',
   },
   {
     _id: '5f522db8de45f651f8140397',
@@ -813,20 +659,6 @@ const INITIAL_SERVER_ROUTES = [
     method: 'post',
     name: '导出为word',
     path: '/api/project/export/word',
-  },
-  {
-    _id: '5fc6f4314d7b47a1cc2fb8d9',
-    groupName: 'api文档-项目相关',
-    method: 'get',
-    name: '查询项目规则',
-    path: '/api/apidoc/project/project_rules',
-  },
-  {
-    _id: '5fc6f43e4d7b47a1cc2fb8da',
-    groupName: 'api文档-项目相关',
-    method: 'put',
-    name: '修改项目规则',
-    path: '/api/apidoc/project/project_rules',
   },
   {
     _id: '5ff166479c0b4737b81ee490',
@@ -855,20 +687,6 @@ const INITIAL_SERVER_ROUTES = [
     method: 'post',
     name: '导出为摸鱼文档',
     path: '/api/project/export/json',
-  },
-  {
-    _id: '601f546054cf18489c4a071b',
-    groupName: 'api文档-导入导出',
-    method: 'post',
-    name: '导出为OpenAPI 3.0',
-    path: '/api/project/export/openapi',
-  },
-  {
-    _id: '601f546054cf18489c4a071c',
-    groupName: 'api文档-导入导出',
-    method: 'post',
-    name: '导出为Markdown',
-    path: '/api/project/export/markdown',
   },
   {
     _id: '603b9a9cc953e62b80e42e12',
@@ -906,13 +724,6 @@ const INITIAL_SERVER_ROUTES = [
     path: '/api/project/share_info',
   },
   {
-    _id: '64e1815e4e2b7265936e2f2b',
-    groupName: 'api文档-在线链接',
-    method: 'get',
-    name: '在线链接密码检测',
-    path: '/api/project/share_check',
-  },
-  {
     _id: '64e1819072bd12f578811ed5',
     groupName: 'api文档-在线链接',
     method: 'get',
@@ -920,25 +731,11 @@ const INITIAL_SERVER_ROUTES = [
     path: '/api/project/export/share_banner',
   },
   {
-    _id: '64e181bb72bd12f578811eeb',
-    groupName: 'api文档-在线链接',
-    method: 'get',
-    name: '获取分享项目信息',
-    path: '/api/project/export/share_project_info',
-  },
-  {
     _id: '64e181d972bd12f578811f01',
     groupName: 'api文档-在线链接',
     method: 'get',
     name: '获取分享项目接口详情',
     path: '/api/project/share_doc_detail',
-  },
-  {
-    _id: '603c8d7c1a326e4d089f99b3',
-    groupName: 'api文档-导入导出',
-    method: 'post',
-    name: '文档导入',
-    path: '/api/project/import/json',
   },
   {
     _id: '6056ca3ec8731d1cd490e95d',

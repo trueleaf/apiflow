@@ -1,19 +1,16 @@
 import { Inject, Controller, Get, Query, Body, Post, Del, Put } from '@midwayjs/core';
-import { 
-  AddProjectDto, 
-  AddMemberToProjectDto, 
-  ChangeMemberPermissionInProjectDto, 
-  DeleteProjectDto, 
-  DeleteMemberFromProjectDto, 
-  EditProjectDto, 
-  GetProjectByKeywordDto, 
-  GetProjectFullInfoByIdDto, 
-  GetProjectInfoByIdDto, 
-  GetProjectListDto, 
-  GetProjectMembersByIdDto 
+import {
+  AddProjectDto,
+  AddMemberToProjectDto,
+  ChangeMemberPermissionInProjectDto,
+  DeleteProjectDto,
+  DeleteMemberFromProjectDto,
+  EditProjectDto,
+  GetProjectFullInfoByIdDto,
+  GetProjectListDto,
+  GetProjectMembersByIdDto
 } from '../../types/dto/project/project.dto.js';
 import { ProjectService } from '../../service/project/project.js';
-import { ReqLimit } from '../../decorator/req_limit.decorator.js';
 
 @Controller('/api')
 export class ProjectController {
@@ -78,18 +75,10 @@ export class ProjectController {
     return data;
   }
   /**
-   * 根据id获取项目基本信息
-   */
-  @Get('/project/project_info')
-  async getProjectBaseInfoById(@Query() params: GetProjectInfoByIdDto) {
-    const data = await this.projectService.getProjectInfoById(params);
-    return data;
-  }
-  /**
    * 根据id获取项目完整信息
    */
   @Get('/project/project_full_info')
-  async getProjectFullInfoById(@Query() params: GetProjectFullInfoByIdDto) {
+  async getProjectFullInfoById(@Query() params: GetProjectFullInfoByIdDto) {    
     const data = await this.projectService.getProjectFullInfoById(params);
     return data;
   }
@@ -107,15 +96,6 @@ export class ProjectController {
   @Get('/project/project_enum')
   async getProjectEnum() {
     const data = await this.projectService.getProjectEnum();
-    return data;
-  }
-  /**
-   * 根据关键字获取项目列表
-   */
-  @ReqLimit({ max: 10, ttl: 1000 * 60 * 5, errorMsg: '每五分钟允许调用10次' })
-  @Get('/project/project_list_by_keyword')
-  async getProjectListByKeyword(@Query() params: GetProjectByKeywordDto) {
-    const data = await this.projectService.getProjectListByKeyword(params);
     return data;
   }
 }

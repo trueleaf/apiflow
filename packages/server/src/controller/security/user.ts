@@ -7,7 +7,6 @@ import {
   SetHeader,
   Body,
   Put,
-  Del,
   Files,
   InjectClient,
 } from '@midwayjs/core';
@@ -18,7 +17,6 @@ import {
   ChangePasswordByUserDto,
   ChangeUserInfoDto,
   ChangeUserStateDto,
-  DisableUserDto,
   GetUserInfoByIdDto,
   GetUserListByNameDto,
   GetUserListDto,
@@ -153,14 +151,6 @@ export class UserController {
   @Put('/security/user_password')
   async changePasswordByUser(@Body() params: ChangePasswordByUserDto) {
     const data = await this.userService.changePasswordByUser(params);
-    return data;
-  }
-  /**
-   * 批量禁用用户
-   */
-  @Del('/security/delete_user')
-  async disableUser(@Body() params: DisableUserDto) {
-    const data = await this.userService.disableUser(params);
     return data;
   }
   /**
@@ -301,14 +291,6 @@ export class UserController {
   @Put('/project/unstar')
   async unStarProject(@Body() params: UnStarProjectDto) {
     const data = await this.userService.unStarProject(params);
-    return data;
-  }
-  /**
-   * 获取用户基本信息
-   */
-  @Get('/security/user_base_info')
-  async getUserBaseInfo() {
-    const data = await this.userService.getUserBaseInfo();
     return data;
   }
 }

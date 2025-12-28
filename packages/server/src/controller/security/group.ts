@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Put, Del, Query, Body,Inject } from '@midwayjs/core';
+import { Controller, Post, Get, Put, Del, Body, Inject } from '@midwayjs/core';
 import { Context } from '@midwayjs/koa';
 
 import {
@@ -7,7 +7,6 @@ import {
   AddMemberDTO,
   RemoveMemberDTO,
   UpdatePermissionDTO,
-  GroupDetailDTO,
   RemoveGroupDTO
 } from '../../types/dto/security/group.dto.js';
 import { GroupService } from '../../service/security/group.js';
@@ -31,12 +30,6 @@ export class GroupController {
   @Put('/group/update')
   async updateGroup(@Body() params: UpdateGroupDTO) {
     return this.groupService.updateGroup(params);
-  }
-
-  // 获取组详情
-  @Get('/group/detail')
-  async getGroupDetail(@Query() query: GroupDetailDTO) {
-    return this.groupService.getGroupById(query.id);
   }
 
   // 分页查询组列表

@@ -12,10 +12,6 @@ const ReadOnlyUrl = [
     method: 'get',
   },
   {
-    url: '/api/project/project_info',
-    method: 'get',
-  },
-  {
     url: '/api/project/project_full_info',
     method: 'get',
   },
@@ -44,10 +40,6 @@ const ReadOnlyUrl = [
     method: 'get',
   },
   {
-    url: '/api/apidoc/project/project_rules',
-    method: 'get',
-  },
-  {
     url: '/api/project/doc_tree_node',
     method: 'get',
   },
@@ -57,10 +49,6 @@ const ReadOnlyUrl = [
   },
   {
     url: '/api/project/doc_detail',
-    method: 'get',
-  },
-  {
-    url: '/api/project/doc_mock',
     method: 'get',
   },
   {
@@ -109,14 +97,6 @@ const ReadOnlyUrl = [
   },
   {
     url: '/api/project/doc_preset_params',
-    method: 'get',
-  },
-  {
-    url: '/api/project/doc_service',
-    method: 'get',
-  },
-  {
-    url: '/api/project/doc_service_info',
     method: 'get',
   },
 ];

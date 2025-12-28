@@ -5,10 +5,9 @@ import {
   Body,
   Put,
   Del,
-  Query,
   Get,
 } from '@midwayjs/core';
-import { AddServerRouteDto, ChangeGroupNameByIdsDto, DeleteServerRouteDto, EditServerRouteDto, GetServerRoutesListDto } from '../../types/dto/security/server.routes.dto.js';
+import { AddServerRouteDto, ChangeGroupNameByIdsDto, DeleteServerRouteDto, EditServerRouteDto } from '../../types/dto/security/server.routes.dto.js';
 import { ServerRoutesService } from '../../service/security/server_routes.js';
 
 @Controller('/api')
@@ -48,19 +47,11 @@ export class ServerMenuController {
     return data;
   }
   /**
-   * 以列表形式获取服务端路由
-   */
-  @Get('/security/server_routes_list')
-  async getServerRoutesList(@Query() params: GetServerRoutesListDto) {
-    const data = await this.serverRoutesService.getServerRoutesList(params);
-    return data;
-  }
-  /**
    * 获取全部服务端路由
    */
   @Get('/security/server_routes')
   async getAllServerRoutesList() {
-    const data = await this.serverRoutesService.getAllServerRoutesList();
+    const data = await this.serverRoutesService.getAllServerRoutesList();       
     return data;
   }
 }

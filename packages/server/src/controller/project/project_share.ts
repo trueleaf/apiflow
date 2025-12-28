@@ -1,15 +1,14 @@
 import { Inject, Controller, Body, Post, Put, Get, Del, Query } from '@midwayjs/core';
-import { 
-  GenerateSharedProjectLinkDto, 
-  EditSharedProjectLinkDto, 
-  GetSharedProjectLinkListDto, 
-  DeleteSharedProjectLinkDto, 
-  GetSharedLinkInfoDto, 
-  CheckOnlineProjectPasswordDto, 
-  GetSharedProjectBannerDto, 
-  GetSharedProjectInfoDto, 
+import {
+  GenerateSharedProjectLinkDto,
+  EditSharedProjectLinkDto,
+  GetSharedProjectLinkListDto,
+  DeleteSharedProjectLinkDto,
+  GetSharedLinkInfoDto,
+  GetSharedProjectBannerDto,
   GetSharedDocDetailDto,
-  VerifySharePasswordDto } from '../../types/dto/project/project.share.dto.js';
+  VerifySharePasswordDto,
+} from '../../types/dto/project/project.share.dto.js';
 import { ProjectShareService } from '../../service/project/project_share.js';
 import { ReqSign } from '../../decorator/req_sign.decorator.js';
 import { ReqLimit } from '../../decorator/req_limit.decorator.js';
@@ -65,29 +64,11 @@ export class ProjectShareController {
     return data;
   }
   /**
-   * 分享链接密码校验
-   */
-
-  @Get('/project/share_check')
-  async checkSharedProjectPassword(@Query() params: CheckOnlineProjectPasswordDto) {
-    const data = await this.projectShareService.checkSharedProjectPassword(params);
-    return data;
-  }
-  
-  /**
    * 获取分享文档的banner信息
    */
   @Get('/project/export/share_banner')
   async getSharedProjectBanner(@Query() params: GetSharedProjectBannerDto) {
     const data = await this.projectShareService.getSharedProjectBanner(params);
-    return data;
-  }
-  /**
-   * 获取分享项目信息
-   */
-  @Get('/project/export/share_project_info')
-  async getSharedProjectInfo(@Query() params: GetSharedProjectInfoDto) {
-    const data = await this.projectShareService.getSharedProjectInfo(params);
     return data;
   }
   /**
@@ -113,3 +94,4 @@ export class ProjectShareController {
     return data;
   }
 }
+
