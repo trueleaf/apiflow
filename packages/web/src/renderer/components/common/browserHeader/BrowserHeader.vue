@@ -210,7 +210,7 @@ const switchTab = (tabId: string) => {
   if (!currentTab) return
   if (currentTab.type === 'project') {
     router.push({
-      path: '/v1/apidoc/doc-edit',
+      path: '/workbench',
       query: {
         id: tabId,
         name: currentTab.title,
@@ -303,7 +303,7 @@ watch(
     query: router.currentRoute.value.query
   }),
   (newRoute) => {
-    if (newRoute.path === '/v1/apidoc/doc-edit') {
+    if (newRoute.path === '/workbench') {
       const projectId = newRoute.query.id as string
       const projectName = newRoute.query.name as string
       if (projectId && projectName) {

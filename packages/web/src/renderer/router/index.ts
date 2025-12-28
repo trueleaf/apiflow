@@ -55,7 +55,7 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/pages/home/Home.vue"),
   },
   {
-    path: "/v1/apidoc/doc-edit",
+    path: "/workbench",
     name: "DocEdit",
     component: () => import("@/pages/projectWorkbench/ProjectWorkbench.vue"),
   },
@@ -114,7 +114,7 @@ const routerConfig = {
       component: () => import("@/pages/home/Home.vue"),
     },
     {
-      path: "/v1/apidoc/doc-edit",
+      path: "/workbench",
       name: "DocEdit",
       component: () => import("@/pages/projectWorkbench/ProjectWorkbench.vue"),
     },
@@ -143,7 +143,7 @@ const router = createRouter(routerConfig);
 router.beforeEach(async (to, _, next) => {
   const runtimeStore = useRuntime();
   // 需要数据库的页面路径
-  const dbRequiredPaths = ['/v1/apidoc/doc-edit', '/home'];
+  const dbRequiredPaths = ['/workbench', '/home'];
   if (dbRequiredPaths.some(path => to.path.startsWith(path))) {
     await initDatabases();
   }

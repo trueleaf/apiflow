@@ -96,7 +96,7 @@ const agentViewStore = useAgentViewStore()
 const agentStore = useAgentStore()
 const inputWrapperRef = ref<HTMLElement | null>(null)
 const isModeMenuVisible = ref(false)
-const isProjectEditPage = computed(() => route.path.includes('/v1/apidoc/doc-edit'))
+const isProjectEditPage = computed(() => route.path.includes('/workbench'))
 const projectName = computed(() => projectWorkbench.projectName)
 const isSendDisabled = computed(() => !agentViewStore.isAiConfigValid)
 

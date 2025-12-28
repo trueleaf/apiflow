@@ -180,7 +180,7 @@ export const commonTools: AgentTool[] = [
       const projectId = args.projectId as string
       const projectName = args.projectName as string
       router.push({
-        path: '/v1/apidoc/doc-edit',
+        path: '/workbench',
         query: {
           id: projectId,
           name: projectName,

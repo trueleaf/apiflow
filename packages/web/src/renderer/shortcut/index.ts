@@ -43,13 +43,13 @@ class ShortcutManager {
         defaultKeys: "ctrl+z,command+z",
         userSetKeys: userSettings["http-undo"] || "",
         context: {
-          route: "/v1/apidoc/doc-edit",
+          route: "/workbench",
           tabType: "http",
         },
         handler: () => {
           const currentRoute = router.currentRoute.value?.path || "";
           const currentNavType = projectNavStore.currentSelectNav?.tabType;
-          if (currentRoute !== "/v1/apidoc/doc-edit" || currentNavType !== "http") {
+          if (currentRoute !== "/workbench" || currentNavType !== "http") {
             return;
           }
           const httpRedoUndoStore = useHttpRedoUndo();
@@ -63,13 +63,13 @@ class ShortcutManager {
         defaultKeys: "ctrl+y,command+y",
         userSetKeys: userSettings["http-redo"] || "",
         context: {
-          route: "/v1/apidoc/doc-edit",
+          route: "/workbench",
           tabType: "http",
         },
         handler: () => {
           const currentRoute = router.currentRoute.value?.path || "";
           const currentNavType = projectNavStore.currentSelectNav?.tabType;
-          if (currentRoute !== "/v1/apidoc/doc-edit" || currentNavType !== "http") {
+          if (currentRoute !== "/workbench" || currentNavType !== "http") {
             return;
           }
           const httpRedoUndoStore = useHttpRedoUndo();
@@ -83,13 +83,13 @@ class ShortcutManager {
         defaultKeys: "ctrl+z,command+z",
         userSetKeys: userSettings["websocket-undo"] || "",
         context: {
-          route: "/v1/apidoc/doc-edit",
+          route: "/workbench",
           tabType: "websocket",
         },
         handler: () => {
           const currentRoute = router.currentRoute.value?.path || "";
           const currentNavType = projectNavStore.currentSelectNav?.tabType;
-          if (currentRoute !== "/v1/apidoc/doc-edit" || currentNavType !== "websocket") {
+          if (currentRoute !== "/workbench" || currentNavType !== "websocket") {
             return;
           }
           const wsRedoUndoStore = useWsRedoUndo();
@@ -103,13 +103,13 @@ class ShortcutManager {
         defaultKeys: "ctrl+y,command+y",
         userSetKeys: userSettings["websocket-redo"] || "",
         context: {
-          route: "/v1/apidoc/doc-edit",
+          route: "/workbench",
           tabType: "websocket",
         },
         handler: () => {
           const currentRoute = router.currentRoute.value?.path || "";
           const currentNavType = projectNavStore.currentSelectNav?.tabType;
-          if (currentRoute !== "/v1/apidoc/doc-edit" || currentNavType !== "websocket") {
+          if (currentRoute !== "/workbench" || currentNavType !== "websocket") {
             return;
           }
           const wsRedoUndoStore = useWsRedoUndo();
@@ -123,13 +123,13 @@ class ShortcutManager {
         defaultKeys: "ctrl+s,command+s",
         userSetKeys: userSettings["variable-save"] || "",
         context: {
-          route: "/v1/apidoc/doc-edit",
+          route: "/workbench",
           tabType: "variable",
         },
         handler: () => {
           const currentRoute = router.currentRoute.value?.path || "";
           const currentNavType = projectNavStore.currentSelectNav?.tabType;
-          if (currentRoute !== "/v1/apidoc/doc-edit" || currentNavType !== "variable") {
+          if (currentRoute !== "/workbench" || currentNavType !== "variable") {
             return;
           }
           window.dispatchEvent(new CustomEvent("variable:save"));
@@ -141,13 +141,13 @@ class ShortcutManager {
         defaultKeys: "ctrl+s,command+s",
         userSetKeys: userSettings["http-mock-save"] || "",
         context: {
-          route: "/v1/apidoc/doc-edit",
+          route: "/workbench",
           tabType: "httpMock",
         },
         handler: () => {
           const currentRoute = router.currentRoute.value?.path || "";
           const currentNavType = projectNavStore.currentSelectNav?.tabType;
-          if (currentRoute !== "/v1/apidoc/doc-edit" || currentNavType !== "httpMock") {
+          if (currentRoute !== "/workbench" || currentNavType !== "httpMock") {
             return;
           }
           const httpMockNodeStore = useHttpMockNode();
@@ -160,13 +160,13 @@ class ShortcutManager {
         defaultKeys: "ctrl+s,command+s",
         userSetKeys: userSettings["websocket-mock-save"] || "",
         context: {
-          route: "/v1/apidoc/doc-edit",
+          route: "/workbench",
           tabType: "websocketMock",
         },
         handler: () => {
           const currentRoute = router.currentRoute.value?.path || "";
           const currentNavType = projectNavStore.currentSelectNav?.tabType;
-          if (currentRoute !== "/v1/apidoc/doc-edit" || currentNavType !== "websocketMock") {
+          if (currentRoute !== "/workbench" || currentNavType !== "websocketMock") {
             return;
           }
           const websocketMockNodeStore = useWebSocketMockNode();

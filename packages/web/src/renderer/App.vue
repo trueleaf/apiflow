@@ -105,7 +105,7 @@ const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
     browserHeaderRef.value?.addProjectTab(data.projectId, data.projectName)
   }
   router.push({
-    path: '/v1/apidoc/doc-edit',
+    path: '/workbench',
     query: {
       id: data.projectId,
       name: data.projectName,
@@ -318,7 +318,7 @@ const initAppHeaderEvent = () => {
     }
     await projectWorkbenchStore.initProjectBaseInfo({ projectId: data.projectId })
     router.push({
-      path: '/v1/apidoc/doc-edit',
+      path: '/workbench',
       query: {
         id: data.projectId,
         name: matchedProject.projectName,
@@ -466,7 +466,7 @@ const initAppHeader = () => {
         query: router.currentRoute.value.query
       }),
       (newRoute) => {
-        if (newRoute.path === '/v1/apidoc/doc-edit') {
+        if (newRoute.path === '/workbench') {
           const projectId = newRoute.query.id as string;
           const projectName = newRoute.query.name as string;
           if (projectId && projectName) {

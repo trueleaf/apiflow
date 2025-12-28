@@ -243,7 +243,7 @@ const node: ModelNode = {
       },
       {
         "id": "3",
-        "name": "路由自动跳转到/v1/apidoc/doc-edit"
+        "name": "路由自动跳转到/workbench"
       },
       {
         "id": "4",

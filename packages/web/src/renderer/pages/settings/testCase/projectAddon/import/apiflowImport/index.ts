@@ -14,7 +14,7 @@ const node: ModelNode = {
       },
       {
         "id": "2",
-        "name": "当前处于项目编辑页面(/v1/apidoc/doc-edit)"
+        "name": "当前处于项目编辑页面(/workbench)"
       },
       {
         "id": "3",

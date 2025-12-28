@@ -633,7 +633,7 @@ const node: ModelNode = {
       },
       {
         "id": "12",
-        "name": "点击结果项后,跳转到/v1/apidoc/doc-edit,携带projectId,projectName,nodeId参数"
+        "name": "点击结果项后,跳转到/workbench,携带projectId,projectName,nodeId参数"
       },
       {
         "id": "13",

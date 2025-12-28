@@ -219,7 +219,7 @@ const node: ModelNode = {
     "expectedResults": [
       {
         "id": "1",
-        "name": "路由立即跳转到/v1/apidoc/doc-edit路径"
+        "name": "路由立即跳转到/workbench路径"
       },
       {
         "id": "2",
@@ -265,7 +265,7 @@ const node: ModelNode = {
       },
       {
         "id": "5",
-        "name": "router.push参数:{ path: \"/v1/apidoc/doc-edit\", query: { id, name, mode: \"edit\" } }"
+        "name": "router.push参数:{ path: \"/workbench\", query: { id, name, mode: \"edit\" } }"
       },
       {
         "id": "6",
@@ -307,7 +307,7 @@ const node: ModelNode = {
       },
       {
         "id": "5",
-        "name": "项目工作区路由定义:{ path: \"/v1/apidoc/doc-edit\", name: \"DocEdit\", component: docEdit }"
+        "name": "项目工作区路由定义:{ path: \"/workbench\", name: \"DocEdit\", component: docEdit }"
       },
       {
         "id": "6",

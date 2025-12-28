@@ -646,7 +646,7 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
   });
 
   router.push({
-    path: '/v1/apidoc/doc-edit',
+    path: '/workbench',
     query: {
       id: item._id,
       mode: router.currentRoute.value.query.mode,

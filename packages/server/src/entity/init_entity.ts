@@ -1055,50 +1055,23 @@ const INITIAL_SERVER_ROUTES = [
 ];
 const INITIAL_CLIENT_ROUTES = [
   {
-    _id: '5edd91bf5fcdf3111671cbe6',
-    groupName: '公用',
-    name: '登录页面',
-    path: '/login',
-  },
-  {
-    _id: '5edd91bf5fcdf3111671cbe8',
-    groupName: 'api文档',
-    name: 'api文档-文档预览',
-    path: '/v1/apidoc/doc-view',
-  },
-  {
-    _id: '5edd91bf5fcdf3111671cbec',
-    groupName: 'api文档',
-    name: 'api文档-项目列表',
-    path: '/v1/apidoc/doc-list',
-  },
-  {
     _id: '5edd91c05fcdf3111671cbf4',
     groupName: 'api文档',
     name: 'api文档-文档详情',
-    path: '/v1/apidoc/doc-edit',
+    path: '/workbench',
   },
   {
     _id: '5edd91c05fcdf3111671cbfa',
     groupName: '权限管理',
     name: '权限管理',
-    path: '/v1/permission/permission',
-  },
-  {
-    _id: '5f4b8ad9ef30243780fd6bf1',
-    groupName: '设置',
-    name: '设置-个人中心',
-    path: '/v1/settings/user',
+    path: '/admin',
   },
 ];
 const INITIAL_ROLE = [
   {
     _id: '5ede0ba06f76185204584700',
-    clientBanner: ['602e7c40b4ea582923bcb36f'],
+    clientBanner: [],
     clientRoutes: [
-      '5edd91bf5fcdf3111671cbe6',
-      '5edd91bf5fcdf3111671cbe8',
-      '5edd91bf5fcdf3111671cbec',
       '5edd91c05fcdf3111671cbf4',
     ],
     remark: '拥有完整文档操作权限(无法进入管理后台)',
@@ -1231,8 +1204,8 @@ const INITIAL_ROLE = [
   },
   {
     _id: '5edf71f2193c7d5fa0ec9b98',
-    clientBanner: ['5eddf6a821a5aa26cc316d28', '602e7c40b4ea582923bcb36f'],
-    clientRoutes: ['5edd91c05fcdf3111671cbfa', '5edd91bf5fcdf3111671cbe8', '5edd91bf5fcdf3111671cbe6', '5f4b8ad9ef30243780fd6bf1'],
+    clientBanner: ['5eddf6a821a5aa26cc316d28'],
+    clientRoutes: ['5edd91c05fcdf3111671cbfa'],
     remark: '拥有完整权限',
     roleName: '管理员',
     serverRoutes: [
@@ -1398,17 +1371,9 @@ const INITIAL_CLIENT_MENUS = [
   {
     _id: '5eddf6a821a5aa26cc316d28',
     name: '权限管理',
-    path: '/v1/permission/permission',
+    path: '/admin',
     pid: '',
     sort: '1591603491200',
-    type: 'inline',
-  },
-  {
-    _id: '602e7c40b4ea582923bcb36f',
-    name: 'api文档',
-    path: '/v1/apidoc/doc-list',
-    pid: '',
-    sort: '1613638151467',
     type: 'inline',
   },
 ];

@@ -481,7 +481,7 @@ const initCahce = () => {
 const handleJumpToProject = (item: ApidocProjectInfo) => {
   projectManagerStore.recordVisited(item._id);
   router.push({
-    path: '/v1/apidoc/doc-edit',
+    path: '/workbench',
     query: {
       id: item._id,
       name: item.projectName,
@@ -498,7 +498,7 @@ const handleAddSuccess = async (data: { projectId: string, projectName: string }
     dialogVisible.value = false;
   }
   router.push({
-    path: '/v1/apidoc/doc-edit',
+    path: '/workbench',
     query: {
       id: data.projectId,
       name: data.projectName,
@@ -628,7 +628,7 @@ const handleResetSearch = () => {
 // 跳转到节点
 const handleJumpToNode = (item: SearchResultItem) => {
   router.push({
-    path: '/v1/apidoc/doc-edit',
+    path: '/workbench',
     query: {
       id: item.projectId,
       name: item.projectName,
