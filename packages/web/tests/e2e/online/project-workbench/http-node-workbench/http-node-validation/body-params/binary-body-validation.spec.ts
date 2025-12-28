@@ -228,7 +228,7 @@ test.describe('BinaryBodyValidation', () => {
 
   // ========================= Binary POST请求方法测试 =========================
   // 测试用例6: POST方法下可以选择Binary类型
-  test('POST方法下可以选择Binary类型', asy, createProject, loginAccount }) => {
+  test('POST方法下可以选择Binary类型', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -516,7 +516,7 @@ test.describe('BinaryBodyValidation', () => {
     // 验证binary-wrap重新显示
     await expect(binaryWrap).toBeVisible({ timeout: 5000 });
     // 验证之前输入的变量值仍然保持
-    const varInputAfter = contentnput input');
+    const varInputAfter = contentPage.locator('.var-mode .el-input input');
     await expect(varInputAfter).toHaveValue('{{myBinaryData}}');
   });
 

@@ -244,7 +244,7 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('user_id', { timeout: 10000 });
     });
     // 测试用例5: formdata参数key,value支持混合变量,调用echo接口返回结果正确
-    test('formdata参数key,value支持混合变量tentPage, clearCache, createProject, loginAccount }) => {
+    test('formdata参数key,value支持混合变量,调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -381,7 +381,7 @@ test.describe('FormDataParams', () => {
   });
 
   // ========== fileOnlyFormdata: 类型全为file的formdata参数 ==========
-  test.describe('FileOnlyFormdata',
+  test.describe('FileOnlyFormdata', () => {
     // 测试用例1: value模式切换后要清空之前的数据
     test('value模式切换后要清空之前的数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
@@ -441,7 +441,7 @@ test.describe('FormDataParams', () => {
       await toggleBtn.dispatchEvent('click');
       await contentPage.waitForTimeout(300);
       await expect(selectLabel).toBeVisible({ timeout: 5000 });
-      await expect(fileText).not.toeout: 5000 });
+      await expect(fileText).not.toContainText('logo.png', { timeout: 5000 });
     });
     // 测试用例2: value如果为文件模式,选择文件,调用echo接口返回结果正确
     test('value如果为文件模式选择文件调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
@@ -507,7 +507,6 @@ test.describe('FormDataParams', () => {
       const responseBody = responseArea.locator('.s-json-editor').first();
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
       await expect(responseBody).toContainText('avatar', { timeout: 10000 });
-      await expect(responseBody).tot: 10000 });
       await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
     });
     // 测试用例3: value如果为文件模式,未选择文件,value输入框下方提示文件不存在

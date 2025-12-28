@@ -135,7 +135,7 @@ test.describe('CallHistory', () => {
   });
 
   // 测试用例5: 点击历史记录项打开对应接口Tab页
-  test('点击历史记录项打开对应接口Tab页', asynccreateProject, loginAccount }) => {
+  test('点击历史记录项打开对应接口Tab页', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();

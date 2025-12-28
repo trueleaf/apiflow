@@ -147,7 +147,7 @@ test.describe('RequestUrlInput', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例5: URL中的query参数自动解析到参数列表
-  test('URL中的query参数自动解析到参数列表', ahe, createProject, loginAccount }) => {
+  test('URL中的query参数自动解析到参数列表', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();

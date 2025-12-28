@@ -180,7 +180,7 @@ test.describe('AddNode', () => {
   });
   test.describe('添加WebSocket节点', () => {
     // 测试用例5: 鼠标右键空白区域添加websocket节点
-    test('鼠标右键空白区域添加websocket节点', ahe, createProject, loginAccount }) => {
+    test('鼠标右键空白区域添加websocket节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -336,7 +336,7 @@ test.describe('AddNode', () => {
       // 验证对话框关闭
       await expect(addFileDialog).toBeHidden({ timeout: 5000 });
       // 验证新HTTP Mock节点出现在树中
-      const newNode = contentPage.lt').filter({ hasText: '测试HTTP Mock接口' });
+      const newNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试HTTP Mock接口' });
       await expect(newNode).toBeVisible({ timeout: 5000 });
     });
     // 测试用例9: 鼠标右键目录添加httpMock节点
@@ -420,7 +420,7 @@ test.describe('AddNode', () => {
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 验证新节点出现
-      const newNode = contentPage.lt').filter({ hasText: '工具栏添加HTTP Mock接口' });
+      const newNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '工具栏添加HTTP Mock接口' });
       await expect(newNode).toBeVisible({ timeout: 5000 });
     });
   });
@@ -504,7 +504,7 @@ test.describe('AddNode', () => {
       const wsMockRadio = addFileDialog.locator('.el-radio').filter({ hasText: 'WebSocket Mock' });
       await wsMockRadio.click();
       await contentPage.waitForTimeout(200);
-      const confirmBtn = addFileDiaary').last();
+      const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 验证新WebSocket Mock节点出现
@@ -573,7 +573,7 @@ test.describe('AddNode', () => {
       const nameInput = addFolderDialog.locator('input').first();
       await nameInput.fill('测试文件夹');
       // 点击确定按钮
-      const confirmBtn = addFolderDimary').last();
+      const confirmBtn = addFolderDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 验证对话框关闭
@@ -617,7 +617,7 @@ test.describe('AddNode', () => {
       await contentPage.waitForTimeout(300);
       // 填写子文件夹名称
       const subFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
-      await expect(subFolderDialog)});
+      await expect(subFolderDialog).toBeVisible({ timeout: 5000 });
       const subFolderNameInput = subFolderDialog.locator('input').first();
       await subFolderNameInput.fill('子文件夹');
       const subFolderConfirmBtn = subFolderDialog.locator('.el-button--primary').last();
@@ -647,7 +647,7 @@ test.describe('AddNode', () => {
       await addFolderItem.click();
       await contentPage.waitForTimeout(300);
       // 填写文件夹名称
-      const addFolderDialog = contefilter({ hasText: /新建文件夹|新增文件夹/ });
+      const addFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
       await expect(addFolderDialog).toBeVisible({ timeout: 5000 });
       const nameInput = addFolderDialog.locator('input').first();
       await nameInput.fill('工具栏添加文件夹');
@@ -697,7 +697,7 @@ test.describe('AddNode', () => {
       await contentPage.waitForTimeout(300);
       // 填写子文件夹名称
       const subFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
-      await expect(subFolderDialog)});
+      await expect(subFolderDialog).toBeVisible({ timeout: 5000 });
       const subFolderNameInput = subFolderDialog.locator('input').first();
       await subFolderNameInput.fill('更多按钮添加的子文件夹');
       const subFolderConfirmBtn = subFolderDialog.locator('.el-button--primary').last();
@@ -734,7 +734,7 @@ test.describe('AddNode', () => {
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 右键HTTP节点
-      const httpNode = contentPage.nt').filter({ hasText: '边界测试HTTP接口' });
+      const httpNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '边界测试HTTP接口' });
       await expect(httpNode).toBeVisible({ timeout: 5000 });
       await httpNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);

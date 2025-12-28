@@ -225,7 +225,7 @@ test.describe('UrlencodedParams', () => {
     await expect(responseBody).toContainText('email', { timeout: 10000 });
   });
   // 测试用例5: urlencoded参数key,value支持混合变量,调用echo接口返回结果正确
-  test('urlencoded参数key,value支持混合ontentPage, clearCache, createProject, loginAccount }) => {
+  test('urlencoded参数key,value支持混合变量,调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();

@@ -196,7 +196,7 @@ af.request.queryParams["newParam"] = "newValue";`;
     await expect(responseBody).toContainText('newValue', { timeout: 10000 });
   });
   // 测试用例5: 使用af.request.pathParams获取并修改Path参数,发送请求后验证参数已更改
-  test('使用af.request.pathParams修改, clearCache, createProject, loginAccount }) => {
+  test('使用af.request.pathParams获取并修改Path参数', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -392,7 +392,7 @@ af.request.body.json.newField = "addedValue";`;
     const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含修改后的formdata数据
-    await expect(responseBody).toript', { timeout: 10000 });
+    await expect(responseBody).toContainText('newvalue-from-script', { timeout: 10000 });
   });
   // 测试用例8: 使用af.request.method获取并修改请求方法,发送请求后验证方法已更改
   test('使用af.request.method修改请求方法', async ({ contentPage, clearCache, createProject, loginAccount }) => {

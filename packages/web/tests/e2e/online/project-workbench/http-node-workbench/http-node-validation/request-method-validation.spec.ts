@@ -244,7 +244,7 @@ test.describe('RequestMethodValidation', () => {
     await expect(contentPage.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     // 验证响应
     const responseBody = responseArea.locator('.s-json-editor').first();
-    await expect(responseBody).toNS"', { timeout: 10000 });
+    await expect(responseBody).toContainText('OPTIONS', { timeout: 10000 });
   });
   // 验证方法切换后UI立即更新显示新的方法
   test('验证方法切换后UI立即更新显示新的方法', async ({ contentPage, clearCache, createProject, loginAccount }) => {

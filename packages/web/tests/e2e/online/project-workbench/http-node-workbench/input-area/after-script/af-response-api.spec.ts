@@ -166,7 +166,7 @@ test.describe('AfResponseApi', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例5: 使用af.response.rt获取响应时长
-  test('使用af.response.rt获取响应时长', che, createProject, loginAccount }) => {
+  test('使用af.response.rt获取响应时长', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();

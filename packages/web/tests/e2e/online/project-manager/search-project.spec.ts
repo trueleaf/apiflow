@@ -164,7 +164,7 @@ test.describe('SearchProject', () => {
   });
 
   // 测试用例3: 搜索条件功能验证
-  test('高级搜索可以按节点名称搜索', async ({ rCache, createProject, loginAccount }) => {
+  test('高级搜索可以按节点名称搜索', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -208,7 +208,7 @@ test.describe('SearchProject', () => {
     await clearCache();
 
     await loginAccount();
-    const projectKeyword = `ADV_P
+    const projectKeyword = `ADV_P_${Date.now()}`;
     const docKeyword = `ADV_DOC_${Date.now()}`;
     const urlKeyword = `ADV_URL_${Date.now()}`;
     const remarkKeyword = `ADV_REMARK_${Date.now()}`;
@@ -392,7 +392,7 @@ test.describe('SearchProject', () => {
 
     await loginAccount();
     const queryKeyword = `ADV_QUERY_${Date.now()}`;
-    const pathKeyword = `ADV_PATH
+    const pathKeyword = `ADV_PATH_${Date.now()}`;
     const headerKeyword = `ADV_HEADER_${Date.now()}`;
     const bodyKeyword = `ADV_BODY_${Date.now()}`;
     const responseKeyword = `ADV_RESPONSE_${Date.now()}`;
@@ -546,7 +546,7 @@ test.describe('SearchProject', () => {
     await assertParam(/返回参数/, responseKeyword, '返回参数');
     await assertParam(/前置脚本/, preScriptKeyword, '前置脚本');
     await assertParam(/后置脚本/, afterScriptKeyword, '后置脚本');
-    await assertParam(/WebSocket消ket消息');
+    await assertParam(/WebSocket消息/, wsMessageKeyword, 'WebSocket消息');
   });
 
   test('高级搜索更新日期选项均可生效', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
@@ -628,7 +628,7 @@ test.describe('SearchProject', () => {
     await contentPage.waitForTimeout(100);
     await searchInput.fill(docKeyword);
     await contentPage.waitForTimeout(600);
-    const emptyState = contentPagmpty-state');
+    const emptyState = contentPage.locator('.search-results .empty-state');
     await expect(emptyState).toBeVisible({ timeout: 8000 });
   });
 

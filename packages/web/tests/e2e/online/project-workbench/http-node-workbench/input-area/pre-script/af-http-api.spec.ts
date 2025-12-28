@@ -180,7 +180,7 @@ console.log("DELETE响应数据:", JSON.stringify(response.data));`;
     await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 测试用例5: af.http请求失败时正确抛出错误并在响应区域展示错误信息
-  test('af.http请求失败时正确抛出错误', asyn createProject, loginAccount }) => {
+  test('af.http请求失败时正确抛出错误', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();

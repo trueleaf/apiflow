@@ -160,7 +160,7 @@ test.describe('RenameNode', () => {
     });
   });
   test.describe('重命名websocketNode节点', () => {
-    test('active节点,点击节点右键,点击重命名,输入名clearCache, createProject, loginAccount }) => {
+    test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -278,7 +278,7 @@ test.describe('RenameNode', () => {
       await renameInput.fill('更多操作重命名后WS节点');
       await treeWrap.click({ position: { x: 10, y: 10 } });
       await contentPage.waitForTimeout(500);
-      const renamedNode = contentPantent').filter({ hasText: '更多操作重命名后WS节点' });
+      const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '更多操作重命名后WS节点' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
     test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject, loginAccount }) => {
@@ -359,7 +359,7 @@ test.describe('RenameNode', () => {
       const renameInput = contentPage.locator('.tree-wrap .rename-ipt').first();
       await expect(renameInput).toBeVisible({ timeout: 5000 });
       await renameInput.fill('新HttpMock节点名称');
-      await renameInput.press('Ente
+      await renameInput.press('Enter');
       await contentPage.waitForTimeout(500);
       const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '新HttpMock节点名称' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });

@@ -194,7 +194,7 @@ test.describe('PathParamsValidation', () => {
     await expect(responseBody).toContainText('/echo/users/user_12345', { timeout: 10000 });
   });
 
-  test('调用echo接口验证多个path参数混合URL编码, clearCache, createProject, loginAccount }) => {
+  test('调用echo接口验证多个path参数混合URL编码', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();

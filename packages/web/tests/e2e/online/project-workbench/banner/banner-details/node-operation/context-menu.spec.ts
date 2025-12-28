@@ -119,7 +119,7 @@ test.describe('ContextMenu', () => {
       await expect(commonHeaderTab).toBeVisible({ timeout: 5000 });
     });
     // 鼠标右键空白区域,点击粘贴,可以粘贴节点
-    test('鼠标右键空白区域,点击粘贴,可以粘贴节点', ase, createProject, loginAccount }) => {
+    test('鼠标右键空白区域,点击粘贴,可以粘贴节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -294,7 +294,7 @@ test.describe('ContextMenu', () => {
       // 验证子文件夹出现在父文件夹下
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '父文件夹' });
       await expect(expandedFolder).toBeVisible({ timeout: 5000 });
-      const childFolder = expandedF_content').filter({ hasText: '子文件夹' });
+      const childFolder = expandedFolder.locator('.el-tree-node__content').filter({ hasText: '子文件夹' });
       await expect(childFolder).toBeVisible({ timeout: 5000 });
     });
     // 鼠标右键folder节点,点击设置公共请求头,导航区域增加公共请求头标签
@@ -386,7 +386,7 @@ test.describe('ContextMenu', () => {
       await pasteItem.click();
       await contentPage.waitForTimeout(500);
       // 验证源文件夹移动到目标文件夹内
-      const expandedFolder = contenis-expanded').filter({ hasText: '目标文件夹' });
+      const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '目标文件夹' });
       await expect(expandedFolder).toBeVisible({ timeout: 5000 });
       const movedFolder = expandedFolder.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
       await expect(movedFolder).toBeVisible({ timeout: 5000 });
@@ -728,7 +728,7 @@ test.describe('ContextMenu', () => {
       await renameItem.click();
       await contentPage.waitForTimeout(300);
       // 验证输入框出现
-      const renameInput = contentPae-ipt');
+      const renameInput = contentPage.locator('.tree-wrap .rename-ipt').first();
       await expect(renameInput).toBeVisible({ timeout: 5000 });
       await expect(renameInput).toHaveValue('原节点名称');
       // 清空并输入新名称

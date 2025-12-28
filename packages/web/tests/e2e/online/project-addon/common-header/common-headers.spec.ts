@@ -21,7 +21,7 @@ test.describe('CommonHeaders', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 创建一个folder节点
@@ -100,7 +100,7 @@ test.describe('CommonHeaders', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 打开全局公共请求头设置
@@ -169,7 +169,7 @@ test.describe('CommonHeaders', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 打开全局公共请求头设置
@@ -227,7 +227,7 @@ test.describe('CommonHeaders', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 打开全局公共请求头设置
@@ -307,7 +307,7 @@ test.describe('CommonHeaders', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 创建一个folder节点
@@ -381,7 +381,7 @@ test.describe('CommonHeaders', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 创建第一层目录: 目录Level1
@@ -529,7 +529,7 @@ test.describe('CommonHeaders', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 创建父目录

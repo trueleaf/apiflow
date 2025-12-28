@@ -126,7 +126,7 @@ test.describe('CookieManagement', () => {
     await contentPage.waitForTimeout(500);
     await expect(cookieTable).not.toContainText('deletableCookie');
   });
-  test('按名称搜索Cookie,列表显示匹配的CookientPage, clearCache, createProject, loginAccount }) => {
+  test('按名称搜索Cookie,列表显示匹配的Cookie', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();

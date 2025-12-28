@@ -278,7 +278,7 @@ test.describe('Tools', () => {
     await moreBtn.click();
     await contentPage.waitForTimeout(300);
     // 点击导入文档工具
-    const importItem = contentPagown-item').filter({ hasText: /导入文档/ });
+    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
     await expect(importItem).toBeVisible({ timeout: 5000 });
     await importItem.click();
     await contentPage.waitForTimeout(500);

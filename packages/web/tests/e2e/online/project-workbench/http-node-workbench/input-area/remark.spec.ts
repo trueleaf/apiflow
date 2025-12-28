@@ -150,7 +150,7 @@ test.describe('Remark', () => {
     await expect(strongElement).toContainText('粗体文本', { timeout: 5000 });
   });
   // 测试用例5: 输入Markdown链接([文字](url))正确渲染为可点击链接
-  test('输入Markdown链接正确渲染为可点击链接', che, createProject, loginAccount }) => {
+  test('输入Markdown链接正确渲染为可点击链接', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -258,7 +258,7 @@ test.describe('Remark', () => {
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
     // 验证未保存标记消失
-    await expect(unsavedIndicator});
+    await expect(unsavedIndicator).not.toBeVisible({ timeout: 5000 });
   });
   // 测试用例8: 备注支持撤销操作,ctrl+z可以撤销输入
   test('备注支持撤销操作,ctrl+z可以撤销输入', async ({ contentPage, clearCache, createProject, loginAccount }) => {
@@ -295,7 +295,7 @@ test.describe('Remark', () => {
     await contentPage.keyboard.press('ControlOrMeta+z');
     await contentPage.waitForTimeout(300);
     // 验证最后的输入被撤销
-    await expect(editorContent).tut: 5000 });
+    await expect(editorContent).toContainText('第一段内容', { timeout: 5000 });
     await expect(editorContent).not.toContainText('第二段内容', { timeout: 5000 });
   });
   // 测试用例9: 备注支持重做操作,ctrl+shift+z可以重做撤销的操作

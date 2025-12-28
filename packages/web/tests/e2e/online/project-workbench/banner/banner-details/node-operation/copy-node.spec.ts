@@ -208,7 +208,7 @@ test.describe('CopyNode', () => {
       await expect(allNodes).toHaveCount(2, { timeout: 5000 });
     });
     // 复制单个websocketNode节点粘贴到folder节点下
-    test('复制单个websocketNode节点粘贴到fol, clearCache, createProject, loginAccount }) => {
+    test('复制单个websocketNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -404,7 +404,7 @@ test.describe('CopyNode', () => {
       await pasteItem.click();
       await contentPage.waitForTimeout(500);
       // 验证新节点出现
-      const allNodes = contentPage.nt').filter({ hasText: '源WS Mock节点' });
+      const allNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '源WS Mock节点' });
       await expect(allNodes).toHaveCount(2, { timeout: 5000 });
     });
     // 复制单个websocketMockNode节点粘贴到folder节点下
@@ -459,7 +459,7 @@ test.describe('CopyNode', () => {
       await contentPage.waitForTimeout(500);
       // 验证文件夹展开并显示子节点
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: 'WSMock目标文件夹' });
-      await expect(expandedFolder).);
+      await expect(expandedFolder).toBeVisible({ timeout: 5000 });
     });
   });
   test.describe('复制文件夹节点', () => {
@@ -636,7 +636,7 @@ test.describe('CopyNode', () => {
       await pasteItem.click();
       await contentPage.waitForTimeout(500);
       // 验证新节点出现
-      const allHttpNodes = contentPontent').filter({ hasText: '混合HTTP节点' });
+      const allHttpNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '混合HTTP节点' });
       const allWsNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '混合WebSocket节点' });
       await expect(allHttpNodes).toHaveCount(2, { timeout: 5000 });
       await expect(allWsNodes).toHaveCount(2, { timeout: 5000 });

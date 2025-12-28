@@ -180,7 +180,7 @@ test.describe('DeleteNode', () => {
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除Websocket节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
-    test('鼠标移动到websocketNode节点,点击更多, clearCache, createProject, loginAccount }) => {
+    test('鼠标移动到websocketNode节点,点击更多按钮', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -322,7 +322,7 @@ test.describe('DeleteNode', () => {
       const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
       await dialogConfirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const deletedNode = contentPantent').filter({ hasText: '待删除HttpMock节点' });
+      const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除HttpMock节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
     test('鼠标移动到httpMockNode节点,点击更多操作删除节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {

@@ -245,7 +245,7 @@ test.describe('RawParams', () => {
     await expect(responseBody).toContainText('var x = 123', { timeout: 10000 });
   });
   // 测试用例5: raw 参数(text,html,xml,json格式)无任何值,请求头不自动添加,调用127.0.0.1:{环境变量中的端口}/echo,返回结果参数和请求头正确
-  test('raw参数无任何值时,请求头不自动添加Conten{ contentPage, clearCache, createProject, loginAccount }) => {
+  test('raw参数无任何值时,请求头不自动添加Content-Type', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();

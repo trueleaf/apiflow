@@ -245,7 +245,7 @@ test.describe('MoveNode', () => {
 
   test.describe('移动单个websocketNode节点', () => {
     // 拖拽单个websocketNode节点到banner空白区域,移动到根节点下
-    test('拖拽单个websocketNode节点到banneentPage, clearCache, createProject, loginAccount }) => {
+    test('拖拽单个websocketNode节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -391,7 +391,7 @@ test.describe('MoveNode', () => {
     });
   });
 
-  test.describe('移动单个httpMockNode节点
+  test.describe('移动单个httpMockNode节点', () => {
     // 拖拽单个httpMockNode节点到banner空白区域,移动到根节点下
     test('拖拽单个httpMockNode节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
@@ -839,7 +839,7 @@ test.describe('MoveNode', () => {
         await contentPage.mouse.move(folderBBox.x + folderBBox.width / 2, folderBBox.y + folderBBox.height / 2);
         await contentPage.mouse.down();
         await contentPage.mouse.move(folderABox.x + folderABox.width / 2, folderABox.y + 5);
-        await contentPage.mouse.up(
+        await contentPage.mouse.up();
       }
       await contentPage.waitForTimeout(500);
       // 验证文件夹顺序调整

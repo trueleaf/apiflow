@@ -184,7 +184,7 @@ test.describe('DefaultHeaders', () => {
     await expect(responseBody).toContainText('application/json', { timeout: 10000 });
   });
   // 测试用例5: 自动添加的content-type值允许修改,调用echo接口返回请求头参数正确
-  test('自动添加的content-type值允许修改', che, createProject, loginAccount }) => {
+  test('自动添加的content-type值允许修改', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
