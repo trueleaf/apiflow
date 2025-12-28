@@ -58,6 +58,13 @@ export default defineConfig({
     name: 'electron',
     testMatch: '**/*.spec.ts',
   },
+    {
+    name: 'electron-trace',
+    testMatch: '**/*.spec.ts',
+    use: {
+      trace: 'on',
+    },
+  },
   ],
   
   // 全局超时设置（30 秒）
