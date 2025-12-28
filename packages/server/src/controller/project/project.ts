@@ -6,9 +6,11 @@ import {
   DeleteProjectDto,
   DeleteMemberFromProjectDto,
   EditProjectDto,
+  GetDeletedProjectListDto,
   GetProjectFullInfoByIdDto,
   GetProjectListDto,
-  GetProjectMembersByIdDto
+  GetProjectMembersByIdDto,
+  RestoreProjectDto
 } from '../../types/dto/project/project.dto.js';
 import { ProjectService } from '../../service/project/project.js';
 
@@ -55,6 +57,24 @@ export class ProjectController {
   @Del('/project/delete_project')
   async deleteProject(@Body() params: DeleteProjectDto) {
     const data = await this.projectService.deleteProject(params);
+    return data;
+  }
+
+  /**
+   * 获取已删除项目列表
+   */
+  @Get('/project/project_deleted_list')
+  async getDeletedProjectList(@Query() params: GetDeletedProjectListDto) {
+    const data = await this.projectService.getDeletedProjectList(params);
+    return data;
+  }
+
+  /**
+   * 恢复项目
+   */
+  @Put('/project/project_restore')
+  async restoreProject(@Body() params: RestoreProjectDto) {
+    const data = await this.projectService.restoreProject(params);
     return data;
   }
   /**

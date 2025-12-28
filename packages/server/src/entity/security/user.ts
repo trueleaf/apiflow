@@ -10,11 +10,6 @@ export class User extends Timestamps {
   @prop()
   public loginName: string;
   /**
-   * 昵称
-   */
-  @prop()
-  public realName: string;
-  /**
    * 加密盐
    */
   @prop()
@@ -24,11 +19,6 @@ export class User extends Timestamps {
    */
   @prop()
   public password: string;
-  /**
-   * 手机号码
-   */
-  @prop({ default: '' })
-  public phone: string;
   /**
    * 登录次数
    */
@@ -40,15 +30,10 @@ export class User extends Timestamps {
   @prop()
   public lastLogin: Date;
   /**
-   * 邮箱
-   */
-  @prop()
-  public email: string;
-  /**
    * 角色id列表
    */
   @prop({ type: () => [String], default: [] })
-  public roleIds?: string[];
+    public roleIds?: string[];
   /**
    * 角色名称，仅供前端显示方便，避免一次查询
    */

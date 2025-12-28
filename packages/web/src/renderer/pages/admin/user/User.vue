@@ -3,23 +3,13 @@
   <div>
     <SSearch @change="handleChange">
       <SSearchItem :label="t('登录名称')" prop="loginName"></SSearchItem>
-      <SSearchItem :label="t('昵称')" prop="realName"></SSearchItem>
-      <SSearchItem :label="t('手机号')" prop="phone"></SSearchItem>
       <template #operation>
         <el-button type="success" @click="addUserDialog = true">{{ t('新增用户') }}</el-button>
-        <SDownload class="ml-2" url="/api/security/user_excel_template" @finish="handleDownloadFinish">
-          <el-button :loading="loading" type="primary" @click="loading = true">{{ t('下载模板') }}</el-button>
-        </SDownload>
-        <SUploadPlain url="/api/security/add_user_by_excel" excel @success="handleImportSuccess" @upload="loading2 = true" @finish="loading2 = false">
-          <el-button :loading="loading2" type="primary">{{ t('导入用户') }}</el-button>
-        </SUploadPlain>
       </template>
     </SSearch>
     <!-- 表格展示 -->
     <STable ref="table" url="/api/security/user_list" class="mt-5">
       <el-table-column prop="loginName" :label="t('登录名称')" align="center"></el-table-column>
-      <el-table-column prop="realName" :label="t('昵称')" align="center"></el-table-column>
-      <el-table-column prop="phone" :label="t('手机号')" align="center"></el-table-column>
       <el-table-column :label="t('创建日期')" align="center" width="200px">
         <template #default="scope">
           {{ formatDate(scope.row.createdAt) }}
@@ -68,19 +58,15 @@ import { formatDate } from '@/helper'
 import { ElMessageBox } from 'element-plus';
 import { request } from '@/api/api';
 import SSearch from '@/components/common/forms/search/ClSearch.vue'
-import SSearchItem from '@/components/common/forms/search/ClSearchItem.vue'
+import SSearchItem from '@/components/common/forms/search/ClSearchItem.vue'     
 import STable from '@/components/common/table/ClTable.vue'
-import SDownload from '@/components/common/download/ClDownload.vue'
-import SUploadPlain from '@/components/common/upload/ClUploadPlain.vue'
 
 const { t } = useI18n()
 const addUserDialog = ref(false) //------------------新增用户弹窗
 const editUserDialog = ref(false) //-----------------编辑用户弹窗
 const resetPwdDialog = ref(false) //-----------------重置密码弹窗
 const editUserId = ref('') //------------------------编辑时候用户id
-const loading = ref(false) //------------------------下载模板加载效果
-const loading2 = ref(false) //-----------------------批量导入用户加载效果
-const table = ref<{ getData: (params?: Record<string, unknown>) => void }>()
+const table = ref<{ getData: (params?: Record<string, unknown>) => void }>()    
 /*
 |--------------------------------------------------------------------------
 | 函数定义
@@ -126,20 +112,6 @@ const handleOpenEditUser = (row: { _id: string }) => {
 const handleResetPassword = (row: { _id: string }) => {
   editUserId.value = row._id;
   resetPwdDialog.value = true;
-}
-//下载模板
-const handleDownloadFinish = () => {
-  loading.value = false;
-}
-//导入成功弹窗
-const handleImportSuccess = (data: { total: number, success: number }) => {
-  getData();
-  ElMessageBox.alert(t('共导入 {total} 个，成功 {success} 个', { total: data.total, success: data.success }), {
-    confirmButtonText: t('确定'),
-    type: 'warning'
-  }).then(() => {
-    //console.log(222)
-  });
 }
 
 </script>

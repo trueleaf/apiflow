@@ -18,7 +18,6 @@ const INITIAL_USER = [
     isEnabled: true,
     loginName: 'admin',
     password: '98b2f89fe0f8ac91bbdab35f9a170b82',
-    realName: '管理员',
     lastLogin: new Date(),
     roleIds: [
       '5edf71f2193c7d5fa0ec9b98',
@@ -36,7 +35,6 @@ const INITIAL_USER = [
     loginName: 'apiflow',
     lastLogin: new Date(),
     password: '84d748e1ac5c09a425d463d18ac08b86',
-    realName: '初始普通用户',
     roleIds: ['5ede0ba06f76185204584700'],
     roleNames: ['普通用户'],
     salt: '2841279',
@@ -163,6 +161,20 @@ const INITIAL_SERVER_ROUTES = [
     path: '/api/project/delete_project',
   },
   {
+    _id: '67f0a9b1c2d3e4f5a6b7c8d9',
+    groupName: 'api文档-项目回收站',
+    method: 'get',
+    name: '获取已删除项目列表',
+    path: '/api/project/project_deleted_list',
+  },
+  {
+    _id: '67f0a9b1c2d3e4f5a6b7c8da',
+    groupName: 'api文档-项目回收站',
+    method: 'put',
+    name: '恢复项目',
+    path: '/api/project/project_restore',
+  },
+  {
     _id: '5edd91af5fcdf3111671cb1d',
     groupName: 'api文档-项目相关',
     method: 'put',
@@ -287,34 +299,6 @@ const INITIAL_SERVER_ROUTES = [
     method: 'get',
     name: '获取预设参数组枚举',
     path: '/api/project/doc_preset_params_enum',
-  },
-  {
-    _id: '5edd91b15fcdf3111671cb6f',
-    groupName: '权限相关-登录注册',
-    method: 'get',
-    name: '获取短信',
-    path: '/api/security/sms',
-  },
-  {
-    _id: '5edd91b15fcdf3111671cb6a',
-    groupName: '权限相关-登录注册',
-    method: 'post',
-    name: '重置密码',
-    path: '/api//security/user_reset_password',
-  },
-  {
-    _id: '5edd91b15fcdf3111671cb71',
-    groupName: '权限相关-登录注册',
-    method: 'post',
-    name: '用户注册',
-    path: '/api/security/register',
-  },
-  {
-    _id: '5edd91b15fcdf3111671cb73',
-    groupName: '权限相关-登录注册',
-    method: 'post',
-    name: '手机号码登录',
-    path: '/api/security/login_phone',
   },
   {
     _id: '5edd91b15fcdf3111671cb75',
@@ -925,6 +909,8 @@ const INITIAL_ROLE = [
       '5edd91af5fcdf3111671cb17',
       '5edd91af5fcdf3111671cb19',
       '5edd91af5fcdf3111671cb1b',
+      '67f0a9b1c2d3e4f5a6b7c8d9',
+      '67f0a9b1c2d3e4f5a6b7c8da',
       '5edd91af5fcdf3111671cb1d',
       '5edd91af5fcdf3111671cb1f',
       '5edd91af5fcdf3111671cb21',
@@ -1056,6 +1042,8 @@ const INITIAL_ROLE = [
       '5edd91af5fcdf3111671cb17',
       '5edd91af5fcdf3111671cb19',
       '5edd91af5fcdf3111671cb1b',
+      '67f0a9b1c2d3e4f5a6b7c8d9',
+      '67f0a9b1c2d3e4f5a6b7c8da',
       '5edd91af5fcdf3111671cb1d',
       '5edd91af5fcdf3111671cb1f',
       '5edd91af5fcdf3111671cb21',
@@ -1201,6 +1189,13 @@ export async function initServerRoutes(
   if (!serverRoutesInfo) {
     console.log('初始化服务端路由');
     await serverRoutesModel.insertMany(INITIAL_SERVER_ROUTES);
+  } else {
+    const existingRoutes = await serverRoutesModel.find({}, { path: 1, method: 1 }).lean();
+    const existingKey = new Set(existingRoutes.map(r => `${r.method}:${r.path}`));
+    const missingRoutes = INITIAL_SERVER_ROUTES.filter(r => !existingKey.has(`${r.method}:${r.path}`));
+    if (missingRoutes.length > 0) {
+      await serverRoutesModel.insertMany(missingRoutes);
+    }
   }
   return;
 }
@@ -1222,11 +1217,24 @@ export async function initClientRoutes(
 /**
  * 初始化角色信息
  */
-export async function initRoles(roleModel: ReturnModelType<typeof Role>) {
+export async function initRoles(roleModel: ReturnModelType<typeof Role>) {      
   const roleInfo = await roleModel.findOne();
   if (!roleInfo) {
     console.log('初始化角色信息');
     await roleModel.insertMany(INITIAL_ROLE);
+  } else {
+    const projectRecycleRouteIds = [
+      '67f0a9b1c2d3e4f5a6b7c8d9',
+      '67f0a9b1c2d3e4f5a6b7c8da',
+    ];
+    await roleModel.updateOne(
+      { _id: '5ede0ba06f76185204584700' },
+      { $addToSet: { serverRoutes: { $each: projectRecycleRouteIds } } }
+    );
+    await roleModel.updateOne(
+      { _id: '5edf71f2193c7d5fa0ec9b98' },
+      { $addToSet: { serverRoutes: { $each: projectRecycleRouteIds } } }
+    );
   }
   return;
 }

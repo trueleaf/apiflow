@@ -16,11 +16,10 @@
         </el-input>
       </el-form-item>
       <el-form-item :label="`${t('选择成员')}：`">
-        <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading" :placeholder="t('输入用户名或完整手机号查找用户')">
+        <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading" :placeholder="t('输入用户名查找用户')">
           <RemoteSelectorItem v-for="(item, index) in remoteMembers" :key="index">
             <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">
               <span>{{ item.userName }}</span>
-              <span>{{ item.realName }}</span>
             </div>
           </RemoteSelectorItem>
           <div v-if="remoteMembers.length === 0" class="d-flex a-center j-center w-100 h-40px gray-500">{{ t('暂无数据') }}</div>
@@ -32,7 +31,6 @@
     <!-- 成员信息 -->
     <el-table :data="selectUserData"  border max-height="200px">
       <el-table-column prop="userName" :label="t('用户名')" align="center"></el-table-column>
-      <el-table-column prop="realName" :label="t('昵称')" align="center"></el-table-column>
       <el-table-column :label="t('角色(权限)')" align="center">
         <template #default="scope">
           <el-select v-model="scope.row.permission" :size="config.renderConfig.layout.size">

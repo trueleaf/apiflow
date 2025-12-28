@@ -116,7 +116,7 @@ const handleClose = () => {
 const handleSaveDoc = async () => {
   const docInfo = JSON.parse(JSON.stringify(httpNodeStore.httpNodeInfo))
   docInfo.info.name = formInfo.value.name;
-  docInfo.info.creator = runtimeStore.userInfo.realName
+  docInfo.info.creator = runtimeStore.userInfo.loginName
   docInfo.pid = currentMountedNode.value?._id;
   docInfo.projectId = projectId;
   docInfo.sort = Date.now();

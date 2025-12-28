@@ -2,18 +2,6 @@ import { Rule, RuleType } from '@midwayjs/validate';
 import { TableSearchParams } from '../common/common.dto.js';
 
 /**
- * 短信验证码DTO
- */
-export class SMSDto {
-  @Rule(RuleType.string().required())
-    phone: string;
-  @Rule(RuleType.string().required())
-    captcha: string;
-  @Rule(RuleType.string().required())
-    clientKey: string;
-}
-
-/**
  * 图形验证码DTO
  */
 export class SvgCaptchaDto {
@@ -24,37 +12,6 @@ export class SvgCaptchaDto {
     height: number;
 }
 
-/**
- * 手机号用户注册
- */
-
-export class RegisterByPhoneDto {
-  /**
-   * 登录名称
-   */
-  @Rule(RuleType.string().required())
-    loginName: string;
-  /**
-   * 密码
-   */
-  @Rule(RuleType.string().required())
-    password: string;
-  /**
-   * 手机验证码
-   */
-  @Rule(RuleType.string().required())
-    smsCode: string;
-  /**
-   * 手机号码(非必填)
-   */
-  @Rule(RuleType.string())
-    phone?: string;
-  /**
-   * 昵称(非必填)
-   */
-  @Rule(RuleType.string())
-    realName: string;
-}
 /**
  * 用户名加密码登录
  */
@@ -76,21 +33,6 @@ export class LoginByPasswordDto {
     captcha?: string;
 }
 
-/**
- * 手机号码登录
- */
-export class LoginByPhoneDto {
-  /**
-   * 手机号码
-   */
-  @Rule(RuleType.string().required())
-    phone: string;
-  /**
-   * 验证码
-   */
-  @Rule(RuleType.string().required())
-    smsCode: string;
-}
 /**
  * 修改用户密码
  */
@@ -118,26 +60,6 @@ export class DisableUserDto {
     ids: string[];
 }
 /**
- * 重置密码
- */
-export class ResetPasswordDto {
-  /**
-   * 手机号
-   */
-  @Rule(RuleType.string().required())
-    phone: string;
-  /**
-   * 短信验证码
-   */
-  @Rule(RuleType.string().required())
-  smsCode: string;
-  /**
-   * 重置后的密码
-   */
-  @Rule(RuleType.string().min(6).required())
-    password: string;
-}
-/**
  * 管理员重置密码
  */
 export class ResetPasswordByAdminDto {
@@ -162,21 +84,6 @@ export class AddUserDto {
   @Rule(RuleType.string().required())
     loginName: string;
   /**
-   * 昵称
-   */
-  @Rule(RuleType.string().allow(''))
-    realName: string;
-  /**
-   * 手机号码
-   */
-  @Rule(RuleType.string())
-    phone: string;
-  /**
-   * 用户默认密码
-   */
-  @Rule(RuleType.string())
-    password: string;
-  /**
    * 角色id列表
    */
   @Rule(RuleType.array().items(RuleType.string()).min(1).error(new Error('请选择角色')))
@@ -196,16 +103,6 @@ export class GetUserListDto extends TableSearchParams {
    */
   @Rule(RuleType.string().allow(''))
     loginName: string;
-  /**
-   * 昵称
-   */
-  @Rule(RuleType.string().allow(''))
-    realName: string;
-  /**
-   * 手机号搜索
-   */
-  @Rule(RuleType.string())
-    phone: string;
 }
 /**
  * 用户状态
@@ -266,16 +163,6 @@ export class ChangeUserInfoDto {
    */
   @Rule(RuleType.string())
     loginName?: string;
-  /**
-   * 手机号码
-   */
-  @Rule(RuleType.string())
-    phone?: string;
-  /**
-   * 昵称
-   */
-  @Rule(RuleType.string())
-    realName?: string;
 }
 
 /**

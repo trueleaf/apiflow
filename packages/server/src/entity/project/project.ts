@@ -100,4 +100,10 @@ export class Project extends Timestamps {
    */
   @prop({ default: true })
   public isEnabled: boolean;
+
+  /**
+   * 删除时间戳（软删除）
+   */
+  @prop()
+  public deletedAt?: number;
 }

@@ -7,9 +7,6 @@ class Member {
   @Rule(RuleType.string().required().error(new Error('用户名不能为空')))
   userName: string;
 
-  @Rule(RuleType.string().empty(''))
-  realName: string;
-
   @Rule(
     RuleType.string()
       .valid('readOnly', 'readAndWrite', 'admin')

@@ -51,7 +51,7 @@
           </el-tab-pane> -->
         </el-tabs>
         <keep-alive>
-          <component :is="getComponent()" v-on="eventListeners"></component>
+          <component :is="getComponent()"></component>
         </keep-alive>
       </div>
     </div>
@@ -59,54 +59,21 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { config as globalConfig } from '@src/config/config'
 import LoginAccount from './components/LoginAccount.vue';
-import LoginPhone from './components/LoginPhone.vue';
-import Register from './components/Register.vue';
-import ResetPassword from './components/ResetPassword.vue';
 import ServerConfig from './components/ServerConfig.vue';
 
 const config = ref(globalConfig);
 const activeName = ref('loginAccount');
 
-//跳转注册页面
-const handleJumpToRegister = () => {
-  activeName.value = 'register'
-}
-//跳转到重置密码
-const handleJumpToResetPassword = () => {
-  activeName.value = 'reset';
-}
-//跳转到登录页面
-const handleJumpToLogin = () => {
-  activeName.value = 'login'
-}
 const getComponent = () => {
   if (activeName.value === 'loginAccount') {
     return LoginAccount;
   } else if (activeName.value === 'setting') {
     return ServerConfig;
-  } else if (activeName.value === 'loginPhone') {
-    return LoginPhone;
-  } else if (activeName.value === 'register') {
-    return Register;
-  } else if (activeName.value === 'reset') {
-    return ResetPassword;
   }
 }
-const eventListeners = computed(() => {
-  if (activeName.value === 'loginAccount') {
-    return {
-      'jumpToRegister': handleJumpToRegister,
-      'jumpToResetPassword': handleJumpToResetPassword
-    };
-  } else if (activeName.value === 'reset') {
-    return {
-      'jumpToLogin': handleJumpToLogin
-    };
-  }
-});
 </script>
 
 <style lang='scss' scoped>

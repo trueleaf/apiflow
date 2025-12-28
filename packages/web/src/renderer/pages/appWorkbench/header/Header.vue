@@ -57,9 +57,9 @@
           <span class="network-text">{{ networkMode === 'online' ? t('联网模式') : t('离线模式') }}</span>
         </el-icon>
         <button
-          v-if="networkMode === 'online' && runtimeStore.userInfo.token"
+          v-if="networkMode === 'online' && runtimeStore.userInfo.token"        
           class="icon user-avatar-btn"
-          :title="runtimeStore.userInfo.realName || runtimeStore.userInfo.loginName"
+          :title="runtimeStore.userInfo.loginName"
           data-testid="header-user-menu-btn"
           @click.stop="handleOpenUserMenu"
           ref="userAvatarButtonRef"

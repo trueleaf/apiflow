@@ -10,8 +10,6 @@ export const useRuntime = defineStore('runtime', () => {
   const userInfo = ref<PermissionUserInfo>({
     id: "",
     loginName: '',
-    phone: '',
-    realName: '',
     roleIds: [],
     role: 'user',
     token: '',
@@ -45,8 +43,6 @@ export const useRuntime = defineStore('runtime', () => {
     userInfo.value = {
       id: "",
       loginName: '',
-      phone: '',
-      realName: '',
       roleIds: [],
       role: 'user',
       token: '',

@@ -27,7 +27,7 @@ export class ProjectCodeService {
       codeName,
       code,
       isPublic,
-      creator: this.ctx.tokenInfo.realName,
+      creator: this.ctx.tokenInfo.loginName,
     };
     await this.projectCodeModel.create(codeInfo);
     return;

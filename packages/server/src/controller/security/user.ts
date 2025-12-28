@@ -7,7 +7,6 @@ import {
   SetHeader,
   Body,
   Put,
-  Files,
   InjectClient,
 } from '@midwayjs/core';
 import { Context } from '@midwayjs/koa';
@@ -21,19 +20,13 @@ import {
   GetUserListByNameDto,
   GetUserListDto,
   LoginByPasswordDto,
-  LoginByPhoneDto,
-  RegisterByPhoneDto,
   ResetPasswordByAdminDto,
-  ResetPasswordDto,
-  SMSDto,
   StarProjectDto,
   SvgCaptchaDto,
   UnStarProjectDto,
 } from '../../types/dto/security/user.dto.js';
 import { UserService } from '../../service/security/user.js';
 import * as svgCaptcha from 'svg-captcha';
-import { UploadFileInfo } from '@midwayjs/upload';
-import {  throwError } from '../../utils/utils.js';
 import { CachingFactory, MidwayCache } from '@midwayjs/cache-manager';
 import { nanoid } from 'nanoid';
 import { ReqSign } from '../../decorator/req_sign.decorator.js';
@@ -47,57 +40,6 @@ export class UserController {
     userService: UserService;
   @InjectClient(CachingFactory, 'default')
     cache: MidwayCache;
-  /**
-   * 获取手机验证码
-   */
-  @ReqSign()
-  @Get('/security/sms')
-  async getSMSCode(@Query() params: SMSDto) {
-    const captcha: string = await this.cache.get(params.clientKey);
-    if (!params.clientKey) {
-      return throwError(4005, '请输入图形验证码')
-    }
-    if (!captcha) {
-      return throwError(4005, '图形验证码已失效请重新获取')
-    }
-    if (captcha.toLowerCase() !== params.captcha.toLowerCase()) {
-      return throwError(4005, '图形验证码错误')
-    }
-    const blockedKey = `sms:blocked:${params.phone}`;
-    const countKey = `sms:count:${params.phone}`;
-    const sendKey = `sms:send:${params.phone}`
-    const dayLimitKey = `sms:dailySend:${params.phone}`
-    const isBlock = await this.cache.get(blockedKey);
-    const phoneCallCount: number = await this.cache.get(countKey) || 0;
-    const isSend = await this.cache.get(sendKey);
-    const dailySendCount: number = await this.cache.get(dayLimitKey);
-
-    if (dailySendCount > 3) {
-      this.cache.set(dayLimitKey, dailySendCount + 1, 1000 * 60 * 60 * 12);
-      return throwError(4006, '短信验证码调用过于频繁')
-    }
-
-
-    if (isBlock && phoneCallCount > 10) {
-      this.cache.set(blockedKey, true, 48 * 60 * 60 * 1000); // 封禁48小时
-    }
-    if (isBlock) {
-      this.cache.set(countKey, phoneCallCount + 1, 1000 * 60 * 5);
-      return throwError(4006, '短信验证码调用过于频繁')
-    }
-    if (phoneCallCount > 2) { //五分钟内调用超过2次，封禁12小时
-      this.cache.set(blockedKey, true, 12 * 60 * 60 * 1000); // 12小时
-      this.cache.set(countKey, phoneCallCount + 1, 1000 * 60 * 5);
-      return throwError(4006, '短信验证码调用过于频繁')
-    } 
-    this.cache.set(countKey, phoneCallCount + 1, 1000 * 60 * 5);
-    if (isSend) {
-      return throwError(4006, '短信验证码调用过于频繁')
-    }
-    this.cache.set(sendKey, true, 1000 * 60 * 1);
-    const data = await this.userService.getSMSCode(params);
-    return data;
-  }
   /**
    * 获取图形验证码
    */
@@ -116,16 +58,6 @@ export class UserController {
     return Buffer.from(captcha.data, 'utf-8');
   }
   /**
-   * 手机号用户注册
-   */
-  @ReqSign()
-  @ReqLimit({ ttl: 1000 * 60 * 60, max: 30, limitBy: 'ip' })
-  @Post('/security/register')
-  async registerByPhone(@Body() params: RegisterByPhoneDto) {
-    const data = await this.userService.registerByPhone(params);
-    return data;
-  }
-  /**
    * 根据账号密码登录
    */
   @ReqSign()
@@ -136,31 +68,11 @@ export class UserController {
     return data;
   }
   /**
-   * 根据手机号码登录
-   */
-  @ReqSign()
-  @ReqLimit({ ttl: 1000 * 60 * 60, max: 10, limitBy: 'ip', limitExtraKey: 'phone'})
-  @Post('/security/login_phone')
-  async loginByPhone(@Body() params: LoginByPhoneDto) {
-    const data = await this.userService.loginByPhone(params);
-    return data;
-  }
-  /**
    * 修改密码(用户主动修改)
    */
   @Put('/security/user_password')
   async changePasswordByUser(@Body() params: ChangePasswordByUserDto) {
     const data = await this.userService.changePasswordByUser(params);
-    return data;
-  }
-  /**
-   * 重置密码
-   */
-  @ReqSign()
-  @ReqLimit({ ttl: 1000 * 60 * 60, max: 5, limitBy: 'ip' })
-  @Post('/security/user_reset_password')
-  async resetPassword(params: ResetPasswordDto) {
-    const data = await this.userService.resetPassword(params);
     return data;
   }
   /**
@@ -240,33 +152,11 @@ export class UserController {
     return data;
   }
   /**
-   * 下载用户批量导入模板
-   */
-  @Get('/security/user_excel_template')
-  async getBatchUserImportTemplate() {
-    const data = await this.userService.getBatchUserImportTemplate();
-    return data;
-  }
-  /**
    * 访客登录(默认创建一个固定密码的用户)
    */
   @Post('/security/login_guest')
   async guestLogin() {
     const data = await this.userService.guestLogin();
-    return data;
-  }
-  /**
-   * 通过excel批量导入用户
-   */
-  @Post('/security/add_user_by_excel')
-  async addUserByExcel(@Files() files: UploadFileInfo<string>[]) {
-    if (files?.length === 0) {
-      throwError(1006, '文件格式不正确');
-    }
-    if (files?.[0].mimeType !== 'application/vnd.ms-excel' && files?.[0].mimeType !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-      throwError(1006, '文件格式不正确');
-    }
-    const data = await this.userService.addUserByExcel(files[0]);
     return data;
   }
   /**

@@ -4,20 +4,8 @@ import { User } from '../entity/security/user.js';
  * 全局配置
  */
 export type GlobalConfig = {
-  smsConfig: {
-    accessKeyId: string;
-    accessKeySecret: string;
-    endpoint: string;
-    signName: string;
-    templateCode: string;
-    maxAge: number;
-  };
   //业务参数
   apiflow: {
-    /**
-     * 用户注册默认密码
-     */
-    defaultRegisterPassword: string;
     /**
      * 项目最大成员数量
      */
@@ -96,8 +84,6 @@ export type LoginTokenInfo = {
   id: string;
   roleIds: User['roleIds'];
   loginName: User['loginName'];
-  realName: User['realName'];
-  phone: User['phone'];
   role: 'user' | 'admin';
   token: string;
 };

@@ -68,14 +68,6 @@ export type PermissionUserInfo = {
    */
   loginName: string;
   /**
-   * 手机号码
-   */
-  phone: string;
-  /**
-   * 昵称
-   */
-  realName: string;
-  /**
    * 角色id列表
    */
   roleIds: string[];
@@ -88,10 +80,6 @@ export type PermissionUserInfo = {
    * 用户头像（base64字符串）
    */
   avatar: string;
-  /**
-   * 邮箱地址
-   */
-  email?: string;
   /**
    * 注册时间（ISO格式字符串）
    */
@@ -108,10 +96,6 @@ export type PermissionUserBaseInfo = {
    * 登录名称
    */
   userName: string;
-  /**
-   * 昵称
-   */
-  realName: string;
   /**
    * 用户id
    */

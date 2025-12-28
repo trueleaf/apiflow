@@ -16,14 +16,6 @@
 
 ## Security - 用户与鉴权 ✅
 
-### [GET] `/api/security/sms`
-- 描述：获取手机验证码
-- 入参（query）：`SMSDto`
-  - `phone` (string) — 必填
-  - `captcha` (string) — 必填
-  - `clientKey` (string) — 必填
-- 备注：需要请求签名 `@ReqSign()`；会对图形验证码进行校验。
-
 ### [GET] `/api/security/captcha`
 - 描述：获取图形验证码 (返回 SVG)
 - 入参（query）：`SvgCaptchaDto`
@@ -218,6 +210,8 @@
 - [DEL] `/api/project/delete_user` — 从项目删除成员 — body: `DeleteMemberFromProjectDto` (id, memberType, projectId)
 - [PUT] `/api/project/change_permission` — 改变用户权限 — body: `ChangeMemberPermissionInProjectDto` (id, projectId, permission)
 - [DEL] `/api/project/delete_project` — 删除项目 — body: `DeleteProjectDto` (ids: string[])
+- [GET] `/api/project/project_deleted_list` — 获取已删除项目列表 — query: `GetDeletedProjectListDto`
+- [PUT] `/api/project/project_restore` — 恢复项目 — body: `RestoreProjectDto` (ids: string[])
 - [PUT] `/api/project/edit_project` — 修改项目信息 — body: `EditProjectDto` (_id, projectName?, remark?)
 - [GET] `/api/project/project_list` — 获取项目列表 — query: `GetProjectListDto`
 - [GET] `/api/project/project_full_info` — 获取项目完整信息 — query: `GetProjectFullInfoByIdDto` (`_id`)

@@ -182,12 +182,11 @@
                     :loading="loading2" 
                     embedded
                     auto-focus
-                    :placeholder="t('输入用户名或完整手机号查找用户')"
+                    :placeholder="t('输入用户名查找用户')"
                   >
                     <RemoteSelectorItem v-for="(item, index) in remoteMembers" :key="index">
                       <div class="d-flex a-center j-between w-100 h-100" @click="handleAddUser(item)">
                         <span>{{ item.userName }}</span>
-                        <span>{{ item.realName }}</span>
                       </div>
                     </RemoteSelectorItem>
                     <div v-if="remoteMembers.length === 0" class="d-flex a-center j-center w-100 h-40px gray-500">{{ t('暂无数据') }}</div>
@@ -358,11 +357,11 @@ const changeGroupInfo = () => {
   if (!groupInfo.value?.updator) {
     groupInfo.value!.updator = {
       userId: nanoid(),
-      userName: runtimeStore.userInfo.loginName || runtimeStore.userInfo.realName,
+      userName: runtimeStore.userInfo.loginName,
       _id: nanoid(),
     }
   } else {
-    groupInfo.value!.updator.userName = runtimeStore.userInfo.loginName || runtimeStore.userInfo.realName;
+    groupInfo.value!.updator.userName = runtimeStore.userInfo.loginName;
   }
 }
 //保存修改

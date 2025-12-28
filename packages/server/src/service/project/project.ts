@@ -1,7 +1,7 @@
 import { Config, Context, Inject, Provide } from '@midwayjs/core';
 import { InjectEntityModel } from '@midwayjs/typegoose';
 import { ReturnModelType } from '@typegoose/typegoose';
-import { AddProjectDto, AddMemberToProjectDto, ChangeMemberPermissionInProjectDto, DeleteProjectDto, DeleteMemberFromProjectDto, EditProjectDto, GetProjectByKeywordDto, GetProjectFullInfoByIdDto, GetProjectInfoByIdDto, GetProjectListDto, GetProjectMembersByIdDto } from '../../types/dto/project/project.dto.js';
+import { AddProjectDto, AddMemberToProjectDto, ChangeMemberPermissionInProjectDto, DeleteProjectDto, DeleteMemberFromProjectDto, EditProjectDto, GetDeletedProjectListDto, GetProjectByKeywordDto, GetProjectFullInfoByIdDto, GetProjectInfoByIdDto, GetProjectListDto, GetProjectMembersByIdDto, RestoreProjectDto } from '../../types/dto/project/project.dto.js';
 import { GroupItem, Project } from '../../entity/project/project.js';
 import { Doc } from '../../entity/doc/doc.js';
 import { GlobalConfig, LoginTokenInfo } from '../../types/types.js';
@@ -193,9 +193,10 @@ export class ProjectService {
       deletedProjects.push(projectInfo)
     }
 
+    const deletedAt = Date.now();
     const result = await this.projectModel.updateMany(
       { _id: { $in: ids }},
-      { $set: { isEnabled: false }}
+      { $set: { isEnabled: false, deletedAt }}
     );
     //同时删除每个用户可访问项目
     const userIds: Set<string> = new Set()
@@ -211,6 +212,103 @@ export class ProjectService {
     })
     await this.userModel.updateMany({ _id: { $in: userIds } }, { $pull: { couldVisitProjects: { $in: ids } } });
     return result;
+  }
+
+  /**
+   * 获取已删除项目列表
+   * - 全局role=admin：可查看所有已删除项目
+   * - 否则：仅返回当前用户在项目内permission=admin的已删除项目
+   */
+  async getDeletedProjectList(params: GetDeletedProjectListDto) {
+    const { pageNum, pageSize, startTime, endTime, projectName } = params;
+    const isGlobalAdmin = this.ctx.tokenInfo.role === 'admin';
+
+    const query = { isEnabled: false } as {
+      isEnabled: boolean;
+      projectName?: RegExp;
+      createdAt?: {
+        $gt?: number,
+        $lt?: number,
+      };
+      $or?: any[];
+    };
+
+    let skipNum = 0;
+    let limit = 100;
+    if (pageSize != null && pageNum != null) {
+      skipNum = (pageNum - 1) * pageSize;
+      limit = pageSize;
+    }
+    if (startTime != null && endTime == null) {
+      query.createdAt = { $gt: startTime, $lt: Date.now() };
+    } else if (startTime != null && endTime != null) {
+      query.createdAt = { $gt: startTime, $lt: endTime };
+    }
+    if (projectName != null) {
+      query.projectName = new RegExp(lodash.escapeRegExp(projectName));
+    }
+
+    if (!isGlobalAdmin) {
+      const userId = this.ctx.tokenInfo.id;
+      query.$or = [
+        { users: { $elemMatch: { userId, permission: 'admin' } } },
+        { groups: { $elemMatch: { groupUsers: { $elemMatch: { userId, permission: 'admin' } } } } },
+      ];
+    }
+
+    const list = await this.projectModel
+      .find(query, { createdAt: 0 })
+      .skip(skipNum)
+      .limit(limit)
+      .sort({ deletedAt: -1, updatedAt: -1 })
+      .lean();
+
+    return list.map(project => ({ ...project, isDeleted: true }));
+  }
+
+  /**
+   * 恢复项目（软删除恢复）
+   * - 允许：全局role=admin 或 项目内permission=admin
+   * - 同时恢复成员可访问关系(couldVisitProjects)
+   */
+  async restoreProject(params: RestoreProjectDto): Promise<string[]> {
+    const ids = lodash.uniq(params.ids || []).filter(Boolean);
+    const isGlobalAdmin = this.ctx.tokenInfo.role === 'admin';
+    const restoredIds: string[] = [];
+
+    for (let i = 0; i < ids.length; i++) {
+      const projectId = ids[i];
+      if (!isGlobalAdmin) {
+        await this.commonControl.checkDocOperationPermissions(projectId, 'admin');
+      }
+
+      const project = await this.projectModel.findById(projectId).lean();
+      if (!project) {
+        continue;
+      }
+
+      await this.projectModel.updateOne(
+        { _id: projectId },
+        { $set: { isEnabled: true }, $unset: { deletedAt: 1 } }
+      );
+
+      const userIds: Set<string> = new Set();
+      (project.users || []).forEach(user => userIds.add(user.userId));
+      (project.groups || []).forEach(group => {
+        (group.groupUsers || []).forEach(user => userIds.add(user.userId));
+      });
+
+      if (userIds.size > 0) {
+        await this.userModel.updateMany(
+          { _id: { $in: Array.from(userIds) } },
+          { $addToSet: { couldVisitProjects: projectId } }
+        );
+      }
+
+      restoredIds.push(projectId);
+    }
+
+    return restoredIds;
   }
   /**
    * 修改项目

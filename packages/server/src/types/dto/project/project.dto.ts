@@ -204,3 +204,25 @@ export class GetProjectByKeywordDto {
   @Rule(RuleType.string())
     keyword: string;
 }
+
+/**
+ * 获取已删除项目列表
+ */
+export class GetDeletedProjectListDto extends TableSearchParams {
+  /**
+   * 项目名称（模糊搜索）
+   */
+  @Rule(RuleType.string())
+    projectName?: string;
+}
+
+/**
+ * 恢复项目
+ */
+export class RestoreProjectDto {
+  /**
+   * 项目id集合
+   */
+  @Rule(RuleType.array().items(RuleType.string()).min(1))
+    ids: string[];
+}

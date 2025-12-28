@@ -27,7 +27,7 @@ export class ProjectVariableService {
     doc.type = type;
     doc.value = value;
     doc.projectId = projectId;
-    doc.creator = this.ctx.tokenInfo.realName;
+    doc.creator = this.ctx.tokenInfo.loginName;
     doc.fileValue = fileValue;
     const hasName = await this.projectVariableModel.findOne({
       projectId,

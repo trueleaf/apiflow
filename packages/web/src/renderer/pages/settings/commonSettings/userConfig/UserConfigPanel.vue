@@ -43,31 +43,11 @@
           <div class="form-item">
             <div class="form-label">
               <User :size="18" class="label-icon" />
-              {{ t('用户名称') }}
+              {{ t('登录名称') }}
             </div>
-            <el-input
-              v-model="localUserName"
-              :placeholder="t('请输入用户名称')"
-              clearable
-              class="form-input"
-            />
-          </div>
-
-          <div class="form-item">
-            <div class="form-label">
-              <Mail :size="18" class="label-icon" />
-              {{ t('邮箱地址') }}
+            <div class="readonly-field">
+              <span class="field-value">{{ userInfo.loginName || '/' }}</span>
             </div>
-            <el-input
-              v-model="localEmail"
-              :placeholder="t('请输入邮箱地址')"
-              :class="{ 'is-error': emailError, 'is-success': emailSuccess }"
-              clearable
-              class="form-input"
-              @blur="validateEmail"
-              @input="onEmailInput"
-            />
-            <div v-if="emailError" class="form-error">{{ emailError }}</div>
           </div>
 
           <div class="form-item">
@@ -106,11 +86,8 @@
       </div>
     </div>
     <div class="panel-actions">
-      <el-button @click="handleReset">
-        {{ t('重置') }}
-      </el-button>
-      <el-button type="primary" @click="handleConfirm" :disabled="!hasChanges">
-        {{ t('确认修改') }}
+      <el-button type="warning" @click="handleResetAvatar">
+        {{ t('重置头像') }}
       </el-button>
     </div>
   </section>
@@ -120,9 +97,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { processImageUpload } from '@/utils/imageHelper'
-import { ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
-import { User, Mail, Users, Calendar, Clock } from 'lucide-vue-next'
+import { User, Users, Calendar, Clock } from 'lucide-vue-next'
 import defaultAvatarImg from '@/assets/imgs/logo.png'
 import type { UploadFile } from 'element-plus'
 import type { PermissionUserInfo } from '@src/types/project'
@@ -137,13 +113,10 @@ const isLocalMode = computed(() => runtimeStore.networkMode === 'offline')
 const normalizeUserInfo = (info?: PermissionUserInfo | null): PermissionUserInfo => ({
   id: info?.id || '',
   loginName: info?.loginName || '',
-  phone: info?.phone || '',
-  realName: info?.realName || 'me',
   roleIds: info?.roleIds || [],
   role: info?.role || 'user',
   token: info?.token || '',
   avatar: info?.avatar || '',
-  email: info?.email || ''
 })
 
 const getCachedUserInfo = (): PermissionUserInfo => {
@@ -155,15 +128,11 @@ const getCachedUserInfo = (): PermissionUserInfo => {
 }
 
 const userInfo = ref<PermissionUserInfo>(getCachedUserInfo())
-const localUserName = ref('')
-const localEmail = ref('')
 
 const isAvatarHover = ref(false)
 const isAvatarUploading = ref(false)
 const avatarTrigger = ref()
 
-const emailError = ref('')
-const emailSuccess = ref(false)
 
 const displayAvatar = computed(() => {
   return userInfo.value.avatar || defaultAvatarImg
@@ -203,38 +172,6 @@ const refreshUserInfoFromCache = () => {
   userInfo.value = getCachedUserInfo()
 }
 
-const syncLocalForm = () => {
-  localUserName.value = userInfo.value.realName || 'me'
-  localEmail.value = userInfo.value.email || ''
-}
-
-const isValidEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email)
-}
-
-const validateEmail = () => {
-  const trimmedEmail = localEmail.value.trim()
-  if (!trimmedEmail) {
-    emailError.value = ''
-    emailSuccess.value = false
-    return
-  }
-  if (!isValidEmail(trimmedEmail)) {
-    emailError.value = t('邮箱格式不正确')
-    emailSuccess.value = false
-  } else {
-    emailError.value = ''
-    emailSuccess.value = true
-  }
-}
-
-const onEmailInput = () => {
-  if (emailError.value) {
-    validateEmail()
-  }
-}
-
 const triggerAvatarUpload = () => {
   avatarTrigger.value?.click()
 }
@@ -255,60 +192,16 @@ const handleAvatarChange = async (uploadFile: UploadFile) => {
   }
 }
 
-const hasChanges = computed(() => {
-  const userNameChanged = localUserName.value.trim() !== (userInfo.value.realName || 'me')
-  const emailChanged = localEmail.value.trim() !== (userInfo.value.email || '')
-  return userNameChanged || emailChanged
-})
-
-const handleConfirm = () => {
-  const trimmedUserName = localUserName.value.trim()
-  const trimmedEmail = localEmail.value.trim()
-  if (!trimmedUserName) {
-    message.warning(t('用户名不能为空'))
-    return
-  }
-  if (trimmedEmail && !isValidEmail(trimmedEmail)) {
-    message.warning(t('邮箱格式不正确'))
-    return
-  }
-  runtimeCache.updateUserInfo({
-    realName: trimmedUserName,
-    email: trimmedEmail
-  })
-  runtimeStore.updateUserInfo({
-    realName: trimmedUserName,
-    email: trimmedEmail
-  })
+const handleResetAvatar = () => {
+  runtimeCache.updateUserInfo({ avatar: '' })
+  runtimeStore.updateUserInfo({ avatar: '' })
   refreshUserInfoFromCache()
   message.success(t('保存成功'))
-}
-
-const handleReset = async () => {
-  try {
-    await ElMessageBox.confirm(
-      t('确认将所有配置恢复为默认值吗？'),
-      {
-        type: 'warning',
-        confirmButtonText: t('确定'),
-        cancelButtonText: t('取消'),
-      }
-    )
-  } catch {
-    return
-  }
-  runtimeCache.clearUserInfo()
-  runtimeStore.clearUserInfo()
-  refreshUserInfoFromCache()
-  syncLocalForm()
-  emailError.value = ''
-  emailSuccess.value = false
 }
 
 onMounted(() => {
   runtimeStore.initUserInfo()
   refreshUserInfoFromCache()
-  syncLocalForm()
 })
 </script>
 

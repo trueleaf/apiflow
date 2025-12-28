@@ -61,7 +61,7 @@ export class DocService {
         name,
         type,
         version: '1.0',
-        creator: userInfo.realName || userInfo.loginName,
+        creator: userInfo.loginName,
       },
     };
     
@@ -445,7 +445,7 @@ export class DocService {
     const updateInfo: Record<string, any> = {
       $set: {
         'info.description': info.description,
-        'info.maintainer': tokenInfo.realName || tokenInfo.loginName,
+        'info.maintainer': tokenInfo.loginName,
       },
     };
     
@@ -598,7 +598,7 @@ export class DocService {
     }, {
       $set: {
         isEnabled: false,
-        'info.deletePerson': tokenInfo.realName || tokenInfo.loginName,
+        'info.deletePerson': tokenInfo.loginName,
         'info.deletePersonId': tokenInfo.id
       }
     }); //文档祖先包含删除元素，那么该文档也需要被删除
@@ -909,7 +909,7 @@ export class DocService {
     const deletePersonIds = deletedDocs.map(doc => doc.info.deletePersonId);
     const result = await this.userModel.find({
       _id: { $in: deletePersonIds }
-    }, { loginName: 1, realName: 1 }).lean();
+    }, { loginName: 1 }).lean();
     return result;
   }
   /**

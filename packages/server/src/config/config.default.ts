@@ -1,6 +1,5 @@
 import { MidwayConfig } from '@midwayjs/core';
 import { User } from '../entity/security/user.js';
-import { Sms } from '../entity/security/sms.js';
 import { ClientMenu } from '../entity/security/client_menu.js';
 import { Role } from '../entity/security/role.js';
 import { ClientRoutes } from '../entity/security/client_routes.js';
@@ -75,7 +74,6 @@ export default (): MidwayConfig => {
           // 关联实体
           entities: [
             User,
-            Sms,
             ClientMenu,
             ClientRoutes,
             Role,
@@ -100,14 +98,6 @@ export default (): MidwayConfig => {
     validate: {
       errorStatus: 200,
     },
-    smsConfig: {
-      accessKeyId: '',
-      accessKeySecret: '',
-      endpoint: '',
-      signName: '',
-      templateCode: '',
-      maxAge: 0,
-    },
     ossConfig: {
       client: {
         endPoint: '',
@@ -124,7 +114,6 @@ export default (): MidwayConfig => {
       shareRange: ['project'], //用户自行部署时候，项目内上传附件，只要用户拥有项目访问权限，均可共享
     },
     apiflow: {
-      defaultRegisterPassword: '111111',
       projectMaxMembers: 50,
       canManagedGroupNum: process.env.NODE_ENV === 'production' ? 10 : 5, //一个用户最多创建10个项目
     },
@@ -138,11 +127,8 @@ export default (): MidwayConfig => {
         '/api/health',
         '/mock/image',
         '/mock',
-        '/api/security/register',
         '/api/project/share',
         '/api/security/login_password',
-        '/api/security/login_phone',
-        '/api/security/sms',
         '/api/security/login_guest',
         '/api/security/captcha',
         '/api/project/share_info',

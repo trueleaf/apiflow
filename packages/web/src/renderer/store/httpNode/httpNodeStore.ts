@@ -626,7 +626,7 @@ export const useHttpNode = defineStore('httpNode', () => {
           currentSelectNav._id,
           httpNodeInfo.value,
           runtimeStore.userInfo.id,
-          runtimeStore.userInfo.realName
+          runtimeStore.userInfo.loginName
         ).catch(error => {
           logger.error('添加历史记录失败', { error });
         });
@@ -667,7 +667,7 @@ export const useHttpNode = defineStore('httpNode', () => {
           currentSelectNav._id,
           httpNodeInfo.value,
           runtimeStore.userInfo.id,
-          runtimeStore.userInfo.realName
+          runtimeStore.userInfo.loginName
         ).catch(error => {
           logger.error('添加历史记录失败', { error });
         });

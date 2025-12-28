@@ -1,11 +1,9 @@
 
 <template>
-  <el-dialog :model-value="modelValue" :title="t('修改')" :before-close="handleClose">
+    <el-dialog :model-value="modelValue" :title="t('修改')" :before-close="handleClose">
     <el-divider content-position="left">{{ t("基础信息") }}</el-divider>
     <SForm ref="form" v-loading="loading2" :edit-data="formInfo">
       <SFormItem :label="t('登录名称')" prop="loginName" required half-line></SFormItem>
-      <SFormItem :label="t('昵称')" prop="realName" half-line></SFormItem>
-      <SFormItem :label="t('手机号')" prop="phone" half-line></SFormItem>
     </SForm>
     <el-divider content-position="left">{{ t("角色选择") }}</el-divider>
     <el-checkbox-group v-model="roleIds">
@@ -60,8 +58,6 @@ const getUserInfo = () => {
   request.get('/api/security/user_info_by_id', { params: { _id: props.userId } }).then((res) => {
     formInfo.value = {
       loginName: res.data.loginName,
-      realName: res.data.realName,
-      phone: res.data.phone,
       isAdmin: res.data.isAdmin2,
     };
     roleIds.value = res.data.roleIds;
@@ -91,10 +87,8 @@ const handleEditUser = () => {
       const params = {
         _id: props.userId,
         loginName: formInfo.loginName,
-        realName: formInfo.realName,
         roleIds: roleIds.value,
         roleNames,
-        phone: formInfo.phone,
       };
       loading.value = true;
       request.put('/api/security/user_permission', params).then(() => {

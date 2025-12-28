@@ -122,8 +122,13 @@ export const useProjectManagerStore = defineStore('projectManager', () => {
     }
   };
   // 获取已删除项目列表
-  const getDeletedProjects = async (): Promise<ApidocProjectInfo[]> => {
+  const getDeletedProjects = async (): Promise<ApidocProjectInfo[]> => {        
     try {
+      if (!isStandalone.value) {
+        const res = await request.get<CommonResponse<ApidocProjectInfo[]>, CommonResponse<ApidocProjectInfo[]>>('/api/project/project_deleted_list');
+        deletedProjects.value = res.data || [];
+        return deletedProjects.value;
+      }
       const projects = await projectCache.getDeletedProjectList();
       deletedProjects.value = projects;
       return projects;
@@ -135,6 +140,16 @@ export const useProjectManagerStore = defineStore('projectManager', () => {
   // 恢复已删除项目（从回收站恢复）
   const recoverProject = async (projectId: string): Promise<boolean> => {
     try {
+      if (!isStandalone.value) {
+        const res = await request.put<CommonResponse<string[]>, CommonResponse<string[]>>('/api/project/project_restore', { ids: [projectId] });
+        const restoredIds = res.data || [];
+        const success = restoredIds.includes(projectId);
+        if (success) {
+          await getDeletedProjects();
+          await getProjectList();
+        }
+        return success;
+      }
       const success = await projectCache.recoverProject(projectId);
       if (success) {
         const apiNodes = await apiNodesCache.getAllNodes();
@@ -156,6 +171,16 @@ export const useProjectManagerStore = defineStore('projectManager', () => {
   };
   // 批量恢复已删除项目
   const batchRecoverProjects = async (projectIds: string[]): Promise<{ successCount: number; failCount: number }> => {
+    if (!isStandalone.value) {
+      const uniqueIds = Array.from(new Set(projectIds));
+      const res = await request.put<CommonResponse<string[]>, CommonResponse<string[]>>('/api/project/project_restore', { ids: uniqueIds });
+      const restoredIds = new Set(res.data || []);
+      const successCount = uniqueIds.filter(id => restoredIds.has(id)).length;
+      const failCount = uniqueIds.length - successCount;
+      await getDeletedProjects();
+      await getProjectList();
+      return { successCount, failCount };
+    }
     let successCount = 0;
     let failCount = 0;
     for (const projectId of projectIds) {
