@@ -23,16 +23,6 @@
   - `height` (number) — 默认 100
 - 备注：`@ReqSign()`，`@ReqLimit({ ttl:..., max: 10, limitBy: 'ip' })`，返回头 `content-type: image/svg+xml`。
 
-### [POST] `/api/security/register`
-- 描述：手机号用户注册
-- 入参（body）：`RegisterByPhoneDto`
-  - `loginName` (string) — 必填
-  - `password` (string) — 必填
-  - `smsCode` (string) — 必填
-  - `phone?` (string) — 可选
-  - `realName?` (string) — 可选
-- 备注：`@ReqSign()`，`@ReqLimit(...)`
-
 ### [POST] `/api/security/login_password`
 - 描述：账号密码登录
 - 入参（body）：`LoginByPasswordDto`
@@ -41,26 +31,11 @@
   - `captcha?` (string) — 可选
 - 备注：`@ReqSign()`，限流
 
-### [POST] `/api/security/login_phone`
-- 描述：手机 + 短信验证码登录
-- 入参（body）：`LoginByPhoneDto`
-  - `phone` (string) — 必填
-  - `smsCode` (string) — 必填
-- 备注：`@ReqSign()`，限流
-
 ### [PUT] `/api/security/user_password`
 - 描述：修改密码（用户主动修改）
 - 入参（body）：`ChangePasswordByUserDto`
   - `oldPassword` (string) — 必填
   - `newPassword` (string) — 必填
-
-### [POST] `/api/security/user_reset_password`
-- 描述：重置密码（用户）
-- 入参：`ResetPasswordDto` (body 或 params，函数签名未显式 `@Body`)：
-  - `phone` (string) — 必填
-  - `smsCode` (string) — 必填
-  - `password` (string) — 必填
-- 备注：`@ReqSign()`，限流
 
 ### [PUT] `/api/security/reset_password`
 - 描述：管理员重置密码
@@ -72,9 +47,6 @@
 - 描述：手动添加用户
 - 入参（body）：`AddUserDto`
   - `loginName` (string) — 必填
-  - `realName?` (string)
-  - `phone?` (string)
-  - `password?` (string)
   - `roleIds` (string[]) — 必填
   - `roleNames?` (string[])
 
@@ -82,8 +54,6 @@
 - 描述：获取用户列表（分页）
 - 入参（query）：`GetUserListDto`（继承自 TableSearchParams）
   - `loginName?` (string)
-  - `realName?` (string)
-  - `phone?` (string)
 
 ### [PUT] `/api/security/user_state`
 - 描述：启用/禁用用户
@@ -107,33 +77,21 @@
 - 备注：`@ReqSign()`，限流
 
 ### [GET] `/api/security/userOrGroupListByName`
-- 描述：按用户/组/手机号查询
+- 描述：按用户/组查询
 - 入参（query）：`GetUserListByNameDto`
 - 备注：`@ReqSign()`，限流
 
 ### [PUT] `/api/security/user_permission`
-- 描述：改变用户权限/手机号/登录名/昵称
+- 描述：改变用户权限/登录名
 - 入参（body）：`ChangeUserInfoDto`
   - `_id` (string) — 必填
   - `roleIds?` (string[])
   - `roleNames?` (string[])
   - `loginName?` (string)
-  - `phone?` (string)
-  - `realName?` (string)
-
-### [GET] `/api/security/user_excel_template`
-- 描述：下载用户批量导入模板
-- 入参：无
 
 ### [POST] `/api/security/login_guest`
 - 描述：访客登录（创建临时用户）
 - 入参：无
-
-### [POST] `/api/security/add_user_by_excel`
-- 描述：通过 excel 批量导入用户
-- 入参（files + body）：
-  - `files` (上传文件，accept: excel mime types)
-- 备注：文件类型检查，返回错误码 1006 如果文件格式不正确
 
 ### [PUT] `/api/project/visited`
 - 描述：添加最近访问页面

@@ -152,6 +152,9 @@ const router = createRouter(routerConfig);
 //===================================== 路由守卫 ====================================//
 router.beforeEach(async (to, _, next) => {
   const runtimeStore = useRuntime();
+  if (!runtimeStore.userInfo.id) {
+    runtimeStore.initUserInfo()
+  }
   // 需要数据库的页面路径
   const dbRequiredPaths = ['/workbench', '/home'];
   if (dbRequiredPaths.some(path => to.path.startsWith(path))) {

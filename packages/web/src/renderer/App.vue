@@ -354,7 +354,10 @@ const initAppHeaderEvent = () => {
 const initAppHeaderTabs = async () => {
   // 从缓存读取 tabs 和 activeTabId，如果不存在则使用空值
   const tabs = appWorkbenchCache.getAppWorkbenchHeaderTabs() || [];
-  const activeTabId = appWorkbenchCache.getAppWorkbenchHeaderActiveTab() || '';
+  const cachedActiveTabId = appWorkbenchCache.getAppWorkbenchHeaderActiveTab() || ''
+  const activeTabId = !cachedActiveTabId && router.currentRoute.value.path === '/admin'
+    ? '__admin__'
+    : cachedActiveTabId
   // 发送给 header.vue，包含当前的语言和网络模式
   window.electronAPI?.ipcManager.sendToMain(
     IPC_EVENTS.apiflow.contentToTopBar.initTabs,
@@ -434,8 +437,8 @@ const sendContentReadySignal = () => {
 const initBrowserEnv = async () => {
   await router.isReady()
   // 从缓存读取上次的路由状态
-  const cachedActiveTabId = appWorkbenchCache.getAppWorkbenchHeaderActiveTab()
-  if (!cachedActiveTabId) {
+  const cachedActiveTabId = appWorkbenchCache.getAppWorkbenchHeaderActiveTab()  
+  if (!cachedActiveTabId && router.currentRoute.value.path !== '/admin') {
     await router.push('/home')
   }
   // 监听网络模式变化

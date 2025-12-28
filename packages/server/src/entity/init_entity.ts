@@ -41,6 +41,19 @@ const INITIAL_USER = [
     serverRoutes: [],
     starProjects: [],
   },
+  {
+    clientRoutes: [],
+    clinetMenus: [],
+    isEnabled: true,
+    loginName: 'apiflow2',
+    lastLogin: new Date(),
+    password: '84d748e1ac5c09a425d463d18ac08b86',
+    roleIds: ['5ede0ba06f76185204584700'],
+    roleNames: ['普通用户'],
+    salt: '2841279',
+    serverRoutes: [],
+    starProjects: [],
+  },
 ];
 const INITIAL_SERVER_ROUTES = [
   //=========================================================================//
