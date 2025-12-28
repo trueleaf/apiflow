@@ -108,7 +108,7 @@ jobs:
   build-windows:
     needs: test-web
     runs-on: windows-latest
-    
+
     outputs:
       artifact_name: ${{ steps.setup.outputs.artifact_name }}
       asset_name: ${{ steps.setup.outputs.asset_name }}
@@ -200,6 +200,7 @@ jobs:
     outputs:
       artifact_name: ${{ steps.setup.outputs.artifact_name }}
       asset_name: ${{ steps.setup.outputs.asset_name }}
+      asset_name_arm64: ${{ steps.setup.outputs.asset_name_arm64 }}
 
     steps:
       - name: 设置变量
@@ -208,12 +209,15 @@ jobs:
           version="${{ needs.test-web.outputs.version }}"
           artifact_name="electron-app-linux-$version"
           asset_name="app-linux-$version.AppImage"
-          
+          asset_name_arm64="app-linux-$version-arm64.AppImage"
+
           echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
           echo "asset_name=$asset_name" >> $GITHUB_OUTPUT
-          
+          echo "asset_name_arm64=$asset_name_arm64" >> $GITHUB_OUTPUT
+
           echo "Artifact: $artifact_name"
           echo "Asset: $asset_name"
+          echo "Asset (arm64): $asset_name_arm64"
 
       - name: 检出代码
         uses: actions/checkout@v4
@@ -256,18 +260,32 @@ jobs:
 
       - name: 重命名 AppImage 文件
         run: |
-          # 查找AppImage文件
-          APPIMAGE_FILE=$(find . -name "*.AppImage" -type f 2>/dev/null | grep -v node_modules | head -1)
-          
-          if [ -n "$APPIMAGE_FILE" ]; then
-            echo "找到AppImage文件: $APPIMAGE_FILE"
-            NEW_NAME="${{ steps.setup.outputs.asset_name }}"
-            echo "重命名为: $NEW_NAME"
-            mv "$APPIMAGE_FILE" "$NEW_NAME"
-            echo "重命名完成"
+          set -euo pipefail
+
+          # electron-builder may produce both x64 and arm64 AppImages; always publish x64 as the generic asset_name.
+          X64_APPIMAGE=$(find . \( -name "*x86_64*.AppImage" -o -name "*x64*.AppImage" \) -type f 2>/dev/null | grep -v node_modules | head -1 || true)
+          ARM64_APPIMAGE=$(find . \( -name "*aarch64*.AppImage" -o -name "*arm64*.AppImage" \) -type f 2>/dev/null | grep -v node_modules | head -1 || true)
+
+          if [ -n "$X64_APPIMAGE" ]; then
+            echo "找到 x64 AppImage 文件: $X64_APPIMAGE"
+            mv "$X64_APPIMAGE" "${{ steps.setup.outputs.asset_name }}"
+            echo "重命名为: ${{ steps.setup.outputs.asset_name }}"
           else
-            echo "警告: 未找到AppImage文件，创建测试文件用于调试"
-            touch "app-linux-test.AppImage"
+            APPIMAGE_FILE=$(find . -name "*.AppImage" -type f 2>/dev/null | grep -v node_modules | head -1 || true)
+            if [ -n "$APPIMAGE_FILE" ]; then
+              echo "找到 AppImage 文件: $APPIMAGE_FILE"
+              mv "$APPIMAGE_FILE" "${{ steps.setup.outputs.asset_name }}"
+              echo "重命名为: ${{ steps.setup.outputs.asset_name }}"
+            else
+              echo "警告: 未找到AppImage文件，创建测试文件用于调试"
+              touch "app-linux-test.AppImage"
+            fi
+          fi
+
+          if [ -n "$ARM64_APPIMAGE" ]; then
+            echo "找到 arm64 AppImage 文件: $ARM64_APPIMAGE"
+            mv "$ARM64_APPIMAGE" "${{ steps.setup.outputs.asset_name_arm64 }}"
+            echo "重命名为: ${{ steps.setup.outputs.asset_name_arm64 }}"
           fi
 
       - name: 上传 Linux 构建产物
@@ -440,13 +458,12 @@ jobs:
           fi
           
           # 移动并重命名 Linux 文件
-          if find release_assets/ -name "*.AppImage" -type f | head -1 | grep -q .; then
-            LINUX_APPIMAGE=$(find release_assets/ -name "*.AppImage" -type f | head -1)
-            if [ -f "$LINUX_APPIMAGE" ]; then
-              mv "$LINUX_APPIMAGE" "publish/${{ needs.build-linux.outputs.asset_name }}"
-              echo "Linux 文件已准备: publish/${{ needs.build-linux.outputs.asset_name }}"
+          for LINUX_ASSET in "${{ needs.build-linux.outputs.asset_name }}" "${{ needs.build-linux.outputs.asset_name_arm64 }}"; do
+            if [ -f "release_assets/$LINUX_ASSET" ]; then
+              mv "release_assets/$LINUX_ASSET" "publish/$LINUX_ASSET"
+              echo "Linux 文件已准备: publish/$LINUX_ASSET"
             fi
-          fi
+          done
           
           # 移动并重命名 macOS 文件
           if find release_assets/ -name "*.dmg" -type f | head -1 | grep -q .; then
@@ -480,7 +497,8 @@ jobs:
             
             **下载链接:**
             ${{ needs.build-windows.result == 'success' && format('- Windows: {0}', needs.build-windows.outputs.asset_name) || '' }}
-            ${{ needs.build-linux.result == 'success' && format('- Linux: {0}', needs.build-linux.outputs.asset_name) || '' }}
+            ${{ needs.build-linux.result == 'success' && format('- Linux (x64): {0}', needs.build-linux.outputs.asset_name) || '' }}
+            ${{ needs.build-linux.result == 'success' && format('- Linux (arm64): {0}', needs.build-linux.outputs.asset_name_arm64) || '' }}
             ${{ needs.build-macos.result == 'success' && format('- macOS: {0}', needs.build-macos.outputs.asset_name) || '' }}
             
             **使用说明:**
