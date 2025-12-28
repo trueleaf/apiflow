@@ -94,6 +94,17 @@ export class AddUserDto {
   @Rule(RuleType.array().items(RuleType.string()))
     roleNames: string[];
 }
+
+/**
+ * 批量导入用户（CSV 解析后提交）
+ */
+export class ImportUsersDto {
+  @Rule(RuleType.array().items(RuleType.object().keys({
+    loginName: RuleType.string().required(),
+    roleNames: RuleType.array().items(RuleType.string()).min(1).required(),
+  })).required())
+    users: { loginName: string; roleNames: string[] }[];
+}
 /**
  * 获取用户列表
  */

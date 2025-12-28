@@ -628,6 +628,7 @@ export default {
   '新增用户': 'Add User',
   手机号: 'Phone Number',
   角色选择: 'Role Selection',
+  是否为管理员: 'Is Administrator',
   修改: 'Modify',
   基础信息: 'Basic Information',
   下载模板: 'Download Template',

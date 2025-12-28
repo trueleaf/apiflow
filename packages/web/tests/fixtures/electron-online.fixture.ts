@@ -10,7 +10,7 @@ type ElectronFixtures = {
   contentPage: Page;
   clearCache: () => Promise<void>;
   createProject: (name?: string) => Promise<string>;
-  loginAccount: () => Promise<void>;
+  loginAccount: (options?: { loginName?: string; password?: string }) => Promise<void>;
 };
 // 等待指定窗口加载完成
 const waitForWindow = async (electronApp: ElectronApplication, predicate: (url: string) => boolean, timeout = 10000): Promise<Page> => {
@@ -115,10 +115,10 @@ export const test = base.extend<ElectronFixtures>({
     await use(create);
   },
   loginAccount: async ({ topBarPage, contentPage }, use) => {
-    const login = async () => {
+    const login = async (options?: { loginName?: string; password?: string }) => {
       const serverUrl = process.env.TEST_SERVER_URL;
-      const loginName = process.env.TEST_LOGIN_NAME;
-      const password = process.env.TEST_LOGIN_PASSWORD;
+      const loginName = options?.loginName ?? process.env.TEST_LOGIN_NAME;
+      const password = options?.password ?? process.env.TEST_LOGIN_PASSWORD;
       if (!serverUrl || !loginName || !password) {
         throw new Error('缺少登录相关环境变量');
       }

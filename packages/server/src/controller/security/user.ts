@@ -19,6 +19,7 @@ import {
   GetUserInfoByIdDto,
   GetUserListByNameDto,
   GetUserListDto,
+  ImportUsersDto,
   LoginByPasswordDto,
   ResetPasswordByAdminDto,
   StarProjectDto,
@@ -89,6 +90,14 @@ export class UserController {
   @Post('/security/useradd')
   async addUser(@Body() params: AddUserDto) {
     const data = await this.userService.addUser(params);
+    return data;
+  }
+  /**
+   * 批量导入用户（CSV 解析后提交）
+   */
+  @Post('/security/add_user_by_excel')
+  async importUsers(@Body() params: ImportUsersDto) {
+    const data = await this.userService.importUsers(params);
     return data;
   }
   /**

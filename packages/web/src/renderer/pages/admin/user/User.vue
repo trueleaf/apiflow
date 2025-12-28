@@ -5,6 +5,8 @@
       <SSearchItem :label="t('登录名称')" prop="loginName"></SSearchItem>
       <template #operation>
         <el-button type="success" @click="addUserDialog = true">{{ t('新增用户') }}</el-button>
+        <el-button class="ml-2" @click="importUserDialog = true">{{ t('导入用户') }}</el-button>
+        <el-button class="ml-2" @click="handleDownloadTemplate">{{ t('下载模板') }}</el-button>
       </template>
     </SSearch>
     <!-- 表格展示 -->
@@ -43,6 +45,7 @@
       </el-table-column>
     </STable>
     <SAddUserDialog v-model="addUserDialog" @success="getData"></SAddUserDialog>
+    <SImportUserDialog v-model="importUserDialog" @success="getData"></SImportUserDialog>
     <SEditUserDialog v-if="editUserDialog" v-model="editUserDialog" :user-id="editUserId" @success="getData"></SEditUserDialog>
     <SResetPasswordDialog v-if="resetPwdDialog" v-model="resetPwdDialog" :user-id="editUserId"></SResetPasswordDialog>
   </div>
@@ -51,10 +54,11 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
 import SAddUserDialog from './add/Add.vue'
+import SImportUserDialog from './import/Import.vue'
 import SEditUserDialog from './edit/Edit.vue'
 import SResetPasswordDialog from './resetPassword/ResetPassword.vue'
 import { ref } from 'vue';
-import { formatDate } from '@/helper'
+import { downloadStringAsText, formatDate } from '@/helper'
 import { ElMessageBox } from 'element-plus';
 import { request } from '@/api/api';
 import SSearch from '@/components/common/forms/search/ClSearch.vue'
@@ -63,6 +67,7 @@ import STable from '@/components/common/table/ClTable.vue'
 
 const { t } = useI18n()
 const addUserDialog = ref(false) //------------------新增用户弹窗
+const importUserDialog = ref(false) //------------------批量导入用户弹窗
 const editUserDialog = ref(false) //-----------------编辑用户弹窗
 const resetPwdDialog = ref(false) //-----------------重置密码弹窗
 const editUserId = ref('') //------------------------编辑时候用户id
@@ -112,6 +117,13 @@ const handleOpenEditUser = (row: { _id: string }) => {
 const handleResetPassword = (row: { _id: string }) => {
   editUserId.value = row._id;
   resetPwdDialog.value = true;
+}
+
+const handleDownloadTemplate = () => {
+  const header = [t('登录名称'), t('角色信息')].join(',');
+  const example = ['test_user', '管理员|开发者'].join(',');
+  const content = `\ufeff${header}\n${example}\n`;
+  downloadStringAsText(content, 'user-template.csv', 'text/csv;charset=utf-8');
 }
 
 </script>

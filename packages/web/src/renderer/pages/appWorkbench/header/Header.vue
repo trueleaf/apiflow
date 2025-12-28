@@ -100,10 +100,10 @@ const tabs = ref<AppWorkbenchHeaderTab[]>([])
 const activeTabId = ref('')
 const isMaximized = ref(false)
 const tabListRef = ref<ComponentPublicInstance | null>(null)
-const aiButtonRef = ref<HTMLElement>()
 const { t } = useI18n()
 const language = ref<Language>('zh-cn')
 const networkMode = ref<RuntimeNetworkMode>('offline')
+const skipNextNetworkModeWatch = ref(false)
 const runtimeStore = useRuntime()
 const showAdminMenu = computed(() => {
   return networkMode.value === 'online' && runtimeStore.userInfo.role === 'admin' && Boolean(runtimeStore.userInfo.id)
@@ -461,7 +461,12 @@ const bindEvent = () => {
     tabs.value = data.tabs || [];
     activeTabId.value = data.activeTabId || '';
     language.value = data.language || 'zh-cn';
-    networkMode.value = data.networkMode || 'offline';
+    skipNextNetworkModeWatch.value = true;
+    const nextNetworkMode = data.networkMode || 'offline';
+    if (nextNetworkMode === networkMode.value) {
+      skipNextNetworkModeWatch.value = false;
+    }
+    networkMode.value = nextNetworkMode;
     changeLanguage(language.value);
     syncTabsToContentView();
     syncActiveTabToContentView();
@@ -523,6 +528,10 @@ onUnmounted(() => {
 })
 
 watch(() => networkMode.value, (mode, prevMode) => {
+  if (skipNextNetworkModeWatch.value) {
+    skipNextNetworkModeWatch.value = false;
+    return
+  }
   if (mode !== prevMode) {
     activeTabId.value = ''
     syncActiveTabToContentView()

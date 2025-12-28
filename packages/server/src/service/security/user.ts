@@ -9,6 +9,7 @@ import {
   GetUserInfoByIdDto,
   GetUserListByNameDto,
   GetUserListDto,
+  ImportUsersDto,
   LoginByPasswordDto,
   ResetPasswordByAdminDto,
   StarProjectDto,
@@ -195,11 +196,69 @@ export class UserService {
     await this.userModel.create(doc);
     return;
   }
+
+  /**
+   * 批量导入用户（CSV 解析后提交）
+   */
+  async importUsers(params: ImportUsersDto) {
+    const roleList = await this.roleModel.find({ isEnabled: true }, { roleName: 1 }).lean();
+    const roleNameToId = new Map<string, string>();
+    roleList.forEach(role => {
+      roleNameToId.set(role.roleName, role._id.toString());
+    });
+
+    const users = Array.isArray(params.users) ? params.users : [];
+    const result: {
+      successCount: number;
+      failCount: number;
+      fails: { index: number; loginName: string; reason: string }[];
+    } = {
+      successCount: 0,
+      failCount: 0,
+      fails: [],
+    };
+
+    for (let i = 0; i < users.length; i += 1) {
+      const rawLoginName = users[i]?.loginName ?? '';
+      const loginName = String(rawLoginName).trim();
+      const roleNames = (users[i]?.roleNames ?? []).map(v => String(v).trim()).filter(Boolean);
+
+      if (!loginName) {
+        result.failCount += 1;
+        result.fails.push({ index: i, loginName: '', reason: '登录名称不能为空' });
+        continue;
+      }
+      if (roleNames.length === 0) {
+        result.failCount += 1;
+        result.fails.push({ index: i, loginName, reason: '请选择角色' });
+        continue;
+      }
+
+      const unknownRoleNames = roleNames.filter(name => !roleNameToId.has(name));
+      if (unknownRoleNames.length) {
+        result.failCount += 1;
+        result.fails.push({ index: i, loginName, reason: `角色不存在：${unknownRoleNames.join('|')}` });
+        continue;
+      }
+
+      const roleIds = roleNames.map(name => roleNameToId.get(name)!);
+      try {
+        await this.addUser({ loginName, roleIds, roleNames });
+        result.successCount += 1;
+      } catch (err: any) {
+        const reason = err?.isCustomError ? (err.msg || '导入失败') : (err?.message || '导入失败');
+        result.failCount += 1;
+        result.fails.push({ index: i, loginName, reason });
+      }
+    }
+
+    return result;
+  }
   /**
    * 获取用户列表
    */
   async getUserList(params: GetUserListDto) {
-    const { pageNum, pageSize, startTime, endTime, loginName } = params;
+    const { pageNum, pageSize, startTime, endTime, loginName } = params;        
     const query = {} as {
       loginName?: RegExp;
       createdAt?: {
