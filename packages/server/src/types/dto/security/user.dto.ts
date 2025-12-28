@@ -101,9 +101,9 @@ export class AddUserDto {
 export class ImportUsersDto {
   @Rule(RuleType.array().items(RuleType.object().keys({
     loginName: RuleType.string().required(),
-    roleNames: RuleType.array().items(RuleType.string()).min(1).required(),
+    role: RuleType.string().required(),
   })).required())
-    users: { loginName: string; roleNames: string[] }[];
+    users: { loginName: string; role: string }[];
 }
 /**
  * 获取用户列表

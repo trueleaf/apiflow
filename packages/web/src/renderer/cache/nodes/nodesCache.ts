@@ -67,11 +67,11 @@ export class ApiNodesCache {
     return this.apiNodesDB;
   }
   // 获取所有节点
-  async getAllNodes(): Promise<ApiNode[]> {
+  async getAllNodes(includeDeleted = false): Promise<ApiNode[]> {
     try {
       const db = await this.getDB();
       const allDocs = await db.getAll(this.storeName);
-      return allDocs.filter((doc) => doc && !doc.isDeleted);
+      return allDocs.filter((doc) => doc && (includeDeleted || !doc.isDeleted));
     } catch (error) {
       logger.error('获取节点列表失败', { error });
       return [];
@@ -390,7 +390,7 @@ export class ApiNodesCache {
     }
   }
   // 更新项目内节点数量(不包含文件夹)
-  private async updateProjectNodeNum(projectId: string): Promise<void> {
+  private async updateProjectNodeNum(projectId: string): Promise<number | null> {
     try {
       const db = await this.getDB();
       const projectDocs = await db.getAllFromIndex(this.storeName, config.cacheConfig.apiNodesCache.projectIdIndex, projectId);
@@ -400,13 +400,21 @@ export class ApiNodesCache {
           doc.info.type !== "folder"
       ).length;
       await projectCache.updateProjectNodeNum(projectId, docNum);
+      return docNum;
     } catch (error) {
       logger.error('更新项目文档数量失败', { error });
+      return null;
     }
   }
+  // 重新计算并同步项目接口数量
+  async refreshProjectNodeNum(projectId: string): Promise<number | null> {
+    const docNum = await this.updateProjectNodeNum(projectId);
+    this.bannerCache.delete(projectId);
+    return docNum;
+  }
   // 以树形方式获取文件夹
-  async getApiNodesAsTree(projectId: string, filterType?: ApidocType) {
-    const projectNodes = await this.getNodesByProjectId(projectId);
+  async getApiNodesAsTree(projectId: string, filterType?: ApidocType) {    
+    const projectNodes = await this.getNodesByProjectId(projectId);        
     const folderNodes = projectNodes.filter(node => {
       if (!filterType) {
         return true;

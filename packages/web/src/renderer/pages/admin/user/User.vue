@@ -120,9 +120,10 @@ const handleResetPassword = (row: { _id: string }) => {
 }
 
 const handleDownloadTemplate = () => {
-  const header = [t('登录名称'), t('角色信息')].join(',');
-  const example = ['test_user', '管理员|开发者'].join(',');
-  const content = `\ufeff${header}\n${example}\n`;
+  const header = ['loginName', 'role'].join(',');
+  const exampleUser = ['test_user', 'user'].join(',');
+  const exampleAdmin = ['test_admin', 'admin'].join(',');
+  const content = `\ufeff${header}\n${exampleUser}\n${exampleAdmin}\n`;
   downloadStringAsText(content, 'user-template.csv', 'text/csv;charset=utf-8');
 }
 

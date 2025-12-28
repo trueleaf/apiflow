@@ -4,7 +4,7 @@
       class="mb-3"
       type="warning"
       :closable="false"
-      :title="`CSV：${t('登录名称')},${t('角色信息')}（${t('角色信息')} 用 | 分隔）`"
+      title="CSV: loginName,role (role: user|admin)"
     />
     <el-upload
       class="upload-area mb-3"
@@ -47,6 +47,18 @@
       :title="`已解析 ${parsedUsers.length} 条`"
     />
 
+    <el-table
+      v-if="!parseErrors.length && parsedUsers.length"
+      class="mb-3"
+      size="small"
+      border
+      max-height="220"
+      :data="parsedUsers"
+    >
+      <el-table-column prop="loginName" label="loginName" />
+      <el-table-column prop="role" label="role" />
+    </el-table>
+
     <el-alert
       v-if="importResult"
       class="mb-3"
@@ -77,13 +89,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { request } from '@/api/api'
-import type { CommonResponse, PermissionRoleEnum } from '@src/types'
+import type { CommonResponse } from '@src/types'
 import { message } from '@/helper'
 
-type ParsedUser = { loginName: string; roleNames: string[] }
+type ParsedUser = { loginName: string; role: string }
 type ParseError = { line: number; msg: string }
 type ImportResult = {
   successCount: number
@@ -95,7 +107,6 @@ const modelValue = defineModel<boolean>({ default: false })
 const emit = defineEmits<{ (e: 'success'): void }>()
 const { t } = useI18n()
 
-const roleEnum = ref<PermissionRoleEnum>([])
 const selectedFileName = ref('')
 const parsedUsers = ref<ParsedUser[]>([])
 const parseErrors = ref<ParseError[]>([])
@@ -105,16 +116,6 @@ const importResult = ref<ImportResult | null>(null)
 const isImportDisabled = computed(() => {
   return importing.value || parseErrors.value.length > 0 || parsedUsers.value.length === 0
 })
-
-const getRoleEnum = () => {
-  request.get<CommonResponse<PermissionRoleEnum>, CommonResponse<PermissionRoleEnum>>('/api/security/role_enum')
-    .then((res) => {
-      roleEnum.value = res.data
-    })
-    .catch((err) => {
-      console.error(err)
-    })
-}
 
 const parseCSV = (content: string): string[][] => {
   const rows: string[][] = []
@@ -182,7 +183,6 @@ const handleUpload = async (options: { file: File }) => {
   resetState()
   selectedFileName.value = options.file.name
 
-  const roleNameSet = new Set((roleEnum.value || []).map(r => r.roleName))
   const errors: ParseError[] = []
   const users: ParsedUser[] = []
   const duplicatedLoginNames = new Set<string>()
@@ -201,10 +201,10 @@ const handleUpload = async (options: { file: File }) => {
     const headers = rows[0].map(h => h.trim())
     const headerToIndex = new Map<string, number>()
     headers.forEach((h, idx) => headerToIndex.set(h, idx))
-    const loginNameIndex = headerToIndex.get(t('登录名称')) ?? headerToIndex.get('loginName')
-    const roleNamesIndex = headerToIndex.get(t('角色信息')) ?? headerToIndex.get('roleNames')
-    if (loginNameIndex == null || roleNamesIndex == null) {
-      errors.push({ line: 1, msg: `表头必须包含：${t('登录名称')},${t('角色信息')}` })
+    const loginNameIndex = headerToIndex.get('loginName') ?? headerToIndex.get(t('登录名称'))
+    const roleIndex = headerToIndex.get('role') ?? headerToIndex.get('roleNames') ?? headerToIndex.get(t('角色信息'))
+    if (loginNameIndex == null || roleIndex == null) {
+      errors.push({ line: 1, msg: 'Header must include: loginName,role' })
       parseErrors.value = errors
       return raw
     }
@@ -213,9 +213,9 @@ const handleUpload = async (options: { file: File }) => {
       const lineNumber = i + 1
       const row = rows[i]
       const loginName = (row[loginNameIndex] || '').trim()
-      const roleNamesRaw = (row[roleNamesIndex] || '').trim()
+      const roleRaw = (row[roleIndex] || '').trim()
       if (!loginName) {
-        errors.push({ line: lineNumber, msg: t('用户名不能为空') })
+        errors.push({ line: lineNumber, msg: t('用户名不能为空') })       
         continue
       }
       if (existedLoginNames.has(loginName)) {
@@ -223,20 +223,20 @@ const handleUpload = async (options: { file: File }) => {
         continue
       }
       existedLoginNames.add(loginName)
-      const roleNames = roleNamesRaw
+      const roleItems = roleRaw
         .split('|')
-        .map(v => v.trim())
+        .map(v => v.trim().toLowerCase())
         .filter(Boolean)
-      if (roleNames.length === 0) {
-        errors.push({ line: lineNumber, msg: t('请完善必填信息') })
+      if (roleItems.length === 0) {
+        errors.push({ line: lineNumber, msg: t('请完善必填信息') })       
         continue
       }
-      const unknownRoles = roleNames.filter(name => !roleNameSet.has(name))
+      const unknownRoles = roleItems.filter(r => r !== 'user' && r !== 'admin')
       if (unknownRoles.length) {
-        errors.push({ line: lineNumber, msg: `角色不存在：${unknownRoles.join('|')}` })
+        errors.push({ line: lineNumber, msg: `Invalid role: ${unknownRoles.join('|')}` })
         continue
       }
-      users.push({ loginName, roleNames })
+      users.push({ loginName, role: roleItems.join('|') })
     }
 
     duplicatedLoginNames.forEach((name) => {
@@ -267,6 +267,9 @@ const handleImport = () => {
         message.success('导入成功')
       }
       emit('success')
+      if (!res.data.failCount) {
+        handleClose()
+      }
     })
     .catch((err) => {
       console.error(err)
@@ -281,9 +284,6 @@ const handleClose = () => {
   resetState()
 }
 
-onMounted(() => {
-  getRoleEnum()
-})
 </script>
 
 <style scoped lang="scss">

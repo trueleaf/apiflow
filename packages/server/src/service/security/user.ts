@@ -33,6 +33,7 @@ import { Role } from '../../entity/security/role.js';
 import { Group } from '../../entity/security/group.js';
 
 const ADMIN_ROLE_ID = '5edf71f2193c7d5fa0ec9b98';
+const USER_ROLE_ID = '5ede0ba06f76185204584700';
 
 
 @Provide()
@@ -201,10 +202,13 @@ export class UserService {
    * 批量导入用户（CSV 解析后提交）
    */
   async importUsers(params: ImportUsersDto) {
-    const roleList = await this.roleModel.find({ isEnabled: true }, { roleName: 1 }).lean();
-    const roleNameToId = new Map<string, string>();
+    const roleList = await this.roleModel.find(
+      { isEnabled: true, _id: { $in: [ADMIN_ROLE_ID, USER_ROLE_ID] } },
+      { roleName: 1 }
+    ).lean();
+    const roleIdToName = new Map<string, string>();
     roleList.forEach(role => {
-      roleNameToId.set(role.roleName, role._id.toString());
+      roleIdToName.set(role._id.toString(), role.roleName);
     });
 
     const users = Array.isArray(params.users) ? params.users : [];
@@ -221,27 +225,41 @@ export class UserService {
     for (let i = 0; i < users.length; i += 1) {
       const rawLoginName = users[i]?.loginName ?? '';
       const loginName = String(rawLoginName).trim();
-      const roleNames = (users[i]?.roleNames ?? []).map(v => String(v).trim()).filter(Boolean);
+      const rawRole = users[i]?.role ?? '';
+      const roleItems = String(rawRole)
+        .split('|')
+        .map(v => v.trim().toLowerCase())
+        .filter(Boolean);
 
       if (!loginName) {
         result.failCount += 1;
         result.fails.push({ index: i, loginName: '', reason: '登录名称不能为空' });
         continue;
       }
-      if (roleNames.length === 0) {
+      if (roleItems.length === 0) {
         result.failCount += 1;
         result.fails.push({ index: i, loginName, reason: '请选择角色' });
         continue;
       }
 
-      const unknownRoleNames = roleNames.filter(name => !roleNameToId.has(name));
-      if (unknownRoleNames.length) {
+      const unknownRoles = roleItems.filter(r => r !== 'user' && r !== 'admin');
+      if (unknownRoles.length) {
         result.failCount += 1;
-        result.fails.push({ index: i, loginName, reason: `角色不存在：${unknownRoleNames.join('|')}` });
+        result.fails.push({ index: i, loginName, reason: `Invalid role: ${unknownRoles.join('|')}` });
         continue;
       }
 
-      const roleIds = roleNames.map(name => roleNameToId.get(name)!);
+      const roleSet = new Set(roleItems);
+      const roleIds: string[] = [];
+      const roleNames: string[] = [];
+      if (roleSet.has('user')) {
+        roleIds.push(USER_ROLE_ID);
+        roleNames.push(roleIdToName.get(USER_ROLE_ID) ?? 'user');
+      }
+      if (roleSet.has('admin')) {
+        roleIds.push(ADMIN_ROLE_ID);
+        roleNames.push(roleIdToName.get(ADMIN_ROLE_ID) ?? 'admin');
+      }
       try {
         await this.addUser({ loginName, roleIds, roleNames });
         result.successCount += 1;

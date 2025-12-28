@@ -12,12 +12,25 @@ export const useProjectManagerStore = defineStore('projectManager', () => {
   const runtimeStore = useRuntime();
   const projectList = ref<ApidocProjectInfo[]>([]);
   const deletedProjects = ref<ApidocProjectInfo[]>([]);
+  const hasSyncedProjectDocNum = ref(false);
   const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
   // 获取项目列表
   const getProjectList = async (): Promise<ApidocProjectInfo[]> => {
     try {
       if (isStandalone.value) {
         const list = await projectCache.getProjectList();
+        if (!hasSyncedProjectDocNum.value) {
+          hasSyncedProjectDocNum.value = true;
+          const refreshedList = await Promise.all(list.map(async (project) => {
+            const refreshedDocNum = await apiNodesCache.refreshProjectNodeNum(project._id);
+            if (refreshedDocNum === null || refreshedDocNum === project.docNum) {
+              return project;
+            }
+            return { ...project, docNum: refreshedDocNum };
+          }));
+          projectList.value = refreshedList;
+          return refreshedList;
+        }
         projectList.value = list;
         return list;
       }
@@ -150,7 +163,7 @@ export const useProjectManagerStore = defineStore('projectManager', () => {
         }
         return success;
       }
-      const success = await projectCache.recoverProject(projectId);
+      const success = await projectCache.recoverProject(projectId);        
       if (success) {
         const apiNodes = await apiNodesCache.getAllNodes();
         const projectApiNodes = apiNodes.filter((node) => node.projectId === projectId && node.isDeleted);
@@ -160,6 +173,7 @@ export const useProjectManagerStore = defineStore('projectManager', () => {
             await apiNodesCache.replaceNode(updatedNode);
           }
         }
+        await apiNodesCache.refreshProjectNodeNum(projectId);
         await getDeletedProjects();
         await getProjectList();
       }
@@ -195,6 +209,7 @@ export const useProjectManagerStore = defineStore('projectManager', () => {
               await apiNodesCache.replaceNode(updatedNode);
             }
           }
+          await apiNodesCache.refreshProjectNodeNum(projectId);
           successCount++;
         } else {
           failCount++;
