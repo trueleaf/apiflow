@@ -262,6 +262,9 @@ const deleteTab = (tabId: string) => {
   }
 }
 const switchTab = (tabId: string) => {
+  if (networkMode.value === 'online' && activeTabId.value === 'login' && tabId !== `settings-${networkMode.value}`) {
+    return
+  }
   activeTabId.value = tabId;
   syncActiveTabToContentView()
   scrollToActiveTab()
@@ -346,6 +349,9 @@ const handleTabContextmenu = (e: MouseEvent, tab: AppWorkbenchHeaderTab) => {
 |--------------------------------------------------------------------------     
 */
 const jumpToHome = () => {
+  if (networkMode.value === 'online' && activeTabId.value === 'login') {
+    return
+  }
   activeTabId.value = '';
   syncActiveTabToContentView()
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.navigate, '/home')
@@ -427,6 +433,11 @@ const bindEvent = () => {
   // 监听导航到首页事件
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToHome, () => {
     activeTabId.value = ''
+    syncActiveTabToContentView()
+  })
+  // 监听导航到登录页事件（互联网模式）
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToLogin, () => {
+    activeTabId.value = 'login'
     syncActiveTabToContentView()
   })
 

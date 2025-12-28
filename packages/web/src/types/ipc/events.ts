@@ -91,6 +91,8 @@ export const IPC_EVENTS = {
       hideLanguageMenu: 'apiflow:content:to:topbar:hide-language-menu',
       /** 导航到首页 */
       navigateToHome: 'apiflow:content:to:topbar:navigate-to-home',
+      /** 导航到登录页 */
+      navigateToLogin: 'apiflow:content:to:topbar:navigate-to-login',
       /** 打开设置标签 */
       openSettingsTab: 'apiflow:content:to:topbar:open-settings-tab',
       /** 应用设置已变更 */

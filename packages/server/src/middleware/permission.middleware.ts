@@ -22,7 +22,7 @@ export class PermissionMiddleware implements IMiddleware<Context, NextFunction> 
   resolve() {
     return async (ctx: Context, next: NextFunction) => {
       if (!ctx.headers.authorization) {
-        return throwError(5000, '缺少Authorization认证头');
+        return throwError(4100, '缺少Authorization认证头');
       }
       const tokenInfo = jwt.default.verify(
         ctx.headers.authorization,
@@ -67,7 +67,7 @@ export class PermissionMiddleware implements IMiddleware<Context, NextFunction> 
         return isSameMethod && isSamePath;
       });
       if (!hasPermission) {
-        return throwError(4002, '暂无权限')
+        return throwError(4100, '暂无权限')
       }
       const result = await next();
       return result;

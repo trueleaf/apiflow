@@ -386,8 +386,12 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.navigateToHome, () => {
     topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.navigateToHome)
   })
+  // 内容区导航到登录页通知 - 转发给 topBarView
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.navigateToLogin, () => {
+    topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.navigateToLogin)
+  })
 
-  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab, () => {
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab, () => {        
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab)
   })
 

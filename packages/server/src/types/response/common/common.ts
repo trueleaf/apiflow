@@ -64,6 +64,7 @@ export type ResponseWrapper<T = unknown> = {
     | 4004
     | 4005
     | 4006
+    | 4100
     | 4029
     | 4030
     | 5000

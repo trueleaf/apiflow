@@ -194,6 +194,10 @@ export interface IPCEventMap {
     request: void;
     response: void;
   };
+  [IPC_EVENTS.apiflow.contentToTopBar.navigateToLogin]: {
+    request: void;
+    response: void;
+  };
 
   [IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab]: {
     request: void;

@@ -203,6 +203,9 @@ const deleteTab = (tabId: string) => {
   }
 }
 const switchTab = (tabId: string) => {
+  if (runtimeStore.networkMode === 'online' && router.currentRoute.value.path === '/login' && tabId !== `settings-${networkMode.value}`) {
+    return
+  }
   activeTabId.value = tabId
   syncActiveTabToCache()
   scrollToActiveTab()
@@ -223,6 +226,9 @@ const switchTab = (tabId: string) => {
 }
 // 其他操作
 const jumpToHome = () => {
+  if (runtimeStore.networkMode === 'online' && router.currentRoute.value.path === '/login') {
+    return
+  }
   activeTabId.value = ''
   syncActiveTabToCache()
   router.push('/home')
@@ -312,6 +318,11 @@ watch(
     } else if (newRoute.path === '/home') {
       activeTabId.value = ''
       syncActiveTabToCache()
+    } else if (newRoute.path === '/login') {
+      if (runtimeStore.networkMode === 'online') {
+        activeTabId.value = 'login'
+        syncActiveTabToCache()
+      }
     }
   },
   { deep: true }
@@ -332,6 +343,10 @@ const handleDocumentClick = (event: MouseEvent) => {
 
 onMounted(() => {
   initTabs()
+  if (runtimeStore.networkMode === 'online' && router.currentRoute.value.path === '/login') {
+    activeTabId.value = 'login'
+    syncActiveTabToCache()
+  }
   window.addEventListener('click', handleDocumentClick)
 })
 

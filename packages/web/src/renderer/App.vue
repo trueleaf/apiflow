@@ -477,6 +477,10 @@ const initAppHeader = () => {
           }
         } else if (newRoute.path === '/home') {
           window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToHome)
+        } else if (newRoute.path === '/login') {
+          if (runtimeStore.networkMode === 'online') {
+            window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToLogin)
+          }
         }
       },
       { immediate: true, deep: true }
