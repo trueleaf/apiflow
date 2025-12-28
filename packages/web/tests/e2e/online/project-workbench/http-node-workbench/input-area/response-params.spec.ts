@@ -3,9 +3,10 @@ import { test, expect } from '../../../../../fixtures/electron-online.fixture';
 test.describe('ResponseParams', () => {
   // 测试用例1: 返回参数可以新增,可以删除(但是必须保留一个),可以修改名称,可以修改状态码,可以数据类型
   test('返回参数可以新增、删除、修改名称、状态码和数据类型', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -58,8 +59,9 @@ test.describe('ResponseParams', () => {
   });
   // 测试用例2: 允许选择常见响应码,也允许用户自定义100~999的响应码,不同大小响应码颜色不同
   test('状态码选择和颜色显示正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -103,7 +105,8 @@ test.describe('ResponseParams', () => {
   });
   // 测试用例3: 允许选择常见响应类型,也允许用户自定义响应类型,不同响应类型对应不同输入框
   test('响应类型选择和对应输入框显示正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

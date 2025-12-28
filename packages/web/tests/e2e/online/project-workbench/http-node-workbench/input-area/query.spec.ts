@@ -5,9 +5,10 @@ const MOCK_SERVER_PORT = 3456;
 test.describe('Query', () => {
   // query参数key输入值以后,如果不存在next节点,则自动新增一行数据
   test('query参数key输入后自动新增一行', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
@@ -47,8 +48,9 @@ test.describe('Query', () => {
   });
   // query参数key,value,description输入值以后,调用echo接口验证query参数正确
   test('query参数正确发送到服务器', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -95,7 +97,8 @@ test.describe('Query', () => {
   });
   // query参数key,value支持变量替换
   test('query参数支持变量替换', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -143,7 +146,8 @@ test.describe('Query', () => {
   });
   // query参数key,value支持mock
   test('query参数支持mock数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -190,8 +194,9 @@ test.describe('Query', () => {
     await expect(responseSummary).toBeVisible({ timeout: 10000 });
   });
   // query参数key,value支持混合变量
-  test('query参数支持混合变量', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+  test('query参数支持混合变量', async ({ /.*#\/workbench.*/teProject, loginAccount }) => {
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -237,9 +242,10 @@ test.describe('Query', () => {
     const responseSummary = contentPage.locator('.response-summary-view');
     await expect(responseSummary).toBeVisible({ timeout: 10000 });
   });
-  // query参数是否发送未勾选那么当前参数不会发送
+  // query参数是否发送未勾选那么当前参数不会发送/.*#\/workbench.*/
   test('未勾选的query参数不会发送', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

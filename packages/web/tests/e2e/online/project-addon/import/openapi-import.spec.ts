@@ -3,9 +3,10 @@ import { test, expect } from '../../../../fixtures/electron-online.fixture';
 test.describe('OpenapiImport', () => {
   // 测试用例1: 打开导入页面验证OpenAPI/Swagger格式选择器
   test('打开导入页面验证OpenAPI/Swagger格式选择器', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -24,8 +25,9 @@ test.describe('OpenapiImport', () => {
   });
   // 测试用例2: OpenAPI格式文件夹命名方式选择
   test('OpenAPI格式文件夹命名方式选择', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
@@ -45,7 +47,8 @@ test.describe('OpenapiImport', () => {
   });
   // 测试用例3: 选择追加导入方式不选择目标目录
   test('选择追加导入方式不选择目标目录', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -66,7 +69,8 @@ test.describe('OpenapiImport', () => {
   });
   // 测试用例4: 选择追加导入方式并选择目标目录
   test('选择追加导入方式并选择目标目录', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

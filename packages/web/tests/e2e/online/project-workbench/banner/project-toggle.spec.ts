@@ -3,9 +3,10 @@ import { test, expect } from '../../../../fixtures/electron-online.fixture';
 test.describe('ProjectToggle', () => {
   // 测试用例1: 显示当前项目名称
   test('显示当前项目名称', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 验证Tool.vue中h2元素显示项目名称
@@ -18,8 +19,9 @@ test.describe('ProjectToggle', () => {
 
   // 测试用例2: 点击切换按钮弹出项目面板
   test('点击切换按钮弹出项目面板', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -35,7 +37,8 @@ test.describe('ProjectToggle', () => {
 
   // 测试用例3: 项目面板显示项目列表标题
   test('项目面板显示项目列表标题', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -51,7 +54,8 @@ test.describe('ProjectToggle', () => {
 
   // 测试用例4: 项目面板显示项目列表
   test('项目面板显示项目列表', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -72,8 +76,9 @@ test.describe('ProjectToggle', () => {
   });
 
   // 测试用例5: 项目项显示项目名称和创建者
-  test('项目项显示项目名称和创建者', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+  test('项目项显示项目名称和创建者', async ({ /.*#\/workbench.*/teProject, loginAccount }) => {
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -93,9 +98,10 @@ test.describe('ProjectToggle', () => {
     await expect(itemContent).toBeVisible({ timeout: 5000 });
   });
 
-  // 测试用例6: 点击外部区域关闭项目面板
+  // 测试用例6: 点击外部区域关闭项目面板/.*#\/workbench.*/
   test('点击外部区域关闭项目面板', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -112,10 +118,11 @@ test.describe('ProjectToggle', () => {
     // 验证面板关闭
     await expect(popover).toBeHidden({ timeout: 5000 });
   });
-
+/.*#\/workbench.*/
   // 测试用例7: 点击项目触发切换
   test('点击项目触发切换', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

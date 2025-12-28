@@ -5,9 +5,10 @@ const MOCK_SERVER_PORT = 3456;
 test.describe('NoneParams', () => {
   // none类型表示没有请求体，适用于GET、DELETE等无body的请求方法
   test('None参数发送请求body为空', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点

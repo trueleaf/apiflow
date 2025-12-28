@@ -5,7 +5,7 @@ test.describe('CutNode', () => {
     test('剪切单个httpNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -45,7 +45,7 @@ test.describe('CutNode', () => {
     test('剪切单个httpNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -95,7 +95,7 @@ test.describe('CutNode', () => {
     test('剪切多个httpNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       for (let i = 1; i <= 3; i++) {
@@ -160,7 +160,7 @@ test.describe('CutNode', () => {
     test('剪切httpNode节点在非folder节点右键不显示粘贴选项', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       for (let i = 1; i <= 2; i++) {
@@ -193,7 +193,7 @@ test.describe('CutNode', () => {
     test('剪切单个websocketNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -231,7 +231,7 @@ test.describe('CutNode', () => {
     test('剪切单个websocketNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -279,7 +279,7 @@ test.describe('CutNode', () => {
     test('剪切单个httpMockNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -315,7 +315,7 @@ test.describe('CutNode', () => {
     test('剪切单个httpMockNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -363,7 +363,7 @@ test.describe('CutNode', () => {
     test('剪切单个websocketMockNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -399,7 +399,7 @@ test.describe('CutNode', () => {
     test('剪切单个websocketMockNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -447,7 +447,7 @@ test.describe('CutNode', () => {
     test('剪切单个folder节点粘贴到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -481,7 +481,7 @@ test.describe('CutNode', () => {
     test('剪切包含子节点的folder节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -545,7 +545,7 @@ test.describe('CutNode', () => {
     test('批量剪切不同类型节点粘贴到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -617,7 +617,7 @@ test.describe('CutNode', () => {
     test('使用Ctrl+X和Ctrl+V剪切粘贴节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -664,7 +664,7 @@ test.describe('CutNode', () => {
     test('剪切节点后进行复制操作,原剪切内容被覆盖', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       for (let i = 1; i <= 2; i++) {

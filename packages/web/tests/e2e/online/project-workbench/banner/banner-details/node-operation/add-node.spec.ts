@@ -4,9 +4,10 @@ test.describe('AddNode', () => {
   test.describe('添加HTTP节点', () => {
     // 测试用例1: 鼠标右键空白区域添加http节点
     test('鼠标右键空白区域添加http节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
-      await createProject();
+      await createProject();/.*#\/workbench.*/
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
@@ -43,8 +44,9 @@ test.describe('AddNode', () => {
     });
     // 测试用例2: 鼠标右键目录添加http节点
     test('鼠标右键目录添加http节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
-      await loginAccount();
+      await clearCache();
+
+      await loginAccount();/.*#\/workbench.*/
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -89,7 +91,8 @@ test.describe('AddNode', () => {
     });
     // 测试用例3: 点击新增按钮添加http节点
     test('点击新增按钮添加http节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+/.*#\/workbench.*/
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -120,7 +123,8 @@ test.describe('AddNode', () => {
     });
     // 测试用例4: 鼠标右键空白区域添加http节点(AI) - 需要配置AI
     test('鼠标右键空白区域添加http节点(AI)', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();/.*#\/workbench.*/
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -176,8 +180,9 @@ test.describe('AddNode', () => {
   });
   test.describe('添加WebSocket节点', () => {
     // 测试用例5: 鼠标右键空白区域添加websocket节点
-    test('鼠标右键空白区域添加websocket节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+    test('鼠标右键空白区域添加websocket节点', a/.*#\/workbench.*/he, createProject, loginAccount }) => {
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -211,9 +216,10 @@ test.describe('AddNode', () => {
       const newNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试WebSocket接口' });
       await expect(newNode).toBeVisible({ timeout: 5000 });
     });
-    // 测试用例6: 鼠标右键目录添加websocket节点
+    // 测试用例6: 鼠标右键目录添加websocket节点/.*#\/workbench.*/
     test('鼠标右键目录添加websocket节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -258,10 +264,11 @@ test.describe('AddNode', () => {
       // 验证新WebSocket节点出现
       const wsNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '目录下WebSocket接口' });
       await expect(wsNode).toBeVisible({ timeout: 5000 });
-    });
+    });/.*#\/workbench.*/
     // 测试用例7: 点击新增按钮添加websocket节点
     test('点击新增按钮添加websocket节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -293,11 +300,12 @@ test.describe('AddNode', () => {
       const newNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '工具栏添加WebSocket接口' });
       await expect(newNode).toBeVisible({ timeout: 5000 });
     });
-  });
+  });/.*#\/workbench.*/
   test.describe('添加HTTP Mock节点', () => {
     // 测试用例8: 鼠标右键空白区域添加httpMock节点
     test('鼠标右键空白区域添加httpMock节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -328,12 +336,13 @@ test.describe('AddNode', () => {
       // 验证对话框关闭
       await expect(addFileDialog).toBeHidden({ timeout: 5000 });
       // 验证新HTTP Mock节点出现在树中
-      const newNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试HTTP Mock接口' });
+      const newNode = contentPage.l/.*#\/workbench.*/t').filter({ hasText: '测试HTTP Mock接口' });
       await expect(newNode).toBeVisible({ timeout: 5000 });
     });
     // 测试用例9: 鼠标右键目录添加httpMock节点
     test('鼠标右键目录添加httpMock节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -375,13 +384,14 @@ test.describe('AddNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      // 验证新HTTP Mock节点出现
+      // 验证新HTTP Mock节点出现/.*#\/workbench.*/
       const mockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '目录下HTTP Mock接口' });
       await expect(mockNode).toBeVisible({ timeout: 5000 });
     });
     // 测试用例10: 点击新增按钮添加httpMock节点
     test('点击新增按钮添加httpMock节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -410,14 +420,15 @@ test.describe('AddNode', () => {
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 验证新节点出现
-      const newNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '工具栏添加HTTP Mock接口' });
+      const newNode = contentPage.l/.*#\/workbench.*/t').filter({ hasText: '工具栏添加HTTP Mock接口' });
       await expect(newNode).toBeVisible({ timeout: 5000 });
     });
   });
   test.describe('添加WebSocket Mock节点', () => {
     // 测试用例11: 鼠标右键空白区域添加websocketMock节点
     test('鼠标右键空白区域添加websocketMock节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -445,7 +456,7 @@ test.describe('AddNode', () => {
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
-      // 验证对话框关闭
+      // 验证对话框关闭/.*#\/workbench.*/
       await expect(addFileDialog).toBeHidden({ timeout: 5000 });
       // 验证新WebSocket Mock节点出现在树中
       const newNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试WebSocket Mock接口' });
@@ -453,7 +464,8 @@ test.describe('AddNode', () => {
     });
     // 测试用例12: 鼠标右键目录添加websocketMock节点
     test('鼠标右键目录添加websocketMock节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -492,7 +504,7 @@ test.describe('AddNode', () => {
       const wsMockRadio = addFileDialog.locator('.el-radio').filter({ hasText: 'WebSocket Mock' });
       await wsMockRadio.click();
       await contentPage.waitForTimeout(200);
-      const confirmBtn = addFileDialog.locator('.el-button--primary').last();
+      const confirmBtn = addFileDia/.*#\/workbench.*/ary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 验证新WebSocket Mock节点出现
@@ -501,7 +513,8 @@ test.describe('AddNode', () => {
     });
     // 测试用例13: 点击新增按钮添加websocketMock节点
     test('点击新增按钮添加websocketMock节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -527,7 +540,7 @@ test.describe('AddNode', () => {
       await wsMockRadio.click();
       await contentPage.waitForTimeout(200);
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmBtn.click();
+      await confirmBtn.click();/.*#\/workbench.*/
       await contentPage.waitForTimeout(500);
       // 验证新节点出现
       const newNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '工具栏添加WebSocket Mock接口' });
@@ -537,7 +550,8 @@ test.describe('AddNode', () => {
   test.describe('添加Folder节点', () => {
     // 测试用例14: 鼠标右键空白区域添加folder节点
     test('鼠标右键空白区域添加folder节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -559,7 +573,7 @@ test.describe('AddNode', () => {
       const nameInput = addFolderDialog.locator('input').first();
       await nameInput.fill('测试文件夹');
       // 点击确定按钮
-      const confirmBtn = addFolderDialog.locator('.el-button--primary').last();
+      const confirmBtn = addFolderD/.*#\/workbench.*/imary').last();
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 验证对话框关闭
@@ -570,7 +584,8 @@ test.describe('AddNode', () => {
     });
     // 测试用例15: 鼠标右键目录添加folder节点
     test('鼠标右键目录添加folder节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -602,7 +617,7 @@ test.describe('AddNode', () => {
       await contentPage.waitForTimeout(300);
       // 填写子文件夹名称
       const subFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
-      await expect(subFolderDialog).toBeVisible({ timeout: 5000 });
+      await expect(subFolderDialog)/.*#\/workbench.*/});
       const subFolderNameInput = subFolderDialog.locator('input').first();
       await subFolderNameInput.fill('子文件夹');
       const subFolderConfirmBtn = subFolderDialog.locator('.el-button--primary').last();
@@ -614,7 +629,8 @@ test.describe('AddNode', () => {
     });
     // 测试用例16: 点击新增按钮添加folder节点
     test('点击新增按钮添加folder节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -631,7 +647,7 @@ test.describe('AddNode', () => {
       await addFolderItem.click();
       await contentPage.waitForTimeout(300);
       // 填写文件夹名称
-      const addFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
+      const addFolderDialog = conte/.*#\/workbench.*/filter({ hasText: /新建文件夹|新增文件夹/ });
       await expect(addFolderDialog).toBeVisible({ timeout: 5000 });
       const nameInput = addFolderDialog.locator('input').first();
       await nameInput.fill('工具栏添加文件夹');
@@ -644,7 +660,8 @@ test.describe('AddNode', () => {
     });
     // 测试用例17: 在folder节点上点击更多按钮添加folder节点
     test('在folder节点上点击更多按钮添加folder节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -680,7 +697,7 @@ test.describe('AddNode', () => {
       await contentPage.waitForTimeout(300);
       // 填写子文件夹名称
       const subFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
-      await expect(subFolderDialog).toBeVisible({ timeout: 5000 });
+      await expect(subFolderDialog)/.*#\/workbench.*/});
       const subFolderNameInput = subFolderDialog.locator('input').first();
       await subFolderNameInput.fill('更多按钮添加的子文件夹');
       const subFolderConfirmBtn = subFolderDialog.locator('.el-button--primary').last();
@@ -694,7 +711,8 @@ test.describe('AddNode', () => {
   test.describe('边界情况测试', () => {
     // 测试用例18: 鼠标右键非folder节点不出现新建接口选项
     test('鼠标右键非folder节点不出现新建接口选项', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -716,7 +734,7 @@ test.describe('AddNode', () => {
       await confirmBtn.click();
       await contentPage.waitForTimeout(500);
       // 右键HTTP节点
-      const httpNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '边界测试HTTP接口' });
+      const httpNode = contentPage./.*#\/workbench.*/nt').filter({ hasText: '边界测试HTTP接口' });
       await expect(httpNode).toBeVisible({ timeout: 5000 });
       await httpNode.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
@@ -731,7 +749,8 @@ test.describe('AddNode', () => {
     });
     // 测试用例19: 非folder节点点击更多按钮不出现新建接口选项
     test('非folder节点点击更多按钮不出现新建接口选项', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

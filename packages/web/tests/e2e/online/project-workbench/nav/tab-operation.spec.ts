@@ -3,9 +3,10 @@ import { test, expect } from '../../../../fixtures/electron-online.fixture';
 test.describe('TabOperation', () => {
   // 测试用例1: 点击关闭按钮关闭当前tab
   test('点击关闭按钮关闭当前tab', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
@@ -27,8 +28,9 @@ test.describe('TabOperation', () => {
   });
   // 测试用例2: 右键菜单关闭当前tab
   test('右键菜单关闭当前tab', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -52,7 +54,8 @@ test.describe('TabOperation', () => {
   });
   // 测试用例3: 右键菜单关闭左侧tab
   test('右键菜单关闭左侧tab', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -82,7 +85,8 @@ test.describe('TabOperation', () => {
   });
   // 测试用例4: 右键菜单关闭右侧tab
   test('右键菜单关闭右侧tab', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -111,8 +115,9 @@ test.describe('TabOperation', () => {
     await expect(tab1).toBeVisible();
   });
   // 测试用例5: 右键菜单关闭其他tab
-  test('右键菜单关闭其他tab', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+  test('右键菜单关闭其他tab', async ({ co/.*#\/workbench.*/Project, loginAccount }) => {
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -142,9 +147,10 @@ test.describe('TabOperation', () => {
     const tabCount = await contentPage.locator('.nav .drag-wrap .item').count();
     expect(tabCount).toBe(1);
   });
-  // 测试用例6: 右键菜单全部关闭
+  // 测试用例6: 右键菜单全部关闭/.*#\/workbench.*/
   test('右键菜单全部关闭', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -169,10 +175,11 @@ test.describe('TabOperation', () => {
     // 验证没有tab
     const tabCount = await contentPage.locator('.nav .drag-wrap .item').count();
     expect(tabCount).toBe(0);
-  });
+  });/.*#\/workbench.*/
   // 测试用例7: 点击tab切换选中状态
   test('点击tab切换选中状态', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -198,11 +205,12 @@ test.describe('TabOperation', () => {
     await contentPage.waitForTimeout(300);
     // 验证A是当前激活的
     await expect(tabA).toHaveClass(/active/);
-    await expect(tabB).not.toHaveClass(/active/);
+    await expect(tabB).not.toHave/.*#\/workbench.*/
   });
   // 测试用例8: 新增空白接口按钮功能
   test('新增空白接口按钮功能', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -216,12 +224,13 @@ test.describe('TabOperation', () => {
     const newCount = await contentPage.locator('.nav .drag-wrap .item').count();
     expect(newCount).toBe(initialCount + 1);
     // 验证新增的tab是激活状态
-    const activeTab = contentPage.locator('.nav .item.active');
+    const activeTab = contentPage/.*#\/workbench.*/;
     await expect(activeTab).toContainText(/未命名接口|Untitled/);
   });
   // 测试用例9: 双击tab固定非固定页签
   test('双击tab固定非固定页签', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

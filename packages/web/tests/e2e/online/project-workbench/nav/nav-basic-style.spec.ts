@@ -3,9 +3,10 @@ import { test, expect } from '../../../../fixtures/electron-online.fixture';
 test.describe('NavBasicStyle', () => {
   // 测试用例1: 导航栏在项目工作区正确渲染
   test('导航栏在项目工作区正确渲染', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 验证导航栏存在
     const nav = contentPage.locator('.nav');
@@ -19,8 +20,9 @@ test.describe('NavBasicStyle', () => {
   });
   // 测试用例2: tab页签激活状态样式正确
   test('tab页签激活状态样式正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -37,7 +39,8 @@ test.describe('NavBasicStyle', () => {
   });
   // 测试用例3: 非固定页签显示斜体样式
   test('非固定页签显示斜体样式', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -63,7 +66,8 @@ test.describe('NavBasicStyle', () => {
   });
   // 测试用例4: 固定页签显示正常样式
   test('固定页签显示正常样式', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -82,8 +86,9 @@ test.describe('NavBasicStyle', () => {
     await expect(itemText).not.toHaveClass(/unfixed/);
   });
   // 测试用例5: 未保存状态显示小圆点
-  test('未保存状态显示小圆点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+  test('未保存状态显示小圆点', async ({ con/.*#\/workbench.*/roject, loginAccount }) => {
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -105,9 +110,10 @@ test.describe('NavBasicStyle', () => {
     const unsavedDot = contentPage.locator('[data-testid="project-nav-tab-unsaved"]');
     await expect(unsavedDot).toBeVisible({ timeout: 3000 });
   });
-  // 测试用例6: HTTP节点tab显示请求方法标识
+  // 测试用例6: HTTP节点tab显示请求方法标识/.*#\/workbench.*/
   test('HTTP节点tab显示请求方法标识', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -122,10 +128,11 @@ test.describe('NavBasicStyle', () => {
     // 验证tab显示GET方法标识
     const activeTab = contentPage.locator('.nav .item.active');
     await expect(activeTab).toContainText('GET');
-  });
+  });/.*#\/workbench.*/
   // 测试用例7: 页签文本过长显示省略号
   test('页签文本过长显示省略号', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

@@ -64,7 +64,7 @@ test.describe('CreateProject', () => {
     const confirmBtn = projectDialog.locator('.el-button--primary').last();
     await confirmBtn.click();
     await expect(projectDialog).toBeHidden({ timeout: 5000 });
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     const url = contentPage.url();
     expect(url).toContain('mode=edit');
     const activeTab = topBarPage.locator('.tab-item.active');
@@ -86,7 +86,7 @@ test.describe('CreateProject', () => {
     const confirmBtn = projectDialog.locator('.el-button--primary').last();
     await confirmBtn.click();
     await expect(projectDialog).toBeHidden({ timeout: 5000 });
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
     await homeBtn.click();
     await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });

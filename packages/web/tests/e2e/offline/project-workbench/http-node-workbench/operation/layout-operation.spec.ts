@@ -7,7 +7,7 @@ test.describe('LayoutOperation', () => {
   test('点击水平布局按钮,请求区域和响应区域左右排列', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -45,7 +45,7 @@ test.describe('LayoutOperation', () => {
   test('点击垂直布局按钮,请求区域和响应区域上下排列', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -76,7 +76,7 @@ test.describe('LayoutOperation', () => {
   test('切换布局后刷新页面,布局保持不变', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -99,7 +99,7 @@ test.describe('LayoutOperation', () => {
     await expect(apidocContainer).toHaveClass(/vertical/, { timeout: 5000 });
     // 刷新页面
     await contentPage.reload();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 10000 });
     await contentPage.waitForTimeout(1000);
     // 验证刷新后布局保持为垂直布局
     const apidocContainerAfterReload = contentPage.locator('.apidoc');

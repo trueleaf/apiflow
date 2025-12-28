@@ -4,9 +4,10 @@ test.describe('BannerOtherFeatures', () => {
   // ========================= 拖拽功能测试 =========================
   // 测试用例1: banner区域拖拽条可见
   test('banner区域拖拽条可见', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 验证SResizeX组件的拖拽条存在
@@ -16,8 +17,9 @@ test.describe('BannerOtherFeatures', () => {
 
   // 测试用例2: 拖拽改变banner宽度
   test('拖拽改变banner宽度', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -42,7 +44,8 @@ test.describe('BannerOtherFeatures', () => {
 
   // 测试用例3: 拖拽时显示宽度指示器
   test('拖拽时显示宽度指示器', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -66,7 +69,8 @@ test.describe('BannerOtherFeatures', () => {
 
   // 测试用例4: 宽度不会小于最小值
   test('宽度不会小于最小值', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -89,8 +93,9 @@ test.describe('BannerOtherFeatures', () => {
   });
 
   // 测试用例5: 宽度不会大于最大值
-  test('宽度不会大于最大值', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+  test('宽度不会大于最大值', async ({ cont/.*#\/workbench.*/oject, loginAccount }) => {
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -112,9 +117,10 @@ test.describe('BannerOtherFeatures', () => {
     expect(width).toBeLessThanOrEqual(450);
   });
 
-  // 测试用例6: 双击拖拽条还原默认宽度
+  // 测试用例6: 双击拖拽条还原默认宽度/.*#\/workbench.*/
   test('双击拖拽条还原默认宽度', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -140,10 +146,11 @@ test.describe('BannerOtherFeatures', () => {
     expect(restoredWidth).toBe(300);
     expect(restoredWidth).not.toBe(changedWidth);
   });
-
+/.*#\/workbench.*/
   // 测试用例7: 拖拽时拖拽条高亮
   test('拖拽时拖拽条高亮', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -162,7 +169,7 @@ test.describe('BannerOtherFeatures', () => {
     }
   });
 
-  // ========================= Mock呼吸动画测试 =========================
+  // ========================= Mo/.*#\/workbench.*/=====
   // 测试用例8: httpMockNode存在时可以创建Mock节点
   test.skip('httpMockNode启动后显示呼吸动画', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     // 此测试需要先创建httpMockNode并启动Mock服务

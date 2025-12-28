@@ -7,7 +7,7 @@ test.describe('CommonHeaders', () => {
   test('为folder节点设置公共请求头,该folder下所有接口自动继承这些请求头', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 创建一个folder节点
@@ -80,7 +80,7 @@ test.describe('CommonHeaders', () => {
   test('公共请求头支持表格模式和多行编辑模式切换,两种模式数据同步', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 打开全局公共请求头设置
@@ -145,7 +145,7 @@ test.describe('CommonHeaders', () => {
   test('批量模式应用参数后自动在尾部添加空行', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 打开全局公共请求头设置
@@ -200,7 +200,7 @@ test.describe('CommonHeaders', () => {
   test('公共请求头顺序在刷新后保持一致,且在HTTP节点中展示顺序相同', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 打开全局公共请求头设置
@@ -275,7 +275,7 @@ test.describe('CommonHeaders', () => {
   test('在目录下创建的httpNode继承该目录的公共请求头', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 创建一个folder节点
@@ -344,7 +344,7 @@ test.describe('CommonHeaders', () => {
   test('多层目录嵌套的公共请求头继承场景', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 创建第一层目录: 目录Level1
@@ -481,7 +481,7 @@ test.describe('CommonHeaders', () => {
   test('子目录公共请求头优先级高于父目录', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 创建父目录

@@ -6,7 +6,7 @@ test.describe('AddNode', () => {
     test('鼠标右键空白区域添加http节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -44,7 +44,7 @@ test.describe('AddNode', () => {
     test('鼠标右键目录添加http节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 首先创建一个文件夹
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -89,7 +89,7 @@ test.describe('AddNode', () => {
     test('点击新增按钮添加http节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 点击更多操作按钮
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -119,7 +119,7 @@ test.describe('AddNode', () => {
     test('鼠标右键空白区域添加http节点(AI)', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 配置AI设置
       const aiApiUrl = process.env.TEST_AI_API_URL;
@@ -175,7 +175,7 @@ test.describe('AddNode', () => {
     test('鼠标右键空白区域添加websocket节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -210,7 +210,7 @@ test.describe('AddNode', () => {
     test('鼠标右键目录添加websocket节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 首先创建一个文件夹
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -257,7 +257,7 @@ test.describe('AddNode', () => {
     test('点击新增按钮添加websocket节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 点击更多操作按钮
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -292,7 +292,7 @@ test.describe('AddNode', () => {
     test('鼠标右键空白区域添加httpMock节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -327,7 +327,7 @@ test.describe('AddNode', () => {
     test('鼠标右键目录添加httpMock节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 首先创建一个文件夹
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -374,7 +374,7 @@ test.describe('AddNode', () => {
     test('点击新增按钮添加httpMock节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 点击更多操作按钮
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -409,7 +409,7 @@ test.describe('AddNode', () => {
     test('鼠标右键空白区域添加websocketMock节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -444,7 +444,7 @@ test.describe('AddNode', () => {
     test('鼠标右键目录添加websocketMock节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 首先创建一个文件夹
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -491,7 +491,7 @@ test.describe('AddNode', () => {
     test('点击新增按钮添加websocketMock节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 点击更多操作按钮
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -526,7 +526,7 @@ test.describe('AddNode', () => {
     test('鼠标右键空白区域添加folder节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -558,7 +558,7 @@ test.describe('AddNode', () => {
     test('鼠标右键目录添加folder节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 首先创建一个父文件夹
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -601,7 +601,7 @@ test.describe('AddNode', () => {
     test('点击新增按钮添加folder节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 点击更多操作按钮
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -630,7 +630,7 @@ test.describe('AddNode', () => {
     test('在folder节点上点击更多按钮添加folder节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 首先创建一个文件夹
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -679,7 +679,7 @@ test.describe('AddNode', () => {
     test('鼠标右键非folder节点不出现新建接口选项', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 首先创建一个HTTP节点
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -715,7 +715,7 @@ test.describe('AddNode', () => {
     test('非folder节点点击更多按钮不出现新建接口选项', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 首先创建一个HTTP节点
       const treeWrap = contentPage.locator('.tree-wrap');

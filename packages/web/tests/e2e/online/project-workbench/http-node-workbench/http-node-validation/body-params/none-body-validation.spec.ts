@@ -4,9 +4,10 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('NoneBodyValidation', () => {
   test.beforeEach(async ({ createProject, contentPage, clearCache, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');

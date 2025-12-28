@@ -5,9 +5,10 @@ const MOCK_SERVER_PORT = 3456;
 test.describe('AfHttpApi', () => {
   // 测试用例1: 使用af.http.get()发送GET请求,请求成功并获取响应数据
   test('使用af.http.get发送GET请求并获取响应数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -48,8 +49,9 @@ console.log("GET响应数据:", JSON.stringify(response.data));`;
   });
   // 测试用例2: 使用af.http.post()发送POST请求,请求成功并获取响应数据
   test('使用af.http.post发送POST请求并获取响应数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -91,7 +93,8 @@ console.log("POST响应数据:", JSON.stringify(response.data));`;
   });
   // 测试用例3: 使用af.http.put()发送PUT请求,请求成功并获取响应数据
   test('使用af.http.put发送PUT请求并获取响应数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -134,7 +137,8 @@ console.log("PUT响应数据:", JSON.stringify(response.data));`;
   });
   // 测试用例4: 使用af.http.delete()发送DELETE请求,请求成功并获取响应数据
   test('使用af.http.delete发送DELETE请求并获取响应数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -176,8 +180,9 @@ console.log("DELETE响应数据:", JSON.stringify(response.data));`;
     await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 测试用例5: af.http请求失败时正确抛出错误并在响应区域展示错误信息
-  test('af.http请求失败时正确抛出错误', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+  test('af.http请求失败时正确抛出错误', asyn/.*#\/workbench.*/ createProject, loginAccount }) => {
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

@@ -4,9 +4,10 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('PathParamsValidation', () => {
   test('调用echo接口验证path参数是否正常返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -56,8 +57,9 @@ test.describe('PathParamsValidation', () => {
   });
 
   test('调用echo接口验证单个path参数是否正常返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -96,7 +98,8 @@ test.describe('PathParamsValidation', () => {
   });
 
   test('调用echo接口验证中文path参数是否正常返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -136,7 +139,8 @@ test.describe('PathParamsValidation', () => {
   });
 
   test('调用echo接口验证使用变量的path参数是否正常返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -190,8 +194,9 @@ test.describe('PathParamsValidation', () => {
     await expect(responseBody).toContainText('/echo/users/user_12345', { timeout: 10000 });
   });
 
-  test('调用echo接口验证多个path参数混合URL编码是否正常返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+  test('调用echo接口验证多个path参数混合URL编码/.*#\/workbench.*/, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

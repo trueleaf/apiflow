@@ -12,7 +12,7 @@ test.describe('FormDataParams', () => {
     test('formdata参数key输入值以后自动新增一行数据', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -50,7 +50,7 @@ test.describe('FormDataParams', () => {
     test('formdata参数key,value输入值以后调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -108,7 +108,7 @@ test.describe('FormDataParams', () => {
     test('formdata参数key,value支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       // 打开变量管理页面并创建变量
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
       await moreBtn.click();
@@ -183,7 +183,7 @@ test.describe('FormDataParams', () => {
     test('formdata参数key,value支持mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -239,7 +239,7 @@ test.describe('FormDataParams', () => {
     test('formdata参数key,value支持混合变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       // 打开变量管理页面并创建变量
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
       await moreBtn.click();
@@ -309,7 +309,7 @@ test.describe('FormDataParams', () => {
     test('formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -374,7 +374,7 @@ test.describe('FormDataParams', () => {
     test('value模式切换后要清空之前的数据', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -433,7 +433,7 @@ test.describe('FormDataParams', () => {
     test('value如果为文件模式选择文件调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -498,7 +498,7 @@ test.describe('FormDataParams', () => {
     test('value如果为文件模式未选择文件时提示文件不存在', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -558,7 +558,7 @@ test.describe('FormDataParams', () => {
     test('value如果为变量模式且文件存在调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       // 打开变量管理页面并创建变量
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
       await moreBtn.click();
@@ -636,7 +636,7 @@ test.describe('FormDataParams', () => {
     test('value如果为变量模式且文件不存在时提示文件不存在', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       // 打开变量管理页面并创建变量
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
       await moreBtn.click();
@@ -711,7 +711,7 @@ test.describe('FormDataParams', () => {
     test('value如果为变量模式但值不是变量时提示文件不存在', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -770,7 +770,7 @@ test.describe('FormDataParams', () => {
     test('formdata参数key为变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       // 打开变量管理页面并创建变量
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
       await moreBtn.click();
@@ -851,7 +851,7 @@ test.describe('FormDataParams', () => {
     test('formdata参数key为mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -917,7 +917,7 @@ test.describe('FormDataParams', () => {
     test('formdata参数key为混合变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       // 打开变量管理页面并创建变量
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
       await moreBtn.click();
@@ -998,7 +998,7 @@ test.describe('FormDataParams', () => {
     test('file类型formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -1078,7 +1078,7 @@ test.describe('FormDataParams', () => {
     test('存在string类型value和file类型value时候调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();

@@ -8,9 +8,10 @@ const MOCK_SERVER_PORT = 3456;
 test.describe('FormdataFileUploadValidation', () => {
   // 测试用例1: 调用echo接口验证包含字符串和file类型的formData是否正常返回,content-type是否设置正确
   test('调用echo接口验证包含字符串和file类型的formData是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -81,8 +82,9 @@ test.describe('FormdataFileUploadValidation', () => {
 
   // 测试用例2: 调用echo接口验证formData录入value如果是变量(验证所有变量类型)是否正常返回,content-type是否设置正确
   test('调用echo接口验证formData录入value如果是变量是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 打开变量管理页面并创建变量
@@ -159,7 +161,8 @@ test.describe('FormdataFileUploadValidation', () => {
 
   // 测试用例3: 调用echo接口验证formData录入value如果是mock是否正常返回,content-type是否设置正确
   test('调用echo接口验证formData录入value如果是mock是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -222,7 +225,8 @@ test.describe('FormdataFileUploadValidation', () => {
 
   // 测试用例4: 调用echo接口验证formData中没有file字段时是否正常返回,content-type是否设置正确
   test('调用echo接口验证formData中没有file字段时是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

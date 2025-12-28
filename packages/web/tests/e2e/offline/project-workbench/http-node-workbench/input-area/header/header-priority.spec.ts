@@ -7,7 +7,7 @@ test.describe('HeaderPriority', () => {
   test('自定义请求头优先级大于公共请求头,相同key时自定义header值被发送', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 打开公共请求头设置
     const treeWrap = contentPage.locator('.tree-wrap');
@@ -71,7 +71,7 @@ test.describe('HeaderPriority', () => {
   test('公共请求头优先级大于可更改的默认请求头', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 打开公共请求头设置
     const treeWrap = contentPage.locator('.tree-wrap');
@@ -124,7 +124,7 @@ test.describe('HeaderPriority', () => {
   test('自定义请求头优先级大于默认请求头', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -167,7 +167,7 @@ test.describe('HeaderPriority', () => {
   test('完整优先级链验证 - 自定义header优先级高于公共header优先级高于默认header', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 打开公共请求头设置
     const treeWrap = contentPage.locator('.tree-wrap');

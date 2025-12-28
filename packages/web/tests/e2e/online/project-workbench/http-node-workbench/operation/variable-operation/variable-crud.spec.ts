@@ -3,9 +3,10 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 test.describe('VariableCrud', () => {
   // 测试用例1: 新增string类型变量,输入变量名和值后保存成功
   test('新增string类型变量保存成功', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -37,8 +38,9 @@ test.describe('VariableCrud', () => {
   });
   // 测试用例2: 新增number类型变量,输入变量名和数字值后保存成功
   test('新增number类型变量保存成功', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -77,7 +79,8 @@ test.describe('VariableCrud', () => {
   });
   // 测试用例3: 修改已存在变量的值,保存后变量值更新
   test('修改已存在变量的值保存后更新', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -124,7 +127,8 @@ test.describe('VariableCrud', () => {
   });
   // 测试用例4: 删除变量后,变量从列表中移除
   test('删除变量后从列表中移除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

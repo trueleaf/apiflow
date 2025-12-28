@@ -227,7 +227,7 @@ const node: ModelNode = {
       },
       {
         "id": "3",
-        "name": "项目工作区页面(DocEdit组件)正确渲染"
+        "name": "项目工作区页面(Workbench组件)正确渲染"
       },
       {
         "id": "4",
@@ -269,7 +269,7 @@ const node: ModelNode = {
       },
       {
         "id": "6",
-        "name": "Vue Router路由配置中存在name=\"DocEdit\"的路由记录"
+        "name": "Vue Router路由配置中存在name=\"Workbench\"的路由记录"
       },
       {
         "id": "7",
@@ -277,7 +277,7 @@ const node: ModelNode = {
       },
       {
         "id": "8",
-        "name": "DocEdit组件挂载并从$route.query中读取id,name,mode参数"
+        "name": "Workbench组件挂载并从$route.query中读取id,name,mode参数"
       },
       {
         "id": "9",
@@ -307,7 +307,7 @@ const node: ModelNode = {
       },
       {
         "id": "5",
-        "name": "项目工作区路由定义:{ path: \"/workbench\", name: \"DocEdit\", component: docEdit }"
+        "name": "项目工作区路由定义:{ path: \"/workbench\", name: \"Workbench\", component: docEdit }"
       },
       {
         "id": "6",

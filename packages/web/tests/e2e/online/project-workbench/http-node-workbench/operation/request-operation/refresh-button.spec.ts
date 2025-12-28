@@ -5,9 +5,10 @@ const MOCK_SERVER_PORT = 3456;
 test.describe('RefreshButton', () => {
   // 测试用例1: 刷新按钮点击后,清空修改的值
   test('刷新按钮点击后清空修改的值', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -44,8 +45,9 @@ test.describe('RefreshButton', () => {
   });
   // 测试用例2: 验证录入项变更后刷新页面数据恢复
   test('验证录入项变更后刷新页面数据恢复', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

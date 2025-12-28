@@ -3,9 +3,10 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 test.describe('PathParamsUndo', () => {
   // 测试用例1: path参数key输入字符串ab,按ctrl+z逐步撤销
   test('path参数key输入后按ctrl+z撤销', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -50,8 +51,9 @@ test.describe('PathParamsUndo', () => {
   });
   // 测试用例2: url和path参数联动撤销
   test('url和path参数联动变化后撤销', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -79,7 +81,8 @@ test.describe('PathParamsUndo', () => {
   });
   // 测试用例3: path参数value输入后点击撤销按钮恢复
   test('path参数value输入后点击撤销按钮恢复', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

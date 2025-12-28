@@ -5,9 +5,10 @@ const MOCK_SERVER_PORT = 3456;
 test.describe('AfLocalStorageApi', () => {
   // 测试用例1: 使用af.localStorage.set(key, value)存储持久数据
   test('使用af.localStorage.set(key, value)存储持久数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -49,8 +50,9 @@ test.describe('AfLocalStorageApi', () => {
   });
   // 测试用例2: 使用af.localStorage.get(key)获取持久数据
   test('使用af.localStorage.get(key)获取持久数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 预先设置localStorage数据
@@ -91,7 +93,8 @@ test.describe('AfLocalStorageApi', () => {
   });
   // 测试用例3: 使用af.localStorage.remove(key)删除持久数据
   test('使用af.localStorage.remove(key)删除持久数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -143,7 +146,8 @@ test.describe('AfLocalStorageApi', () => {
   });
   // 测试用例4: 使用af.localStorage.clear()清空所有持久数据
   test('使用af.localStorage.clear()清空所有持久数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -208,8 +212,9 @@ test.describe('AfLocalStorageApi', () => {
     expect(clearedValues.key3).toBeNull();
   });
   // 测试用例5: 获取不存在的键返回null
-  test('获取不存在的键返回null', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+  test('获取不存在的键返回null', async ({ /.*#\/workbench.*/teProject, loginAccount }) => {
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

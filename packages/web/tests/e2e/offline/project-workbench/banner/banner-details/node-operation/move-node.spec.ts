@@ -6,7 +6,7 @@ test.describe('MoveNode', () => {
     test('拖拽单个httpNode节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -65,7 +65,7 @@ test.describe('MoveNode', () => {
     test('拖拽单个httpNode节点到folder节点上,移动到folder节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建源文件夹
@@ -142,7 +142,7 @@ test.describe('MoveNode', () => {
     test('拖拽单个httpNode节点调整在同一层级的顺序', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建第一个httpNode节点
@@ -191,7 +191,7 @@ test.describe('MoveNode', () => {
     test('拖拽httpNode节点到非folder节点中,操作被阻止', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建两个httpNode节点
@@ -240,7 +240,7 @@ test.describe('MoveNode', () => {
     test('拖拽单个websocketNode节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -300,7 +300,7 @@ test.describe('MoveNode', () => {
     test('拖拽单个websocketNode节点到folder节点上,移动到folder节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建源文件夹
@@ -384,7 +384,7 @@ test.describe('MoveNode', () => {
     test('拖拽单个httpMockNode节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -444,7 +444,7 @@ test.describe('MoveNode', () => {
     test('拖拽单个httpMockNode节点到folder节点上,移动到folder节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建源文件夹
@@ -528,7 +528,7 @@ test.describe('MoveNode', () => {
     test('拖拽单个websocketMockNode节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -588,7 +588,7 @@ test.describe('MoveNode', () => {
     test('拖拽单个websocketMockNode节点到folder节点上,移动到folder节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建源文件夹
@@ -672,7 +672,7 @@ test.describe('MoveNode', () => {
     test('拖拽单个folder节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建父文件夹
@@ -728,7 +728,7 @@ test.describe('MoveNode', () => {
     test('拖拽单个folder节点到folder节点上,移动到folder节点下作为子节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建源文件夹
@@ -777,7 +777,7 @@ test.describe('MoveNode', () => {
     test('拖拽folder节点调整在同一层级的顺序', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建文件夹A
@@ -825,7 +825,7 @@ test.describe('MoveNode', () => {
     test('拖拽folder节点到其自身子节点下,操作被阻止', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建父文件夹
@@ -881,7 +881,7 @@ test.describe('MoveNode', () => {
     test('移动包含多层嵌套的folder节点,层级结构保持不变', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建源文件夹

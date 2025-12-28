@@ -3,9 +3,10 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 test.describe('RequestMethodUndo', () => {
   // 测试用例1: 切换请求方法两次,点击撤销按钮,请求方法恢复到上一次的状态
   test('切换请求方法后点击撤销按钮恢复', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -48,8 +49,9 @@ test.describe('RequestMethodUndo', () => {
   });
   // 测试用例2: 切换请求方法两次,按ctrl+z,请求方法恢复到上一次的状态
   test('切换请求方法后按ctrl+z快捷键恢复', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

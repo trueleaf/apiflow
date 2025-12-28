@@ -4,9 +4,10 @@ test.describe('CopyNode', () => {
   test.describe('复制HTTP节点', () => {
     // 复制单个httpNode节点粘贴到根节点下
     test('复制单个httpNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
-      await createProject();
+      await createProject();/.*#\/workbench.*/
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 创建一个HTTP节点
@@ -47,8 +48,9 @@ test.describe('CopyNode', () => {
     });
     // 复制单个httpNode节点粘贴到folder节点下
     test('复制单个httpNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
-      await loginAccount();
+      await clearCache();
+
+      await loginAccount();/.*#\/workbench.*/
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -103,7 +105,8 @@ test.describe('CopyNode', () => {
     });
     // 复制多个httpNode节点粘贴到根节点下
     test('复制多个httpNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+/.*#\/workbench.*/
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -161,7 +164,8 @@ test.describe('CopyNode', () => {
   test.describe('复制WebSocket节点', () => {
     // 复制单个websocketNode节点粘贴到根节点下
     test('复制单个websocketNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();/.*#\/workbench.*/
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -204,8 +208,9 @@ test.describe('CopyNode', () => {
       await expect(allNodes).toHaveCount(2, { timeout: 5000 });
     });
     // 复制单个websocketNode节点粘贴到folder节点下
-    test('复制单个websocketNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+    test('复制单个websocketNode节点粘贴到fol/.*#\/workbench.*/, clearCache, createProject, loginAccount }) => {
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -258,9 +263,10 @@ test.describe('CopyNode', () => {
     });
   });
   test.describe('复制HTTP Mock节点', () => {
-    // 复制单个httpMockNode节点粘贴到根节点下
+    // 复制单个httpMockNode节点粘贴到根节点下/.*#\/workbench.*/
     test('复制单个httpMockNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -300,10 +306,11 @@ test.describe('CopyNode', () => {
       // 验证新节点出现
       const allNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '源HTTP Mock节点' });
       await expect(allNodes).toHaveCount(2, { timeout: 5000 });
-    });
+    });/.*#\/workbench.*/
     // 复制单个httpMockNode节点粘贴到folder节点下
     test('复制单个httpMockNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -354,11 +361,12 @@ test.describe('CopyNode', () => {
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: 'Mock目标文件夹' });
       await expect(expandedFolder).toBeVisible({ timeout: 5000 });
     });
-  });
+  });/.*#\/workbench.*/
   test.describe('复制WebSocket Mock节点', () => {
     // 复制单个websocketMockNode节点粘贴到根节点下
     test('复制单个websocketMockNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -396,12 +404,13 @@ test.describe('CopyNode', () => {
       await pasteItem.click();
       await contentPage.waitForTimeout(500);
       // 验证新节点出现
-      const allNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '源WS Mock节点' });
+      const allNodes = contentPage./.*#\/workbench.*/nt').filter({ hasText: '源WS Mock节点' });
       await expect(allNodes).toHaveCount(2, { timeout: 5000 });
     });
     // 复制单个websocketMockNode节点粘贴到folder节点下
     test('复制单个websocketMockNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -450,13 +459,14 @@ test.describe('CopyNode', () => {
       await contentPage.waitForTimeout(500);
       // 验证文件夹展开并显示子节点
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: 'WSMock目标文件夹' });
-      await expect(expandedFolder).toBeVisible({ timeout: 5000 });
+      await expect(expandedFolder)./.*#\/workbench.*/);
     });
   });
   test.describe('复制文件夹节点', () => {
     // 复制单个folder节点粘贴到根节点下
     test('复制单个folder节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -488,14 +498,15 @@ test.describe('CopyNode', () => {
       await contentPage.waitForTimeout(300);
       const pasteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /粘贴/ });
       await pasteItem.click();
-      await contentPage.waitForTimeout(500);
+      await contentPage.waitForTime/.*#\/workbench.*/
       // 验证新文件夹出现
       const allFolders = contentPage.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
       await expect(allFolders).toHaveCount(2, { timeout: 5000 });
     });
     // 复制包含子节点的folder节点
     test('复制包含子节点的folder节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -561,7 +572,7 @@ test.describe('CopyNode', () => {
         await contentPage.waitForTimeout(200);
       }
       const secondChildNode = secondFolderNode
-        .locator('.el-tree-node__children .el-tree-node__content')
+        .locator('.el-tree-node__ch/.*#\/workbench.*/')
         .filter({ hasText: '子节点HTTP' });
       await expect(secondChildNode).toHaveCount(1, { timeout: 5000 });
     });
@@ -569,7 +580,8 @@ test.describe('CopyNode', () => {
   test.describe('复制混合节点', () => {
     // 批量复制不同类型节点
     test('批量复制不同类型节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -624,7 +636,7 @@ test.describe('CopyNode', () => {
       await pasteItem.click();
       await contentPage.waitForTimeout(500);
       // 验证新节点出现
-      const allHttpNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '混合HTTP节点' });
+      const allHttpNodes = contentP/.*#\/workbench.*/ontent').filter({ hasText: '混合HTTP节点' });
       const allWsNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '混合WebSocket节点' });
       await expect(allHttpNodes).toHaveCount(2, { timeout: 5000 });
       await expect(allWsNodes).toHaveCount(2, { timeout: 5000 });
@@ -633,7 +645,8 @@ test.describe('CopyNode', () => {
   test.describe('快捷键复制粘贴', () => {
     // 使用Ctrl+C和Ctrl+V复制粘贴节点
     test('使用Ctrl+C和Ctrl+V复制粘贴节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();
+      await clearCache();
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

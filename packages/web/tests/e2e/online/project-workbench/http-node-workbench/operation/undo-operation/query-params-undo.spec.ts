@@ -3,9 +3,10 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 test.describe('QueryParamsUndo', () => {
   // 测试用例1: query参数key输入字符串ab,按ctrl+z逐步撤销
   test('query参数key输入后按ctrl+z撤销', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -48,8 +49,9 @@ test.describe('QueryParamsUndo', () => {
   });
   // 测试用例2: query参数value输入字符串后撤销
   test('query参数value输入后按ctrl+z撤销', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -94,7 +96,8 @@ test.describe('QueryParamsUndo', () => {
   });
   // 测试用例3: url和query参数联动撤销
   test('url和query参数联动变化后撤销', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

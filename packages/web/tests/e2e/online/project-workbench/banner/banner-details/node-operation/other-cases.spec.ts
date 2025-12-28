@@ -3,9 +3,10 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 test.describe('OtherCases', () => {
   // 在根节点新增,粘贴非folder节点,会排序在末尾
   test('在根节点新增/粘贴非folder节点,会排序在末尾', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
@@ -63,8 +64,9 @@ test.describe('OtherCases', () => {
   });
   // 在根节点新增,粘贴folder节点,会排序到根目录下最后一个目录节点下面
   test('在根节点新增/粘贴folder节点,会排序到根目录下最后一个目录节点下面', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -124,7 +126,8 @@ test.describe('OtherCases', () => {
   });
   // 在根节点粘贴包含folder节点的混合节点,folder节点会排序到根目录下最后一个目录节点下面,非folder节点会排序在末尾
   test('在根节点粘贴包含folder节点的混合节点,folder排序到文件夹区域,非folder排序在末尾', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

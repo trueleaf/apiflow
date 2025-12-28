@@ -5,7 +5,7 @@ test.describe('TabOperation', () => {
   test('点击关闭按钮关闭当前tab', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -28,7 +28,7 @@ test.describe('TabOperation', () => {
   test('右键菜单关闭当前tab', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -52,7 +52,7 @@ test.describe('TabOperation', () => {
   test('右键菜单关闭左侧tab', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增三个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 3; i++) {
@@ -81,7 +81,7 @@ test.describe('TabOperation', () => {
   test('右键菜单关闭右侧tab', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增三个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 3; i++) {
@@ -110,7 +110,7 @@ test.describe('TabOperation', () => {
   test('右键菜单关闭其他tab', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增三个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 3; i++) {
@@ -141,7 +141,7 @@ test.describe('TabOperation', () => {
   test('右键菜单全部关闭', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增两个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 2; i++) {
@@ -168,7 +168,7 @@ test.describe('TabOperation', () => {
   test('点击tab切换选中状态', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增两个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -197,7 +197,7 @@ test.describe('TabOperation', () => {
   test('新增空白接口按钮功能', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 获取初始tab数量
     const initialCount = await contentPage.locator('.nav .drag-wrap .item').count();
     // 点击新增空白接口按钮
@@ -215,7 +215,7 @@ test.describe('TabOperation', () => {
   test('双击tab固定非固定页签', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();

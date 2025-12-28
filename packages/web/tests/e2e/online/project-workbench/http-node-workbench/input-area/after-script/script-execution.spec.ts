@@ -5,9 +5,10 @@ const MOCK_SERVER_PORT = 3456;
 test.describe('AfterScriptExecution', () => {
   // 后置脚本语法错误时,在响应区域展示脚本错误信息
   test('后置脚本语法错误时在响应区域展示脚本错误信息', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -45,8 +46,9 @@ test.describe('AfterScriptExecution', () => {
   });
   // 后置脚本运行时错误时,在响应区域展示运行时错误信息
   test('后置脚本运行时错误时在响应区域展示运行时错误信息', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -85,7 +87,8 @@ test.describe('AfterScriptExecution', () => {
   });
   // 后置脚本在主请求响应后执行
   test('后置脚本在主请求响应后执行', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

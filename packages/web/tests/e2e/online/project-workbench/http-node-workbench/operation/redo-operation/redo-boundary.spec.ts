@@ -3,9 +3,10 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 test.describe('RedoBoundary', () => {
   // 测试用例1: 没有可重做的操作时,重做按钮置灰不可点击,ctrl+shift+z无反应
   test('没有可重做的操作时,重做按钮置灰不可点击', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -32,8 +33,9 @@ test.describe('RedoBoundary', () => {
   });
   // 测试用例2: 撤销后进行新操作,重做历史被清空,重做按钮置灰不可点击
   test('撤销后进行新操作,重做历史被清空,重做按钮置灰不可点击', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

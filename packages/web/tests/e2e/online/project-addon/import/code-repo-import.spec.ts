@@ -3,9 +3,10 @@ import { test, expect } from '../../../../fixtures/electron-online.fixture';
 test.describe('CodeRepoImport', () => {
   // 测试用例1: 打开导入页面验证代码仓库识别选项存在
   test('打开导入页面验证代码仓库识别选项存在', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -24,8 +25,9 @@ test.describe('CodeRepoImport', () => {
   });
   // 测试用例2: 选择代码仓库识别导入方式
   test('选择代码仓库识别导入方式', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
@@ -45,7 +47,8 @@ test.describe('CodeRepoImport', () => {
   });
   // 测试用例3: 代码仓库导入界面显示正确
   test('代码仓库导入界面显示正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -69,7 +72,8 @@ test.describe('CodeRepoImport', () => {
   });
   // 测试用例4: 切换不同导入方式
   test('从代码仓库导入切换到其他导入方式', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -96,8 +100,9 @@ test.describe('CodeRepoImport', () => {
     await expect(repoSource).not.toHaveClass(/active/);
   });
   // 测试用例5: 验证所有五种导入方式选项都存在
-  test('验证所有五种导入方式选项都存在', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+  test('验证所有五种导入方式选项都存在', async (/.*#\/workbench.*/eateProject, loginAccount }) => {
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

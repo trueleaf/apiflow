@@ -61,7 +61,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/workbench",
-    name: "DocEdit",
+    name: "Workbench",
     component: () => import("@/pages/projectWorkbench/ProjectWorkbench.vue"),
   },
   {
@@ -125,7 +125,7 @@ const routerConfig = {
     },
     {
       path: "/workbench",
-      name: "DocEdit",
+      name: "Workbench",
       component: () => import("@/pages/projectWorkbench/ProjectWorkbench.vue"),
     },
     {

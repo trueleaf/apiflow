@@ -5,9 +5,10 @@ const MOCK_SERVER_PORT = 3456;
 test.describe('RequestUrlDisplay', () => {
   // 测试用例1: url地址展示encode后的结果
   test('url地址展示encode后的结果', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
-    await createProject();
+    await createProject();/.*#\/workbench.*/
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -33,8 +34,9 @@ test.describe('RequestUrlDisplay', () => {
   });
   // 测试用例2: 如果url地址存在异常需要提示tooltip
   test('url地址存在异常时需要提示', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
-    await loginAccount();
+    await clearCache();
+
+    await loginAccount();/.*#\/workbench.*/
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -62,7 +64,8 @@ test.describe('RequestUrlDisplay', () => {
   });
   // 测试用例3: url如果没有http://或者https://开头自动添加http://
   test('url没有协议时自动添加http前缀', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+/.*#\/workbench.*/
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

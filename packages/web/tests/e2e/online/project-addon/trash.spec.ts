@@ -16,7 +16,7 @@ test.describe('Trash', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 15000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const recyclerItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /回收站/ });
@@ -35,7 +35,7 @@ test.describe('Trash', () => {
     await clearCache();
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
 
     const operatorA = { _id: 'op-a', loginName: 'a', realName: '张三' };
     const operatorB = { _id: 'op-b', loginName: 'b', realName: '李四' };
@@ -235,7 +235,7 @@ test.describe('Trash', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
@@ -275,7 +275,7 @@ test.describe('Trash', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
@@ -323,7 +323,7 @@ test.describe('Trash', () => {
     await clearCache();
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     const bannerTree = contentPage.getByTestId('banner-doc-tree');
     await expect(bannerTree).toBeVisible({ timeout: 5000 });
     const addFolderBtn = contentPage.getByTestId('banner-add-folder-btn');
@@ -376,20 +376,20 @@ test.describe('Trash', () => {
     await recyclerItem.click();
     await contentPage.waitForTimeout(500);
     const recyclerPage = contentPage.locator('.recycler');
-        await expect(recyclerPage).toBeVisible({ timeout: 5000 });
-        await expect(recyclerPage.locator('.docinfo').first()).toBeVisible({ timeout: 5000 });
-        for (let i = 0; i < allNodeNames.length; i += 1) {
-          const nodeName = allNodeNames[i];
-          const deletedDoc = getRecyclerDeletedDocByName(recyclerPage, nodeName);
-          await expect(deletedDoc).toBeVisible({ timeout: 5000 });
-        }
-        for (let i = 0; i < allNodeNames.length; i += 1) {
-          const nodeName = allNodeNames[i];
-          const deletedDoc = getRecyclerDeletedDocByName(recyclerPage, nodeName);
-          await deletedDoc.locator('.el-button').filter({ hasText: /恢复/ }).click();
-          const restoreConfirmDialog = contentPage.locator('.el-message-box');
-          await expect(restoreConfirmDialog).toBeVisible({ timeout: 3000 });
-          await restoreConfirmDialog.locator('.el-button--primary').click();
+    await expect(recyclerPage).toBeVisible({ timeout: 5000 });
+    await expect(recyclerPage.locator('.docinfo').first()).toBeVisible({ timeout: 5000 });
+    for (let i = 0; i < allNodeNames.length; i += 1) {
+      const nodeName = allNodeNames[i];
+      const deletedDoc = getRecyclerDeletedDocByName(recyclerPage, nodeName);
+      await expect(deletedDoc).toBeVisible({ timeout: 5000 });
+    }
+    for (let i = 0; i < allNodeNames.length; i += 1) {
+      const nodeName = allNodeNames[i];
+      const deletedDoc = getRecyclerDeletedDocByName(recyclerPage, nodeName);
+      await deletedDoc.locator('.el-button').filter({ hasText: /恢复/ }).click();
+      const restoreConfirmDialog = contentPage.locator('.el-message-box');
+      await expect(restoreConfirmDialog).toBeVisible({ timeout: 3000 });
+      await restoreConfirmDialog.locator('.el-button--primary').click();
       await contentPage.waitForTimeout(500);
       await expect(deletedDoc).not.toBeVisible({ timeout: 5000 });
       const restoredNode = bannerTree.locator('.el-tree-node__content', { hasText: nodeName }).first();
@@ -400,7 +400,7 @@ test.describe('Trash', () => {
     await clearCache();
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     const bannerTree = contentPage.getByTestId('banner-doc-tree');
     await expect(bannerTree).toBeVisible({ timeout: 5000 });
     const addFolderBtn = contentPage.getByTestId('banner-add-folder-btn');

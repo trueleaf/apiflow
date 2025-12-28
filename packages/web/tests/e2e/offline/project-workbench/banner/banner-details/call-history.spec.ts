@@ -5,7 +5,7 @@ test.describe('CallHistory', () => {
   test('切换到调用历史Tab页,验证Tab切换功能', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 验证Banner区域的Tab切换器存在
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
@@ -33,7 +33,7 @@ test.describe('CallHistory', () => {
   test('调用历史搜索框功能验证,包括placeholder和清空按钮', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点
     const addHttpBtn = contentPage.getByTitle('新增文件', { exact: true });
@@ -77,7 +77,7 @@ test.describe('CallHistory', () => {
   test('清空所有历史记录功能验证,包括确认弹窗', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 切换到调用历史Tab
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
@@ -110,7 +110,7 @@ test.describe('CallHistory', () => {
   test('历史记录列表展示验证,包括空状态', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 切换到调用历史Tab
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
@@ -130,7 +130,7 @@ test.describe('CallHistory', () => {
   test('点击历史记录项打开对应接口Tab页', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点
     const addHttpBtn = contentPage.getByTitle('新增文件', { exact: true });
@@ -185,7 +185,7 @@ test.describe('CallHistory', () => {
   test('已删除接口的历史记录标记验证', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点
     const addHttpBtn = contentPage.getByTitle('新增文件', { exact: true });
@@ -241,7 +241,7 @@ test.describe('CallHistory', () => {
   test('历史记录滚动加载验证', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 预置足够数量的历史数据（31条），保证触发分页并出现“没有更多了”
     await contentPage.evaluate(async () => {
@@ -307,7 +307,7 @@ test.describe('CallHistory', () => {
   test('清理已删除接口历史功能验证', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点、发送请求生成历史，然后删除该接口，确保出现“已删除”历史
     const addHttpBtn = contentPage.getByTitle('新增文件', { exact: true });
