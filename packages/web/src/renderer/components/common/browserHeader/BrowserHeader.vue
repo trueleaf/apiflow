@@ -7,6 +7,10 @@
       <i class="iconfont iconhome"></i>
       <span>{{ t('主页面') }}</span>
     </div>
+    <div v-if="showAdminMenu" class="home admin" :class="{ active: activeTabId === '__admin__' }" data-testid="header-admin-btn" @click="jumpToAdmin">
+      <Shield class="menu-icon" :size="14" />
+      <span>{{ t('后台管理') }}</span>
+    </div>
     <div v-if="filteredTabs.length > 0" class="short-divider">
       <span class="short-divider-content"></span>
     </div>
@@ -68,15 +72,15 @@ import draggable from 'vuedraggable'
 import { Language } from '@src/types'
 import type { AnchorRect } from '@src/types/common'
 import type { AppWorkbenchHeaderTab } from '@src/types/appWorkbench/appWorkbenchType'
-import type { RuntimeNetworkMode } from '@src/types/runtime'
-import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
-import { useI18n } from 'vue-i18n'
-import { Folder, Settings, Bot } from 'lucide-vue-next'
-import { changeLanguage } from '@/i18n'
-import { useAppSettings } from '@/store/appSettings/appSettingsStore'
-import { useRuntime } from '@/store/runtime/runtimeStore'
-import { useRouter } from 'vue-router'
-import { appWorkbenchCache } from '@/cache/appWorkbench/appWorkbenchCache'
+ import type { RuntimeNetworkMode } from '@src/types/runtime'
+ import { RefreshRight, Back, Right } from '@element-plus/icons-vue'       
+ import { useI18n } from 'vue-i18n'
+ import { Folder, Settings, Bot, Shield } from 'lucide-vue-next'
+ import { changeLanguage } from '@/i18n'
+ import { useAppSettings } from '@/store/appSettings/appSettingsStore'     
+ import { useRuntime } from '@/store/runtime/runtimeStore'
+ import { useRouter } from 'vue-router'
+ import { appWorkbenchCache } from '@/cache/appWorkbench/appWorkbenchCache'
 import { useAgentViewStore } from '@/store/ai/agentView'
 import LanguageMenu from '@/components/common/language/Language.vue'
 
@@ -95,14 +99,17 @@ const aiButtonRef = ref<HTMLElement>()
 const languageButtonRef = ref<HTMLElement>()
 const { t } = useI18n()
 const language = ref<Language>('zh-cn')
-const networkMode = ref<RuntimeNetworkMode>('offline')
-// 语言菜单相关状态
-const languageMenuVisible = ref(false)
-const languageMenuPosition = ref<AnchorRect>({ x: 0, y: 0, width: 0, height: 0 })
+ const networkMode = ref<RuntimeNetworkMode>('offline')
+ // 语言菜单相关状态
+ const languageMenuVisible = ref(false)
+ const languageMenuPosition = ref<AnchorRect>({ x: 0, y: 0, width: 0, height: 0 })
+ const showAdminMenu = computed(() => {
+   return networkMode.value === 'online' && runtimeStore.userInfo.role === 'admin' && Boolean(runtimeStore.userInfo.id)
+ })
 
-const filteredTabs = computed(() => {
-  return tabs.value.filter(tab => tab.network === networkMode.value)
-})
+ const filteredTabs = computed(() => {
+   return tabs.value.filter(tab => tab.network === networkMode.value)      
+ })
 const draggableTabs = computed({
   get: () => tabs.value.filter(tab => tab.network === networkMode.value),
   set: (newTabs: AppWorkbenchHeaderTab[]) => {
@@ -233,9 +240,17 @@ const jumpToHome = () => {
   syncActiveTabToCache()
   router.push('/home')
 }
+const jumpToAdmin = () => {
+  if (runtimeStore.networkMode === 'online' && router.currentRoute.value.path === '/login') {
+    return
+  }
+  activeTabId.value = '__admin__'
+  syncActiveTabToCache()
+  router.push('/admin')
+}
 const jumpToSettings = () => {
   const settingsTabId = `settings-${networkMode.value}`
-  const existingTab = tabs.value.find(t => t.id === settingsTabId)
+  const existingTab = tabs.value.find(t => t.id === settingsTabId)        
   if (!existingTab) {
     tabs.value.push({
       id: settingsTabId,
@@ -315,6 +330,9 @@ watch(
       if (projectId && projectName) {
         switchToProject(projectId, projectName)
       }
+    } else if (newRoute.path === '/admin') {
+      activeTabId.value = '__admin__'
+      syncActiveTabToCache()
     } else if (newRoute.path === '/home') {
       activeTabId.value = ''
       syncActiveTabToCache()
@@ -398,6 +416,12 @@ defineExpose({
     margin-top: 1px;
     font-size: 12px;
     margin-right: 3px;
+  }
+  .menu-icon {
+    margin-right: 3px;
+  }
+  &.admin {
+    width: 92px;
   }
   &.active {
     color: var(--text-white);

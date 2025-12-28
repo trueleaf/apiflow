@@ -111,7 +111,7 @@
       @refresh="getIndexedDB"
     />
     <DataBackup v-if="selectedCacheType === 'backup'" />
-    <DataRestore v-if="selectedCacheType === 'restore'" @refresh-cache="handleRefreshCache" />
+    <DataRestore v-if="selectedCacheType === 'restore'" />
  </div>
 </template>
 
@@ -342,24 +342,9 @@ const saveCacheData = (): void => {
   })
 }
 /*
-|--------------------------------------------------------------------------
-| 数据恢复完成后刷新缓存
-|--------------------------------------------------------------------------
-*/
-// 处理数据恢复后的缓存刷新
-const handleRefreshCache = (): void => {
-  getLocalStorage()
-  if (cacheInfo.value.indexedDBDetails.length > 0 || cacheInfo.value.indexedDBSize > 0) {
-    getIndexedDB()
-  }
-  // 清除之前缓存的计算结果，强制重新计算
-  cacheInfo.value.indexedDBSize = -1
-  cacheInfo.value.indexedDBDetails = []
-}
-/*
-|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------     
 | 组件生命周期
-|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------     
 */
 onMounted(() => {
   scheduleDeferredTask(() => {

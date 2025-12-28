@@ -7,6 +7,10 @@
       <i class="iconfont iconhome"></i>
       <span>{{ t('主页面') }}</span>
     </div>
+    <div v-if="showAdminMenu" class="home admin" :class="{ active: activeTabId === '__admin__' }" data-testid="header-admin-btn" @click="jumpToAdmin">
+      <Shield class="menu-icon" :size="14" />
+      <span>{{ t('后台管理') }}</span>
+    </div>
     <div v-if="filteredTabs.length > 0" class="short-divider">
       <span class="short-divider-content"></span>
     </div>
@@ -82,7 +86,7 @@ import type { AppWorkbenchHeaderTab, AppWorkbenchHeaderTabContextActionPayload }
 import type { RuntimeNetworkMode } from '@src/types/runtime'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
-import { Folder, Settings, Bot, User } from 'lucide-vue-next'
+import { Folder, Settings, Bot, User, Shield } from 'lucide-vue-next'
 import Update from './components/update/Update.vue'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { changeLanguage } from '@/i18n'
@@ -101,8 +105,11 @@ const { t } = useI18n()
 const language = ref<Language>('zh-cn')
 const networkMode = ref<RuntimeNetworkMode>('offline')
 const runtimeStore = useRuntime()
+const showAdminMenu = computed(() => {
+  return networkMode.value === 'online' && runtimeStore.userInfo.role === 'admin' && Boolean(runtimeStore.userInfo.id)
+})
 const filteredTabs = computed(() => {
-  return tabs.value.filter(tab => tab.network === networkMode.value)
+  return tabs.value.filter(tab => tab.network === networkMode.value)      
 })
 const draggableTabs = computed({
   get: () => tabs.value.filter(tab => tab.network === networkMode.value),
@@ -356,6 +363,14 @@ const jumpToHome = () => {
   syncActiveTabToContentView()
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.navigate, '/home')
 }
+const jumpToAdmin = () => {
+  if (!showAdminMenu.value) {
+    return
+  }
+  activeTabId.value = '__admin__'
+  syncActiveTabToContentView()
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.navigate, '/admin')
+}
 // 跳转到设置
 const jumpToSettings = () => {
   const settingsTabId = `settings-${networkMode.value}`;
@@ -575,6 +590,12 @@ body {
     margin-top: 1px;
     font-size: 12px;
     margin-right: 3px;
+  }
+  .menu-icon {
+    margin-right: 3px;
+  }
+  &.admin {
+    flex: 0 0 92px;
   }
   &.active {
     color: var(--text-white);

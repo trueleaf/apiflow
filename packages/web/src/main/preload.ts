@@ -233,23 +233,9 @@ const tempFileRead = async (filePath: string): Promise<{ success: true; content:
   return ipcRenderer.invoke(IPC_EVENTS.tempFile.rendererToMain.read, filePath);
 }
 
-// 导出相关方法
-const exportSelectPath = () => {
-  return ipcRenderer.invoke(IPC_EVENTS.export.rendererToMain.selectPath)
-}
-
-const exportGetStatus = () => {
-  return ipcRenderer.invoke(IPC_EVENTS.export.rendererToMain.getStatus)
-}
-
-// 导入相关方法
-const importSelectFile = () => {
-  return ipcRenderer.invoke(IPC_EVENTS.import.rendererToMain.selectFile)
-}
-
 // 更新管理相关方法
 const checkForUpdates = async () => {
-  return ipcRenderer.invoke(IPC_EVENTS.updater.rendererToMain.checkUpdate);
+  return ipcRenderer.invoke(IPC_EVENTS.updater.rendererToMain.checkUpdate);     
 }
 const downloadUpdate = async () => {
   return ipcRenderer.invoke(IPC_EVENTS.updater.rendererToMain.downloadUpdate);
@@ -345,13 +331,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     stopServer: websocketMockStopServer,
     replaceById: websocketMockReplaceById,
     getAllStates: websocketMockGetAllStates,
-  },
-  exportManager: {
-    selectPath: exportSelectPath,
-    getStatus: exportGetStatus,
-  },
-  importManager: {
-    selectFile: importSelectFile,
   },
   aiManager: {
     updateConfig: aiUpdateConfig,

@@ -35,9 +35,9 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   setImportContentView(contentView);
 
   /*
-  |--------------------------------------------------------------------------
+  |--------------------------------------------------------------------------   
   | 握手机制相关事件
-  |--------------------------------------------------------------------------
+  |--------------------------------------------------------------------------   
   */
   let topBarReady = false;
   let contentViewReady = false;
@@ -546,13 +546,8 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   ipcMain.on(IPC_EVENTS.apiflow.rendererToMain.refreshContentView, () => {
     contentView.webContents.reloadIgnoringCache()
   })
-  /*
-  |---------------------------------------------------------------------------
-  | 数据备份(导出进度) 事件监听
-  |---------------------------------------------------------------------------
-  */
   // 选择导出路径
-  ipcMain.handle(IPC_EVENTS.export.rendererToMain.selectPath, async () => {
+  ipcMain.handle(IPC_EVENTS.export.rendererToMain.selectPath, async () => {     
     try {
       const result = await selectExportPath();
       return result;

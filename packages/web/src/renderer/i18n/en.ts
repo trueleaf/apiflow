@@ -861,6 +861,7 @@ export default {
   中文简体: 'Simplified Chinese',
   中文繁體: 'Traditional Chinese',
   主页面: 'Home',
+  后台管理: 'Admin',
   最小化: 'Minimize',
   最大化: 'Maximize',
   取消最大化: 'Unmaximize',

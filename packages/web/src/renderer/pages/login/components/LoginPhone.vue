@@ -30,7 +30,6 @@ import { useI18n } from 'vue-i18n'
 import { FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { router } from '@/router';
-import { usePermissionStore } from '@/store/permission/permissionStore';
 import { config } from '@src/config/config';
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { IPC_EVENTS } from '@src/types/ipc'
@@ -52,7 +51,6 @@ const loading = ref(false);
 const form = ref<FormInstance>();
 const smsRef = ref<{ resetState: () => void } | null>(null)
 const captchaData = ref('');
-const permissionStore = usePermissionStore()
 
 //校验手机号码
 const smsCodeHook = () => {
@@ -108,9 +106,8 @@ const handleLogin = () => {
           message.warning(res.msg);
         } else {
           runtimeStore.updateUserInfo(res.data)
-          window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { token: res.data.token, avatar: res.data.avatar })
+          window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: res.data.id, role: res.data.role, token: res.data.token, avatar: res.data.avatar })
           router.push('/home');
-          permissionStore.getPermission()
         }
       }).catch((err) => {
         console.error(err);

@@ -47,12 +47,17 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/header",
     name: "Header",
-    component: () => import("@/pages/appWorkbench/header/Header.vue"),
+    component: () => import("@/pages/appWorkbench/header/Header.vue"),    
   },
   {
     path: "/home",
     name: "Home",
     component: () => import("@/pages/home/Home.vue"),
+  },
+  {
+    path: "/admin",
+    name: "Admin",
+    component: () => import("@/pages/admin/Admin.vue"),
   },
   {
     path: "/workbench",
@@ -114,6 +119,11 @@ const routerConfig = {
       component: () => import("@/pages/home/Home.vue"),
     },
     {
+      path: "/admin",
+      name: "Admin",
+      component: () => import("@/pages/admin/Admin.vue"),
+    },
+    {
       path: "/workbench",
       name: "DocEdit",
       component: () => import("@/pages/projectWorkbench/ProjectWorkbench.vue"),
@@ -146,6 +156,20 @@ router.beforeEach(async (to, _, next) => {
   const dbRequiredPaths = ['/workbench', '/home'];
   if (dbRequiredPaths.some(path => to.path.startsWith(path))) {
     await initDatabases();
+  }
+  if (to.path === '/admin') {
+    if (runtimeStore.networkMode !== 'online') {
+      next('/home')
+      return
+    }
+    if (!runtimeStore.userInfo.id) {
+      next('/login')
+      return
+    }
+    if (runtimeStore.userInfo.role !== 'admin') {
+      next('/home')
+      return
+    }
   }
   if (runtimeStore.networkMode === 'offline') {
     next();

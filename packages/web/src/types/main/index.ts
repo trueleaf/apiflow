@@ -90,23 +90,16 @@ export type ElectronAPI = {
     getAllStates: (projectId: string) => Promise<MockStatusChangedPayload[]>;
   };
   websocketMock: {
-    getMockByNodeId: (nodeId: string) => Promise<WebSocketMockNode | null>;
-    startServer: (wsMock: WebSocketMockNode) => Promise<CommonResponse<null>>;
+    getMockByNodeId: (nodeId: string) => Promise<WebSocketMockNode | null>;     
+    startServer: (wsMock: WebSocketMockNode) => Promise<CommonResponse<null>>;  
     stopServer: (nodeId: string) => Promise<CommonResponse<null>>;
     replaceById: (nodeId: string, wsMock: WebSocketMockNode) => Promise<CommonResponse<null>>;
     getAllStates: (projectId: string) => Promise<WebSocketMockStatusChangedPayload[]>;
   };
-  exportManager: {
-    selectPath: () => Promise<CommonResponse<{ filePath?: string; tempPath?: string }>>;
-    getStatus: () => Promise<{ status: string; progress: number; itemNum: number }>;
-  };
-  importManager: {
-    selectFile: () => Promise<CommonResponse<{ filePath?: string }>>;
-  };
   aiManager: {
     updateConfig: (config: LLMProviderSetting) => void;
     chat: (body: ChatRequestBody) => Promise<OpenAiResponseBody>;
-    chatStream: (body: ChatRequestBody, callbacks: ChatStreamCallbacks) => {
+    chatStream: (body: ChatRequestBody, callbacks: ChatStreamCallbacks) => {    
       abort: () => void;
     };
   };

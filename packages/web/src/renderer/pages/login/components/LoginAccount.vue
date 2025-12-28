@@ -52,7 +52,7 @@ import { FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { router } from '@/router';
 import { useRuntime } from '@/store/runtime/runtimeStore';
-import { useAppSettings } from '@/store/appSettings/appSettingsStore';
+import { useAppSettings } from '@/store/appSettings/appSettingsStore';    
 import { IPC_EVENTS } from '@src/types/ipc'
 
 import { message } from '@/helper'
@@ -92,7 +92,7 @@ const handleLogin = async () => {
         } else {
           // 登录成功，更新用户信息到store
           runtimeStore.updateUserInfo(res.data);
-          window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { token: res.data.token, avatar: res.data.avatar })
+          window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: res.data.id, role: res.data.role, token: res.data.token, avatar: res.data.avatar })
           router.push('/home');
           // $store.dispatch('permission/getPermission')
         }
