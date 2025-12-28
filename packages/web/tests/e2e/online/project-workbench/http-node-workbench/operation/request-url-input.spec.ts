@@ -8,7 +8,7 @@ test.describe('RequestUrlInput', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -38,7 +38,7 @@ test.describe('RequestUrlInput', () => {
   test('输入127.0.0.1地址调用echo接口成功返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -68,7 +68,7 @@ test.describe('RequestUrlInput', () => {
   // 测试用例3: 使用变量调用echo接口成功返回
   test('使用变量调用echo接口成功返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -114,7 +114,7 @@ test.describe('RequestUrlInput', () => {
   });
   // 测试用例4: 不带协议的URL自动添加http://后成功请求
   test('不带协议的URL自动添加http后成功请求', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();/.*#\/workbench.*/
+    await clearCache();
 
     await loginAccount();
     await createProject();
@@ -147,7 +147,7 @@ test.describe('RequestUrlInput', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例5: URL中的query参数自动解析到参数列表
-  test('URL中的query参数自动解析到参数列表', a/.*#\/workbench.*/he, createProject, loginAccount }) => {
+  test('URL中的query参数自动解析到参数列表', ahe, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -176,7 +176,7 @@ test.describe('RequestUrlInput', () => {
     // 应该有至少2个参数（id和name）
     expect(keyCount).toBeGreaterThanOrEqual(2);
   });
-  // 测试用例6: URL中带query参数发送请求返回结果正/.*#\/workbench.*/
+  // 测试用例6: URL中带query参数发送请求返回结果正
   test('URL中带query参数发送请求返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
@@ -211,7 +211,7 @@ test.describe('RequestUrlInput', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     await expect(responseBody).toContainText('id', { timeout: 10000 });
     await expect(responseBody).toContainText('name', { timeout: 10000 });
-  });/.*#\/workbench.*/
+  });
   // 测试用例7: 粘贴的URL去除前后空格
   test('粘贴的URL去除前后空格', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();

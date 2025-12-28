@@ -6,7 +6,7 @@ test.describe('VariableCrud', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -40,7 +40,7 @@ test.describe('VariableCrud', () => {
   test('新增number类型变量保存成功', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -80,7 +80,7 @@ test.describe('VariableCrud', () => {
   // 测试用例3: 修改已存在变量的值,保存后变量值更新
   test('修改已存在变量的值保存后更新', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -127,7 +127,7 @@ test.describe('VariableCrud', () => {
   });
   // 测试用例4: 删除变量后,变量从列表中移除
   test('删除变量后从列表中移除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();/.*#\/workbench.*/
+    await clearCache();
 
     await loginAccount();
     await createProject();

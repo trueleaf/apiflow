@@ -6,7 +6,7 @@ test.describe('DeleteNode', () => {
       await clearCache();
 
       await loginAccount();
-      await createProject();/.*#\/workbench.*/
+      await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -44,7 +44,7 @@ test.describe('DeleteNode', () => {
     test('鼠标移动到httpNode节点,点击更多操作删除节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
-      await loginAccount();/.*#\/workbench.*/
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -84,7 +84,7 @@ test.describe('DeleteNode', () => {
     });
     test('按住ctrl鼠标左键批量选择httpNode节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
-/.*#\/workbench.*/
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -139,7 +139,7 @@ test.describe('DeleteNode', () => {
   });
   test.describe('删除websocketNode节点', () => {
     test('鼠标右键websocketNode节点删除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();/.*#\/workbench.*/
+      await clearCache();
 
       await loginAccount();
       await createProject();
@@ -180,7 +180,7 @@ test.describe('DeleteNode', () => {
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除Websocket节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
-    test('鼠标移动到websocketNode节点,点击更多/.*#\/workbench.*/, clearCache, createProject, loginAccount }) => {
+    test('鼠标移动到websocketNode节点,点击更多, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -223,7 +223,7 @@ test.describe('DeleteNode', () => {
       await contentPage.waitForTimeout(500);
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除Websocket节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
-    });/.*#\/workbench.*/
+    });
     test('按住ctrl鼠标左键批量选择websocketNode节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
@@ -281,7 +281,7 @@ test.describe('DeleteNode', () => {
       await expect(wsNode2).toBeHidden({ timeout: 5000 });
       await expect(wsNode3).toBeHidden({ timeout: 5000 });
     });
-  });/.*#\/workbench.*/
+  });
   test.describe('删除httpMockNode节点', () => {
     test('鼠标右键httpMockNode节点删除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
@@ -322,7 +322,7 @@ test.describe('DeleteNode', () => {
       const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
       await dialogConfirmBtn.click();
       await contentPage.waitForTimeout(500);
-      const deletedNode = contentPa/.*#\/workbench.*/ntent').filter({ hasText: '待删除HttpMock节点' });
+      const deletedNode = contentPantent').filter({ hasText: '待删除HttpMock节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
     test('鼠标移动到httpMockNode节点,点击更多操作删除节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
@@ -365,7 +365,7 @@ test.describe('DeleteNode', () => {
       await expect(confirmDialog).toBeVisible({ timeout: 5000 });
       const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
       await dialogConfirmBtn.click();
-      await contentPage.waitForTime/.*#\/workbench.*/
+      await contentPage.waitForTime
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除HttpMock节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
@@ -423,7 +423,7 @@ test.describe('DeleteNode', () => {
       await dialogConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       await expect(mockNode1).toBeHidden({ timeout: 5000 });
-      await expect(mockNode2).toBeH/.*#\/workbench.*/
+      await expect(mockNode2).toBeH
       await expect(mockNode3).toBeHidden({ timeout: 5000 });
     });
   });
@@ -464,7 +464,7 @@ test.describe('DeleteNode', () => {
       await expect(confirmDialog).toBeVisible({ timeout: 5000 });
       const confirmMessage = confirmDialog.locator('.el-message-box__message');
       await expect(confirmMessage).toContainText('待删除WsMock节点');
-      const dialogConfirmBtn = conf/.*#\/workbench.*/--primary');
+      const dialogConfirmBtn = conf--primary');
       await dialogConfirmBtn.click();
       await contentPage.waitForTimeout(500);
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除WsMock节点' });
@@ -507,7 +507,7 @@ test.describe('DeleteNode', () => {
       await deleteItem.click();
       await contentPage.waitForTimeout(300);
       const confirmDialog = contentPage.locator('.el-message-box');
-      await expect(confirmDialog).t/.*#\/workbench.*/;
+      await expect(confirmDialog).t;
       const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
       await dialogConfirmBtn.click();
       await contentPage.waitForTimeout(500);
@@ -565,7 +565,7 @@ test.describe('DeleteNode', () => {
       const confirmDialog = contentPage.locator('.el-message-box');
       await expect(confirmDialog).toBeVisible({ timeout: 5000 });
       const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
-      await dialogConfirmBtn.click(/.*#\/workbench.*/
+      await dialogConfirmBtn.click(
       await contentPage.waitForTimeout(500);
       await expect(wsMockNode1).toBeHidden({ timeout: 5000 });
       await expect(wsMockNode2).toBeHidden({ timeout: 5000 });
@@ -603,7 +603,7 @@ test.describe('DeleteNode', () => {
       await deleteItem.click();
       await contentPage.waitForTimeout(300);
       const confirmDialog = contentPage.locator('.el-message-box');
-      await expect(confirmDialog).t/.*#\/workbench.*/;
+      await expect(confirmDialog).t;
       const confirmMessage = confirmDialog.locator('.el-message-box__message');
       await expect(confirmMessage).toContainText('待删除文件夹');
       const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
@@ -643,7 +643,7 @@ test.describe('DeleteNode', () => {
       await contentPage.waitForTimeout(300);
       const deleteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /删除/ });
       await expect(deleteItem).toBeVisible();
-      await deleteItem.click();/.*#\/workbench.*/
+      await deleteItem.click();
       await contentPage.waitForTimeout(300);
       const confirmDialog = contentPage.locator('.el-message-box');
       await expect(confirmDialog).toBeVisible({ timeout: 5000 });
@@ -698,7 +698,7 @@ test.describe('DeleteNode', () => {
       await expect(batchDeleteItem).toBeVisible();
       await batchDeleteItem.click();
       await contentPage.waitForTimeout(300);
-      const confirmDialog = content/.*#\/workbench.*/');
+      const confirmDialog = content');
       await expect(confirmDialog).toBeVisible({ timeout: 5000 });
       const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
       await dialogConfirmBtn.click();

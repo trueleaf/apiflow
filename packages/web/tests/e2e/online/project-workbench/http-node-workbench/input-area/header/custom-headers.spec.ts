@@ -8,7 +8,7 @@ test.describe('CustomHeaders', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
@@ -45,7 +45,7 @@ test.describe('CustomHeaders', () => {
   test('自定义请求头key忽略大小写覆盖默认请求头', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -91,7 +91,7 @@ test.describe('CustomHeaders', () => {
   // header参数key输入值以后,如果不存在next节点,则自动新增一行数据
   test('header参数key输入后自动新增一行', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -128,7 +128,7 @@ test.describe('CustomHeaders', () => {
   });
   // header参数key,value输入值以后,调用echo接口验证header参数正确发送
   test('自定义header参数正确发送到服务器', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();/.*#\/workbench.*/
+    await clearCache();
 
     await loginAccount();
     await createProject();
@@ -174,7 +174,7 @@ test.describe('CustomHeaders', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
   });
   // header参数key,value支持变量替换
-  test('header参数支持变量替换', async ({/.*#\/workbench.*/ateProject, loginAccount }) => {
+  test('header参数支持变量替换', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -220,7 +220,7 @@ test.describe('CustomHeaders', () => {
     const responseArea = contentPage.locator('[data-testid="response-tabs"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
   });
-  // header参数是否发送未勾选那么当前参数不会发送/.*#\/workbench.*/
+  // header参数是否发送未勾选那么当前参数不会发送
   test('未勾选的header参数不会发送', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 

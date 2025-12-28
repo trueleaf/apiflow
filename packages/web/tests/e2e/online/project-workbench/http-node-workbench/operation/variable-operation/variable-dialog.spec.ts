@@ -6,7 +6,7 @@ test.describe('VariableDialog', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -33,7 +33,7 @@ test.describe('VariableDialog', () => {
   test('变量管理页签可关闭并再次打开', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

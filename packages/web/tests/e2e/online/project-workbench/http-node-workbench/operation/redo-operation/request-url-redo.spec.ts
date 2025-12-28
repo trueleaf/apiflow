@@ -6,7 +6,7 @@ test.describe('RequestUrlRedo', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -44,7 +44,7 @@ test.describe('RequestUrlRedo', () => {
   test('请求url输入后点击撤销按钮再点击重做按钮,url值恢复', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点

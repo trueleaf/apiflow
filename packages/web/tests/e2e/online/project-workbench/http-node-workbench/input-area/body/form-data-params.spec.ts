@@ -13,7 +13,7 @@ test.describe('FormDataParams', () => {
       await clearCache();
 
       await loginAccount();
-      await createProject();/.*#\/workbench.*/
+      await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -52,7 +52,7 @@ test.describe('FormDataParams', () => {
     test('formdata参数key,value输入值以后调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
-      await loginAccount();/.*#\/workbench.*/
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       // 新增HTTP节点
@@ -111,7 +111,7 @@ test.describe('FormDataParams', () => {
     // 测试用例3: formdata参数key,value支持变量,调用echo接口返回结果正确
     test('formdata参数key,value支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
-/.*#\/workbench.*/
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -187,7 +187,7 @@ test.describe('FormDataParams', () => {
     });
     // 测试用例4: formdata参数key,value支持mock,调用echo接口返回结果正确
     test('formdata参数key,value支持mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();/.*#\/workbench.*/
+      await clearCache();
 
       await loginAccount();
       await createProject();
@@ -244,7 +244,7 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('user_id', { timeout: 10000 });
     });
     // 测试用例5: formdata参数key,value支持混合变量,调用echo接口返回结果正确
-    test('formdata参数key,value支持混合变量/.*#\/workbench.*/tentPage, clearCache, createProject, loginAccount }) => {
+    test('formdata参数key,value支持混合变量tentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -315,7 +315,7 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('user_query', { timeout: 10000 });
       await expect(responseBody).toContainText('REQ_', { timeout: 10000 });
     });
-    // 测试用例6: formdata参数是否发送未勾选那么当前/.*#\/workbench.*/
+    // 测试用例6: formdata参数是否发送未勾选那么当前
     test('formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
@@ -381,7 +381,7 @@ test.describe('FormDataParams', () => {
   });
 
   // ========== fileOnlyFormdata: 类型全为file的formdata参数 ==========
-  test.describe('FileOnlyFormdata',/.*#\/workbench.*/
+  test.describe('FileOnlyFormdata',
     // 测试用例1: value模式切换后要清空之前的数据
     test('value模式切换后要清空之前的数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
@@ -441,7 +441,7 @@ test.describe('FormDataParams', () => {
       await toggleBtn.dispatchEvent('click');
       await contentPage.waitForTimeout(300);
       await expect(selectLabel).toBeVisible({ timeout: 5000 });
-      await expect(fileText).not.to/.*#\/workbench.*/eout: 5000 });
+      await expect(fileText).not.toeout: 5000 });
     });
     // 测试用例2: value如果为文件模式,选择文件,调用echo接口返回结果正确
     test('value如果为文件模式选择文件调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
@@ -507,7 +507,7 @@ test.describe('FormDataParams', () => {
       const responseBody = responseArea.locator('.s-json-editor').first();
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
       await expect(responseBody).toContainText('avatar', { timeout: 10000 });
-      await expect(responseBody).to/.*#\/workbench.*/t: 10000 });
+      await expect(responseBody).tot: 10000 });
       await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
     });
     // 测试用例3: value如果为文件模式,未选择文件,value输入框下方提示文件不存在
@@ -568,7 +568,7 @@ test.describe('FormDataParams', () => {
       await expect(fileError).toBeVisible({ timeout: 10000 });
       await expect(fileError).toContainText(/不存在/, { timeout: 10000 });
       const responseArea = contentPage.getByTestId('response-area');
-      await expect(responseArea).to/.*#\/workbench.*/;
+      await expect(responseArea).to;
       const responseError = responseArea.getByTestId('response-error');
       await expect(responseError).toBeVisible({ timeout: 10000 });
     });
@@ -647,7 +647,7 @@ test.describe('FormDataParams', () => {
       await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
       const responseBody = responseArea.locator('.s-json-editor').first();
-      await expect(responseBody).to/.*#\/workbench.*/ata', { timeout: 10000 });
+      await expect(responseBody).toata', { timeout: 10000 });
       await expect(responseBody).toContainText('avatar', { timeout: 10000 });
       await expect(responseBody).toContainText('File:', { timeout: 10000 });
       await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
@@ -723,7 +723,7 @@ test.describe('FormDataParams', () => {
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
       const fileError = fileValueWrapper.locator('.file-error');
-      await expect(fileError).toBeV/.*#\/workbench.*/
+      await expect(fileError).toBeV
       await expect(fileError).toContainText(/不存在/, { timeout: 10000 });
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
@@ -783,7 +783,7 @@ test.describe('FormDataParams', () => {
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
-      const fileError = fileValueWr/.*#\/workbench.*/
+      const fileError = fileValueWr
       await expect(fileError).toBeVisible({ timeout: 10000 });
       await expect(fileError).toContainText(/不存在|无效/, { timeout: 10000 });
       const responseArea = contentPage.getByTestId('response-area');
@@ -865,7 +865,7 @@ test.describe('FormDataParams', () => {
       // 验证响应
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
-      await expect(responseArea.get/.*#\/workbench.*/ntainText('200', { timeout: 10000 });
+      await expect(responseArea.getntainText('200', { timeout: 10000 });
       const responseBody = responseArea.locator('.s-json-editor').first();
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
       await expect(responseBody).toContainText('avatar', { timeout: 10000 });
@@ -932,7 +932,7 @@ test.describe('FormDataParams', () => {
       await sendBtn.click();
       // 验证响应
       const responseArea = contentPage.getByTestId('response-area');
-      await expect(responseArea).to/.*#\/workbench.*/;
+      await expect(responseArea).to;
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
       const responseBody = responseArea.locator('.s-json-editor').first();
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
@@ -1014,7 +1014,7 @@ test.describe('FormDataParams', () => {
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
       // 验证响应
-      const responseArea = contentP/.*#\/workbench.*/a');
+      const responseArea = contentPa');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
       const responseBody = responseArea.locator('.s-json-editor').first();
@@ -1095,7 +1095,7 @@ test.describe('FormDataParams', () => {
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
-      const responseBody = response/.*#\/workbench.*/).first();
+      const responseBody = response).first();
       await expect(responseBody).toContainText('username', { timeout: 10000 });
       await expect(responseBody).toContainText('admin', { timeout: 10000 });
       const responseText = await responseBody.textContent();

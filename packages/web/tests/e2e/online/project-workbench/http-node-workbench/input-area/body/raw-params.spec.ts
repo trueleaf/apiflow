@@ -8,7 +8,7 @@ test.describe('RawParams', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -66,7 +66,7 @@ test.describe('RawParams', () => {
   test('raw html参数输入值以后,请求头自动添加contentType:text/html,调用echo接口返回结果参数和请求头正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -126,7 +126,7 @@ test.describe('RawParams', () => {
   // 测试用例3: raw xml参数输入值以后,请求头自动添加contentType:application/xml,调用127.0.0.1:{环境变量中的端口}/echo,返回结果参数和请求头正确
   test('raw xml参数输入值以后,请求头自动添加contentType:application/xml,调用echo接口返回结果参数和请求头正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -187,7 +187,7 @@ test.describe('RawParams', () => {
   });
   // 测试用例4: raw javascript参数输入值以后,请求头自动添加contentType:text/javascript,调用127.0.0.1:{环境变量中的端口}/echo,返回结果参数和请求头正确
   test('raw javascript参数输入值以后,请求头自动添加contentType:text/javascript,调用echo接口返回结果参数和请求头正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();/.*#\/workbench.*/
+    await clearCache();
 
     await loginAccount();
     await createProject();
@@ -245,7 +245,7 @@ test.describe('RawParams', () => {
     await expect(responseBody).toContainText('var x = 123', { timeout: 10000 });
   });
   // 测试用例5: raw 参数(text,html,xml,json格式)无任何值,请求头不自动添加,调用127.0.0.1:{环境变量中的端口}/echo,返回结果参数和请求头正确
-  test('raw参数无任何值时,请求头不自动添加Conten/.*#\/workbench.*/{ contentPage, clearCache, createProject, loginAccount }) => {
+  test('raw参数无任何值时,请求头不自动添加Conten{ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();

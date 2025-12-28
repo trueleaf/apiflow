@@ -8,7 +8,7 @@ test.describe('PreScriptExecution', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -49,7 +49,7 @@ test.describe('PreScriptExecution', () => {
   test('前置脚本运行时错误时展示运行时错误信息', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -90,7 +90,7 @@ test.describe('PreScriptExecution', () => {
   // 测试用例3: 前置脚本正常执行后,主请求继续发送
   test('前置脚本正常执行后主请求继续发送', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

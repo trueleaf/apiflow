@@ -8,7 +8,7 @@ test.describe('ResponseBasicInfo', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -39,7 +39,7 @@ test.describe('ResponseBasicInfo', () => {
   test('发送请求成功展示正确的状态码和颜色', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -78,7 +78,7 @@ test.describe('ResponseBasicInfo', () => {
   // 测试用例3: 发送请求成功,展示正确的时长
   test('发送请求成功展示正确的响应时长', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -107,7 +107,7 @@ test.describe('ResponseBasicInfo', () => {
   });
   // 测试用例4: 发送请求成功,展示正确的返回大小
   test('发送请求成功展示正确的返回大小', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();/.*#\/workbench.*/
+    await clearCache();
 
     await loginAccount();
     await createProject();
@@ -136,7 +136,7 @@ test.describe('ResponseBasicInfo', () => {
     await expect(responseSummary).toContainText(/\d+(\.\d+)?\s*(B|KB|MB|bytes|字节)/);
   });
   // 测试用例5: 发送请求成功,展示正确的返回格式
-  test('发送请求成功展示正确的返回格式', async (/.*#\/workbench.*/eateProject, loginAccount }) => {
+  test('发送请求成功展示正确的返回格式', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();

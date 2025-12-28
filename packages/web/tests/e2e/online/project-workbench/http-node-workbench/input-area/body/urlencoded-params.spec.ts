@@ -8,7 +8,7 @@ test.describe('UrlencodedParams', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -47,7 +47,7 @@ test.describe('UrlencodedParams', () => {
   test('urlencoded参数key,value输入值以后调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -105,7 +105,7 @@ test.describe('UrlencodedParams', () => {
   // 测试用例3: urlencoded参数key,value支持变量,调用echo接口返回结果正确
   test('urlencoded参数key,value支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -169,7 +169,7 @@ test.describe('UrlencodedParams', () => {
   });
   // 测试用例4: urlencoded参数key,value支持mock,调用echo接口返回结果正确
   test('urlencoded参数key,value支持mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();/.*#\/workbench.*/
+    await clearCache();
 
     await loginAccount();
     await createProject();
@@ -225,7 +225,7 @@ test.describe('UrlencodedParams', () => {
     await expect(responseBody).toContainText('email', { timeout: 10000 });
   });
   // 测试用例5: urlencoded参数key,value支持混合变量,调用echo接口返回结果正确
-  test('urlencoded参数key,value支持混合/.*#\/workbench.*/ontentPage, clearCache, createProject, loginAccount }) => {
+  test('urlencoded参数key,value支持混合ontentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -295,7 +295,7 @@ test.describe('UrlencodedParams', () => {
     await expect(responseBody).toContainText('api_v1', { timeout: 10000 });
     await expect(responseBody).toContainText('REQ_', { timeout: 10000 });
   });
-  // 测试用例6: urlencoded参数是否发送未勾选那么/.*#\/workbench.*/
+  // 测试用例6: urlencoded参数是否发送未勾选那么
   test('urlencoded参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 

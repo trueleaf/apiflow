@@ -8,7 +8,7 @@ test.describe('HeaderPriority', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 打开公共请求头设置
@@ -73,7 +73,7 @@ test.describe('HeaderPriority', () => {
   test('公共请求头优先级大于可更改的默认请求头', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -127,7 +127,7 @@ test.describe('HeaderPriority', () => {
   // 测试用例3: 自定义请求头优先级大于默认请求头(User-Agent)
   test('自定义请求头优先级大于默认请求头', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -171,7 +171,7 @@ test.describe('HeaderPriority', () => {
   });
   // 测试用例4: 完整优先级链验证 - 自定义header > 公共header > 默认header
   test('完整优先级链验证 - 自定义header优先级高于公共header优先级高于默认header', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();/.*#\/workbench.*/
+    await clearCache();
 
     await loginAccount();
     await createProject();

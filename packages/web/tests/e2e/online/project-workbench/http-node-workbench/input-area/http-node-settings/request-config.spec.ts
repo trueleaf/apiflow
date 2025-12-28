@@ -8,7 +8,7 @@ test.describe('RequestConfig', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
 
     // 创建HTTP节点
@@ -40,7 +40,7 @@ test.describe('RequestConfig', () => {
   test('修改最大原始Body大小配置', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
 
@@ -71,7 +71,7 @@ test.describe('RequestConfig', () => {
   // 修改自定义User-Agent配置,发送请求后验证User-Agent已更改
   test('修改自定义User-Agent配置', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -117,7 +117,7 @@ test.describe('RequestConfig', () => {
   });
   // 修改请求头值最大展示长度配置,验证请求头展示截断正确
   test('修改请求头值最大展示长度配置', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();/.*#\/workbench.*/
+    await clearCache();
 
     await loginAccount();
     await createProject();

@@ -6,7 +6,7 @@ test.describe('CallHistory', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 验证Banner区域的Tab切换器存在
@@ -35,7 +35,7 @@ test.describe('CallHistory', () => {
   test('调用历史搜索框功能验证,包括placeholder和清空按钮', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -80,7 +80,7 @@ test.describe('CallHistory', () => {
   // 测试用例3: 清空所有历史记录功能验证
   test('清空所有历史记录功能验证,包括确认弹窗', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -114,7 +114,7 @@ test.describe('CallHistory', () => {
 
   // 测试用例4: 历史记录列表展示验证
   test('历史记录列表展示验证,包括空状态', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();/.*#\/workbench.*/
+    await clearCache();
 
     await loginAccount();
     await createProject();
@@ -135,7 +135,7 @@ test.describe('CallHistory', () => {
   });
 
   // 测试用例5: 点击历史记录项打开对应接口Tab页
-  test('点击历史记录项打开对应接口Tab页', async/.*#\/workbench.*/createProject, loginAccount }) => {
+  test('点击历史记录项打开对应接口Tab页', asynccreateProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -191,7 +191,7 @@ test.describe('CallHistory', () => {
     await expect(apiTab).toHaveClass(/active/, { timeout: 5000 });
   });
 
-  // 测试用例6: 已删除接口的历史记录标记验证/.*#\/workbench.*/
+  // 测试用例6: 已删除接口的历史记录标记验证
   test('已删除接口的历史记录标记验证', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
@@ -248,7 +248,7 @@ test.describe('CallHistory', () => {
     const cleanDeletedBtn = contentPage.locator('.clean-deleted-btn');
     await expect(cleanDeletedBtn).toBeVisible({ timeout: 5000 });
   });
-/.*#\/workbench.*/
+
   // 测试用例7: 历史记录滚动加载更多功能验证
   test('历史记录滚动加载验证', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
@@ -315,7 +315,7 @@ test.describe('CallHistory', () => {
       el.scrollTop = el.scrollHeight;
     });
     await expect(contentPage.locator('.send-history-list .no-more')).toBeVisible({ timeout: 15000 });
-  });/.*#\/workbench.*/
+  });
 
   // 测试用例8: 清理已删除接口历史功能验证
   test('清理已删除接口历史功能验证', async ({ contentPage, clearCache, createProject, loginAccount }) => {

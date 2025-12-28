@@ -7,7 +7,7 @@ test.describe('MoveNode', () => {
       await clearCache();
 
       await loginAccount();
-      await createProject();/.*#\/workbench.*/
+      await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -67,7 +67,7 @@ test.describe('MoveNode', () => {
     test('拖拽单个httpNode节点到folder节点上,移动到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
-      await loginAccount();/.*#\/workbench.*/
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -145,7 +145,7 @@ test.describe('MoveNode', () => {
     // 拖拽单个httpNode节点调整在同一层级的顺序
     test('拖拽单个httpNode节点调整在同一层级的顺序', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
-/.*#\/workbench.*/
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -195,7 +195,7 @@ test.describe('MoveNode', () => {
     });
     // 拖拽httpNode节点到非folder节点(如httpNode)中,操作被阻止
     test('拖拽httpNode节点到非folder节点中,操作被阻止', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();/.*#\/workbench.*/
+      await clearCache();
 
       await loginAccount();
       await createProject();
@@ -245,7 +245,7 @@ test.describe('MoveNode', () => {
 
   test.describe('移动单个websocketNode节点', () => {
     // 拖拽单个websocketNode节点到banner空白区域,移动到根节点下
-    test('拖拽单个websocketNode节点到banne/.*#\/workbench.*/entPage, clearCache, createProject, loginAccount }) => {
+    test('拖拽单个websocketNode节点到banneentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -306,7 +306,7 @@ test.describe('MoveNode', () => {
       const rootWsNode = treeWrap.locator('> .el-tree > .el-tree-node').filter({ hasText: '测试WS节点' });
       await expect(rootWsNode).toBeVisible({ timeout: 5000 });
     });
-    // 拖拽单个websocketNode节点到folder节点/.*#\/workbench.*/
+    // 拖拽单个websocketNode节点到folder节点
     test('拖拽单个websocketNode节点到folder节点上,移动到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
@@ -391,7 +391,7 @@ test.describe('MoveNode', () => {
     });
   });
 
-  test.describe('移动单个httpMockNode节点/.*#\/workbench.*/
+  test.describe('移动单个httpMockNode节点
     // 拖拽单个httpMockNode节点到banner空白区域,移动到根节点下
     test('拖拽单个httpMockNode节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
@@ -452,7 +452,7 @@ test.describe('MoveNode', () => {
       await contentPage.waitForTimeout(500);
       // 验证节点移动到根节点下
       const rootMockNode = treeWrap.locator('> .el-tree > .el-tree-node').filter({ hasText: '测试Mock节点' });
-      await expect(rootMockNode).to/.*#\/workbench.*/
+      await expect(rootMockNode).to
     });
     // 拖拽单个httpMockNode节点到folder节点上,移动到folder节点下
     test('拖拽单个httpMockNode节点到folder节点上,移动到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
@@ -537,7 +537,7 @@ test.describe('MoveNode', () => {
       const movedNode = targetFolderTreeNode.locator('.el-tree-node__content').filter({ hasText: '测试Mock节点' });
       await expect(movedNode).toBeVisible({ timeout: 5000 });
     });
-  });/.*#\/workbench.*/
+  });
 
   test.describe('移动单个websocketMockNode节点', () => {
     // 拖拽单个websocketMockNode节点到banner空白区域,移动到根节点下
@@ -598,7 +598,7 @@ test.describe('MoveNode', () => {
         await contentPage.mouse.up();
       }
       await contentPage.waitForTimeout(500);
-      // 验证节点移动到根节点下/.*#\/workbench.*/
+      // 验证节点移动到根节点下
       const rootWsMockNode = treeWrap.locator('> .el-tree > .el-tree-node').filter({ hasText: '测试WsMock节点' });
       await expect(rootWsMockNode).toBeVisible({ timeout: 5000 });
     });
@@ -683,7 +683,7 @@ test.describe('MoveNode', () => {
         await contentPage.waitForTimeout(300);
       }
       const movedNode = targetFolderTreeNode.locator('.el-tree-node__content').filter({ hasText: '测试WsMock节点' });
-      await expect(movedNode).toBeV/.*#\/workbench.*/
+      await expect(movedNode).toBeV
     });
   });
 
@@ -740,7 +740,7 @@ test.describe('MoveNode', () => {
         await contentPage.mouse.down();
         await contentPage.mouse.move(treeBox.x + 100, treeBox.y + treeBox.height - 50);
         await contentPage.mouse.up();
-      }/.*#\/workbench.*/
+      }
       await contentPage.waitForTimeout(500);
       // 验证子文件夹移动到根节点下
       const rootChildFolder = treeWrap.locator('> .el-tree > .el-tree-node').filter({ hasText: '子文件夹' });
@@ -790,7 +790,7 @@ test.describe('MoveNode', () => {
         await contentPage.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2);
         await contentPage.mouse.up();
       }
-      await contentPage.waitForTime/.*#\/workbench.*/
+      await contentPage.waitForTime
       // 验证目标文件夹展开并包含源文件夹
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '目标文件夹' });
       await expect(expandedFolder).toBeVisible({ timeout: 5000 });
@@ -839,7 +839,7 @@ test.describe('MoveNode', () => {
         await contentPage.mouse.move(folderBBox.x + folderBBox.width / 2, folderBBox.y + folderBBox.height / 2);
         await contentPage.mouse.down();
         await contentPage.mouse.move(folderABox.x + folderABox.width / 2, folderABox.y + 5);
-        await contentPage.mouse.up(/.*#\/workbench.*/
+        await contentPage.mouse.up(
       }
       await contentPage.waitForTimeout(500);
       // 验证文件夹顺序调整
@@ -896,7 +896,7 @@ test.describe('MoveNode', () => {
       const childBox = await childFolderNode.boundingBox();
       if (parentBox && childBox) {
         await contentPage.mouse.move(parentBox.x + parentBox.width / 2, parentBox.y + parentBox.height / 2);
-        await contentPage.mouse.dow/.*#\/workbench.*/
+        await contentPage.mouse.dow
         await contentPage.mouse.move(childBox.x + childBox.width / 2, childBox.y + childBox.height / 2);
         await contentPage.mouse.up();
       }

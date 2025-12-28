@@ -6,7 +6,7 @@ test.describe('RequestUrlUndo', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -43,7 +43,7 @@ test.describe('RequestUrlUndo', () => {
   test('输入字符串后按ctrl+z快捷键逐步撤销', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -79,7 +79,7 @@ test.describe('RequestUrlUndo', () => {
   // 测试用例3: 请求url中输入中文字符串,点击撤销按钮,url值为空
   test('输入中文字符串后撤销', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -108,7 +108,7 @@ test.describe('RequestUrlUndo', () => {
   });
   // 测试用例4: 请求url中输入字符a,粘贴test.demo.com,撤销后url值为a
   test('输入字符后粘贴内容再撤销', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();/.*#\/workbench.*/
+    await clearCache();
 
     await loginAccount();
     await createProject();

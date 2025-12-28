@@ -8,7 +8,7 @@ test.describe('SaveButton', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -33,7 +33,7 @@ test.describe('SaveButton', () => {
   test('存在数据变更点击保存按钮后小圆点消失且刷新后数据保持', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -55,7 +55,7 @@ test.describe('SaveButton', () => {
     const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
-    // 刷新页面/.*#\/workbench.*/
+    // 刷新页面
     await contentPage.reload();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 10000 });
     await contentPage.waitForTimeout(1000);
@@ -67,7 +67,7 @@ test.describe('SaveButton', () => {
   // 测试用例3: 验证录入项变更后保存成功且刷新后数据不丢失
   test('验证录入项变更后保存成功且刷新后数据不丢失', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -94,7 +94,7 @@ test.describe('SaveButton', () => {
     // 点击保存按钮
     const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
-    await contentPage.waitForTime/.*#\/workbench.*/
+    await contentPage.waitForTime
     // 刷新页面
     await contentPage.reload();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 10000 });

@@ -6,7 +6,7 @@ test.describe('Tools', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 验证工具栏区域存在
@@ -24,7 +24,7 @@ test.describe('Tools', () => {
   test('点击更多操作按钮展开工具面板', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -45,7 +45,7 @@ test.describe('Tools', () => {
   // 测试用例3: 更多操作面板显示完整工具列表
   test('更多操作面板显示完整工具列表', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -69,7 +69,7 @@ test.describe('Tools', () => {
 
   // 测试用例4: 点击关闭按钮关闭更多操作面板
   test('点击关闭按钮关闭更多操作面板', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();/.*#\/workbench.*/
+    await clearCache();
 
     await loginAccount();
     await createProject();
@@ -90,7 +90,7 @@ test.describe('Tools', () => {
   });
 
   // 测试用例5: 点击外部区域关闭更多操作面板
-  test('点击外部区域关闭更多操作面板', async ({/.*#\/workbench.*/ateProject, loginAccount }) => {
+  test('点击外部区域关闭更多操作面板', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -110,7 +110,7 @@ test.describe('Tools', () => {
     await expect(toolPanel).toBeHidden({ timeout: 5000 });
   });
 
-  // 测试用例6: 点击固定按钮将工具固定到工具栏/.*#\/workbench.*/
+  // 测试用例6: 点击固定按钮将工具固定到工具栏
   test('点击固定按钮将工具固定到工具栏', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
@@ -132,7 +132,7 @@ test.describe('Tools', () => {
     await unpinnedRows.first().locator('.pin').click();
     await expect(activePins).toHaveCount(activePinsBefore + 1, { timeout: 5000 });
   });
-/.*#\/workbench.*/
+
   // 测试用例7: 点击取消固定将工具从工具栏移除
   test('点击取消固定将工具从工具栏移除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
@@ -154,7 +154,7 @@ test.describe('Tools', () => {
     const activePinsBefore = await activePins.count();
     await pinnedRows.first().locator('.pin').click();
     await expect(activePins).toHaveCount(activePinsBefore - 1, { timeout: 5000 });
-  });/.*#\/workbench.*/
+  });
 
   // 测试用例8: 点击新增目录按钮弹出目录创建对话框
   test('点击新增目录按钮弹出目录创建对话框', async ({ contentPage, clearCache, createProject, loginAccount }) => {
@@ -176,7 +176,7 @@ test.describe('Tools', () => {
       // 验证对话框弹出
       const dialog = contentPage.locator('.el-dialog').filter({ hasText: /新增|新建|目录|文件夹/ });
       await expect(dialog).toBeVisible({ timeout: 5000 });
-    }/.*#\/workbench.*/
+    }
   });
 
   // 测试用例9: 点击新增接口按钮弹出接口创建对话框
@@ -198,7 +198,7 @@ test.describe('Tools', () => {
       await contentPage.waitForTimeout(300);
       // 验证对话框弹出
       const dialog = contentPage.locator('.el-dialog').filter({ hasText: /新增|新建|文件|接口/ });
-      await expect(dialog).toBeVi/.*#\/workbench.*/
+      await expect(dialog).toBeVi
     }
   });
 
@@ -218,7 +218,7 @@ test.describe('Tools', () => {
     const recyclerItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /回收站/ });
     await expect(recyclerItem).toBeVisible({ timeout: 5000 });
     await recyclerItem.click();
-    await contentPage.waitForTime/.*#\/workbench.*/
+    await contentPage.waitForTime
     // 验证回收站内容区显示
     await expect(contentPage.locator('.recycler')).toBeVisible({ timeout: 5000 });
   });
@@ -238,7 +238,7 @@ test.describe('Tools', () => {
     // 点击Cookie管理工具
     const cookiesItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie/ });
     await expect(cookiesItem).toBeVisible({ timeout: 5000 });
-    await cookiesItem.click();/.*#\/workbench.*/
+    await cookiesItem.click();
     await contentPage.waitForTimeout(500);
     // 验证Cookies内容区显示
     await expect(contentPage.locator('.cookies-page')).toBeVisible({ timeout: 5000 });
@@ -258,7 +258,7 @@ test.describe('Tools', () => {
     await contentPage.waitForTimeout(300);
     // 点击全局变量工具
     const variableItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /全局变量|变量/ });
-    await expect(variableItem).to/.*#\/workbench.*/
+    await expect(variableItem).to
     await variableItem.click();
     await contentPage.waitForTimeout(500);
     // 验证变量内容区显示
@@ -278,7 +278,7 @@ test.describe('Tools', () => {
     await moreBtn.click();
     await contentPage.waitForTimeout(300);
     // 点击导入文档工具
-    const importItem = contentPag/.*#\/workbench.*/own-item').filter({ hasText: /导入文档/ });
+    const importItem = contentPagown-item').filter({ hasText: /导入文档/ });
     await expect(importItem).toBeVisible({ timeout: 5000 });
     await importItem.click();
     await contentPage.waitForTimeout(500);

@@ -8,7 +8,7 @@ test.describe('NoneParams', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点

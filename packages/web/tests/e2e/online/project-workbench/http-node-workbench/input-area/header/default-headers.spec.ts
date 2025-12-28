@@ -8,7 +8,7 @@ test.describe('DefaultHeaders', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -46,7 +46,7 @@ test.describe('DefaultHeaders', () => {
   test('隐藏请求头user-agent和accept值可以更改', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -98,7 +98,7 @@ test.describe('DefaultHeaders', () => {
   // 测试用例3: 点击隐藏请求头图标展示隐藏请求头,再次点击收起隐藏请求头
   test('隐藏请求头展开和收起功能正常', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -136,7 +136,7 @@ test.describe('DefaultHeaders', () => {
   });
   // 测试用例4: body中不同mode会自动添加content-type,调用echo接口返回请求头参数正确
   test('body中json类型自动添加content-type请求头', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();/.*#\/workbench.*/
+    await clearCache();
 
     await loginAccount();
     await createProject();
@@ -184,7 +184,7 @@ test.describe('DefaultHeaders', () => {
     await expect(responseBody).toContainText('application/json', { timeout: 10000 });
   });
   // 测试用例5: 自动添加的content-type值允许修改,调用echo接口返回请求头参数正确
-  test('自动添加的content-type值允许修改', /.*#\/workbench.*/che, createProject, loginAccount }) => {
+  test('自动添加的content-type值允许修改', che, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();

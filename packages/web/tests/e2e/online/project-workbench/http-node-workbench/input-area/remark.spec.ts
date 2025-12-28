@@ -6,7 +6,7 @@ test.describe('Remark', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -38,7 +38,7 @@ test.describe('Remark', () => {
   test('输入普通文本后保存,刷新页面内容保持不变', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -65,7 +65,7 @@ test.describe('Remark', () => {
     const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
     await contentPage.waitForTimeout(1000);
-    // 刷新页面/.*#\/workbench.*/
+    // 刷新页面
     await contentPage.reload();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 10000 });
     await contentPage.waitForTimeout(1000);
@@ -83,7 +83,7 @@ test.describe('Remark', () => {
   // 测试用例3: 输入Markdown标题(# 标题)正确渲染为标题样式
   test('输入Markdown标题正确渲染为标题样式', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -116,7 +116,7 @@ test.describe('Remark', () => {
   });
   // 测试用例4: 输入Markdown粗体(**粗体**)正确渲染为粗体样式
   test('输入Markdown粗体正确渲染为粗体样式', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();/.*#\/workbench.*/
+    await clearCache();
 
     await loginAccount();
     await createProject();
@@ -150,7 +150,7 @@ test.describe('Remark', () => {
     await expect(strongElement).toContainText('粗体文本', { timeout: 5000 });
   });
   // 测试用例5: 输入Markdown链接([文字](url))正确渲染为可点击链接
-  test('输入Markdown链接正确渲染为可点击链接', /.*#\/workbench.*/che, createProject, loginAccount }) => {
+  test('输入Markdown链接正确渲染为可点击链接', che, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -188,7 +188,7 @@ test.describe('Remark', () => {
     await expect(linkElement).toBeVisible({ timeout: 5000 });
     await expect(linkElement).toHaveAttribute('href', 'https://example.com');
   });
-  // 测试用例6: 输入Markdown代码块正确渲染并支持语/.*#\/workbench.*/
+  // 测试用例6: 输入Markdown代码块正确渲染并支持语
   test('输入Markdown代码块正确渲染', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
@@ -220,7 +220,7 @@ test.describe('Remark', () => {
     // 验证代码块正确渲染（pre 或 code 标签）
     const codeElement = editorContent.locator('pre, code');
     await expect(codeElement.first()).toBeVisible({ timeout: 5000 });
-  });/.*#\/workbench.*/
+  });
   // 测试用例7: 备注内容变更后出现未保存小圆点,保存后小圆点消失
   test('备注内容变更后出现未保存小圆点,保存后小圆点消失', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
@@ -258,7 +258,7 @@ test.describe('Remark', () => {
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
     // 验证未保存标记消失
-    await expect(unsavedIndicator/.*#\/workbench.*/});
+    await expect(unsavedIndicator});
   });
   // 测试用例8: 备注支持撤销操作,ctrl+z可以撤销输入
   test('备注支持撤销操作,ctrl+z可以撤销输入', async ({ contentPage, clearCache, createProject, loginAccount }) => {
@@ -295,7 +295,7 @@ test.describe('Remark', () => {
     await contentPage.keyboard.press('ControlOrMeta+z');
     await contentPage.waitForTimeout(300);
     // 验证最后的输入被撤销
-    await expect(editorContent).t/.*#\/workbench.*/ut: 5000 });
+    await expect(editorContent).tut: 5000 });
     await expect(editorContent).not.toContainText('第二段内容', { timeout: 5000 });
   });
   // 测试用例9: 备注支持重做操作,ctrl+shift+z可以重做撤销的操作

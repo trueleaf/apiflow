@@ -8,7 +8,7 @@ test.describe('BinaryBodyValidation', () => {
 
     await loginAccount();
     // clearCache() 已经导航到首页并刷新，无需再等待
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
@@ -50,7 +50,7 @@ test.describe('BinaryBodyValidation', () => {
     await clearCache();
 
     await loginAccount();
-    // clearCache() 已经导航到首页并刷新，无需/.*#\/workbench.*/
+    // clearCache() 已经导航到首页并刷新，无需
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -92,7 +92,7 @@ test.describe('BinaryBodyValidation', () => {
   test('Binary变量模式可以输入变量', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -136,7 +136,7 @@ test.describe('BinaryBodyValidation', () => {
   // 测试用例4: Binary文件模式选择文件按钮可见
   test('Binary文件模式选择文件按钮可见', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
@@ -179,7 +179,7 @@ test.describe('BinaryBodyValidation', () => {
 
   // 测试用例5: Binary模式切换在变量和文件之间
   test('Binary模式切换在变量和文件之间', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();/.*#\/workbench.*/
+    await clearCache();
 
     await loginAccount();
     // clearCache() 已经导航到首页并刷新，无需再等待
@@ -228,7 +228,7 @@ test.describe('BinaryBodyValidation', () => {
 
   // ========================= Binary POST请求方法测试 =========================
   // 测试用例6: POST方法下可以选择Binary类型
-  test('POST方法下可以选择Binary类型', asy/.*#\/workbench.*/, createProject, loginAccount }) => {
+  test('POST方法下可以选择Binary类型', asy, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -273,7 +273,7 @@ test.describe('BinaryBodyValidation', () => {
   });
 
   // ========================= PUT方法下Binary测试 =========================
-  // 测试用例7: PUT方法下可以选择Binary类型/.*#\/workbench.*/
+  // 测试用例7: PUT方法下可以选择Binary类型
   test('PUT方法下可以选择Binary类型', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
@@ -318,7 +318,7 @@ test.describe('BinaryBodyValidation', () => {
     await expect(binaryWrap).toBeVisible({ timeout: 5000 });
   });
 
-  // ========================= PA/.*#\/workbench.*/===========
+  // ========================= PA===========
   // 测试用例8: PATCH方法下可以选择Binary类型
   test('PATCH方法下可以选择Binary类型', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
@@ -363,7 +363,7 @@ test.describe('BinaryBodyValidation', () => {
     const binaryWrap = contentPage.locator('.binary-wrap');
     await expect(binaryWrap).toBeVisible({ timeout: 5000 });
   });
-/.*#\/workbench.*/
+
   // ========================= Binary变量值保持测试 =========================
   // 测试用例9: Binary变量模式输入值在切换tab后保持
   test('Binary变量模式输入值在切换tab后保持', async ({ contentPage, clearCache, createProject, loginAccount }) => {
@@ -414,7 +414,7 @@ test.describe('BinaryBodyValidation', () => {
     // 验证变量值保持
     const varInputAfter = contentPage.locator('.var-mode .el-input input');
     await expect(varInputAfter).toHaveValue('{{testBinaryVar}}');
-  });/.*#\/workbench.*/
+  });
 
   // ========================= Binary模式状态保持测试 =========================
   // 测试用例10: Binary模式选择在切换tab后保持
@@ -464,7 +464,7 @@ test.describe('BinaryBodyValidation', () => {
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 验证文件模式仍然可见
-    await expect(fileModeDiv).toB/.*#\/workbench.*/
+    await expect(fileModeDiv).toB
   });
 
   // ========================= Binary与其他Body类型切换测试 =========================
@@ -516,7 +516,7 @@ test.describe('BinaryBodyValidation', () => {
     // 验证binary-wrap重新显示
     await expect(binaryWrap).toBeVisible({ timeout: 5000 });
     // 验证之前输入的变量值仍然保持
-    const varInputAfter = content/.*#\/workbench.*/nput input');
+    const varInputAfter = contentnput input');
     await expect(varInputAfter).toHaveValue('{{myBinaryData}}');
   });
 

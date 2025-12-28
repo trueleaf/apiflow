@@ -8,7 +8,7 @@ test.describe('RedirectConfig', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -51,7 +51,7 @@ test.describe('RedirectConfig', () => {
   test('关闭自动跟随重定向时,请求返回重定向响应不继续跟随', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -91,7 +91,7 @@ test.describe('RedirectConfig', () => {
   // 测试用例3: 修改最大重定向次数配置,超过次数后停止重定向并提示
   test('修改最大重定向次数配置,超过次数后停止重定向并提示', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

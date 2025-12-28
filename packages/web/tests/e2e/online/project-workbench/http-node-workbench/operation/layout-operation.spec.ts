@@ -8,7 +8,7 @@ test.describe('LayoutOperation', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -47,7 +47,7 @@ test.describe('LayoutOperation', () => {
   test('点击垂直布局按钮,请求区域和响应区域上下排列', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -79,7 +79,7 @@ test.describe('LayoutOperation', () => {
   // 测试用例3: 切换布局后刷新页面,布局保持不变
   test('切换布局后刷新页面,布局保持不变', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -102,7 +102,7 @@ test.describe('LayoutOperation', () => {
     await contentPage.waitForTimeout(500);
     // 验证布局已切换为垂直布局
     const apidocContainer = contentPage.locator('.apidoc');
-    await expect(apidocContainer)/.*#\/workbench.*/meout: 5000 });
+    await expect(apidocContainer)meout: 5000 });
     // 刷新页面
     await contentPage.reload();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 10000 });

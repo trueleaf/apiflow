@@ -74,7 +74,7 @@ test.describe('CreateProject', () => {
     await projectNameInput.fill(projectName);
     const confirmBtn = projectDialog.locator('.el-button--primary').last();
     await confirmBtn.click();
-    await expect(projectDialog).t/.*#\/workbench.*/
+    await expect(projectDialog).t
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const url = contentPage.url();
     expect(url).toContain('mode=edit');
@@ -97,7 +97,7 @@ test.describe('CreateProject', () => {
     const projectNameInput = projectDialog.locator('input').first();
     await projectNameInput.fill(projectName);
     const confirmBtn = projectDialog.locator('.el-button--primary').last();
-    await confirmBtn.click();/.*#\/workbench.*/
+    await confirmBtn.click();
     await expect(projectDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
@@ -234,7 +234,7 @@ test.describe('CreateProject', () => {
     expect(requestBody.projectName).toBe(projectName);
     expect(requestBody.users.some((u) => u.userName === loginName2 && u.permission === 'readOnly')).toBeTruthy();
     expect(requestBody.groups.some((g) => g.groupName === groupName)).toBeTruthy();
-/.*#\/workbench.*/
+
     await expect(projectDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 10000 });
 

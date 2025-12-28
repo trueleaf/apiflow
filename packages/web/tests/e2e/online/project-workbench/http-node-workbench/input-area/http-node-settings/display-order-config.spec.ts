@@ -6,7 +6,7 @@ test.describe('DisplayOrderConfig', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -60,7 +60,7 @@ test.describe('DisplayOrderConfig', () => {
   test('拖拽调整标签页显示顺序后标签按新顺序展示', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -112,7 +112,7 @@ test.describe('DisplayOrderConfig', () => {
   // 测试用例3: 显示顺序修改后刷新页面,顺序保持不变
   test('显示顺序修改后刷新页面顺序保持不变', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -152,7 +152,7 @@ test.describe('DisplayOrderConfig', () => {
     await contentPage.waitForTimeout(500);
     // 验证顺序已改变
     const newFirstModeLabel = await modeItems.first().locator('.mode-label').textContent();
-    expect(newFirstModeLabel).toB/.*#\/workbench.*/
+    expect(newFirstModeLabel).toB
     // 刷新页面
     await contentPage.reload();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 10000 });

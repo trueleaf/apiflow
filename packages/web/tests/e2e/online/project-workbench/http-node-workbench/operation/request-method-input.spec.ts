@@ -8,7 +8,7 @@ test.describe('RequestMethodInput', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -54,7 +54,7 @@ test.describe('RequestMethodInput', () => {
   test('切换请求方法不会改变banner节点中的请求方法,只有保存后才会生效', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点并保存
@@ -91,7 +91,7 @@ test.describe('RequestMethodInput', () => {
   // 测试用例3: 切换所有请求方法,点击发送请求,调用测试服务器/echo接口,返回method为选中的method
   test('切换请求方法后发送请求,响应中method字段与选中的方法一致', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });

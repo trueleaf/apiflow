@@ -8,7 +8,7 @@ test.describe('VariableUsage', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -63,7 +63,7 @@ test.describe('VariableUsage', () => {
   test('在query参数中使用变量发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 新增HTTP节点
@@ -118,7 +118,7 @@ test.describe('VariableUsage', () => {
   // 测试用例3: 在header参数value中使用变量,发送请求时变量被正确替换
   test('在header参数中使用变量发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -189,7 +189,7 @@ test.describe('VariableUsage', () => {
   });
   // 测试用例4: 在body json中使用变量,发送请求时变量被正确替换
   test('在body json中使用变量发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();/.*#\/workbench.*/
+    await clearCache();
 
     await loginAccount();
     await createProject();

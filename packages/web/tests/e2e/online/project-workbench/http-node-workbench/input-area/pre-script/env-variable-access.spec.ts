@@ -8,7 +8,7 @@ test.describe('EnvVariableAccess', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 打开变量管理页面并创建变量
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -69,7 +69,7 @@ test.describe('EnvVariableAccess', () => {
   test('使用af.currentEnv获取当前激活的环境变量', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 打开变量管理页面并创建变量

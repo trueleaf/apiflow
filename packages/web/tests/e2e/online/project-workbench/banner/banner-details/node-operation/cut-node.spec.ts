@@ -6,7 +6,7 @@ test.describe('CutNode', () => {
       await clearCache();
 
       await loginAccount();
-      await createProject();/.*#\/workbench.*/
+      await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -47,7 +47,7 @@ test.describe('CutNode', () => {
     test('剪切单个httpNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
-      await loginAccount();/.*#\/workbench.*/
+      await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
@@ -98,7 +98,7 @@ test.describe('CutNode', () => {
     });
     test('剪切多个httpNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
-/.*#\/workbench.*/
+
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -164,7 +164,7 @@ test.describe('CutNode', () => {
       await expect(allNode3).toHaveCount(1, { timeout: 5000 });
     });
     test('剪切httpNode节点在非folder节点右键不显示粘贴选项', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-      await clearCache();/.*#\/workbench.*/
+      await clearCache();
 
       await loginAccount();
       await createProject();
@@ -198,7 +198,7 @@ test.describe('CutNode', () => {
     });
   });
   test.describe('剪切WebSocket节点', () => {
-    test('剪切单个websocketNode节点粘贴到根节点/.*#\/workbench.*/arCache, createProject, loginAccount }) => {
+    test('剪切单个websocketNode节点粘贴到根节点arCache, createProject, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -237,7 +237,7 @@ test.describe('CutNode', () => {
       await contentPage.waitForTimeout(500);
       const allNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '源WebSocket节点' });
       await expect(allNodes).toHaveCount(1, { timeout: 5000 });
-    });/.*#\/workbench.*/
+    });
     test('剪切单个websocketNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
 
@@ -286,7 +286,7 @@ test.describe('CutNode', () => {
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: 'WS目标文件夹' });
       await expect(expandedFolder).toBeVisible({ timeout: 5000 });
     });
-  });/.*#\/workbench.*/
+  });
   test.describe('剪切HTTP Mock节点', () => {
     test('剪切单个httpMockNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache();
@@ -323,7 +323,7 @@ test.describe('CutNode', () => {
       const pasteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /粘贴/ });
       await pasteItem.click();
       await contentPage.waitForTimeout(500);
-      const allNodes = contentPage./.*#\/workbench.*/nt').filter({ hasText: '源HTTP Mock节点' });
+      const allNodes = contentPage.nt').filter({ hasText: '源HTTP Mock节点' });
       await expect(allNodes).toHaveCount(1, { timeout: 5000 });
     });
     test('剪切单个httpMockNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
@@ -372,7 +372,7 @@ test.describe('CutNode', () => {
       await pasteItem.click();
       await contentPage.waitForTimeout(500);
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: 'Mock目标文件夹' });
-      await expect(expandedFolder)./.*#\/workbench.*/);
+      await expect(expandedFolder).);
     });
   });
   test.describe('剪切WebSocket Mock节点', () => {
@@ -409,7 +409,7 @@ test.describe('CutNode', () => {
       await treeWrap.click({ button: 'right', position: { x: 100, y: 300 } });
       await contentPage.waitForTimeout(300);
       const pasteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /粘贴/ });
-      await pasteItem.click();/.*#\/workbench.*/
+      await pasteItem.click();
       await contentPage.waitForTimeout(500);
       const allNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '源WS Mock节点' });
       await expect(allNodes).toHaveCount(1, { timeout: 5000 });
@@ -458,7 +458,7 @@ test.describe('CutNode', () => {
       await contentPage.waitForTimeout(300);
       const pasteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /粘贴/ });
       await pasteItem.click();
-      await contentPage.waitForTime/.*#\/workbench.*/
+      await contentPage.waitForTime
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: 'WSMock目标文件夹' });
       await expect(expandedFolder).toBeVisible({ timeout: 5000 });
     });
@@ -493,7 +493,7 @@ test.describe('CutNode', () => {
       const cutNode = contentPage.locator('.custom-tree-node.cut-node').filter({ hasText: '源文件夹' });
       await expect(cutNode).toBeVisible({ timeout: 3000 });
       await treeWrap.click({ button: 'right', position: { x: 100, y: 300 } });
-      await contentPage.waitForTime/.*#\/workbench.*/
+      await contentPage.waitForTime
       const pasteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /粘贴/ });
       await pasteItem.click();
       await contentPage.waitForTimeout(500);
@@ -558,7 +558,7 @@ test.describe('CutNode', () => {
       const childFolder = expandedTargetFolder.locator('.custom-tree-node').filter({ hasText: '父文件夹' });
       await expect(childFolder).toBeVisible({ timeout: 5000 });
       const childFolderContent = childFolder.locator('xpath=ancestor::div[contains(@class,"el-tree-node__content")]');
-      const folderExpander = childF/.*#\/workbench.*/.first();
+      const folderExpander = childF.first();
       await folderExpander.click({ timeout: 5000 });
       await contentPage.waitForTimeout(300);
       const childHttpNode = contentPage.locator('.custom-tree-node').filter({ hasText: '子节点HTTP' });
@@ -631,7 +631,7 @@ test.describe('CutNode', () => {
       const pasteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /粘贴/ });
       await pasteItem.click();
       await contentPage.waitForTimeout(500);
-      const expandedFolder = conten/.*#\/workbench.*/is-expanded').filter({ hasText: '目标文件夹' });
+      const expandedFolder = contenis-expanded').filter({ hasText: '目标文件夹' });
       await expect(expandedFolder).toBeVisible({ timeout: 5000 });
       const allHttpNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '混合HTTP节点' });
       const allWsNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '混合WebSocket节点' });
@@ -679,7 +679,7 @@ test.describe('CutNode', () => {
       await expect(cutNode).toBeVisible({ timeout: 3000 });
       const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' });
       await folderNode.click();
-      await contentPage.waitForTime/.*#\/workbench.*/
+      await contentPage.waitForTime
       await contentPage.keyboard.press('Control+v');
       await contentPage.waitForTimeout(500);
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '目标文件夹' });

@@ -6,7 +6,7 @@ test.describe('Search', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 验证搜索框存在
@@ -29,7 +29,7 @@ test.describe('Search', () => {
   test('输入内容可以匹配节点名称', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -58,7 +58,7 @@ test.describe('Search', () => {
   // 测试用例3: 搜索匹配节点URL
   test('输入内容可以匹配节点URL', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -92,7 +92,7 @@ test.describe('Search', () => {
 
   // 测试用例4: 无搜索结果时节点树显示为空
   test('无搜索结果时节点树不显示节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();/.*#\/workbench.*/
+    await clearCache();
 
     await loginAccount();
     await createProject();
@@ -120,7 +120,7 @@ test.describe('Search', () => {
   });
 
   // 测试用例5: 搜索结果中关键字高亮显示
-  test('搜索结果中关键字高亮显示', async ({ c/.*#\/workbench.*/eProject, loginAccount }) => {
+  test('搜索结果中关键字高亮显示', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -147,7 +147,7 @@ test.describe('Search', () => {
     await expect(treeContent.first()).toBeVisible({ timeout: 5000 });
   });
 
-  // 测试用例6: 离线模式下不显示高级筛选按钮/.*#\/workbench.*/
+  // 测试用例6: 离线模式下不显示高级筛选按钮
   test('离线模式下不显示高级筛选按钮', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 

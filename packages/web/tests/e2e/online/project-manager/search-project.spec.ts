@@ -164,7 +164,7 @@ test.describe('SearchProject', () => {
   });
 
   // 测试用例3: 搜索条件功能验证
-  test('高级搜索可以按节点名称搜索', async ({ /.*#\/workbench.*/rCache, createProject, loginAccount }) => {
+  test('高级搜索可以按节点名称搜索', async ({ rCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -208,7 +208,7 @@ test.describe('SearchProject', () => {
     await clearCache();
 
     await loginAccount();
-    const projectKeyword = `ADV_P/.*#\/workbench.*/
+    const projectKeyword = `ADV_P
     const docKeyword = `ADV_DOC_${Date.now()}`;
     const urlKeyword = `ADV_URL_${Date.now()}`;
     const remarkKeyword = `ADV_REMARK_${Date.now()}`;
@@ -289,7 +289,7 @@ test.describe('SearchProject', () => {
 
   test('高级搜索节点类型筛选选项均可生效', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     const folderKeyword = `ADV_FOLDER_${Date.now()}`;
     const httpKeyword = `ADV_HTTP_${Date.now()}`;
@@ -392,7 +392,7 @@ test.describe('SearchProject', () => {
 
     await loginAccount();
     const queryKeyword = `ADV_QUERY_${Date.now()}`;
-    const pathKeyword = `ADV_PATH/.*#\/workbench.*/
+    const pathKeyword = `ADV_PATH
     const headerKeyword = `ADV_HEADER_${Date.now()}`;
     const bodyKeyword = `ADV_BODY_${Date.now()}`;
     const responseKeyword = `ADV_RESPONSE_${Date.now()}`;
@@ -546,7 +546,7 @@ test.describe('SearchProject', () => {
     await assertParam(/返回参数/, responseKeyword, '返回参数');
     await assertParam(/前置脚本/, preScriptKeyword, '前置脚本');
     await assertParam(/后置脚本/, afterScriptKeyword, '后置脚本');
-    await assertParam(/WebSocket消/.*#\/workbench.*/ket消息');
+    await assertParam(/WebSocket消ket消息');
   });
 
   test('高级搜索更新日期选项均可生效', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
@@ -628,7 +628,7 @@ test.describe('SearchProject', () => {
     await contentPage.waitForTimeout(100);
     await searchInput.fill(docKeyword);
     await contentPage.waitForTimeout(600);
-    const emptyState = contentPag/.*#\/workbench.*/mpty-state');
+    const emptyState = contentPagmpty-state');
     await expect(emptyState).toBeVisible({ timeout: 8000 });
   });
 
@@ -676,7 +676,7 @@ test.describe('SearchProject', () => {
     await expect(groupHeader).toBeVisible({ timeout: 5000 });
     // 验证分组标题格式包含项目名称
     const groupTitle = groupHeader.locator('.group-title');
-    await expect(groupTitle).toCo/.*#\/workbench.*/
+    await expect(groupTitle).toCo
     // 验证分组标题包含数量
     const groupCount = groupHeader.locator('.group-count');
     await expect(groupCount).toBeVisible();
@@ -722,7 +722,7 @@ test.describe('SearchProject', () => {
     await expect(searchResultItem).toBeVisible({ timeout: 5000 });
     // 验证节点类型标签
     const nodeTypeLabel = searchResultItem.locator('.node-type-label');
-    await expect(nodeTypeLabel).t/.*#\/workbench.*/
+    await expect(nodeTypeLabel).t
     await expect(nodeTypeLabel).toContainText('HTTP');
     // 验证节点名称
     const nodeName = searchResultItem.locator('.node-name');
@@ -767,7 +767,7 @@ test.describe('SearchProject', () => {
     // 验证搜索结果项
     const searchResultItem = contentPage.locator('.search-result-item').first();
     await expect(searchResultItem).toBeVisible({ timeout: 5000 });
-    // 验证匹配信息区域/.*#\/workbench.*/
+    // 验证匹配信息区域
     const matchInfo = searchResultItem.locator('.match-info');
     await expect(matchInfo).toBeVisible();
     // 验证匹配标签
@@ -802,14 +802,14 @@ test.describe('SearchProject', () => {
     await logo.click();
     await Promise.all([projectListPromise, urlPromise]);
     await contentPage.waitForTimeout(500);
-    // 展开高级搜索面板/.*#\/workbench.*/
+    // 展开高级搜索面板
     const advancedSearchBtn = contentPage.locator('[data-testid="home-advanced-search-btn"]');
     await advancedSearchBtn.click();
     await contentPage.waitForTimeout(300);
     // 输入搜索关键词
     const searchInput = contentPage.locator('[data-testid="home-project-search-input"]');
     await searchInput.fill('未命名');
-    await contentPage.waitForTime/.*#\/workbench.*/
+    await contentPage.waitForTime
     // 点击搜索结果项
     const searchResultItem = contentPage.locator('.search-result-item').first();
     await expect(searchResultItem).toBeVisible({ timeout: 5000 });

@@ -6,7 +6,7 @@ test.describe('ApiflowImport', () => {
     await clearCache();
 
     await loginAccount();
-    await createProject();/.*#\/workbench.*/
+    await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -30,7 +30,7 @@ test.describe('ApiflowImport', () => {
   test('导入apiflow格式数据预览正确显示', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
-    await loginAccount();/.*#\/workbench.*/
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
     // 点击导入文档按钮
@@ -54,7 +54,7 @@ test.describe('ApiflowImport', () => {
   // 测试用例3: 选择追加导入方式
   test('选择追加导入方式', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
-/.*#\/workbench.*/
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -75,7 +75,7 @@ test.describe('ApiflowImport', () => {
   });
   // 测试用例4: 选择覆盖导入方式弹出确认框
   test('选择覆盖导入方式弹出确认框', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();/.*#\/workbench.*/
+    await clearCache();
 
     await loginAccount();
     await createProject();
@@ -101,7 +101,7 @@ test.describe('ApiflowImport', () => {
     await contentPage.waitForTimeout(300);
   });
   // 测试用例5: 无数据时点击确定导入显示警告
-  test('无数据时点击确定导入显示警告', async ({/.*#\/workbench.*/ateProject, loginAccount }) => {
+  test('无数据时点击确定导入显示警告', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -119,7 +119,7 @@ test.describe('ApiflowImport', () => {
     const submitBtn = contentPage.locator('.submit-wrap .el-button--primary');
     await expect(submitBtn).toBeDisabled();
   });
-  // 测试用例6: 切换不同数据来源类型/.*#\/workbench.*/
+  // 测试用例6: 切换不同数据来源类型
   test('切换不同数据来源类型', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
