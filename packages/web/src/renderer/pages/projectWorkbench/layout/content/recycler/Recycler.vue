@@ -414,7 +414,9 @@ const restoreDocDirectly = (docInfo: DeleteInfo) => {
       for (let i = 0; i < delIds.length; i += 1) {
         const id = delIds[i];
         const delIndex = deletedList.value.findIndex((val) => val._id === id);
-        deletedList.value.splice(delIndex, 1)
+        if (delIndex !== -1) {
+          deletedList.value.splice(delIndex, 1)
+        }
       }
       bannerStore.getDocBanner({ projectId });
       return;
@@ -428,8 +430,10 @@ const restoreDocDirectly = (docInfo: DeleteInfo) => {
       const delIds = res.data;
       for (let i = 0; i < delIds.length; i += 1) {
         const id = delIds[i];
-        const delIndex = deletedList.value.findIndex((val) => val._id === id);
-        deletedList.value.splice(delIndex, 1)
+        const delIndex = deletedList.value.findIndex((val) => val._id === id);  
+        if (delIndex !== -1) {
+          deletedList.value.splice(delIndex, 1)
+        }
       }
       bannerStore.getDocBanner({ projectId });
     }).catch((err) => {

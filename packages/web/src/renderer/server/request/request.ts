@@ -2,7 +2,7 @@ import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 import { ref, toRaw } from 'vue';
 import json5 from 'json5'
 import { HttpNode, ApidocProperty } from '@src/types';
-import { getFormDataFromFormDataParams, getObjectPathParams, getStringFromParams } from '@/helper'
+import { getFormDataFromFormDataParams, getObjectPathParams, getStringFromParams, safeDecodeURIComponent } from '@/helper'
 import { getCompiledTemplate } from '@/helper';
 import { useVariable } from '@/store/projectWorkbench/variablesStore';
 import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/index.ts';
@@ -426,7 +426,7 @@ const convertPropertyToObject = async (properties: ApidocProperty<'string' | 'fi
   return result;
 };
 
-const convertObjectToProperty = (objectParams: Record<string, any>) => {
+const convertObjectToProperty = (objectParams: Record<string, any>) => {    
   const newQueryParams: ApidocProperty<'string'>[] = [];
   Object.keys(objectParams).forEach(key => {
     newQueryParams.push({
@@ -501,7 +501,11 @@ export const sendRequest = async () => {
   const objQueryParams = await convertPropertyToObject(copiedApidoc.item.queryParams);
   changeRequestState('sending');
   const matchedCookies = getMachtedCookies(preSendUrl);
-  const objCookies = await convertPropertyToObject(matchedCookies.map(cookie => ({ key: cookie.name, value: cookie.value, select: true })) as ApidocProperty<"string">[])
+  const objCookies = await convertPropertyToObject(matchedCookies.map(cookie => ({
+    key: safeDecodeURIComponent(cookie.name),
+    value: safeDecodeURIComponent(cookie.value),
+    select: true
+  })) as ApidocProperty<"string">[])
   const preRequestSessionStorage = httpNodeCache.getPreRequestSessionStorage(projectId);
   const preRequestLocalStorage = httpNodeCache.getPreRequestLocalStorage(projectId);
   let finalSendHeaders = preSendHeaders;

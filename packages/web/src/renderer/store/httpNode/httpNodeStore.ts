@@ -1,4 +1,4 @@
-import { generateEmptyProperty, generateHttpNode } from '@/helper'
+import { generateEmptyProperty, generateHttpNode, safeDecodeURIComponent } from '@/helper'
 import { eventEmitter } from '@/helper'
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep, assign } from "lodash-es"
@@ -55,9 +55,9 @@ export const useHttpNode = defineStore('httpNode', () => {
   const savedDocId = ref('');
   const httpNodeConfigStore = useHttpNodeConfig();
   /*
-  |--------------------------------------------------------------------------
+  |--------------------------------------------------------------------------   
   | 通用方法
-  |--------------------------------------------------------------------------
+  |--------------------------------------------------------------------------   
   */
   //更新cookie头
   watch([() => {
@@ -76,7 +76,9 @@ export const useHttpNode = defineStore('httpNode', () => {
       return !!header._disableDelete && !!header._disableKey && !!header._disableDescription && header.description === autoCookieDescription;
     }
     if (matchedCookies.length > 0) {
-      const cookieValue = matchedCookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+      const cookieValue = matchedCookies
+        .map(cookie => `${safeDecodeURIComponent(cookie.name)}=${safeDecodeURIComponent(cookie.value)}`)
+        .join('; ');
       if (cookieIndex !== -1) {
         const existingHeader = defaultHeaders.value[cookieIndex];
         if (isAutoCookieHeader(existingHeader)) {

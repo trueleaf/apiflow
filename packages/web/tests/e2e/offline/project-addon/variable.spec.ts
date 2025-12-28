@@ -413,8 +413,15 @@ test.describe('Variable', () => {
     await valueTextarea.fill('common-header-value');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
-    await contentPage.goBack();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    {
+      const closeActiveTabBtn = contentPage.locator('.tab-list .item.active [data-testid="project-nav-tab-close-btn"]');
+      if (await closeActiveTabBtn.count()) {
+        await closeActiveTabBtn.first().click();
+      } else {
+        await contentPage.keyboard.press('ControlOrMeta+w');
+      }
+    }
+    await expect(variablePage).toBeHidden({ timeout: 5000 });
 
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -444,8 +451,15 @@ test.describe('Variable', () => {
     const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
     await confirmBtn.click();
     await contentPage.waitForTimeout(800);
-    await contentPage.goBack();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    {
+      const closeActiveTabBtn = contentPage.locator('.tab-list .item.active [data-testid="project-nav-tab-close-btn"]');
+      if (await closeActiveTabBtn.count()) {
+        await closeActiveTabBtn.first().click();
+      } else {
+        await contentPage.keyboard.press('ControlOrMeta+w');
+      }
+    }
+    await expect(commonHeaderPage).toBeHidden({ timeout: 5000 });
 
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
@@ -473,8 +487,15 @@ test.describe('Variable', () => {
     await valueTextarea.fill('cookie_value_123');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
-    await contentPage.goBack();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    {
+      const closeActiveTabBtn = contentPage.locator('.tab-list .item.active [data-testid="project-nav-tab-close-btn"]');
+      if (await closeActiveTabBtn.count()) {
+        await closeActiveTabBtn.first().click();
+      } else {
+        await contentPage.keyboard.press('ControlOrMeta+w');
+      }
+    }
+    await expect(variablePage).toBeHidden({ timeout: 5000 });
 
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
@@ -498,12 +519,15 @@ test.describe('Variable', () => {
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
     await expect(dialog).not.toBeVisible({ timeout: 5000 });
-    await contentPage.goBack();
-    await contentPage.waitForTimeout(300);
-    if (!/doc-edit/.test(contentPage.url())) {
-      await contentPage.goBack();
+    {
+      const closeActiveTabBtn = contentPage.locator('.tab-list .item.active [data-testid="project-nav-tab-close-btn"]');
+      if (await closeActiveTabBtn.count()) {
+        await closeActiveTabBtn.first().click();
+      } else {
+        await contentPage.keyboard.press('ControlOrMeta+w');
+      }
     }
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await expect(cookiePage).toBeHidden({ timeout: 5000 });
 
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -748,7 +772,13 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(2000);
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     const responseText = (await responseBody.textContent()) || '';
-    expect(responseText).toMatch(/"rawBody"\s*:\s*"test binary content"/);
+    const jsonStartIndex = responseText.indexOf('{');
+    const jsonEndIndex = responseText.lastIndexOf('}');
+    expect(jsonStartIndex).toBeGreaterThanOrEqual(0);
+    expect(jsonEndIndex).toBeGreaterThan(jsonStartIndex);
+    const jsonText = responseText.slice(jsonStartIndex, jsonEndIndex + 1).replace(/\u00A0/g, ' ');
+    const parsed = JSON.parse(jsonText) as { rawBody?: string };
+    expect(parsed.rawBody).toBe(testContent);
 
     if (fs.existsSync(testFilePath)) {
       fs.unlinkSync(testFilePath);

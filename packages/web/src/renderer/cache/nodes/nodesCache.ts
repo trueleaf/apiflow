@@ -248,24 +248,86 @@ export class ApiNodesCache {
   async restoreNode(nodeId: string): Promise<string[]> {
     try {
       const db = await this.getDB();
-      const existingDoc = await db.get(this.storeName, nodeId);
-      const result: string[] = [nodeId];
+      const tx = db.transaction(this.storeName, "readwrite");
+      const store = tx.objectStore(this.storeName);
+
+      const existingDoc = await store.get(nodeId);
       if (!existingDoc) return [];
-      existingDoc.isDeleted = false;
-      await db.put(this.storeName, existingDoc, nodeId);
+
+      const updatedTimestamp = new Date().toISOString();
+      const restoredIds: string[] = [];
+      const restoredSet = new Set<string>();
+      const addRestoredId = (id: string) => {
+        if (!restoredSet.has(id)) {
+          restoredSet.add(id);
+          restoredIds.push(id);
+        }
+      };
+
+      const restoreDocIfNeeded = async (doc: ApiNode) => {
+        if (!doc.isDeleted) return;
+        await store.put({
+          ...doc,
+          isDeleted: false,
+          updatedAt: updatedTimestamp,
+        }, doc._id);
+        addRestoredId(doc._id);
+      };
+
+      await restoreDocIfNeeded(existingDoc);
+
+      // 恢复父链（确保节点挂载路径存在）
       let currentPid = existingDoc.pid;
       while (currentPid) {
-        const parentDoc = await db.get(this.storeName, currentPid);
+        const parentDoc = await store.get(currentPid);
         if (!parentDoc) break;
-        if (parentDoc.isDeleted) {
-          parentDoc.isDeleted = false;
-          await db.put(this.storeName, parentDoc, currentPid);
-          result.push(currentPid);
-        }
+        await restoreDocIfNeeded(parentDoc);
         currentPid = parentDoc.pid;
       }
+
+      // 如果恢复的是文件夹，则同时恢复其下所有被删除的子孙节点
+      if (existingDoc.info?.type === 'folder') {
+        let projectDocs: ApiNode[];
+        try {
+          const index = store.index(config.cacheConfig.apiNodesCache.projectIdIndex);
+          projectDocs = await index.getAll(existingDoc.projectId);
+        } catch (error) {
+          logger.error('按索引读取节点失败，使用全量数据', { error });
+          const allDocs = await store.getAll();
+          projectDocs = allDocs.filter((doc) => doc.projectId === existingDoc.projectId);
+        }
+
+        const childrenByPid = new Map<string, ApiNode[]>();
+        for (const doc of projectDocs) {
+          const pid = doc.pid || '';
+          const arr = childrenByPid.get(pid);
+          if (arr) {
+            arr.push(doc);
+          } else {
+            childrenByPid.set(pid, [doc]);
+          }
+        }
+
+        const stack: string[] = [existingDoc._id];
+        const visited = new Set<string>();
+        while (stack.length > 0) {
+          const currentId = stack.pop();
+          if (!currentId) continue;
+          if (visited.has(currentId)) continue;
+          visited.add(currentId);
+
+          const children = childrenByPid.get(currentId) || [];
+          for (const child of children) {
+            stack.push(child._id);
+            await restoreDocIfNeeded(child);
+          }
+        }
+      }
+
+      await tx.done;
+      await this.updateProjectNodeNum(existingDoc.projectId);
       this.bannerCache.delete(existingDoc.projectId);
-      return result;
+      return restoredIds;
     } catch (error) {
       logger.error('恢复节点失败', { error });
       return [];

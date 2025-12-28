@@ -814,6 +814,17 @@ export const parseUrlInfo = (url: string): {
 }
 
 /**
+ * 安全解码 URI 组件（解码失败时返回原值）
+ */
+export const safeDecodeURIComponent = (value: string): string => {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+/**
  * 从Content-Disposition响应头中提取文件名
  */
 export const getFileNameFromContentDisposition = (contentDisposition: string) => {

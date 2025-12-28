@@ -1,4 +1,14 @@
 import { test, expect } from '../../../fixtures/electron.fixture';
+import type { Locator } from '@playwright/test';
+
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const getRecyclerDeletedDocByName = (recyclerPage: Locator, name: string) =>
+  recyclerPage.locator('.docinfo', {
+    has: recyclerPage.locator('.node-info', {
+      hasText: new RegExp(`${escapeRegExp(name)}(?![A-Za-z0-9])`),
+    }),
+  });
 
 test.describe('Trash', () => {
   test('打开回收站页面,显示回收站标题和搜索条件', async ({ topBarPage, contentPage, clearCache, createProject }) => {
@@ -161,18 +171,19 @@ test.describe('Trash', () => {
     await contentPage.waitForTimeout(500);
     const recyclerPage = contentPage.locator('.recycler');
     await expect(recyclerPage).toBeVisible({ timeout: 5000 });
+    await expect(recyclerPage.locator('.docinfo').first()).toBeVisible({ timeout: 5000 });
     for (let i = 0; i < allNodeNames.length; i += 1) {
       const nodeName = allNodeNames[i];
-      const deletedDoc = recyclerPage.locator('.docinfo').filter({ hasText: nodeName });
+      const deletedDoc = getRecyclerDeletedDocByName(recyclerPage, nodeName);
       await expect(deletedDoc).toBeVisible({ timeout: 5000 });
     }
     for (let i = 0; i < allNodeNames.length; i += 1) {
       const nodeName = allNodeNames[i];
-      const deletedDoc = recyclerPage.locator('.docinfo').filter({ hasText: nodeName });
+      const deletedDoc = getRecyclerDeletedDocByName(recyclerPage, nodeName);
       await deletedDoc.locator('.el-button').filter({ hasText: /恢复/ }).click();
       const restoreConfirmDialog = contentPage.locator('.el-message-box');
-      await expect(restoreConfirmDialog).toBeVisible({ timeout: 3000 });
-      await restoreConfirmDialog.locator('.el-button--primary').click();
+       await expect(restoreConfirmDialog).toBeVisible({ timeout: 3000 });
+       await restoreConfirmDialog.locator('.el-button--primary').click();
       await contentPage.waitForTimeout(500);
       await expect(deletedDoc).not.toBeVisible({ timeout: 5000 });
       const restoredNode = bannerTree.locator('.el-tree-node__content', { hasText: nodeName }).first();

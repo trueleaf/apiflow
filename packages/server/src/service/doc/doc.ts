@@ -810,7 +810,13 @@ export class DocService {
       };
     }
     if (url) {
-      filter['item.url.path'] = new RegExp(lodash.escapeRegExp(url));
+      const urlReg = new RegExp(lodash.escapeRegExp(url));
+      filter.$or = [
+        { 'item.url.path': urlReg },
+        { 'websocketItem.item.url.path': urlReg },
+        { 'httpMockItem.requestCondition.url': urlReg },
+        { 'websocketMockItem.requestCondition.path': urlReg },
+      ];
     }
     if (docName) {
       filter['info.name'] = new RegExp(lodash.escapeRegExp(docName));
@@ -819,6 +825,11 @@ export class DocService {
       this.docModel.find(filter, {
         "item.url": 1,
         "item.method": 1,
+        "websocketItem.item.url": 1,
+        "websocketItem.item.protocol": 1,
+        "httpMockItem.requestCondition.url": 1,
+        "httpMockItem.requestCondition.method": 1,
+        "websocketMockItem.requestCondition.path": 1,
         "info.name": 1,
         "info.type": 1,
         "info.deletePerson": 1,
@@ -834,17 +845,50 @@ export class DocService {
     ]);
     // 字段兼容处理
     const result = rows.map(data => {
-      return {
+      const base = {
         name: data.info.name,
         type: data.info.type,
-        deletePerson: data.info.deletePerson,
+        deletePerson: data.info.deletePerson || '',
         isFolder: data.isFolder,
-        host: data.item.url.host,
-        path: data.item.url.path,
-        method: data.item.method,
         updatedAt: data.updatedAt,
         _id: data._id,
         pid: data.pid,
+      };
+      // WebSocket 节点
+      if (data.info.type === 'websocket') {
+        return {
+          ...base,
+          host: '',
+          path: data.websocketItem?.item?.url?.path || data.item?.url?.path || '',
+          method: 'GET',
+          protocol: data.websocketItem?.item?.protocol || 'ws',
+        };
+      }
+      // HttpMock 节点
+      if (data.info.type === 'httpMock') {
+        const mockMethod = data.httpMockItem?.requestCondition?.method?.[0];
+        return {
+          ...base,
+          host: '',
+          path: data.httpMockItem?.requestCondition?.url || '',
+          method: mockMethod === 'ALL' ? 'GET' : (mockMethod || 'GET'),
+        };
+      }
+      // WebSocketMock 节点
+      if (data.info.type === 'websocketMock') {
+        return {
+          ...base,
+          host: '',
+          path: data.websocketMockItem?.requestCondition?.path || '',
+          method: 'GET',
+        };
+      }
+      // HTTP / folder(兜底)
+      return {
+        ...base,
+        host: data.item?.url?.host || '',
+        path: data.item?.url?.path || '',
+        method: data.item?.method || 'GET',
       };
     });
     return {
@@ -874,15 +918,56 @@ export class DocService {
   async restoreDoc(params: RestoreDocDto): Promise<string[]> {
     const { _id, projectId } = params;
     await this.commonControl.checkDocOperationPermissions(projectId);
-    let currentId = _id;
+
+    const targetDoc = await this.docModel.findOne({ _id, projectId }, { isFolder: 1 }).lean();
+    if (!targetDoc) return [];
+
+    const restoredSet = new Set<string>();
     const restoredIds: string[] = [];
+    const addRestoredId = (id: unknown) => {
+      const stringId = String(id);
+      if (!restoredSet.has(stringId)) {
+        restoredSet.add(stringId);
+        restoredIds.push(stringId);
+      }
+    };
+
+    // 1) 恢复父链（确保节点挂载路径存在）
+    let currentId = _id;
     while (currentId) {
-      const doc = await this.docModel.findById(currentId).lean();
+      const doc = await this.docModel.findById(currentId, { pid: 1, isEnabled: 1 }).lean();
       if (!doc) break;
       if (doc.isEnabled) break; // 已经恢复，无需再处理
       await this.docModel.findByIdAndUpdate(currentId, { $set: { isEnabled: true } });
-      restoredIds.push(currentId);
+      addRestoredId(currentId);
       currentId = doc.pid;
+    }
+
+    // 2) 如果恢复的是文件夹，则同时恢复其下所有被删除的子孙节点
+    if (targetDoc.isFolder) {
+      const queue: string[] = [String(targetDoc._id)];
+      const visitedFolders = new Set<string>(queue);
+      while (queue.length > 0) {
+        const pid = queue.shift();
+        if (!pid) continue;
+
+        const children = await this.docModel.find(
+          { projectId, pid },
+          { _id: 1, isEnabled: 1, isFolder: 1 }
+        ).lean();
+
+        for (const child of children) {
+          const childId = String(child._id);
+          if (!child.isEnabled) {
+            await this.docModel.findByIdAndUpdate(child._id, { $set: { isEnabled: true } });
+            addRestoredId(childId);
+          }
+          if (child.isFolder && !visitedFolders.has(childId)) {
+            visitedFolders.add(childId);
+            queue.push(childId);
+          }
+        }
+      }
     }
 
     const docLen = await this.docModel.find({ projectId, isFolder: false, isEnabled: true }).countDocuments();

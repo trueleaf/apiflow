@@ -1,8 +1,19 @@
 import { test, expect } from '../../../fixtures/electron-online.fixture';
+import type { Locator } from '@playwright/test';
+
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const getRecyclerDeletedDocByName = (recyclerPage: Locator, name: string) =>
+  recyclerPage.locator('.docinfo', {
+    has: recyclerPage.locator('.node-info', {
+      hasText: new RegExp(`${escapeRegExp(name)}(?![A-Za-z0-9])`),
+    }),
+  });
 
 test.describe('Trash', () => {
   test('打开回收站页面,显示回收站标题和搜索条件', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -220,7 +231,8 @@ test.describe('Trash', () => {
     await expect(recyclerPage.locator('.docinfo')).toHaveCount(0, { timeout: 5000 });
   });
   test('删除接口后在回收站中显示被删除的接口', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -259,7 +271,8 @@ test.describe('Trash', () => {
     await expect(deletedDoc).toBeVisible({ timeout: 5000 });
   });
   test('恢复已删除的接口,接口重新出现在导航树中', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
-    await clearCache();
+    await clearCache();
+
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
@@ -363,19 +376,20 @@ test.describe('Trash', () => {
     await recyclerItem.click();
     await contentPage.waitForTimeout(500);
     const recyclerPage = contentPage.locator('.recycler');
-    await expect(recyclerPage).toBeVisible({ timeout: 5000 });
-    for (let i = 0; i < allNodeNames.length; i += 1) {
-      const nodeName = allNodeNames[i];
-      const deletedDoc = recyclerPage.locator('.docinfo').filter({ hasText: nodeName });
-      await expect(deletedDoc).toBeVisible({ timeout: 5000 });
-    }
-    for (let i = 0; i < allNodeNames.length; i += 1) {
-      const nodeName = allNodeNames[i];
-      const deletedDoc = recyclerPage.locator('.docinfo').filter({ hasText: nodeName });
-      await deletedDoc.locator('.el-button').filter({ hasText: /恢复/ }).click();
-      const restoreConfirmDialog = contentPage.locator('.el-message-box');
-      await expect(restoreConfirmDialog).toBeVisible({ timeout: 3000 });
-      await restoreConfirmDialog.locator('.el-button--primary').click();
+        await expect(recyclerPage).toBeVisible({ timeout: 5000 });
+        await expect(recyclerPage.locator('.docinfo').first()).toBeVisible({ timeout: 5000 });
+        for (let i = 0; i < allNodeNames.length; i += 1) {
+          const nodeName = allNodeNames[i];
+          const deletedDoc = getRecyclerDeletedDocByName(recyclerPage, nodeName);
+          await expect(deletedDoc).toBeVisible({ timeout: 5000 });
+        }
+        for (let i = 0; i < allNodeNames.length; i += 1) {
+          const nodeName = allNodeNames[i];
+          const deletedDoc = getRecyclerDeletedDocByName(recyclerPage, nodeName);
+          await deletedDoc.locator('.el-button').filter({ hasText: /恢复/ }).click();
+          const restoreConfirmDialog = contentPage.locator('.el-message-box');
+          await expect(restoreConfirmDialog).toBeVisible({ timeout: 3000 });
+          await restoreConfirmDialog.locator('.el-button--primary').click();
       await contentPage.waitForTimeout(500);
       await expect(deletedDoc).not.toBeVisible({ timeout: 5000 });
       const restoredNode = bannerTree.locator('.el-tree-node__content', { hasText: nodeName }).first();
