@@ -51,4 +51,18 @@ test.describe('Online后台管理权限', () => {
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
     await expect(adminBtn).toBeHidden({ timeout: 2000 });
   });
+
+  test('未登录用户访问/admin路由自动重定向', async ({ topBarPage, contentPage, clearCache }) => {
+    await clearCache();
+
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
+    const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
+    await expect(adminBtn).toBeHidden({ timeout: 2000 });
+
+    await contentPage.evaluate(() => {
+      window.location.hash = '#/admin';
+    });
+    await contentPage.waitForLoadState('networkidle');
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
+  });
 });
