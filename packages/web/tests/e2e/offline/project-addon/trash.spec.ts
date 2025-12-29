@@ -14,7 +14,7 @@ test.describe('Trash', () => {
   test('打开回收站页面,显示回收站标题和搜索条件', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const recyclerItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /回收站/ });
@@ -32,7 +32,7 @@ test.describe('Trash', () => {
   test('删除接口后在回收站中显示被删除的接口', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
@@ -70,7 +70,7 @@ test.describe('Trash', () => {
   test('恢复已删除的接口,接口重新出现在导航树中', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
@@ -117,7 +117,7 @@ test.describe('Trash', () => {
   test('删除所有类型节点后逐个恢复', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const bannerTree = contentPage.getByTestId('banner-doc-tree');
     await expect(bannerTree).toBeVisible({ timeout: 5000 });
     const addFolderBtn = contentPage.getByTestId('banner-add-folder-btn');
@@ -193,7 +193,7 @@ test.describe('Trash', () => {
   test('父子节点同时删除后恢复时同步恢复全部', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const bannerTree = contentPage.getByTestId('banner-doc-tree');
     await expect(bannerTree).toBeVisible({ timeout: 5000 });
     const addFolderBtn = contentPage.getByTestId('banner-add-folder-btn');

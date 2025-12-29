@@ -8,7 +8,7 @@ test.describe('NoneBodyValidation', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();

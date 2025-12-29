@@ -7,7 +7,7 @@ test.describe('CodeRepoImport', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
@@ -29,7 +29,7 @@ test.describe('CodeRepoImport', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
@@ -51,7 +51,7 @@ test.describe('CodeRepoImport', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
@@ -76,7 +76,7 @@ test.describe('CodeRepoImport', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
@@ -105,7 +105,7 @@ test.describe('CodeRepoImport', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();

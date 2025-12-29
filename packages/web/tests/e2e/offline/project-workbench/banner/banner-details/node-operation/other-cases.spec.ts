@@ -5,7 +5,7 @@ test.describe('OtherCases', () => {
   test('在根节点新增/粘贴非folder节点,会排序在末尾', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 首先创建一个文件夹
@@ -64,7 +64,7 @@ test.describe('OtherCases', () => {
   test('在根节点新增/粘贴folder节点,会排序到根目录下最后一个目录节点下面', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 首先创建一个HTTP节点
@@ -124,7 +124,7 @@ test.describe('OtherCases', () => {
   test('在根节点粘贴包含folder节点的混合节点,folder排序到文件夹区域,非folder排序在末尾', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 创建一个文件夹

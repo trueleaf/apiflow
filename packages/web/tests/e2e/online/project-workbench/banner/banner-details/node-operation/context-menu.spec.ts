@@ -8,7 +8,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -43,7 +43,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -74,7 +74,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -103,7 +103,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -124,7 +124,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个HTTP节点
@@ -167,7 +167,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -213,7 +213,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -258,7 +258,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -303,7 +303,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -338,7 +338,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -397,7 +397,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -437,7 +437,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -481,7 +481,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -525,7 +525,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个HTTP节点
@@ -570,7 +570,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建目标文件夹
@@ -629,7 +629,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建HTTP节点
@@ -669,7 +669,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建HTTP节点
@@ -703,7 +703,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建HTTP节点
@@ -747,7 +747,7 @@ test.describe('ContextMenu', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建HTTP节点

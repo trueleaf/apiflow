@@ -5,7 +5,7 @@ test.describe('OpenapiImport', () => {
   test('打开导入页面验证OpenAPI/Swagger格式选择器', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
@@ -25,7 +25,7 @@ test.describe('OpenapiImport', () => {
   test('OpenAPI格式文件夹命名方式选择', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
@@ -45,7 +45,7 @@ test.describe('OpenapiImport', () => {
   test('选择追加导入方式不选择目标目录', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
@@ -65,7 +65,7 @@ test.describe('OpenapiImport', () => {
   test('选择追加导入方式并选择目标目录', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 先创建一个文件夹
     const addFolderBtn = contentPage.getByTestId('banner-add-folder-btn');
     await addFolderBtn.click();

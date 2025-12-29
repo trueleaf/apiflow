@@ -7,7 +7,7 @@ test.describe('QueryParamsValidation', () => {
   test('调用echo接口验证参数为空是否正常返回', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -42,7 +42,7 @@ test.describe('QueryParamsValidation', () => {
   test('调用echo接口验证常规参数是否正常返回', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -81,7 +81,7 @@ test.describe('QueryParamsValidation', () => {
   test('调用echo接口验证同名参数是否正常返回', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -126,7 +126,7 @@ test.describe('QueryParamsValidation', () => {
   test('调用echo接口验证中文参数是否正常返回', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();

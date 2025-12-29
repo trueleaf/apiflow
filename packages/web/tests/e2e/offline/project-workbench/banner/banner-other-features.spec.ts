@@ -6,7 +6,7 @@ test.describe('BannerOtherFeatures', () => {
   test('banner区域拖拽条可见', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 验证SResizeX组件的拖拽条存在
     const dragBar = contentPage.locator('.banner .bar');
@@ -17,7 +17,7 @@ test.describe('BannerOtherFeatures', () => {
   test('拖拽改变banner宽度', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 获取拖拽条和banner容器
     const dragBar = contentPage.locator('.banner .bar');
@@ -42,7 +42,7 @@ test.describe('BannerOtherFeatures', () => {
   test('拖拽时显示宽度指示器', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 获取拖拽条
     const dragBar = contentPage.locator('.banner .bar');
@@ -65,7 +65,7 @@ test.describe('BannerOtherFeatures', () => {
   test('宽度不会小于最小值', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 获取拖拽条和banner容器
     const dragBar = contentPage.locator('.banner .bar');
@@ -88,7 +88,7 @@ test.describe('BannerOtherFeatures', () => {
   test('宽度不会大于最大值', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 获取拖拽条和banner容器
     const dragBar = contentPage.locator('.banner .bar');
@@ -111,7 +111,7 @@ test.describe('BannerOtherFeatures', () => {
   test('双击拖拽条还原默认宽度', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 获取拖拽条和banner容器
     const dragBar = contentPage.locator('.banner .bar');
@@ -139,7 +139,7 @@ test.describe('BannerOtherFeatures', () => {
   test('拖拽时拖拽条高亮', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 获取拖拽条
     const dragBar = contentPage.locator('.banner .bar');
@@ -162,7 +162,7 @@ test.describe('BannerOtherFeatures', () => {
     // 由于离线模式下创建Mock节点流程较复杂,暂时跳过
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // TODO: 创建httpMockNode
     // TODO: 启动Mock服务

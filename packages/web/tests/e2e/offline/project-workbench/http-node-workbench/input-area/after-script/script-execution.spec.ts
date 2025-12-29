@@ -7,7 +7,7 @@ test.describe('AfterScriptExecution', () => {
   test('后置脚本语法错误时在响应区域展示脚本错误信息', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -46,7 +46,7 @@ test.describe('AfterScriptExecution', () => {
   test('后置脚本运行时错误时在响应区域展示运行时错误信息', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -85,7 +85,7 @@ test.describe('AfterScriptExecution', () => {
   test('后置脚本在主请求响应后执行', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();

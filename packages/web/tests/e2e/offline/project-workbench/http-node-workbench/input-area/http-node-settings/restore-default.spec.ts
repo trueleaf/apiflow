@@ -5,7 +5,7 @@ test.describe('RestoreDefault', () => {
   test('点击恢复默认按钮所有配置项恢复为默认值', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -40,7 +40,7 @@ test.describe('RestoreDefault', () => {
   test('修改重定向配置后点击恢复按钮配置恢复为默认值', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -75,7 +75,7 @@ test.describe('RestoreDefault', () => {
   test('恢复默认后刷新页面配置保持为默认值', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -101,7 +101,7 @@ test.describe('RestoreDefault', () => {
     await contentPage.waitForTimeout(500);
     // 刷新页面
     await contentPage.reload();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
     await contentPage.waitForTimeout(1000);
     // 重新打开设置标签页
     const settingsTabAfterReload = contentPage.locator('[data-testid="http-params-tab-settings"]');
@@ -116,7 +116,7 @@ test.describe('RestoreDefault', () => {
   test('Body参数显示顺序恢复默认后顺序恢复为初始状态', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();

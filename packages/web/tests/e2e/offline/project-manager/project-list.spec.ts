@@ -18,7 +18,7 @@ const createProjectAndGoHome = async (topBarPage: any, contentPage: any, createP
   const name = await createProject(projectName);
   // 返回首页
   await homeBtn.click();
-  await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+  await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
   await contentPage.waitForTimeout(500);
   // 关闭可能的提示弹窗
   const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
@@ -72,7 +72,7 @@ test.describe('ProjectList', () => {
     const enterBtn = projectCard.locator('[data-testid="home-project-enter-btn"]');
     await enterBtn.click();
     // 验证路由跳转到项目工作区
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 验证URL携带query参数
     const url = contentPage.url();
     expect(url).toContain('mode=edit');
@@ -108,10 +108,10 @@ test.describe('ProjectList', () => {
     await expect(projectCard).toBeVisible({ timeout: 5000 });
     const enterBtn = projectCard.locator('[data-testid="home-project-enter-btn"]');
     await enterBtn.click();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 返回首页
     await homeBtn.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 关闭可能的提示弹窗
     const msgBoxConfirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
@@ -247,7 +247,7 @@ test.describe('ProjectList', () => {
     await expect(projectCard).toBeVisible({ timeout: 5000 });
     const enterBtn = projectCard.locator('[data-testid="home-project-enter-btn"]');
     await enterBtn.click();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const bannerTree = contentPage.locator('[data-testid="banner-doc-tree"]');
     await expect(bannerTree).toBeVisible({ timeout: 5000 });
     const addFolderBtn = contentPage.locator('[data-testid="banner-add-folder-btn"]').first();
@@ -349,7 +349,7 @@ test.describe('ProjectList', () => {
     // 返回首页查看接口总数
     const logo = topBarPage.locator('.logo-img');
     await logo.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 验证接口总数为4(folder不计入)
     const projectCardAfterReturn = contentPage.locator('[data-testid="home-project-card-0"]');

@@ -22,7 +22,7 @@ test.describe('CreateProject', () => {
       { timeout: 20000 },
     );
     await homeBtn.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await projectListPromise;
     await contentPage.waitForTimeout(500);
     const addProjectBtn = contentPage.locator('[data-testid="home-add-project-btn"]');
@@ -75,7 +75,7 @@ test.describe('CreateProject', () => {
     const confirmBtn = projectDialog.locator('.el-button--primary').last();
     await confirmBtn.click();
     await expect(projectDialog).t
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const url = contentPage.url();
     expect(url).toContain('mode=edit');
     const activeTab = topBarPage.locator('.tab-item.active');
@@ -99,14 +99,14 @@ test.describe('CreateProject', () => {
     const confirmBtn = projectDialog.locator('.el-button--primary').last();
     await confirmBtn.click();
     await expect(projectDialog).toBeHidden({ timeout: 5000 });
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
     const projectListPromiseAfterCreate = contentPage.waitForResponse(
       (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
       { timeout: 20000 },
     );
     await homeBtn.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await projectListPromiseAfterCreate;
     await contentPage.waitForTimeout(500);
     const firstProjectCard = contentPage.locator('[data-testid="home-project-card-0"]');
@@ -120,7 +120,7 @@ test.describe('CreateProject', () => {
     const loginName2 = process.env.TEST_LOGIN_NAME2;
     if (!loginName2) throw new Error('缺少 TEST_LOGIN_NAME2 环境变量');
 
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
 
     const groupListResponse = contentPage.waitForResponse(
       (response) => response.url().includes('/api/group/list') && response.status() === 200,
@@ -236,14 +236,14 @@ test.describe('CreateProject', () => {
     expect(requestBody.groups.some((g) => g.groupName === groupName)).toBeTruthy();
 
     await expect(projectDialog).toBeHidden({ timeout: 5000 });
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
 
     const backHomeProjectListResponse = contentPage.waitForResponse(
       (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
       { timeout: 20000 },
     );
     await topBarPage.locator('[data-testid="header-home-btn"]').click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
     await backHomeProjectListResponse;
     await contentPage.waitForTimeout(500);
 

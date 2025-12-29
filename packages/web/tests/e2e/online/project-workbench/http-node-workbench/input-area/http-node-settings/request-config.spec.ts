@@ -9,7 +9,7 @@ test.describe('RequestConfig', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
 
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -42,7 +42,7 @@ test.describe('RequestConfig', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
 
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -74,7 +74,7 @@ test.describe('RequestConfig', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
 
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -121,7 +121,7 @@ test.describe('RequestConfig', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
 
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');

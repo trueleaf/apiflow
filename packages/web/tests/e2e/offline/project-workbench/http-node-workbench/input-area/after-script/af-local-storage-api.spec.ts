@@ -7,7 +7,7 @@ test.describe('AfLocalStorageApi', () => {
   test('使用af.localStorage.set(key, value)存储持久数据', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -50,7 +50,7 @@ test.describe('AfLocalStorageApi', () => {
   test('使用af.localStorage.get(key)获取持久数据', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 预先设置localStorage数据
     await contentPage.evaluate(() => {
       localStorage.setItem('af_test_key', '"test_value"');
@@ -91,7 +91,7 @@ test.describe('AfLocalStorageApi', () => {
   test('使用af.localStorage.remove(key)删除持久数据', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 预先设置localStorage数据
     await contentPage.evaluate(() => {
       localStorage.setItem('af_remove_key', '"remove_value"');
@@ -142,7 +142,7 @@ test.describe('AfLocalStorageApi', () => {
   test('使用af.localStorage.clear()清空所有持久数据', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 预先设置多个localStorage数据
     await contentPage.evaluate(() => {
       localStorage.setItem('af_clear_key1', '"value1"');
@@ -207,7 +207,7 @@ test.describe('AfLocalStorageApi', () => {
   test('获取不存在的键返回null', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();

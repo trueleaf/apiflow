@@ -9,7 +9,7 @@ test.describe('EnvVariableAccess', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 打开变量管理页面并创建变量
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
@@ -71,7 +71,7 @@ test.describe('EnvVariableAccess', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 打开变量管理页面并创建变量
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();

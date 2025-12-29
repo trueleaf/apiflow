@@ -12,14 +12,14 @@ test.describe('Logo', () => {
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     await expect(settingsBtn).toBeVisible();
     await settingsBtn.click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
     // 点击logo跳转主页面
     const logo = topBarPage.locator('.logo-img');
     const projectListPromise = contentPage.waitForResponse(
       (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
       { timeout: 20000 },
     );
-    const urlPromise = contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    const urlPromise = contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await expect(logo).toBeVisible();
     await logo.click();
     await Promise.all([projectListPromise, urlPromise]);
@@ -40,7 +40,7 @@ test.describe('Logo', () => {
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     await expect(settingsBtn).toBeVisible();
     await settingsBtn.click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
     // 点击"通用配置"菜单项
     const commonSettingsMenu = contentPage.locator('[data-testid="settings-menu-common-settings"]');
     await expect(commonSettingsMenu).toBeVisible();
@@ -97,7 +97,7 @@ test.describe('Logo', () => {
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     await expect(settingsBtn).toBeVisible();
     await settingsBtn.click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
     // 点击"通用配置"菜单项
     const commonSettingsMenu = contentPage.locator('[data-testid="settings-menu-common-settings"]');
     await expect(commonSettingsMenu).toBeVisible();

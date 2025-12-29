@@ -7,7 +7,7 @@ test.describe('TabDrag', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增多个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -49,7 +49,7 @@ test.describe('TabDrag', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增两个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -86,7 +86,7 @@ test.describe('TabDrag', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增三个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 3; i++) {
@@ -118,7 +118,7 @@ test.describe('TabDrag', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增一个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -147,7 +147,7 @@ test.describe('TabDrag', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增两个HTTP节点（新增时为固定状态）
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();

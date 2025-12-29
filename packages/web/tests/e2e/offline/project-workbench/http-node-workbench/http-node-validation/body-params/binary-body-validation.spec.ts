@@ -7,7 +7,7 @@ test.describe('BinaryBodyValidation', () => {
     await clearCache();
     // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const treeWrap = contentPage.locator('.tree-wrap');
@@ -48,7 +48,7 @@ test.describe('BinaryBodyValidation', () => {
     await clearCache();
     // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const treeWrap = contentPage.locator('.tree-wrap');
@@ -89,7 +89,7 @@ test.describe('BinaryBodyValidation', () => {
     await clearCache();
     // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const treeWrap = contentPage.locator('.tree-wrap');
@@ -132,7 +132,7 @@ test.describe('BinaryBodyValidation', () => {
     await clearCache();
     // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const treeWrap = contentPage.locator('.tree-wrap');
@@ -174,7 +174,7 @@ test.describe('BinaryBodyValidation', () => {
     await clearCache();
     // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const treeWrap = contentPage.locator('.tree-wrap');
@@ -222,7 +222,7 @@ test.describe('BinaryBodyValidation', () => {
     await clearCache();
     // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const treeWrap = contentPage.locator('.tree-wrap');
@@ -266,7 +266,7 @@ test.describe('BinaryBodyValidation', () => {
     await clearCache();
     // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const treeWrap = contentPage.locator('.tree-wrap');
@@ -310,7 +310,7 @@ test.describe('BinaryBodyValidation', () => {
     await clearCache();
     // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const treeWrap = contentPage.locator('.tree-wrap');
@@ -354,7 +354,7 @@ test.describe('BinaryBodyValidation', () => {
     await clearCache();
     // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const treeWrap = contentPage.locator('.tree-wrap');
@@ -404,7 +404,7 @@ test.describe('BinaryBodyValidation', () => {
     await clearCache();
     // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const treeWrap = contentPage.locator('.tree-wrap');
@@ -453,7 +453,7 @@ test.describe('BinaryBodyValidation', () => {
     await clearCache();
     // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const treeWrap = contentPage.locator('.tree-wrap');
@@ -504,7 +504,7 @@ test.describe('BinaryBodyValidation', () => {
     await clearCache();
     // clearCache() 已经导航到首页并刷新，无需再等待
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const treeWrap = contentPage.locator('.tree-wrap');

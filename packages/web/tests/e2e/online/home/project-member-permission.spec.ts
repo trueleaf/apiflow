@@ -9,14 +9,14 @@ test.describe('Online项目成员权限', () => {
     if (!loginName) throw new Error('缺少 TEST_LOGIN_NAME 环境变量');
 
     const projectName = await createProject(`E2E-权限项目-${Date.now()}`);
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
 
     const projectListResponse = contentPage.waitForResponse(
       (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
       { timeout: 20000 },
     );
     await topBarPage.locator('[data-testid="header-home-btn"]').click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
     await projectListResponse;
 
     const projectCard = contentPage.locator('[data-testid^="home-project-card-"]').filter({ hasText: projectName }).first();

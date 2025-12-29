@@ -5,7 +5,7 @@ test.describe('Online团队管理', () => {
     await clearCache();
     await loginAccount();
 
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
     const groupListResponse = contentPage.waitForResponse(
       (response) => response.url().includes('/api/group/list') && response.status() === 200,
       { timeout: 20000 },
@@ -20,7 +20,7 @@ test.describe('Online团队管理', () => {
     await clearCache();
     await loginAccount();
 
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
     const groupListResponse = contentPage.waitForResponse(
       (response) => response.url().includes('/api/group/list') && response.status() === 200,
       { timeout: 20000 },

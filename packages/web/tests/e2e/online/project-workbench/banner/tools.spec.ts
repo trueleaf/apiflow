@@ -7,7 +7,7 @@ test.describe('Tools', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 验证工具栏区域存在
     const toolIcon = contentPage.locator('.tool-icon');
@@ -26,7 +26,7 @@ test.describe('Tools', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 点击更多操作按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -48,7 +48,7 @@ test.describe('Tools', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 点击更多操作按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -73,7 +73,7 @@ test.describe('Tools', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 展开更多操作面板
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -95,7 +95,7 @@ test.describe('Tools', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 展开更多操作面板
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -116,7 +116,7 @@ test.describe('Tools', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 展开更多操作面板
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -139,7 +139,7 @@ test.describe('Tools', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 展开更多操作面板
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -162,7 +162,7 @@ test.describe('Tools', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 展开更多操作面板
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -185,7 +185,7 @@ test.describe('Tools', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 展开更多操作面板
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -208,7 +208,7 @@ test.describe('Tools', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 展开更多操作面板
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -229,7 +229,7 @@ test.describe('Tools', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 展开更多操作面板
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -250,7 +250,7 @@ test.describe('Tools', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 展开更多操作面板
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -271,7 +271,7 @@ test.describe('Tools', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 展开更多操作面板
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -292,7 +292,7 @@ test.describe('Tools', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 展开更多操作面板
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');

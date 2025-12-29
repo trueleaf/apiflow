@@ -5,7 +5,7 @@ test.describe('RenameNode', () => {
     test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -43,7 +43,7 @@ test.describe('RenameNode', () => {
     test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -78,7 +78,7 @@ test.describe('RenameNode', () => {
     test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -117,7 +117,7 @@ test.describe('RenameNode', () => {
     test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -155,7 +155,7 @@ test.describe('RenameNode', () => {
     test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -193,7 +193,7 @@ test.describe('RenameNode', () => {
     test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -229,7 +229,7 @@ test.describe('RenameNode', () => {
     test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -270,7 +270,7 @@ test.describe('RenameNode', () => {
     test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -311,7 +311,7 @@ test.describe('RenameNode', () => {
     test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -349,7 +349,7 @@ test.describe('RenameNode', () => {
     test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -385,7 +385,7 @@ test.describe('RenameNode', () => {
     test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -426,7 +426,7 @@ test.describe('RenameNode', () => {
     test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -467,7 +467,7 @@ test.describe('RenameNode', () => {
     test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -505,7 +505,7 @@ test.describe('RenameNode', () => {
     test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -541,7 +541,7 @@ test.describe('RenameNode', () => {
     test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -582,7 +582,7 @@ test.describe('RenameNode', () => {
     test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -623,7 +623,7 @@ test.describe('RenameNode', () => {
     test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -658,7 +658,7 @@ test.describe('RenameNode', () => {
     test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -691,7 +691,7 @@ test.describe('RenameNode', () => {
     test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -729,7 +729,7 @@ test.describe('RenameNode', () => {
     test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });

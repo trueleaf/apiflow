@@ -5,7 +5,7 @@ test.describe('BannerNavInteraction', () => {
   test('单击左侧非folder类型节点新增非固定tab页签且字体斜体', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -35,7 +35,7 @@ test.describe('BannerNavInteraction', () => {
   test('双击左侧非folder类型节点新增固定tab页签且字体正常', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -66,7 +66,7 @@ test.describe('BannerNavInteraction', () => {
   test('单击左侧folder类型节点不会新增tab页签', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增文件夹节点
     const addFolderBtn = contentPage.getByTestId('banner-add-folder-btn');
     await addFolderBtn.click();
@@ -91,7 +91,7 @@ test.describe('BannerNavInteraction', () => {
   test('单击非folder节点B覆盖非固定tab节点A', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增两个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -134,7 +134,7 @@ test.describe('BannerNavInteraction', () => {
   test('双击非folder节点覆盖非固定页签并设为固定', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增两个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -173,7 +173,7 @@ test.describe('BannerNavInteraction', () => {
   test('banner新增节点会在右侧导航栏新增固定tab页签', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -195,7 +195,7 @@ test.describe('BannerNavInteraction', () => {
   test('删除banner节点右侧导航栏删除对应tab页签', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -227,7 +227,7 @@ test.describe('BannerNavInteraction', () => {
   test('重命名banner节点右侧导航栏对应tab页签名称更新', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -262,7 +262,7 @@ test.describe('BannerNavInteraction', () => {
   test('点击tab页签左侧banner节点高亮', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增两个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -289,7 +289,7 @@ test.describe('BannerNavInteraction', () => {
   test('双击非固定页签变为固定', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();

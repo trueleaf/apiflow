@@ -10,7 +10,7 @@ test.describe('Variable', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -29,7 +29,7 @@ test.describe('Variable', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -55,7 +55,7 @@ test.describe('Variable', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -86,7 +86,7 @@ test.describe('Variable', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -117,7 +117,7 @@ test.describe('Variable', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -145,7 +145,7 @@ test.describe('Variable', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -175,7 +175,7 @@ test.describe('Variable', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -209,7 +209,7 @@ test.describe('Variable', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -268,7 +268,7 @@ test.describe('Variable', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -305,7 +305,7 @@ test.describe('Variable', () => {
     await clearCache();
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -352,7 +352,7 @@ test.describe('Variable', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -417,7 +417,7 @@ test.describe('Variable', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -497,7 +497,7 @@ test.describe('Variable', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -577,7 +577,7 @@ test.describe('Variable', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -636,7 +636,7 @@ test.describe('Variable', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -692,7 +692,7 @@ test.describe('Variable', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -748,7 +748,7 @@ test.describe('Variable', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const testContent = 'test binary content';
     const testFilePath = path.join(process.cwd(), 'temp', `variable-binary-${Date.now()}.txt`);
     const testDir = path.dirname(testFilePath);
@@ -822,7 +822,7 @@ test.describe('Variable', () => {
     await clearCache();
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -854,7 +854,7 @@ test.describe('Variable', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');

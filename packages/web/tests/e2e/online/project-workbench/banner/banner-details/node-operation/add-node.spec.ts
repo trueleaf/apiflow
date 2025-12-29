@@ -8,7 +8,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -48,7 +48,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 首先创建一个文件夹
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -95,7 +95,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 点击更多操作按钮
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -127,7 +127,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 配置AI设置
       const aiApiUrl = process.env.TEST_AI_API_URL;
@@ -185,7 +185,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -222,7 +222,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 首先创建一个文件夹
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -271,7 +271,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 点击更多操作按钮
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -308,7 +308,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -345,7 +345,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 首先创建一个文件夹
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -394,7 +394,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 点击更多操作按钮
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -431,7 +431,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -468,7 +468,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 首先创建一个文件夹
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -517,7 +517,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 点击更多操作按钮
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -554,7 +554,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -588,7 +588,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 首先创建一个父文件夹
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -633,7 +633,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 点击更多操作按钮
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
@@ -664,7 +664,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 首先创建一个文件夹
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -715,7 +715,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 首先创建一个HTTP节点
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -753,7 +753,7 @@ test.describe('AddNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 首先创建一个HTTP节点
       const treeWrap = contentPage.locator('.tree-wrap');

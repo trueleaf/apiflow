@@ -137,7 +137,7 @@ export const test = base.extend<ElectronFixtures>({
           await logoutBtn.click();
         }
       }
-      await contentPage.waitForURL(/.*#\/login.*/, { timeout: 10000 });
+      await contentPage.waitForURL(/.*?#?\/login/, { timeout: 10000 });
       await expect(contentPage.locator('[data-testid="login-tabs"]')).toBeVisible({ timeout: 5000 });
       await contentPage.locator('.el-tabs__item').filter({ hasText: /设置|Setting/i }).click();
       const serverUrlInput = contentPage.getByPlaceholder(/请输入接口调用地址|Please enter.*address/i);
@@ -153,7 +153,7 @@ export const test = base.extend<ElectronFixtures>({
       await contentPage.locator('[data-testid="login-username-input"]').fill(loginName);
       await contentPage.locator('[data-testid="login-password-input"]').fill(password);
       await contentPage.locator('[data-testid="login-submit-btn"]').click();
-      await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
+      await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
       await expect(contentPage.locator('[data-testid="home-add-project-btn"]')).toBeVisible({ timeout: 10000 });
     };
     await use(login);

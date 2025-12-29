@@ -41,7 +41,7 @@ test.describe('NavControl', () => {
     // 打开设置页面
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     await settingsBtn.click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
     // 导航历史栈现在是: 项目C -> 项目A -> 设置
     // 点击后退按钮，应回到项目A
     const backBtn = topBarPage.locator('[data-testid="header-back-btn"]');
@@ -55,7 +55,7 @@ test.describe('NavControl', () => {
     const forwardBtn = topBarPage.locator('[data-testid="header-forward-btn"]');
     await expect(forwardBtn).toBeVisible();
     await forwardBtn.click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
     // 等待 Tab 高亮状态同步
     await topBarPage.waitForTimeout(500);
     // 验证回到设置页面
@@ -75,7 +75,7 @@ test.describe('NavControl', () => {
     // 打开设置页面
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     await settingsBtn.click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
     // 导航历史栈: 项目C -> 项目A -> 设置
     const backBtn = topBarPage.locator('[data-testid="header-back-btn"]');
     const forwardBtn = topBarPage.locator('[data-testid="header-forward-btn"]');
@@ -94,7 +94,7 @@ test.describe('NavControl', () => {
     await expect(projectATab).toHaveClass(/active/);
     // 前进：项目A -> 设置
     await forwardBtn.click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
     // 等待 Tab 高亮状态同步
     await topBarPage.waitForTimeout(500);
     const settingsTab = topBarPage.locator('.tab-item').filter({ hasText: /设置|Settings/ });
@@ -113,7 +113,7 @@ test.describe('NavControl', () => {
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     await expect(settingsBtn).toBeVisible();
     await settingsBtn.click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
     // 点击后退按钮，应回到主页面
     const backBtn = topBarPage.locator('[data-testid="header-back-btn"]');
     await backBtn.click();

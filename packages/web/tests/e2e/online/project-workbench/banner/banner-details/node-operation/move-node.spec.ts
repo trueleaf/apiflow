@@ -8,7 +8,7 @@ test.describe('MoveNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -69,7 +69,7 @@ test.describe('MoveNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建源文件夹
@@ -148,7 +148,7 @@ test.describe('MoveNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建第一个httpNode节点
@@ -199,7 +199,7 @@ test.describe('MoveNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建两个httpNode节点
@@ -250,7 +250,7 @@ test.describe('MoveNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -312,7 +312,7 @@ test.describe('MoveNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建源文件夹
@@ -398,7 +398,7 @@ test.describe('MoveNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -460,7 +460,7 @@ test.describe('MoveNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建源文件夹
@@ -546,7 +546,7 @@ test.describe('MoveNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -608,7 +608,7 @@ test.describe('MoveNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建源文件夹
@@ -694,7 +694,7 @@ test.describe('MoveNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建父文件夹
@@ -752,7 +752,7 @@ test.describe('MoveNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建源文件夹
@@ -803,7 +803,7 @@ test.describe('MoveNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建文件夹A
@@ -853,7 +853,7 @@ test.describe('MoveNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建父文件夹
@@ -911,7 +911,7 @@ test.describe('MoveNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建源文件夹

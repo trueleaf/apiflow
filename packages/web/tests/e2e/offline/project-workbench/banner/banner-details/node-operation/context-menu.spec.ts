@@ -6,7 +6,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键空白区域,出现新建接口,新建文件夹,设置公共请求头,粘贴节点(可能置灰)等功能', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -39,7 +39,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键空白区域,点击新建接口,成功后在根节点末尾生成节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -68,7 +68,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键空白区域,点击新建文件夹,成功后在根节点最后一个目录节点下面生成目录节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -95,7 +95,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键空白区域,点击设置公共请求头,导航区域增加公共请求头标签', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 在空白区域右键
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -114,7 +114,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键空白区域,点击粘贴,可以粘贴节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个HTTP节点
@@ -155,7 +155,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键folder节点,出现新建接口,新建文件夹,设置公共请求头,剪切,复制,粘贴,重命名,删除等功能', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -199,7 +199,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键folder节点,点击新建接口,成功后在当前folder内生成节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -242,7 +242,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键folder节点,点击新建文件夹,成功后在当前folder内生成节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -285,7 +285,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键folder节点,点击设置公共请求头,导航区域增加公共请求头标签', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -318,7 +318,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键folder节点,点击剪切,被剪切节点样式发生改变,粘贴可以移动节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -375,7 +375,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键folder节点,点击复制,粘贴可以复制节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -413,7 +413,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键folder节点,点击重命名,可以正常重命名', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -455,7 +455,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键folder节点,点击删除,可以正常删除目录', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个文件夹
@@ -497,7 +497,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键非folder节点,出现剪切,复制,生成副本,重命名,删除等功能', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 先创建一个HTTP节点
@@ -540,7 +540,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键非folder节点,点击剪切,被剪切节点样式发生改变,粘贴可以移动节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建目标文件夹
@@ -597,7 +597,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键非folder节点,点击复制,粘贴可以复制节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建HTTP节点
@@ -635,7 +635,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键非folder节点,点击生成副本,可以在当前节点后面生成副本节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建HTTP节点
@@ -667,7 +667,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键非folder节点,点击重命名,可以正常重命名', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建HTTP节点
@@ -709,7 +709,7 @@ test.describe('ContextMenu', () => {
     test('鼠标右键非folder节点,点击删除,可以正常删除节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建HTTP节点

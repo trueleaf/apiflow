@@ -9,7 +9,7 @@ test.describe('SaveButton', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -35,7 +35,7 @@ test.describe('SaveButton', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -57,7 +57,7 @@ test.describe('SaveButton', () => {
     await contentPage.waitForTimeout(500);
     // 刷新页面
     await contentPage.reload();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
     await contentPage.waitForTimeout(1000);
     // 验证URL保持修改后的值
     const urlInputAfterReload = contentPage.locator('[data-testid="url-input"] [contenteditable]');
@@ -70,7 +70,7 @@ test.describe('SaveButton', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -97,7 +97,7 @@ test.describe('SaveButton', () => {
     await contentPage.waitForTime
     // 刷新页面
     await contentPage.reload();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
     await contentPage.waitForTimeout(1000);
     // 验证URL保持
     const urlInputAfterReload = contentPage.locator('[data-testid="url-input"] [contenteditable]');

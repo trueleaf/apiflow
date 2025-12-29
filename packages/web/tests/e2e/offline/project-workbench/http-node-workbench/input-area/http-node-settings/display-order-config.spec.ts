@@ -5,7 +5,7 @@ test.describe('DisplayOrderConfig', () => {
   test('拖拽调整Body参数模式显示顺序后Body区域按新顺序展示', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -58,7 +58,7 @@ test.describe('DisplayOrderConfig', () => {
   test('拖拽调整标签页显示顺序后标签按新顺序展示', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -109,7 +109,7 @@ test.describe('DisplayOrderConfig', () => {
   test('显示顺序修改后刷新页面顺序保持不变', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -149,7 +149,7 @@ test.describe('DisplayOrderConfig', () => {
     expect(newFirstModeLabel).toBe(lastModeLabel);
     // 刷新页面
     await contentPage.reload();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
     await contentPage.waitForTimeout(1000);
     // 重新打开设置标签页
     const settingsTabAfterReload = contentPage.locator('[data-testid="http-params-tab-settings"]');

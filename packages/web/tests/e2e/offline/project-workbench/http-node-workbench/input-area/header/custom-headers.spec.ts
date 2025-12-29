@@ -7,7 +7,7 @@ test.describe('CustomHeaders', () => {
   test('请求头key输入匹配时出现下拉列表并支持键盘选择', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -43,7 +43,7 @@ test.describe('CustomHeaders', () => {
   test('自定义请求头key忽略大小写覆盖默认请求头', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -88,7 +88,7 @@ test.describe('CustomHeaders', () => {
   test('header参数key输入后自动新增一行', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -124,7 +124,7 @@ test.describe('CustomHeaders', () => {
   test('自定义header参数正确发送到服务器', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -169,7 +169,7 @@ test.describe('CustomHeaders', () => {
   test('header参数支持变量替换', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -214,7 +214,7 @@ test.describe('CustomHeaders', () => {
   test('未勾选的header参数不会发送', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');

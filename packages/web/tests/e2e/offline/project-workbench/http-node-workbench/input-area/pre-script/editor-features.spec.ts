@@ -5,7 +5,7 @@ test.describe('PreScriptEditorFeatures', () => {
   test('前置脚本编辑器支持JavaScript语法高亮', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const treeWrap = contentPage.locator('.tree-wrap');
@@ -41,7 +41,7 @@ test.describe('PreScriptEditorFeatures', () => {
   test('输入af后出现代码补全提示', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const treeWrap = contentPage.locator('.tree-wrap');
@@ -82,7 +82,7 @@ test.describe('PreScriptEditorFeatures', () => {
   test('点击格式化按钮代码格式化正确', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const treeWrap = contentPage.locator('.tree-wrap');
@@ -128,7 +128,7 @@ test.describe('PreScriptEditorFeatures', () => {
   test('鼠标悬停在af对象属性上显示API说明提示', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const treeWrap = contentPage.locator('.tree-wrap');

@@ -10,7 +10,7 @@ test.describe('FormdataFileUploadValidation', () => {
   test('调用echo接口验证包含字符串和file类型的formData是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -82,7 +82,7 @@ test.describe('FormdataFileUploadValidation', () => {
   test('调用echo接口验证formData录入value如果是变量是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 打开变量管理页面并创建变量
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
@@ -159,7 +159,7 @@ test.describe('FormdataFileUploadValidation', () => {
   test('调用echo接口验证formData录入value如果是mock是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -221,7 +221,7 @@ test.describe('FormdataFileUploadValidation', () => {
   test('调用echo接口验证formData中没有file字段时是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();

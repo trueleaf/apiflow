@@ -13,7 +13,7 @@ test.describe('Navigation', () => {
     // 打开设置Tab
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     await settingsBtn.click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
     // 等待设置Tab出现
     await topBarPage.waitForTimeout(500);
     // 验证设置Tab存在且显示Settings图标（取当前高亮的设置Tab）
@@ -40,7 +40,7 @@ test.describe('Navigation', () => {
     // 点击设置按钮
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     await settingsBtn.click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
     // 验证存在设置Tab
     const settingsTabs = topBarPage.locator('.tab-item').filter({ hasText: /设置|Settings/ });
     const settingsTabCount = await settingsTabs.count();
@@ -66,7 +66,7 @@ test.describe('Navigation', () => {
     // 跳转到首页
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
     await homeBtn.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     // 等待页面完全加载，并关闭可能的提示弹窗
     await topBarPage.waitForTimeout(500);
     const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
@@ -97,7 +97,7 @@ test.describe('Navigation', () => {
     // 打开设置Tab
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     await settingsBtn.click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
     await topBarPage.waitForTimeout(500);
     // 记录当前Tab数量
     const tabCountBeforeSwitch = await topBarPage.locator('.tab-item').count();
@@ -127,7 +127,7 @@ test.describe('Navigation', () => {
     // 打开设置Tab
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     await settingsBtn.click();
-    await contentPage.waitForURL(/.*#\/settings.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
     await topBarPage.waitForTimeout(500);
     // 再创建项目B
     const projectBName = await createProject(`排序项目B-${Date.now()}`);
@@ -261,7 +261,7 @@ test.describe('Navigation', () => {
     // 跳转到首页修改项目名称
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
     await homeBtn.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await topBarPage.waitForTimeout(500);
     // 关闭可能的提示弹窗
     const msgBoxConfirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
@@ -310,7 +310,7 @@ test.describe('Navigation', () => {
     // 跳转到首页删除项目A
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
     await homeBtn.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await topBarPage.waitForTimeout(500);
     // 关闭可能的提示弹窗
     const msgBoxConfirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');

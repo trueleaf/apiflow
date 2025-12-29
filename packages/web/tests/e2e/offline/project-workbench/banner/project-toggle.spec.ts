@@ -5,7 +5,7 @@ test.describe('ProjectToggle', () => {
   test('显示当前项目名称', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 验证Tool.vue中h2元素显示项目名称
     const projectName = contentPage.locator('.tool h2');
@@ -19,7 +19,7 @@ test.describe('ProjectToggle', () => {
   test('点击切换按钮弹出项目面板', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 点击切换项目按钮
     const toggleBtn = contentPage.locator('[data-testid="banner-toggle-project-btn"]');
@@ -35,7 +35,7 @@ test.describe('ProjectToggle', () => {
   test('项目面板显示项目列表标题', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 点击切换项目按钮
     const toggleBtn = contentPage.locator('[data-testid="banner-toggle-project-btn"]');
@@ -50,7 +50,7 @@ test.describe('ProjectToggle', () => {
   test('项目面板显示项目列表', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 点击切换项目按钮
     const toggleBtn = contentPage.locator('[data-testid="banner-toggle-project-btn"]');
@@ -71,7 +71,7 @@ test.describe('ProjectToggle', () => {
   test('项目项显示项目名称和创建者', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 点击切换项目按钮
     const toggleBtn = contentPage.locator('[data-testid="banner-toggle-project-btn"]');
@@ -92,7 +92,7 @@ test.describe('ProjectToggle', () => {
   test('点击外部区域关闭项目面板', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 点击切换项目按钮打开面板
     const toggleBtn = contentPage.locator('[data-testid="banner-toggle-project-btn"]');
@@ -111,7 +111,7 @@ test.describe('ProjectToggle', () => {
   test('点击项目触发切换', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 点击切换项目按钮
     const toggleBtn = contentPage.locator('[data-testid="banner-toggle-project-btn"]');

@@ -9,7 +9,7 @@ test.describe('BinaryParams', () => {
   test('变量模式下无效变量发送被阻止', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -61,7 +61,7 @@ test.describe('BinaryParams', () => {
   test('变量模式下有效变量正确发送', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建测试文件
     const testFilePath = path.join(process.cwd(), 'temp', 'test-binary.txt');
@@ -145,7 +145,7 @@ test.describe('BinaryParams', () => {
   test('文件模式下未选择文件发送被阻止', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -193,7 +193,7 @@ test.describe('BinaryParams', () => {
   test('文件模式下选择文件正确发送', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建测试文件
     const testFilePath = path.join(process.cwd(), 'temp', 'test-image.png');

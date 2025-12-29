@@ -7,7 +7,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -47,7 +47,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -84,7 +84,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -125,7 +125,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -165,7 +165,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -205,7 +205,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -243,7 +243,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -286,7 +286,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -329,7 +329,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -369,7 +369,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -407,7 +407,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -450,7 +450,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -493,7 +493,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -533,7 +533,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -571,7 +571,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -614,7 +614,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -657,7 +657,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -694,7 +694,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -729,7 +729,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -769,7 +769,7 @@ test.describe('RenameNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });

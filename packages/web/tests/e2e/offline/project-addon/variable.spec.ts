@@ -8,7 +8,7 @@ test.describe('Variable', () => {
   test('打开变量管理页面,显示新增变量表单和变量列表', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -25,7 +25,7 @@ test.describe('Variable', () => {
   test('新增string类型变量成功,变量列表中显示新增的变量', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -49,7 +49,7 @@ test.describe('Variable', () => {
   test('新增number类型变量成功', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -78,7 +78,7 @@ test.describe('Variable', () => {
   test('新增boolean类型变量成功', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -107,7 +107,7 @@ test.describe('Variable', () => {
   test('新增重复变量名显示错误提示', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -133,7 +133,7 @@ test.describe('Variable', () => {
   test('删除变量成功,变量从列表中移除', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -161,7 +161,7 @@ test.describe('Variable', () => {
   test('编辑变量成功,变量值更新', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -193,7 +193,7 @@ test.describe('Variable', () => {
   test('在请求Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -250,7 +250,7 @@ test.describe('Variable', () => {
   test('在请求URL中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -286,7 +286,7 @@ test.describe('Variable', () => {
   test('在请求Headers中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -331,7 +331,7 @@ test.describe('Variable', () => {
   test('在请求Params(Path/Query)中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -394,7 +394,7 @@ test.describe('Variable', () => {
   test('在公共请求头(Common Header)中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -472,7 +472,7 @@ test.describe('Variable', () => {
   test('在Cookie值中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -550,7 +550,7 @@ test.describe('Variable', () => {
   test('在Raw Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -607,7 +607,7 @@ test.describe('Variable', () => {
   test('在Urlencoded Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -661,7 +661,7 @@ test.describe('Variable', () => {
   test('在Form-Data Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -715,7 +715,7 @@ test.describe('Variable', () => {
   test('在Binary(变量模式)中使用变量,发送请求后rawBody等于文件内容', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const testContent = 'test binary content';
     const testFilePath = path.join(process.cwd(), 'temp', `variable-binary-${Date.now()}.txt`);
     const testDir = path.dirname(testFilePath);
@@ -788,7 +788,7 @@ test.describe('Variable', () => {
   test('新增any类型变量执行JavaScript表达式,动态时间戳', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -818,7 +818,7 @@ test.describe('Variable', () => {
   test('使用不存在的变量时保留原始文本', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');

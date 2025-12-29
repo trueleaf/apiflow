@@ -15,7 +15,7 @@ test.describe('CreateProject', () => {
     await clearCache();
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
     await homeBtn.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     const addProjectBtn = contentPage.locator('[data-testid="home-add-project-btn"]');
     await addProjectBtn.click();
@@ -64,7 +64,7 @@ test.describe('CreateProject', () => {
     const confirmBtn = projectDialog.locator('.el-button--primary').last();
     await confirmBtn.click();
     await expect(projectDialog).toBeHidden({ timeout: 5000 });
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const url = contentPage.url();
     expect(url).toContain('mode=edit');
     const activeTab = topBarPage.locator('.tab-item.active');
@@ -86,10 +86,10 @@ test.describe('CreateProject', () => {
     const confirmBtn = projectDialog.locator('.el-button--primary').last();
     await confirmBtn.click();
     await expect(projectDialog).toBeHidden({ timeout: 5000 });
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
     await homeBtn.click();
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     const firstProjectCard = contentPage.locator('[data-testid="home-project-card-0"]');
     await expect(firstProjectCard).toBeVisible({ timeout: 5000 });

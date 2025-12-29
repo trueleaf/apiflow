@@ -7,7 +7,7 @@ test.describe('Search', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 验证搜索框存在
     const searchInput = contentPage.locator('[data-testid="banner-search-input"]');
@@ -31,7 +31,7 @@ test.describe('Search', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -61,7 +61,7 @@ test.describe('Search', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -96,7 +96,7 @@ test.describe('Search', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -125,7 +125,7 @@ test.describe('Search', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -153,7 +153,7 @@ test.describe('Search', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 在离线模式下,高级筛选按钮应该不显示
     // isStandalone计算属性返回true时隐藏高级筛选

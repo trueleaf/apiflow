@@ -7,7 +7,7 @@ test.describe('CallHistory', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 验证Banner区域的Tab切换器存在
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
@@ -37,7 +37,7 @@ test.describe('CallHistory', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点
     const addHttpBtn = contentPage.getByTitle('新增文件', { exact: true });
@@ -83,7 +83,7 @@ test.describe('CallHistory', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 切换到调用历史Tab
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
@@ -118,7 +118,7 @@ test.describe('CallHistory', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 切换到调用历史Tab
     const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
@@ -140,7 +140,7 @@ test.describe('CallHistory', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点
     const addHttpBtn = contentPage.getByTitle('新增文件', { exact: true });
@@ -197,7 +197,7 @@ test.describe('CallHistory', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点
     const addHttpBtn = contentPage.getByTitle('新增文件', { exact: true });
@@ -255,7 +255,7 @@ test.describe('CallHistory', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 预置足够数量的历史数据（31条），保证触发分页并出现“没有更多了”
     await contentPage.evaluate(async () => {
@@ -323,7 +323,7 @@ test.describe('CallHistory', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点、发送请求生成历史，然后删除该接口，确保出现“已删除”历史
     const addHttpBtn = contentPage.getByTitle('新增文件', { exact: true });

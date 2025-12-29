@@ -7,7 +7,7 @@ test.describe('RequestConfig', () => {
   test('修改最大文本Body大小配置', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
 
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -38,7 +38,7 @@ test.describe('RequestConfig', () => {
   test('修改最大原始Body大小配置', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
 
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -68,7 +68,7 @@ test.describe('RequestConfig', () => {
   test('修改自定义User-Agent配置', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
 
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -113,7 +113,7 @@ test.describe('RequestConfig', () => {
   test('修改请求头值最大展示长度配置', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
 
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');

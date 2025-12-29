@@ -5,7 +5,7 @@ test.describe('TabDrag', () => {
   test('拖拽tab页签改变顺序', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增多个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -45,7 +45,7 @@ test.describe('TabDrag', () => {
   test('拖拽tab页签后激活状态保持', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增两个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -80,7 +80,7 @@ test.describe('TabDrag', () => {
   test('拖拽后页签数量不变', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增三个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 3; i++) {
@@ -110,7 +110,7 @@ test.describe('TabDrag', () => {
   test('只有单个tab时拖拽无变化', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增一个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -137,7 +137,7 @@ test.describe('TabDrag', () => {
   test('拖拽后固定状态保持', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增两个HTTP节点（新增时为固定状态）
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();

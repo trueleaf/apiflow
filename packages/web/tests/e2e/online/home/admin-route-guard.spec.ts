@@ -48,7 +48,7 @@ test.describe('Online后台管理权限', () => {
     await contentPage.evaluate(() => {
       window.location.hash = '#/admin';
     });
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
     await expect(adminBtn).toBeHidden({ timeout: 2000 });
   });
 });

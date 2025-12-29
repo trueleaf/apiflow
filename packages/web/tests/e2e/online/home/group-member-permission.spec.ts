@@ -8,7 +8,7 @@ test.describe('Online团队成员权限', () => {
     const loginName2 = process.env.TEST_LOGIN_NAME2;
     if (!loginName2) throw new Error('缺少 TEST_LOGIN_NAME2 环境变量');
 
-    await contentPage.waitForURL(/.*#\/home.*/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
     const groupListResponse = contentPage.waitForResponse(
       (response) => response.url().includes('/api/group/list') && response.status() === 200,
       { timeout: 20000 },
