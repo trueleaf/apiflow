@@ -198,7 +198,7 @@ test.describe('Tools', () => {
       await contentPage.waitForTimeout(300);
       // 验证对话框弹出
       const dialog = contentPage.locator('.el-dialog').filter({ hasText: /新增|新建|文件|接口/ });
-      await expect(dialog).toBeVi
+      await expect(dialog).toBeVisible({ timeout: 5000 });
     }
   });
 
@@ -218,7 +218,7 @@ test.describe('Tools', () => {
     const recyclerItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /回收站/ });
     await expect(recyclerItem).toBeVisible({ timeout: 5000 });
     await recyclerItem.click();
-    await contentPage.waitForTime
+    await contentPage.waitForTimeout(500);
     // 验证回收站内容区显示
     await expect(contentPage.locator('.recycler')).toBeVisible({ timeout: 5000 });
   });
@@ -258,7 +258,7 @@ test.describe('Tools', () => {
     await contentPage.waitForTimeout(300);
     // 点击全局变量工具
     const variableItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /全局变量|变量/ });
-    await expect(variableItem).to
+    await expect(variableItem).toBeVisible({ timeout: 5000 });
     await variableItem.click();
     await contentPage.waitForTimeout(500);
     // 验证变量内容区显示

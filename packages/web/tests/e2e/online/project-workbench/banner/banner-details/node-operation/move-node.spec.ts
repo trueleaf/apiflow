@@ -452,7 +452,7 @@ test.describe('MoveNode', () => {
       await contentPage.waitForTimeout(500);
       // 验证节点移动到根节点下
       const rootMockNode = treeWrap.locator('> .el-tree > .el-tree-node').filter({ hasText: '测试Mock节点' });
-      await expect(rootMockNode).to
+      await expect(rootMockNode).toBeVisible({ timeout: 5000 });
     });
     // 拖拽单个httpMockNode节点到folder节点上,移动到folder节点下
     test('拖拽单个httpMockNode节点到folder节点上,移动到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
@@ -683,7 +683,7 @@ test.describe('MoveNode', () => {
         await contentPage.waitForTimeout(300);
       }
       const movedNode = targetFolderTreeNode.locator('.el-tree-node__content').filter({ hasText: '测试WsMock节点' });
-      await expect(movedNode).toBeV
+      await expect(movedNode).toBeVisible({ timeout: 5000 });
     });
   });
 
@@ -790,7 +790,7 @@ test.describe('MoveNode', () => {
         await contentPage.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2);
         await contentPage.mouse.up();
       }
-      await contentPage.waitForTime
+      await contentPage.waitForTimeout(500);
       // 验证目标文件夹展开并包含源文件夹
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '目标文件夹' });
       await expect(expandedFolder).toBeVisible({ timeout: 5000 });
@@ -896,7 +896,7 @@ test.describe('MoveNode', () => {
       const childBox = await childFolderNode.boundingBox();
       if (parentBox && childBox) {
         await contentPage.mouse.move(parentBox.x + parentBox.width / 2, parentBox.y + parentBox.height / 2);
-        await contentPage.mouse.dow
+        await contentPage.mouse.down();
         await contentPage.mouse.move(childBox.x + childBox.width / 2, childBox.y + childBox.height / 2);
         await contentPage.mouse.up();
       }

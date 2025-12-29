@@ -104,7 +104,7 @@ test.describe('RestoreDefault', () => {
     // 点击User-Agent的恢复按钮
     const userAgentResetBtn = contentPage.locator('.config-item').filter({ hasText: 'User-Agent' }).locator('.reset-btn');
     await userAgentResetBtn.click();
-    await contentPage.waitForTime
+    await contentPage.waitForTimeout(300);
     // 刷新页面
     await contentPage.reload();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });

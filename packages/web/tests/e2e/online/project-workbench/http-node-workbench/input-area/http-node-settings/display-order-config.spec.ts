@@ -152,7 +152,7 @@ test.describe('DisplayOrderConfig', () => {
     await contentPage.waitForTimeout(500);
     // 验证顺序已改变
     const newFirstModeLabel = await modeItems.first().locator('.mode-label').textContent();
-    expect(newFirstModeLabel).toB
+    expect(newFirstModeLabel).toBe(lastModeLabel);
     // 刷新页面
     await contentPage.reload();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });

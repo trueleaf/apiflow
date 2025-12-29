@@ -458,7 +458,7 @@ test.describe('CutNode', () => {
       await contentPage.waitForTimeout(300);
       const pasteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /粘贴/ });
       await pasteItem.click();
-      await contentPage.waitForTime
+      await contentPage.waitForTimeout(500);
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: 'WSMock目标文件夹' });
       await expect(expandedFolder).toBeVisible({ timeout: 5000 });
     });
@@ -493,7 +493,7 @@ test.describe('CutNode', () => {
       const cutNode = contentPage.locator('.custom-tree-node.cut-node').filter({ hasText: '源文件夹' });
       await expect(cutNode).toBeVisible({ timeout: 3000 });
       await treeWrap.click({ button: 'right', position: { x: 100, y: 300 } });
-      await contentPage.waitForTime
+      await contentPage.waitForTimeout(300);
       const pasteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /粘贴/ });
       await pasteItem.click();
       await contentPage.waitForTimeout(500);
@@ -558,7 +558,7 @@ test.describe('CutNode', () => {
       const childFolder = expandedTargetFolder.locator('.custom-tree-node').filter({ hasText: '父文件夹' });
       await expect(childFolder).toBeVisible({ timeout: 5000 });
       const childFolderContent = childFolder.locator('xpath=ancestor::div[contains(@class,"el-tree-node__content")]');
-      const folderExpander = childF.first();
+      const folderExpander = childFolderContent.locator('.el-tree-node__expand-icon').first();
       await folderExpander.click({ timeout: 5000 });
       await contentPage.waitForTimeout(300);
       const childHttpNode = contentPage.locator('.custom-tree-node').filter({ hasText: '子节点HTTP' });
@@ -679,7 +679,7 @@ test.describe('CutNode', () => {
       await expect(cutNode).toBeVisible({ timeout: 3000 });
       const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' });
       await folderNode.click();
-      await contentPage.waitForTime
+      await contentPage.waitForTimeout(300);
       await contentPage.keyboard.press('Control+v');
       await contentPage.waitForTimeout(500);
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '目标文件夹' });

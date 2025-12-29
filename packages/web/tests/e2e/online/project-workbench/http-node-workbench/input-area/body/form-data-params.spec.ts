@@ -567,7 +567,7 @@ test.describe('FormDataParams', () => {
       await expect(fileError).toBeVisible({ timeout: 10000 });
       await expect(fileError).toContainText(/不存在/, { timeout: 10000 });
       const responseArea = contentPage.getByTestId('response-area');
-      await expect(responseArea).to;
+      await expect(responseArea).toBeVisible({ timeout: 10000 });
       const responseError = responseArea.getByTestId('response-error');
       await expect(responseError).toBeVisible({ timeout: 10000 });
     });
@@ -646,7 +646,7 @@ test.describe('FormDataParams', () => {
       await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
       const responseBody = responseArea.locator('.s-json-editor').first();
-      await expect(responseBody).toata', { timeout: 10000 });
+      await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
       await expect(responseBody).toContainText('avatar', { timeout: 10000 });
       await expect(responseBody).toContainText('File:', { timeout: 10000 });
       await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
@@ -722,7 +722,7 @@ test.describe('FormDataParams', () => {
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
       const fileError = fileValueWrapper.locator('.file-error');
-      await expect(fileError).toBeV
+      await expect(fileError).toBeVisible({ timeout: 10000 });
       await expect(fileError).toContainText(/不存在/, { timeout: 10000 });
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
@@ -782,7 +782,7 @@ test.describe('FormDataParams', () => {
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
-      const fileError = fileValueWr
+      const fileError = fileValueWrapper.locator('.file-error');
       await expect(fileError).toBeVisible({ timeout: 10000 });
       await expect(fileError).toContainText(/不存在|无效/, { timeout: 10000 });
       const responseArea = contentPage.getByTestId('response-area');
@@ -864,7 +864,7 @@ test.describe('FormDataParams', () => {
       // 验证响应
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
-      await expect(responseArea.getntainText('200', { timeout: 10000 });
+      await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
       const responseBody = responseArea.locator('.s-json-editor').first();
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
       await expect(responseBody).toContainText('avatar', { timeout: 10000 });
@@ -931,7 +931,7 @@ test.describe('FormDataParams', () => {
       await sendBtn.click();
       // 验证响应
       const responseArea = contentPage.getByTestId('response-area');
-      await expect(responseArea).to;
+      await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
       const responseBody = responseArea.locator('.s-json-editor').first();
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
@@ -1013,7 +1013,7 @@ test.describe('FormDataParams', () => {
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
       // 验证响应
-      const responseArea = contentPa');
+      const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
       const responseBody = responseArea.locator('.s-json-editor').first();
@@ -1094,7 +1094,7 @@ test.describe('FormDataParams', () => {
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
-      const responseBody = response).first();
+      const responseBody = responseArea.locator('.s-json-editor').first();
       await expect(responseBody).toContainText('username', { timeout: 10000 });
       await expect(responseBody).toContainText('admin', { timeout: 10000 });
       const responseText = await responseBody.textContent();

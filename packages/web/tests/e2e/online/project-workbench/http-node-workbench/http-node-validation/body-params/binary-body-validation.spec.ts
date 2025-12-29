@@ -464,7 +464,7 @@ test.describe('BinaryBodyValidation', () => {
     await bodyTab.click();
     await contentPage.waitForTimeout(300);
     // 验证文件模式仍然可见
-    await expect(fileModeDiv).toB
+    await expect(fileModeDiv).toBeVisible({ timeout: 5000 });
   });
 
   // ========================= Binary与其他Body类型切换测试 =========================

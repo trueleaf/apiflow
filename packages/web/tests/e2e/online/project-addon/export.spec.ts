@@ -265,7 +265,7 @@ test.describe('Export', () => {
           const downloadAttr = this.getAttribute('download');
           const href = this.getAttribute('href') || '';
           if (downloadAttr) {
-            const record = { filename: downloadAttr, href };
+            const record: { filename: string; href: string; content?: string } = { filename: downloadAttr, href };
             w.__downloadRecords?.push(record);
             if (href.startsWith('blob:')) {
               fetch(href).then((r) => r.text()).then((text) => {

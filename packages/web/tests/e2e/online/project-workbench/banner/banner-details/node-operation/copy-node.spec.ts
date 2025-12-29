@@ -498,7 +498,7 @@ test.describe('CopyNode', () => {
       await contentPage.waitForTimeout(300);
       const pasteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /粘贴/ });
       await pasteItem.click();
-      await contentPage.waitForTime
+      await contentPage.waitForTimeout(500);
       // 验证新文件夹出现
       const allFolders = contentPage.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
       await expect(allFolders).toHaveCount(2, { timeout: 5000 });

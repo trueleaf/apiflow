@@ -74,7 +74,7 @@ test.describe('CreateProject', () => {
     await projectNameInput.fill(projectName);
     const confirmBtn = projectDialog.locator('.el-button--primary').last();
     await confirmBtn.click();
-    await expect(projectDialog).t
+    await expect(projectDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const url = contentPage.url();
     expect(url).toContain('mode=edit');

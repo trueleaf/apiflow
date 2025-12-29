@@ -94,7 +94,7 @@ test.describe('SaveButton', () => {
     // 点击保存按钮
     const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
-    await contentPage.waitForTime
+    await contentPage.waitForTimeout(500);
     // 刷新页面
     await contentPage.reload();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });

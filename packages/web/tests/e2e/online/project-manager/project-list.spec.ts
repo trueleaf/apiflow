@@ -1,4 +1,5 @@
 import { test, expect } from '../../../fixtures/electron-online.fixture';
+import type { Response } from 'playwright';
 
 // 辅助函数：初始化测试环境
 const initTestEnv = async (topBarPage: any, contentPage: any, clearCache: () => Promise<void>) => {
@@ -6,7 +7,7 @@ const initTestEnv = async (topBarPage: any, contentPage: any, clearCache: () => 
   // 先点击首页按钮确保在首页
   const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
   const projectListPromise = contentPage.waitForResponse(
-    (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+    (response: Response) => response.url().includes('/api/project/project_list') && response.status() === 200,
     { timeout: 20000 },
   );
   await homeBtn.click();
@@ -23,7 +24,7 @@ const createProjectAndGoHome = async (topBarPage: any, contentPage: any, createP
   const name = await createProject(projectName);
   // 返回首页
   const projectListPromise = contentPage.waitForResponse(
-    (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
+    (response: Response) => response.url().includes('/api/project/project_list') && response.status() === 200,
     { timeout: 20000 },
   );
   await homeBtn.click();

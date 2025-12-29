@@ -676,7 +676,7 @@ test.describe('SearchProject', () => {
     await expect(groupHeader).toBeVisible({ timeout: 5000 });
     // 验证分组标题格式包含项目名称
     const groupTitle = groupHeader.locator('.group-title');
-    await expect(groupTitle).toCo
+    await expect(groupTitle).toContainText(projectName);
     // 验证分组标题包含数量
     const groupCount = groupHeader.locator('.group-count');
     await expect(groupCount).toBeVisible();
@@ -722,7 +722,7 @@ test.describe('SearchProject', () => {
     await expect(searchResultItem).toBeVisible({ timeout: 5000 });
     // 验证节点类型标签
     const nodeTypeLabel = searchResultItem.locator('.node-type-label');
-    await expect(nodeTypeLabel).t
+    await expect(nodeTypeLabel).toBeVisible();
     await expect(nodeTypeLabel).toContainText('HTTP');
     // 验证节点名称
     const nodeName = searchResultItem.locator('.node-name');
@@ -809,7 +809,7 @@ test.describe('SearchProject', () => {
     // 输入搜索关键词
     const searchInput = contentPage.locator('[data-testid="home-project-search-input"]');
     await searchInput.fill('未命名');
-    await contentPage.waitForTime
+    await contentPage.waitForTimeout(400);
     // 点击搜索结果项
     const searchResultItem = contentPage.locator('.search-result-item').first();
     await expect(searchResultItem).toBeVisible({ timeout: 5000 });

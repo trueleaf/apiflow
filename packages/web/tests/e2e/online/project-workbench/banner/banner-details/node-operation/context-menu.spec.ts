@@ -250,7 +250,7 @@ test.describe('ContextMenu', () => {
       const expandedFolder = contentPage.locator('.el-tree-node.is-expanded').filter({ hasText: '测试文件夹' });
       await expect(expandedFolder).toBeVisible({ timeout: 5000 });
       const childNode = expandedFolder.locator('.el-tree-node__content').filter({ hasText: '文件夹内HTTP接口' });
-      await expect(childNode).toBeV
+      await expect(childNode).toBeVisible({ timeout: 5000 });
     });
     // 鼠标右键folder节点,点击新建文件夹,成功后在当前folder内生成节点
     test('鼠标右键folder节点,点击新建文件夹,成功后在当前folder内生成节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
@@ -468,7 +468,7 @@ test.describe('ContextMenu', () => {
       // 清空并输入新名称
       await renameInput.fill('新文件夹名称');
       await contentPage.keyboard.press('Enter');
-      await contentPage.waitForTime
+      await contentPage.waitForTimeout(500);
       // 验证重命名成功
       const renamedFolder = contentPage.locator('.el-tree-node__content').filter({ hasText: '新文件夹名称' });
       await expect(renamedFolder).toBeVisible({ timeout: 5000 });
@@ -613,7 +613,7 @@ test.describe('ContextMenu', () => {
       // 右键目标文件夹,点击粘贴
       const targetFolderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '目标文件夹' });
       await targetFolderNode.click({ button: 'right' });
-      await contentPage.waitForTime
+      await contentPage.waitForTimeout(300);
       const pasteItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /粘贴/ });
       await pasteItem.click();
       await contentPage.waitForTimeout(500);
@@ -652,7 +652,7 @@ test.describe('ContextMenu', () => {
       await contentPage.waitForTimeout(300);
       const copyItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /复制/ }).first();
       await copyItem.click();
-      await contentPage.waitForTime
+      await contentPage.waitForTimeout(300);
       // 在空白区域右键粘贴
       await treeWrap.click({ button: 'right', position: { x: 100, y: 300 } });
       await contentPage.waitForTimeout(300);
@@ -685,7 +685,7 @@ test.describe('ContextMenu', () => {
       await nameInput.fill('源HTTP节点');
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();
-      await contentPage.waitForTime
+      await contentPage.waitForTimeout(500);
       // 右键HTTP节点,点击生成副本
       const httpNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '源HTTP节点' });
       await httpNode.click({ button: 'right' });
