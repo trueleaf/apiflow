@@ -496,10 +496,10 @@ jobs:
             - macOS: ${{ needs.build-macos.result }}
             
             **下载链接:**
-            ${{ needs.build-windows.result == 'success' && format('- Windows: {0}', needs.build-windows.outputs.asset_name) || '' }}
-            ${{ needs.build-linux.result == 'success' && format('- Linux (x64): {0}', needs.build-linux.outputs.asset_name) || '' }}
-            ${{ needs.build-linux.result == 'success' && format('- Linux (arm64): {0}', needs.build-linux.outputs.asset_name_arm64) || '' }}
-            ${{ needs.build-macos.result == 'success' && format('- macOS: {0}', needs.build-macos.outputs.asset_name) || '' }}
+            ${{ needs.build-windows.result == 'success' && format('- Windows: [{0}](https://github.com/{1}/releases/download/{2}/{0})', needs.build-windows.outputs.asset_name, github.repository, needs.test-web.outputs.tag_name) || '' }}
+            ${{ needs.build-linux.result == 'success' && format('- Linux (x64): [{0}](https://github.com/{1}/releases/download/{2}/{0})', needs.build-linux.outputs.asset_name, github.repository, needs.test-web.outputs.tag_name) || '' }}
+            ${{ needs.build-linux.result == 'success' && format('- Linux (arm64): [{0}](https://github.com/{1}/releases/download/{2}/{0})', needs.build-linux.outputs.asset_name_arm64, github.repository, needs.test-web.outputs.tag_name) || '' }}
+            ${{ needs.build-macos.result == 'success' && format('- macOS: [{0}](https://github.com/{1}/releases/download/{2}/{0})', needs.build-macos.outputs.asset_name, github.repository, needs.test-web.outputs.tag_name) || '' }}
             
             **使用说明:**
             1. 下载对应平台的安装程序
