@@ -9,7 +9,7 @@ test.describe('CustomHeaders', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -47,7 +47,7 @@ test.describe('CustomHeaders', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -94,7 +94,7 @@ test.describe('CustomHeaders', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -132,7 +132,7 @@ test.describe('CustomHeaders', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -179,7 +179,7 @@ test.describe('CustomHeaders', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -226,7 +226,7 @@ test.describe('CustomHeaders', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');

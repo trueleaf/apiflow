@@ -7,7 +7,7 @@ test.describe('OpenapiImport', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
@@ -29,7 +29,7 @@ test.describe('OpenapiImport', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
@@ -51,7 +51,7 @@ test.describe('OpenapiImport', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
@@ -73,7 +73,7 @@ test.describe('OpenapiImport', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 先创建一个文件夹
     const addFolderBtn = contentPage.getByTestId('banner-add-folder-btn');
     await addFolderBtn.click();

@@ -169,7 +169,7 @@ test.describe('SearchProject', () => {
 
     await loginAccount();
     const projectName = await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加一个HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -214,7 +214,7 @@ test.describe('SearchProject', () => {
     const remarkKeyword = `ADV_REMARK_${Date.now()}`;
     const methodKeyword = 'PATCH';
     await createProject(`高级搜索项目-${projectKeyword}`);
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
@@ -296,7 +296,7 @@ test.describe('SearchProject', () => {
     const wsKeyword = `ADV_WS_${Date.now()}`;
     const mockKeyword = `ADV_MOCK_${Date.now()}`;
     await createProject(`节点类型项目-${Date.now()}`);
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -400,7 +400,7 @@ test.describe('SearchProject', () => {
     const afterScriptKeyword = `ADV_AFTERSCRIPT_${Date.now()}`;
     const wsMessageKeyword = `ADV_WSMESSAGE_${Date.now()}`;
     await createProject(`请求参数项目-${Date.now()}`);
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
@@ -555,7 +555,7 @@ test.describe('SearchProject', () => {
     await loginAccount();
     const docKeyword = `ADV_DATE_${Date.now()}`;
     await createProject(`更新日期项目-${Date.now()}`);
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -638,7 +638,7 @@ test.describe('SearchProject', () => {
 
     await loginAccount();
     const projectName = await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加一个HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -687,7 +687,7 @@ test.describe('SearchProject', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加一个HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -734,7 +734,7 @@ test.describe('SearchProject', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加一个HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -780,7 +780,7 @@ test.describe('SearchProject', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加一个HTTP节点
     const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
@@ -815,7 +815,7 @@ test.describe('SearchProject', () => {
     await expect(searchResultItem).toBeVisible({ timeout: 5000 });
     await searchResultItem.click();
     // 验证跳转到项目工作区
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
   });
 
   test('高级搜索无结果时显示空状态提示', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
@@ -823,7 +823,7 @@ test.describe('SearchProject', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 返回首页
     const logo = topBarPage.locator('.logo-img');

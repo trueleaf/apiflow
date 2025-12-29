@@ -75,7 +75,7 @@ test.describe('CreateProject', () => {
     const confirmBtn = projectDialog.locator('.el-button--primary').last();
     await confirmBtn.click();
     await expect(projectDialog).t
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     const url = contentPage.url();
     expect(url).toContain('mode=edit');
     const activeTab = topBarPage.locator('.tab-item.active');
@@ -99,7 +99,7 @@ test.describe('CreateProject', () => {
     const confirmBtn = projectDialog.locator('.el-button--primary').last();
     await confirmBtn.click();
     await expect(projectDialog).toBeHidden({ timeout: 5000 });
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
     const projectListPromiseAfterCreate = contentPage.waitForResponse(
       (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
@@ -236,7 +236,7 @@ test.describe('CreateProject', () => {
     expect(requestBody.groups.some((g) => g.groupName === groupName)).toBeTruthy();
 
     await expect(projectDialog).toBeHidden({ timeout: 5000 });
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 10000 });
 
     const backHomeProjectListResponse = contentPage.waitForResponse(
       (response) => response.url().includes('/api/project/project_list') && response.status() === 200,

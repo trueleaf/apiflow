@@ -8,7 +8,7 @@ test.describe('CopyNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       // 创建一个HTTP节点
       const treeWrap = contentPage.locator('.tree-wrap');
@@ -52,7 +52,7 @@ test.describe('CopyNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建文件夹
@@ -109,7 +109,7 @@ test.describe('CopyNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建3个HTTP节点
@@ -168,7 +168,7 @@ test.describe('CopyNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建WebSocket节点
@@ -213,7 +213,7 @@ test.describe('CopyNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建文件夹
@@ -269,7 +269,7 @@ test.describe('CopyNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建HTTP Mock节点
@@ -313,7 +313,7 @@ test.describe('CopyNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建文件夹
@@ -369,7 +369,7 @@ test.describe('CopyNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建WebSocket Mock节点
@@ -413,7 +413,7 @@ test.describe('CopyNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建文件夹
@@ -469,7 +469,7 @@ test.describe('CopyNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建文件夹
@@ -509,7 +509,7 @@ test.describe('CopyNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建文件夹
@@ -584,7 +584,7 @@ test.describe('CopyNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建HTTP节点
@@ -649,7 +649,7 @@ test.describe('CopyNode', () => {
 
       await loginAccount();
       await createProject();
-      await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
       // 创建HTTP节点

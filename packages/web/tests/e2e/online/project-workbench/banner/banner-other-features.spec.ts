@@ -8,7 +8,7 @@ test.describe('BannerOtherFeatures', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 验证SResizeX组件的拖拽条存在
     const dragBar = contentPage.locator('.banner .bar');
@@ -21,7 +21,7 @@ test.describe('BannerOtherFeatures', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 获取拖拽条和banner容器
     const dragBar = contentPage.locator('.banner .bar');
@@ -48,7 +48,7 @@ test.describe('BannerOtherFeatures', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 获取拖拽条
     const dragBar = contentPage.locator('.banner .bar');
@@ -73,7 +73,7 @@ test.describe('BannerOtherFeatures', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 获取拖拽条和banner容器
     const dragBar = contentPage.locator('.banner .bar');
@@ -98,7 +98,7 @@ test.describe('BannerOtherFeatures', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 获取拖拽条和banner容器
     const dragBar = contentPage.locator('.banner .bar');
@@ -123,7 +123,7 @@ test.describe('BannerOtherFeatures', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 获取拖拽条和banner容器
     const dragBar = contentPage.locator('.banner .bar');
@@ -153,7 +153,7 @@ test.describe('BannerOtherFeatures', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 获取拖拽条
     const dragBar = contentPage.locator('.banner .bar');
@@ -176,7 +176,7 @@ test.describe('BannerOtherFeatures', () => {
     // 由于离线模式下创建Mock节点流程较复杂,暂时跳过
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // TODO: 创建httpMockNode
     // TODO: 启动Mock服务

@@ -52,7 +52,7 @@ test.describe('NavControl', () => {
     await topBarPage.waitForTimeout(500);
     // 验证回到项目A（URL 包含 apidoc/doc-edit）
     await expect(projectATab).toHaveClass(/active/);
-    await expect(contentPage).toHaveURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await expect(contentPage).toHaveURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 点击前进按钮，应回到设置页面
     const forwardBtn = topBarPage.locator('[data-testid="header-forward-btn"]');
     await expect(forwardBtn).toBeVisible();

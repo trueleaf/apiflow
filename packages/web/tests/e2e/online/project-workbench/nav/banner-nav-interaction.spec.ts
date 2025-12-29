@@ -7,7 +7,7 @@ test.describe('BannerNavInteraction', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -39,7 +39,7 @@ test.describe('BannerNavInteraction', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -72,7 +72,7 @@ test.describe('BannerNavInteraction', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增文件夹节点
     const addFolderBtn = contentPage.getByTestId('banner-add-folder-btn');
     await addFolderBtn.click();
@@ -99,7 +99,7 @@ test.describe('BannerNavInteraction', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增两个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -144,7 +144,7 @@ test.describe('BannerNavInteraction', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增两个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -185,7 +185,7 @@ test.describe('BannerNavInteraction', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -209,7 +209,7 @@ test.describe('BannerNavInteraction', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -243,7 +243,7 @@ test.describe('BannerNavInteraction', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -280,7 +280,7 @@ test.describe('BannerNavInteraction', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增两个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -309,7 +309,7 @@ test.describe('BannerNavInteraction', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();

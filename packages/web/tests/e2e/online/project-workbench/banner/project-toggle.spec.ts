@@ -7,7 +7,7 @@ test.describe('ProjectToggle', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 验证Tool.vue中h2元素显示项目名称
     const projectName = contentPage.locator('.tool h2');
@@ -23,7 +23,7 @@ test.describe('ProjectToggle', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 点击切换项目按钮
     const toggleBtn = contentPage.locator('[data-testid="banner-toggle-project-btn"]');
@@ -41,7 +41,7 @@ test.describe('ProjectToggle', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 点击切换项目按钮
     const toggleBtn = contentPage.locator('[data-testid="banner-toggle-project-btn"]');
@@ -58,7 +58,7 @@ test.describe('ProjectToggle', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 点击切换项目按钮
     const toggleBtn = contentPage.locator('[data-testid="banner-toggle-project-btn"]');
@@ -81,7 +81,7 @@ test.describe('ProjectToggle', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 点击切换项目按钮
     const toggleBtn = contentPage.locator('[data-testid="banner-toggle-project-btn"]');
@@ -104,7 +104,7 @@ test.describe('ProjectToggle', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 点击切换项目按钮打开面板
     const toggleBtn = contentPage.locator('[data-testid="banner-toggle-project-btn"]');
@@ -125,7 +125,7 @@ test.describe('ProjectToggle', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 点击切换项目按钮
     const toggleBtn = contentPage.locator('[data-testid="banner-toggle-project-btn"]');

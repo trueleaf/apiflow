@@ -7,7 +7,7 @@ test.describe('TabOperation', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -32,7 +32,7 @@ test.describe('TabOperation', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -58,7 +58,7 @@ test.describe('TabOperation', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增三个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 3; i++) {
@@ -89,7 +89,7 @@ test.describe('TabOperation', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增三个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 3; i++) {
@@ -120,7 +120,7 @@ test.describe('TabOperation', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增三个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 3; i++) {
@@ -153,7 +153,7 @@ test.describe('TabOperation', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增两个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 2; i++) {
@@ -182,7 +182,7 @@ test.describe('TabOperation', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增两个HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();
@@ -213,7 +213,7 @@ test.describe('TabOperation', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 获取初始tab数量
     const initialCount = await contentPage.locator('.nav .drag-wrap .item').count();
     // 点击新增空白接口按钮
@@ -233,7 +233,7 @@ test.describe('TabOperation', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     await addFileBtn.click();

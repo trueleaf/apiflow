@@ -7,7 +7,7 @@ test.describe('OtherCases', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 首先创建一个文件夹
@@ -68,7 +68,7 @@ test.describe('OtherCases', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 首先创建一个HTTP节点
@@ -130,7 +130,7 @@ test.describe('OtherCases', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     const treeWrap = contentPage.locator('.tree-wrap');
     // 创建一个文件夹

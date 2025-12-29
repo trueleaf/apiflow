@@ -9,7 +9,7 @@ test.describe('LayoutOperation', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -49,7 +49,7 @@ test.describe('LayoutOperation', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -82,7 +82,7 @@ test.describe('LayoutOperation', () => {
 
     await loginAccount();
     await createProject();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 5000 });
     // 新增HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -105,7 +105,7 @@ test.describe('LayoutOperation', () => {
     await expect(apidocContainer).toHaveClass(/vertical/, { timeout: 5000 });
     // 刷新页面
     await contentPage.reload();
-    await contentPage.waitForURL(/.*#\/v1\/apidoc\/doc-edit.*/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*#\/workbench.*/, { timeout: 10000 });
     await contentPage.waitForTimeout(1000);
     // 验证刷新后布局保持为垂直布局
     const apidocContainerAfterReload = contentPage.locator('.apidoc');
