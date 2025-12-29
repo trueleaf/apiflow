@@ -33,7 +33,7 @@ export default defineConfig({
   reporter: [
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['json', { outputFile: 'playwright-report/results.json' }],
-    ['list']
+    ['list'],
   ],
 
   // 全局测试配置

@@ -4,9 +4,9 @@ import type { Locator } from '@playwright/test';
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const getRecyclerDeletedDocByName = (recyclerPage: Locator, name: string) =>
-  recyclerPage.locator('.docinfo', {
-    has: recyclerPage.locator('.node-info', {
-      hasText: new RegExp(`${escapeRegExp(name)}(?![A-Za-z0-9])`),
+  recyclerPage.locator('.docinfo').filter({
+    has: recyclerPage.page().locator(`.node-info > span, .node-info > .mr-2`).filter({
+      hasText: new RegExp(`^${escapeRegExp(name)}$`),
     }),
   });
 
@@ -361,23 +361,28 @@ test.describe('Trash', () => {
     for (let i = allNodeNames.length - 1; i >= 0; i -= 1) {
       const nodeName = allNodeNames[i];
       const node = bannerTree.locator('.el-tree-node__content', { hasText: nodeName }).first();
+      await expect(node).toBeVisible({ timeout: 5000 });
       await node.click({ button: 'right' });
+      await contentPage.waitForTimeout(300);
       const contextMenu = contentPage.locator('.s-contextmenu');
       await expect(contextMenu).toBeVisible({ timeout: 3000 });
-      await contextMenu.locator('.s-contextmenu-item').filter({ hasText: /删除/ }).click();
+      const deleteOption = contextMenu.locator('.s-contextmenu-item').filter({ hasText: /删除/ });
+      await expect(deleteOption).toBeVisible({ timeout: 3000 });
+      await deleteOption.click();
+      await contentPage.waitForTimeout(300);
       const confirmDialog = contentPage.locator('.el-message-box');
       await expect(confirmDialog).toBeVisible({ timeout: 3000 });
       await confirmDialog.locator('.el-button--primary').click();
-      await contentPage.waitForTimeout(500);
+      await expect(confirmDialog).not.toBeVisible({ timeout: 3000 });
+      await expect(node).not.toBeVisible({ timeout: 5000 });
     }
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const recyclerItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /回收站/ });
     await recyclerItem.click();
-    await contentPage.waitForTimeout(500);
     const recyclerPage = contentPage.locator('.recycler');
     await expect(recyclerPage).toBeVisible({ timeout: 5000 });
-    await expect(recyclerPage.locator('.docinfo').first()).toBeVisible({ timeout: 5000 });
+    await expect(recyclerPage.locator('.docinfo').first()).toBeVisible({ timeout: 10000 });
     for (let i = 0; i < allNodeNames.length; i += 1) {
       const nodeName = allNodeNames[i];
       const deletedDoc = getRecyclerDeletedDocByName(recyclerPage, nodeName);

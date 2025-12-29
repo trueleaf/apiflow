@@ -475,10 +475,22 @@ export const stopServer = (): Promise<void> => {
   });
 };
 // Playwright 全局 setup
-export default async () => {
+const globalSetup = async () => {
+  console.log('🚀 启动 Mock 服务器...');
   await startServer();
+  console.log(`✅ Mock 服务器已在端口 ${PORT} 上成功启动`);
+  // 验证服务器是否可访问
+  try {
+    await requestMockEcho(PORT);
+    console.log('✅ Mock 服务器健康检查通过');
+  } catch (error) {
+    console.error('❌ Mock 服务器健康检查失败:', error);
+    throw error;
+  }
   return async () => {
+    console.log('🛑 关闭 Mock 服务器...');
     await stopServer();
+    console.log('✅ Mock 服务器已关闭');
   };
 };
 // Playwright 全局 teardown
@@ -486,3 +498,4 @@ export const globalTeardown = async () => {
   await stopServer();
 };
 export { PORT };
+export default globalSetup;
