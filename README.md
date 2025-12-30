@@ -109,6 +109,76 @@ Download the latest version for your platform:
 
 ---
 
+## 💻 Local Development
+
+### Prerequisites
+- **Node.js**: >= 20.0.0
+- **MongoDB**: Running locally or accessible remotely
+- **Git**: For cloning the repository
+
+### Getting Started
+
+1. **Clone the repository**
+
+```bash
+git clone https://github.com/trueleaf/apiflow.git
+cd apiflow
+```
+
+2. **Install dependencies**
+
+```bash
+npm install
+# or
+npm run bootstrap
+```
+
+This will install dependencies for both `packages/web` and `packages/server`.
+
+3. **Configure environment variables**
+
+Create or edit configuration files in `packages/server/src/config/` as needed.
+
+4. **Start development servers**
+
+```bash
+npm run dev
+```
+
+This command will start both the frontend and backend servers concurrently:
+- **Frontend (Web)**: http://localhost:4000
+- **Backend (Server)**: http://localhost:7001
+
+### Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start both frontend and backend in development mode |
+| `npm run dev:web` | Start only the frontend |
+| `npm run web:dev` | Start only the frontend (alternative) |
+| `npm run server:dev` | Start only the backend |
+| `npm run web:build` | Build the web application |
+| `npm run server:build` | Build the server application |
+| `npm run server:test` | Run server unit tests |
+| `npm run bootstrap` | Install all dependencies |
+
+### Project Structure
+
+This is a multi-package monorepo:
+
+- `packages/web` - Frontend application (Vite + Vue 3 + Electron)
+- `packages/server` - Backend application (Midway.js + MongoDB)
+- `packages/website` - Marketing website (Next.js)
+
+### Development Tips
+
+- Ensure MongoDB is running before starting the server
+- The frontend supports hot module replacement (HMR) for fast development
+- Backend auto-restarts when files change
+- You can develop packages independently by running their specific dev commands
+
+---
+
 ## 🐳 Local Deployment (Docker)
 
 ### Requirements
