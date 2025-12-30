@@ -5,7 +5,7 @@
 <script lang="ts" setup>
 import { ref, Ref, onMounted, onBeforeUnmount, onActivated, watch, computed } from 'vue'
 import beautify from 'js-beautify'
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monaco from 'monaco-editor';
 import 'monaco-editor/esm/vs/language/json/monaco.contribution';
 import 'monaco-editor/esm/vs/language/css/monaco.contribution';
 import 'monaco-editor/esm/vs/language/html/monaco.contribution';
@@ -225,14 +225,14 @@ onMounted(() => {
     },
   }
   
-  monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+  monaco.json?.jsonDefaults.setDiagnosticsOptions({
     allowComments: true,
     validate: true,
     trailingCommas: 'ignore',
     schemaValidation: 'warning'
   })
   
-  monaco.languages.json.jsonDefaults.setModeConfiguration({
+  monaco.json.jsonDefaults.setModeConfiguration({
     completionItems: false,
     tokens: true,
     colors: true,

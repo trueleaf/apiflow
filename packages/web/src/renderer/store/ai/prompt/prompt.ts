@@ -75,6 +75,20 @@ export const toolSelectionSystemPrompt = `你是 Apiflow 的工具选择助手�
 - 若用户目标是“只查看/分析”，不要选会修改数据的工具（create/update/delete/save/start/stop）除非用户明确要求。
 `
 
+export const simpleCreateProjectPrompt = `你是一个项目命名专家。根据用户的自然语言描述，推断出合适的项目名称。
+返回严格的JSON格式，不要有任何其他内容。
+
+JSON结构：
+{
+  "projectName": "项目名称"
+}
+
+规则：
+1. 项目名称要简洁明了，一般不超过20个字符
+2. 能准确反映项目的核心功能或业务领域
+3. 使用中文或英文，避免特殊字符
+4. 优先使用业务术语，如"电商系统"、"用户管理平台"等`
+
 export const simpleCreateHttpNodePrompt = `你是一个API设计专家。根据用户的自然语言描述，推断出完整的HTTP接口参数。
 返回严格的JSON格式，不要有任何其他内容。
 

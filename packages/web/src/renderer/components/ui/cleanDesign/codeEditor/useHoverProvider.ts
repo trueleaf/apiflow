@@ -1,4 +1,4 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monaco from 'monaco-editor';
 import type { HoverInfo } from './types';
 
 // 注册 Hover 提示提供器
@@ -7,7 +7,7 @@ export const useHoverProvider = (
   hoverInfos: HoverInfo[]
 ): monaco.IDisposable => {
   return monaco.languages.registerHoverProvider(language, {
-    provideHover(model, position) {
+    provideHover(model: monaco.editor.ITextModel, position: monaco.Position) {
       const wordInfo = model.getWordAtPosition(position);
       if (!wordInfo) {
         return null;

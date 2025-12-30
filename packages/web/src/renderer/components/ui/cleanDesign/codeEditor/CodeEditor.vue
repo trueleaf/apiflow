@@ -359,24 +359,24 @@ const initEditor = () => {
 }
 onMounted(() => {
   initEnvironment()
-  monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ 
+  monaco.typescript.javascriptDefaults.setCompilerOptions({ 
     noLib: true, 
     allowNonTsExtensions: true 
   });
-  monaco.languages.typescript.typescriptDefaults.setCompilerOptions({ 
+  monaco.typescript.typescriptDefaults.setCompilerOptions({ 
     noLib: true, 
     allowNonTsExtensions: true 
   });
   if (props.disableValidation) {
-    monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+    monaco.typescript.javascriptDefaults.setDiagnosticsOptions({
       noSemanticValidation: true,
       noSyntaxValidation: true
     });
-    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+    monaco.typescript.typescriptDefaults.setDiagnosticsOptions({
       noSemanticValidation: true,
       noSyntaxValidation: true
     });
-    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+    monaco.json.jsonDefaults.setDiagnosticsOptions({
       validate: false
     });
   }

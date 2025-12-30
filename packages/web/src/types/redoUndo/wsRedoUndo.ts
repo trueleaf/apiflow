@@ -1,6 +1,6 @@
 import type { ApidocProperty } from "../httpNode/types";
 import type { WebSocketNode } from "../websocketNode";
-import type * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import type * as monaco from 'monaco-editor';
 
 // WebSocket模块名称联合类型
 export type WsModuleName = 

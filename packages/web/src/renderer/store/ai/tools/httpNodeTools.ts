@@ -1544,6 +1544,87 @@ URL路径：${apiDetail.url}
     },
   },
   {
+    name: 'batchCreateHttpNodes',
+    description: '批量创建httpNode节点',
+    type: 'httpNode',
+    parameters: {
+      type: 'object',
+      properties: {
+        projectId: {
+          type: 'string',
+          description: '项目id',
+        },
+        nodes: {
+          type: 'array',
+          description: 'httpNode节点列表',
+          items: {
+            type: 'object',
+            properties: {
+              name: {
+                type: 'string',
+                description: '节点名称',
+              },
+              pid: {
+                type: 'string',
+                description: '父节点id，根节点留空字符串',
+              },
+              method: {
+                type: 'string',
+                enum: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
+                description: '请求方法',
+              },
+              urlPath: {
+                type: 'string',
+                description: '请求路径',
+              },
+              description: {
+                type: 'string',
+                description: '接口描述',
+              },
+            },
+            required: ['name'],
+          },
+        },
+      },
+      required: ['projectId', 'nodes'],
+    },
+    needConfirm: true,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const projectId = args.projectId as string
+      const nodes = args.nodes as Array<{
+        name: string
+        pid?: string
+        method?: HttpNodeRequestMethod
+        urlPath?: string
+        description?: string
+      }>
+      if (!nodes || nodes.length === 0) {
+        return { code: 1, data: { message: 'httpNode节点列表不能为空' } }
+      }
+      const nodeOptions: CreateHttpNodeOptions[] = nodes.map(node => ({
+        projectId,
+        name: node.name,
+        pid: node.pid || '',
+        description: node.description || '',
+        item: {
+          method: node.method || 'GET',
+          url: { path: node.urlPath || '/' },
+        },
+      }))
+      const result = await skillStore.batchCreateHttpNodes({ projectId, nodes: nodeOptions })
+      return {
+        code: 0,
+        data: {
+          message: '批量创建httpNode节点完成',
+          successCount: result.success.length,
+          failedCount: result.failed.length,
+          createdNodes: result.success.map(n => ({ _id: n._id, name: n.info.name, method: n.item.method, urlPath: n.item.url.path })),
+        },
+      }
+    },
+  },
+  {
     name: 'searchHttpNodes',
     description: '根据名称、URL路径、描述等条件搜索httpNode节点，支持模糊匹配。当需要通过接口名称或URL查找节点时使用此工具',
     type: 'httpNode',

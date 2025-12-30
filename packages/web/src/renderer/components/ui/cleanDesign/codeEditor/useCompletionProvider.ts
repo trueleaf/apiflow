@@ -1,4 +1,4 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monaco from 'monaco-editor';
 import type { CompletionSuggestion } from './types';
 
 // 注册代码提示提供器
@@ -9,7 +9,7 @@ export const useCompletionProvider = (
 ): monaco.IDisposable => {
   return monaco.languages.registerCompletionItemProvider(language, {
     triggerCharacters,
-    provideCompletionItems(model, position) {
+    provideCompletionItems(model: monaco.editor.ITextModel, position: monaco.Position) {
       const currentLineStr = model.getValueInRange({
         startLineNumber: position.lineNumber,
         startColumn: 0,

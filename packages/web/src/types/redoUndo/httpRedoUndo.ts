@@ -1,6 +1,6 @@
 import type { ApidocProperty, HttpNodeRequestMethod, HttpNodeBodyParams, HttpNodeResponseParams } from "../httpNode/types";
 import type { HttpNode } from "../httpNode/httpNode";
-import type * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import type * as monaco from 'monaco-editor';
 
 // HTTP模块名称联合类型
 export type HttpModuleName =

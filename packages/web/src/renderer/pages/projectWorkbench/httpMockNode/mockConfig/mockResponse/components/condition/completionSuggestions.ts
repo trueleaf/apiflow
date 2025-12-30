@@ -1,4 +1,4 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monaco from 'monaco-editor';
 import type { CompletionSuggestion } from '@/components/ui/cleanDesign/codeEditor/types';
 
 // req 对象的代码提示配置

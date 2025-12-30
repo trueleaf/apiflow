@@ -1,8 +1,8 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monaco from 'monaco-editor';
 
 export const useHoverProvider = (): monaco.IDisposable => {
   return monaco.languages.registerHoverProvider('javascript', {
-    provideHover(model, position) {
+    provideHover(model: monaco.editor.ITextModel, position: monaco.Position) {
       const wordInfo = model.getWordAtPosition(position);
       if (wordInfo?.word !== 'pm') {
         return null;

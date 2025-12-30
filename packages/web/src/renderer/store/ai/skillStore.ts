@@ -205,6 +205,20 @@ export const useSkill = defineStore('skill', () => {
     return true;
   }
   //根据名称或URL搜索httpNode节点
+  const batchCreateHttpNodes = async (options: { projectId: string; nodes: CreateHttpNodeOptions[] }): Promise<{ success: HttpNode[]; failed: CreateHttpNodeOptions[] }> => {
+    const success: HttpNode[] = [];
+    const failed: CreateHttpNodeOptions[] = [];
+    for (const nodeOptions of options.nodes) {
+      const fullOptions = { ...nodeOptions, projectId: options.projectId };
+      const result = await createHttpNode(fullOptions);
+      if (result) {
+        success.push(result);
+      } else {
+        failed.push(nodeOptions);
+      }
+    }
+    return { success, failed };
+  }
   const searchHttpNodes = async (options: {
     projectId: string;
     keyword?: string;
@@ -888,6 +902,46 @@ export const useSkill = defineStore('skill', () => {
     const projectManagerStore = useProjectManagerStore();
     return await projectManagerStore.addProject(projectName);
   }
+  const batchCreateProjects = async (projectNames: string[]): Promise<{ success: { projectId: string; projectName: string }[]; failed: string[] }> => {
+    const success: { projectId: string; projectName: string }[] = [];
+    const failed: string[] = [];
+    for (const projectName of projectNames) {
+      const result = await createProject(projectName);
+      if (result) {
+        success.push(result);
+      } else {
+        failed.push(projectName);
+      }
+    }
+    return { success, failed };
+  }
+  const searchProject = async (options: {
+    keyword?: string;
+    projectName?: string;
+    creator?: string;
+    isStared?: boolean;
+  }): Promise<ApidocProjectInfo[]> => {
+    const projectManagerStore = useProjectManagerStore();
+    const allProjects = await projectManagerStore.getProjectList();
+    return allProjects.filter(project => {
+      if (options.keyword) {
+        const kw = options.keyword.toLowerCase();
+        const matchName = project.projectName.toLowerCase().includes(kw);
+        const matchRemark = (project.remark || '').toLowerCase().includes(kw);
+        if (!matchName && !matchRemark) return false;
+      }
+      if (options.projectName && !project.projectName.toLowerCase().includes(options.projectName.toLowerCase())) {
+        return false;
+      }
+      if (options.creator && !project.owner?.name?.toLowerCase().includes(options.creator.toLowerCase())) {
+        return false;
+      }
+      if (options.isStared !== undefined && project.isStared !== options.isStared) {
+        return false;
+      }
+      return true;
+    });
+  }
   //更新项目名称
   const updateProjectName = async (projectId: string, projectName: string): Promise<boolean> => {
     const projectManagerStore = useProjectManagerStore();
@@ -905,6 +959,34 @@ export const useSkill = defineStore('skill', () => {
       window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectDeleted, projectId);
     }
     return result !== null;
+  }
+  //批量删除项目
+  const batchDeleteProjects = async (projectIds: string[]): Promise<{ success: string[]; failed: string[] }> => {
+    const success: string[] = [];
+    const failed: string[] = [];
+    for (const projectId of projectIds) {
+      const result = await deleteProject(projectId);
+      if (result) {
+        success.push(projectId);
+      } else {
+        failed.push(projectId);
+      }
+    }
+    return { success, failed };
+  }
+  //删除所有项目
+  const deleteAllProjects = async (): Promise<{ deletedCount: number; projectIds: string[] }> => {
+    const projectManagerStore = useProjectManagerStore();
+    const allProjects = await projectManagerStore.getProjectList();
+    const projectIds = allProjects.map(p => p._id);
+    const deletedIds: string[] = [];
+    for (const projectId of projectIds) {
+      const result = await deleteProject(projectId);
+      if (result) {
+        deletedIds.push(projectId);
+      }
+    }
+    return { deletedCount: deletedIds.length, projectIds: deletedIds };
   }
   //收藏项目
   const starProject = async (projectId: string): Promise<boolean> => {
@@ -1302,7 +1384,6 @@ export const useSkill = defineStore('skill', () => {
   }
 
   return {
-    searchHttpNodes,
     getHttpNodeById,
     patchHttpNodeInfoById,
     addQueryParamByNodeId,
@@ -1326,13 +1407,19 @@ export const useSkill = defineStore('skill', () => {
     deleteUrlencodedByNodeId,
     setUrlencodedByNodeId,
     createHttpNode,
+    batchCreateHttpNodes,
     deleteHttpNodes,
     moveHttpNode,
+    searchHttpNodes,
     getProjectList,
     getProjectById,
     createProject,
+    batchCreateProjects,
+    searchProject,
     updateProjectName,
     deleteProject,
+    batchDeleteProjects,
+    deleteAllProjects,
     starProject,
     unstarProject,
     createFolderNode,

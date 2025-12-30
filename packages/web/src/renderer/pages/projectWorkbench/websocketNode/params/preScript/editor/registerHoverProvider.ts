@@ -1,4 +1,4 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monaco from 'monaco-editor';
 
 type HoverInfo = {
   keyword: string;
@@ -126,7 +126,7 @@ const hoverInfoList: HoverInfo[] = [
 
 export const useHoverProvider = (): monaco.IDisposable => {
   return monaco.languages.registerHoverProvider('javascript', {
-    provideHover(model, position) {
+    provideHover(model: monaco.editor.ITextModel, position: monaco.Position) {
       const currentLineStr = model.getValueInRange({
         startLineNumber: position.lineNumber,
         startColumn: 0,

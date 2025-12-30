@@ -18,7 +18,7 @@ import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { router } from '@/router'
 import { cloneDeep } from 'lodash-es'
-import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import type * as Monaco from 'monaco-editor'
 
 const PreEditor = defineAsyncComponent(() => import('./editor/PreEditor.vue'))
 

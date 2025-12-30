@@ -1,4 +1,4 @@
-import type * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import type * as monaco from 'monaco-editor';
 
 // 代码提示项配置
 export type CompletionSuggestion = {

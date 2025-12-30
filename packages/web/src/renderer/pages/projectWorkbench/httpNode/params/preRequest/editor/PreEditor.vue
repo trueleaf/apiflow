@@ -11,7 +11,7 @@ import beautify from 'js-beautify'
 import { useCompletionItem } from './registerCompletionItem'
 import { useHoverProvider } from './registerHoverProvider'
 import { useI18n } from 'vue-i18n'
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monaco from 'monaco-editor';
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
 import 'monaco-editor/esm/vs/language/typescript/monaco.contribution'
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
@@ -66,7 +66,7 @@ onMounted(() => {
       return new EditorWorker()
     },
   }
-  monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ noLib: true, allowNonTsExtensions: true })
+  monaco.typescript.javascriptDefaults.setCompilerOptions({ noLib: true, allowNonTsExtensions: true })
   monacoInstance = monaco.editor.create(preEditor.value as HTMLElement, {
     value: modelValue.value,
     language: 'javascript',

@@ -1,4 +1,4 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monaco from 'monaco-editor';
 
 type Suggestions = {
   label: {
@@ -215,7 +215,7 @@ const suggestions: Suggestions = [{
 export const useCompletionItem = (): monaco.IDisposable => {
   return monaco.languages.registerCompletionItemProvider('javascript', {
     triggerCharacters: ['.', '('],
-    provideCompletionItems(model, position) {
+    provideCompletionItems(model: monaco.editor.ITextModel, position: monaco.Position) {
       const currentLineStr = model.getValueInRange({
         startLineNumber: position.lineNumber,
         startColumn: 0,

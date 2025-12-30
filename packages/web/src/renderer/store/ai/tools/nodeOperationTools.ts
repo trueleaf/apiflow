@@ -685,7 +685,7 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'deleteAllNodes',
-    description: '删除当前项目下的所有节点（清空项目）。这是一个危险操作，会删除项目中的全部文件夹和接口节点',
+    description: '删除当前项目下的所有节点（清空当前项目的内容）。注意：这不会删除项目本身，只会删除项目中的全部文件夹和接口节点。如需删除项目，请使用 deleteProject 工具',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
