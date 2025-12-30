@@ -1,230 +1,140 @@
 <div align="center">
 
-![logo](https://images.gitee.com/uploads/images/2021/0331/214909_4f34bc9b_1230427.png "屏幕截图.png")
+![logo](https://images.gitee.com/uploads/images/2021/0331/214909_4f34bc9b_1230427.png)
 
 # Apiflow
 
-### 免费、本地优先、AI 驱动的 API 开发平台，支持团队协作 — 更智能的 Postman 替代方案
+### 100%免费 Postman / Apifox 开源替代方案
 
-[English](./README.md) | 中文
+**国产化部署 · 团队协作 · 离线使用 · AI增强**
 
-[![GitHub Release](https://img.shields.io/github/v/release/trueleaf/apiflow?style=flat-square)](https://github.com/trueleaf/apiflow/releases/latest)
-[![License](https://img.shields.io/github/license/trueleaf/apiflow)](https://github.com/trueleaf/apiflow/blob/master/LICENSE)
-[![Downloads](https://img.shields.io/github/downloads/trueleaf/apiflow/total)](https://github.com/trueleaf/apiflow/releases/latest)
-
-[客户端下载](https://github.com/trueleaf/apiflow/releases) | [完整文档](https://www.yuque.com/apiflow) | [在线体验](https://online.jobtool.cn/)
+🚀 [下载](https://github.com/trueleaf/apiflow/releases)·
+✨ [在线 Demo](https://apiflow.cn)
+<!-- 📖 [官方文档](https://www.yuque.com/apiflow)· -->
 
 </div>
 
-## ✨ 特性
+---
 
-- 🚀 **HTTP 接口测试** - 支持 GET/POST/PUT/DELETE 等全部请求方式，RESTful 风格，多种 Body 类型
-- 🔌 **WebSocket 测试** - 完整的 WebSocket 连接管理与消息收发
-- 🤖 **AI 助手** - 内置 AI 对话功能，支持 OpenAI 兼容 API
-- 🎭 **Mock 服务器** - 内置 HTTP/WebSocket/SSE Mock 服务，支持条件脚本
-- 🔐 **变量系统** - 四层作用域变量（临时/本地/环境/全局），支持 `{{变量名}}` 语法
-- 📦 **离线模式** - 完全本地化运行，数据存储于 IndexedDB，无需服务端
-- 🌍 **国际化** - 支持简体中文、繁体中文、英语、日语
-- ⌨️ **快捷键** - 可自定义的键盘快捷键
-- 🔄 **自动更新** - 内置自动更新功能
+## 🖥️ 界面预览
 
-## 预览
+（此处可添加产品截图）
 
-![输入图片说明](https://images.gitee.com/uploads/images/2021/0331/215000_bc4b9025_1230427.png "屏幕截图.png")
+---
 
-![输入图片说明](https://images.gitee.com/uploads/images/2021/0331/215030_fcc9272e_1230427.png "屏幕截图.png")
+## 🚀 Apiflow 是什么？
 
-![输入图片说明](https://images.gitee.com/uploads/images/2021/0331/215051_83e16797_1230427.png "屏幕截图.png")
+**Apiflow** 是一个 **完全免费**、**内置 AI 能力** 的 API 接口工具，致力于成为  
+**Postman、Apifox 的现代化开源替代方案**。
 
-## 快速开始
+它集成了 **API 测试、Mock、WebSocket、AI Agent、团队协作、离线使用、本地部署** 等能力，并全面拥抱 **OpenAPI 3.0 生态体系**。
 
-### 下载安装
+---
 
-前往 [Releases](https://github.com/trueleaf/apiflow/releases) 下载适合您系统的安装包：
+## ✨ 核心特性
 
-- **Windows**: `.exe` 安装包
-- **macOS**: `.dmg` 安装包
-- **Linux**: `.AppImage` 或 `.deb` 包
+### ✅ 完全免费
+- 所有功能永久免费
+- 无付费计划
+- 无功能限制
+- 一键导出到postman、apifox等工具
 
-### 开发环境
+### 🤖 内置 AI Agent
+- 内置 AI Agent，辅助 API 设计、测试与调试
+- 支持配置你自己的大语言模型（LLM）
+- 支持 **离线 / 内网环境** 使用
 
-要求：**Node.js >= 20.0.0**
+### 👥 团队协作
+- 内置团队与工作区管理
+- **团队数量、成员数量不限**
+- 细粒度权限控制：
+  - 项目级权限
+  - 基于角色的权限管理（RBAC）
+  - 只读 / 编辑 / 管理员角色
+- 操作记录与变更历史追踪
+- 适用于任何规模的团队
 
-```bash
-# 克隆仓库
-git clone https://github.com/trueleaf/apiflow
-cd apiflow
+### 📴 离线 & 在线
+- Local-First 设计理念
+- 完整离线能力，本地数据持久化
+- 离线 / 在线数据双向转换
+- 从个人使用平滑过渡到团队协作
+- 非常适合内网或受限网络环境
 
-# 安装依赖
-npm run bootstrap
+### 🏠 自托管 & 本地部署
+- Docker 一键部署
+- 数据完全由自己掌控
+- 适用于企业私有化部署场景
 
-# 启动开发模式
-cd packages/web
-npm run dev
+### 🔄 OpenAPI 友好
+- 支持 **OpenAPI 3.x** 导入 / 导出
+- 可无缝迁移到：
+  - Postman
+  - Insomnia
+  - Hoppscotch
+  - 任意 OpenAPI 兼容工具
 
-# 构建客户端
-npm run build:app:win    # Windows
-npm run build:app:mac    # macOS
-npm run build:app:linux  # Linux
-```
+---
 
-## 技术栈
+## 🧩 核心能力一览
 
-| 类别 | 技术 |
-|------|------|
-| 框架 | Vue 3 + TypeScript + Vite |
-| 桌面端 | Electron 36 |
-| 状态管理 | Pinia |
-| UI 组件 | Element Plus |
-| 代码编辑器 | Monaco Editor |
-| 本地存储 | IndexedDB (Dexie) |
-| HTTP 客户端 | Got |
-| Mock 服务 | Koa |
+- HTTP API 测试（RESTful）
+- WebSocket 测试
+- Mock Server（HTTP / WebSocket / SSE）
+- 环境变量与变量系统
+- 请求前 / 请求后脚本
+- 项目与文件夹管理
+- 导入 / 导出（Postman / OpenAPI / JSON）
+- 国际化支持（英文 / 中文 / 日文）
 
-## 主要功能
+---
 
-### 🔧 接口调试
+## ⬇️ 下载
 
-- [x] 支持 GET、POST、PUT、DELETE、HEAD、OPTIONS 等请求方式
-- [x] 支持 RESTful 风格接口与路径参数
-- [x] 支持 Query 参数、Body 参数（form-data、x-www-form-urlencoded、JSON、XML、Binary）
-- [x] 支持自定义请求头和 Cookie 管理
-- [x] 支持变量替换 `{{variableName}}`
-- [x] 支持前置脚本 (pre-request) 和后置脚本
-- [x] 支持 WebSocket 连接测试
+获取适用于你平台的最新版本：
 
-### 🎭 Mock 服务
+| 平台 | 下载地址 |
+|------|----------|
+| 🪟 Windows | https://github.com/trueleaf/apiflow/releases |
+| 🍎 macOS | https://github.com/trueleaf/apiflow/releases |
+| 🐧 Linux | https://github.com/trueleaf/apiflow/releases |
 
-- [x] 内置 HTTP Mock 服务器
-- [x] 内置 WebSocket Mock 服务器
-- [x] 支持 SSE (Server-Sent Events)
-- [x] 支持 MockJS 语法
-- [x] 支持条件脚本和优先级路由匹配
+---
 
-### 📁 项目管理
+## 🐳 本地部署（Docker）
 
-- [x] 无限层级文件夹嵌套
-- [x] 拖拽排序与批量操作
-- [x] 高级搜索与筛选
-- [x] 操作历史审计
-- [x] 标签管理
+### 环境要求
+- Docker
+- Docker Compose
 
-### 📥 导入导出
-
-**导入支持：**
-- [x] OpenAPI 3.0 / Swagger
-- [x] Postman
-- [x] Apiflow JSON 格式
-
-**导出支持：**
-- [x] HTML 离线文档
-- [x] Word (DOCX)
-- [x] JSON 数据
-- [x] OpenAPI 格式
-
-### 🤖 AI 助手
-
-- [x] 内置 AI 对话界面
-- [x] 支持 OpenAI 兼容 API
-- [x] 支持流式响应
-- [x] 可配置 API Key、Base URL、模型
-
-### 🌍 国际化
-
-- [x] 简体中文 (zh-cn)
-- [x] 繁体中文 (zh-tw)
-- [x] English (en)
-- [x] 日本語 (ja)
-
-## Docker 部署 🐳
-
-**要求**：**Docker** 和 **Docker Compose**
-
-### 通用准备
+### 首次部署
 
 ```bash
-# 克隆仓库
-git clone https://gitee.com/wildsell/apiflow.git
+git clone https://gitee.com/wildsell/apiflow
 cd apiflow
 
-# 配置环境变量
 cp .env.example .env
-# 编辑 .env 文件，设置 MongoDB 账号密码 !!!强烈建议修改默认密码
-```
+# 编辑 .env，配置 MongoDB 等参数
 
-### 方案一：使用国内源（推荐）
-
-
-```bash
-# 拉取镜像（国内源）
 docker compose -f docker-compose.yml -f docker-compose.cn.yml pull
-
-# 启动全部服务（国内源）
 docker compose -f docker-compose.yml -f docker-compose.cn.yml up -d
 
 # 验证部署
-curl http://localhost
-curl http://localhost/api/health
-
-# 停止服务
-docker compose -f docker-compose.yml -f docker-compose.cn.yml down
+curl http://localhost             
+curl http://localhost/api/health 
 ```
 
-### 方案二：使用 Docker Hub
+## 🚀 代码更新
 
+如果你是通过 Docker 运行 Apiflow，更新代码时无需在本地重新构建。
+
+只需拉取最新镜像并重启服务即可：
 ```bash
-# 拉取镜像
-docker compose pull
-
-# 启动全部服务
-docker compose up -d
-
-# 验证部署
-curl http://localhost
-curl http://localhost/api/health
-
-# 查看容器日志（stdout）
-docker compose logs -f server
-
-# 查看文件日志（容器内 /app/logs，已持久化）
-docker compose exec server ls /app/logs
-docker compose exec server tail -f /app/logs/*.log
-
-# 停止服务
-docker compose down
+docker compose -f docker-compose.yml -f docker-compose.cn.yml pull
+docker compose -f docker-compose.yml -f docker-compose.cn.yml up -d
 ```
+## 📜 许可证
 
-**环境变量配置** (`.env` 文件)：
-```bash
-MONGO_ROOT_USERNAME=admin              # MongoDB 管理员用户名
-MONGO_ROOT_PASSWORD=your_password      # MongoDB 管理员密码（请修改为强密码）   
-MONGO_DATABASE=apiflow                 # 数据库名称
-```
+本项目采用 **MIT** 许可证进行许可
 
-服务可访问于：
-- **Web UI**: http://localhost
-- **API Server**: http://localhost/api（通过 Web 代理，不再直接暴露 `:7001`）
-- **MongoDB**: 仅 Docker 内部网络可访问（不对外暴露）
-
-日志说明：
-- 文件日志目录：`/app/logs`（docker-compose 已挂载为 `server_logs`）
-- 轮转策略：按天轮转、单文件 100MB、保留 14 天
-
-
-
-## 文档
-
-- [产品介绍](https://www.yuque.com/apiflow/as0gig/fayyy6)
-- [使用教程](https://www.yuque.com/apiflow/as0gig/npr3di)
-- [完整文档](https://www.yuque.com/apiflow)
-
-## QQ 交流群
-
-977506603 欢迎加入
-
-## License
-
-[MIT](./LICENSE)
-
-
-
+详情请参阅 [LICENSE](./LICENSE)
