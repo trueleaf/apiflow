@@ -169,8 +169,8 @@ export class GroupService {
       permission, 
       expireAt
     });
-    const session = await this.projectModel.startSession();
-    session.startTransaction();
+    // const session = await this.projectModel.startSession();
+    // session.startTransaction();
     try {
       await this.projectModel.updateMany(
         { 'groups.groupId': groupId },
@@ -182,13 +182,13 @@ export class GroupService {
         arrayFilters: [{ "elem.groupId": groupId }]
       })
       await this.groupModel.findByIdAndUpdate({ _id: groupId }, { members, updator });
-      await session.commitTransaction();
+      // await session.commitTransaction();
     } catch (error) {
-      await session.abortTransaction();
+      // await session.abortTransaction();
       console.error(error);
       throwError(1015, '添加团队成员失败')
     } finally {
-      session.endSession();
+      // session.endSession();
     }
     return
   }
@@ -219,8 +219,8 @@ export class GroupService {
 
     const members = group.members;
     members.splice(index, 1);
-    const session = await this.projectModel.startSession();
-    session.startTransaction();
+    // const session = await this.projectModel.startSession();
+    // session.startTransaction();
     try {
       await this.projectModel.updateMany(
         { 'groups.groupId': groupId },
@@ -232,13 +232,13 @@ export class GroupService {
         arrayFilters: [{ "elem.groupId": groupId }]
       })
       await this.groupModel.findByIdAndUpdate({ _id: groupId }, { members, updator });
-      await session.commitTransaction();
+      // await session.commitTransaction();
     } catch (error) {
-      await session.abortTransaction();
+      // await session.abortTransaction();
       console.error(error);
       throwError(1015, '添加团队成员失败')
     } finally {
-      session.endSession();
+      // session.endSession();
     }
     return;
   }
@@ -269,8 +269,8 @@ export class GroupService {
       throwError(1008, '团队内必须至少保留一个管理员');
     }
     targetUser.permission = permission;
-    const session = await this.projectModel.startSession();
-    session.startTransaction();
+    // const session = await this.projectModel.startSession();
+    // session.startTransaction();
     try {
       await this.projectModel.updateMany(
         { 'groups.groupId': groupId },
@@ -282,13 +282,13 @@ export class GroupService {
         arrayFilters: [{ "elem.groupId": groupId }]
       })
       await this.groupModel.findByIdAndUpdate({ _id: groupId }, { members, updator });
-      await session.commitTransaction();
+      // await session.commitTransaction();
     } catch (error) {
-      await session.abortTransaction();
+      // await session.abortTransaction();
       console.error(error);
       throwError(1015, '添加团队成员失败')
     } finally {
-      session.endSession();
+      // session.endSession();
     }
     return ;
   }

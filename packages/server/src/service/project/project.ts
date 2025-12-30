@@ -61,9 +61,9 @@ export class ProjectService {
       id: this.ctx.tokenInfo.id,
       name: this.ctx.tokenInfo.loginName
     };
-    const session = await this.userModel.startSession();
+    // const session = await this.userModel.startSession();
     try {
-      await session.startTransaction();
+      // await session.startTransaction();
       const matchedGroups = await this.groupModel.find({ _id: { $in: groups.map(v => v.groupId) } }).lean();
       const userSet = new Set();
       userSet.add(this.ctx.tokenInfo.id);
@@ -82,17 +82,17 @@ export class ProjectService {
         userSet.add(user.userId);
       })
       projectInfo.groups = fullGroups;
-      const result = await this.projectModel.create([projectInfo], { session });
+      const result = await this.projectModel.create([projectInfo]);
       const userIds = Array.from(userSet);
-      await this.userModel.updateMany({ _id: { $in: userIds } }, { $push: { couldVisitProjects: result[0]._id.toString() } }, { session });
-      await session.commitTransaction();
+      await this.userModel.updateMany({ _id: { $in: userIds } }, { $push: { couldVisitProjects: result[0]._id.toString() } });
+      // await session.commitTransaction();
       return result[0]._id;
     } catch (error) {
-      await session.abortTransaction();
+      // await session.abortTransaction();
       console.error(error);
       throwError(1015, '新增项目失败')
     } finally {
-      session.endSession();
+      // session.endSession();
     }
   }
   /**
