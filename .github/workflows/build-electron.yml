@@ -17,6 +17,9 @@ on:
 
 env:
   NODE_VERSION: '20'
+
+permissions:
+  contents: write
   
 jobs:
   # 第一阶段：Web应用测试和构建
@@ -148,11 +151,12 @@ jobs:
         working-directory: packages/server
 
       - name: 打包并发布 Windows
-        run: npm run web:build:app:win -- --publish always
+        run: npm run web:build:app:win
         env:
           APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          PUBLISH: always
 
   # Linux 构建
   build-linux:
@@ -202,12 +206,13 @@ jobs:
         working-directory: packages/server
 
       - name: 打包并发布 Linux
-        run: npm run web:build:app:linux -- --publish always
+        run: npm run web:build:app:linux
         env:
           APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
           npm_config_target_platform: linux
+          PUBLISH: always
 
   # macOS 构建
   build-macos:
@@ -253,12 +258,13 @@ jobs:
         working-directory: packages/server
 
       - name: 打包并发布 macOS
-        run: npm run web:build:app:mac -- --publish always
+        run: npm run web:build:app:mac
         env:
           APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
           npm_config_target_platform: darwin
+          PUBLISH: always
 
   # 创建 Git Tag（仅手动构建且指定版本时）
   create-tag:
