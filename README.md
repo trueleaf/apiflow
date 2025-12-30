@@ -4,14 +4,19 @@
 
 # Apiflow
 
-### A Free, AI-Powered API Development Platform
-### A Modern Open-Source Alternative to Postman, Hoppscotch & Insomnia
+### A Free, AI-Powered API Tool like Postman
 
-**Local-First · AI Agents · Team Collaboration · OpenAPI-First**
+[中文](./README_CN.md) | English
+
+[![GitHub Release](https://img.shields.io/github/v/release/trueleaf/apiflow?style=flat-square)](https://github.com/trueleaf/apiflow/releases/latest)
+[![License](https://img.shields.io/github/license/trueleaf/apiflow)](https://github.com/trueleaf/apiflow/blob/master/LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/trueleaf/apiflow/total)](https://github.com/trueleaf/apiflow/releases/latest)
+
+[Download](https://github.com/trueleaf/apiflow/releases)  | [Online Demo](https://apiflow.cn/)
 
 
-🚀 [Download](https://github.com/trueleaf/apiflow/releases) ·
-✨ [Online Demo](https://apiflow.cn)
+<!-- 🚀 [Download](https://github.com/trueleaf/apiflow/releases) ·
+✨ [Online Demo](https://apiflow.cn) -->
 <!-- 📖 [Documentation](https://www.yuque.com/apiflow) · -->
 
 </div>

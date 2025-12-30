@@ -4,13 +4,16 @@
 
 # Apiflow
 
-### 100%免费 Postman / Apifox 开源替代方案
+### Postman / Apifox 开源替代方案
 
-**国产化部署 · 团队协作 · 离线使用 · AI增强**
+[English](./README.md) | 中文
 
-🚀 [下载](https://github.com/trueleaf/apiflow/releases)·
-✨ [在线 Demo](https://apiflow.cn)
-<!-- 📖 [官方文档](https://www.yuque.com/apiflow)· -->
+[![GitHub Release](https://img.shields.io/github/v/release/trueleaf/apiflow?style=flat-square)](https://github.com/trueleaf/apiflow/releases/latest)
+[![License](https://img.shields.io/github/license/trueleaf/apiflow)](https://github.com/trueleaf/apiflow/blob/master/LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/trueleaf/apiflow/total)](https://github.com/trueleaf/apiflow/releases/latest)
+
+[下载](https://github.com/trueleaf/apiflow/releases) | [在线演Demo](https://apiflow.cn/)
+
 
 </div>
 
