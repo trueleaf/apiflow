@@ -24,11 +24,6 @@ COPY --from=build /app/packages/server/dist ./dist
 COPY --from=build /app/packages/server/public ./public
 COPY --from=build /app/packages/server/bootstrap.js ./bootstrap.js
 
-# 创建logs目录并设置权限
-RUN mkdir -p /app/logs && chown -R node:node /app/logs
-
-# 使用非root用户运行
-USER node
 
 EXPOSE 7001
 CMD ["node", "./bootstrap.js"]

@@ -20,7 +20,7 @@ export type CustomError = {
 export const throwError = (code: ResponseWrapper['code'], msg: string) => {
   const errorData = {
     code,
-    msg: process.env.NODE_ENV === 'local' ? msg : '系统错误',
+    msg,
   };
   Object.setPrototypeOf(errorData, {
     isCustomError: true,

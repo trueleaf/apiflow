@@ -54,11 +54,14 @@ export default (): MidwayConfig => {
         },
       },
     },
-    logger: {
-      dir: process.env.LOG_DIR || 'logs',
-      level: 'info',
-      consoleLevel: 'info',
+    midwayLogger: {
+      default: {
+        dir: process.env.LOG_DIR || 'logs',
+        level: 'info',
+        consoleLevel: 'info',
+      }
     },
+    
     logrotator: {
       maxDays: 14,
       maxFileSize: '100m',
