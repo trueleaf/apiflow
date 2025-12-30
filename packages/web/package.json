@@ -252,7 +252,8 @@
       {
         "provider": "github",
         "owner": "trueleaf",
-        "repo": "apiflow"
+        "repo": "apiflow",
+        "releaseType": "release"
       }
     ]
   },

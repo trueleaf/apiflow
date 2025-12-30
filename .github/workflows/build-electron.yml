@@ -147,50 +147,12 @@ jobs:
         run: npm ci
         working-directory: packages/server
 
-      - name: 打包 Windows
-        run: npm run web:build:app:win
+      - name: 打包并发布 Windows
+        run: npm run web:build:app:win -- --publish always
         env:
           APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
-
-      - name: 查找并重命名安装程序
-        run: |
-          Write-Host "当前目录: $(Get-Location)"
-          Write-Host "目录结构:"
-          Get-ChildItem -Recurse -Depth 2 | Format-Table Name, FullName
-          
-          # 查找所有的.exe文件
-          $exeFiles = Get-ChildItem -Recurse -Filter "*.exe" -Depth 3 | Where-Object { 
-            $_.FullName -notlike "*node_modules*" -and 
-            $_.FullName -notlike "*\.git\*" -and
-            $_.DirectoryName -like "*dist*" -or $_.DirectoryName -like "*release*"
-          }
-          
-          Write-Host "找到的.exe文件:"
-          $exeFiles | Format-Table Name, Directory
-          
-          if ($exeFiles.Count -gt 0) {
-            $firstExe = $exeFiles[0]
-            $newName = "${{ steps.setup.outputs.asset_name }}"
-            $newPath = Join-Path -Path $firstExe.DirectoryName -ChildPath $newName
-            Write-Host "重命名: $($firstExe.FullName) -> $newPath"
-            Rename-Item -Path $firstExe.FullName -NewName $newName
-          } else {
-            Write-Host "错误: 未找到任何.exe文件"
-            # 创建测试文件用于调试
-            New-Item -Path "test-app.exe" -ItemType File -Force
-            exit 1
-          }
-
-      - name: 上传 Windows 构建产物
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.setup.outputs.artifact_name }}
-          path: |
-            **/*.exe
-            !node_modules/**/*
-          retention-days: 7
 
   # Linux 构建
   build-linux:
@@ -239,64 +201,13 @@ jobs:
         run: npm ci
         working-directory: packages/server
 
-      - name: 打包 Linux
-        run: npm run web:build:app:linux
+      - name: 打包并发布 Linux
+        run: npm run web:build:app:linux -- --publish always
         env:
           APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
           npm_config_target_platform: linux
-
-      - name: 查找构建文件
-        run: |
-          echo "查找构建文件..."
-          find . -name "*.AppImage" -type f 2>/dev/null | head -20
-          echo "当前目录内容:"
-          ls -la
-          echo "dist目录内容:"
-          ls -la dist/ 2>/dev/null || echo "dist目录不存在"
-          echo "release目录内容:"
-          ls -la release/ 2>/dev/null || echo "release目录不存在"
-
-      - name: 重命名 AppImage 文件
-        run: |
-          set -euo pipefail
-
-          # electron-builder may produce both x64 and arm64 AppImages; always publish x64 as the generic asset_name.
-          X64_APPIMAGE=$(find . \( -name "*x86_64*.AppImage" -o -name "*x64*.AppImage" \) -type f 2>/dev/null | grep -v node_modules | head -1 || true)
-          ARM64_APPIMAGE=$(find . \( -name "*aarch64*.AppImage" -o -name "*arm64*.AppImage" \) -type f 2>/dev/null | grep -v node_modules | head -1 || true)
-
-          if [ -n "$X64_APPIMAGE" ]; then
-            echo "找到 x64 AppImage 文件: $X64_APPIMAGE"
-            mv "$X64_APPIMAGE" "${{ steps.setup.outputs.asset_name }}"
-            echo "重命名为: ${{ steps.setup.outputs.asset_name }}"
-          else
-            APPIMAGE_FILE=$(find . -name "*.AppImage" -type f 2>/dev/null | grep -v node_modules | head -1 || true)
-            if [ -n "$APPIMAGE_FILE" ]; then
-              echo "找到 AppImage 文件: $APPIMAGE_FILE"
-              mv "$APPIMAGE_FILE" "${{ steps.setup.outputs.asset_name }}"
-              echo "重命名为: ${{ steps.setup.outputs.asset_name }}"
-            else
-              echo "警告: 未找到AppImage文件，创建测试文件用于调试"
-              touch "app-linux-test.AppImage"
-            fi
-          fi
-
-          if [ -n "$ARM64_APPIMAGE" ]; then
-            echo "找到 arm64 AppImage 文件: $ARM64_APPIMAGE"
-            mv "$ARM64_APPIMAGE" "${{ steps.setup.outputs.asset_name_arm64 }}"
-            echo "重命名为: ${{ steps.setup.outputs.asset_name_arm64 }}"
-          fi
-
-      - name: 上传 Linux 构建产物
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.setup.outputs.artifact_name }}
-          path: |
-            *.AppImage
-            dist/*.AppImage
-            release/*.AppImage
-          retention-days: 7
 
   # macOS 构建
   build-macos:
@@ -341,50 +252,13 @@ jobs:
         run: npm ci
         working-directory: packages/server
 
-      - name: 打包 macOS
-        run: npm run web:build:app:mac
+      - name: 打包并发布 macOS
+        run: npm run web:build:app:mac -- --publish always
         env:
           APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
           npm_config_target_platform: darwin
-
-      - name: 查找构建文件
-        run: |
-          echo "查找构建文件..."
-          find . -name "*.dmg" -type f 2>/dev/null | head -20
-          echo "当前目录内容:"
-          ls -la
-          echo "dist目录内容:"
-          ls -la dist/ 2>/dev/null || echo "dist目录不存在"
-          echo "release目录内容:"
-          ls -la release/ 2>/dev/null || echo "release目录不存在"
-
-      - name: 重命名 DMG 文件
-        run: |
-          # 查找dmg文件
-          DMG_FILE=$(find . -name "*.dmg" -type f 2>/dev/null | grep -v node_modules | head -1)
-          
-          if [ -n "$DMG_FILE" ]; then
-            echo "找到DMG文件: $DMG_FILE"
-            NEW_NAME="${{ steps.setup.outputs.asset_name }}"
-            echo "重命名为: $NEW_NAME"
-            mv "$DMG_FILE" "$NEW_NAME"
-            echo "重命名完成"
-          else
-            echo "警告: 未找到DMG文件，创建测试文件用于调试"
-            touch "app-macos-test.dmg"
-          fi
-
-      - name: 上传 macOS 构建产物
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.setup.outputs.artifact_name }}
-          path: |
-            *.dmg
-            dist/*.dmg
-            release/*.dmg
-          retention-days: 7
 
   # 创建 Git Tag（仅手动构建且指定版本时）
   create-tag:
@@ -412,8 +286,8 @@ jobs:
           git push origin "$TAG_NAME"
           echo "标签创建成功"
 
-  # 创建 GitHub Release
-  create-release:
+  # 等待所有构建完成（electron-builder 已自动发布到 GitHub Release）
+  build-complete:
     needs: 
       - test-web
       - build-windows
@@ -424,92 +298,15 @@ jobs:
     if: ${{ always() && (needs.build-windows.result == 'success' || needs.build-linux.result == 'success' || needs.build-macos.result == 'success') }}
     
     steps:
-      - name: 检出代码（仅用于获取 tag 信息）
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: 下载所有构建产物
-        uses: actions/download-artifact@v4
-        with:
-          pattern: electron-app-*
-          merge-multiple: true
-          path: release_assets/
-
-      - name: 查看下载的文件
+      - name: 构建完成通知
         run: |
-          echo "下载的文件列表:"
-          find release_assets/ -type f 2>/dev/null || echo "没有找到文件"
-          echo "目录结构:"
-          ls -la release_assets/
-
-      - name: 重命名和组织文件
-        run: |
-          # 创建发布目录
-          mkdir -p publish
-          
-          # 移动并重命名 Windows 文件
-          if find release_assets/ -name "*.exe" -type f | head -1 | grep -q .; then
-            WIN_EXE=$(find release_assets/ -name "*.exe" -type f | head -1)
-            if [ -f "$WIN_EXE" ]; then
-              mv "$WIN_EXE" "publish/${{ needs.build-windows.outputs.asset_name }}"
-              echo "Windows 文件已准备: publish/${{ needs.build-windows.outputs.asset_name }}"
-            fi
-          fi
-          
-          # 移动并重命名 Linux 文件
-          for LINUX_ASSET in "${{ needs.build-linux.outputs.asset_name }}" "${{ needs.build-linux.outputs.asset_name_arm64 }}"; do
-            if [ -f "release_assets/$LINUX_ASSET" ]; then
-              mv "release_assets/$LINUX_ASSET" "publish/$LINUX_ASSET"
-              echo "Linux 文件已准备: publish/$LINUX_ASSET"
-            fi
-          done
-          
-          # 移动并重命名 macOS 文件
-          if find release_assets/ -name "*.dmg" -type f | head -1 | grep -q .; then
-            MAC_DMG=$(find release_assets/ -name "*.dmg" -type f | head -1)
-            if [ -f "$MAC_DMG" ]; then
-              mv "$MAC_DMG" "publish/${{ needs.build-macos.outputs.asset_name }}"
-              echo "macOS 文件已准备: publish/${{ needs.build-macos.outputs.asset_name }}"
-            fi
-          fi
-          
-          echo "最终发布文件:"
-          ls -la publish/
-
-      - name: 创建 GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ needs.test-web.outputs.tag_name }}
-          name: Release ${{ needs.test-web.outputs.version }}
-          body: |
-            ### 版本 ${{ needs.test-web.outputs.version }}
-            
-            **构建信息:**
-            - 触发方式: ${{ github.event_name }}
-            - 提交: ${{ github.sha }}
-            - 构建时间: ${{ github.run_created_at }}
-            
-            **构建状态:**
-            - Windows: ${{ needs.build-windows.result }}
-            - Linux: ${{ needs.build-linux.result }}
-            - macOS: ${{ needs.build-macos.result }}
-            
-            **下载链接:**
-            ${{ needs.build-windows.result == 'success' && format('- Windows: [{0}](https://github.com/{1}/releases/download/{2}/{0})', needs.build-windows.outputs.asset_name, github.repository, needs.test-web.outputs.tag_name) || '' }}
-            ${{ needs.build-linux.result == 'success' && format('- Linux (x64): [{0}](https://github.com/{1}/releases/download/{2}/{0})', needs.build-linux.outputs.asset_name, github.repository, needs.test-web.outputs.tag_name) || '' }}
-            ${{ needs.build-linux.result == 'success' && format('- Linux (arm64): [{0}](https://github.com/{1}/releases/download/{2}/{0})', needs.build-linux.outputs.asset_name_arm64, github.repository, needs.test-web.outputs.tag_name) || '' }}
-            ${{ needs.build-macos.result == 'success' && format('- macOS: [{0}](https://github.com/{1}/releases/download/{2}/{0})', needs.build-macos.outputs.asset_name, github.repository, needs.test-web.outputs.tag_name) || '' }}
-            
-            **使用说明:**
-            1. 下载对应平台的安装程序
-            2. 运行安装程序
-            3. 如有问题，请查看文档或提交 Issue
-            
-          prerelease: ${{ needs.test-web.outputs.is_pre_release == 'true' }}
-          draft: false
-          generate_release_notes: true
-          files: publish/*
-          fail_on_unmatched_files: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          echo "✅ 构建已完成，electron-builder 已自动发布到 GitHub Release"
+          echo "版本: ${{ needs.test-web.outputs.version }}"
+          echo "标签: ${{ needs.test-web.outputs.tag_name }}"
+          echo ""
+          echo "构建状态:"
+          echo "- Windows: ${{ needs.build-windows.result }}"
+          echo "- Linux: ${{ needs.build-linux.result }}"
+          echo "- macOS: ${{ needs.build-macos.result }}"
+          echo ""
+          echo "Release 地址: https://github.com/${{ github.repository }}/releases/tag/${{ needs.test-web.outputs.tag_name }}"
