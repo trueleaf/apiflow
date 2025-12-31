@@ -124,7 +124,7 @@ jobs:
   build-windows:
     needs: [test-web, create-tag]
     runs-on: windows-latest
-    if: always() && needs.test-web.result == 'success'
+    if: always() && needs.test-web.result == 'success' && (needs.create-tag.result == 'success' || needs.create-tag.result == 'skipped')
 
     outputs:
       artifact_name: ${{ steps.setup.outputs.artifact_name }}
@@ -186,6 +186,15 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}
 
+      - name: 检查构建产物
+        run: |
+          Write-Host "检查 release 目录..."
+          if (Test-Path "packages/web/release") {
+            Get-ChildItem -Path "packages/web/release" -Recurse | Select-Object FullName, Length | Format-Table -AutoSize
+          } else {
+            Write-Host "❌ release 目录不存在"
+          }
+
       - name: 上传更新产物 (Windows)
         uses: actions/upload-artifact@v4
         with:
@@ -195,11 +204,50 @@ jobs:
             packages/web/release/*.exe
             packages/web/release/latest.yml
 
+      - name: 上传安装包到 GitHub Release
+        if: needs.test-web.outputs.create_tag == 'true' || github.event_name == 'push'
+        run: |
+          TAG_NAME="${{ needs.test-web.outputs.tag_name }}"
+          
+          # 等待 Release 创建完成
+          echo "等待 Release 创建..."
+          for i in {1..20}; do
+            if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+              echo "Release 已存在"
+              break
+            fi
+            echo "等待中... ($i/20)"
+            sleep 3
+          done
+          
+          # 上传所有构建产物
+          echo "上传构建产物到 Release..."
+          cd packages/web/release
+          
+          # 上传所有 exe 文件
+          for file in *.exe; do
+            if [ -f "$file" ]; then
+              echo "上传: $file"
+              gh release upload "$TAG_NAME" "$file" --clobber || echo "上传 $file 失败（可能已存在）"
+            fi
+          done
+          
+          # 上传 yml 文件
+          if [ -f "latest.yml" ]; then
+            echo "上传: latest.yml"
+            gh release upload "$TAG_NAME" "latest.yml" --clobber || echo "上传 latest.yml 失败（可能已存在）"
+          fi
+          
+          echo "✅ Windows 产物上传完成"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+
   # Linux 构建
   build-linux:
     needs: [test-web, create-tag]
     runs-on: ubuntu-latest
-    if: always() && needs.test-web.result == 'success'
+    if: always() && needs.test-web.result == 'success' && (needs.create-tag.result == 'success' || needs.create-tag.result == 'skipped')
     
     outputs:
       artifact_name: ${{ steps.setup.outputs.artifact_name }}
@@ -266,6 +314,15 @@ jobs:
           IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}
           npm_config_target_platform: linux
 
+      - name: 检查构建产物
+        run: |
+          echo "检查 release 目录..."
+          if [ -d "packages/web/release" ]; then
+            ls -lh packages/web/release/
+          else
+            echo "❌ release 目录不存在"
+          fi
+
       - name: 上传更新产物 (Linux)
         uses: actions/upload-artifact@v4
         with:
@@ -276,11 +333,57 @@ jobs:
             packages/web/release/*.deb
             packages/web/release/latest-linux.yml
 
+      - name: 上传安装包到 GitHub Release
+        if: needs.test-web.outputs.create_tag == 'true' || github.event_name == 'push'
+        run: |
+          TAG_NAME="${{ needs.test-web.outputs.tag_name }}"
+          
+          # 等待 Release 创建完成
+          echo "等待 Release 创建..."
+          for i in {1..20}; do
+            if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+              echo "Release 已存在"
+              break
+            fi
+            echo "等待中... ($i/20)"
+            sleep 3
+          done
+          
+          # 上传所有构建产物
+          echo "上传构建产物到 Release..."
+          cd packages/web/release
+          
+          # 上传所有 AppImage 文件
+          for file in *.AppImage; do
+            if [ -f "$file" ]; then
+              echo "上传: $file"
+              gh release upload "$TAG_NAME" "$file" --clobber || echo "上传 $file 失败（可能已存在）"
+            fi
+          done
+          
+          # 上传所有 deb 文件
+          for file in *.deb; do
+            if [ -f "$file" ]; then
+              echo "上传: $file"
+              gh release upload "$TAG_NAME" "$file" --clobber || echo "上传 $file 失败（可能已存在）"
+            fi
+          done
+          
+          # 上传 yml 文件
+          if [ -f "latest-linux.yml" ]; then
+            echo "上传: latest-linux.yml"
+            gh release upload "$TAG_NAME" "latest-linux.yml" --clobber || echo "上传 latest-linux.yml 失败（可能已存在）"
+          fi
+          
+          echo "✅ Linux 产物上传完成"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   # macOS 构建
   build-macos:
     needs: [test-web, create-tag]
     runs-on: macos-latest
-    if: always() && needs.test-web.result == 'success'
+    if: always() && needs.test-web.result == 'success' && (needs.create-tag.result == 'success' || needs.create-tag.result == 'skipped')
     
     outputs:
       artifact_name: ${{ steps.setup.outputs.artifact_name }}
@@ -343,6 +446,15 @@ jobs:
           IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}
           npm_config_target_platform: darwin
 
+      - name: 检查构建产物
+        run: |
+          echo "检查 release 目录..."
+          if [ -d "packages/web/release" ]; then
+            ls -lh packages/web/release/
+          else
+            echo "❌ release 目录不存在"
+          fi
+
       - name: 上传更新产物 (macOS)
         uses: actions/upload-artifact@v4
         with:
@@ -352,6 +464,52 @@ jobs:
             packages/web/release/*.dmg
             packages/web/release/*-mac.zip
             packages/web/release/latest-mac.yml
+
+      - name: 上传安装包到 GitHub Release
+        if: needs.test-web.outputs.create_tag == 'true' || github.event_name == 'push'
+        run: |
+          TAG_NAME="${{ needs.test-web.outputs.tag_name }}"
+          
+          # 等待 Release 创建完成
+          echo "等待 Release 创建..."
+          for i in {1..20}; do
+            if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+              echo "Release 已存在"
+              break
+            fi
+            echo "等待中... ($i/20)"
+            sleep 3
+          done
+          
+          # 上传所有构建产物
+          echo "上传构建产物到 Release..."
+          cd packages/web/release
+          
+          # 上传所有 dmg 文件
+          for file in *.dmg; do
+            if [ -f "$file" ]; then
+              echo "上传: $file"
+              gh release upload "$TAG_NAME" "$file" --clobber || echo "上传 $file 失败（可能已存在）"
+            fi
+          done
+          
+          # 上传所有 mac.zip 文件
+          for file in *-mac.zip; do
+            if [ -f "$file" ]; then
+              echo "上传: $file"
+              gh release upload "$TAG_NAME" "$file" --clobber || echo "上传 $file 失败（可能已存在）"
+            fi
+          done
+          
+          # 上传 yml 文件
+          if [ -f "latest-mac.yml" ]; then
+            echo "上传: latest-mac.yml"
+            gh release upload "$TAG_NAME" "latest-mac.yml" --clobber || echo "上传 latest-mac.yml 失败（可能已存在）"
+          fi
+          
+          echo "✅ macOS 产物上传完成"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # 上传到自定义更新服务器（rsync + stable/beta + win/mac/linux）
   deploy-update-server:

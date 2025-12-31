@@ -17,7 +17,10 @@ if (!platform || !['win', 'mac', 'linux'].includes(platform)) {
 console.log(`构建平台: ${platform}`);
 console.log(`预发布版本: ${isPreRelease}`);
 console.log(`版本号: ${process.env.APP_VERSION || 'unknown'}`);
-console.log(`GH_TOKEN: ${process.env.GH_TOKEN ? '已设置' : '未设置'}`);
+console.log(`GH_TOKEN: ${process.env.GH_TOKEN ? '已设置（长度: ' + process.env.GH_TOKEN.length + '）' : '未设置'}`);
+console.log(`GITHUB_TOKEN: ${process.env.GITHUB_TOKEN ? '已设置（长度: ' + process.env.GITHUB_TOKEN.length + '）' : '未设置'}`);
+console.log(`当前工作目录: ${process.cwd()}`);
+console.log(`构建目录: ${join(__dirname, '..')}`);
 
 // 临时修改 package.json 以设置 releaseType
 const packageJsonPath = join(__dirname, '..', 'package.json');
