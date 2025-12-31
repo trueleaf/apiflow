@@ -139,6 +139,14 @@ jobs:
       - name: 拉取最新tags
         run: git fetch --tags --force
 
+      - name: 切换到对应tag
+        if: needs.test-web.outputs.create_tag == 'true'
+        run: |
+          $tagName = "${{ needs.test-web.outputs.tag_name }}"
+          Write-Host "切换到tag: $tagName"
+          git checkout "$tagName"
+          git describe --tags
+
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
@@ -155,6 +163,21 @@ jobs:
       - name: 安装依赖 (server)
         run: npm ci
         working-directory: packages/server
+
+      - name: 调试信息
+        run: |
+          Write-Host "=== Git 信息 ==="
+          git describe --tags --always
+          git status
+          Write-Host ""
+          Write-Host "=== 环境变量 ==="
+          Write-Host "APP_VERSION: $env:APP_VERSION"
+          Write-Host "IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}"
+          Write-Host "TAG_NAME: ${{ needs.test-web.outputs.tag_name }}"
+          Write-Host "GH_TOKEN: $(if ($env:GH_TOKEN) { '已设置' } else { '未设置' })"
+        env:
+          APP_VERSION: ${{ needs.test-web.outputs.version }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 打包并发布 Windows
         run: npm run web:build:app:win
@@ -201,6 +224,14 @@ jobs:
       - name: 拉取最新tags
         run: git fetch --tags --force
 
+      - name: 切换到对应tag
+        if: needs.test-web.outputs.create_tag == 'true'
+        run: |
+          tag_name="${{ needs.test-web.outputs.tag_name }}"
+          echo "切换到tag: $tag_name"
+          git checkout "$tag_name"
+          git describe --tags
+
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
@@ -217,6 +248,21 @@ jobs:
       - name: 安装依赖 (server)
         run: npm ci
         working-directory: packages/server
+
+      - name: 调试信息
+        run: |
+          echo "=== Git 信息 ==="
+          git describe --tags --always
+          git status
+          echo ""
+          echo "=== 环境变量 ==="
+          echo "APP_VERSION: ${APP_VERSION}"
+          echo "IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}"
+          echo "TAG_NAME: ${{ needs.test-web.outputs.tag_name }}"
+          echo "GH_TOKEN: $(if [ -n "$GH_TOKEN" ]; then echo '已设置'; else echo '未设置'; fi)"
+        env:
+          APP_VERSION: ${{ needs.test-web.outputs.version }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 打包并发布 Linux
         run: npm run web:build:app:linux
@@ -260,6 +306,14 @@ jobs:
       - name: 拉取最新tags
         run: git fetch --tags --force
 
+      - name: 切换到对应tag
+        if: needs.test-web.outputs.create_tag == 'true'
+        run: |
+          tag_name="${{ needs.test-web.outputs.tag_name }}"
+          echo "切换到tag: $tag_name"
+          git checkout "$tag_name"
+          git describe --tags
+
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
@@ -276,6 +330,21 @@ jobs:
       - name: 安装依赖 (server)
         run: npm ci
         working-directory: packages/server
+
+      - name: 调试信息
+        run: |
+          echo "=== Git 信息 ==="
+          git describe --tags --always
+          git status
+          echo ""
+          echo "=== 环境变量 ==="
+          echo "APP_VERSION: ${APP_VERSION}"
+          echo "IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}"
+          echo "TAG_NAME: ${{ needs.test-web.outputs.tag_name }}"
+          echo "GH_TOKEN: $(if [ -n "$GH_TOKEN" ]; then echo '已设置'; else echo '未设置'; fi)"
+        env:
+          APP_VERSION: ${{ needs.test-web.outputs.version }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 打包并发布 macOS
         run: npm run web:build:app:mac
