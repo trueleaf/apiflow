@@ -14,6 +14,8 @@ on:
         required: false
         default: true
         type: boolean
+  release:
+    types: [created, published]
 
 env:
   NODE_VERSION: '20'
@@ -62,6 +64,17 @@ jobs:
             fi
             
             TAG_NAME="$VERSION"
+          elif [ "${{ github.event_name }}" = "release" ]; then
+            # 从 release 事件获取版本
+            VERSION="${{ github.event.release.tag_name }}"
+            TAG_NAME="$VERSION"
+            CREATE_TAG="false"
+            # 判断是否为预发布
+            if [ "${{ github.event.release.prerelease }}" = "true" ]; then
+              IS_PRE_RELEASE="true"
+            else
+              IS_PRE_RELEASE="false"
+            fi
           else
             # 从tag获取版本
             VERSION="${GITHUB_REF#refs/tags/}"
@@ -173,6 +186,18 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}
 
+      - name: 上传到自定义更新服务器 (Windows)
+        if: secrets.SSH_HOST != '' && secrets.SSH_PRIVATE_KEY != ''
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          source: "packages/web/release/*.exe,packages/web/release/latest.yml"
+          target: "${{ secrets.UPDATE_SERVER_PATH }}"
+          strip_components: 3
+
   # Linux 构建
   build-linux:
     needs: [test-web, create-tag]
@@ -244,6 +269,18 @@ jobs:
           IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}
           npm_config_target_platform: linux
 
+      - name: 上传到自定义更新服务器 (Linux)
+        if: secrets.SSH_HOST != '' && secrets.SSH_PRIVATE_KEY != ''
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          source: "packages/web/release/*.AppImage,packages/web/release/*.deb,packages/web/release/latest-linux.yml"
+          target: "${{ secrets.UPDATE_SERVER_PATH }}"
+          strip_components: 3
+
   # macOS 构建
   build-macos:
     needs: [test-web, create-tag]
@@ -311,11 +348,23 @@ jobs:
           IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}
           npm_config_target_platform: darwin
 
-  # 创建 Git Tag（仅手动构建且指定版本时）
+      - name: 上传到自定义更新服务器 (macOS)
+        if: secrets.SSH_HOST != '' && secrets.SSH_PRIVATE_KEY != ''
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          source: "packages/web/release/*.dmg,packages/web/release/*-mac.zip,packages/web/release/latest-mac.yml"
+          target: "${{ secrets.UPDATE_SERVER_PATH }}"
+          strip_components: 3
+
+  # 创建 Git Tag 和 Release（仅手动构建且指定版本时）
   create-tag:
     needs: test-web
     runs-on: ubuntu-latest
-    if: needs.test-web.outputs.create_tag == 'true'
+    if: needs.test-web.outputs.create_tag == 'true' || github.event_name == 'release'
     
     steps:
       - name: 检出代码
@@ -330,12 +379,37 @@ jobs:
           git config --local user.name "GitHub Action"
 
       - name: 创建 Git Tag
+        if: needs.test-web.outputs.create_tag == 'true'
         run: |
           TAG_NAME="${{ needs.test-web.outputs.tag_name }}"
           echo "创建标签: $TAG_NAME"
           git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
           git push origin "$TAG_NAME"
           echo "标签创建成功"
+
+      - name: 确保 GitHub Release 存在
+        run: |
+          TAG_NAME="${{ needs.test-web.outputs.tag_name }}"
+          IS_PRERELEASE="${{ needs.test-web.outputs.is_pre_release }}"
+          VERSION="${{ needs.test-web.outputs.version }}"
+          
+          # 等待一下，确保 tag 已经同步
+          sleep 5
+          
+          # 检查 release 是否已存在
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Release 已存在: $TAG_NAME"
+          else
+            echo "创建新 Release: $TAG_NAME"
+            if [ "$IS_PRERELEASE" = "true" ]; then
+              gh release create "$TAG_NAME" --title "Apiflow $VERSION" --notes "Building release $VERSION..." --prerelease
+            else
+              gh release create "$TAG_NAME" --title "Apiflow $VERSION" --notes "Building release $VERSION..." --latest
+            fi
+            echo "✅ Release 创建成功"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # 等待所有构建完成（electron-builder 已自动发布到 GitHub Release）
   build-complete:
@@ -351,6 +425,42 @@ jobs:
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
+
+      - name: 等待 Release Assets 上传完成
+        run: |
+          TAG_NAME="${{ needs.test-web.outputs.tag_name }}"
+          
+          echo "等待 GitHub Release assets 上传完成..."
+          for i in {1..30}; do
+            echo "检查第 $i 次..."
+            
+            # 检查 release 是否存在
+            if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+              echo "Release 存在，检查 assets..."
+              
+              # 获取 assets 列表
+              ASSETS=$(gh release view "$TAG_NAME" --json assets --jq '.assets[].name')
+              ASSET_COUNT=$(echo "$ASSETS" | grep -c ".*" || true)
+              
+              echo "当前 assets 数量: $ASSET_COUNT"
+              echo "Assets:"
+              echo "$ASSETS"
+              
+              # 至少需要有一个安装包文件（.exe, .dmg, .AppImage 等）
+              if echo "$ASSETS" | grep -qE '\.(exe|dmg|AppImage)$'; then
+                echo "✅ 发现安装包文件，继续更新描述"
+                break
+              fi
+            fi
+            
+            if [ $i -eq 30 ]; then
+              echo "⚠️ 等待超时，但将继续更新 Release 描述"
+            fi
+            
+            sleep 10
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 更新 Release 描述
         run: |
