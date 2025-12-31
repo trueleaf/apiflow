@@ -17,6 +17,7 @@ if (!platform || !['win', 'mac', 'linux'].includes(platform)) {
 console.log(`构建平台: ${platform}`);
 console.log(`预发布版本: ${isPreRelease}`);
 console.log(`版本号: ${process.env.APP_VERSION || 'unknown'}`);
+console.log(`GH_TOKEN: ${process.env.GH_TOKEN ? '已设置' : '未设置'}`);
 
 // 临时修改 package.json 以设置 releaseType
 const packageJsonPath = join(__dirname, '..', 'package.json');
@@ -29,7 +30,11 @@ if (packageJson.build && packageJson.build.publish) {
   console.log(`设置 releaseType: ${packageJson.build.publish[0].releaseType}`);
 }
 
-const args = ['--' + platform];
+// 关键：添加 --publish always 参数强制发布
+const args = ['--' + platform, '--publish', 'always'];
+
+console.log('electron-builder 参数:', args);
+console.log('开始构建和发布...\n');
 
 const electronBuilder = spawn(
   'electron-builder',
@@ -40,6 +45,9 @@ const electronBuilder = spawn(
     shell: true,
     env: {
       ...process.env,
+      // 确保 GITHUB_TOKEN 设置正确
+      GITHUB_TOKEN: process.env.GITHUB_TOKEN || process.env.GH_TOKEN,
+      GH_TOKEN: process.env.GH_TOKEN || process.env.GITHUB_TOKEN,
     }
   }
 );

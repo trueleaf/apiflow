@@ -184,9 +184,9 @@ jobs:
         env:
           APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
           IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}
-          PUBLISH: always
 
   # Linux 构建
   build-linux:
@@ -269,10 +269,10 @@ jobs:
         env:
           APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
           IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}
           npm_config_target_platform: linux
-          PUBLISH: always
 
   # macOS 构建
   build-macos:
@@ -351,10 +351,10 @@ jobs:
         env:
           APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
           IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}
           npm_config_target_platform: darwin
-          PUBLISH: always
 
   # 创建 Git Tag（仅手动构建且指定版本时）
   create-tag:
