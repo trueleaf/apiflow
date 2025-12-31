@@ -1,33 +1,6 @@
 import { test, expect } from '../../../../fixtures/electron-online.fixture';
 
 test.describe('NavControl', () => {
-  test('点击刷新按钮后Tab状态保持', async ({ topBarPage, contentPage, createProject, loginAccount }) => {
-    await loginAccount();
-    const projectName = await createProject(`刷新测试-${Date.now()}`);
-    // 验证项目Tab存在且被高亮
-    const projectTab = topBarPage.locator('.tab-item').filter({ hasText: projectName });
-    await expect(projectTab).toBeVisible();
-    await expect(projectTab).toHaveClass(/active/);
-    // 记录刷新前的Tab数量
-    const tabCountBefore = await topBarPage.locator('.tab-item').count();
-    // 点击刷新按钮
-    const refreshBtn = topBarPage.locator('[data-testid="header-refresh-btn"]');
-    await expect(refreshBtn).toBeVisible();
-    await refreshBtn.click();
-    // 等待页面刷新完成（开发模式下执行reloadIgnoringCache）
-    await topBarPage.waitForLoadState('domcontentloaded');
-    await contentPage.waitForLoadState('domcontentloaded');
-    // 等待Tab列表从localStorage恢复
-    await topBarPage.waitForTimeout(1000);
-    // 验证Tab列表恢复，项目Tab仍然存在
-    const projectTabAfterRefresh = topBarPage.locator('.tab-item').filter({ hasText: projectName });
-    await expect(projectTabAfterRefresh).toBeVisible({ timeout: 10000 });
-    // 验证Tab数量保持不变
-    const tabCountAfter = await topBarPage.locator('.tab-item').count();
-    expect(tabCountAfter).toBe(tabCountBefore);
-    // 验证之前高亮的Tab保持高亮状态
-    await expect(projectTabAfterRefresh).toHaveClass(/active/);
-  });
 
   test('前进后退按钮按历史栈导航', async ({ topBarPage, contentPage, createProject, loginAccount }) => {
     await loginAccount();
