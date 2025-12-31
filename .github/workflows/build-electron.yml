@@ -164,21 +164,6 @@ jobs:
         run: npm ci
         working-directory: packages/server
 
-      - name: 调试信息
-        run: |
-          Write-Host "=== Git 信息 ==="
-          git describe --tags --always
-          git status
-          Write-Host ""
-          Write-Host "=== 环境变量 ==="
-          Write-Host "APP_VERSION: $env:APP_VERSION"
-          Write-Host "IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}"
-          Write-Host "TAG_NAME: ${{ needs.test-web.outputs.tag_name }}"
-          Write-Host "GH_TOKEN: $(if ($env:GH_TOKEN) { '已设置' } else { '未设置' })"
-        env:
-          APP_VERSION: ${{ needs.test-web.outputs.version }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: 打包并发布 Windows
         run: npm run web:build:app:win
         env:
@@ -249,21 +234,6 @@ jobs:
         run: npm ci
         working-directory: packages/server
 
-      - name: 调试信息
-        run: |
-          echo "=== Git 信息 ==="
-          git describe --tags --always
-          git status
-          echo ""
-          echo "=== 环境变量 ==="
-          echo "APP_VERSION: ${APP_VERSION}"
-          echo "IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}"
-          echo "TAG_NAME: ${{ needs.test-web.outputs.tag_name }}"
-          echo "GH_TOKEN: $(if [ -n "$GH_TOKEN" ]; then echo '已设置'; else echo '未设置'; fi)"
-        env:
-          APP_VERSION: ${{ needs.test-web.outputs.version }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: 打包并发布 Linux
         run: npm run web:build:app:linux
         env:
@@ -331,21 +301,6 @@ jobs:
         run: npm ci
         working-directory: packages/server
 
-      - name: 调试信息
-        run: |
-          echo "=== Git 信息 ==="
-          git describe --tags --always
-          git status
-          echo ""
-          echo "=== 环境变量 ==="
-          echo "APP_VERSION: ${APP_VERSION}"
-          echo "IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}"
-          echo "TAG_NAME: ${{ needs.test-web.outputs.tag_name }}"
-          echo "GH_TOKEN: $(if [ -n "$GH_TOKEN" ]; then echo '已设置'; else echo '未设置'; fi)"
-        env:
-          APP_VERSION: ${{ needs.test-web.outputs.version }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: 打包并发布 macOS
         run: npm run web:build:app:mac
         env:
@@ -394,6 +349,45 @@ jobs:
     if: ${{ always() && (needs.build-windows.result == 'success' || needs.build-linux.result == 'success' || needs.build-macos.result == 'success') }}
     
     steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 更新 Release 描述
+        run: |
+          # 读取模板文件
+          TEMPLATE=$(cat .github/release-template.md)
+          
+          # 替换变量
+          VERSION="${{ needs.test-web.outputs.version }}"
+          RELEASE_BODY="${TEMPLATE//\{\{VERSION\}\}/$VERSION}"
+          
+          # 保存到临时文件
+          echo "$RELEASE_BODY" > /tmp/release-notes.md
+          
+          TAG_NAME="${{ needs.test-web.outputs.tag_name }}"
+          IS_PRERELEASE="${{ needs.test-web.outputs.is_pre_release }}"
+          
+          # 检查 release 是否存在
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "更新现有 release..."
+            if [ "$IS_PRERELEASE" = "true" ]; then
+              gh release edit "$TAG_NAME" --notes-file /tmp/release-notes.md --prerelease
+            else
+              gh release edit "$TAG_NAME" --notes-file /tmp/release-notes.md --latest
+            fi
+          else
+            echo "创建新 release..."
+            if [ "$IS_PRERELEASE" = "true" ]; then
+              gh release create "$TAG_NAME" --notes-file /tmp/release-notes.md --title "Apiflow $VERSION" --prerelease
+            else
+              gh release create "$TAG_NAME" --notes-file /tmp/release-notes.md --title "Apiflow $VERSION" --latest
+            fi
+          fi
+          
+          echo "✅ Release 描述已更新"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: 构建完成通知
         run: |
           echo "✅ 构建已完成，electron-builder 已自动发布到 GitHub Release"
