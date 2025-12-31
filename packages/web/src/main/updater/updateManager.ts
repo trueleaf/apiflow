@@ -56,9 +56,11 @@ export class UpdateManager {
         repo: 'apiflow',
       });
     } else {
+      const platformDir = process.platform === 'win32' ? 'win' : process.platform === 'darwin' ? 'mac' : 'linux';
+      const baseUrl = (customUrl || 'http://127.0.0.1/release').replace(/\/+$/, '');
       this.autoUpdater.setFeedURL({
         provider: 'generic',
-        url: customUrl || 'http://127.0.0.1/release',
+        url: `${baseUrl}/${platformDir}`,
         channel: 'latest'
       });
     }

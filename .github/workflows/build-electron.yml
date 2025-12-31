@@ -186,17 +186,14 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}
 
-      - name: 上传到自定义更新服务器 (Windows)
-        if: secrets.SSH_HOST != '' && secrets.SSH_PRIVATE_KEY != ''
-        uses: appleboy/scp-action@v0.1.7
+      - name: 上传更新产物 (Windows)
+        uses: actions/upload-artifact@v4
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT || 22 }}
-          source: "packages/web/release/*.exe,packages/web/release/latest.yml"
-          target: "${{ secrets.UPDATE_SERVER_PATH }}"
-          strip_components: 3
+          name: update-windows
+          if-no-files-found: error
+          path: |
+            packages/web/release/*.exe
+            packages/web/release/latest.yml
 
   # Linux 构建
   build-linux:
@@ -269,17 +266,15 @@ jobs:
           IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}
           npm_config_target_platform: linux
 
-      - name: 上传到自定义更新服务器 (Linux)
-        if: secrets.SSH_HOST != '' && secrets.SSH_PRIVATE_KEY != ''
-        uses: appleboy/scp-action@v0.1.7
+      - name: 上传更新产物 (Linux)
+        uses: actions/upload-artifact@v4
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT || 22 }}
-          source: "packages/web/release/*.AppImage,packages/web/release/*.deb,packages/web/release/latest-linux.yml"
-          target: "${{ secrets.UPDATE_SERVER_PATH }}"
-          strip_components: 3
+          name: update-linux
+          if-no-files-found: error
+          path: |
+            packages/web/release/*.AppImage
+            packages/web/release/*.deb
+            packages/web/release/latest-linux.yml
 
   # macOS 构建
   build-macos:
@@ -348,17 +343,95 @@ jobs:
           IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}
           npm_config_target_platform: darwin
 
-      - name: 上传到自定义更新服务器 (macOS)
-        if: secrets.SSH_HOST != '' && secrets.SSH_PRIVATE_KEY != ''
-        uses: appleboy/scp-action@v0.1.7
+      - name: 上传更新产物 (macOS)
+        uses: actions/upload-artifact@v4
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT || 22 }}
-          source: "packages/web/release/*.dmg,packages/web/release/*-mac.zip,packages/web/release/latest-mac.yml"
-          target: "${{ secrets.UPDATE_SERVER_PATH }}"
-          strip_components: 3
+          name: update-macos
+          if-no-files-found: error
+          path: |
+            packages/web/release/*.dmg
+            packages/web/release/*-mac.zip
+            packages/web/release/latest-mac.yml
+
+  # 上传到自定义更新服务器（rsync + stable/beta + win/mac/linux）
+  deploy-update-server:
+    needs:
+      - test-web
+      - build-windows
+      - build-linux
+      - build-macos
+    runs-on: ubuntu-latest
+    if: ${{ always() && needs.test-web.result == 'success' && (needs.build-windows.result == 'success' || needs.build-linux.result == 'success' || needs.build-macos.result == 'success') && secrets.SSH_HOST != '' && secrets.SSH_PRIVATE_KEY != '' && secrets.UPDATE_SERVER_PATH != '' }}
+
+    steps:
+      - name: 安装 rsync
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rsync
+
+      - name: 配置 SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          printf "Host *\n  StrictHostKeyChecking no\n" > ~/.ssh/config
+
+      - name: 计算发布目录
+        id: calc
+        run: |
+          if [ "${{ needs.test-web.outputs.is_pre_release }}" = "true" ]; then
+            echo "channel_dir=beta" >> $GITHUB_OUTPUT
+          else
+            echo "channel_dir=stable" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 下载 Windows 更新产物
+        if: needs.build-windows.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: update-windows
+          path: dist/win
+
+      - name: rsync Windows 更新到服务器
+        if: needs.build-windows.result == 'success'
+        run: |
+          SSH_PORT='${{ secrets.SSH_PORT || 22 }}'
+          CHANNEL_DIR='${{ steps.calc.outputs.channel_dir }}'
+          REMOTE_ROOT='${{ secrets.UPDATE_SERVER_PATH }}/'"$CHANNEL_DIR"'/win'
+          ssh -p "$SSH_PORT" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "mkdir -p \"$REMOTE_ROOT\""
+          rsync -az -e "ssh -p $SSH_PORT" dist/win/ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$REMOTE_ROOT/"
+
+      - name: 下载 Linux 更新产物
+        if: needs.build-linux.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: update-linux
+          path: dist/linux
+
+      - name: rsync Linux 更新到服务器
+        if: needs.build-linux.result == 'success'
+        run: |
+          SSH_PORT='${{ secrets.SSH_PORT || 22 }}'
+          CHANNEL_DIR='${{ steps.calc.outputs.channel_dir }}'
+          REMOTE_ROOT='${{ secrets.UPDATE_SERVER_PATH }}/'"$CHANNEL_DIR"'/linux'
+          ssh -p "$SSH_PORT" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "mkdir -p \"$REMOTE_ROOT\""
+          rsync -az -e "ssh -p $SSH_PORT" dist/linux/ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$REMOTE_ROOT/"
+
+      - name: 下载 macOS 更新产物
+        if: needs.build-macos.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: update-macos
+          path: dist/mac
+
+      - name: rsync macOS 更新到服务器
+        if: needs.build-macos.result == 'success'
+        run: |
+          SSH_PORT='${{ secrets.SSH_PORT || 22 }}'
+          CHANNEL_DIR='${{ steps.calc.outputs.channel_dir }}'
+          REMOTE_ROOT='${{ secrets.UPDATE_SERVER_PATH }}/'"$CHANNEL_DIR"'/mac'
+          ssh -p "$SSH_PORT" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "mkdir -p \"$REMOTE_ROOT\""
+          rsync -az -e "ssh -p $SSH_PORT" dist/mac/ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$REMOTE_ROOT/"
 
   # 创建 Git Tag 和 Release（仅手动构建且指定版本时）
   create-tag:
