@@ -3,7 +3,8 @@ import { config } from '@src/config/config'
 import { router } from '@/router';
 import { ElMessageBox } from 'element-plus';
 import { nanoid } from 'nanoid';
-import { parseUrl, getStrParams, getStrHeader, getStrJsonBody, getHashedContent } from './sign';
+import { sha256 } from 'js-sha256';
+import { parseUrl, getStrParams, getStrHeader, getStrJsonBody } from './sign';
 import { i18n } from '@/i18n';
 import { runtimeCache } from '@/cache/runtime/runtimeCache';
 import { message } from '@/helper';
@@ -31,11 +32,10 @@ axiosInstance.interceptors.request.use(async (reqConfig) => {
     const parsedUrlInfo = parseUrl(reqConfig.url!);
     const url = parsedUrlInfo.url;
     const strParams = getStrParams(Object.assign({}, parsedUrlInfo.queryParams,reqConfig.params));
-    const strBody = await getStrJsonBody(reqConfig.data);
+    const strBody = getStrJsonBody(reqConfig.data);
     const { strHeader, sortedHeaderKeys } = getStrHeader(reqConfig.headers);
     const signContent = `${method}\n${url}\n${strParams}\n${strBody}\n${strHeader}\n${timestamp}\n${nonce}`;
-    const hashedContent = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(signContent));
-    reqConfig.headers['x-sign'] = getHashedContent(hashedContent);
+    reqConfig.headers['x-sign'] = sha256(signContent);
     reqConfig.headers['x-sign-headers'] = sortedHeaderKeys.join(',');
     reqConfig.headers['x-sign-timestamp'] = timestamp;
     reqConfig.headers['x-sign-nonce'] = nonce;

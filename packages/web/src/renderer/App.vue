@@ -187,7 +187,7 @@ const handleHeaderTabContextAction = (action: AppWorkbenchHeaderTabContextAction
 const handleLogout = () => {
   runtimeStore.clearUserInfo()
   hideUserMenu()
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: '', role: 'user', token: '', avatar: '' })
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: '', loginName: '', role: 'user', token: '', avatar: '' })
   router.push('/login')
 }
 

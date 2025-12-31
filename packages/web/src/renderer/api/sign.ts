@@ -1,5 +1,6 @@
 // 签名相关工具函数
 import stringify from 'json-stable-stringify';
+import { sha256 } from 'js-sha256';
 
 /*
 |--------------------------------------------------------------------------
@@ -68,17 +69,9 @@ export const getStrHeader = (headers: Record<string, string> = {}) => {
 | 获取加签后的请求body
 |--------------------------------------------------------------------------
 */
-export const getStrJsonBody = async (data: Record<string, string> = {}) => {
+export const getStrJsonBody = (data: Record<string, string> = {}) => {
   if (Object.prototype.toString.call(data) === '[object Object]') {
     const sortedJson = stringify(data);
-    const encoder = new TextEncoder();
-    const encodedData = encoder.encode(sortedJson);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', encodedData);
-    return getHashedContent(hashBuffer);
+    return sha256(sortedJson || '');
   }
-}
-
-export const getHashedContent = (hashBuffer: ArrayBuffer) => {
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }

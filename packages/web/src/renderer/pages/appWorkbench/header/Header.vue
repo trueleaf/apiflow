@@ -513,18 +513,59 @@ const handleDocumentClick = (event: MouseEvent) => {
   }
 }
 
+// Web环境下监听localStorage变化以同步用户信息
+const isElectronEnv = computed(() => {
+  return typeof window !== 'undefined' && typeof window.electronAPI !== 'undefined'
+})
+
+const handleStorageChange = (e: StorageEvent) => {
+  if (e.key === 'runtime/userInfo' && e.newValue) {
+    try {
+      const userInfo = JSON.parse(e.newValue)
+      runtimeStore.updateUserInfo(userInfo)
+    } catch (error) {
+      console.error('Failed to parse userInfo from storage event:', error)
+    }
+  }
+}
+
+// Web环境下定时同步用户信息
+let syncInterval: ReturnType<typeof setInterval> | null = null
+const startSyncUserInfo = () => {
+  if (!isElectronEnv.value) {
+    syncInterval = setInterval(() => {
+      runtimeStore.initUserInfo()
+    }, 1000)
+  }
+}
+
 onMounted(async () => {
   runtimeStore.initUserInfo()
   bindEvent()
   scrollToActiveTab()
-  // 确保事件监听器已注册后再发送就绪信号
-  await nextTick()
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.topBarReady)
+  
+  if (!isElectronEnv.value) {
+    // Web环境：监听storage事件和定时同步
+    window.addEventListener('storage', handleStorageChange)
+    startSyncUserInfo()
+  } else {
+    // Electron环境：使用IPC通信
+    await nextTick()
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.topBarReady)
+  }
+  
   window.addEventListener('click', handleDocumentClick)
 })
 
 onUnmounted(() => {
   window.removeEventListener('click', handleDocumentClick)
+  if (!isElectronEnv.value) {
+    window.removeEventListener('storage', handleStorageChange)
+    if (syncInterval) {
+      clearInterval(syncInterval)
+      syncInterval = null
+    }
+  }
 })
 
 watch(() => networkMode.value, (mode, prevMode) => {
