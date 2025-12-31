@@ -18,9 +18,9 @@
     "type-check": "vue-tsc -p tsconfig.app.json --noEmit",
     "build:app:pack": "vite build && electron-builder --dir",
     "build:app": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder",
-    "build:app:win": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --win",
-    "build:app:mac": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --mac",
-    "build:app:linux": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --linux",
+    "build:app:win": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && node scripts/build-electron.mjs win",
+    "build:app:mac": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && node scripts/build-electron.mjs mac",
+    "build:app:linux": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && node scripts/build-electron.mjs linux",
     "test": "npm run test:e2e",
     "test2": "npm run test:e2e:ui",
     "pretest:e2e": "vite build",
@@ -252,8 +252,7 @@
       {
         "provider": "github",
         "owner": "trueleaf",
-        "repo": "apiflow",
-        "releaseType": "release"
+        "repo": "apiflow"
       }
     ]
   },

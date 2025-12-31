@@ -109,8 +109,9 @@ jobs:
 
   # Windows 构建
   build-windows:
-    needs: test-web
+    needs: [test-web, create-tag]
     runs-on: windows-latest
+    if: always() && needs.test-web.result == 'success'
 
     outputs:
       artifact_name: ${{ steps.setup.outputs.artifact_name }}
@@ -132,6 +133,11 @@ jobs:
 
       - name: 检出代码
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 拉取最新tags
+        run: git fetch --tags --force
 
       - name: 设置 Node.js
         uses: actions/setup-node@v4
@@ -156,12 +162,14 @@ jobs:
           APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}
           PUBLISH: always
 
   # Linux 构建
   build-linux:
-    needs: test-web
+    needs: [test-web, create-tag]
     runs-on: ubuntu-latest
+    if: always() && needs.test-web.result == 'success'
     
     outputs:
       artifact_name: ${{ steps.setup.outputs.artifact_name }}
@@ -187,6 +195,11 @@ jobs:
 
       - name: 检出代码
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 拉取最新tags
+        run: git fetch --tags --force
 
       - name: 设置 Node.js
         uses: actions/setup-node@v4
@@ -211,13 +224,15 @@ jobs:
           APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}
           npm_config_target_platform: linux
           PUBLISH: always
 
   # macOS 构建
   build-macos:
-    needs: test-web
+    needs: [test-web, create-tag]
     runs-on: macos-latest
+    if: always() && needs.test-web.result == 'success'
     
     outputs:
       artifact_name: ${{ steps.setup.outputs.artifact_name }}
@@ -239,6 +254,11 @@ jobs:
 
       - name: 检出代码
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 拉取最新tags
+        run: git fetch --tags --force
 
       - name: 设置 Node.js
         uses: actions/setup-node@v4
@@ -263,6 +283,7 @@ jobs:
           APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          IS_PRE_RELEASE: ${{ needs.test-web.outputs.is_pre_release }}
           npm_config_target_platform: darwin
           PUBLISH: always
 
