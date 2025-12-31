@@ -361,7 +361,7 @@ jobs:
       - build-linux
       - build-macos
     runs-on: ubuntu-latest
-    if: ${{ always() && needs.test-web.result == 'success' && (needs.build-windows.result == 'success' || needs.build-linux.result == 'success' || needs.build-macos.result == 'success') && secrets.SSH_HOST != '' && secrets.SSH_PRIVATE_KEY != '' && secrets.UPDATE_SERVER_PATH != '' }}
+    if: ${{ always() && needs.test-web.result == 'success' && (needs.build-windows.result == 'success' || needs.build-linux.result == 'success' || needs.build-macos.result == 'success') }}
 
     steps:
       - name: 安装 rsync
