@@ -4,6 +4,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import path from 'path'
 import dayjs from 'dayjs'
 import { resolve } from 'path';
+import pkg from './package.json'
 import AutoImport from 'unplugin-auto-import/rolldown'
 import Components from 'unplugin-vue-components/rolldown'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
@@ -59,6 +60,7 @@ export default defineConfig(async ({ mode, command }) => {
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
     },
     define: {
+      __APP_VERSION__: JSON.stringify(pkg.version),
       __APP_BUILD_TIME__: JSON.stringify(dayjs().format('YYYY-MM-DD HH:mm:ss')),
       __COMMAND__: JSON.stringify(command),
     },

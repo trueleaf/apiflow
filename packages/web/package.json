@@ -5,7 +5,7 @@
   "license": "MIT",
   "homepage": "https://github.com/trueleaf/apiflow",
   "private": true,
-  "version": "0.9.1",
+  "version": "0.9.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
@@ -35,7 +35,8 @@
     "test:e2e:report": "playwright show-report",
     "test:e2e:trace": "playwright test --project=electron-trace",
     "test:e2e:trace:show": "playwright show-trace",
-    "test:e2e:build": "vite build"
+    "test:e2e:build": "vite build",
+    "release:test": "node scripts/serve-update.mjs"
   },
   "dependencies": {
     "@faker-js/faker": "^10.0.0",

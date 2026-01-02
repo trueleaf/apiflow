@@ -32,7 +32,7 @@
             <span>MIT License</span>
           </div>
           <div class="copyright">
-            Copyright © 2025 TrueLeaf Team
+            Copyright © 2026 TrueLeaf Team
           </div>
         </div>
       </div>
@@ -93,23 +93,44 @@
             <div class="divider"></div>
 
             <div class="update-source-config">
-              <span class="config-label">{{ t('更新源') }}</span>
+              <span class="config-label">{{ t('下载源') }}</span>
               <div class="config-control">
-                <el-radio-group v-model="updateSourceType" @change="handleUpdateSourceChange" size="small">
+                <el-radio-group v-model="updateSourceType" size="small" @change="clearUpdateError">
                   <el-radio value="github">GitHub</el-radio>
                   <el-radio value="custom">{{ t('自定义') }}</el-radio>
                 </el-radio-group>
                 
-                <div v-if="updateSourceType === 'custom'" class="custom-url-input">
-                  <el-input
-                    v-model="customUpdateUrl"
-                    :placeholder="t('请输入自定义更新服务器地址')"
-                    size="small"
-                    @blur="handleSaveUpdateSource"
-                  >
-                    <template #prefix>https://</template>
-                  </el-input>
+                <div class="input-action-row">
+                  <div class="url-input-wrapper">
+                    <el-input
+                      v-if="updateSourceType === 'custom'"
+                      v-model="customUpdateUrl"
+                      :placeholder="t('请输入自定义更新服务器地址')"
+                      size="small"
+                    />
+                    <el-input
+                      v-else
+                      :model-value="GITHUB_UPDATE_URL"
+                      disabled
+                      size="small"
+                    />
+                  </div>
+                  <div class="config-actions">
+                    <el-button type="primary" size="small" @click="handleSaveUpdateSource">{{ t('保存') }}</el-button>
+                    <el-button size="small" @click="handleResetUpdateSource">{{ t('重置') }}</el-button>
+                  </div>
                 </div>
+
+                <transition name="el-fade-in">
+                  <el-alert
+                    v-if="updateErrorMessage"
+                    :title="updateErrorMessage"
+                    type="error"
+                    :closable="true"
+                    @close="clearUpdateError"
+                    class="update-error-alert"
+                  />
+                </transition>
               </div>
             </div>
           </div>
@@ -156,8 +177,9 @@ type UpdateButtonState = 'idle' | 'checking' | 'available' | 'downloading' | 'do
 const updateState = ref<UpdateButtonState>('idle')
 const downloadProgress = ref(0)
 const hasUpdate = ref(false)
+const updateErrorMessage = ref('')
 
-const appVersion = '0.9.0'
+const appVersion = __APP_VERSION__
 const buildTime = computed(() => {
   try {
     if (typeof __APP_BUILD_TIME__ !== 'undefined' && __APP_BUILD_TIME__) {
@@ -173,6 +195,10 @@ const buildTime = computed(() => {
 const notifyBadgeChange = () => {
   const shouldShow = hasUpdate.value && (updateState.value === 'available' || updateState.value === 'downloaded')
   emit('update-badge', shouldShow)
+}
+
+const clearUpdateError = () => {
+  updateErrorMessage.value = ''
 }
 
 const initUpdateState = async () => {
@@ -209,24 +235,26 @@ const bindUpdateEvents = () => {
   window.electronAPI?.updater.onUpdateNotAvailable(() => {
     updateState.value = 'idle'
     hasUpdate.value = false
-    message.success(t('已是最新版本'))
+    clearUpdateError()
     notifyBadgeChange()
   })
   window.electronAPI?.updater.onDownloadProgress((progress: { percent: number }) => {
     updateState.value = 'downloading'
     downloadProgress.value = Math.floor(progress.percent)
+    clearUpdateError()
     notifyBadgeChange()
   })
   window.electronAPI?.updater.onDownloadCompleted(() => {
     updateState.value = 'downloaded'
     downloadProgress.value = 100
     hasUpdate.value = true
+    clearUpdateError()
     message.success(t('下载完成可以安装更新'))
     notifyBadgeChange()
   })
   window.electronAPI?.updater.onUpdateError((error: { message: string }) => {
     updateState.value = 'error'
-    message.error(error.message || t('更新失败'))
+    updateErrorMessage.value = error.message || t('更新失败')
     setTimeout(() => {
       updateState.value = 'idle'
       hasUpdate.value = false
@@ -241,17 +269,18 @@ const handleCheckUpdate = async () => {
     return
   }
   updateState.value = 'checking'
+  clearUpdateError()
   notifyBadgeChange()
   try {
     const result = await window.electronAPI?.updater.checkForUpdates()
     console.log(result)
     if (!result?.success && result?.error) {
-      message.error(result.error)
+      updateErrorMessage.value = result.error
       updateState.value = 'idle'
       notifyBadgeChange()
     }
   } catch (error) {
-    message.error(t('检查更新失败'))
+    updateErrorMessage.value = t('检查更新失败')
     updateState.value = 'idle'
     notifyBadgeChange()
   }
@@ -260,16 +289,17 @@ const handleCheckUpdate = async () => {
 const handleDownloadUpdate = async () => {
   updateState.value = 'downloading'
   downloadProgress.value = 0
+  clearUpdateError()
   notifyBadgeChange()
   try {
     const result = await window.electronAPI?.updater.downloadUpdate()
     if (!result?.success && result?.error) {
-      message.error(result.error)
+      updateErrorMessage.value = result.error
       updateState.value = 'available'
       notifyBadgeChange()
     }
   } catch (error) {
-    message.error(t('更新失败'))
+    updateErrorMessage.value = t('更新失败')
     updateState.value = 'available'
     notifyBadgeChange()
   }
@@ -296,6 +326,9 @@ const handleInstallUpdate = () => {
 
 const updateSourceType = ref<'github' | 'custom'>('github')
 const customUpdateUrl = ref('')
+const savedUpdateSourceType = ref<'github' | 'custom'>('github')
+const savedCustomUpdateUrl = ref('')
+const GITHUB_UPDATE_URL = 'https://github.com/trueleaf/apiflow/releases'
 
 const initUpdateSource = async () => {
   const cachedSource = appSettingsCache.getUpdateSource()
@@ -310,16 +343,20 @@ const initUpdateSource = async () => {
   } catch {
     // 静默失败
   }
+  savedUpdateSourceType.value = updateSourceType.value
+  savedCustomUpdateUrl.value = customUpdateUrl.value
 }
 
-const handleUpdateSourceChange = () => {
-  if (updateSourceType.value === 'github') {
-    handleSaveUpdateSource()
-  }
+const handleResetUpdateSource = () => {
+  updateSourceType.value = savedUpdateSourceType.value
+  customUpdateUrl.value = savedCustomUpdateUrl.value
+  clearUpdateError()
+  message.success(t('已重置'))
 }
 
 const handleSaveUpdateSource = async () => {
   if (updateSourceType.value === 'custom' && !customUpdateUrl.value.trim()) {
+    message.warning(t('请输入自定义更新服务器地址'))
     return
   }
   try {
@@ -332,12 +369,13 @@ const handleSaveUpdateSource = async () => {
         sourceType: updateSourceType.value,
         customUrl: customUpdateUrl.value,
       })
-      if (updateSourceType.value === 'custom') {
-        message.success(t('更新源配置已保存'))
-      }
+      savedUpdateSourceType.value = updateSourceType.value
+      savedCustomUpdateUrl.value = customUpdateUrl.value
+      clearUpdateError()
+      message.success(t('下载源配置已保存'))
     }
   } catch {
-    message.error(t('保存失败'))
+    updateErrorMessage.value = t('保存失败')
   }
 }
 
@@ -345,7 +383,7 @@ onMounted(() => {
   initUpdateState()
   bindUpdateEvents()
   initUpdateSource()
-  fetchStarCount()
+  // fetchStarCount()
 })
 </script>
 
@@ -545,7 +583,7 @@ onMounted(() => {
 
   .update-source-config {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 24px;
 
     .config-label {
@@ -553,6 +591,7 @@ onMounted(() => {
       font-weight: 500;
       color: var(--text-primary);
       min-width: 60px;
+      padding-top: 4px;
     }
 
     .config-control {
@@ -561,8 +600,23 @@ onMounted(() => {
       flex-direction: column;
       gap: 12px;
 
-      .custom-url-input {
-        max-width: 360px;
+      .input-action-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        
+        .url-input-wrapper {
+          flex: 1;
+          max-width: 360px;
+        }
+        
+        .config-actions {
+          display: flex;
+        }
+      }
+
+      .update-error-alert {
+        margin-top: 4px;
       }
     }
   }

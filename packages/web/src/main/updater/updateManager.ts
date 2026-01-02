@@ -56,23 +56,21 @@ export class UpdateManager {
         repo: 'apiflow',
       });
     } else {
-      const platformDir = process.platform === 'win32' ? 'win' : process.platform === 'darwin' ? 'mac' : 'linux';
-      const baseUrl = (customUrl || 'http://127.0.0.1/release').replace(/\/+$/, '');
       this.autoUpdater.setFeedURL({
         provider: 'generic',
-        url: `${baseUrl}/${platformDir}`,
+        url: customUrl,
         channel: 'latest'
       });
     }
   }
-  // 获取更新源配置
+  // 获取下载源配置
   getUpdateSource(): { sourceType: 'github' | 'custom'; customUrl: string } {
     return {
       sourceType: this.currentSourceType,
       customUrl: this.currentCustomUrl,
     };
   }
-  // 设置更新源配置
+  // 设置下载源配置
   setUpdateSource(sourceType: 'github' | 'custom', customUrl?: string): { success: boolean } {
     this.currentSourceType = sourceType;
     if (customUrl !== undefined) {

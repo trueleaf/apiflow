@@ -694,11 +694,11 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
       }
       return { success: true };
     });
-    // 获取更新源配置
+    // 获取下载源配置
     ipcMain.handle(IPC_EVENTS.updater.rendererToMain.getUpdateSource, async () => {
       return updateManager!.getUpdateSource();
     });
-    // 设置更新源配置
+    // 设置下载源配置
     ipcMain.handle(IPC_EVENTS.updater.rendererToMain.setUpdateSource, async (_: IpcMainInvokeEvent, params: { sourceType: 'github' | 'custom'; customUrl?: string }) => {
       return updateManager!.setUpdateSource(params.sourceType, params.customUrl);
     });
