@@ -116,7 +116,7 @@ jobs:
           sudo apt-get install -y xvfb libgtk-3-0 libgbm1 libnss3 libxss1 libxtst6 libnotify4 libatspi2.0-0 libdrm2 libxcb-dri3-0 libx11-xcb1
 
       - name: 构建 Web + Electron 资源
-        run: npm run web:build:app:pack
+        run: npm run web:build:ci:pack
         env:
           APP_VERSION: ${{ steps.get-version.outputs.version }}
 
@@ -178,7 +178,7 @@ jobs:
         working-directory: packages/server
 
       - name: 打包并发布 Windows
-        run: npm run web:build:app:win
+        run: npm run web:build:ci:win
         env:
           APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -305,7 +305,7 @@ jobs:
         working-directory: packages/server
 
       - name: 打包并发布 Linux
-        run: npm run web:build:app:linux
+        run: npm run web:build:ci:linux
         env:
           APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -437,7 +437,7 @@ jobs:
         working-directory: packages/server
 
       - name: 打包并发布 macOS
-        run: npm run web:build:app:mac
+        run: npm run web:build:ci:mac
         env:
           APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
