@@ -10,7 +10,6 @@ import { overrideBrowserWindow } from './override/index.ts';
 import { WebSocketManager } from './websocket/websocket.ts';
 import { HttpMockManager } from './mock/httpMock/httpMockManager.ts';
 import { WebSocketMockManager } from './mock/websocketMock/websocketMockManager.ts';
-import { UpdateManager } from './updater/index.ts';
 import { mainConfig } from '@src/config/mainConfig';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,7 +32,6 @@ protocol.registerSchemesAsPrivileged([
 export let mockManager = new HttpMockManager();
 export let websocketMockManager = new WebSocketMockManager();
 export let webSocketManager = new WebSocketManager();
-export let updateManager: UpdateManager | null = null;
 export let contentViewInstance: WebContentsView | null = null;
 export let mainWindowInstance: BrowserWindow | null = null;
 /*
@@ -179,10 +177,6 @@ if (!gotTheLock) {
     mainWindowInstance = mainWindow;
     // 保存 contentView 引用供其他模块使用
     contentViewInstance = contentView;
-    if (mainConfig.updateConfig.autoUpdate) {
-      updateManager = new UpdateManager();
-      updateManager.init(contentView, topBarView);
-    }
 
     const { broadcastWindowState } = useIpcEvent(mainWindow, topBarView, contentView);
     bindMainProcessGlobalShortCut(mainWindow, topBarView, contentView);
@@ -212,11 +206,8 @@ if (!gotTheLock) {
   });
 }
 
-// 应用退出前安装更新
+// 应用退出前清理
 app.on('before-quit', () => {
-  if (updateManager?.hasDownloadedUpdate()) {
-    updateManager.quitAndInstall();
-  }
   // 清理临时文件目录
   const tempDir = path.join(os.tmpdir(), 'apiflow-temp');
   try {

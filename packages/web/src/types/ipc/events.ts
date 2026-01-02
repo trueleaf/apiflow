@@ -55,10 +55,6 @@ export const IPC_EVENTS = {
       openSettingsTab: 'apiflow:topbar:to:content:open-settings-tab',
       /** 应用设置已变更 */
       appSettingsChanged: 'apiflow:topbar:to:content:app-settings-changed',
-      /** 显示更新确认对话框 */
-      showUpdateConfirm: 'apiflow:topbar:to:content:show-update-confirm',
-      /** 显示无更新提示 */
-      showNoUpdateMessage: 'apiflow:topbar:to:content:show-no-update-message',
     },
 
     /** 内容窗口 -> 顶栏 */
@@ -97,10 +93,6 @@ export const IPC_EVENTS = {
       openSettingsTab: 'apiflow:content:to:topbar:open-settings-tab',
       /** 应用设置已变更 */
       appSettingsChanged: 'apiflow:content:to:topbar:app-settings-changed',
-      /** 确认下载更新 */
-      confirmDownloadUpdate: 'apiflow:content:to:topbar:confirm-download-update',
-      /** 取消下载更新 */
-      cancelDownloadUpdate: 'apiflow:content:to:topbar:cancel-download-update',
       /** Header Tab 右键菜单操作 */
       headerTabContextAction: 'apiflow:content:to:topbar:header-tab-context-action',
     },
@@ -368,47 +360,6 @@ export const IPC_EVENTS = {
       selectFolder: 'project-scan:renderer:to:main:select-folder',
       /** 读取项目文件 */
       readFiles: 'project-scan:renderer:to:main:read-files',
-    },
-  },
-
-  /**
-   * 应用更新事件
-   */
-  updater: {
-    /** 渲染进程 -> 主进程 */
-    rendererToMain: {
-      /** 检查更新 */
-      checkUpdate: 'updater:renderer:to:main:check-update',
-      /** 下载更新 */
-      downloadUpdate: 'updater:renderer:to:main:download-update',
-      /** 取消下载 */
-      cancelDownload: 'updater:renderer:to:main:cancel-download',
-      /** 安装更新并重启 */
-      quitAndInstall: 'updater:renderer:to:main:quit-and-install',
-      /** 获取更新状态 */
-      getUpdateStatus: 'updater:renderer:to:main:get-update-status',
-      /** 启用/禁用自动检查 */
-      toggleAutoCheck: 'updater:renderer:to:main:toggle-auto-check',
-      /** 获取下载源配置 */
-      getUpdateSource: 'updater:renderer:to:main:get-update-source',
-      /** 设置下载源配置 */
-      setUpdateSource: 'updater:renderer:to:main:set-update-source',
-    },
-
-    /** 主进程 -> 渲染进程 (事件通知) */
-    mainToRenderer: {
-      /** 检查更新中 */
-      checking: 'updater:main:to:renderer:checking',
-      /** 发现新版本 */
-      updateAvailable: 'updater:main:to:renderer:update-available',
-      /** 当前已是最新版本 */
-      updateNotAvailable: 'updater:main:to:renderer:update-not-available',
-      /** 下载进度 */
-      downloadProgress: 'updater:main:to:renderer:download-progress',
-      /** 下载完成 */
-      downloadCompleted: 'updater:main:to:renderer:download-completed',
-      /** 发生错误 */
-      error: 'updater:main:to:renderer:error',
     },
   },
 

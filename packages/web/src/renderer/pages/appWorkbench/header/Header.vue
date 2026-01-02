@@ -30,7 +30,6 @@
     <button class="add-tab-btn" :title="t('新建项目')" data-testid="header-add-project-btn" @click="handleAddProject">+</button>
     
     <div class="right">
-      <Update />
       <button class="ai-trigger-btn" :title="t('AI助手 Ctrl+L')" data-testid="header-ai-btn" @click="handleShowAiDialog" ref="aiButtonRef">
         <Bot :size="16" />
         <!-- <span>{{ t('AI助手') }}</span> -->
@@ -87,7 +86,6 @@ import type { RuntimeNetworkMode } from '@src/types/runtime'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { Folder, Settings, Bot, User, Shield } from 'lucide-vue-next'
-import Update from './components/update/Update.vue'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { changeLanguage } from '@/i18n'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'

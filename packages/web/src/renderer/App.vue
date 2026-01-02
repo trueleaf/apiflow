@@ -198,34 +198,6 @@ const handleLanguageSelect = (language: Language) => {
   // 发送语言切换事件到主进程
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.languageChanged, language)
 }
-// 显示更新确认对话框
-const showUpdateConfirm = (data: { version: string; releaseNotes: string }) => {
-  ElMessageBox.confirm(
-    `${t('发现新版本')} ${data.version}，${t('是否立即下载更新')}？\n\n${data.releaseNotes}`,
-    t('发现新版本'),
-    {
-      confirmButtonText: t('立即下载'),
-      cancelButtonText: t('暂不更新'),
-      type: 'info',
-      showClose: true,
-      distinguishCancelAndClose: true
-    }
-  ).then(() => {
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.confirmDownloadUpdate)
-  }).catch((action: string) => {
-    if (action === 'cancel') {
-      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.cancelDownloadUpdate)
-    }
-  })
-}
-// 显示无更新提示
-const showNoUpdateMessage = () => {
-  ElMessage({
-    message: t('当前已是最新版本'),
-    type: 'success',
-    duration: 2000
-  })
-}
 
 const initAppHeaderEvent = () => {
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.createProject, () => {
@@ -335,14 +307,6 @@ const initAppHeaderEvent = () => {
   // 监听 Header 激活 Tab 更新事件,进行缓存
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.activeTabUpdated, (activeTabId: string) => {
     appWorkbenchCache.setAppWorkbenchHeaderActiveTab(activeTabId)
-  })
-  // 监听显示更新确认对话框事件
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.showUpdateConfirm, (data: { version: string; releaseNotes: string }) => {
-    showUpdateConfirm(data)
-  })
-  // 监听显示无更新提示事件
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.showNoUpdateMessage, () => {
-    showNoUpdateMessage()
   })
 }
 

@@ -9,7 +9,6 @@ import type { StandaloneExportHtmlParams } from '../standalone';
 import { WebsocketConnectParams } from '../websocketNode';
 import { HttpMockNode, MockLog, MockStatusChangedPayload, WebSocketMockNode, WebSocketMockStatusChangedPayload } from '../mockNode';
 import { LLMProviderSetting, ChatRequestBody, OpenAiResponseBody, ChatStreamCallbacks } from '../ai/agent.type.ts';
-import type { CheckUpdateResult, DownloadResult, UpdateStatus, UpdateProgress, VersionInfo } from '@src/types/updater';
 
 // ============================================================================
 // 窗口状态类型
@@ -111,22 +110,6 @@ export type ElectronAPI = {
   projectScan: {
     selectFolder: () => Promise<{ success: true; folderPath: string; folderName: string; canceled?: false } | { success: false; canceled?: boolean; error?: string }>;
     readFiles: (folderPath: string) => Promise<{ success: true; files: { relativePath: string; content: string }[]; totalFiles: number } | { success: false; error: string }>;
-  };
-  updater: {
-    checkForUpdates: () => Promise<CheckUpdateResult>;
-    downloadUpdate: () => Promise<DownloadResult>;
-    cancelDownload: () => Promise<DownloadResult>;
-    quitAndInstall: () => void;
-    getUpdateStatus: () => Promise<UpdateStatus>;
-    toggleAutoCheck: (enabled: boolean) => Promise<{ success: boolean }>;
-    onUpdateChecking: (callback: () => void) => void;
-    onUpdateAvailable: (callback: (info: VersionInfo) => void) => void;
-    onUpdateNotAvailable: (callback: () => void) => void;
-    onDownloadProgress: (callback: (progress: UpdateProgress) => void) => void;
-    onDownloadCompleted: (callback: (info: { version: string; downloadedAt: number }) => void) => void;
-    onUpdateError: (callback: (error: { message: string; code?: string }) => void) => void;
-    getUpdateSource: () => Promise<{ sourceType: 'github' | 'custom'; customUrl: string }>;
-    setUpdateSource: (params: { sourceType: 'github' | 'custom'; customUrl?: string }) => Promise<{ success: boolean }>;
   };
 }
 

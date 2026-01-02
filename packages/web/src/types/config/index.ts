@@ -206,35 +206,6 @@ export type Config = {
  */
 export type MainConfig = {
   /**
-   * 更新相关配置
-   */
-  updateConfig: {
-    /**
-     * 更新服务器地址
-     */
-    url: string,
-    /**
-     * 是否开启自动更新
-     */
-    autoUpdate: boolean,
-    /**
-     * 发现新版本时是否自动下载
-     */
-    autoDownload: boolean,
-    /**
-     * 检查间隔(毫秒)，默认 4 小时
-     */
-    checkInterval: number,
-    /**
-     * 是否允许预发布版本
-     */
-    allowPrerelease: boolean,
-    /**
-     * 是否允许降级
-     */
-    allowDowngrade: boolean,
-  },
-  /**
    * 默认electron窗口最小宽度
    */
   minWidth: number,

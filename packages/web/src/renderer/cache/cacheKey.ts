@@ -98,10 +98,6 @@ export const cacheKey = {
       serverUrl: 'settings/app/serverUrl',
     },
     shortcuts: 'settings/shortcuts',
-    updater: {
-      sourceType: 'settings/updater/sourceType',
-      customUrl: 'settings/updater/customUrl',
-    },
     httpNode: {
       bodyModeOrder: 'settings/httpNode/bodyModeOrder',
       tabOrder: 'settings/httpNode/tabOrder',

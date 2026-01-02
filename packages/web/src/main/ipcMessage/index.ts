@@ -17,7 +17,7 @@ import type { AnchorRect } from '@src/types/common';
 import type { PermissionUserInfo } from '@src/types/project';
 import type { AppWorkbenchHeaderTabContextActionPayload, AppWorkbenchHeaderTabContextmenuData } from '@src/types/appWorkbench/appWorkbenchType';
 
-import { mockManager, updateManager, websocketMockManager } from '../main.ts';
+import { mockManager, websocketMockManager } from '../main.ts';
 import { MockUtils } from '../mock/mockUtils.ts';
 import { HttpMockNode, WebSocketMockNode } from '@src/types/mockNode';
 import { mainRuntime } from '../runtime/mainRuntime.ts';
@@ -399,12 +399,6 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, mode)
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, mode)
   })
-  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.showUpdateConfirm, (_, data: { version: string; releaseNotes: string }) => {
-    contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.showUpdateConfirm, data)
-  })
-  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.showNoUpdateMessage, () => {
-    contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.showNoUpdateMessage)
-  })
 
   /*
   |---------------------------------------------------------------------------
@@ -451,12 +445,6 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     if (!icon.isEmpty()) {
       mainWindow.setIcon(icon)
     }
-  })
-  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.confirmDownloadUpdate, () => {
-    topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.confirmDownloadUpdate)
-  })
-  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.cancelDownloadUpdate, () => {
-    topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.cancelDownloadUpdate)
   })
 
   // Header Tabs 更新通知 - 转发给 contentView 进行缓存
@@ -658,51 +646,6 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   ipcMain.handle(IPC_EVENTS.util.rendererToMain.execCode, async (_: IpcMainInvokeEvent, params: { code: string; variables: Record<string, any> }) => {
     return execCodeInContext(params.code, params.variables);
   });
-
-  /*
-  |---------------------------------------------------------------------------
-  | 更新管理相关
-  |---------------------------------------------------------------------------
-  */
-  if (updateManager) {
-    // 检查更新
-    ipcMain.handle(IPC_EVENTS.updater.rendererToMain.checkUpdate, async () => {
-      return await updateManager!.checkForUpdates();
-    });
-    // 下载更新
-    ipcMain.handle(IPC_EVENTS.updater.rendererToMain.downloadUpdate, async () => {
-      return await updateManager!.downloadUpdate();
-    });
-    // 取消下载
-    ipcMain.handle(IPC_EVENTS.updater.rendererToMain.cancelDownload, async () => {
-      return updateManager!.cancelDownload();
-    });
-    // 安装更新并重启
-    ipcMain.on(IPC_EVENTS.updater.rendererToMain.quitAndInstall, () => {
-      updateManager!.quitAndInstall();
-    });
-    // 获取更新状态
-    ipcMain.handle(IPC_EVENTS.updater.rendererToMain.getUpdateStatus, async () => {
-      return updateManager!.getUpdateStatus();
-    });
-    // 切换自动检查
-    ipcMain.handle(IPC_EVENTS.updater.rendererToMain.toggleAutoCheck, async (_: IpcMainInvokeEvent, params: { enabled: boolean }) => {
-      if (params.enabled) {
-        updateManager!.startAutoCheck();
-      } else {
-        updateManager!.stopAutoCheck();
-      }
-      return { success: true };
-    });
-    // 获取下载源配置
-    ipcMain.handle(IPC_EVENTS.updater.rendererToMain.getUpdateSource, async () => {
-      return updateManager!.getUpdateSource();
-    });
-    // 设置下载源配置
-    ipcMain.handle(IPC_EVENTS.updater.rendererToMain.setUpdateSource, async (_: IpcMainInvokeEvent, params: { sourceType: 'github' | 'custom'; customUrl?: string }) => {
-      return updateManager!.setUpdateSource(params.sourceType, params.customUrl);
-    });
-  }
 
   /*
   |---------------------------------------------------------------------------

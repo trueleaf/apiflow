@@ -490,12 +490,4 @@ export type GlobalConfig = {
    * 版本信息
    */
   version: string;
-  /**
-   * 是否开启自动更新
-   */
-  autoUpdate: boolean;
-  /**
-   * 客户端更新地址
-   */
-  updateUrl: string;
 };

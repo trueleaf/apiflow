@@ -109,16 +109,6 @@ export interface IPCEventMap {
     response: void;
   };
 
-  [IPC_EVENTS.apiflow.topBarToContent.showUpdateConfirm]: {
-    request: { version: string; releaseNotes: string };
-    response: void;
-  };
-
-  [IPC_EVENTS.apiflow.topBarToContent.showNoUpdateMessage]: {
-    request: void;
-    response: void;
-  };
-
   // 内容窗口 -> 顶栏
   [IPC_EVENTS.apiflow.contentToTopBar.contentReady]: {
     request: void;
@@ -200,16 +190,6 @@ export interface IPCEventMap {
   };
 
   [IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab]: {
-    request: void;
-    response: void;
-  };
-
-  [IPC_EVENTS.apiflow.contentToTopBar.confirmDownloadUpdate]: {
-    request: void;
-    response: void;
-  };
-
-  [IPC_EVENTS.apiflow.contentToTopBar.cancelDownloadUpdate]: {
     request: void;
     response: void;
   };
@@ -605,118 +585,6 @@ export interface IPCEventMap {
   [IPC_EVENTS.util.rendererToMain.execCode]: {
     request: { code: string; context?: Record<string, any> };
     response: { result: any; error?: string };
-  };
-
-  // ==================== UPDATER ====================
-
-  [IPC_EVENTS.updater.rendererToMain.checkUpdate]: {
-    request: void;
-    response: {
-      success: boolean;
-      hasUpdate: boolean;
-      currentVersion: string;
-      newVersion?: string;
-      releaseNotes?: string;
-      releaseDate?: string;
-      error?: string;
-    };
-  };
-
-  [IPC_EVENTS.updater.rendererToMain.downloadUpdate]: {
-    request: void;
-    response: {
-      success: boolean;
-      message?: string;
-      error?: string;
-    };
-  };
-
-  [IPC_EVENTS.updater.rendererToMain.cancelDownload]: {
-    request: void;
-    response: { success: boolean };
-  };
-
-  [IPC_EVENTS.updater.rendererToMain.quitAndInstall]: {
-    request: void;
-    response: void;
-  };
-
-  [IPC_EVENTS.updater.rendererToMain.getUpdateStatus]: {
-    request: void;
-    response: {
-      checking: boolean;
-      downloading: boolean;
-      downloaded: boolean;
-      currentVersion: string;
-      newVersion: string | null;
-      downloadProgress: number;
-    };
-  };
-
-  [IPC_EVENTS.updater.rendererToMain.toggleAutoCheck]: {
-    request: { enabled: boolean };
-    response: { success: boolean };
-  };
-
-  [IPC_EVENTS.updater.rendererToMain.getUpdateSource]: {
-    request: void;
-    response: {
-      sourceType: 'github' | 'custom';
-      customUrl: string;
-    };
-  };
-
-  [IPC_EVENTS.updater.rendererToMain.setUpdateSource]: {
-    request: {
-      sourceType: 'github' | 'custom';
-      customUrl?: string;
-    };
-    response: { success: boolean };
-  };
-
-  [IPC_EVENTS.updater.mainToRenderer.checking]: {
-    request: void;
-    response: void;
-  };
-
-  [IPC_EVENTS.updater.mainToRenderer.updateAvailable]: {
-    request: {
-      version: string;
-      releaseDate: string;
-      releaseNotes: string;
-    };
-    response: void;
-  };
-
-  [IPC_EVENTS.updater.mainToRenderer.updateNotAvailable]: {
-    request: void;
-    response: void;
-  };
-
-  [IPC_EVENTS.updater.mainToRenderer.downloadProgress]: {
-    request: {
-      percent: number;
-      bytesPerSecond: number;
-      transferred: number;
-      total: number;
-    };
-    response: void;
-  };
-
-  [IPC_EVENTS.updater.mainToRenderer.downloadCompleted]: {
-    request: {
-      version: string;
-      downloadedAt: number;
-    };
-    response: void;
-  };
-
-  [IPC_EVENTS.updater.mainToRenderer.error]: {
-    request: {
-      message: string;
-      code?: string;
-    };
-    response: void;
   };
 }
 
