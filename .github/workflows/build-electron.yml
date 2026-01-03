@@ -700,7 +700,9 @@ jobs:
           
           # 替换变量
           VERSION="${{ needs.test-web.outputs.version }}"
+          VERSION_NO_V="${VERSION#v}"
           RELEASE_BODY="${TEMPLATE//\{\{VERSION\}\}/$VERSION}"
+          RELEASE_BODY="${RELEASE_BODY//\{\{VERSION_NO_V\}\}/$VERSION_NO_V}"
           
           # 保存到临时文件
           echo "$RELEASE_BODY" > /tmp/release-notes.md
