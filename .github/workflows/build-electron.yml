@@ -177,6 +177,18 @@ jobs:
         run: npm ci
         working-directory: packages/server
 
+      - name: 修改 package.json 版本号
+        run: |
+          $version = "${{ needs.test-web.outputs.version }}"
+          $versionNoV = $version -replace '^v', ''
+          
+          $packagePath = "packages/web/package.json"
+          $packageJson = Get-Content $packagePath -Raw | ConvertFrom-Json
+          $packageJson.version = $versionNoV
+          $packageJson | ConvertTo-Json -Depth 100 | Set-Content $packagePath
+          
+          Write-Host "✅ 已将 package.json version 修改为: $versionNoV"
+
       - name: 打包并发布 Windows
         run: npm run web:build:ci:win
         env:
@@ -303,6 +315,19 @@ jobs:
       - name: 安装依赖 (server)
         run: npm ci
         working-directory: packages/server
+
+      - name: 修改 package.json 版本号
+        run: |
+          VERSION="${{ needs.test-web.outputs.version }}"
+          VERSION_NO_V="${VERSION#v}"
+          
+          cd packages/web
+          
+          # 使用 jq 修改 version 字段
+          jq --arg version "$VERSION_NO_V" '.version = $version' package.json > package.json.tmp
+          mv package.json.tmp package.json
+          
+          echo "✅ 已将 package.json version 修改为: $VERSION_NO_V"
 
       - name: 打包并发布 Linux
         run: npm run web:build:ci:linux
@@ -435,6 +460,19 @@ jobs:
       - name: 安装依赖 (server)
         run: npm ci
         working-directory: packages/server
+
+      - name: 修改 package.json 版本号
+        run: |
+          VERSION="${{ needs.test-web.outputs.version }}"
+          VERSION_NO_V="${VERSION#v}"
+          
+          cd packages/web
+          
+          # 使用 jq 修改 version 字段（macOS 已预装 jq）
+          jq --arg version "$VERSION_NO_V" '.version = $version' package.json > package.json.tmp
+          mv package.json.tmp package.json
+          
+          echo "✅ 已将 package.json version 修改为: $VERSION_NO_V"
 
       - name: 打包并发布 macOS
         run: npm run web:build:ci:mac
