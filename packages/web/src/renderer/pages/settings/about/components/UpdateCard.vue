@@ -293,7 +293,6 @@ const initIPCListeners = () => {
 
   // 发现新版本
   window.electronAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.updateAvailable, (data: UpdateInfo) => {
-    console.log('收到发现新版本事件:', data);
     status.value = 'available'
     updateInfo.value = data
   })

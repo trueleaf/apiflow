@@ -21,7 +21,7 @@
             :max="65535"
             :controls="false"
             class="port-input"
-            @change="(val) => websocketMockNodeStore.changeWebSocketMockPort(val ?? 8080)"
+            @change="(val: number | null | undefined) => websocketMockNodeStore.changeWebSocketMockPort(val ?? 8080)"
           />
         </div>
       </div>

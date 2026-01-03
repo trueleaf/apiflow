@@ -15,7 +15,7 @@
             :step="100"
             :controls="false"
             class="delay-input"
-            @change="(val) => websocketMockNodeStore.changeWebSocketMockDelay(val ?? 0)"
+            @change="(val: number | null | undefined) => websocketMockNodeStore.changeWebSocketMockDelay(val ?? 0)"
           />
         </div>
       </div>

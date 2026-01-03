@@ -1728,6 +1728,7 @@ export default {
   已下载: 'Downloaded',
   速度: 'Speed',
   准备安装: 'Ready to Install',
+  清理失败: 'Clear failed',
   错误原因: 'Error Reason',
   建议: 'Suggestion',
   尝试切换到自定义源: 'Try switching to a custom source',

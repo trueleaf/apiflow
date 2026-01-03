@@ -77,7 +77,9 @@ class UpdateManager {
     })
 
     autoUpdater.on('update-downloaded', (info: UpdateInfo) => {
-      console.log('[UpdateManager] 更新下载完成:', info.version)
+      const downloadedFile = (info as unknown as Record<string, unknown>)['downloadedFile']
+      const downloadDir = typeof downloadedFile === 'string' && downloadedFile.length > 0 ? path.dirname(downloadedFile) : ''
+      console.log('[UpdateManager] 更新下载完成:', info.version, downloadDir ? `下载目录: ${downloadDir}` : '')
       this.isDownloading = false
       this.sendToRenderer(UPDATE_IPC_EVENTS.updateDownloaded, {
         version: info.version,
