@@ -10,7 +10,7 @@ import type { ApidocProperty, ApidocVariable, HttpNodePropertyType } from '../ht
 // ============================================================================
 
 // 基础返回类型
-export type CommonResponse<T> = {
+export type CommonResponse<T = null> = {
   /**
    * 状态码
    */

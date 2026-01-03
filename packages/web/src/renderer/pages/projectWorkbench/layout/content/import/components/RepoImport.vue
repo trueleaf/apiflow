@@ -116,21 +116,21 @@ const handleSelectFolder = async () => {
   if (!window.electronAPI?.projectScan) return
   try {
     const selectResult = await window.electronAPI.projectScan.selectFolder()
-    if (!selectResult.success || selectResult.canceled) {
+    if (selectResult.code !== 0 || selectResult.data?.canceled) {
       return
     }
     selectedFolder.value = {
-      path: selectResult.folderPath,
-      name: selectResult.folderName,
+      path: selectResult.data.folderPath,
+      name: selectResult.data.folderName,
     }
     // 读取文件
-    const readResult = await window.electronAPI.projectScan.readFiles(selectResult.folderPath)
-    if (!readResult.success) {
-      ElMessage.error(readResult.error || t('读取文件失败'))
+    const readResult = await window.electronAPI.projectScan.readFiles(selectResult.data.folderPath)
+    if (readResult.code !== 0) {
+      ElMessage.error(readResult.msg || t('读取文件失败'))
       return
     }
-    projectFiles.value = readResult.files
-    ElMessage.success(t('已扫描 {count} 个文件', { count: readResult.totalFiles }))
+    projectFiles.value = readResult.data.files
+    ElMessage.success(t('已扫描 {count} 个文件', { count: readResult.data.totalFiles }))
   } catch {
     ElMessage.error(t('选择文件夹失败'))
   }

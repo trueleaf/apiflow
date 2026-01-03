@@ -103,22 +103,22 @@ export type ElectronAPI = {
     };
   };
   tempFileManager: {
-    create: (content: string) => Promise<{ success: true; path: string; size: number } | { success: false; error: string }>;
-    delete: (filePath: string) => Promise<{ success: boolean; error?: string }>;
-    read: (filePath: string) => Promise<{ success: true; content: string } | { success: false; error: string }>;
+    create: (content: string) => Promise<CommonResponse<{ path: string; size: number }>>;
+    delete: (filePath: string) => Promise<CommonResponse>;
+    read: (filePath: string) => Promise<CommonResponse<{ content: string }>>;
   };
   updateManager: {
-    checkForUpdates: () => Promise<{ success: boolean; updateInfo?: unknown; error?: string }>;
-    downloadUpdate: () => Promise<{ success: boolean; message?: string; error?: string }>;
-    quitAndInstall: () => Promise<{ success: boolean; error?: string }>;
-    cancelDownload: () => Promise<{ success: boolean }>;
-    setAutoCheck: (autoCheck: boolean) => Promise<{ success: boolean }>;
-    setUpdateSource: (source: 'github' | 'custom', customUrl?: string) => Promise<{ success: boolean; error?: string }>;
-    testConnection: (url: string) => Promise<{ success: boolean; message: string }>;
+    checkForUpdates: () => Promise<CommonResponse<{ updateInfo?: unknown }>>;
+    downloadUpdate: () => Promise<CommonResponse>;
+    quitAndInstall: () => Promise<CommonResponse>;
+    cancelDownload: () => Promise<CommonResponse>;
+    setAutoCheck: (autoCheck: boolean) => Promise<CommonResponse>;
+    setUpdateSource: (source: 'github' | 'custom', customUrl?: string) => Promise<CommonResponse>;
+    testConnection: (url: string) => Promise<CommonResponse>;
   };
   projectScan: {
-    selectFolder: () => Promise<{ success: true; folderPath: string; folderName: string; canceled?: false } | { success: false; canceled?: boolean; error?: string }>;
-    readFiles: (folderPath: string) => Promise<{ success: true; files: { relativePath: string; content: string }[]; totalFiles: number } | { success: false; error: string }>;
+    selectFolder: () => Promise<CommonResponse<{ folderPath: string; folderName: string; canceled?: boolean }>>;
+    readFiles: (folderPath: string) => Promise<CommonResponse<{ files: { relativePath: string; content: string }[]; totalFiles: number }>>;
   };
 }
 

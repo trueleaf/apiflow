@@ -123,33 +123,33 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
       const filePath = path.join(TEMP_DIR, fileName);
       await fs.writeFile(filePath, content, 'utf-8');
       const stats = await fs.stat(filePath);
-      return { success: true, path: filePath, size: stats.size };
+      return { code: 0, msg: '创建成功', data: { path: filePath, size: stats.size } };
     } catch (error) {
-      return { success: false, error: (error as Error).message };
+      return { code: 1, msg: (error as Error).message, data: null };
     }
   });
   // 删除临时文件
   ipcMain.handle(IPC_EVENTS.tempFile.rendererToMain.delete, async (_: IpcMainInvokeEvent, filePath: string) => {
     try {
       if (!filePath.startsWith(TEMP_DIR)) {
-        return { success: false, error: '只能删除临时目录下的文件' };
+        return { code: 1, msg: '只能删除临时目录下的文件', data: null };
       }
       await fs.unlink(filePath);
-      return { success: true };
+      return { code: 0, msg: '删除成功', data: null };
     } catch (error) {
-      return { success: false, error: (error as Error).message };
+      return { code: 1, msg: (error as Error).message, data: null };
     }
   });
   // 读取临时文件内容
   ipcMain.handle(IPC_EVENTS.tempFile.rendererToMain.read, async (_: IpcMainInvokeEvent, filePath: string) => {
     try {
       if (!filePath.startsWith(TEMP_DIR)) {
-        return { success: false, error: '只能读取临时目录下的文件' };
+        return { code: 1, msg: '只能读取临时目录下的文件', data: null };
       }
       const content = await fs.readFile(filePath, 'utf-8');
-      return { success: true, content };
+      return { code: 0, msg: '读取成功', data: { content } };
     } catch (error) {
-      return { success: false, error: (error as Error).message };
+      return { code: 1, msg: (error as Error).message, data: null };
     }
   });
 
@@ -173,13 +173,13 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
         properties: ['openDirectory'],
       });
       if (result.canceled || result.filePaths.length === 0) {
-        return { success: false, canceled: true };
+        return { code: 1, msg: '用户取消', data: { folderPath: '', folderName: '', canceled: true } };
       }
       const folderPath = result.filePaths[0];
       const folderName = path.basename(folderPath);
-      return { success: true, folderPath, folderName };
+      return { code: 0, msg: '选择成功', data: { folderPath, folderName, canceled: false } };
     } catch (error) {
-      return { success: false, error: (error as Error).message };
+      return { code: 1, msg: (error as Error).message, data: null };
     }
   });
   // 递归读取目录文件
@@ -220,9 +220,9 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
         const content = await fs.readFile(file.path, 'utf-8');
         fileContents.push({ relativePath: file.relativePath, content });
       }
-      return { success: true, files: fileContents, totalFiles: files.length };
+      return { code: 0, msg: '读取成功', data: { files: fileContents, totalFiles: files.length } };
     } catch (error) {
-      return { success: false, error: (error as Error).message };
+      return { code: 1, msg: (error as Error).message, data: null };
     }
   });
 

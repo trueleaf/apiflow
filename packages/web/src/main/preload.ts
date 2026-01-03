@@ -224,13 +224,13 @@ const aiChatStream = (body: ChatRequestBody, callbacks: ChatStreamCallbacks) => 
 }
 
 // 临时文件管理方法
-const tempFileCreate = async (content: string): Promise<{ success: true; path: string; size: number } | { success: false; error: string }> => {
+const tempFileCreate = async (content: string) => {
   return ipcRenderer.invoke(IPC_EVENTS.tempFile.rendererToMain.create, content);
 }
-const tempFileDelete = async (filePath: string): Promise<{ success: boolean; error?: string }> => {
+const tempFileDelete = async (filePath: string) => {
   return ipcRenderer.invoke(IPC_EVENTS.tempFile.rendererToMain.delete, filePath);
 }
-const tempFileRead = async (filePath: string): Promise<{ success: true; content: string } | { success: false; error: string }> => {
+const tempFileRead = async (filePath: string) => {
   return ipcRenderer.invoke(IPC_EVENTS.tempFile.rendererToMain.read, filePath);
 }
 

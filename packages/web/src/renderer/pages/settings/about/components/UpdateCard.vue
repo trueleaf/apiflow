@@ -195,10 +195,10 @@ const handleCheckUpdate = async () => {
   
   try {
     const result = await window.electronAPI?.updateManager.checkForUpdates();
-    if (!result?.success) {
+    if (result?.code !== 0) {
       status.value = 'error'
       errorInfo.value = {
-        message: result?.error || t('检查更新失败'),
+        message: result?.msg || t('检查更新失败'),
         suggestion: t('尝试切换到自定义源'),
       }
     }
@@ -217,8 +217,8 @@ const handleDownloadUpdate = async () => {
   
   try {
     const result = await window.electronAPI?.updateManager.downloadUpdate()
-    if (!result?.success) {
-      ElMessage.error(result?.error || t('下载失败'))
+    if (result?.code !== 0) {
+      ElMessage.error(result?.msg || t('下载失败'))
       status.value = 'available'
     }
   } catch (error) {
@@ -273,10 +273,10 @@ const handleTestConnection = async () => {
     const result = await window.electronAPI?.updateManager.testConnection(
       settings.customUrl
     )
-    if (result?.success) {
+    if (result?.code === 0) {
       ElMessage.success(t('连接成功'))
     } else {
-      ElMessage.error(`${t('连接失败')}: ${result?.message}`)
+      ElMessage.error(`${t('连接失败')}: ${result?.msg}`)
     }
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : t('连接失败'))

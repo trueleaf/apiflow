@@ -7,7 +7,7 @@
  */
 
 import type { AnchorRect } from '@src/types/common';
-import type { PermissionUserInfo } from '@src/types/project';
+import type { PermissionUserInfo, CommonResponse } from '@src/types/project';
 import type { AppWorkbenchHeaderTabContextActionPayload, AppWorkbenchHeaderTabContextmenuData } from '@src/types/appWorkbench/appWorkbenchType';
 import type { IPC_EVENTS } from './events';
 
@@ -207,7 +207,7 @@ export interface IPCEventMap {
 
   [IPC_EVENTS.apiflow.rendererToMain.createProject]: {
     request: { name: string; path?: string };
-    response: { success: boolean; projectId?: string; error?: string };
+    response: CommonResponse<{ projectId?: string }>;
   };
 
   [IPC_EVENTS.apiflow.rendererToMain.showAiDialog]: {
@@ -306,22 +306,22 @@ export interface IPCEventMap {
       protocols?: string | string[];
       headers?: Record<string, string>;
     };
-    response: { success: boolean; connectionId?: string; error?: string };
+    response: CommonResponse<{ connectionId?: string }>;
   };
 
   [IPC_EVENTS.websocket.rendererToMain.disconnect]: {
     request: { connectionId: string };
-    response: { success: boolean };
+    response: CommonResponse;
   };
 
   [IPC_EVENTS.websocket.rendererToMain.disconnectByNode]: {
     request: { nodeId: string };
-    response: { success: boolean };
+    response: CommonResponse;
   };
 
   [IPC_EVENTS.websocket.rendererToMain.send]: {
     request: { connectionId: string; data: any };
-    response: { success: boolean; error?: string };
+    response: CommonResponse;
   };
 
   [IPC_EVENTS.websocket.rendererToMain.getState]: {
@@ -355,7 +355,7 @@ export interface IPCEventMap {
 
   [IPC_EVENTS.websocket.rendererToMain.clearAllConnections]: {
     request: void;
-    response: { success: boolean };
+    response: CommonResponse;
   };
 
   // WebSocket 事件通知
@@ -397,17 +397,17 @@ export interface IPCEventMap {
       port: number;
       config: any;
     };
-    response: { success: boolean; error?: string };
+    response: CommonResponse;
   };
 
   [IPC_EVENTS.mock.rendererToMain.stopServer]: {
     request: { nodeId: string };
-    response: { success: boolean };
+    response: CommonResponse;
   };
 
   [IPC_EVENTS.mock.rendererToMain.replaceById]: {
     request: { nodeId: string; config: any };
-    response: { success: boolean };
+    response: CommonResponse;
   };
 
   [IPC_EVENTS.mock.rendererToMain.getAllStates]: {
@@ -448,17 +448,17 @@ export interface IPCEventMap {
       port: number;
       config: any;
     };
-    response: { success: boolean; error?: string };
+    response: CommonResponse;
   };
 
   [IPC_EVENTS.websocketMock.rendererToMain.stopServer]: {
     request: { nodeId: string };
-    response: { success: boolean };
+    response: CommonResponse;
   };
 
   [IPC_EVENTS.websocketMock.rendererToMain.replaceById]: {
     request: { nodeId: string; config: any };
-    response: { success: boolean };
+    response: CommonResponse;
   };
 
   [IPC_EVENTS.websocketMock.rendererToMain.getAllStates]: {
@@ -485,7 +485,7 @@ export interface IPCEventMap {
 
   [IPC_EVENTS.export.rendererToMain.selectPath]: {
     request: void;
-    response: { success: boolean; filePath?: string };
+    response: CommonResponse<{ filePath?: string }>;
   };
 
   [IPC_EVENTS.export.rendererToMain.getStatus]: {
@@ -537,7 +537,7 @@ export interface IPCEventMap {
 
   [IPC_EVENTS.import.rendererToMain.selectFile]: {
     request: void;
-    response: { success: boolean; filePath?: string };
+    response: CommonResponse<{ filePath?: string }>;
   };
 
   [IPC_EVENTS.import.mainToRenderer.fileAnalyzed]: {

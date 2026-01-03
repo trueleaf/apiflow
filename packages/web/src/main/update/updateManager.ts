@@ -95,13 +95,15 @@ class UpdateManager {
       try {
         const result = await autoUpdater.checkForUpdates()
         return {
-          success: true,
-          updateInfo: result?.updateInfo,
+          code: 0,
+          msg: '检查更新成功',
+          data: { updateInfo: result?.updateInfo },
         }
       } catch (error) {
         return {
-          success: false,
-          error: error instanceof Error ? error.message : '检查更新失败',
+          code: 1,
+          msg: error instanceof Error ? error.message : '检查更新失败',
+          data: null,
         }
       }
     })
@@ -111,16 +113,17 @@ class UpdateManager {
       try {
         console.log('[UpdateManager] 开始下载更新')
         if (this.isDownloading) {
-          return { success: false, message: '正在下载中' }
+          return { code: 1, msg: '正在下载中', data: null }
         }
         this.isDownloading = true
         await autoUpdater.downloadUpdate()
-        return { success: true }
+        return { code: 0, msg: '下载开始', data: null }
       } catch (error) {
         this.isDownloading = false
         return {
-          success: false,
-          error: error instanceof Error ? error.message : '下载更新失败',
+          code: 1,
+          msg: error instanceof Error ? error.message : '下载更新失败',
+          data: null,
         }
       }
     })
@@ -129,11 +132,12 @@ class UpdateManager {
     ipcMain.handle(UPDATE_IPC_EVENTS.quitAndInstall, async () => {
       try {
         autoUpdater.quitAndInstall(false, true)
-        return { success: true }
+        return { code: 0, msg: '正在安装', data: null }
       } catch (error) {
         return {
-          success: false,
-          error: error instanceof Error ? error.message : '安装更新失败',
+          code: 1,
+          msg: error instanceof Error ? error.message : '安装更新失败',
+          data: null,
         }
       }
     })
@@ -142,13 +146,13 @@ class UpdateManager {
     ipcMain.handle(UPDATE_IPC_EVENTS.cancelDownload, async () => {
       // electron-updater 不支持取消下载，只能标记状态
       this.isDownloading = false
-      return { success: true }
+      return { code: 0, msg: '已取消', data: null }
     })
 
     // 设置自动检查
     ipcMain.handle(UPDATE_IPC_EVENTS.setAutoCheck, async (_, autoCheck: boolean) => {
       this.currentSettings.autoCheck = autoCheck
-      return { success: true }
+      return { code: 0, msg: '设置成功', data: null }
     })
 
     // 设置更新源
@@ -159,12 +163,13 @@ class UpdateManager {
           this.currentSettings.customUrl = customUrl
         }
         this.setUpdateSource(source, customUrl)
-        return { success: true }
+        return { code: 0, msg: '设置成功', data: null }
       } catch (error) {
         console.error('[UpdateManager] 设置更新源失败:', error)
         return {
-          success: false,
-          error: error instanceof Error ? error.message : '设置更新源失败',
+          code: 1,
+          msg: error instanceof Error ? error.message : '设置更新源失败',
+          data: null,
         }
       }
     })
@@ -176,13 +181,15 @@ class UpdateManager {
         const testUrl = url.endsWith('/') ? `${url}latest.yml` : `${url}/latest.yml`
         const response = await fetch(testUrl, { method: 'GET' })
         return {
-          success: response.ok,
-          message: response.ok ? '连接成功' : `HTTP ${response.status}`,
+          code: response.ok ? 0 : 1,
+          msg: response.ok ? '连接成功' : `HTTP ${response.status}`,
+          data: null,
         }
       } catch (error) {
         return {
-          success: false,
-          message: error instanceof Error ? error.message : '连接失败',
+          code: 1,
+          msg: error instanceof Error ? error.message : '连接失败',
+          data: null,
         }
       }
     })

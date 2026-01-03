@@ -527,14 +527,14 @@ const handlePasteValueInput = async (event: ClipboardEvent, data: ApidocProperty
   if (text.length > config.httpNodeConfig.tempFileSizeThreshold && window.electronAPI?.tempFileManager) {
     event.preventDefault();
     const result = await window.electronAPI.tempFileManager.create(text);
-    if (result.success) {
-      data.value = result.path;
+    if (result.code === 0) {
+      data.value = result.data.path;
       data._isTempFile = true;
       data._originalSize = text.length;
       message.success(t('大数据已自动存储为临时文件'));
       emitChange();
     } else {
-      message.error(result.error || t('创建临时文件失败'));
+      message.error(result.msg || t('创建临时文件失败'));
     }
     return;
   }
@@ -557,14 +557,14 @@ const handleBeforePasteValue = async (text: string, shouldPrevent: { value: bool
   if (trimmedText.length > config.httpNodeConfig.tempFileSizeThreshold && window.electronAPI?.tempFileManager) {
     shouldPrevent.value = true;
     const result = await window.electronAPI.tempFileManager.create(trimmedText);
-    if (result.success) {
-      data.value = result.path;
+    if (result.code === 0) {
+      data.value = result.data.path;
       data._isTempFile = true;
       data._originalSize = trimmedText.length;
       message.success(t('大数据已自动存储为临时文件'));
       emitChange();
     } else {
-      message.error(result.error || t('创建临时文件失败'));
+      message.error(result.msg || t('创建临时文件失败'));
     }
   }
 };
