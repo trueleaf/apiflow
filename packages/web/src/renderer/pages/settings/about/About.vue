@@ -34,7 +34,7 @@
             </a>
             <a class="link-item" role="button" tabindex="0" @click.prevent="openLink('https://github.com/trueleaf/apiflow/blob/main/LICENSE')">
               <FileText :size="14" />
-              <span class="link-text">License</span>
+              <span class="link-text">License(MIT)</span>
             </a>
             <a class="link-item" role="button" tabindex="0" @click.prevent="openLink('https://github.com/trueleaf/apiflow/releases')">
               <FileText :size="14" />

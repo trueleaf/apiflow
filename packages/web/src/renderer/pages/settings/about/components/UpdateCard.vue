@@ -109,13 +109,13 @@
         <h4 class="section-title">{{ t('更新源配置') }}</h4>
         
         <el-radio-group v-model="settings.source" @change="handleSourceChange" class="source-radio-group">
-          <el-radio value="github">{{ t('GitHub官方源') }}</el-radio>
+          <el-radio value="github">{{ t('GitHub源') }}</el-radio>
           <el-radio value="custom">{{ t('自定义源') }}</el-radio>
         </el-radio-group>
 
         <div class="source-inputs">
           <div v-if="settings.source === 'github'" class="input-group">
-            <label class="input-label">{{ t('GitHub官方源') }}:</label>
+            <label class="input-label">{{ t('GitHub源') }}:</label>
             <el-input
               :model-value="'https://github.com/trueleaf/apiflow'"
               disabled

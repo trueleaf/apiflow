@@ -2,6 +2,7 @@ import Koa from 'koa';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { Throttle } from 'stream-throttle';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -9,13 +10,20 @@ const __dirname = path.dirname(__filename);
 const PORT = 3456;
 const RELEASE_DIR = path.join(__dirname, '../release');
 
+// ✅ 下载限速：单位 bytes/sec（单连接限速）
+// 例如：
+// 512KB/s = 512 * 1024
+// 1MB/s   = 1 * 1024 * 1024
+// 2MB/s   = 2 * 1024 * 1024
+const DOWNLOAD_RATE = 2 * 1024 * 1024;
+
 // MIME类型映射
 const MIME_TYPES = {
   '.yml': 'text/yaml',
   '.yaml': 'text/yaml',
   '.exe': 'application/x-msdownload',
   '.dmg': 'application/x-apple-diskimage',
-  '.AppImage': 'application/x-executable',
+  '.appimage': 'application/x-executable',
   '.deb': 'application/vnd.debian.binary-package',
   '.zip': 'application/zip',
   '.blockmap': 'application/octet-stream',
@@ -98,43 +106,97 @@ app.use(async (ctx) => {
   // 解析Range请求头
   const range = ctx.get('range');
 
+  // HEAD 请求只返回 header，不返回 body（避免无意义限速）
+  const shouldSendBody = ctx.method !== 'HEAD';
+
   if (range) {
     // 支持Range请求（断点续传）
     const parts = range.replace(/bytes=/, '').split('-');
-    const start = parseInt(parts[0], 10);
-    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-    const chunkSize = (end - start) + 1;
+
+    // 兼容 "bytes=-500" 这种写法（取最后 N 字节）
+    let start;
+    let end;
+
+    if (parts[0] === '') {
+      const lastN = parseInt(parts[1], 10);
+      end = fileSize - 1;
+      start = Math.max(0, fileSize - lastN);
+    } else {
+      start = parseInt(parts[0], 10);
+      end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+    }
+
+    // 防御：非法 range
+    if (Number.isNaN(start) || Number.isNaN(end) || start > end || start >= fileSize) {
+      log('WARN', 'Invalid range', { range, fileSize });
+      ctx.status = 416; // Range Not Satisfiable
+      ctx.set('Content-Range', `bytes */${fileSize}`);
+      return;
+    }
+
+    end = Math.min(end, fileSize - 1);
+    const chunkSize = end - start + 1;
 
     log('INFO', 'Range request', {
       file: path.basename(filePath),
       range: `${start}-${end}/${fileSize}`,
-      chunkSize: `${(chunkSize / 1024 / 1024).toFixed(2)} MB`
+      chunkSize: `${(chunkSize / 1024 / 1024).toFixed(2)} MB`,
+      rate: `${(DOWNLOAD_RATE / 1024 / 1024).toFixed(2)} MB/s`
     });
 
     ctx.status = 206;
     ctx.set('Content-Type', mimeType);
-    ctx.set('Content-Length', chunkSize.toString());
+    ctx.set('Content-Length', String(chunkSize));
     ctx.set('Content-Range', `bytes ${start}-${end}/${fileSize}`);
     ctx.set('Accept-Ranges', 'bytes');
     ctx.set('Cache-Control', 'no-cache');
 
-    ctx.body = fs.createReadStream(filePath, { start, end });
+    if (shouldSendBody) {
+      const fileStream = fs.createReadStream(filePath, { start, end });
+      const throttle = new Throttle({ rate: DOWNLOAD_RATE });
+
+      // 客户端取消/断开时及时释放资源
+      ctx.req.on('close', () => {
+        fileStream.destroy();
+        throttle.destroy();
+      });
+
+      // 可选：记录错误
+      fileStream.on('error', (err) => {
+        log('ERROR', 'File stream error', { error: err.message, filePath });
+      });
+
+      ctx.body = fileStream.pipe(throttle);
+    }
   } else {
     // 普通请求
     log('INFO', 'Full file request', {
       file: path.basename(filePath),
       size: `${(fileSize / 1024 / 1024).toFixed(2)} MB`,
-      mimeType
+      mimeType,
+      rate: `${(DOWNLOAD_RATE / 1024 / 1024).toFixed(2)} MB/s`
     });
 
+    ctx.status = 200;
     ctx.set('Content-Type', mimeType);
-    ctx.set('Content-Length', fileSize.toString());
+    ctx.set('Content-Length', String(fileSize));
     ctx.set('Accept-Ranges', 'bytes');
     ctx.set('Cache-Control', 'no-cache');
 
-    // 如果是HEAD请求，不设置body
-    if (ctx.method !== 'HEAD') {
-      ctx.body = fs.createReadStream(filePath);
+    if (shouldSendBody) {
+      const fileStream = fs.createReadStream(filePath);
+      const throttle = new Throttle({ rate: DOWNLOAD_RATE });
+
+      ctx.req.on('close', () => {
+        fileStream.destroy();
+        throttle.destroy();
+      });
+
+      fileStream.on('error', (err) => {
+        log('ERROR', 'File stream error', { error: err.message, filePath });
+      });
+
+      ctx.body = fileStream.pipe(throttle);
     }
   }
 });
