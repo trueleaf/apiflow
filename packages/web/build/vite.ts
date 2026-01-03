@@ -8,6 +8,8 @@ import type { AddressInfo } from 'net';
 import { debounce } from 'lodash-es';
 import glob from 'fast-glob';
 import { builtinModules } from 'module';
+import * as fs from 'fs';
+import * as yaml from 'js-yaml';
 
 const processWithElectron: NodeJS.Process & {
   electronProcess?: ChildProcess
@@ -50,6 +52,21 @@ const buildElectron = async (mode: string, command: 'build' | 'serve') => {
     format: 'esm',
     entryFileNames: '[name].mjs',
   });
+}
+const generateDevUpdateConfig = () => {
+  const configPath = path.join(process.cwd(), 'dev-app-update.yml')
+  const config = {
+    provider: 'github',
+    owner: 'trueleaf',
+    repo: 'apiflow',
+  }
+  try {
+    const yamlContent = yaml.dump(config)
+    fs.writeFileSync(configPath, yamlContent, 'utf-8')
+    console.log('✓ 已生成 dev-app-update.yml')
+  } catch (error) {
+    console.error('生成 dev-app-update.yml 失败:', error)
+  }
 }
 const startElectronProcess = async (server: ViteDevServer,) => {
   const addressInfo = server.httpServer?.address() as AddressInfo;
@@ -104,6 +121,7 @@ export const viteElectronPlugin = (mode: string, command: 'build' | 'serve') => 
       }
       server.httpServer?.once('listening', async () => {
         await buildElectron(mode, command)
+        generateDevUpdateConfig()
         await startElectronProcess(server);
         const watcher = chokidar.watch(
           path.resolve(process.cwd(), './src/main'),

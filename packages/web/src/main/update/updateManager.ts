@@ -4,6 +4,9 @@ import type { UpdateInfo, ProgressInfo } from 'electron-updater'
 import { UPDATE_IPC_EVENTS } from '@src/types/ipc/update'
 import type { UpdateSettings } from '@src/types/update'
 import { contentViewInstance } from '../main'
+import * as fs from 'fs'
+import * as path from 'path'
+import * as yaml from 'js-yaml'
 
 // UpdateManager类 - 管理应用更新逻辑
 class UpdateManager {
@@ -18,13 +21,14 @@ class UpdateManager {
   init(settings: UpdateSettings) {
     this.currentSettings = settings
     autoUpdater.autoDownload = false
-    autoUpdater.forceDevUpdateConfig = true;
+    autoUpdater.forceDevUpdateConfig = !app.isPackaged
     // 开发环境允许版本降级更新
     if (!app.isPackaged) {
       autoUpdater.allowDowngrade = true
       console.log('[UpdateManager] 开发环境：已启用版本降级更新')
     }
     this.setUpdateSource(this.currentSettings.source, this.currentSettings.customUrl)
+    this.generateDevUpdateConfig(this.currentSettings.source, this.currentSettings.customUrl)
     this.initAutoUpdaterEvent()
     this.registerIPCHandlers()
   }
@@ -95,6 +99,37 @@ class UpdateManager {
         provider: 'generic',
         url: customUrl,
       })
+    }
+    this.generateDevUpdateConfig(source, customUrl)
+  }
+
+  // 生成开发环境更新配置文件
+  private generateDevUpdateConfig(source: 'github' | 'custom', customUrl?: string) {
+    if (app.isPackaged) {
+      return
+    }
+    const configPath = path.join(app.getAppPath(), 'dev-app-update.yml')
+    let config: Record<string, unknown>
+    if (source === 'github') {
+      config = {
+        provider: 'github',
+        owner: 'trueleaf',
+        repo: 'apiflow',
+      }
+    } else if (source === 'custom' && customUrl) {
+      config = {
+        provider: 'generic',
+        url: customUrl,
+      }
+    } else {
+      return
+    }
+    try {
+      const yamlContent = yaml.dump(config)
+      fs.writeFileSync(configPath, yamlContent, 'utf-8')
+      console.log('[UpdateManager] 已生成 dev-app-update.yml:', configPath)
+    } catch (error) {
+      console.error('[UpdateManager] 生成 dev-app-update.yml 失败:', error)
     }
   }
 
