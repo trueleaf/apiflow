@@ -1,6 +1,7 @@
 import type { WebsocketActiveTabType } from '@src/types/websocketNode';
 import type { MockNodeActiveTabType } from '@src/types/mockNode';
 import type { AdvancedSearchConditions } from '@src/types/advancedSearch';
+import type { UpdateSettings, UpdateSource } from '@src/types/update';
 import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
 type ProjectManagerSearchState = {
@@ -598,6 +599,52 @@ class AppStateCache {
       localStorage.setItem(cacheKey.projectWorkbench.responseHeight, height.toString());
     } catch (error) {
       logger.error('设置响应区域高度失败', { error });
+    }
+  }
+  // 获取更新设置
+  getUpdateSettings(): UpdateSettings {
+    try {
+      const autoCheck = localStorage.getItem(cacheKey.settings.update.autoCheck) === 'true';
+      const source = (localStorage.getItem(cacheKey.settings.update.source) || 'github') as UpdateSource;
+      const customUrl = localStorage.getItem(cacheKey.settings.update.customUrl) || '';
+      const lastCheckTimeStr = localStorage.getItem(cacheKey.settings.update.lastCheckTime);
+      const lastCheckTime = lastCheckTimeStr ? parseInt(lastCheckTimeStr, 10) : undefined;
+      return { autoCheck, source, customUrl, lastCheckTime };
+    } catch (error) {
+      logger.error('获取更新设置失败', { error });
+      return { autoCheck: false, source: 'github', customUrl: '' };
+    }
+  }
+  // 设置自动检查更新开关
+  setAutoCheckUpdate(autoCheck: boolean) {
+    try {
+      localStorage.setItem(cacheKey.settings.update.autoCheck, String(autoCheck));
+    } catch (error) {
+      logger.error('设置自动检查更新失败', { error });
+    }
+  }
+  // 设置更新源类型
+  setUpdateSource(source: UpdateSource) {
+    try {
+      localStorage.setItem(cacheKey.settings.update.source, source);
+    } catch (error) {
+      logger.error('设置更新源失败', { error });
+    }
+  }
+  // 设置自定义更新源URL
+  setCustomUpdateUrl(url: string) {
+    try {
+      localStorage.setItem(cacheKey.settings.update.customUrl, url);
+    } catch (error) {
+      logger.error('设置自定义更新源URL失败', { error });
+    }
+  }
+  // 设置上次检查更新时间
+  setLastCheckTime(timestamp: number) {
+    try {
+      localStorage.setItem(cacheKey.settings.update.lastCheckTime, String(timestamp));
+    } catch (error) {
+      logger.error('设置上次检查更新时间失败', { error });
     }
   }
 }

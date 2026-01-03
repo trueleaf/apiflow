@@ -6,6 +6,7 @@ import { got } from 'got'
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts'
 import { WindowState } from '@src/types/index.ts'
 import { IPC_EVENTS } from '@src/types/ipc'
+import { UPDATE_IPC_EVENTS } from '@src/types/ipc/update'
 import type { ChatRequestBody, LLMProviderSetting, OpenAiResponseBody, ChatStreamCallbacks } from '@src/types/ai/agent.type'
 import { globalLLMClient } from './ai/agent.ts'
 import type { Method } from 'got'
@@ -233,6 +234,29 @@ const tempFileRead = async (filePath: string): Promise<{ success: true; content:
   return ipcRenderer.invoke(IPC_EVENTS.tempFile.rendererToMain.read, filePath);
 }
 
+// 更新相关方法
+const updateCheckForUpdates = () => {
+  return ipcRenderer.invoke(UPDATE_IPC_EVENTS.checkForUpdates)
+}
+const updateDownloadUpdate = () => {
+  return ipcRenderer.invoke(UPDATE_IPC_EVENTS.downloadUpdate)
+}
+const updateQuitAndInstall = () => {
+  return ipcRenderer.invoke(UPDATE_IPC_EVENTS.quitAndInstall)
+}
+const updateCancelDownload = () => {
+  return ipcRenderer.invoke(UPDATE_IPC_EVENTS.cancelDownload)
+}
+const updateSetAutoCheck = (autoCheck: boolean) => {
+  return ipcRenderer.invoke(UPDATE_IPC_EVENTS.setAutoCheck, autoCheck)
+}
+const updateSetUpdateSource = (source: 'github' | 'custom', customUrl?: string) => {
+  return ipcRenderer.invoke(UPDATE_IPC_EVENTS.setUpdateSource, source, customUrl)
+}
+const updateTestConnection = (url: string) => {
+  return ipcRenderer.invoke(UPDATE_IPC_EVENTS.testConnection, url)
+}
+
 contextBridge.exposeInMainWorld('electronAPI', {
   ip: ip.address(),
   sendRequest: gotRequest,
@@ -297,6 +321,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
     create: tempFileCreate,
     delete: tempFileDelete,
     read: tempFileRead,
+  },
+  updateManager: {
+    checkForUpdates: updateCheckForUpdates,
+    downloadUpdate: updateDownloadUpdate,
+    quitAndInstall: updateQuitAndInstall,
+    cancelDownload: updateCancelDownload,
+    setAutoCheck: updateSetAutoCheck,
+    setUpdateSource: updateSetUpdateSource,
+    testConnection: updateTestConnection,
   },
   projectScan: {
     selectFolder: () => ipcRenderer.invoke(IPC_EVENTS.projectScan.rendererToMain.selectFolder),

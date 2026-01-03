@@ -6,61 +6,66 @@
 
     <div class="about-content">
       <div class="app-identity-card">
-        <div class="logo-wrapper">
-          <img :src="logoImg" alt="Apiflow" class="app-logo" />
-        </div>
-        <div class="app-info">
-          <h1 class="app-name">Apiflow</h1>
-          <div class="version-info">
-            <span class="version-tag">v{{ appVersion }}</span>
-            <span class="build-time" v-if="buildTime">{{ buildTime }}</span>
+        <div class="card-body">
+          <div class="logo-wrapper">
+            <img :src="logoImg" alt="Apiflow" class="app-logo" />
           </div>
-        </div>
-        
-        <div class="links-list">
-          <a href="https://github.com/trueleaf/apiflow" target="_blank" class="link-item">
-            <Github :size="16" />
-            <span>GitHub</span>
-            <span v-if="starCount" class="star-count">
-              <Star :size="12" />
-              {{ starCount }}
-            </span>
-          </a>
-          <div class="link-item">
-            <FileText :size="16" />
-            <span>MIT License</span>
+          
+          <div class="app-info">
+            <h1 class="app-name">Apiflow</h1>
+            <div class="version-tag">v{{ appVersion }}</div>
           </div>
+          
+          <div class="build-info">
+            <span class="build-label">{{ t('构建时间') }}: </span>
+            <span class="build-value">{{ formatDate(buildTime) }}</span>
+          </div>
+          
+          <div class="divider"></div>
+          
+          <div class="links-buttons">
+            <a class="link-item" role="button" tabindex="0" @click.prevent="openLink('https://github.com/trueleaf/apiflow')">
+              <Github :size="16" />
+              <span class="link-text">GitHub</span>
+            </a>
+            <a class="link-item" role="button" tabindex="0" @click.prevent="openLink('https://apiflow.dev')">
+              <Globe :size="16" />
+              <span class="link-text">{{ t('官网') }}</span>
+            </a>
+            <a class="link-item" role="button" tabindex="0" @click.prevent="openLink('https://github.com/trueleaf/apiflow/blob/main/LICENSE')">
+              <FileText :size="14" />
+              <span class="link-text">License</span>
+            </a>
+            <a class="link-item" role="button" tabindex="0" @click.prevent="openLink('https://github.com/trueleaf/apiflow/releases')">
+              <FileText :size="14" />
+              <span class="link-text">{{ t('更新日志') }}</span>
+            </a>
+          </div>
+          
           <div class="copyright">
-            Copyright © 2026 TrueLeaf Team
+            © 2026 TrueLeaf Team
           </div>
         </div>
       </div>
+
+      <UpdateCard class="update-card-wrapper" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Github, FileText, Star } from 'lucide-vue-next'
+import { Github, FileText, Globe } from 'lucide-vue-next'
+import { formatDate } from '@/helper'
 import logoImg from '@/assets/imgs/logo.png'
-
+import UpdateCard from './components/UpdateCard.vue'
 const { t } = useI18n()
 
-const starCount = ref('')
-
 const appVersion = __APP_VERSION__
-const buildTime = computed(() => {
-  try {
-    if (typeof __APP_BUILD_TIME__ !== 'undefined' && __APP_BUILD_TIME__) {
-      const date = new Date(__APP_BUILD_TIME__)
-      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
-    }
-  } catch {
-    // ignore
-  }
-  return ''
-})
+const buildTime = __APP_BUILD_TIME__
+const openLink = (url: string) => {
+  window.open(url, '_blank')
+}
 </script>
 
 <style lang="scss" scoped>
@@ -85,21 +90,39 @@ const buildTime = computed(() => {
 
   .about-content {
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding-top: 40px;
+    height: 100%;
   }
 
   .app-identity-card {
     background: var(--bg-primary);
     border: 1px solid var(--border-light);
-    border-radius: 12px;
-    padding: 32px 24px;
+    border-right: none;
+    width: 360px;
+    flex-shrink: 0;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    max-width: 360px;
+    
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-light);
+      
+      h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+    }
+    
+    .card-body {
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      flex: 1;
+    }
     
     .logo-wrapper {
       margin-bottom: 20px;
@@ -112,7 +135,7 @@ const buildTime = computed(() => {
     }
 
     .app-info {
-      margin-bottom: 32px;
+      margin-bottom: 16px;
       .app-name {
         font-size: 24px;
         font-weight: 700;
@@ -120,76 +143,85 @@ const buildTime = computed(() => {
         margin: 0 0 8px 0;
       }
       
-      .version-info {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        
-        .version-tag {
-          font-size: 16px;
-          font-weight: 500;
-          color: var(--text-primary);
-        }
-        
-        .build-time {
-          font-size: 12px;
-          color: var(--text-secondary);
-        }
+      .version-tag {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--text-primary);
       }
-    }
-
-    .links-list {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      border-top: 1px solid var(--border-light);
-      padding-top: 24px;
-
-      .link-item {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        color: var(--text-secondary);
-        text-decoration: none;
-        font-size: 14px;
-        transition: color 0.2s;
-        cursor: pointer;
-
-        &:hover {
-          color: var(--el-color-primary);
-        }
-
-        .star-count {
-          display: inline-flex;
-          align-items: center;
-          gap: 2px;
-          font-size: 12px;
-          padding: 1px 6px;
-          background: var(--el-fill-color-light);
-          border-radius: 10px;
-        }
-      }
-
-      .copyright {
-        margin-top: 12px;
-        font-size: 12px;
-        color: var(--text-secondary);
-      }
-    }
-  }
-}
-
-@media (max-width: 900px) {
-  .about-container {
-    .about-content {
-      padding-top: 20px;
     }
     
-    .app-identity-card {
-      max-width: 100%;
+    .build-info {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
     }
+    
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border-light);
+      margin: 24px 0;
+    }
+    
+    .links-buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .links-buttons .link-item {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      width: 100%;
+      max-width: 240px;
+      color: var(--text-primary);
+      text-decoration: none;
+      padding: 6px 8px;
+      cursor: pointer;
+      &:hover {
+        color: var(--primary);
+      }
+    }
+
+    .links-buttons .link-item .link-text {
+      text-align: left;
+      display: inline-block;
+      font-size: 14px;
+    }
+
+    .license-info {
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .license-info .link-item {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      width: 100%;
+      max-width: 240px;
+      color: var(--text-primary);
+      text-decoration: none;
+      padding: 6px 8px;
+    }
+
+    .copyright {
+      margin-top: auto;
+      padding-top: 16px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+  }
+  
+  .update-card-wrapper {
+    flex: 1;
   }
 }
 </style>

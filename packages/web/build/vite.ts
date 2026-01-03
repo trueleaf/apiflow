@@ -82,13 +82,18 @@ const startElectronProcess = async (server: ViteDevServer,) => {
 export const viteElectronPlugin = (mode: string, command: 'build' | 'serve') => {
   const debounceReloadMain = debounce(async (server: ViteDevServer) => {
     if (processWithElectron.electronProcess?.pid && !isKilling) {
-      await buildElectron(mode, command)
-      console.log('重启主进程中...')
       isKilling = true;
-      process.kill(processWithElectron.electronProcess.pid);
-      startElectronProcess(server);
+      try {
+        await buildElectron(mode, command)
+        console.log('重启主进程中...')
+        process.kill(processWithElectron.electronProcess.pid);
+        await startElectronProcess(server);
+      } catch (err) {
+        console.error('重启失败:', err)
+        isKilling = false;
+      }
     }
-  })
+  }, 300)
   return {
     name: 'vite-electron-plugn',
     configureServer(server: ViteDevServer) {
@@ -105,9 +110,14 @@ export const viteElectronPlugin = (mode: string, command: 'build' | 'serve') => 
           {
             persistent: true,
             depth: 10,
+            ignoreInitial: true,
+            awaitWriteFinish: {
+              stabilityThreshold: 100,
+              pollInterval: 50
+            }
           }
         );
-        watcher.on('change', debounceReloadMain)
+        watcher.on('change', () => debounceReloadMain(server))
       });
     },
     async closeBundle() {

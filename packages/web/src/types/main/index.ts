@@ -107,6 +107,15 @@ export type ElectronAPI = {
     delete: (filePath: string) => Promise<{ success: boolean; error?: string }>;
     read: (filePath: string) => Promise<{ success: true; content: string } | { success: false; error: string }>;
   };
+  updateManager: {
+    checkForUpdates: () => Promise<{ success: boolean; updateInfo?: unknown; error?: string }>;
+    downloadUpdate: () => Promise<{ success: boolean; message?: string; error?: string }>;
+    quitAndInstall: () => Promise<{ success: boolean; error?: string }>;
+    cancelDownload: () => Promise<{ success: boolean }>;
+    setAutoCheck: (autoCheck: boolean) => Promise<{ success: boolean }>;
+    setUpdateSource: (source: 'github' | 'custom', customUrl?: string) => Promise<{ success: boolean; error?: string }>;
+    testConnection: (url: string) => Promise<{ success: boolean; message: string }>;
+  };
   projectScan: {
     selectFolder: () => Promise<{ success: true; folderPath: string; folderName: string; canceled?: false } | { success: false; canceled?: boolean; error?: string }>;
     readFiles: (folderPath: string) => Promise<{ success: true; files: { relativePath: string; content: string }[]; totalFiles: number } | { success: false; error: string }>;

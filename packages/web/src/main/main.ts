@@ -10,6 +10,7 @@ import { overrideBrowserWindow } from './override/index.ts';
 import { WebSocketManager } from './websocket/websocket.ts';
 import { HttpMockManager } from './mock/httpMock/httpMockManager.ts';
 import { WebSocketMockManager } from './mock/websocketMock/websocketMockManager.ts';
+import { updateManager } from './update/updateManager.ts';
 import { mainConfig } from '@src/config/mainConfig';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -201,6 +202,15 @@ if (!gotTheLock) {
 
     //重写默认逻辑
     overrideBrowserWindow(mainWindow, contentView, topBarView);
+    
+    // 初始化UpdateManager
+    // 从渲染进程获取更新设置（这里先用默认值，实际应从存储中读取）
+    const updateSettings = {
+      autoCheck: false, // 默认关闭自动更新
+      source: 'github' as const,
+      customUrl: '',
+    }
+    updateManager.init(mainWindow, updateSettings)
   }).catch((error) => {
     console.error('Error during app initialization:', error);
   });
@@ -222,6 +232,8 @@ app.on('before-quit', () => {
 app.on('window-all-closed', () => {
   // 清理WebSocket连接
   webSocketManager.cleanup();
+  // 清理UpdateManager
+  updateManager.destroy();
   if (process.platform !== 'darwin') app.quit()
 })
 

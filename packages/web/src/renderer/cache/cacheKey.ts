@@ -102,6 +102,12 @@ export const cacheKey = {
       bodyModeOrder: 'settings/httpNode/bodyModeOrder',
       tabOrder: 'settings/httpNode/tabOrder',
     },
+    update: {
+      autoCheck: 'settings/update/autoCheck',
+      source: 'settings/update/source',
+      customUrl: 'settings/update/customUrl',
+      lastCheckTime: 'settings/update/lastCheckTime',
+    },
   },
   appWorkbench: {
     header: {
