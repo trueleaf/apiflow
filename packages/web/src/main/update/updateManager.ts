@@ -1,12 +1,12 @@
 import { autoUpdater } from 'electron-updater'
-import { ipcMain, BrowserWindow } from 'electron'
+import { ipcMain, app } from 'electron'
 import type { UpdateInfo, ProgressInfo } from 'electron-updater'
 import { UPDATE_IPC_EVENTS } from '@src/types/ipc/update'
 import type { UpdateSettings } from '@src/types/update'
+import { contentViewInstance } from '../main'
 
 // UpdateManager类 - 管理应用更新逻辑
 class UpdateManager {
-  private mainWindow: BrowserWindow | null = null
   private isDownloading = false
   private currentSettings: UpdateSettings = {
     autoCheck: false,
@@ -15,10 +15,15 @@ class UpdateManager {
   }
 
   // 初始化UpdateManager
-  init(window: BrowserWindow, settings: UpdateSettings) {
-    this.mainWindow = window
+  init(settings: UpdateSettings) {
     this.currentSettings = settings
     autoUpdater.autoDownload = false
+    autoUpdater.forceDevUpdateConfig = true;
+    // 开发环境允许版本降级更新
+    if (!app.isPackaged) {
+      autoUpdater.allowDowngrade = true
+      console.log('[UpdateManager] 开发环境：已启用版本降级更新')
+    }
     this.setUpdateSource(this.currentSettings.source, this.currentSettings.customUrl)
     this.initAutoUpdaterEvent()
     this.registerIPCHandlers()
@@ -31,6 +36,7 @@ class UpdateManager {
     })
 
     autoUpdater.on('update-available', (info: UpdateInfo) => {
+      console.log('[UpdateManager] 发现新版本:', info.version)
       this.sendToRenderer(UPDATE_IPC_EVENTS.updateAvailable, {
         version: info.version,
         releaseDate: info.releaseDate || '',
@@ -40,12 +46,14 @@ class UpdateManager {
     })
 
     autoUpdater.on('update-not-available', (info: UpdateInfo) => {
+      console.log('[UpdateManager] 当前已是最新版本:', info.version)
       this.sendToRenderer(UPDATE_IPC_EVENTS.updateNotAvailable, {
         version: info.version,
       })
     })
 
     autoUpdater.on('error', (error: Error) => {
+      console.error('[UpdateManager] 更新出错:', error, this.currentSettings)
       this.isDownloading = false
       this.sendToRenderer(UPDATE_IPC_EVENTS.error, {
         code: 'UPDATE_ERROR',
@@ -55,6 +63,7 @@ class UpdateManager {
     })
 
     autoUpdater.on('download-progress', (progress: ProgressInfo) => {
+      console.log(`[UpdateManager] 下载进度: ${progress.percent.toFixed(2)}%`)
       this.sendToRenderer(UPDATE_IPC_EVENTS.downloadProgress, {
         percent: Math.round(progress.percent),
         bytesPerSecond: progress.bytesPerSecond,
@@ -74,6 +83,7 @@ class UpdateManager {
 
   // 设置更新源
   private setUpdateSource(source: 'github' | 'custom', customUrl?: string) {
+    console.log('[UpdateManager] 设置更新源:', source, customUrl || '')
     if (source === 'github') {
       autoUpdater.setFeedURL({
         provider: 'github',
@@ -206,14 +216,13 @@ class UpdateManager {
 
   // 向渲染进程发送消息
   private sendToRenderer(event: string, data: unknown) {
-    if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-      this.mainWindow.webContents.send(event, data)
+    if (contentViewInstance && !contentViewInstance.webContents.isDestroyed()) {
+      contentViewInstance.webContents.send(event, data)
     }
   }
 
   // 清理资源
   destroy() {
-    this.mainWindow = null
     autoUpdater.removeAllListeners()
   }
 }

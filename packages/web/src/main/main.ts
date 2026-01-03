@@ -210,7 +210,7 @@ if (!gotTheLock) {
       source: 'github' as const,
       customUrl: '',
     }
-    updateManager.init(mainWindow, updateSettings)
+    updateManager.init(updateSettings)
   }).catch((error) => {
     console.error('Error during app initialization:', error);
   });

@@ -158,7 +158,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { RefreshCw, Sparkles, CheckCircle, XCircle } from 'lucide-vue-next'
@@ -293,6 +293,7 @@ const initIPCListeners = () => {
 
   // 发现新版本
   window.electronAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.updateAvailable, (data: UpdateInfo) => {
+    console.log('收到发现新版本事件:', data);
     status.value = 'available'
     updateInfo.value = data
   })
@@ -324,7 +325,22 @@ const initIPCListeners = () => {
 onMounted(() => {
   const cachedSettings = appStateCache.getUpdateSettings()
   Object.assign(settings, cachedSettings);
+  // 同步配置到主进程
+  window.electronAPI?.updateManager.setAutoCheck(settings.autoCheck)
+  window.electronAPI?.updateManager.setUpdateSource(
+    settings.source,
+    settings.source === 'custom' ? settings.customUrl : undefined
+  )
   initIPCListeners()
+})
+// 组件卸载
+onUnmounted(() => {
+  window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.checkingForUpdate)
+  window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.updateAvailable)
+  window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.updateNotAvailable)
+  window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.downloadProgress)
+  window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.updateDownloaded)
+  window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.error)
 })
 </script>
 
