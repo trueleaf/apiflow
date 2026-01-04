@@ -176,7 +176,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "ApiFlow"
+      "shortcutName": "ApiFlow",
+      "include": "build/installer.nsh"
     },
     "mac": {
       "target": [
