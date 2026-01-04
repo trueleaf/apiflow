@@ -203,14 +203,20 @@ if (!gotTheLock) {
     //重写默认逻辑
     overrideBrowserWindow(mainWindow, contentView, topBarView);
     
-    // 初始化UpdateManager
-    // 从渲染进程获取更新设置（这里先用默认值，实际应从存储中读取）
+    // 初始化UpdateManager（使用默认配置，实际配置会在渲染进程初始化时通过IPC更新）
     const updateSettings = {
-      autoCheck: false, // 默认关闭自动更新
+      autoCheck: false,
       source: 'github' as const,
       customUrl: '',
     }
     updateManager.init(updateSettings)
+
+    // 如果启用了自动检查更新，延迟3秒后检查（等待应用完全启动）
+    if (updateSettings.autoCheck) {
+      setTimeout(() => {
+        updateManager.checkForUpdates()
+      }, 3000)
+    }
   }).catch((error) => {
     console.error('Error during app initialization:', error);
   });

@@ -1,20 +1,49 @@
 import { autoUpdater } from 'electron-updater'
 import { ipcMain, app } from 'electron'
-import type { UpdateInfo, ProgressInfo } from 'electron-updater'
+import type { UpdateInfo } from 'electron-updater'
 import { UPDATE_IPC_EVENTS } from '@src/types/ipc/update'
-import type { UpdateSettings } from '@src/types/update'
+import type { UpdateSettings, DownloadState, DownloadProgress } from '@src/types/update'
 import { contentViewInstance } from '../main'
+import { DownloadManager } from './downloadManager'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as yaml from 'js-yaml'
 
 // UpdateManager类 - 管理应用更新逻辑
 class UpdateManager {
-  private isDownloading = false
+  private downloadManager: DownloadManager
+  private latestUpdateInfo: UpdateInfo | null = null
   private currentSettings: UpdateSettings = {
     autoCheck: false,
     source: 'github',
     customUrl: '',
+  }
+
+  constructor() {
+    this.downloadManager = new DownloadManager()
+    this.setupDownloadCallbacks()
+  }
+
+  // 设置下载管理器回调
+  private setupDownloadCallbacks() {
+    this.downloadManager.setProgressCallback((progress: DownloadProgress) => {
+      this.sendToRenderer(UPDATE_IPC_EVENTS.downloadProgress, progress)
+    })
+
+    this.downloadManager.setStateChangeCallback((state: DownloadState, error?: string) => {
+      this.sendToRenderer(UPDATE_IPC_EVENTS.downloadStateChanged, { state, error })
+      if (state === 'completed') {
+        this.sendToRenderer(UPDATE_IPC_EVENTS.updateDownloaded, {
+          version: this.latestUpdateInfo?.version || 'unknown',
+        })
+      } else if (state === 'error') {
+        this.sendToRenderer(UPDATE_IPC_EVENTS.error, {
+          code: 'DOWNLOAD_ERROR',
+          message: error || '下载失败',
+          suggestion: '请检查网络连接或重试',
+        })
+      }
+    })
   }
 
   // 初始化UpdateManager
@@ -40,7 +69,8 @@ class UpdateManager {
     })
 
     autoUpdater.on('update-available', (info: UpdateInfo) => {
-      console.log('[UpdateManager] 发现新版本:', info.version)
+      console.log('[UpdateManager] 发现新版本:', info.version);
+      this.latestUpdateInfo = info
       this.sendToRenderer(UPDATE_IPC_EVENTS.updateAvailable, {
         version: info.version,
         releaseDate: info.releaseDate || '',
@@ -58,31 +88,10 @@ class UpdateManager {
 
     autoUpdater.on('error', (error: Error) => {
       console.error('[UpdateManager] 更新出错:', error, this.currentSettings)
-      this.isDownloading = false
       this.sendToRenderer(UPDATE_IPC_EVENTS.error, {
         code: 'UPDATE_ERROR',
         message: error.message,
         suggestion: '请检查网络连接或尝试切换更新源',
-      })
-    })
-
-    autoUpdater.on('download-progress', (progress: ProgressInfo) => {
-      console.log(`[UpdateManager] 下载进度: ${progress.percent.toFixed(2)}%`)
-      this.sendToRenderer(UPDATE_IPC_EVENTS.downloadProgress, {
-        percent: Math.round(progress.percent),
-        bytesPerSecond: progress.bytesPerSecond,
-        transferred: progress.transferred,
-        total: progress.total,
-      })
-    })
-
-    autoUpdater.on('update-downloaded', (info: UpdateInfo) => {
-      const downloadedFile = (info as unknown as Record<string, unknown>)['downloadedFile']
-      const downloadDir = typeof downloadedFile === 'string' && downloadedFile.length > 0 ? path.dirname(downloadedFile) : ''
-      console.log('[UpdateManager] 更新下载完成:', info.version, downloadDir ? `下载目录: ${downloadDir}` : '')
-      this.isDownloading = false
-      this.sendToRenderer(UPDATE_IPC_EVENTS.updateDownloaded, {
-        version: info.version,
       })
     })
   }
@@ -159,14 +168,18 @@ class UpdateManager {
     ipcMain.handle(UPDATE_IPC_EVENTS.downloadUpdate, async () => {
       try {
         console.log('[UpdateManager] 开始下载更新')
-        if (this.isDownloading) {
+        if (!this.latestUpdateInfo) {
+          return { code: 1, msg: '请先检查更新', data: null }
+        }
+        const taskState = this.downloadManager.getTaskState()
+        if (taskState && taskState.state === 'downloading') {
           return { code: 1, msg: '正在下载中', data: null }
         }
-        this.isDownloading = true
-        await autoUpdater.downloadUpdate()
+        // 传递 baseUrl（仅在使用自定义源时需要）
+        const baseUrl = this.currentSettings.source === 'custom' ? this.currentSettings.customUrl : undefined
+        await this.downloadManager.startDownload(this.latestUpdateInfo, baseUrl)
         return { code: 0, msg: '下载开始', data: null }
       } catch (error) {
-        this.isDownloading = false
         return {
           code: 1,
           msg: error instanceof Error ? error.message : '下载更新失败',
@@ -191,9 +204,77 @@ class UpdateManager {
 
     // 取消下载
     ipcMain.handle(UPDATE_IPC_EVENTS.cancelDownload, async () => {
-      // electron-updater 不支持取消下载，只能标记状态
-      this.isDownloading = false
-      return { code: 0, msg: '已取消', data: null }
+      try {
+        await this.downloadManager.cancelDownload()
+        return { code: 0, msg: '已取消', data: null }
+      } catch (error) {
+        return {
+          code: 1,
+          msg: error instanceof Error ? error.message : '取消失败',
+          data: null,
+        }
+      }
+    })
+
+    // 暂停下载
+    ipcMain.handle(UPDATE_IPC_EVENTS.pauseDownload, async () => {
+      try {
+        await this.downloadManager.pauseDownload()
+        return { code: 0, msg: '已暂停', data: null }
+      } catch (error) {
+        return {
+          code: 1,
+          msg: error instanceof Error ? error.message : '暂停失败',
+          data: null,
+        }
+      }
+    })
+
+    // 恢复下载
+    ipcMain.handle(UPDATE_IPC_EVENTS.resumeDownload, async () => {
+      try {
+        await this.downloadManager.resumeDownload()
+        return { code: 0, msg: '已恢复', data: null }
+      } catch (error) {
+        return {
+          code: 1,
+          msg: error instanceof Error ? error.message : '恢复失败',
+          data: null,
+        }
+      }
+    })
+
+    // 获取下载状态
+    ipcMain.handle(UPDATE_IPC_EVENTS.getDownloadState, async () => {
+      try {
+        const state = this.downloadManager.getTaskState()
+        return { code: 0, msg: '获取成功', data: state }
+      } catch (error) {
+        return {
+          code: 1,
+          msg: error instanceof Error ? error.message : '获取失败',
+          data: null,
+        }
+      }
+    })
+
+    // 同步设置
+    ipcMain.handle(UPDATE_IPC_EVENTS.syncSettings, async (_, settings: UpdateSettings) => {
+      try {
+        this.currentSettings = settings
+        this.setUpdateSource(settings.source, settings.customUrl)
+        // 如果启用了自动检查，立即检查更新
+        if (settings.autoCheck) {
+          this.checkForUpdates()
+        }
+        return { code: 0, msg: '同步成功', data: null }
+      } catch (error) {
+        return {
+          code: 1,
+          msg: error instanceof Error ? error.message : '同步失败',
+          data: null,
+        }
+      }
     })
 
     // 设置自动检查

@@ -10,8 +10,12 @@ export const UPDATE_IPC_EVENTS = {
   downloadUpdate: 'apiflow:update:download-update',
   quitAndInstall: 'apiflow:update:quit-and-install',
   cancelDownload: 'apiflow:update:cancel-download',
+  pauseDownload: 'apiflow:update:pause-download',
+  resumeDownload: 'apiflow:update:resume-download',
+  getDownloadState: 'apiflow:update:get-download-state',
   setAutoCheck: 'apiflow:update:set-auto-check',
   setUpdateSource: 'apiflow:update:set-update-source',
+  syncSettings: 'apiflow:update:sync-settings',
   testConnection: 'apiflow:update:test-connection',
 
   // 主进程 -> 渲染进程
@@ -20,5 +24,6 @@ export const UPDATE_IPC_EVENTS = {
   updateNotAvailable: 'apiflow:update:update-not-available',
   downloadProgress: 'apiflow:update:download-progress',
   updateDownloaded: 'apiflow:update:update-downloaded',
+  downloadStateChanged: 'apiflow:update:download-state-changed',
   error: 'apiflow:update:error',
 } as const

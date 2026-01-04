@@ -170,7 +170,6 @@ const handleAnalyze = async () => {
     ElMessage.success(t('分析成功'))
   } catch (err) {
     if (err instanceof Error && err.message === '请求已取消') {
-      ElMessage.info(t('已取消分析'))
       return
     }
     const errorMsg = err instanceof Error ? err.message : t('代码分析失败')

@@ -59,9 +59,34 @@
               <span>{{ t('下载速度') }}：{{ formatUnit(downloadProgress.bytesPerSecond, 'bytes') }}/s</span>
             </div>
           </div>
-          <el-button size="small" @click="handleCancelDownload">
-            {{ t('取消下载') }}
-          </el-button>
+          <div class="action-buttons">
+            <el-button size="small" @click="handlePauseDownload">
+              {{ t('暂停') }}
+            </el-button>
+            <el-button size="small" @click="handleCancelDownload">
+              {{ t('取消下载') }}
+            </el-button>
+          </div>
+        </div>
+
+        <!-- 下载已暂停 -->
+        <div v-else-if="status === 'paused'" class="status-paused">
+          <el-progress :percentage="downloadProgress.percent" />
+          <div class="download-info">
+            <p>{{ t('下载已暂停') }}</p>
+            <div class="download-details">
+              <span>{{ t('已下载') }}：{{ formatUnit(downloadProgress.transferred, 'bytes') }} / {{ formatUnit(downloadProgress.total, 'bytes') }}</span>
+              <span>{{ t('完成度') }}：{{ downloadProgress.percent }}%</span>
+            </div>
+          </div>
+          <div class="action-buttons">
+            <el-button type="primary" size="small" @click="handleResumeDownload">
+              {{ t('继续下载') }}
+            </el-button>
+            <el-button size="small" @click="handleCancelDownload">
+              {{ t('取消下载') }}
+            </el-button>
+          </div>
         </div>
 
         <!-- 下载完成 -->
@@ -230,7 +255,32 @@ const handleDownloadUpdate = async () => {
 const handleCancelDownload = async () => {
   await window.electronAPI?.updateManager.cancelDownload()
   status.value = 'idle'
-  ElMessage.info(t('已取消下载'))
+}
+// 暂停下载
+const handlePauseDownload = async () => {
+  try {
+    const result = await window.electronAPI?.updateManager.pauseDownload()
+    if (result?.code === 0) {
+      status.value = 'paused'
+    } else {
+      ElMessage.error(result?.msg || t('暂停失败'))
+    }
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : t('暂停失败'))
+  }
+}
+// 恢复下载
+const handleResumeDownload = async () => {
+  try {
+    const result = await window.electronAPI?.updateManager.resumeDownload()
+    if (result?.code === 0) {
+      status.value = 'downloading'
+    } else {
+      ElMessage.error(result?.msg || t('恢复失败'))
+    }
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : t('恢复失败'))
+  }
 }
 // 安装更新
 const handleInstallUpdate = async () => {
@@ -313,6 +363,25 @@ const initIPCListeners = () => {
     status.value = 'downloaded'
   })
 
+  // 下载状态变化
+  window.electronAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.downloadStateChanged, (data: { state: string; error?: string }) => {
+    if (data.state === 'downloading') {
+      status.value = 'downloading'
+    } else if (data.state === 'paused') {
+      status.value = 'paused'
+    } else if (data.state === 'cancelled') {
+      status.value = 'idle'
+    } else if (data.state === 'completed') {
+      status.value = 'downloaded'
+    } else if (data.state === 'error') {
+      status.value = 'error'
+      errorInfo.value = {
+        message: data.error || t('下载失败'),
+        suggestion: t('请重试或检查网络连接'),
+      }
+    }
+  })
+
   // 错误
   window.electronAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.error, (data: UpdateError) => {
     status.value = 'error'
@@ -324,12 +393,12 @@ const initIPCListeners = () => {
 onMounted(() => {
   const cachedSettings = appStateCache.getUpdateSettings()
   Object.assign(settings, cachedSettings);
-  // 同步配置到主进程
-  window.electronAPI?.updateManager.setAutoCheck(settings.autoCheck)
-  window.electronAPI?.updateManager.setUpdateSource(
-    settings.source,
-    settings.source === 'custom' ? settings.customUrl : undefined
-  )
+  // 同步配置到主进程，需要转换为普通对象
+  window.electronAPI?.updateManager.syncSettings({
+    autoCheck: settings.autoCheck,
+    source: settings.source,
+    customUrl: settings.customUrl,
+  })
   initIPCListeners()
 })
 // 组件卸载
@@ -339,6 +408,7 @@ onUnmounted(() => {
   window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.updateNotAvailable)
   window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.downloadProgress)
   window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.updateDownloaded)
+  window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.downloadStateChanged)
   window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.error)
 })
 </script>
@@ -453,6 +523,43 @@ onUnmounted(() => {
           font-size: 12px;
           color: var(--text-secondary);
         }
+      }
+      
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 12px;
+      }
+    }
+
+    .status-paused {
+      text-align: center;
+      
+      .download-info {
+        margin: 16px 0;
+        
+        p {
+          margin: 0 0 8px 0;
+          font-size: 14px;
+          color: var(--el-color-warning);
+          font-weight: 500;
+        }
+        
+        .download-details {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          font-size: 12px;
+          color: var(--text-secondary);
+        }
+      }
+      
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 12px;
       }
     }
 

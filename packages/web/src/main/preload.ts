@@ -7,6 +7,7 @@ import { StandaloneExportHtmlParams } from '@src/types/standalone.ts'
 import { WindowState } from '@src/types/index.ts'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { UPDATE_IPC_EVENTS } from '@src/types/ipc/update'
+import type { UpdateSettings } from '@src/types/update'
 import type { ChatRequestBody, LLMProviderSetting, OpenAiResponseBody, ChatStreamCallbacks } from '@src/types/ai/agent.type'
 import { globalLLMClient } from './ai/agent.ts'
 import type { Method } from 'got'
@@ -247,6 +248,18 @@ const updateQuitAndInstall = () => {
 const updateCancelDownload = () => {
   return ipcRenderer.invoke(UPDATE_IPC_EVENTS.cancelDownload)
 }
+const updatePauseDownload = () => {
+  return ipcRenderer.invoke(UPDATE_IPC_EVENTS.pauseDownload)
+}
+const updateResumeDownload = () => {
+  return ipcRenderer.invoke(UPDATE_IPC_EVENTS.resumeDownload)
+}
+const updateGetDownloadState = () => {
+  return ipcRenderer.invoke(UPDATE_IPC_EVENTS.getDownloadState)
+}
+const updateSyncSettings = (settings: UpdateSettings) => {
+  return ipcRenderer.invoke(UPDATE_IPC_EVENTS.syncSettings, settings)
+}
 const updateSetAutoCheck = (autoCheck: boolean) => {
   return ipcRenderer.invoke(UPDATE_IPC_EVENTS.setAutoCheck, autoCheck)
 }
@@ -327,6 +340,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     downloadUpdate: updateDownloadUpdate,
     quitAndInstall: updateQuitAndInstall,
     cancelDownload: updateCancelDownload,
+    pauseDownload: updatePauseDownload,
+    resumeDownload: updateResumeDownload,
+    getDownloadState: updateGetDownloadState,
+    syncSettings: updateSyncSettings,
     setAutoCheck: updateSetAutoCheck,
     setUpdateSource: updateSetUpdateSource,
     testConnection: updateTestConnection,

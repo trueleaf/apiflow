@@ -333,7 +333,6 @@ const handleCheckboxConfirm = async () => {
   })
   checkboxResult.value = result
   if (result.confirmed && result.checked) {
-    ElMessage.info('已记住您的选择，下次将不再提示')
   }
 }
 const handleCustomTextConfirm = async () => {
