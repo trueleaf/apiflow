@@ -64,6 +64,26 @@ class RuntimeCache {
       return false
     }
   }
+  // 检测系统语言并映射到应用支持的语言
+  private detectSystemLanguage(): Language {
+    try {
+      const systemLang = navigator.language || navigator.languages?.[0] || 'en'
+      const langCode = systemLang.toLowerCase()
+      if (langCode.startsWith('zh-cn') || langCode.startsWith('zh-hans') || langCode === 'zh') {
+        return 'zh-cn'
+      }
+      if (langCode.startsWith('zh-tw') || langCode.startsWith('zh-hk') || langCode.startsWith('zh-hant')) {
+        return 'zh-tw'
+      }
+      if (langCode.startsWith('ja')) {
+        return 'ja'
+      }
+      return 'en'
+    } catch (error) {
+      logger.error('检测系统语言失败', { error })
+      return 'en'
+    }
+  }
   // 获取语言
   getLanguage(): Language {
     try {
@@ -71,7 +91,9 @@ class RuntimeCache {
       if (language === 'zh-cn' || language === 'zh-tw' || language === 'en' || language === 'ja') {
         return language
       }
-      return 'zh-cn'
+      const detectedLanguage = this.detectSystemLanguage()
+      this.setLanguage(detectedLanguage)
+      return detectedLanguage
     } catch (error) {
       logger.error('获取语言配置失败', { error })
       return 'zh-cn'

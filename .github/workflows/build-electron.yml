@@ -182,6 +182,9 @@ jobs:
           $version = "${{ needs.test-web.outputs.version }}"
           $versionNoV = $version -replace '^v', ''
           
+          # 规范化版本号：将 beta7 转换为 beta.7，alpha3 转换为 alpha.3 等
+          $versionNoV = $versionNoV -replace '-(alpha|beta|rc)(\d+)', '-$1.$2'
+          
           $packagePath = "packages/web/package.json"
           $packageJson = Get-Content $packagePath -Raw | ConvertFrom-Json
           $packageJson.version = $versionNoV
@@ -320,6 +323,9 @@ jobs:
         run: |
           VERSION="${{ needs.test-web.outputs.version }}"
           VERSION_NO_V="${VERSION#v}"
+          
+          # 规范化版本号：将 beta7 转换为 beta.7，alpha3 转换为 alpha.3 等
+          VERSION_NO_V=$(echo "$VERSION_NO_V" | sed -E 's/-(alpha|beta|rc)([0-9]+)/-\1.\2/g')
           
           cd packages/web
           
@@ -465,6 +471,9 @@ jobs:
         run: |
           VERSION="${{ needs.test-web.outputs.version }}"
           VERSION_NO_V="${VERSION#v}"
+          
+          # 规范化版本号：将 beta7 转换为 beta.7，alpha3 转换为 alpha.3 等
+          VERSION_NO_V=$(echo "$VERSION_NO_V" | sed -E 's/-(alpha|beta|rc)([0-9]+)/-\1.\2/g')
           
           cd packages/web
           
@@ -739,6 +748,10 @@ jobs:
           # 替换变量
           VERSION="${{ needs.test-web.outputs.version }}"
           VERSION_NO_V="${VERSION#v}"
+          
+          # 规范化版本号：将 beta7 转换为 beta.7，alpha3 转换为 alpha.3 等
+          VERSION_NO_V=$(echo "$VERSION_NO_V" | sed -E 's/-(alpha|beta|rc)([0-9]+)/-\1.\2/g')
+          
           RELEASE_BODY="${TEMPLATE//\{\{VERSION\}\}/$VERSION}"
           RELEASE_BODY="${RELEASE_BODY//\{\{VERSION_NO_V\}\}/$VERSION_NO_V}"
           
