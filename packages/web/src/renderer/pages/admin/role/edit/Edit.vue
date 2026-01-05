@@ -27,7 +27,7 @@
     </div>
     <template #footer>
       <el-button @click="handleClose">{{ t("取消") }}</el-button>
-      <el-button :loading="loading" type="primary" @click="handleEditRole">{{ t("确定") }}</el-button>
+      <el-button :loading="loading" type="primary" @click="handleEditRole">{{ t('确定/AdminRoleEdit') }}</el-button>
     </template>
   </el-dialog>
 </template>

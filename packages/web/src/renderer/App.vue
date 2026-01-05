@@ -274,7 +274,7 @@ const initAppHeaderEvent = () => {
 
     if (!matchedProject) {
       ElMessageBox.alert(`${data.projectName}${t('已被删除')}`, t('提示'), {
-        confirmButtonText: t('确定'),
+        confirmButtonText: t('确定/AppProjectDeletedAlert'),
         showClose: false,
         type: 'error'
       }).then(() => {

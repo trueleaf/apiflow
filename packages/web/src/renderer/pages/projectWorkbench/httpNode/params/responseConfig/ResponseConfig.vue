@@ -27,7 +27,7 @@
                   :class="{ error: currentEditNode._title.length === 0 }" type="text" :placeholder="t('不能为空')"
                   @click.stop="() => { }" @keydown.enter="handleConfirmTitle(item, index)">
                 <span v-if="currentEditNode && currentEditNode.title === item.title"
-                  class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmTitle(item, index)">{{ t("确定")
+                  class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmTitle(item, index)">{{ t('确定/ResponseConfigRename')
                   }}</span>
                 <span v-if="currentEditNode && currentEditNode.title === item.title"
                   class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEdit">{{ t("取消") }}</span>

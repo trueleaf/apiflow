@@ -5,7 +5,7 @@
     </SForm>
     <template #footer>
       <el-button data-testid="add-folder-cancel-btn" @click="handleClose">{{ t("取消") }}</el-button>
-      <el-button :loading="loading" type="primary" data-testid="add-folder-confirm-btn" @click="handleAddFolder">{{ t("确定") }}</el-button>
+      <el-button :loading="loading" type="primary" data-testid="add-folder-confirm-btn" @click="handleAddFolder">{{ t('确定/AddFolder') }}</el-button>
     </template>
   </el-dialog>
 </template>

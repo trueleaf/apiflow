@@ -132,7 +132,7 @@ const handleBeforePaste = async (text: string, shouldPrevent: { value: boolean }
         t('是否解析为请求？'),
         t('检测到 cURL 命令'),
         {
-          confirmButtonText: t('确定'),
+          confirmButtonText: t('确定/OperationParseCurl'),
           cancelButtonText: t('取消'),
         }
       )

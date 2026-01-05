@@ -427,7 +427,7 @@ const handleEdit = (row: AddProjectVariableParams) => {
 //删除一个数据
 const handleDelete = (_id: string) => {
   ElMessageBox.confirm(t('此操作将永久删除该变量, 是否继续?'), t('提示'), {
-    confirmButtonText: t('确定'),
+    confirmButtonText: t('确定/VariableDelete'),
     cancelButtonText: t('取消'),
     type: 'warning',
   }).then(() => {
@@ -447,7 +447,7 @@ const handleDelete = (_id: string) => {
 // 独立模式删除变量
 const handleStandaloneDelete = (_id: string) => {
   ElMessageBox.confirm(t('此操作将永久删除该变量, 是否继续?'), t('提示'), {
-    confirmButtonText: t('确定'),
+    confirmButtonText: t('确定/VariableDelete'),
     cancelButtonText: t('取消'),
     type: 'warning',
   }).then(async () => {

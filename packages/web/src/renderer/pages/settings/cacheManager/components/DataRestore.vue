@@ -131,7 +131,7 @@ const handleImport = async (): Promise<void> => {
       await ElMessageBox.confirm(
         t('覆盖模式将清空所有现有数据，此操作不可恢复！是否继续？'),
         t('导入选项'),
-        { confirmButtonText: t('确定'), cancelButtonText: t('取消'), type: 'warning' }
+        { confirmButtonText: t('确定/DataRestoreOverwrite'), cancelButtonText: t('取消'), type: 'warning' }
       )
     } catch {
       return

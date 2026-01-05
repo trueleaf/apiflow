@@ -347,7 +347,7 @@ const handleOpenPermissionDialog = (item: ApidocProjectInfo) => {
 //删除项目
 const deleteProject = (_id: string) => {
   ElMessageBox.confirm(t('确定要删除此项目吗?'), t('提示'), {
-    confirmButtonText: t('确定'),
+    confirmButtonText: t('确定/ProjectManagerDeleteProject'),
     cancelButtonText: t('取消'),
     type: 'warning'
   }).then(async () => {

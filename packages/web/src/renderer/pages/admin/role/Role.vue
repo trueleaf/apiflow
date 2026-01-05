@@ -55,7 +55,7 @@ const handleOpenEditRole = (id: string) => {
 //删除角色
 const handleDeleteRole = (_id: string) => {
   ElMessageBox.confirm(t('此操作将永久删除此条记录, 是否继续?'), t('提示'), {
-    confirmButtonText: t('确定'),
+    confirmButtonText: t('确定/AdminRoleDelete'),
     cancelButtonText: t('取消'),
     type: 'warning',
   }).then(() => {

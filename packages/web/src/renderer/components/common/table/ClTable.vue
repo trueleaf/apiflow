@@ -229,7 +229,7 @@ const handleSelectionChange = (val: Record<string, unknown>[]) => {
 //批量删除
 const deleteData = () => {
   ElMessageBox.confirm(t('此操作将删除条记录, 是否继续?', { msg: selectData.value.length.toString() }), t('提示'), {
-    confirmButtonText: t('确定'),
+    confirmButtonText: t('确定/ClTableDeleteMany'),
     cancelButtonText: t('取消'),
     type: 'warning'
   }).then(() => {

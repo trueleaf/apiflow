@@ -88,7 +88,7 @@ const handleDelete = () => {
     t('确定删除此返回头配置吗？'),
     t('提示'),
     {
-      confirmButtonText: t('确定'),
+      confirmButtonText: t('确定/MockResponseHeadersDelete'),
       cancelButtonText: t('取消'),
       type: 'warning',
     }

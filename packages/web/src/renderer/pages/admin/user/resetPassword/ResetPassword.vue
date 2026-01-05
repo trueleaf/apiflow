@@ -7,7 +7,7 @@
     <template #footer>
       <div>
         <el-button @click="handleClose">{{ t("取消") }}</el-button>
-        <el-button :loading="loading" type="primary" @click="handleEditUser">{{ t("确定") }}</el-button>
+        <el-button :loading="loading" type="primary" @click="handleEditUser">{{ t('确定/AdminUserResetPassword') }}</el-button>
       </div>
     </template>
   </el-dialog>

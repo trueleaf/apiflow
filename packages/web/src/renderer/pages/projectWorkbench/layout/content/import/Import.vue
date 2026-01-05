@@ -353,7 +353,7 @@ const handleChangeNamedType = () => {
 const handleChangeIsCover = (val: string | number | boolean | undefined) => {
   if (val) {
     ElMessageBox.confirm(t('覆盖后的数据将无法还原'), t('提示'), {
-      confirmButtonText: t('确定'),
+      confirmButtonText: t('确定/ImportCoverOverwrite'),
       cancelButtonText: t('取消'),
       type: 'warning',
     }).catch(err => {

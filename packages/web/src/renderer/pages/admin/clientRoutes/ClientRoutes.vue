@@ -102,7 +102,7 @@ const handleSelect = (routeList: PermissionClientRoute[]) => {
 //删除前端路由组件
 const handleDeleteClientRoute = (row: PermissionClientRoute) => {
   ElMessageBox.confirm(t('此操作将永久删除此条记录, 是否继续?'), t('提示'), {
-    confirmButtonText: t('确定'),
+    confirmButtonText: t('确定/AdminClientRoutesDelete'),
     cancelButtonText: t('取消'),
     type: 'warning',
   }).then(() => {
@@ -134,4 +134,3 @@ const handleOpenMultiEditTypeDialog = () => {
   dialogVisible3.value = true;
 }
 </script>
-

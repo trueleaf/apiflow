@@ -312,7 +312,7 @@ const handleAddUser = (item: PermissionUserBaseInfo) => {
 const handleRemoveMember = (groupId: string, userId: string) => {
   const removeTip = userId === runtimeStore.userInfo.id ? t('确认要退出当前团队吗') : t('确定要移除该用户吗？') 
   ElMessageBox.confirm(removeTip, t('提示'), {
-    confirmButtonText: t('确定'),
+    confirmButtonText: userId === runtimeStore.userInfo.id ? t('确定/GroupManagerLeaveGroup') : t('确定/GroupManagerRemoveMember'),
     cancelButtonText: t('取消') ,
     type: 'warning',
   }).then(() => {
@@ -404,7 +404,7 @@ const handleChangePermission = (groupId: string, userId: string, permission: "ad
 // 删除团队
 const handleDeleteGroup = (groupId: string) => {
   ElMessageBox.confirm(t('确定要删除该团队吗？'), t('提示'), {
-    confirmButtonText: t('确定'),
+    confirmButtonText: t('确定/GroupManagerDeleteGroup'),
     cancelButtonText: t('取消'),
     type: 'warning',
   }).then(() => {

@@ -597,7 +597,7 @@ const handleSelectHistory = (history: HttpHistory): void => {
     t('当前操作将覆盖原有数据,是否继续?'),
     t('确认覆盖'),
     {
-      confirmButtonText: t('确定'),
+      confirmButtonText: t('确定/HttpParamsOverwriteHistory'),
       cancelButtonText: t('取消'),
       type: 'warning'
     }

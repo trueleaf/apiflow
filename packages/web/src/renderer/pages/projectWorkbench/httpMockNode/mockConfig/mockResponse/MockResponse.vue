@@ -255,7 +255,7 @@ const handleCloseTag = async (index: number) => {
       confirmMessage,
       t('提示'),
       {
-        confirmButtonText: t('确定'),
+        confirmButtonText: t('确定/MockResponseDeleteResponse'),
         cancelButtonText: t('取消'),
         type: 'warning',
       }

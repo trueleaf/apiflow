@@ -53,7 +53,7 @@
     </el-table>
     <template #footer>
       <el-button data-testid="add-project-cancel-btn" @click="handleClose">{{ t("取消") }}</el-button>
-      <el-button :loading="loading2" type="primary" data-testid="add-project-confirm-btn" @click="handleAddProject">{{ t("确定") }}</el-button>
+      <el-button :loading="loading2" type="primary" data-testid="add-project-confirm-btn" @click="handleAddProject">{{ t('确定/AddProject') }}</el-button>
     </template>
   </el-dialog>
 </template>

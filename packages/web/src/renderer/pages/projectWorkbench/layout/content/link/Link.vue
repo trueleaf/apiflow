@@ -168,7 +168,7 @@ const generateUrlAndPassword = (linkInfo: LinkInfo) => {
 //删除某个链接
 const handleDeleteItem = (pid: string, _id: string) => {
   ElMessageBox.confirm(t('此操作将永久删除此条记录, 是否继续?'), t('提示'), {
-    confirmButtonText: t('确定'),
+    confirmButtonText: t('确定/LinkDeleteItem'),
     cancelButtonText: t('取消'),
     type: 'warning'
   }).then(() => {

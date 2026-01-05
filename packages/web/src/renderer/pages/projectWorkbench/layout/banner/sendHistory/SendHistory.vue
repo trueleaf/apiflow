@@ -188,7 +188,7 @@ const handleClearHistory = async () => {
       t('确定要清空所有历史记录吗？'),
       t('提示'),
       {
-        confirmButtonText: t('确定'),
+        confirmButtonText: t('确定/SendHistoryClearAll'),
         cancelButtonText: t('取消'),
         type: 'warning'
       }
@@ -206,7 +206,7 @@ const handleCleanDeletedHistory = async () => {
       t('确定要清理所有已删除接口的历史记录吗？'),
       t('提示'),
       {
-        confirmButtonText: t('确定'),
+        confirmButtonText: t('确定/SendHistoryCleanDeleted'),
         cancelButtonText: t('取消'),
         type: 'warning'
       }

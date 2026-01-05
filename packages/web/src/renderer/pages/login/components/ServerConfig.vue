@@ -69,7 +69,7 @@ const handleReset = async () => {
       t('确认将所有配置恢复为默认值吗？'),
       {
         type: 'warning',
-        confirmButtonText: t('确定'),
+        confirmButtonText: t('确定/ServerConfigReset'),
         cancelButtonText: t('取消'),
       }
     )

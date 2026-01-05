@@ -9,7 +9,7 @@
     </SForm>
     <template #footer>
       <el-button @click="handleClose">{{ t("取消") }}</el-button>
-      <el-button :loading="loading" type="primary" @click="handleSaveServerRoute">{{ t("确定") }}</el-button>
+      <el-button :loading="loading" type="primary" @click="handleSaveServerRoute">{{ t('确定/AdminServerRoutesAdd') }}</el-button>
     </template>
   </el-dialog>
 </template>

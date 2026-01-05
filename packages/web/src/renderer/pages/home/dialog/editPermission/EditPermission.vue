@@ -179,7 +179,7 @@ const handleAddMember = (item: ApidocProjectMemberInfo) => {
 //删除成员
 const handleDeleteMember = (row: MemberWithOldPermission, index: number) => {
   ElMessageBox.confirm(t('确认删除当前成员吗?'), t('提示'), {
-    confirmButtonText: t('确定'),
+    confirmButtonText: t('确定/EditPermissionDeleteMember'),
     cancelButtonText: t('取消'),
     type: 'warning',
   }).then(() => {
@@ -217,7 +217,7 @@ const handleLeaveGroup = (row: MemberWithOldPermission, index: number) => {
     return;
   }
   ElMessageBox.confirm(t('确认离开当前团队吗?'), t('提示'), {
-    confirmButtonText: t('确定'),
+    confirmButtonText: t('确定/EditPermissionLeaveGroup'),
     cancelButtonText: t('取消'),
     type: 'warning',
   }).then(() => {
@@ -259,7 +259,7 @@ const handleChangePermission = (row: MemberWithOldPermission) => {
   }
   if (oldPermission === 'admin') {
     ElMessageBox.confirm(t('确认改变当前管理员权限吗?'), t('提示'), {
-      confirmButtonText: t('确定'),
+      confirmButtonText: t('确定/EditPermissionChangeAdminPermission'),
       cancelButtonText: t('取消'),
       type: 'warning',
     }).then(() => {

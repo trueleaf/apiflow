@@ -161,7 +161,7 @@ const handleClearAll = async () => {
       t('确定清空所有历史会话吗？此操作不可恢复'),
       t('确定清空'),
       {
-        confirmButtonText: t('确定'),
+        confirmButtonText: t('确定/AiHistoryClearAll'),
         cancelButtonText: t('取消'),
         type: 'warning'
       }

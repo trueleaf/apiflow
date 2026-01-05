@@ -85,7 +85,7 @@ const handleDelete = () => {
     t('确定删除此触发条件配置吗？'),
     t('提示'),
     {
-      confirmButtonText: t('确定'),
+      confirmButtonText: t('确定/MockResponseConditionDelete'),
       cancelButtonText: t('取消'),
       type: 'warning',
     }

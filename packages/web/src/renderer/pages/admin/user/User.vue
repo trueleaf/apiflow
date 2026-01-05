@@ -89,7 +89,7 @@ const handleChange = (params: Record<string, unknown>) => {
 const handleForbidRole = (_id: string, isEnabled: boolean) => {
   const tipLabel = isEnabled ? t('禁用') : t('启用');
   ElMessageBox.confirm(t('确实要{action}该用户吗', { action: tipLabel }), t('提示'), {
-    confirmButtonText: t('确定'),
+    confirmButtonText: isEnabled ? t('确定/AdminUserDisable') : t('确定/AdminUserEnable'),
     cancelButtonText: t('取消'),
     type: 'warning',
   }).then(() => {

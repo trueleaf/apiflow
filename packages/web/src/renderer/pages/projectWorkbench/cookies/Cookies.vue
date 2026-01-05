@@ -303,7 +303,7 @@ const handleRemoveCookie = (id: string) => {
     t('确定要删除这个 Cookie 吗？'),
     t('删除确认'),
     {
-      confirmButtonText: t('确定'),
+      confirmButtonText: t('确定/CookiesDelete'),
       cancelButtonText: t('取消'),
       type: 'warning',
     }
@@ -321,7 +321,7 @@ const handleBatchDelete = () => {
     t(`确定要删除选中的 ${selectedCookies.value.length} 个 Cookie 吗？`),
     t('批量删除确认'),
     {
-      confirmButtonText: t('确定'),
+      confirmButtonText: t('确定/CookiesDelete'),
       cancelButtonText: t('取消'),
       type: 'warning',
     }

@@ -44,7 +44,7 @@
       <template #footer>
         <div>
           <el-button @click="dialogVisible = false">{{ t('取消') }}</el-button>
-          <el-button :loading="loading2" type="primary" @click="handleChangePassword">{{ t('确定') }}</el-button>
+          <el-button :loading="loading2" type="primary" @click="handleChangePassword">{{ t('确定/SettingsUserChangePassword') }}</el-button>
         </div>
       </template>
     </el-dialog>

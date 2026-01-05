@@ -131,7 +131,7 @@ const handleDeleteCurrentNode = (data: PermissionClientMenu | null) => {
     ids.push(val._id);
   })
   ElMessageBox.confirm(t('此操作将永久删除此条记录, 是否继续?'), t('提示'), {
-    confirmButtonText: t('确定'),
+    confirmButtonText: t('确定/AdminMenuDelete'),
     cancelButtonText: t('取消'),
     type: 'warning',
   }).then(() => {

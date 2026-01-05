@@ -134,7 +134,7 @@ axiosInstance.interceptors.response.use(
           return Promise.reject(new Error(i18n.global.t(res.data.msg || '暂无权限')));
         default:
           ElMessageBox.confirm(i18n.global.t(res.data.msg ? res.data.msg : '操作失败'), i18n.global.t('提示'), {
-            confirmButtonText: i18n.global.t('确定'),
+            confirmButtonText: i18n.global.t('确定/ApiErrorDialog'),
             showCancelButton: false,
             type: 'warning',
           });

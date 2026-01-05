@@ -81,7 +81,7 @@
       <div>
         <el-button @click="handleClose">{{ t('取消') }}</el-button>
         <el-button :loading="importing" type="primary" :disabled="isImportDisabled" @click="handleImport">
-          {{ t('确定') }}
+          {{ t('确定/AdminUserImport') }}
         </el-button>
       </div>
     </template>

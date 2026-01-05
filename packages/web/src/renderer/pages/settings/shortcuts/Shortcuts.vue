@@ -237,7 +237,7 @@ const handleResetSingle = (shortcut: ShortcutConfig) => {
     t('确定要重置该快捷键为默认值吗?'),
     t('确认重置'),
     {
-      confirmButtonText: t('确定'),
+      confirmButtonText: t('确定/ShortcutsReset'),
       cancelButtonText: t('取消'),
       type: 'warning'
     }
@@ -254,7 +254,7 @@ const handleResetAll = () => {
     t('确定要重置所有快捷键为默认值吗?'),
     t('确认重置'),
     {
-      confirmButtonText: t('确定'),
+      confirmButtonText: t('确定/ShortcutsReset'),
       cancelButtonText: t('取消'),
       type: 'warning'
     }

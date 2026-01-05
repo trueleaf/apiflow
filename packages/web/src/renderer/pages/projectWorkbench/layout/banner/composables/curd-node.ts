@@ -119,7 +119,7 @@ export const deleteNode = (selectNodes: ApidocBannerWithProjectId[], silent?: bo
     return;
   }
   ElMessageBox.confirm(deleteTip, i18n.global.t('提示'), {
-    confirmButtonText: i18n.global.t('确定'),
+    confirmButtonText: i18n.global.t('确定/CurdNodeDelete'),
     cancelButtonText: i18n.global.t('取消'),
     type: 'warning',
   }).then(() => {
