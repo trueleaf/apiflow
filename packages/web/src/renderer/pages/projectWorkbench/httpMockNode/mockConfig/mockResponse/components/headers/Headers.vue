@@ -27,7 +27,7 @@
         />
       </div>
       <div v-else class="cursor-pointer no-select d-flex a-center" @click="hideDefaultHeaders = false">
-        <span>{{ response.headers.defaultHeaders.length }}{{ t('个隐藏') }}</span>
+        <span>{{ response.headers.defaultHeaders.length }}&nbsp;{{ t('个隐藏') }}</span>
         <el-icon :size="16" class="ml-1">
           <View />
         </el-icon>
