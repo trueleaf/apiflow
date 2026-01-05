@@ -4,7 +4,7 @@
       <img :src="appSettingsStore.appLogo" :alt="appSettingsStore.appTitle" class="logo-img" width="24" height="24" draggable="false" @click="jumpToHome"/>
     </div>
     <div class="home" :class="{ active: activeTabId === ''}" data-testid="header-home-btn" @click="jumpToHome">
-      <i class="iconfont iconhome"></i>
+      <Home class="menu-icon" :size="14" />
       <span>{{ t('主页面') }}</span>
     </div>
     <div v-if="showAdminMenu" class="home admin" :class="{ active: activeTabId === '__admin__' }" data-testid="header-admin-btn" @click="jumpToAdmin">
@@ -85,16 +85,16 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, computed, ComponentPublicInstance } from 'vue'
 import draggable from 'vuedraggable'
-import { Language, WindowState } from '@src/types'
-import type { AppWorkbenchHeaderTab, AppWorkbenchHeaderTabContextActionPayload } from '@src/types/appWorkbench/appWorkbenchType'
-import type { RuntimeNetworkMode } from '@src/types/runtime'
-import { useI18n } from 'vue-i18n'
-import { Folder, Settings, Bot, User, Shield, RefreshCw, ArrowLeft, ArrowRight, Languages, Wifi, WifiOff } from 'lucide-vue-next'
-import { IPC_EVENTS } from '@src/types/ipc'
-import { changeLanguage } from '@/i18n'
-import { useAppSettings } from '@/store/appSettings/appSettingsStore'
-import { useTheme } from '@/hooks/useTheme'
-import { useRuntime } from '@/store/runtime/runtimeStore'
+ import { Language, WindowState } from '@src/types'
+ import type { AppWorkbenchHeaderTab, AppWorkbenchHeaderTabContextActionPayload } from '@src/types/appWorkbench/appWorkbenchType'
+ import type { RuntimeNetworkMode } from '@src/types/runtime'
+ import { useI18n } from 'vue-i18n'
+ import { Folder, Settings, Bot, User, Shield, RefreshCw, ArrowLeft, ArrowRight, Languages, Wifi, WifiOff, Home } from 'lucide-vue-next'
+ import { IPC_EVENTS } from '@src/types/ipc'
+ import { changeLanguage } from '@/i18n'
+ import { useAppSettings } from '@/store/appSettings/appSettingsStore'
+ import { useTheme } from '@/hooks/useTheme'
+ import { useRuntime } from '@/store/runtime/runtimeStore'
 import type { PermissionUserInfo } from '@src/types/project'
 
 const appSettingsStore = useAppSettings()

@@ -4,7 +4,7 @@
       <img :src="appSettingsStore.appLogo" :alt="appSettingsStore.appTitle" class="logo-img" width="24" height="24" draggable="false" @click="jumpToHome"/>
     </div>
     <div class="home" :class="{ active: activeTabId === ''}" data-testid="header-home-btn" @click="jumpToHome">
-      <i class="iconfont iconhome"></i>
+      <Home class="menu-icon" :size="14" />
       <span>{{ t('主页面') }}</span>
     </div>
     <div v-if="showAdminMenu" class="home admin" :class="{ active: activeTabId === '__admin__' }" data-testid="header-admin-btn" @click="jumpToAdmin">
@@ -75,10 +75,10 @@ import type { AppWorkbenchHeaderTab } from '@src/types/appWorkbench/appWorkbench
  import type { RuntimeNetworkMode } from '@src/types/runtime'
  import { RefreshRight, Back, Right } from '@element-plus/icons-vue'       
  import { useI18n } from 'vue-i18n'
- import { Folder, Settings, Bot, Shield } from 'lucide-vue-next'
- import { changeLanguage } from '@/i18n'
- import { useAppSettings } from '@/store/appSettings/appSettingsStore'     
- import { useRuntime } from '@/store/runtime/runtimeStore'
+ import { Folder, Settings, Bot, Shield, Home } from 'lucide-vue-next'
+  import { changeLanguage } from '@/i18n'
+  import { useAppSettings } from '@/store/appSettings/appSettingsStore'     
+  import { useRuntime } from '@/store/runtime/runtimeStore'
  import { useRouter } from 'vue-router'
  import { appWorkbenchCache } from '@/cache/appWorkbench/appWorkbenchCache'
 import { useAgentViewStore } from '@/store/ai/agentView'
