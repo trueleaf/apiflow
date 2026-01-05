@@ -90,7 +90,7 @@ import { Search, Trash2, RotateCcw, Loader2 } from 'lucide-vue-next'
 import { useProjectManagerStore } from '@/store/projectManager/projectManagerStore'
 import { message } from '@/helper'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const projectManagerStore = useProjectManagerStore()
 const loading = ref(false)
 const searchKeyword = ref('')
@@ -158,9 +158,13 @@ const handleBatchRecover = async (): Promise<void> => {
   try {
     const { successCount, failCount } = await projectManagerStore.batchRecoverProjects(selectedProjects.value)
     if (successCount > 0) {
-      const msg = failCount > 0 
-        ? `${t('项目恢复成功')} ${successCount} ${t('个')}，${failCount} ${t('个')}${t('项目恢复失败')}`
-        : `${t('项目恢复成功')} ${successCount} ${t('个')}`
+      const msg = locale.value === 'en'
+        ? (failCount > 0
+            ? `${t(successCount === 1 ? '批量恢复成功单数' : '批量恢复成功复数', { count: successCount })}; ${t(failCount === 1 ? '批量恢复失败单数' : '批量恢复失败复数', { count: failCount })}`
+            : t(successCount === 1 ? '批量恢复成功单数' : '批量恢复成功复数', { count: successCount }))
+        : (failCount > 0
+            ? `${t('项目恢复成功')} ${successCount} ${t('个')}，${failCount} ${t('个')}${t('项目恢复失败')}`
+            : `${t('项目恢复成功')} ${successCount} ${t('个')}`)
       message.success(msg)
       selectedProjects.value = []
     } else {

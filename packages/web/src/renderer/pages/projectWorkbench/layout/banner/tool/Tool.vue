@@ -676,6 +676,7 @@ const handleToggleProjectModel = () => {
   height: var(--apiflow-banner-tool-height);
   background: var(--gray-200);
   flex: 0 0 auto;
+  
 
   .toggle-btn {
     height: 30px;

@@ -98,7 +98,7 @@ const inputWrapperRef = ref<HTMLElement | null>(null)
 const isModeMenuVisible = ref(false)
 const isProjectEditPage = computed(() => route.path.includes('/workbench'))
 const projectName = computed(() => projectWorkbench.projectName)
-const isSendDisabled = computed(() => !agentViewStore.isAiConfigValid)
+const isSendDisabled = computed(() => !agentViewStore.isAiConfigValid || !agentViewStore.inputMessage)
 
 const inputPlaceholder = computed(() => {
   const shortcutKey = isMacOS ? 'Shift+Return' : 'Shift+Enter'
@@ -144,8 +144,7 @@ const handleStop = async () => {
 }
 const handleSend = async () => {
   if (agentViewStore.mode === 'agent') {
-    const message = agentViewStore.inputMessage.trim()
-    if (!message) return
+    const message = agentViewStore.inputMessage
     agentViewStore.inputMessage = ''
     agentViewStore.lastAskPrompt = message
     const askMessage = agentViewStore.createAskMessage(message, 'agent')
@@ -335,9 +334,10 @@ defineExpose({
 }
 .ai-send-btn:disabled,
 .ai-stop-btn:disabled {
-  background: var(--ai-send-disabled-bg);
-  color: var(--ai-send-disabled-text);
+  background: var(--ai-button-bg);
+  color: var(--ai-text-secondary);
   cursor: not-allowed;
+  opacity: 0.7;
 }
 .ai-send-btn:not(:disabled):hover,
 .ai-stop-btn:not(:disabled):hover {

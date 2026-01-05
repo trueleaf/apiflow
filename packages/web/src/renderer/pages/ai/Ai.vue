@@ -11,6 +11,7 @@
     :default-width="config.renderConfig.aiDialog.defaultWidth"
     :default-height="config.renderConfig.aiDialog.defaultHeight"
     :position="position"
+    :default-position="defaultDialogPosition"
     @drag-end="handleDragEnd"
     @resize-end="handleResizeEnd"
     @reset-width="handleResetWidth"
@@ -50,9 +51,10 @@ import AiConfig from './components/aiConfig/AiConfig.vue'
 import AiFooter from './components/aiFooter/AiFooter.vue'
 
 const agentViewStore = useAgentViewStore()
+const defaultDialogPosition = { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' } as const
 const position = ref<{ x: number | null, y: number | null }>({ x: null, y: null })
-const dialogWidth = ref(config.renderConfig.aiDialog.defaultWidth)
-const dialogHeight = ref(config.renderConfig.aiDialog.defaultHeight)
+const dialogWidth = ref(config.renderConfig.aiDialog.defaultWidth)        
+const dialogHeight = ref(config.renderConfig.aiDialog.defaultHeight)      
 
 /*
 |--------------------------------------------------------------------------

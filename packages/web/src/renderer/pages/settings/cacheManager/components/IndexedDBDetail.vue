@@ -55,7 +55,7 @@ import { ElMessageBox } from 'element-plus'
 import IndexedDBDialog from '../dialog/IndexedDBDialog.vue'
 import { message } from '@/helper'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 type Props = {
   indexedDBDetails: IndexedDBItem[]
@@ -126,15 +126,19 @@ const handleDelete = async (row: IndexedDBItem): Promise<void> => {
 // 清空所有IndexedDB数据
 const handleClearAllIndexedDB = async (): Promise<void> => {
   try {
+    const confirmPhrase = locale.value === 'en' ? t('清空所有数据确认输入') : t('清空所有数据')
+    const confirmPhraseEscaped = confirmPhrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const defaultPhraseEscaped = '清空所有数据'.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const inputPattern = new RegExp(`^(?:${confirmPhraseEscaped}|${defaultPhraseEscaped})$`, 'i')
     await ElMessageBox.prompt(
-      t('请输入 "清空所有数据" 确认清空所有IndexedDB中的数据。此操作将清空所有数据库中的数据内容，但保留数据库结构。此操作不可恢复！'),
+      t('请输入 "清空所有数据" 确认清空所有IndexedDB中的数据。此操作将清空所有数据库中的数据内容，但保留数据库结构。此操作不可恢复！', { phrase: confirmPhrase }),
       t('清空确认'),
       {
         confirmButtonText: t('确定清空'),
         cancelButtonText: t('取消'),
         type: 'warning',
-        inputPattern: /^清空所有数据$/,
-        inputErrorMessage: t('请输入"清空所有数据"进行确认')
+        inputPattern,
+        inputErrorMessage: t('请输入"清空所有数据"进行确认', { phrase: confirmPhrase })
       }
     )
 

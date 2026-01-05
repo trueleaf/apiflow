@@ -51,7 +51,7 @@ const props = withDefaults(defineProps<{
   defaultWidth?: number
   defaultHeight?: number
   position?: { x: number | null, y: number | null }
-  defaultPosition?: { left?: string, top?: string, right?: string }
+  defaultPosition?: { left?: string, top?: string, right?: string, transform?: string }
 }>(), {
   minWidth: 200,
   maxWidth: 1200,
@@ -107,9 +107,16 @@ watch(() => props.position, (val) => {
 }, { deep: true })
 
 const containerStyle = computed(() => ({
-  left: currentPosition.value.x !== null ? `${currentPosition.value.x}px` : 'auto',
-  top: currentPosition.value.y !== null ? `${currentPosition.value.y}px` : props.defaultPosition.top,
-  right: currentPosition.value.x !== null ? 'auto' : props.defaultPosition.right,
+  left: currentPosition.value.x !== null
+    ? `${currentPosition.value.x}px`
+    : (props.defaultPosition.left ?? 'auto'),
+  top: currentPosition.value.y !== null
+    ? `${currentPosition.value.y}px`
+    : (props.defaultPosition.top ?? 'auto'),
+  right: currentPosition.value.x !== null ? 'auto' : (props.defaultPosition.right ?? 'auto'),
+  transform: currentPosition.value.x === null && currentPosition.value.y === null
+    ? (props.defaultPosition.transform ?? 'none')
+    : 'none',
   width: `${currentWidth.value}px`,
   height: `${currentHeight.value}px`
 }))

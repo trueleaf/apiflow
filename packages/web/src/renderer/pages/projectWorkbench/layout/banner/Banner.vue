@@ -510,7 +510,7 @@ const handleOpenAddFileDialog = () => {
   if (!currentOperationalNode.value) { //在根节点操作,不作限制
     addFileDialogVisible.value = true;
   } else if (childFileNodeNum >= FILE_IN_FOLDER_LIMIT) {
-    message.warning(`${t('单个文件夹里面文档个数不超过')} ${childFileNodeNum}${t('个')}`);
+    message.warning(t('单个文件夹里面文档个数不超过', { count: FILE_IN_FOLDER_LIMIT }));
   } else {
     addFileDialogVisible.value = true;
   }

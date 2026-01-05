@@ -89,7 +89,19 @@ export type ToolExecuteResult = {
   code: number;
   data: unknown;
 }
-export type AgentToolType = 'httpNode' | 'websocketNode' | 'httpMockNode' | 'websocketMockNode' | 'projectManager' | 'history' | 'undoRedo' | 'sendRequest' | 'nodeOperation' | 'variable' | 'common' | 'commonHeader'
+export type AgentToolType =
+  'httpNode'
+  | 'websocketNode'
+  | 'httpMockNode'
+  | 'websocketMockNode'
+  | 'projectManager'
+  | 'history'
+  | 'undoRedo'
+  | 'sendRequest'
+  | 'nodeOperation'
+  | 'variable'
+  | 'common'
+  | 'commonHeader'
 export type AgentTool = {
   name: string;
   description: string;
