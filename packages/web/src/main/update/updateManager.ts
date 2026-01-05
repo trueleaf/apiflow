@@ -40,7 +40,6 @@ class UpdateManager {
         this.sendToRenderer(UPDATE_IPC_EVENTS.error, {
           code: 'DOWNLOAD_ERROR',
           message: error || '下载失败',
-          suggestion: '请检查网络连接或重试',
         })
       }
     })
@@ -91,7 +90,6 @@ class UpdateManager {
       this.sendToRenderer(UPDATE_IPC_EVENTS.error, {
         code: 'UPDATE_ERROR',
         message: error.message,
-        suggestion: '请检查网络连接或尝试切换更新源',
       })
     })
   }

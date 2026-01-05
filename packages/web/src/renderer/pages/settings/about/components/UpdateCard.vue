@@ -114,9 +114,6 @@
             <p class="error-title">{{ t('检查更新失败') }}</p>
             <div class="error-detail" v-if="errorInfo">
               <p><span class="error-label">{{ t('错误原因') }}：</span>{{ errorInfo.message }}</p>
-              <p v-if="errorInfo.suggestion">
-                <span class="error-label">{{ t('建议') }}：</span>{{ errorInfo.suggestion }}
-              </p>
             </div>
           </div>
           <div class="action-buttons">
@@ -224,7 +221,6 @@ const handleCheckUpdate = async () => {
       status.value = 'error'
       errorInfo.value = {
         message: result?.msg || t('检查更新失败'),
-        suggestion: t('尝试切换到自定义源'),
       }
     }
     // 状态会通过IPC事件更新
@@ -232,7 +228,6 @@ const handleCheckUpdate = async () => {
     status.value = 'error'
     errorInfo.value = {
       message: error instanceof Error ? error.message : t('检查更新失败'),
-      suggestion: t('尝试切换到自定义源'),
     }
   }
 }
@@ -377,7 +372,6 @@ const initIPCListeners = () => {
       status.value = 'error'
       errorInfo.value = {
         message: data.error || t('下载失败'),
-        suggestion: t('请重试或检查网络连接'),
       }
     }
   })

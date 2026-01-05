@@ -63,7 +63,6 @@ export type UpdateSettings = {
 export type UpdateError = {
   code?: string                // 错误代码
   message: string              // 错误消息
-  suggestion?: string          // 建议操作
 }
 
 // 检查更新结果
