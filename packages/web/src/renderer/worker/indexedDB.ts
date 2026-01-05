@@ -286,13 +286,13 @@ const clearAllIndexedDB = async (): Promise<void> => {
     // 发送清空完成消息
     self.postMessage({
       type: 'clearAllResult',
-      data: { code: 0, msg: '清空成功' }
+      data: { success: true, msg: '清空成功' }
     });
   } catch (error) {
     console.error('清空IndexedDB数据失败:', error);
     self.postMessage({
       type: 'clearAllResult',
-      data: { code: 1, msg: error instanceof Error ? error.message : '清空失败' }
+      data: { success: false, msg: error instanceof Error ? error.message : '清空失败' }
     });
   }
 };

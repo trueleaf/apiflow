@@ -6,7 +6,6 @@ import { agentViewCache } from '@/cache/ai/agentViewCache';
 import { appStateCache } from '@/cache/appState/appStateCache';
 import { nanoid } from 'nanoid/non-secure';
 import { logger } from '@/helper';
-import { config } from '@src/config/config';
 import { i18n } from '@/i18n';
 import { useLLMClientStore } from '../llmClientStore';
 
@@ -166,19 +165,6 @@ export const useAgentViewStore = defineStore('agentView', () => {
   };
   // 显示AgentView弹窗
   const showAgentViewDialog = (): void => {
-    const cachedRect = appStateCache.getAiDialogRect();
-    if (cachedRect.x === null || cachedRect.y === null) {
-      const dialogWidth = cachedRect.width ?? config.renderConfig.aiDialog.defaultWidth;
-      const dialogHeight = cachedRect.height ?? config.renderConfig.aiDialog.defaultHeight;
-      const x = Math.max(0, Math.round((window.innerWidth - dialogWidth) / 2));
-      const y = Math.max(0, Math.round((window.innerHeight - dialogHeight) / 2));
-      appStateCache.setAiDialogRect({
-        width: cachedRect.width,
-        height: cachedRect.height,
-        x,
-        y
-      });
-    }
     agentViewDialogVisible.value = true;
   };
   // 隐藏AgentView弹窗
@@ -329,8 +315,7 @@ export const useAgentViewStore = defineStore('agentView', () => {
     if (mode.value !== 'ask') return;
     if (!isAiConfigValid.value) return;
     if (isStreaming.value) return;
-    const message = inputMessage.value.trim();
-    if (!message) return;
+    const message = inputMessage.value;
     inputMessage.value = '';
     lastAskPrompt.value = message;
     const askMessage = createAskMessage(message, 'ask');

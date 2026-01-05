@@ -10,6 +10,13 @@ import { httpResponseCache } from '@/cache/httpNode/httpResponseCache';
 import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache';
 import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache';
 import { webSocketHistoryCache } from '@/cache/websocketNode/websocketHistoryCache';
+import HomePage from "@/pages/home/Home.vue";
+import AdminPage from "@/pages/admin/Admin.vue";
+import ProjectWorkbenchPage from "@/pages/projectWorkbench/ProjectWorkbench.vue";
+import SharePage from "@/pages/share/Share.vue";
+import SettingsPage from "@/pages/settings/Settings.vue";
+import NotFoundPage from "@/pages/appWorkbench/404/404.vue";
+import LoginPage from "@/pages/login/Login.vue";
 
 let dbInitialized = false;
 let dbInitPromise: Promise<void> | null = null;
@@ -47,37 +54,37 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/header",
     name: "Header",
-    component: () => import("@/pages/appWorkbench/header/Header.vue"),    
+    component: () => import("@/pages/appWorkbench/header/Header.vue"),
   },
   {
     path: "/home",
     name: "Home",
-    component: () => import("@/pages/home/Home.vue"),
+    component: HomePage,
   },
   {
     path: "/admin",
     name: "Admin",
-    component: () => import("@/pages/admin/Admin.vue"),
+    component: AdminPage,
   },
   {
     path: "/workbench",
     name: "Workbench",
-    component: () => import("@/pages/projectWorkbench/ProjectWorkbench.vue"),
+    component: ProjectWorkbenchPage,
   },
   {
     path: "/share",
     name: "Share",
-    component: () => import("@/pages/share/Share.vue"),
+    component: SharePage,
   },
   {
     path: "/settings",
     name: "Settings",
-    component: () => import("@/pages/settings/Settings.vue"),
+    component: SettingsPage,
   },
   {
     path: "/:pathMatch(.*)*",
     name: "NotFound",
-    component: () => import("@/pages/appWorkbench/404/404.vue"),
+    component: NotFoundPage,
   },
 ];
 
@@ -106,7 +113,7 @@ const routerConfig = {
     {
       path: "/login",
       name: "Login",
-      component: () => import("@/pages/login/Login.vue"),
+      component: LoginPage,
     },
     {
       path: "/header",
@@ -116,32 +123,32 @@ const routerConfig = {
     {
       path: "/home",
       name: "Home",
-      component: () => import("@/pages/home/Home.vue"),
+      component: HomePage,
     },
     {
       path: "/admin",
       name: "Admin",
-      component: () => import("@/pages/admin/Admin.vue"),
+      component: AdminPage,
     },
     {
       path: "/workbench",
       name: "Workbench",
-      component: () => import("@/pages/projectWorkbench/ProjectWorkbench.vue"),
+      component: ProjectWorkbenchPage,
     },
     {
       path: "/share",
       name: "Share",
-      component: () => import("@/pages/share/Share.vue"),
+      component: SharePage,
     },
     {
       path: "/settings",
       name: "Settings",
-      component: () => import("@/pages/settings/Settings.vue"),
+      component: SettingsPage,
     },
     {
       path: "/:pathMatch(.*)*",
       name: "NotFound",
-      component: () => import("@/pages/appWorkbench/404/404.vue"),
+      component: NotFoundPage,        
     },
   ],
 };
