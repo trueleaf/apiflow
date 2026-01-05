@@ -242,7 +242,7 @@
                  v-if="data.fileValueType === 'var' && !data._isTempFile" 
                  class="w-100" 
                  :model-value="data.value" 
-                 :placeholder="data._valuePlaceholder || (t('变量模式') + ' eg: ' + t('{0} fileValue {1}', ['{{', '}}']))" 
+                 :placeholder="data._valuePlaceholder || (t('变量模式') + ' ' + t('例如') + ': ' + t('{0} fileValue {1}', ['{{', '}}']))" 
                  :disabled="data._disableValue" 
                  data-testid="params-tree-file-var-input"
                  @update:modelValue="v => handleChangeValue(v, data)" 
@@ -1538,3 +1538,4 @@ watch(
   }
 }
 </style>
+

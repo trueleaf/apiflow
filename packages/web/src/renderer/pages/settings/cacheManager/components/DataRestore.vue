@@ -142,7 +142,7 @@ const handleImport = async (): Promise<void> => {
   progressCurrent.value = 0
   progressTotal.value = estimatedCount.value
   try {
-    const result = await importLocalDataFromZip(zipRef.value, manifest.value, importMode.value, (p) => {
+    await importLocalDataFromZip(zipRef.value, manifest.value, importMode.value, (p) => {
       progressCurrent.value = p.current
       progressTotal.value = p.total
     })
@@ -243,3 +243,4 @@ const handleImport = async (): Promise<void> => {
   }
 }
 </style>
+

@@ -17,7 +17,7 @@
         <label class="form-label">{{ t('重定向目标URL') }}</label>
         <ClRichInput
           :model-value="response.redirectConfig.location"
-          :placeholder="t('请输入重定向目标URL，支持变量替换，例如：' + '{{baseUrl}}' + '/new-path')"
+          :placeholder="t('请输入重定向目标URL，支持变量替换，例如：') + '{{baseUrl}}/new-path'"
           class="redirect-url"
           @update:modelValue="(v: string) => response.redirectConfig.location = v"
         >
