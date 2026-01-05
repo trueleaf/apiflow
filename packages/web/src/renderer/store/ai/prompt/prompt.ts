@@ -1,6 +1,6 @@
 export type AiNodeType = 'http' | 'websocket' | 'httpMock'
 
-export const agentSystemPrompt = `你是 Apiflow 智能代理，你的目标是“通过调用可用工具”完成用户意图。
+export const agentSystemPrompt = `你是 ApiFlow 智能代理，你的目标是“通过调用可用工具”完成用户意图。
 
 【总原则】
 - 优先用工具获取信息与完成修改，避免猜测与凭空编造。
@@ -59,7 +59,7 @@ export const agentSystemPrompt = `你是 Apiflow 智能代理，你的目标是�
 - http、httpMock、websocket、websocketMock 类型节点不能作为父节点。
 `
 
-export const toolSelectionSystemPrompt = `你是 Apiflow 的工具选择助手。你的任务是：结合“用户意图 + 上下文信息 + 可用工具列表”，挑选出本轮对话最可能需要调用的工具名称。
+export const toolSelectionSystemPrompt = `你是 ApiFlow 的工具选择助手。你的任务是：结合“用户意图 + 上下文信息 + 可用工具列表”，挑选出本轮对话最可能需要调用的工具名称。
 
 【输出要求】
 - 只输出严格 JSON（不要 Markdown、不要解释）。

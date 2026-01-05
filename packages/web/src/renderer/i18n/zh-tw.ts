@@ -1244,7 +1244,7 @@ export default {
   '支持': '支持',
   '支持 .csv 格式': '支持 .csv 格式',
   '支持 .json / .yaml 格式': '支持 .json / .yaml 格式',
-  '支持 OpenAPI、Postman、Apiflow 等格式的 JSON/YAML 文件 URL': '支持 OpenAPI、Postman、Apiflow 等格式的 JSON/YAML 文件 URL',
+  '支持 OpenAPI、Postman、ApiFlow 等格式的 JSON/YAML 文件 URL': '支持 OpenAPI、Postman、ApiFlow 等格式的 JSON/YAML 文件 URL',
   '支持openapi3.0规范文档、postman文档、apiflow格式文档': '支持openapi3.0规范文档、postman文档、apiflow格式文档',
   '至少需要保留一个返回配置': '至少需要保留一个返回配置',
   '重定向': '重定向',

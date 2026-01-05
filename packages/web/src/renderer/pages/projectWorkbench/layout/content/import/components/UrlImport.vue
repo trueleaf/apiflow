@@ -18,7 +18,7 @@
       </el-input>
     </div>
     <div class="url-hint">
-      {{ t('支持 OpenAPI、Postman、Apiflow 等格式的 JSON/YAML 文件 URL') }}
+      {{ t('支持 OpenAPI、Postman、ApiFlow 等格式的 JSON/YAML 文件 URL') }}
     </div>
   </div>
 </template>

@@ -5,7 +5,7 @@ import { execFile } from 'child_process';
 import type { Server } from 'http';
 import type { Files, File } from 'formidable';
 
-const PORT = 3456;
+const PORT = Number(process.env.MOCK_SERVER_PORT || '3456');
 let server: Server | null = null;
 let startPromise: Promise<Server> | null = null;
 

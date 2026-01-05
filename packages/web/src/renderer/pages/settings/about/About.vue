@@ -8,11 +8,11 @@
       <div class="app-identity-card">
         <div class="card-body">
           <div class="logo-wrapper">
-            <img :src="logoImg" alt="Apiflow" class="app-logo" />
+            <img :src="logoImg" alt="ApiFlow" class="app-logo" />
           </div>
           
           <div class="app-info">
-            <h1 class="app-name">Apiflow</h1>
+            <h1 class="app-name">ApiFlow</h1>
             <div class="version-tag">v{{ appVersion }}</div>
           </div>
           

@@ -9,7 +9,7 @@ import { useI18n } from 'vue-i18n'
 export type ImportSourceType = 'file' | 'url' | 'paste'
 // 支持的文档格式类型
 export type ImportFormatType = 'apiflow' | 'openapi' | 'swagger' | 'postman' | 'ai' | 'repository' | 'unknown'
-// Apiflow 标准格式
+// ApiFlow 标准格式
 export type ApiflowDocument = {
   type: 'apiflow'
   docs: HttpNode[]

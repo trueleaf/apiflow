@@ -227,7 +227,7 @@ export const useAgentStore = defineStore('agent', () => {
 		const signal = agentAbortController.signal
 		const agentViewStore = useAgentViewStore()
 		const context = buildAgentContext()
-		const contextText = `【上下文（只读）】以下信息来自 Apiflow 当前界面状态，用于辅助工具入参填充与减少反问。
+		const contextText = `【上下文（只读）】以下信息来自 ApiFlow 当前界面状态，用于辅助工具入参填充与减少反问。
 规则：
 - 不要编造 id（projectId/nodeId/folderId），优先从这里读取；若为 null，再询问用户或先用搜索/详情类工具定位。
 - activeTab 不为 null 时，通常可直接用 activeTab.id 作为 nodeId；结合 activeTab.type 判断节点类型。

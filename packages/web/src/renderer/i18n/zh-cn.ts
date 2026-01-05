@@ -299,7 +299,7 @@ export default {
   获取: '获取',
   获取成功: '获取成功',
   URL获取失败: 'URL获取失败',
-  '支持 OpenAPI、Postman、Apiflow 等格式的 JSON/YAML 文件 URL': '支持 OpenAPI、Postman、Apiflow 等格式的 JSON/YAML 文件 URL',
+  '支持 OpenAPI、Postman、ApiFlow 等格式的 JSON/YAML 文件 URL': '支持 OpenAPI、Postman、ApiFlow 等格式的 JSON/YAML 文件 URL',
   '请粘贴 JSON 或 YAML 格式的内容': '请粘贴 JSON 或 YAML 格式的内容',
   解析内容: '解析内容',
   请输入内容: '请输入内容',

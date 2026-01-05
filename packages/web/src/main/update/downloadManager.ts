@@ -230,8 +230,17 @@ export class DownloadManager {
 
   // 暂停下载
   async pauseDownload(): Promise<void> {
-    if (!this.currentTask || this.currentTask.state !== 'downloading') {
+    if (!this.currentTask) {
       throw new Error('没有正在进行的下载任务')
+    }
+    
+    if (this.currentTask.state === 'completed' || this.currentTask.state === 'cancelled') {
+      throw new Error('下载任务已结束')
+    }
+    
+    if (this.currentTask.state === 'paused') {
+      console.log('[DownloadManager] 下载已经处于暂停状态')
+      return
     }
 
     // 先设置状态，再销毁流，避免pipeline抛出Premature close错误
@@ -248,8 +257,12 @@ export class DownloadManager {
 
   // 恢复下载
   async resumeDownload(): Promise<void> {
-    if (!this.currentTask || this.currentTask.state !== 'paused') {
+    if (!this.currentTask) {
       throw new Error('没有可恢复的下载任务')
+    }
+    
+    if (this.currentTask.state !== 'paused') {
+      throw new Error(`当前状态为 ${this.currentTask.state}，无法恢复下载`)
     }
 
     this.currentTask.state = 'downloading'

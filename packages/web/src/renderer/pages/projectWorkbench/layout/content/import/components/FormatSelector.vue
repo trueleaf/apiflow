@@ -38,7 +38,7 @@ const emit = defineEmits<{
 }>()
 const { t } = useI18n()
 const formats = computed(() => [
-  { value: 'apiflow' as ImportFormatType, label: 'Apiflow', icon: FileJson, disabled: false },
+  { value: 'apiflow' as ImportFormatType, label: 'ApiFlow', icon: FileJson, disabled: false },
   { value: 'openapi' as ImportFormatType, label: 'OpenAPI', icon: FileCode, disabled: false },
   { value: 'postman' as ImportFormatType, label: 'Postman', icon: Mail, disabled: false },
   { value: 'ai' as ImportFormatType, label: 'AI识别', icon: Sparkles, disabled: true },

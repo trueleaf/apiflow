@@ -40,7 +40,7 @@ export const config: Config = {
   //应用相关配置
   appConfig: {
     version: '0.8.0', //当前项目版本
-    appTitle: 'Apiflow', //应用标题
+    appTitle: 'ApiFlow', //应用标题
     appLogo: '', //应用Logo
     appTheme: 'light', //应用主题
   },

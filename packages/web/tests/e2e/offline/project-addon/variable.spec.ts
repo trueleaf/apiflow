@@ -445,7 +445,7 @@ test.describe('Variable', () => {
     await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
     const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
     const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
-    await keyInputs.first().fill('X-Apiflow-{{commonHeaderKey}}');
+    await keyInputs.first().fill('X-ApiFlow-{{commonHeaderKey}}');
     await valueInputs.first().click();
     await contentPage.keyboard.type('{{commonHeaderValue}}');
     const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });

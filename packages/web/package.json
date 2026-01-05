@@ -1,6 +1,6 @@
 {
   "name": "apiflow",
-  "description": "Apiflow is a visual API design tool that allows users to create, manage, and visualize APIs in a graphical way.",
+  "description": "ApiFlow is a visual API design tool that allows users to create, manage, and visualize APIs in a graphical way.",
   "author": "TrueLeaf Team",
   "license": "MIT",
   "homepage": "https://github.com/trueleaf/apiflow",
@@ -139,7 +139,7 @@
   },
   "main": "dist/main/main.mjs",
   "build": {
-    "productName": "Apiflow",
+    "productName": "ApiFlow",
     "appId": "cn.apiflow",
     "copyright": "Copyright © 2025 TrueLeaf Team",
     "directories": {

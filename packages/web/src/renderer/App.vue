@@ -353,13 +353,13 @@ const initWelcom = () => {
   `
     );
     console.log(`
-        ${t('官网地址')}：https://apiflow.cn
+${t('官网地址')}：https://apiflow.cn
 
-        ${t('GitHub地址')}：https://github.com/trueleaf/apiflow
+${t('GitHub地址')}：https://github.com/trueleaf/apiflow
 
-        ${t('Gitee地址')}：https://gitee.com/wildsell/apiflow
+${t('Gitee地址')}：https://gitee.com/wildsell/apiflow
 
-        ${t('最近一次更新')}：${__APP_BUILD_TIME__}
+${t('最近一次更新')}：${__APP_BUILD_TIME__}
     `)
   }
 }

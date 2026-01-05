@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, type Component } from 'vue'
+import { computed, ref, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { appStateCache } from '@/cache/appState/appStateCache.ts'
 import CacheManagement from './cacheManager/CacheManagement.vue'
@@ -72,18 +72,18 @@ type TabItem = {
 
 const activeTab = ref(appStateCache.getActiveLocalDataMenu() || 'common-settings')
 const showUpdateBadge = ref(false)
-const tabs: TabItem[] = [
+const tabs = computed<TabItem[]>(() => [
   { name: t('通用配置'), icon: UserCircle, action: 'common-settings' },
   { name: t('本地数据'), icon: HardDrive, action: 'local-data' },
   { name: t('项目回收站'), icon: Trash2, action: 'project-recovery' }
-]
-const settingTabs: TabItem[] = [
+])
+const settingTabs = computed<TabItem[]>(() => [
   { name: t('快捷键'), icon: Command, action: 'shortcuts' },
   { name: t('组件库'), icon: Box, action: 'components' },
   { name: t('AI 设置'), icon: BrainCircuit, action: 'ai-settings' },
   { name: t('测试案例'), icon: FlaskConical, action: 'test-case' },
   { name: t('关于'), icon: Info, action: 'about' }
-]
+])
 const handleSettingClick = (setting: TabItem) => {
   activeTab.value = setting.action
 }
