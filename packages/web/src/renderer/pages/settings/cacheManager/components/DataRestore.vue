@@ -58,7 +58,7 @@ import { useI18n } from 'vue-i18n'
 import { ElMessageBox } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { Upload, FileArchive, RotateCcw } from 'lucide-vue-next'
-import { message } from '@/helper'
+import { message, reloadApp } from '@/helper'
 import type { BackupManifestV1 } from '../utils/localDataBackup'
 import { parseBackupManifest, importLocalDataFromZip } from '../utils/localDataBackup'
 
@@ -147,13 +147,7 @@ const handleImport = async (): Promise<void> => {
       progressTotal.value = p.total
     })
     importState.value = 'success'
-    message.success(t('导入成功：共导入 {count} 项数据', { count: result.importedCount }))
-    try {
-      await ElMessageBox.confirm(t('刷新页面'), t('导入成功'), { confirmButtonText: t('刷新页面'), cancelButtonText: t('取消'), type: 'success' })
-      window.location.reload()
-    } catch {
-      // 用户取消刷新
-    }
+    reloadApp()
   } catch {
     importState.value = 'error'
     message.error(t('导入失败'))

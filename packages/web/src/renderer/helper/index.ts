@@ -399,6 +399,18 @@ export const isElectron = () => {
 };
 
 /**
+ * 刷新应用（根据环境自动选择刷新方式）
+ */
+export const reloadApp = async (): Promise<void> => {
+  if (isElectron() && window.electronAPI?.ipcManager) {
+    const { IPC_EVENTS } = await import('@src/types/ipc');
+    window.electronAPI.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.refreshApp);
+  } else {
+    window.location.reload();
+  }
+};
+
+/**
  * 判断字符串是否为有效的JSON格式
  */
 export const isJsonString = (str: string): boolean => {

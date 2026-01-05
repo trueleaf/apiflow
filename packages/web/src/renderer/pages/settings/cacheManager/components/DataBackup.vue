@@ -87,7 +87,6 @@ const handleExport = async (): Promise<void> => {
     })
     downloadBlob(result.blob, result.fileName)
     exportState.value = 'success'
-    message.success(t('导出成功：共导出 {count} 项数据', { count: result.totalCount }))
     await initEstimate()
   } catch {
     exportState.value = 'error'

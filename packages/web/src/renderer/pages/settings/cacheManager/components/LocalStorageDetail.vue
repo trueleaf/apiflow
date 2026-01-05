@@ -50,10 +50,9 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { LocalStorageItem } from '@src/types/apidoc/cache'
-import { formatUnit } from '@/helper'
+import { formatUnit, message, reloadApp } from '@/helper'
 import { ElMessageBox } from 'element-plus'
 import LocalStorageDialog from '../dialog/LocalStorageDialog.vue'
-import { message } from '@/helper'
 
 const { t, locale } = useI18n()
 
@@ -128,8 +127,7 @@ const handleClearAllLocalStorage = async (): Promise<void> => {
     
     // 清空所有localStorage数据
     localStorage.clear()
-    emit('refresh')
-    message.success(t('已清空所有localStorage数据'))
+    reloadApp()
 
   } catch {
     // 用户取消或输入错误，不做任何处理
