@@ -297,12 +297,11 @@
       <el-divider direction="vertical"></el-divider>
       <span>{{ t("进度") }}：{{ (loadingProcess.total === 0) ? 100 : (loadingProcess.percent * 100).toFixed(2) }}%</span>
     </div>
-    <div 
-      v-if="httpNodeResponseStore.responseInfo.responseData.canApiflowParseType === 'cachedBodyIsTooLarge'" 
+    <div
+      v-if="httpNodeResponseStore.responseInfo.responseData.canApiflowParseType === 'cachedBodyIsTooLarge'"
       class="d-flex a-center j-center red"
     >
-      返回值大于{{ formatUnit(config.cacheConfig.httpNodeResponseCache.singleResponseBodySize, 'bytes') }}，返回body值缓存失效。
-      需重新请求最新数据
+      {{ t('返回值大于 {size}，响应缓存已失效，请重新请求最新数据', { size: formatUnit(config.cacheConfig.httpNodeResponseCache.singleResponseBodySize, 'bytes') }) }}
     </div>
     <div v-if="httpNodeResponseStore.responseInfo.responseData.canApiflowParseType === 'error'" class="red" data-testid="response-error">{{ httpNodeResponseStore.responseInfo.responseData.errorData }}</div>
     <video ref="videoRef" v-show="false"></video>
@@ -776,3 +775,4 @@ onUnmounted(() => {
   font-size: 150px;
 }
 </style>
+

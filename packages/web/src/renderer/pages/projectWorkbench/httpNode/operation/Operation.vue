@@ -13,7 +13,7 @@
         v-model="requestPath"
         class="url-rich-input"
         data-testid="url-input"
-        :placeholder="t('path参数') + ' eg: http://test.com/{id}'"
+        :placeholder="t('path参数') + ' (' + t('如') + ' http://test.com/{id}' + ')'"
         :trim-on-paste="true"
         :min-height="30"
         :expand-on-focus="true"
@@ -385,3 +385,4 @@ watch(
   width: 500px;
 }
 </style>
+

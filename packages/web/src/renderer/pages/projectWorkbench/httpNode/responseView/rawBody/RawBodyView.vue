@@ -17,8 +17,7 @@
 
     <!-- <pre v-else-if="httpNodeResponseStore.responseInfo.responseData.canApiflowParseType !== 'cachedBodyIsTooLarge'" class="str-wrap pre">{{ textResponse }}</pre> -->
     <div v-else class="d-flex a-center j-center red">
-      返回值大于{{ formatUnit(httpNodeConfigStore.currentHttpNodeConfig.maxRawBodySize, 'bytes') }}，返回body值缓存失效。
-      需重新请求最新数据
+      {{ t('返回值大于 {size}，响应缓存已失效，请重新请求最新数据', { size: formatUnit(httpNodeConfigStore.currentHttpNodeConfig.maxRawBodySize, 'bytes') }) }}
     </div>
   </div>
 </template>
@@ -91,3 +90,4 @@ onMounted(() => {
   }
 }
 </style>
+

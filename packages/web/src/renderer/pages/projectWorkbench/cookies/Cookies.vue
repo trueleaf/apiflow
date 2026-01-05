@@ -101,13 +101,13 @@
           <el-input v-model="editCookie.value" type="textarea" :autosize="{ minRows: 3, maxRows: 8 }"/>
         </el-form-item>
         <el-form-item :label="t('域名')" prop="domain">
-          <el-input v-model="editCookie.domain" placeholder="eg: 127.0.0.1 apiflow.cn  .apiflow.cn"/>
+          <el-input v-model="editCookie.domain" :placeholder="t('Cookie 域名示例')"/>
           <div class="orange f-xs">
             {{ t('未填写则代表所有请求都会携带这个cookie') }}
           </div>
         </el-form-item>
         <el-form-item :label="t('路径')" prop="path">
-          <el-input v-model="editCookie.path" placeholder="eg: /api，如果不设置代表当前域名下的所有路径下都生效"/>
+          <el-input v-model="editCookie.path" :placeholder="t('Cookie 路径示例')"/>
           <div class="orange f-xs">
             {{ t('路径必须以 / 开头，否则无效') }}
           </div>
@@ -393,3 +393,5 @@ onUnmounted(() => {
   }
 }
 </style>
+
+
