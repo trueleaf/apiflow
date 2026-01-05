@@ -41,3 +41,4 @@ CLAUDE.md
 .claude/**
 temp/
 dev-app-update.yml
+ui-screenshots/**
