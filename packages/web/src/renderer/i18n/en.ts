@@ -1,3 +1,4 @@
+
 export default {
   项目列表: 'Projects',
   '暂无项目，点击上方按钮创建第一个项目': 'No projects yet. Create your first project.',
@@ -477,7 +478,7 @@ export default {
   区: 'District',
   选择文件: 'Select File',
   必有: 'Required',
-  参数描述与备注: 'Parameter Description and Remarks',
+  参数描述与备注: 'Description',
   输入参数名称自动换行: 'Wrap text automatically',
   'Path参数名由URL自动解析，不可修改': 'Path parameter name is auto-parsed from URL and cannot be modified',
   可选: 'Optional',
