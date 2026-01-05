@@ -107,7 +107,7 @@
           <el-icon v-if="isFold" class="mr-1" :size="16">
             <CaretRightIcon />
           </el-icon>
-          <span>{{ t("全部项目") }}({{ projectList.length }})</span>
+          <span>{{ t("全部项目") }} ({{ projectList.length }})</span>
         </span>
       </h2>
       <!-- 空状态 -->

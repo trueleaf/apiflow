@@ -30,41 +30,46 @@
     <button class="add-tab-btn" :title="t('新建项目')" data-testid="header-add-project-btn" @click="handleAddProject">+</button>
     
     <div class="right">
-      <button class="ai-trigger-btn" :title="t('AI助手 Ctrl+L')" data-testid="header-ai-btn" @click="handleShowAiDialog" ref="aiButtonRef">
-        <Bot :size="16" />
-        <!-- <span>{{ t('AI助手') }}</span> -->
-      </button>
       <div class="navigation-control">
-        <el-icon class="icon" size="16" :title="t('刷新主应用')" data-testid="header-refresh-btn" @click="refreshApp"><RefreshRight /></el-icon>
-        <el-icon class="icon" size="16" :title="t('后退')" data-testid="header-back-btn" @click="goBack"><Back /></el-icon>
-        <el-icon class="icon" size="16" :title="t('前进')" data-testid="header-forward-btn" @click="goForward"><Right /></el-icon>
-        <el-icon class="icon" size="16" :title="t('设置')" data-testid="header-settings-btn" @click="jumpToSettings">
-          <Settings :size="16" />
-        </el-icon>
-        <div class="icon" size="16" :title="t('切换语言')" data-testid="header-language-btn" @click="handleChangeLanguage" ref="languageButtonRef">
-          <i class="iconfont iconyuyan custom-icon"></i>
-          <span class="language-text">{{ currentLanguageDisplay }}</span>
-        </div>
-        <el-icon 
-          size="16" 
+        <button class="icon-btn" :title="t('AI助手 Ctrl+L')" data-testid="header-ai-btn" @click="handleShowAiDialog" ref="aiButtonRef">
+          <Bot :size="16" />
+        </button>
+        <button class="icon-btn" :title="t('刷新主应用')" data-testid="header-refresh-btn" @click="refreshApp">
+          <RefreshCw :size="14" />
+        </button>
+        <button class="icon-btn" :title="t('后退')" data-testid="header-back-btn" @click="goBack">
+          <ArrowLeft :size="14" />
+        </button>
+        <button class="icon-btn" :title="t('前进')" data-testid="header-forward-btn" @click="goForward">
+          <ArrowRight :size="14" />
+        </button>
+        <button class="icon-btn" :title="t('设置')" data-testid="header-settings-btn" @click="jumpToSettings">
+          <Settings :size="14" />
+        </button>
+        <button class="icon-btn icon-btn-with-text" :title="t('切换语言')" data-testid="header-language-btn" @click="handleChangeLanguage" ref="languageButtonRef">
+          <Languages :size="14" />
+          <span class="icon-text">{{ currentLanguageDisplay }}</span>
+        </button>
+        <button 
+          class="icon-btn icon-btn-with-text" 
           :title="networkMode === 'online' ? t('联网模式') : t('离线模式')" 
           data-testid="header-network-toggle"
-          @click="toggleNetworkMode" 
-          class="network-btn icon"
+          @click="toggleNetworkMode"
         >
-          <i class="iconfont network-icon" :class="networkMode === 'online' ? 'iconwifi' : 'iconwifi-off-line'"></i>
-          <span class="network-text">{{ networkMode === 'online' ? t('联网模式') : t('离线模式') }}</span>
-        </el-icon>
+          <Wifi v-if="networkMode === 'online'" :size="14" />
+          <WifiOff v-else :size="14" />
+          <span class="icon-text">{{ networkMode === 'online' ? t('联网模式') : t('离线模式') }}</span>
+        </button>
         <button
           v-if="networkMode === 'online' && runtimeStore.userInfo.token"        
-          class="icon user-avatar-btn"
+          class="icon-btn"
           :title="runtimeStore.userInfo.loginName"
           data-testid="header-user-menu-btn"
           @click.stop="handleOpenUserMenu"
           ref="userAvatarButtonRef"
         >
           <img v-if="runtimeStore.userInfo.avatar" class="user-avatar-img" :src="runtimeStore.userInfo.avatar" draggable="false" />
-          <User v-else :size="16" />
+          <User v-else :size="14" />
         </button>
       </div>
       <div class="window-control">
@@ -83,9 +88,8 @@ import draggable from 'vuedraggable'
 import { Language, WindowState } from '@src/types'
 import type { AppWorkbenchHeaderTab, AppWorkbenchHeaderTabContextActionPayload } from '@src/types/appWorkbench/appWorkbenchType'
 import type { RuntimeNetworkMode } from '@src/types/runtime'
-import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
-import { Folder, Settings, Bot, User, Shield } from 'lucide-vue-next'
+import { Folder, Settings, Bot, User, Shield, RefreshCw, ArrowLeft, ArrowRight, Languages, Wifi, WifiOff } from 'lucide-vue-next'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { changeLanguage } from '@/i18n'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
@@ -401,6 +405,13 @@ const bindEvent = () => {
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.languageChanged, (lang: string) => {
     language.value = lang as Language
     changeLanguage(lang as Language)
+    // 更新设置 tab 的标题
+    tabs.value.forEach(tab => {
+      if (tab.type === 'settings') {
+        tab.title = t('设置')
+      }
+    })
+    syncTabsToContentView()
   })
 
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.projectCreated, (data: { projectId: string, projectName: string }) => {
@@ -448,7 +459,7 @@ const bindEvent = () => {
     activeTabId.value = ''
     syncActiveTabToContentView()
   })
-  // 监听导航到登录页事件（互联网模式）
+  // 监听导航到登录页事件（联网模式）
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToLogin, () => {
     activeTabId.value = 'login'
     syncActiveTabToContentView()
@@ -849,45 +860,11 @@ body {
   padding-right: 8px;
   -webkit-app-region: no-drag;
 
-  .icon {
-    width: 30px;
-    height: 28px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    -webkit-app-region: no-drag;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    border-radius: 3px;
-    margin: 0 1px;
-    font-style: normal;
-    &:hover {
-      background-color: var(--bg-white-10);
-    }
-  }
-  .network-btn {
-    flex: 0 0 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    -webkit-app-region: no-drag;
-    text-emphasis: none;
-    font-style: normal;
-    margin-left: 5px;
-  }
-  .custom-icon {
-    font-size: 13px;
-  }
-  .network-icon {
-    font-size: 14px;
-  }
-
-  .user-avatar-btn {
+  .icon-btn {
     padding: 0;
     border: none;
     background: transparent;
-    width: 30px;
+    width: 25px;
     height: 28px;
     display: flex;
     align-items: center;
@@ -896,21 +873,28 @@ body {
     border-radius: 3px;
     cursor: pointer;
     transition: background-color 0.2s;
+    flex-shrink: 0;
   }
-  .user-avatar-btn:hover {
+  .icon-btn:hover {
     background-color: var(--bg-white-10);
   }
-  .user-avatar-btn:focus {
+  .icon-btn:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(255,255,255,0.06);
+    box-shadow: none;
   }
-  .user-avatar-btn svg {
-    width: 16px;
-    height: 16px;
-    stroke: currentColor;
-    color: inherit;
+  .icon-btn svg {
+    flex-shrink: 0;
   }
-
+  .icon-btn-with-text {
+    width: auto;
+    padding: 0 8px;
+    gap: 2px;
+  }
+  .icon-text {
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
   .user-avatar-img {
     width: 18px;
     height: 18px;
@@ -921,39 +905,6 @@ body {
   }
 }
 
-.language-btn{
-  width: 42px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  -webkit-app-region: no-drag;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  border-radius: 3px;
-  margin: 0 1px;
-  font-size: 11px;
-  color: var(--text-white);
-}
-
-
-
-.language-btn:hover {
-  background-color: var(--bg-white-10);
-}
-
-.language-btn .iconfont {
-  font-size: 12px;
-  margin-right: 2px;
-}
-
-.language-text {
-  font-size: 10px;
-  font-weight: 500;
-}
-.network-text {
-  font-size: 10px;
-}
 .window-control {
   display: flex;
   align-items: center;

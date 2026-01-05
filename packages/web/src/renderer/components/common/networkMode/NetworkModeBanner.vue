@@ -3,7 +3,7 @@
     <div class="content d-flex a-center j-between">
       <div class="left d-flex a-center">
         <Info :size="18" :stroke-width="1.5" class="lucide-icon" aria-hidden="true"/>
-        <span class="text">{{ t('互联网模式提示') }}</span>
+        <span class="text">{{ t('联网模式提示') }}</span>
       </div>
       <div class="right">
         <button class="btn-close" @click="handleClose" aria-label="关闭">

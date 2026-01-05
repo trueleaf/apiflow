@@ -618,7 +618,7 @@ const node: ModelNode = {
     ]
   },
   {
-    "purpose": "点击网络切换按钮可以切换互联网模式和单机模式",
+    "purpose": "点击网络切换按钮可以切换联网模式和单机模式",
     "precondition": [
       {
         "id": "1",
