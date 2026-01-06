@@ -17,7 +17,7 @@
         </template>
       </el-input>
       <el-button :icon="PlusIcon" data-testid="home-add-project-btn" @click="dialogVisible = true">{{ t("新建项目") }}</el-button>
-      <el-button class="ml-2"  data-testid="home-import-btn" @click="handleImport">{{ t('导入') }}</el-button>
+      <!-- <el-button class="ml-2"  data-testid="home-import-btn" @click="handleImport">{{ t('导入') }}</el-button> -->
     </div>
     <!-- 高级搜索面板 -->
     <AdvancedSearchPanel
