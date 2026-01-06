@@ -64,14 +64,6 @@ const ReadOnlyUrl = [
     method: 'post',
   },
   {
-    url: '/api/docs/docs_history',
-    method: 'post',
-  },
-  {
-    url: '/api/docs/docs_records',
-    method: 'get',
-  },
-  {
     url: '/api/docs/docs_history_operator_enum',
     method: 'get',
   },
@@ -85,18 +77,6 @@ const ReadOnlyUrl = [
   },
   {
     url: '/api/project/project_variable_enum',
-    method: 'get',
-  },
-  {
-    url: '/api/project/doc_preset_params_list',
-    method: 'get',
-  },
-  {
-    url: '/api/project/doc_preset_params_enum',
-    method: 'get',
-  },
-  {
-    url: '/api/project/doc_preset_params',
     method: 'get',
   },
 ];
