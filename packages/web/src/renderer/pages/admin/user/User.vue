@@ -7,6 +7,9 @@
         <el-button type="success" @click="addUserDialog = true">{{ t('新增用户') }}</el-button>
         <el-button class="ml-2" @click="importUserDialog = true">{{ t('导入用户') }}</el-button>
         <el-button class="ml-2" @click="handleDownloadTemplate">{{ t('下载模板') }}</el-button>
+        <el-button class="ml-2" type="primary" @click="$emit('toggle')">
+          {{ isExpanded ? t('返回') : t('更多管理') }}
+        </el-button>
       </template>
     </SSearch>
     <!-- 表格展示 -->
@@ -64,6 +67,10 @@ import { request } from '@/api/api';
 import SSearch from '@/components/common/forms/search/ClSearch.vue'
 import SSearchItem from '@/components/common/forms/search/ClSearchItem.vue'     
 import STable from '@/components/common/table/ClTable.vue'
+
+defineProps<{
+  isExpanded: boolean
+}>()
 
 const { t } = useI18n()
 const addUserDialog = ref(false) //------------------新增用户弹窗
