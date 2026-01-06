@@ -13,6 +13,7 @@ export const useProjectWorkbench = defineStore('projectWorkbench', () => {
   const projectId = ref('');
   const projectName = ref('');
   const layout = ref<'vertical' | 'horizontal'>('horizontal');
+  const userPreferredLayout = ref<'vertical' | 'horizontal'>('horizontal');
   const responseHeight = ref(350);
   //改变项目id
   const changeProjectId = (id: string): void => {
@@ -25,11 +26,22 @@ export const useProjectWorkbench = defineStore('projectWorkbench', () => {
   //改变布局方式
   const changeLayout = (layoutOption: 'horizontal' | 'vertical'): void => {
     layout.value = layoutOption;
+    userPreferredLayout.value = layoutOption;
     projectWorkbenchCache.setProjectWorkbenchLayout(layoutOption)
+  }
+  //根据窗口宽度自动调整布局
+  const autoAdjustLayout = (windowWidth: number): void => {
+    if (windowWidth < 1400) {
+      layout.value = 'vertical';
+    } else {
+      layout.value = userPreferredLayout.value;
+    }
   }
   //初始化布局
   const initLayout = (): void => {
-    layout.value = projectWorkbenchCache.getProjectWorkbenchLayout();
+    const cachedLayout = projectWorkbenchCache.getProjectWorkbenchLayout();
+    layout.value = cachedLayout;
+    userPreferredLayout.value = cachedLayout;
   }
   //更新响应区域高度 CSS 变量
   const updateResponseHeightCssVar = (height: number): void => {
@@ -88,6 +100,7 @@ export const useProjectWorkbench = defineStore('projectWorkbench', () => {
     changeProjectId,
     changeProjectName,
     changeLayout,
+    autoAdjustLayout,
     initLayout,
     changeResponseHeight,
     initResponseHeight,

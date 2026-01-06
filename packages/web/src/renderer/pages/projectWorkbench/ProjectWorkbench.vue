@@ -84,12 +84,18 @@ const initCommonHeaders = () => {
   commonHeaderStore.getCommonHeaders()
   commonHeaderStore.getGlobalCommonHeaders()
 }
+//根据窗口宽度自动调整布局
+const handleWindowResize = () => {
+  projectWorkbenchStore.autoAdjustLayout(window.innerWidth);
+}
 useWindowEvent('keydown', bindShortcut);
+useWindowEvent('resize', handleWindowResize);
 onMounted(() => {
   getProjectInfo();
   initCookies(projectId);
   initLayout();
   initCommonHeaders();
+  handleWindowResize();
 })
 </script>
 
