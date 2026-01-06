@@ -132,7 +132,6 @@ export class UserService {
     if (!tokenInfo || !tokenInfo.id) {
       return throwError(4100, 'Token无效或已过期');
     }
-    
     // 验证用户是否存在
     const userInfo = await this.userModel.findById(tokenInfo.id);
     if (!userInfo) {

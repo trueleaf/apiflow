@@ -110,6 +110,9 @@ axiosInstance.interceptors.response.use(
           message.warning(i18n.global.t('暂无权限'));
           return Promise.reject(new Error(i18n.global.t('暂无权限')));
         case 4100: //登录过期
+          if (runtimeCache.getNetworkMode() === 'offline') {
+            return Promise.reject(new Error(i18n.global.t('登录已过期')));
+          }
           if (!isExpire) {
             isExpire = true;
             runtimeCache.clearUserInfo();

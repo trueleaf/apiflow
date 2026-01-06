@@ -17,6 +17,7 @@
         </template>
       </el-input>
       <el-button :icon="PlusIcon" data-testid="home-add-project-btn" @click="dialogVisible = true">{{ t("新建项目") }}</el-button>
+      <el-button class="ml-2"  data-testid="home-import-btn" @click="handleImport">{{ t('导入') }}</el-button>
     </div>
     <!-- 高级搜索面板 -->
     <AdvancedSearchPanel
@@ -186,6 +187,7 @@
     :project-name="currentEditProjectName" @success="handleEditSuccess"></EditProjectDialog>
   <EditPermissionDialog v-if="dialogVisible4" v-model="dialogVisible4" :project-id="currentEditProjectId"
     @leave="getProjectList"></EditPermissionDialog>
+  <Import v-if="importDialogVisible" v-model="importDialogVisible" />
   <UndoNotification v-if="showUndoNotification" :message="undoMessage" :duration="60000" :show-progress="true"
     @undo="handleUndoDelete" @close="handleCloseUndo" />
 </template>
@@ -210,6 +212,7 @@ import Emphasize from '@/components/common/emphasize/ClEmphasize.vue'
 import AddProjectDialog from '../dialog/addProject/AddProject.vue'
 import EditProjectDialog from '../dialog/editProject/EditProject.vue'
 import EditPermissionDialog from '../dialog/editPermission/EditPermission.vue'
+import Import from '../dialog/import/import.vue'
 import UndoNotification from '@/components/common/undoNotification/UndoNotification.vue'
 import AdvancedSearchPanel from './advancedSearch/AdvancedSearchPanel.vue'
 import SearchResults from './advancedSearch/SearchResults.vue'
@@ -256,6 +259,7 @@ let deleteTimer: NodeJS.Timeout | null = null;
 const dialogVisible = ref(false);
 const dialogVisible2 = ref(false);
 const dialogVisible4 = ref(false);
+const importDialogVisible = ref(false);
 const showAdvancedSearch = ref(false);
 const searchMode = ref<'simple' | 'advanced'>('simple');
 const searchConditions = ref<AdvancedSearchConditions>({
@@ -332,6 +336,9 @@ const getProjectList = async () => {
   } finally {
     projectLoading.value = false;
   }
+};
+const handleImport = () => {
+  importDialogVisible.value = true;
 };
 //编辑项目弹窗
 const handleOpenEditDialog = (item: ApidocProjectInfo) => {
