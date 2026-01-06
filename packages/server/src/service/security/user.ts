@@ -128,34 +128,30 @@ export class UserService {
    * 验证登录状态
    */
   async verifyLogin() {
-    try {
-      const tokenInfo = this.ctx.tokenInfo;
-      if (!tokenInfo || !tokenInfo.id) {
-        return throwError(4100, 'Token无效或已过期');
-      }
-      
-      // 验证用户是否存在
-      const userInfo = await this.userModel.findById(tokenInfo.id);
-      if (!userInfo) {
-        return throwError(2004, '用户不存在');
-      }
-      
-      // 验证用户是否被禁用
-      if (!userInfo.isEnabled) {
-        return throwError(2008, '用户已被禁用');
-      }
-      
-      // 返回验证结果和用户基本信息
-      return {
-        isValid: true,
-        userInfo: {
-          id: userInfo.id,
-          loginName: userInfo.loginName,
-        },
-      };
-    } catch (error) {
-      return throwError(4100, 'Token验证失败');
+    const tokenInfo = this.ctx.tokenInfo;
+    if (!tokenInfo || !tokenInfo.id) {
+      return throwError(4100, 'Token无效或已过期');
     }
+    
+    // 验证用户是否存在
+    const userInfo = await this.userModel.findById(tokenInfo.id);
+    if (!userInfo) {
+      return throwError(2004, '用户不存在');
+    }
+    
+    // 验证用户是否被禁用
+    if (!userInfo.isEnabled) {
+      return throwError(2008, '用户已被禁用');
+    }
+    
+    // 返回验证结果和用户基本信息
+    return {
+      isValid: true,
+      userInfo: {
+        id: userInfo.id,
+        loginName: userInfo.loginName,
+      },
+    };
   }
   /**
    * 修改密码(用户主动)

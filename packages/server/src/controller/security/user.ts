@@ -73,7 +73,7 @@ export class UserController {
    */
   @ReqSign()
   @ReqLimit({ ttl: 1000 * 60 * 60, max: 10, limitBy: 'ip', limitExtraKey: 'loginName' })
-  @Get('/api/security/verify_login')
+  @Get('/security/verify_login')
   async verifyLogin() {
     const data = await this.userService.verifyLogin();
     return data;

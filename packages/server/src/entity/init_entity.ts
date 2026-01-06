@@ -321,6 +321,13 @@ const INITIAL_SERVER_ROUTES = [
     path: '/api/security/login_password',
   },
   {
+    _id: '5edd91b15fcdf3111671cb76',
+    groupName: '权限相关-登录注册',
+    method: 'get',
+    name: '验证登录状态',
+    path: '/api/security/verify_login',
+  },
+  {
     _id: '5edd91b15fcdf3111671cb77',
     groupName: '权限相关-登录注册',
     method: 'get',
@@ -871,6 +878,7 @@ const INITIAL_ROLE = [
     remark: '拥有完整文档操作权限(无法进入管理后台)',
     roleName: '普通用户',
     serverRoutes: [
+      '5edd91b15fcdf3111671cb76',
       '60ab4dd440b59032c9227302',
       '60a7483b40b59032c9226fc3',
       '67bd4893d9884f97a42863fe',
@@ -1005,6 +1013,7 @@ const INITIAL_ROLE = [
     remark: '拥有完整权限',
     roleName: '管理员',
     serverRoutes: [
+      '5edd91b15fcdf3111671cb76',
       '67bd4893d9884f97a42863fe',
       '67bd4893d9884f97a42261ff',
       '67bd4893d9884f97a42861ff',
