@@ -134,6 +134,7 @@ export default (): MidwayConfig => {
         '/api/security/login_password',
         '/api/security/login_guest',
         '/api/security/captcha',
+        '/api/security/verify_login',
         '/api/project/share_info',
         '/api/project/export/share_banner',
         '/api/project/share_doc_detail',

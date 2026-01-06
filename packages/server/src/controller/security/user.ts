@@ -67,8 +67,17 @@ export class UserController {
   async loginByPassword(@Body() params: LoginByPasswordDto) {
     const data = await this.userService.loginByPassword(params);
     return data;
-  }
+  }  
   /**
+   * 验证登录状态是否有效
+   */
+  @ReqSign()
+  @ReqLimit({ ttl: 1000 * 60 * 60, max: 10, limitBy: 'ip', limitExtraKey: 'loginName' })
+  @Get('/api/security/verify_login')
+  async verifyLogin() {
+    const data = await this.userService.verifyLogin();
+    return data;
+  }  /**
    * 修改密码(用户主动修改)
    */
   @Put('/security/user_password')
