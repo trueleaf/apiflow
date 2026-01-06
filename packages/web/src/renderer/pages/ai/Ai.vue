@@ -10,7 +10,7 @@
     :max-height="config.renderConfig.aiDialog.maxHeight"
     :default-width="config.renderConfig.aiDialog.defaultWidth"
     :default-height="config.renderConfig.aiDialog.defaultHeight"
-    :position="position"
+    v-model:position="position"
     :default-position="defaultDialogPosition"
     @drag-end="handleDragEnd"
     @resize-end="handleResizeEnd"
