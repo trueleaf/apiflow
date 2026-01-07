@@ -50,7 +50,7 @@
           :class="{ active: activeCategory === category.key }"
           @click="activeCategory = category.key"
         >
-          <span class="label">{{ category.label }}</span>
+          <span class="label">{{ t(category.label) }}</span>
           <span class="count">{{ getCategoryCount(category.key) }}</span>
         </div>
       </div>
@@ -85,7 +85,7 @@
             @click="handleSelect(item)"
           >
             <span class="value">{{ getDisplayValue(item) }}</span>
-            <span class="name">{{ item.name }}</span>
+            <span class="name">{{ t(item.name) }}</span>
           </div>
           <div v-if="filteredMockList.length === 0" class="empty-tip">
             {{ t('无匹配数据') }}
