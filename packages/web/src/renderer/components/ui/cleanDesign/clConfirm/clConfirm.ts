@@ -1,6 +1,6 @@
 import { createVNode, render } from 'vue'
 import type { ConfirmOptions, ConfirmResult } from '@src/types/components/components'
-import ConfirmComponent from './Confirm.vue'
+import ClConfirmComponent from './ClConfirm.vue'
 
 interface ConfirmInstanceInternal {
   id: string
@@ -41,7 +41,7 @@ const showConfirm = (options: ConfirmOptions): Promise<ConfirmResult> => {
     }
     const currentIndex = instances.length
     const zIndex = getZIndex(currentIndex)
-    const vnode = createVNode(ConfirmComponent, {
+    const vnode = createVNode(ClConfirmComponent, {
       visible: true,
       zIndex,
       ...options,

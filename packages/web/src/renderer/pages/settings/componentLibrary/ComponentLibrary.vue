@@ -56,7 +56,7 @@ const TabsComponent = defineAsyncComponent(() => import('@/components/ui/cleanDe
 const DraggableDialogComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/draggableDialog/demo/DraggableDialog.vue'))
 const ClDialogComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/clDialog/demo/ClDialog.vue'))
 const RichInputComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/richInput/demo/RichInput.vue'))
-const ConfirmComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/confirm/demo/Confirm.vue'))
+const ConfirmComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/clConfirm/demo/Confirm.vue'))
 const searchTerm = ref('')
 const selectedComponent = ref<any>(null)
 

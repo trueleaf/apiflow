@@ -56,9 +56,9 @@ const typeIcon = computed(() => {
   }
   return icons[props.type || 'info']
 })
-const checkboxLabel = computed(() => props.checkboxText || t('confirmDontShowAgain'))
-const confirmLabel = computed(() => props.confirmButtonText || t('confirmConfirm'))
-const cancelLabel = computed(() => props.cancelButtonText || t('confirmCancel'))
+const checkboxLabel = computed(() => props.checkboxText || t('不再提示'))
+const confirmLabel = computed(() => props.confirmButtonText || t('确定'))
+const cancelLabel = computed(() => props.cancelButtonText || t('取消'))
 const handleConfirm = () => {
   emit('confirm', checked.value)
   emit('update:visible', false)

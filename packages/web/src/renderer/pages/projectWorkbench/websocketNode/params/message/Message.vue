@@ -184,12 +184,15 @@ import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache'
 import { message, getCompiledTemplate } from '@/helper'
 import { useVariable } from '@/store/projectWorkbench/variablesStore'
 import { appStateCache } from '@/cache/appState/appStateCache'
+import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache'
+import { useRuntime } from '@/store/runtime/runtimeStore'
 
 const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 const { t } = useI18n()
 const projectNavStore = useProjectNav()
 const websocketStore = useWebSocket()
+const runtimeStore = useRuntime()
 const { connectionState, connectionId } = storeToRefs(websocketStore)
 const { currentSelectNav } = storeToRefs(projectNavStore)
 
@@ -381,6 +384,15 @@ const handleSendBlock = async (block: WebsocketMessageBlock) => {
       websocketStore.addMessage(sendMessage)
       const nodeId = currentSelectNav.value!._id
       await websocketResponseCache.setResponseByNodeId(nodeId, sendMessage)
+      sendHistoryCache.addSendHistory({
+        nodeId,
+        nodeName: websocketStore.websocket.info.name,
+        nodeType: 'websocket',
+        protocol: websocketStore.websocket.item.protocol,
+        url: websocketStore.websocket.item.url.path,
+        operatorName: 'me',
+        networkType: runtimeStore.networkMode
+      })
     } else {
       console.error('WebSocket消息发送失败:', result?.msg)
       const errorMessage = {

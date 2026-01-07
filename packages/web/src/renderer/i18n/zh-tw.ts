@@ -1781,9 +1781,9 @@ export default {
     '配置保存成功': '配置保存成功',
     '配置已重置': '配置已重置',
     '发送中...': '發送中...',
-    confirmCancel: '取消',
-    confirmConfirm: '確定',
-    confirmDontShowAgain: '不再提示',
+    '取消': '取消',
+    '确定': '確定',
+    '不再提示': '不再提示',
   },
 };
 
