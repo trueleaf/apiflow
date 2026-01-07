@@ -9,7 +9,7 @@ const getCurrentProjectId = (): string | null => {
 export const variableTools: AgentTool[] = [
   {
     name: 'getVariables',
-    description: 'Get all variables list of the current project',
+    description: 'Retrieve all variables defined in the current project. Returns complete variable metadata including names, values, types, and IDs. Use this to inspect available variables or gather context before variable operations.',
     type: 'variable',
     parameters: {
       type: 'object',
@@ -29,14 +29,14 @@ export const variableTools: AgentTool[] = [
   },
   {
     name: 'getVariableById',
-    description: 'Get detailed information of a single variable by variable ID',
+    description: 'Retrieve detailed information for a specific variable by its unique identifier. Returns name, value, type, and metadata for the variable. Use this to inspect or verify variable details before operations.',
     type: 'variable',
     parameters: {
       type: 'object',
       properties: {
         variableId: {
           type: 'string',
-          description: 'Variable ID',
+          description: 'The unique identifier of the variable to retrieve',
         },
       },
       required: ['variableId'],
@@ -54,23 +54,23 @@ export const variableTools: AgentTool[] = [
   },
   {
     name: 'createVariable',
-    description: 'Create a new variable in the current project',
+    description: 'Create a new variable in the current project. Variables can be referenced in API requests using {{variableName}} syntax. Supports multiple data types including strings, numbers, booleans, and file uploads.',
     type: 'variable',
     parameters: {
       type: 'object',
       properties: {
         name: {
           type: 'string',
-          description: 'Variable name',
+          description: 'Variable name used for referencing in API requests (e.g., "apiKey" for {{apiKey}})',
         },
         value: {
           type: 'string',
-          description: 'Variable value',
+          description: 'The value to store in the variable',
         },
         type: {
           type: 'string',
           enum: ['string', 'number', 'boolean', 'null', 'any', 'file'],
-          description: 'Variable type, default is string',
+          description: 'Data type of the variable (default: "string"). Use "file" for file upload variables',
         },
       },
       required: ['name', 'value'],
@@ -98,27 +98,27 @@ export const variableTools: AgentTool[] = [
   },
   {
     name: 'updateVariable',
-    description: 'Update information of a specified variable',
+    description: 'Modify the name, value, or type of an existing variable. Provide only the fields you want to change. Changes take effect immediately for all API requests using this variable.',
     type: 'variable',
     parameters: {
       type: 'object',
       properties: {
         variableId: {
           type: 'string',
-          description: 'Variable ID to update',
+          description: 'The unique identifier of the variable to update',
         },
         name: {
           type: 'string',
-          description: 'New variable name',
+          description: 'New variable name (optional - only provide if renaming)',
         },
         value: {
           type: 'string',
-          description: 'New variable value',
+          description: 'New variable value (optional - only provide if changing value)',
         },
         type: {
           type: 'string',
           enum: ['string', 'number', 'boolean', 'null', 'any', 'file'],
-          description: 'New variable type',
+          description: 'New variable type (optional - only provide if changing type)',
         },
       },
       required: ['variableId'],
@@ -146,7 +146,7 @@ export const variableTools: AgentTool[] = [
   },
   {
     name: 'deleteVariables',
-    description: 'Batch delete specified variables',
+    description: 'Permanently delete one or more variables from the project. Requires confirmation. After deletion, API requests using these variables via {{variableName}} will fail with unresolved reference errors.',
     type: 'variable',
     parameters: {
       type: 'object',
@@ -154,7 +154,7 @@ export const variableTools: AgentTool[] = [
         variableIds: {
           type: 'array',
           items: { type: 'string' },
-          description: 'Array of variable IDs to delete',
+          description: 'Array of variable IDs to permanently delete',
         },
       },
       required: ['variableIds'],
@@ -172,14 +172,14 @@ export const variableTools: AgentTool[] = [
   },
   {
     name: 'searchVariables',
-    description: 'Search variables by name in the current project',
+    description: 'Find variables in the current project by name using keyword matching. Returns all variables whose names contain the search keyword. Use this to quickly locate specific variables without listing all of them.',
     type: 'variable',
     parameters: {
       type: 'object',
       properties: {
         keyword: {
           type: 'string',
-          description: 'Search keyword, will match variable name',
+          description: 'Search term to match against variable names (case-insensitive partial matching)',
         },
       },
       required: ['keyword'],

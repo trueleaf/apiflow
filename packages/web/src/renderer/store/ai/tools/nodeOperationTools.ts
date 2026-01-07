@@ -61,19 +61,19 @@ const nodeToBanner = (node: HttpNode | WebSocketNode | HttpMockNode | FolderNode
 export const nodeOperationTools: AgentTool[] = [
   {
     name: 'getChildNodes',
-    description: 'Get the list of child nodes under the specified folder. Can retrieve direct child nodes from the root directory or any folder, with support for filtering by node type. Commonly used for viewing project structure, counting nodes, and collecting information before batch operations',
+    description: 'Retrieve direct child nodes within a specific folder or root directory. Returns all immediate children (one level deep) with type filtering support. Use this to explore folder structure, count items, or gather information before batch operations. For recursive/all nodes, use getAllNodeIds instead.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: 'Folder ID. Pass empty string or omit to get nodes under the root directory',
+          description: 'The unique identifier of the parent folder. Pass empty string or omit to retrieve root-level nodes',
         },
         filterType: {
           type: 'string',
           enum: ['folder', 'http', 'httpMock', 'websocket', 'websocketMock'],
-          description: 'Optional, filter by node type. If not provided, returns all types of nodes',
+          description: 'Optional filter to return only nodes of a specific type. Omit to get all node types',
         },
       },
       required: [],
@@ -133,19 +133,19 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'copyNodes',
-    description: 'Copy nodes to clipboard. Can copy single or multiple nodes, after copying can use pasteNodes to paste to target location',
+    description: 'Copy one or more nodes to internal clipboard for later pasting. Original nodes remain in place. After copying, use pasteNodes to insert duplicates at the target location. This operation clears any previously cut nodes.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         nodeIds: {
           type: 'array',
-          description: 'List of node IDs to copy',
+          description: 'Array of node IDs to copy. Can include any mix of folders, HTTP, WebSocket, or Mock nodes',
           items: { type: 'string' },
         },
         projectId: {
           type: 'string',
-          description: 'Project ID that the nodes belong to',
+          description: 'The unique identifier of the project containing the nodes to copy',
         },
       },
       required: ['nodeIds', 'projectId'],
@@ -171,19 +171,19 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'cutNodes',
-    description: 'Cut nodes. Original nodes will be deleted when pasted',
+    description: 'Cut one or more nodes for moving. After using pasteNodes, the original nodes will be permanently removed from their current location. Use this for relocating nodes rather than duplicating them.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         nodeIds: {
           type: 'array',
-          description: 'List of node IDs to cut',
+          description: 'Array of node IDs to cut. Can include any mix of folders, HTTP, WebSocket, or Mock nodes',
           items: { type: 'string' },
         },
         projectId: {
           type: 'string',
-          description: 'Project ID that the nodes belong to',
+          description: 'The unique identifier of the project containing the nodes to cut',
         },
       },
       required: ['nodeIds', 'projectId'],
@@ -209,18 +209,18 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'pasteNodes',
-    description: 'Paste nodes to target folder. Can only paste into a folder or root directory. If previous operation was cut, original nodes will be deleted after pasting',
+    description: 'Paste previously copied or cut nodes into a target folder or root directory. If nodes were cut (not copied), the originals will be deleted after pasting. All child nodes in folders are recursively processed with new IDs.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         targetFolderId: {
           type: 'string',
-          description: 'Target folder ID, pass empty string to paste to root directory',
+          description: 'The unique identifier of the destination folder. Pass empty string to paste at root level',
         },
         nodes: {
           type: 'array',
-          description: 'Node data to paste (obtained from return results of copyNodes or cutNodes)',
+          description: 'Node data array obtained from copyNodes or cutNodes operation results. Contains full node metadata including project context',
           items: { type: 'object' },
         },
       },
@@ -342,14 +342,14 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'forkNode',
-    description: 'Generate a copy of the node. Inserts a copy with "_副本" suffix in the name after the original node',
+    description: 'Create an immediate duplicate of a node positioned right after the original. The duplicate gets a "_副本" (copy) suffix and a new unique ID. Use this for quick in-place duplication without clipboard operations.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         nodeId: {
           type: 'string',
-          description: 'Node ID to copy',
+          description: 'The unique identifier of the node to duplicate',
         },
       },
       required: ['nodeId'],
@@ -396,23 +396,23 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'dragNode',
-    description: 'Drag node to new position. Supports three placement types: before (place before target node), after (place after target node), inner (place inside target folder). Note: folders can only be placed before other folders, non-folder nodes cannot be placed before folders, only folders can contain child nodes',
+    description: 'Reposition a node relative to another node with precise placement control. Supports three placement strategies: before (insert before target), after (insert after target), or inner (place inside target folder). Enforces structural rules: folders cannot be placed before non-folders, only folders can contain children.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         sourceNodeId: {
           type: 'string',
-          description: 'Source node ID to drag',
+          description: 'The unique identifier of the node to move',
         },
         targetNodeId: {
           type: 'string',
-          description: 'Target node ID',
+          description: 'The unique identifier of the reference node for positioning',
         },
         dropType: {
           type: 'string',
           enum: ['before', 'after', 'inner'],
-          description: 'Placement type: before-place before target, after-place after target, inner-place inside target (folders only)',
+          description: 'Placement strategy: "before" inserts above target, "after" inserts below target, "inner" places inside target folder (only valid for folder targets)',
         },
       },
       required: ['sourceNodeId', 'targetNodeId', 'dropType'],
@@ -467,18 +467,18 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'moveNode',
-    description: 'Move node to new parent folder. Can move node to other folders or move to root directory. Note: folders cannot be moved inside non-folder nodes',
+    description: 'Change the parent folder of a node. Moves a node from its current location to a different folder or to the root directory. Unlike dragNode, this only changes hierarchy without precise positioning. Folders can only be moved into other folders, not into non-folder nodes.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         nodeId: {
           type: 'string',
-          description: 'Node ID to move',
+          description: 'The unique identifier of the node to relocate',
         },
         newPid: {
           type: 'string',
-          description: 'New parent node ID (must be a folder), pass empty string to move to root directory',
+          description: 'The unique identifier of the new parent folder (must be a folder type). Pass empty string to move to root directory',
         },
       },
       required: ['nodeId', 'newPid'],
@@ -533,18 +533,18 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'renameNode',
-    description: 'Rename node',
+    description: 'Change the display name of any node (folder, HTTP, WebSocket, or Mock). Updates the node\'s name in storage, UI banners, and navigation panels. The node ID remains unchanged.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         nodeId: {
           type: 'string',
-          description: 'Node ID',
+          description: 'The unique identifier of the node to rename',
         },
         newName: {
           type: 'string',
-          description: 'New node name',
+          description: 'The new display name for the node (cannot be empty or whitespace-only)',
         },
       },
       required: ['nodeId', 'newName'],
@@ -574,14 +574,14 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'deleteNodes',
-    description: 'Delete nodes. If deleting a folder, all child nodes will be cascaded deleted',
+    description: 'Permanently delete one or more nodes. When deleting folders, all nested children are recursively deleted. Requires confirmation. Use getAllNodeIds + deleteNodes for bulk deletion, or use deleteAllNodes to clear entire project.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         nodeIds: {
           type: 'array',
-          description: 'List of node IDs to delete',
+          description: 'Array of node IDs to permanently delete. Accepts any node type',
           items: { type: 'string' },
         },
       },
@@ -646,7 +646,7 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'getAllNodeIds',
-    description: 'Get list of all node IDs in the current project (including folders and all child nodes). Commonly used for batch deletion, batch operations, etc. To delete all nodes, recommend using deleteAllNodes tool directly',
+    description: 'Retrieve IDs of all nodes in the current project with optional type filtering. Returns a flat list including folders and all nested descendants. Use this to collect node IDs for batch operations like mass deletion or analysis. For deleting all nodes, prefer deleteAllNodes instead.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
@@ -685,7 +685,7 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'deleteAllNodes',
-    description: 'Delete all nodes in the current project (clear current project content). Note: this will not delete the project itself, only all folders and API nodes in the project. To delete the project, use deleteProject tool',
+    description: 'Clear all content from the current project by deleting every node (DESTRUCTIVE OPERATION). Removes all folders, HTTP APIs, WebSocket connections, and Mock servers. The project container itself remains intact. Requires confirmation. To delete the project entirely, use deleteProject instead.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
@@ -723,18 +723,18 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'changeNodeSort',
-    description: 'Change the sort value of a node. Smaller sort value means higher position, larger value means lower position',
+    description: 'Adjust the sort order of a single node. Lower sort values appear higher in lists, higher values appear lower. Use this for precise positioning. For reordering multiple nodes at once, use changeNodesSort.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         nodeId: {
           type: 'string',
-          description: 'Node ID to change sort',
+          description: 'The unique identifier of the node to reorder',
         },
         sort: {
           type: 'number',
-          description: 'New sort value',
+          description: 'New sort value (typically a timestamp or sequential number). Lower values = higher position',
         },
       },
       required: ['nodeId', 'sort'],
@@ -755,19 +755,19 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'changeNodesSort',
-    description: 'Batch change sort values of multiple nodes. Smaller sort value means higher position, larger value means lower position',
+    description: 'Batch update sort order for multiple nodes efficiently. Lower sort values position nodes higher in lists. Use this to reorder an entire section or reorganize folder contents in one operation.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         nodes: {
           type: 'array',
-          description: 'List of nodes to change sort',
+          description: 'Array of nodes to reorder, each specifying nodeId and new sort value',
           items: {
             type: 'object',
             properties: {
-              nodeId: { type: 'string', description: 'Node ID' },
-              sort: { type: 'number', description: 'New sort value' },
+              nodeId: { type: 'string', description: 'The unique identifier of the node to reorder' },
+              sort: { type: 'number', description: 'New sort value (lower = higher position)' },
             },
             required: ['nodeId', 'sort'],
           },
@@ -800,35 +800,35 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'searchNodes',
-    description: 'Search nodes. Supports searching all nodes in the project by name, type, keyword and other conditions (including folder, http, websocket, httpMock types), returns matching node list',
+    description: 'Find nodes in the current project using flexible search criteria with fuzzy matching. Search by general keyword (searches name + URL), specific name, node type, or maintainer. Supports result limits and optional inclusion of deleted nodes. Returns metadata including URLs for HTTP/WebSocket/Mock nodes.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         keyword: {
           type: 'string',
-          description: 'General keyword, searches both name and URL (fuzzy match)',
+          description: 'General search term that fuzzy-matches against both node names and URLs (HTTP/WebSocket/Mock)',
         },
         type: {
           type: 'string',
           enum: ['folder', 'http', 'httpMock', 'websocket', 'websocketMock'],
-          description: 'Node type (exact match)',
+          description: 'Filter to exact node type. Omit to search all types',
         },
         name: {
           type: 'string',
-          description: 'Node name (fuzzy match)',
+          description: 'Filter by node name with fuzzy matching',
         },
         maintainer: {
           type: 'string',
-          description: 'Maintainer (fuzzy match)',
+          description: 'Filter by maintainer username with fuzzy matching',
         },
         limit: {
           type: 'number',
-          description: 'Return result count limit, default 50. Pass -1 or 0 to get all nodes',
+          description: 'Maximum number of results to return (default 50). Use -1 or 0 for unlimited results',
         },
         includeDeleted: {
           type: 'boolean',
-          description: 'Whether to include deleted nodes, default false',
+          description: 'Whether to include soft-deleted nodes in results (default false)',
         },
       },
       required: [],
@@ -902,14 +902,14 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'getFolderList',
-    description: 'Get list of all folders (directories) in the project, including subfolders',
+    description: 'Retrieve all folder (directory) nodes in a project, including nested subfolders at all depth levels. Returns folder metadata with IDs, names, parent references, and descriptions. Use this to analyze project structure or gather folder information for batch operations.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: 'Project ID',
+          description: 'The unique identifier of the project to scan for folders',
         },
       },
       required: ['projectId'],
@@ -932,18 +932,18 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'renameFolder',
-    description: 'Rename a single folder (directory)',
+    description: 'Change the name of a single folder (directory). Use this for explicit one-off folder renaming. For renaming multiple folders, use batchRenameFolders. For AI-powered automatic renaming based on contents, use autoRenameFoldersByContent.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: 'Folder ID',
+          description: 'The unique identifier of the folder to rename',
         },
         newName: {
           type: 'string',
-          description: 'New folder name',
+          description: 'The new display name for the folder',
         },
       },
       required: ['folderId', 'newName'],
@@ -962,24 +962,24 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'batchRenameFolders',
-    description: 'Batch rename multiple folders (directories)',
+    description: 'Rename multiple folders in a single operation for efficient bulk updates. Provide explicit new names for each folder. Returns success/failure counts. Use autoRenameFoldersByContent for AI-powered automatic naming.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         items: {
           type: 'array',
-          description: 'List of rename items',
+          description: 'Array of folder rename operations',
           items: {
             type: 'object',
             properties: {
               folderId: {
                 type: 'string',
-                description: 'Folder ID',
+                description: 'The unique identifier of the folder to rename',
               },
               newName: {
                 type: 'string',
-                description: 'New folder name',
+                description: 'The new display name for this folder',
               },
             },
             required: ['folderId', 'newName'],
@@ -1001,18 +1001,18 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'getFolderChildrenForRename',
-    description: 'Get the specified folder and all its child node content, used to generate meaningful folder names based on child node content. Returns target folder, all subfolders, and all types of child node information.',
+    description: 'Extract comprehensive content data from a folder and all its children for context-aware renaming. Returns the target folder metadata, all subfolders, and all child nodes (HTTP/WebSocket/Mock) with their URLs and descriptions. Use this data to generate meaningful folder names based on actual contents. Typically precedes AI-powered renaming operations.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: 'Target folder ID',
+          description: 'The unique identifier of the folder to analyze',
         },
         projectId: {
           type: 'string',
-          description: 'Project ID',
+          description: 'The unique identifier of the containing project',
         },
       },
       required: ['folderId', 'projectId'],
@@ -1037,18 +1037,18 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'autoRenameFoldersByContent',
-    description: 'Based on all child node content under the folder, automatically call AI to generate meaningful folder names and execute renaming. Suitable for scenarios where users want to batch rename directories but have not specified specific names.',
+    description: 'Automatically generate and apply meaningful folder names using AI analysis of folder contents (AI-Powered Smart Rename). Analyzes all child nodes (APIs, WebSockets, sub-folders) and their purposes, then calls LLM to suggest contextually appropriate names. Executes the renaming automatically. Use this when users want intelligent folder organization without manually specifying names.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: 'Target folder ID',
+          description: 'The unique identifier of the folder to automatically rename based on its contents',
         },
         projectId: {
           type: 'string',
-          description: 'Project ID',
+          description: 'The unique identifier of the containing project',
         },
       },
       required: ['folderId', 'projectId'],

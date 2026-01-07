@@ -6,14 +6,14 @@ import { simpleCreateProjectPrompt } from '@/store/ai/prompt/prompt'
 export const projectTools: AgentTool[] = [
   {
     name: 'simpleCreateProject',
-    description: 'Create a project based on user\'s simple description (recommended). Use this tool to automatically infer when the user does not provide a clear project name',
+    description: 'Create a project from natural language description (Smart Mode - Recommended). Automatically extracts and infers project name from user input. Use this when the user describes a project concept without explicitly stating a name. Example: "Create an e-commerce system project" will auto-generate a project named "E-commerce System".',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         description: {
           type: 'string',
-          description: 'Natural language description of the project, for example "Create an e-commerce system project"',
+          description: 'Natural language description of the project purpose or domain. The AI will extract a meaningful project name from this',
         },
       },
       required: ['description'],
@@ -43,7 +43,7 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'getProjectList',
-    description: 'Get project list',
+    description: 'Retrieve all projects in the workspace. Returns a list with project IDs, names, creation times, and other metadata. Use this when the user wants to see all available projects or needs to select from existing projects.',
     type: 'projectManager',
     parameters: {
       type: 'object',
@@ -62,14 +62,14 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'getProjectById',
-    description: 'Get project information by project ID',
+    description: 'Retrieve detailed information for a specific project by its ID. Returns project name, creator, creation time, and other attributes. Use this to inspect or verify project details before performing operations.',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: 'Project ID',
+          description: 'The unique identifier of the project to retrieve',
         },
       },
       required: ['projectId'],
@@ -87,14 +87,14 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'createProject',
-    description: 'Create a new project',
+    description: 'Create a new project with an explicit name (Precise Mode). Use this when the user provides a specific project name. For automatic name inference from description, prefer simpleCreateProject instead.',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         projectName: {
           type: 'string',
-          description: 'Project name',
+          description: 'The exact name for the new project',
         },
       },
       required: ['projectName'],
@@ -112,17 +112,17 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'batchCreateProjects',
-    description: 'Batch create projects',
+    description: 'Create multiple projects at once for efficient workspace setup. Use this when the user wants to initialize multiple projects simultaneously. Returns success/failure counts and details. Requires confirmation as it creates multiple items.',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         projectNames: {
           type: 'array',
-          description: 'List of project names',
+          description: 'Array of project names to create',
           items: {
             type: 'string',
-            description: 'Project name',
+            description: 'Individual project name',
           },
         },
       },
@@ -149,26 +149,26 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'searchProject',
-    description: 'Search projects by keyword, project name, creator and other conditions, supports fuzzy matching. Use this tool when you need to find projects by project name or creator',
+    description: 'Search for projects using flexible criteria with fuzzy matching. Use this when the user wants to find projects by name, creator, starred status, or keyword. Supports both general keyword search across multiple fields and specific field filtering.',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         keyword: {
           type: 'string',
-          description: 'General keyword, searches both project name and description (fuzzy matching)',
+          description: 'General search term that matches against both project name and description (fuzzy matching)',
         },
         projectName: {
           type: 'string',
-          description: 'Project name (fuzzy matching)',
+          description: 'Filter by project name with fuzzy matching',
         },
         creator: {
           type: 'string',
-          description: 'Creator (fuzzy matching)',
+          description: 'Filter by creator username or name with fuzzy matching',
         },
         isStared: {
           type: 'boolean',
-          description: 'Whether is starred',
+          description: 'Filter by starred status. True returns only starred projects, false only non-starred, omit to return all',
         },
       },
       required: [],
@@ -190,18 +190,18 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'updateProjectName',
-    description: 'Update project name',
+    description: 'Rename an existing project. Use this when the user wants to change a project\'s display name. The project ID remains unchanged.',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: 'Project ID',
+          description: 'The unique identifier of the project to rename',
         },
         projectName: {
           type: 'string',
-          description: 'New project name',
+          description: 'The new name for the project',
         },
       },
       required: ['projectId', 'projectName'],
@@ -220,14 +220,14 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'deleteProject',
-    description: 'Delete a single project. To delete multiple projects, use batchDeleteProjects; to delete all projects, use deleteAllProjects',
+    description: 'Permanently delete a single project and all its contents (APIs, folders, variables, etc.). Requires confirmation. For deleting multiple projects, use batchDeleteProjects. For deleting all projects, use deleteAllProjects.',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: 'Project ID to delete',
+          description: 'The unique identifier of the project to delete',
         },
       },
       required: ['projectId'],
@@ -245,17 +245,17 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'batchDeleteProjects',
-    description: 'Batch delete multiple projects',
+    description: 'Permanently delete multiple projects at once. Each project and all its contents (APIs, folders, variables) will be removed. Requires confirmation. Returns success/failure counts. Use this for bulk cleanup operations.',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         projectIds: {
           type: 'array',
-          description: 'List of project IDs to delete',
+          description: 'Array of project IDs to delete',
           items: {
             type: 'string',
-            description: 'Project ID',
+            description: 'Individual project ID',
           },
         },
       },
@@ -282,7 +282,7 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'deleteAllProjects',
-    description: 'Delete all projects. This is a dangerous operation that will delete all projects in the system',
+    description: 'Permanently delete ALL projects in the entire workspace (DANGEROUS OPERATION). This will remove every project and all their contents without exception. Requires confirmation. Only use this when the user explicitly wants to completely reset the workspace or remove everything.',
     type: 'projectManager',
     parameters: {
       type: 'object',
@@ -305,14 +305,14 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'starProject',
-    description: 'Star a project',
+    description: 'Mark a project as starred/favorite for quick access. Starred projects appear at the top of the project list or in a favorites section. Use this when the user wants to mark important or frequently used projects.',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: 'Project ID to star',
+          description: 'The unique identifier of the project to star',
         },
       },
       required: ['projectId'],
@@ -330,14 +330,14 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'unstarProject',
-    description: 'Unstar a project',
+    description: 'Remove the starred/favorite mark from a project. The project will return to normal display in the project list. Use this when the user no longer wants quick access to this project.',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: 'Project ID to unstar',
+          description: 'The unique identifier of the project to unstar',
         },
       },
       required: ['projectId'],

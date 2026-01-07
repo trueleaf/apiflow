@@ -63,22 +63,22 @@ const normalizeIpcResult = (result: unknown): { ok: boolean; payload: unknown } 
 export const websocketMockNodeTools: AgentTool[] = [
   {
     name: 'simpleCreateWebsocketMockNode',
-    description: 'Create a websocketMockNode based on user\'s simple description (recommended, offline mode only). Use this tool to automatically infer parameters when the user does not provide complete path, port, echoMode, etc.',
+    description: 'Create a WebSocket Mock server node from natural language description (Smart Mode - Recommended, Offline Only). Automatically infers path, port, echo mode, and response content from user input. WebSocket Mock simulates WebSocket server endpoints for offline development and testing. IMPORTANT: Only works in offline mode. Example: "Create a chat WebSocket mock on port 3002 with echo mode" will auto-generate appropriate configuration.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: 'Project id',
+          description: 'The unique identifier of the project where the WebSocket mock will be created',
         },
         description: {
           type: 'string',
-          description: 'Natural language description of the WebSocket Mock service, for example: "Create a WebSocket chat Mock service, listen on port 3002, echo mode"',
+          description: 'Natural language description of the WebSocket mock server requirements, including path, port, and behavior (echo mode or fixed response)',
         },
         pid: {
           type: 'string',
-          description: 'Parent node id, leave empty string for root node',
+          description: 'Optional parent folder ID. If omitted or empty string, the mock will be created at the root level',
         },
       },
       required: ['projectId', 'description'],
@@ -114,46 +114,46 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'createWebsocketMockNode',
-    description: 'Create a new websocketMockNode (offline mode only)',
+    description: 'Create a WebSocket Mock server node with precise control over all parameters (Precise Mode, Offline Only). Use this when you need explicit control over path, port, echo mode, and response content. IMPORTANT: Only works in offline mode. Mock servers simulate WebSocket endpoints locally for offline development. For simpler creation from natural language, prefer simpleCreateWebsocketMockNode instead.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: 'Project id',
+          description: 'The unique identifier of the project where the WebSocket mock will be created',
         },
         name: {
           type: 'string',
-          description: 'Node name',
+          description: 'The display name for the WebSocket mock server node',
         },
         pid: {
           type: 'string',
-          description: 'Parent node id, leave empty string for root node',
+          description: 'Optional parent folder ID. If omitted or empty string, the mock will be created at the root level',
         },
         path: {
           type: 'string',
-          description: 'WebSocket path, e.g. /ws/chat',
+          description: 'WebSocket path pattern, e.g., /ws/chat or /socket',
         },
         port: {
           type: 'number',
-          description: 'Mock service listen port, default 3000',
+          description: 'Port number for the mock server to listen on. Defaults to 3000 if not specified',
         },
         delay: {
           type: 'number',
-          description: 'Response delay (milliseconds), default 0',
+          description: 'Artificial response delay in milliseconds (useful for simulating network latency). Defaults to 0',
         },
         echoMode: {
           type: 'boolean',
-          description: 'Echo mode, when true echoes client messages, when false uses fixed response content',
+          description: 'When true, echoes back client messages. When false, sends fixed response content',
         },
         responseContent: {
           type: 'string',
-          description: 'Fixed response content (used when echoMode is false)',
+          description: 'Fixed message content to send to clients (only used when echoMode is false)',
         },
         description: {
           type: 'string',
-          description: 'WebSocket Mock node description',
+          description: 'Optional description explaining the mock server purpose',
         },
       },
       required: ['projectId', 'name'],
@@ -196,13 +196,13 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'getWebsocketMockNodeDetail',
-    description: 'Get specified websocketMockNode details (offline mode only, will be loaded into the current WebSocketMock editor store)',
+    description: 'Retrieve complete configuration of a WebSocket Mock server node (Offline Only). Loads the mock data into the editor store for inspection or modification. IMPORTANT: Only works in offline mode. Use this to view the current state of a mock WebSocket endpoint.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
       properties: {
-        projectId: { type: 'string', description: 'Project id' },
-        nodeId: { type: 'string', description: 'WebsocketMock node id' },
+        projectId: { type: 'string', description: 'The unique identifier of the project containing the mock' },
+        nodeId: { type: 'string', description: 'The unique identifier of the WebSocket Mock node to retrieve' },
       },
       required: ['projectId', 'nodeId'],
     },
@@ -224,19 +224,19 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'updateWebsocketMockNodeBasic',
-    description: 'Update websocketMockNode basic information (name/path/port/delay/echoMode/responseContent). Offline mode only, will load into store first then update',
+    description: 'Modify basic configuration of a WebSocket Mock server node including name, path, port, delay, echo mode, and response content (Offline Only). Automatically loads the node if not currently in the editor. IMPORTANT: Only works in offline mode. Use this for updating mock endpoint settings.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
       properties: {
-        projectId: { type: 'string', description: 'Project id' },
-        nodeId: { type: 'string', description: 'WebsocketMock node id' },
-        name: { type: 'string', description: 'Name' },
-        path: { type: 'string', description: 'Path, e.g. /ws-mock' },
-        port: { type: 'number', description: 'Port' },
-        delay: { type: 'number', description: 'Delay (ms)' },
-        echoMode: { type: 'boolean', description: 'Whether to enable echo mode' },
-        responseContent: { type: 'string', description: 'Response content' },
+        projectId: { type: 'string', description: 'The unique identifier of the project containing the mock' },
+        nodeId: { type: 'string', description: 'The unique identifier of the WebSocket Mock node to update' },
+        name: { type: 'string', description: 'New display name for the mock server' },
+        path: { type: 'string', description: 'New WebSocket path pattern, e.g., /ws-mock or /socket' },
+        port: { type: 'number', description: 'New port number for the mock server to listen on' },
+        delay: { type: 'number', description: 'New artificial response delay in milliseconds' },
+        echoMode: { type: 'boolean', description: 'Whether to enable echo mode (true) or use fixed response (false)' },
+        responseContent: { type: 'string', description: 'New fixed message content (only used when echoMode is false)' },
       },
       required: ['projectId', 'nodeId'],
     },
@@ -284,7 +284,7 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'saveCurrentWebsocketMockNode',
-    description: 'Save the currently selected websocketMockNode (offline mode only, depends on current Tab selection)',
+    description: 'Save changes to the currently selected WebSocket Mock server node in the editor (Offline Only). Relies on the active tab state to determine which mock to save. IMPORTANT: Only works in offline mode. Use this after making modifications to persist the configuration.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
@@ -308,13 +308,13 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'startWebsocketMockServerByNodeId',
-    description: 'Start the WebSocket Mock service for the specified nodeId (offline mode only, Electron environment)',
+    description: 'Start the WebSocket Mock service for a specific mock node (Offline Only, Electron environment). Launches a local WebSocket server that accepts connections and responds according to configured rules. IMPORTANT: Only works in offline mode and Electron/desktop environment. Use this when the user wants to activate a mock WebSocket endpoint for testing.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
       properties: {
-        projectId: { type: 'string', description: 'Project id' },
-        nodeId: { type: 'string', description: 'WebsocketMock node id' },
+        projectId: { type: 'string', description: 'The unique identifier of the project containing the mock' },
+        nodeId: { type: 'string', description: 'The unique identifier of the WebSocket Mock node to start' },
       },
       required: ['projectId', 'nodeId'],
     },
@@ -344,12 +344,12 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'stopWebsocketMockServerByNodeId',
-    description: 'Stop the WebSocket Mock service for the specified nodeId (Electron environment)',
+    description: 'Stop the running WebSocket Mock service for a specific mock node (Electron environment). Shuts down the local WebSocket server and closes all client connections. Only available in Electron/desktop environment. Use this when the user wants to deactivate a mock endpoint.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
       properties: {
-        nodeId: { type: 'string', description: 'WebsocketMock node id' },
+        nodeId: { type: 'string', description: 'The unique identifier of the WebSocket Mock node to stop' },
       },
       required: ['nodeId'],
     },
@@ -369,12 +369,12 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'getWebsocketMockEnabledStatus',
-    description: 'Query whether the WebSocket Mock service for the specified nodeId is enabled (Electron environment)',
+    description: 'Check whether a WebSocket Mock service is currently running for a specific node (Electron environment). Returns enabled status. Only available in Electron/desktop environment. Use this to verify if a mock WebSocket endpoint is active and accepting connections.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
       properties: {
-        nodeId: { type: 'string', description: 'WebsocketMock node id' },
+        nodeId: { type: 'string', description: 'The unique identifier of the WebSocket Mock node to check' },
       },
       required: ['nodeId'],
     },

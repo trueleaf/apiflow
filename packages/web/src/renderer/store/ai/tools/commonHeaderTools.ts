@@ -4,7 +4,7 @@ import { AgentTool } from '@src/types/ai'
 export const commonHeaderTools: AgentTool[] = [
   {
     name: 'deleteAllCommonHeaders',
-    description: 'Delete all common request headers in the current project (including global headers and all folder headers). This is a dangerous operation and cannot be undone',
+    description: 'Permanently delete all common request headers in the project (DESTRUCTIVE OPERATION). Removes both global headers and all folder-level headers. This cannot be undone. Requires confirmation. Use this to completely reset header configurations.',
     type: 'commonHeader',
     parameters: {
       type: 'object',
@@ -21,7 +21,7 @@ export const commonHeaderTools: AgentTool[] = [
   // ==================== Global Common Request Header Tools ====================
   {
     name: 'getGlobalCommonHeaders',
-    description: 'Get the list of all global common request headers in the current project',
+    description: 'Retrieve all global common request headers in the current project. Global headers are automatically included in every API request across the entire project. Returns header keys, values, descriptions, and enabled status.',
     type: 'commonHeader',
     parameters: {
       type: 'object',
@@ -37,14 +37,14 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'getGlobalCommonHeaderById',
-    description: 'Get detailed information of a single global common request header by ID',
+    description: 'Retrieve detailed information for a specific global common header by its unique identifier. Returns complete metadata including key, value, description, and enabled state.',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         headerId: {
           type: 'string',
-          description: 'Common request header ID',
+          description: 'The unique identifier of the global common header to retrieve',
         },
       },
       required: ['headerId'],
@@ -62,22 +62,22 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'createGlobalCommonHeader',
-    description: 'Create a new global common request header that applies to all APIs in the project',
+    description: 'Create a new global common request header that automatically applies to all API requests in the project. Use this for project-wide headers like authentication tokens, API keys, or content types. For folder-specific headers, use addFolderCommonHeader instead.',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         key: {
           type: 'string',
-          description: 'Header key name, such as Authorization, Content-Type, etc.',
+          description: 'HTTP header name (e.g., "Authorization", "Content-Type", "X-API-Key")',
         },
         value: {
           type: 'string',
-          description: 'Header value',
+          description: 'Header value. Supports variable substitution using {{variableName}} syntax',
         },
         description: {
           type: 'string',
-          description: 'Header description',
+          description: 'Optional description explaining the purpose of this header',
         },
       },
       required: ['key', 'value'],
@@ -98,30 +98,30 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'updateGlobalCommonHeader',
-    description: 'Update the information of the specified global common request header',
+    description: 'Modify an existing global common request header. Provide only the fields you want to change (key, value, description, or enabled status). Changes apply immediately to all project API requests.',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         headerId: {
           type: 'string',
-          description: 'Common request header ID to update',
+          description: 'The unique identifier of the global header to update',
         },
         key: {
           type: 'string',
-          description: 'New header key name',
+          description: 'New HTTP header name (optional - only provide if renaming)',
         },
         value: {
           type: 'string',
-          description: 'New header value',
+          description: 'New header value (optional - only provide if changing value)',
         },
         description: {
           type: 'string',
-          description: 'New description',
+          description: 'New description (optional - only provide if updating description)',
         },
         select: {
           type: 'boolean',
-          description: 'Whether to enable this header',
+          description: 'Whether to enable this header (optional - true = enabled, false = disabled but retained)',
         },
       },
       required: ['headerId'],
@@ -152,7 +152,7 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'deleteGlobalCommonHeaders',
-    description: 'Batch delete global common request headers',
+    description: 'Permanently delete one or more global common headers. Requires confirmation. After deletion, these headers will no longer be included in API requests. For project-wide header reset, use deleteAllCommonHeaders instead.',
     type: 'commonHeader',
     parameters: {
       type: 'object',
@@ -160,7 +160,7 @@ export const commonHeaderTools: AgentTool[] = [
         headerIds: {
           type: 'array',
           items: { type: 'string' },
-          description: 'Array of common request header IDs to delete',
+          description: 'Array of global header IDs to permanently delete',
         },
       },
       required: ['headerIds'],
@@ -178,14 +178,14 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'searchGlobalCommonHeaders',
-    description: 'Search global common request headers by key name',
+    description: 'Find global common headers by header key name using keyword matching. Returns all global headers whose keys contain the search term. Use this to quickly locate specific headers like "Authorization" or "X-API-Key".',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         keyword: {
           type: 'string',
-          description: 'Search keyword that matches header key names',
+          description: 'Search term to match against header key names (case-insensitive partial matching)',
         },
       },
       required: ['keyword'],
@@ -201,14 +201,14 @@ export const commonHeaderTools: AgentTool[] = [
   // ==================== Folder-level Common Request Header Tools ====================
   {
     name: 'getFolderCommonHeaders',
-    description: 'Get the list of common request headers for a specified folder, which will be applied to all APIs in the folder',
+    description: 'Retrieve all common request headers defined for a specific folder. Folder-level headers apply to all API nodes within that folder and its subfolders. Returns header keys, values, descriptions, and enabled status.',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: 'Folder ID',
+          description: 'The unique identifier of the folder to inspect',
         },
       },
       required: ['folderId'],
@@ -226,26 +226,26 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'addFolderCommonHeader',
-    description: 'Add a common request header to a specified folder, which will be applied to all APIs in the folder',
+    description: 'Add a new common request header to a specific folder. This header will automatically apply to all API requests in this folder and its subfolders. Use this for folder-specific configurations like API versioning headers or endpoint-specific authentication.',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: 'Folder ID',
+          description: 'The unique identifier of the target folder',
         },
         key: {
           type: 'string',
-          description: 'Header key name',
+          description: 'HTTP header name (e.g., "X-API-Version", "Authorization")',
         },
         value: {
           type: 'string',
-          description: 'Header value',
+          description: 'Header value. Supports variable substitution using {{variableName}} syntax',
         },
         description: {
           type: 'string',
-          description: 'Header description',
+          description: 'Optional description explaining this header\'s purpose',
         },
       },
       required: ['folderId', 'key', 'value'],
@@ -267,34 +267,34 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'updateFolderCommonHeader',
-    description: 'Update the information of a common request header in a specified folder',
+    description: 'Modify an existing folder-level common header. Provide only the fields you want to change. Changes apply immediately to all API requests in the folder and its subfolders.',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: 'Folder ID',
+          description: 'The unique identifier of the folder containing the header',
         },
         headerId: {
           type: 'string',
-          description: 'Common request header ID to update',
+          description: 'The unique identifier of the header to update',
         },
         key: {
           type: 'string',
-          description: 'New header key name',
+          description: 'New HTTP header name (optional - only provide if renaming)',
         },
         value: {
           type: 'string',
-          description: 'New header value',
+          description: 'New header value (optional - only provide if changing value)',
         },
         description: {
           type: 'string',
-          description: 'New description',
+          description: 'New description (optional - only provide if updating description)',
         },
         select: {
           type: 'boolean',
-          description: 'Whether to enable this header',
+          description: 'Whether to enable this header (optional - true = enabled, false = disabled but retained)',
         },
       },
       required: ['folderId', 'headerId'],
@@ -326,19 +326,19 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'deleteFolderCommonHeaders',
-    description: 'Batch delete common request headers in a specified folder',
+    description: 'Permanently delete one or more common headers from a specific folder. Requires confirmation. After deletion, these headers will no longer be included in API requests within this folder.',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: 'Folder ID',
+          description: 'The unique identifier of the folder containing the headers',
         },
         headerIds: {
           type: 'array',
           items: { type: 'string' },
-          description: 'Array of common request header IDs to delete',
+          description: 'Array of header IDs to permanently delete from this folder',
         },
       },
       required: ['folderId', 'headerIds'],
@@ -357,29 +357,29 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'setFolderCommonHeaders',
-    description: 'Set all common request headers for a folder (overwrite update), will replace all existing common request headers',
+    description: 'Replace all common headers in a folder with a new set (OVERWRITE OPERATION). Completely replaces existing folder headers with the provided array. Requires confirmation. Use addFolderCommonHeader to add individual headers without replacement.',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: 'Folder ID',
+          description: 'The unique identifier of the target folder',
         },
         headers: {
           type: 'array',
           items: {
             type: 'object',
             properties: {
-              _id: { type: 'string', description: 'Header ID, optional when creating new' },
-              key: { type: 'string', description: 'Header key name' },
-              value: { type: 'string', description: 'Header value' },
-              description: { type: 'string', description: 'Description' },
-              select: { type: 'boolean', description: 'Whether to enable' },
+              _id: { type: 'string', description: 'Header ID (optional when creating new headers, auto-generated if omitted)' },
+              key: { type: 'string', description: 'HTTP header name (e.g., "Authorization", "Content-Type")' },
+              value: { type: 'string', description: 'Header value (supports {{variableName}} substitution)' },
+              description: { type: 'string', description: 'Optional description' },
+              select: { type: 'boolean', description: 'Whether to enable this header (default: true)' },
             },
             required: ['key', 'value'],
           },
-          description: 'Array of common request headers',
+          description: 'Complete array of headers that will replace all existing folder headers',
         },
       },
       required: ['folderId', 'headers'],
