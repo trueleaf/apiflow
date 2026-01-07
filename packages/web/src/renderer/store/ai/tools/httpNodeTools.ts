@@ -1,3 +1,4 @@
+import { i18n } from '@/i18n'
 import { useSkill } from '../skillStore'
 import { useLLMClientStore } from '../llmClientStore'
 import { AgentTool } from '@src/types/ai'
@@ -27,7 +28,7 @@ const buildCreateHttpNodeOptions = (projectId: string, params: LLMInferredParams
   const options: CreateHttpNodeOptions = {
     projectId,
     pid: pid || '',
-    name: params.name || '未命名接口',
+    name: params.name || i18n.global.t('未命名接口'),
     description: params.description || '',
   }
   options.item = {
@@ -109,7 +110,7 @@ export const httpNodeTools: AgentTool[] = [
         const node = await skillStore.createHttpNode(options)
         return { code: node ? 0 : 1, data: node }
       } catch (error) {
-        return { code: 1, data: { error: error instanceof Error ? error.message : '创建失败' } }
+        return { code: 1, data: { error: error instanceof Error ? error.message : i18n.global.t('创建失败') } }
       }
     },
   },
@@ -1475,11 +1476,12 @@ export const httpNodeTools: AgentTool[] = [
         bodyMode: node.item.requestBody.mode,
         rawJson: node.item.requestBody.rawJson,
       }
-      const systemPrompt = `你是一个API命名专家。根据接口信息生成简洁准确的中文接口名称。
+      const systemPrompt = `你是一个API命名专家。根据接口信息生成简洁准确的接口名称。
 要求：
-1. 名称长度不超过10个字
-2. 使用常见动词开头，如：获取、创建、更新、删除、查询等
-3. 只返回名称，不要有任何其他内容`
+1. 名称长度不超过10个字（或相应语言的等效长度）
+2. 使用常见动词开头，如：获取、创建、更新、删除、查询等（或相应语言的等效词汇）
+3. 只返回名称，不要有任何其他内容
+4. 使用与用户相同的语言生成名称`
       const userMessage = `请求方法：${apiDetail.method}
 URL路径：${apiDetail.url}
 描述：${apiDetail.description || '无'}

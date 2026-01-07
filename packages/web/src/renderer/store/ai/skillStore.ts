@@ -1,11 +1,11 @@
 import { cloneDeep, assign, merge } from "lodash-es"
-import { HttpNode, ApidocProperty, ApidocProjectInfo, HttpNodeRequestMethod, HttpNodeContentType, HttpNodeBodyMode, FolderNode, ApidocBannerOfHttpNode, ApidocBannerOfFolderNode, ApidocBanner, ApidocVariable } from '@src/types'
-import { CreateHttpNodeOptions } from '@src/types/ai/tools.type'
+import { HttpNode, ApidocProperty, ApidocProjectInfo, HttpNodeRequestMethod, HttpNodeContentType, HttpNodeBodyMode, FolderNode, ApidocBannerOfHttpNode, ApidocBannerOfFolderNode, ApidocBanner, ApidocVariable, HttpMockNode, ApidocBannerOfHttpMockNode, WebSocketNode, ApidocBannerOfWebsocketNode, WebSocketMockNode, ApidocBannerOfWebSocketMockNode } from '@src/types'
+import { CreateHttpNodeOptions, CreateHttpMockNodeOptions, CreateWebsocketNodeOptions, CreateWebsocketMockNodeOptions } from '@src/types/ai/tools.type'
 import { defineStore } from "pinia"
 import { DeepPartial } from "@src/types/index.ts"
 import { apiNodesCache } from "@/cache/nodes/nodesCache";
 import { nodeVariableCache } from "@/cache/variable/nodeVariableCache";
-import { logger, generateEmptyHttpNode, generateHttpNode, inferContentTypeFromBody, findNodeById, findParentById, generateEmptyProperty } from '@/helper';
+import { logger, generateEmptyHttpNode, generateHttpNode, inferContentTypeFromBody, findNodeById, findParentById, generateEmptyProperty, generateEmptyHttpMockNode, generateEmptyWebsocketNode, generateEmptyWebSocketMockNode } from '@/helper';
 import { useHttpNode } from "../httpNode/httpNodeStore";
 import { useProjectManagerStore } from "../projectManager/projectManagerStore";
 import { useBanner } from "../projectWorkbench/bannerStore";
@@ -161,6 +161,226 @@ export const useSkill = defineStore('skill', () => {
         fixed: true,
         selected: true,
         head: { icon: node.item.method, color: '' },
+      });
+    }
+    return node;
+  }
+  //创建httpMockNode
+  const createHttpMockNode = async (options: CreateHttpMockNodeOptions): Promise<HttpMockNode | null> => {
+    const node = generateEmptyHttpMockNode(nanoid());
+    node.projectId = options.projectId;
+    node.pid = options.pid || '';
+    node.info.name = options.name;
+    node.info.description = options.description || '';
+    if (options.method !== undefined) {
+      node.requestCondition.method = options.method;
+    }
+    if (options.url !== undefined) {
+      node.requestCondition.url = options.url;
+    }
+    if (options.port !== undefined) {
+      node.requestCondition.port = options.port;
+    }
+    if (options.delay !== undefined) {
+      node.config.delay = options.delay;
+    }
+    node.sort = Date.now();
+    const now = new Date().toISOString();
+    node.createdAt = now;
+    node.updatedAt = now;
+    node.isDeleted = false;
+    const success = await apiNodesCache.addNode(node);
+    if (!success) {
+      logger.error('新增httpMock节点失败', { projectId: options.projectId });
+      return null;
+    }
+    const currentProjectId = router.currentRoute.value.query.id as string;
+    if (currentProjectId === options.projectId) {
+      const bannerStore = useBanner();
+      const projectNavStore = useProjectNav();
+      const bannerNode: ApidocBannerOfHttpMockNode = {
+        _id: node._id,
+        updatedAt: node.updatedAt,
+        type: 'httpMock',
+        sort: node.sort,
+        pid: node.pid,
+        name: node.info.name,
+        maintainer: node.info.maintainer,
+        method: node.requestCondition.method[0] || 'ALL',
+        url: node.requestCondition.url,
+        port: node.requestCondition.port,
+        readonly: false,
+        state: 'stopped',
+        children: [],
+      };
+      if (!node.pid) {
+        bannerStore.splice({ start: bannerStore.banner.length, deleteCount: 0, item: bannerNode });
+      } else {
+        const parentNode = findNodeById(bannerStore.banner, node.pid, { idKey: '_id' }) as ApidocBanner | null;
+        if (parentNode && parentNode.children) {
+          bannerStore.splice({ start: parentNode.children.length, deleteCount: 0, item: bannerNode, opData: parentNode.children });
+        }
+      }
+      projectNavStore.addNav({
+        _id: node._id,
+        projectId: options.projectId,
+        tabType: 'httpMock',
+        label: node.info.name,
+        saved: true,
+        fixed: true,
+        selected: true,
+        head: { icon: 'httpMock', color: '' },
+      });
+    }
+    return node;
+  }
+  //创建websocketNode
+  const createWebsocketNode = async (options: CreateWebsocketNodeOptions): Promise<WebSocketNode | null> => {
+    const node = generateEmptyWebsocketNode(nanoid());
+    node.projectId = options.projectId;
+    node.pid = options.pid || '';
+    node.info.name = options.name;
+    node.info.description = options.description || '';
+    if (options.protocol !== undefined) {
+      node.item.protocol = options.protocol;
+    }
+    if (options.url) {
+      if (options.url.path !== undefined) {
+        node.item.url.path = options.url.path;
+      }
+      if (options.url.prefix !== undefined) {
+        node.item.url.prefix = options.url.prefix;
+      }
+    }
+    if (options.queryParams !== undefined) {
+      node.item.queryParams = options.queryParams;
+      const lastQueryParam = node.item.queryParams[node.item.queryParams.length - 1];
+      if (!lastQueryParam || lastQueryParam.key !== '' || lastQueryParam.value !== '') {
+        node.item.queryParams.push(generateEmptyProperty());
+      }
+    }
+    if (options.headers !== undefined) {
+      node.item.headers = options.headers;
+      const lastHeader = node.item.headers[node.item.headers.length - 1];
+      if (!lastHeader || lastHeader.key !== '' || lastHeader.value !== '') {
+        node.item.headers.push(generateEmptyProperty());
+      }
+    }
+    node.sort = Date.now();
+    const now = new Date().toISOString();
+    node.createdAt = now;
+    node.updatedAt = now;
+    node.isDeleted = false;
+    const success = await apiNodesCache.addNode(node);
+    if (!success) {
+      logger.error('新增websocket节点失败', { projectId: options.projectId });
+      return null;
+    }
+    const currentProjectId = router.currentRoute.value.query.id as string;
+    if (currentProjectId === options.projectId) {
+      const bannerStore = useBanner();
+      const projectNavStore = useProjectNav();
+      const bannerNode: ApidocBannerOfWebsocketNode = {
+        _id: node._id,
+        updatedAt: node.updatedAt,
+        type: 'websocket',
+        sort: node.sort,
+        pid: node.pid,
+        name: node.info.name,
+        maintainer: node.info.maintainer,
+        protocol: node.item.protocol,
+        url: node.item.url,
+        readonly: false,
+        children: [],
+      };
+      if (!node.pid) {
+        bannerStore.splice({ start: bannerStore.banner.length, deleteCount: 0, item: bannerNode });
+      } else {
+        const parentNode = findNodeById(bannerStore.banner, node.pid, { idKey: '_id' }) as ApidocBanner | null;
+        if (parentNode && parentNode.children) {
+          bannerStore.splice({ start: parentNode.children.length, deleteCount: 0, item: bannerNode, opData: parentNode.children });
+        }
+      }
+      projectNavStore.addNav({
+        _id: node._id,
+        projectId: options.projectId,
+        tabType: 'websocket',
+        label: node.info.name,
+        saved: true,
+        fixed: true,
+        selected: true,
+        head: { icon: 'websocket', color: '' },
+      });
+    }
+    return node;
+  }
+  //创建websocketMockNode
+  const createWebsocketMockNode = async (options: CreateWebsocketMockNodeOptions): Promise<WebSocketMockNode | null> => {
+    const node = generateEmptyWebSocketMockNode(nanoid());
+    node.projectId = options.projectId;
+    node.pid = options.pid || '';
+    node.info.name = options.name;
+    node.info.description = options.description || '';
+    if (options.path !== undefined) {
+      node.requestCondition.path = options.path;
+    }
+    if (options.port !== undefined) {
+      node.requestCondition.port = options.port;
+    }
+    if (options.delay !== undefined) {
+      node.config.delay = options.delay;
+    }
+    if (options.echoMode !== undefined) {
+      node.config.echoMode = options.echoMode;
+    }
+    if (options.responseContent !== undefined) {
+      node.response.content = options.responseContent;
+    }
+    node.sort = Date.now();
+    const now = new Date().toISOString();
+    node.createdAt = now;
+    node.updatedAt = now;
+    node.isDeleted = false;
+    const success = await apiNodesCache.addNode(node);
+    if (!success) {
+      logger.error('新增websocketMock节点失败', { projectId: options.projectId });
+      return null;
+    }
+    const currentProjectId = router.currentRoute.value.query.id as string;
+    if (currentProjectId === options.projectId) {
+      const bannerStore = useBanner();
+      const projectNavStore = useProjectNav();
+      const bannerNode: ApidocBannerOfWebSocketMockNode = {
+        _id: node._id,
+        updatedAt: node.updatedAt,
+        type: 'websocketMock',
+        sort: node.sort,
+        pid: node.pid,
+        name: node.info.name,
+        maintainer: node.info.maintainer,
+        path: node.requestCondition.path,
+        port: node.requestCondition.port,
+        readonly: false,
+        state: 'stopped',
+        children: [],
+      };
+      if (!node.pid) {
+        bannerStore.splice({ start: bannerStore.banner.length, deleteCount: 0, item: bannerNode });
+      } else {
+        const parentNode = findNodeById(bannerStore.banner, node.pid, { idKey: '_id' }) as ApidocBanner | null;
+        if (parentNode && parentNode.children) {
+          bannerStore.splice({ start: parentNode.children.length, deleteCount: 0, item: bannerNode, opData: parentNode.children });
+        }
+      }
+      projectNavStore.addNav({
+        _id: node._id,
+        projectId: options.projectId,
+        tabType: 'websocketMock',
+        label: node.info.name,
+        saved: true,
+        fixed: true,
+        selected: true,
+        head: { icon: 'websocketMock', color: '' },
       });
     }
     return node;
@@ -1407,6 +1627,9 @@ export const useSkill = defineStore('skill', () => {
     deleteUrlencodedByNodeId,
     setUrlencodedByNodeId,
     createHttpNode,
+    createHttpMockNode,
+    createWebsocketNode,
+    createWebsocketMockNode,
     batchCreateHttpNodes,
     deleteHttpNodes,
     moveHttpNode,

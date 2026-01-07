@@ -2,7 +2,42 @@ import { AgentTool } from '@src/types/ai'
 import { useHttpMockNode } from '@/store/httpMockNode/httpMockNodeStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache'
+import { useSkill } from '@/store/ai/skillStore'
+import { useLLMClientStore } from '@/store/ai/llmClientStore'
+import { simpleCreateHttpMockNodePrompt } from '@/store/ai/prompt/prompt'
+import { CreateHttpMockNodeOptions } from '@src/types/ai/tools.type'
 import type { Method } from 'got'
+
+type LLMInferredHttpMockParams = {
+  name?: string
+  description?: string
+  method?: string[]
+  url?: string
+  port?: number
+  delay?: number
+}
+//将LLM返回的简化JSON转换为完整的CreateHttpMockNodeOptions
+const buildCreateHttpMockNodeOptions = (projectId: string, params: LLMInferredHttpMockParams, pid?: string): CreateHttpMockNodeOptions => {
+  const options: CreateHttpMockNodeOptions = {
+    projectId,
+    pid: pid || '',
+    name: params.name || '未命名Mock',
+    description: params.description || '',
+  }
+  if (Array.isArray(params.method) && params.method.length > 0) {
+    options.method = params.method.map(m => m.toUpperCase()) as (Method | 'ALL')[]
+  }
+  if (params.url) {
+    options.url = params.url
+  }
+  if (params.port) {
+    options.port = params.port
+  }
+  if (params.delay !== undefined) {
+    options.delay = params.delay
+  }
+  return options
+}
 
 //校验是否为字符串
 const isString = (value: unknown): value is string => typeof value === 'string'
@@ -40,6 +75,128 @@ const normalizeHttpMethods = (value: unknown): { ok: true; methods: (Method | 'A
 }
 
 export const httpMockNodeTools: AgentTool[] = [
+  {
+    name: 'simpleCreateHttpMockNode',
+    description: '根据用户的简单描述创建httpMockNode节点（推荐）。当用户没有提供完整的method、url、port等参数时，使用此工具自动推断',
+    type: 'httpMockNode',
+    parameters: {
+      type: 'object',
+      properties: {
+        projectId: {
+          type: 'string',
+          description: '项目id',
+        },
+        description: {
+          type: 'string',
+          description: 'Mock服务的自然语言描述，例如"创建一个Mock用户列表接口，监听3001端口"',
+        },
+        pid: {
+          type: 'string',
+          description: '父节点id，根节点留空字符串',
+        },
+      },
+      required: ['projectId', 'description'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const llmClientStore = useLLMClientStore()
+      const projectId = args.projectId as string
+      const description = args.description as string
+      const pid = typeof args.pid === 'string' ? args.pid : ''
+      try {
+        const response = await llmClientStore.chat({
+          messages: [
+            { role: 'system', content: simpleCreateHttpMockNodePrompt },
+            { role: 'user', content: description }
+          ],
+          response_format: { type: 'json_object' }
+        })
+        const content = response.choices[0]?.message?.content || '{}'
+        const inferredParams: LLMInferredHttpMockParams = JSON.parse(content)
+        const options = buildCreateHttpMockNodeOptions(projectId, inferredParams, pid)
+        const node = await skillStore.createHttpMockNode(options)
+        return { code: node ? 0 : 1, data: node }
+      } catch (error) {
+        return { code: 1, data: { error: error instanceof Error ? error.message : '创建失败' } }
+      }
+    },
+  },
+  {
+    name: 'createHttpMockNode',
+    description: '创建一个新的httpMockNode节点',
+    type: 'httpMockNode',
+    parameters: {
+      type: 'object',
+      properties: {
+        projectId: {
+          type: 'string',
+          description: '项目id',
+        },
+        name: {
+          type: 'string',
+          description: '节点名称',
+        },
+        pid: {
+          type: 'string',
+          description: '父节点id，根节点留空字符串',
+        },
+        method: {
+          description: 'HTTP方法数组，如["GET", "POST"]或["ALL"]',
+          type: 'array',
+          items: {
+            type: 'string',
+            enum: ['ALL', 'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
+          },
+        },
+        url: {
+          type: 'string',
+          description: 'Mock的URL路径，如/api/users',
+        },
+        port: {
+          type: 'number',
+          description: 'Mock服务监听端口，默认3000',
+        },
+        delay: {
+          type: 'number',
+          description: '响应延迟（毫秒），默认0',
+        },
+        description: {
+          type: 'string',
+          description: 'Mock节点描述',
+        },
+      },
+      required: ['projectId', 'name'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const projectId = args.projectId as string
+      const name = args.name as string
+      const pid = typeof args.pid === 'string' ? args.pid : ''
+      const description = typeof args.description === 'string' ? args.description : ''
+      const options: CreateHttpMockNodeOptions = {
+        projectId,
+        name,
+        pid,
+        description,
+      }
+      if (Array.isArray(args.method)) {
+        options.method = args.method as (Method | 'ALL')[]
+      }
+      if (typeof args.url === 'string') {
+        options.url = args.url
+      }
+      if (typeof args.port === 'number') {
+        options.port = args.port
+      }
+      if (typeof args.delay === 'number') {
+        options.delay = args.delay
+      }
+      const node = await skillStore.createHttpMockNode(options)
+      return { code: node ? 0 : 1, data: node }
+    },
+  },
   {
     name: 'getHttpMockNodeDetail',
     description: '获取指定httpMockNode节点详情（会加载到当前HttpMock编辑器store中）',

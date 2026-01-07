@@ -12,6 +12,7 @@ import { generateAgentExecutionMessage, generateCompletionMessage, generateInfoM
 import { config } from '@src/config/config'
 import { nanoid } from 'nanoid'
 import { agentSystemPrompt, toolSelectionSystemPrompt } from '@/store/ai/prompt/prompt'
+import { i18n } from '@/i18n'
 export const useAgentStore = defineStore('agent', () => {
 	let agentAbortController: AbortController | null = null
 	const checkAborted = (signal: AbortSignal | undefined) => {
@@ -98,10 +99,10 @@ export const useAgentStore = defineStore('agent', () => {
 		const toolListText = JSON.stringify(getToolSummaries())
 		const messages: LLMessage[] = [
 			{ role: 'system', content: toolSelectionSystemPrompt },
-			{ role: 'system', content: `可用工具列表：${toolListText}` },
+			{ role: 'system', content: `${i18n.global.t('可用工具列表')}：${toolListText}` },
 			{ role: 'system', content: contextText },
 			...historyMessages,
-			{ role: 'user', content: `用户意图：${prompt}` }
+			{ role: 'user', content: `${i18n.global.t('用户意图')}：${prompt}` }
 		]
 		try {
 			const response = await llmClientStore.chat({ messages, response_format: { type: 'json_object' } })
@@ -174,15 +175,16 @@ export const useAgentStore = defineStore('agent', () => {
 				void agentViewStore.updateCurrentMessageById(messageId, { toolCalls: currentToolCalls })
 				const tool = rawTools.find(t => t.name === toolCall.function.name)
 				if (!tool) {
+					const errorMsg = i18n.global.t('工具不存在', { name: toolCall.function.name })
 					currentToolCalls = currentToolCalls.map(tc =>
 						tc.id === toolCall.id
-							? { ...tc, status: 'error' as const, error: `工具 ${toolCall.function.name} 不存在`, endTime: Date.now() }
+							? { ...tc, status: 'error' as const, error: errorMsg, endTime: Date.now() }
 							: tc
 					)
 					void agentViewStore.updateCurrentMessageById(messageId, { toolCalls: currentToolCalls })
 					messages.push({
 						role: 'tool',
-						content: `工具 ${toolCall.function.name} 不存在`,
+						content: errorMsg,
 						tool_call_id: toolCall.id
 					})
 					continue
@@ -200,8 +202,8 @@ export const useAgentStore = defineStore('agent', () => {
 					messages.push({
 						role: 'tool',
 						content: result.code === 0
-							? `执行成功：${JSON.stringify(result.data)}`
-							: `执行失败：${JSON.stringify(result.data)}`,
+							? `${i18n.global.t('执行成功')}：${JSON.stringify(result.data)}`
+							: `${i18n.global.t('执行失败')}：${JSON.stringify(result.data)}`,
 						tool_call_id: toolCall.id
 					})
 				} catch (err) {
@@ -216,7 +218,7 @@ export const useAgentStore = defineStore('agent', () => {
 					void agentViewStore.updateCurrentMessageById(messageId, { toolCalls: currentToolCalls })
 					messages.push({
 						role: 'tool',
-						content: `工具执行异常：${err instanceof Error ? err.message : String(err)}`,
+						content: `${i18n.global.t('工具执行异常')}：${err instanceof Error ? err.message : String(err)}`,
 						tool_call_id: toolCall.id
 					})
 				}
@@ -259,7 +261,7 @@ JSON：${JSON.stringify({ project: context.project, activeTab: context.activeTab
 			const loadingMessage: import('@src/types/ai').LoadingMessage = {
 				id: nanoid(),
 				type: 'loading',
-				content: '准备执行',
+				content: i18n.global.t('准备执行'),
 				timestamp: new Date().toISOString(),
 				sessionId: agentViewStore.currentSessionId,
 				mode: 'agent',
@@ -267,14 +269,14 @@ JSON：${JSON.stringify({ project: context.project, activeTab: context.activeTab
 			}
 			agentViewStore.currentMessageList.push(loadingMessage)
 			setTimeout(() => {
-				agentViewStore.updateMessageById(loadingMessage.id, { content: '搜索工具中...' })
+				agentViewStore.updateMessageById(loadingMessage.id, { content: i18n.global.t('搜索工具中') })
 			}, 1000)
 			const { tools: selectedTools, totalTokens } = await selectToolsByLLM({ prompt, contextText, historyMessages, signal })
 			agentViewStore.deleteCurrentMessageById(loadingMessage.id)
 			const toolNames = selectedTools.map(tool => tool.function.name)
 			const infoMessage = generateInfoMessage(
 				agentViewStore.currentSessionId,
-				`已挑选${selectedTools.length}个工具`,
+				i18n.global.t('已挑选工具', { count: selectedTools.length }),
 				'agent',
 				totalTokens,
 				toolNames

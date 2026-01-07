@@ -267,7 +267,7 @@ export const useHttpNode = defineStore('httpNode', () => {
   const addResponseParam = (): void => {
     httpNodeInfo.value.item.responseParams.push({
       _id: nanoid(),
-      title: '返回参数名称',
+      title: i18n.global.t('返回参数名称'),
       statusCode: 200,
       value: {
         strJson: '',
@@ -297,7 +297,7 @@ export const useHttpNode = defineStore('httpNode', () => {
     params3.key = 'Host';
     params3.description = '<主机信息>';
     params3._disableKey = true;
-    params3._disableKeyTip = '该请求头无法修改，也无法取消发送'
+    params3._disableKeyTip = i18n.global.t('该请求头无法修改，也无法取消发送')
     params3._disableDeleteTip = 'Host请求头无法删除';
     params3._disableValue = true;
     params3._valuePlaceholder = '<发送请求时候自动处理>';
@@ -377,7 +377,7 @@ export const useHttpNode = defineStore('httpNode', () => {
       const params6 = generateEmptyProperty();
       params6.key = 'Content-Type';
       params6.value = contentType;
-      params6.description = '资源的原始媒体类型';
+      params6.description = i18n.global.t('资源的原始媒体类型');
       params6._valuePlaceholder = '<根据body类型自动处理,不推荐修改>';
       params6._disableKey = true;
       params6._disableDescription = true;
@@ -411,7 +411,7 @@ export const useHttpNode = defineStore('httpNode', () => {
     if (payload.item.responseParams.length === 0) {
       payload.item.responseParams.push({
         _id: nanoid(),
-        title: '成功返回',
+        title: i18n.global.t('成功返回'),
         statusCode: 200,
         value: {
           file: {
