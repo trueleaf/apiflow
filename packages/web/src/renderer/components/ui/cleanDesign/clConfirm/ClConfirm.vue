@@ -7,11 +7,11 @@
           <div v-if="visible" class="cl-confirm-container">
             <div class="cl-confirm-header">
               <div v-if="type" :class="['cl-confirm-icon', type]">
-                <component :is="typeIcon" :size="20" />
+                <component :is="typeIcon" :size="18" />
               </div>
               <span v-if="title" class="cl-confirm-title">{{ title }}</span>
               <button class="cl-confirm-close" @click="handleCloseClick">
-                <X :size="16" />
+                <X :size="18" />
               </button>
             </div>
             <div class="cl-confirm-body">
