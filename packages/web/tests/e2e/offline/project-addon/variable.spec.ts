@@ -230,7 +230,8 @@ test.describe('Variable', () => {
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     const jsonTip = contentPage.locator('.json-tip');
-    if (await jsonTip.isVisible()) {
+    const jsonTipVisible = await jsonTip.isVisible();
+    if (jsonTipVisible) {
       const hideTipBtn = jsonTip.locator('.no-tip');
       await hideTipBtn.click();
       await expect(jsonTip).toBeHidden({ timeout: 5000 });
@@ -415,7 +416,8 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(500);
     {
       const closeActiveTabBtn = contentPage.locator('.tab-list .item.active [data-testid="project-nav-tab-close-btn"]');
-      if (await closeActiveTabBtn.count()) {
+      const closeActiveTabBtnCount = await closeActiveTabBtn.count();
+      if (closeActiveTabBtnCount) {
         await closeActiveTabBtn.first().click();
       } else {
         await contentPage.keyboard.press('ControlOrMeta+w');
@@ -453,7 +455,8 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(800);
     {
       const closeActiveTabBtn = contentPage.locator('.tab-list .item.active [data-testid="project-nav-tab-close-btn"]');
-      if (await closeActiveTabBtn.count()) {
+      const closeActiveTabBtnCount = await closeActiveTabBtn.count();
+      if (closeActiveTabBtnCount) {
         await closeActiveTabBtn.first().click();
       } else {
         await contentPage.keyboard.press('ControlOrMeta+w');
@@ -489,7 +492,8 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(500);
     {
       const closeActiveTabBtn = contentPage.locator('.tab-list .item.active [data-testid="project-nav-tab-close-btn"]');
-      if (await closeActiveTabBtn.count()) {
+      const closeActiveTabBtnCount = await closeActiveTabBtn.count();
+      if (closeActiveTabBtnCount) {
         await closeActiveTabBtn.first().click();
       } else {
         await contentPage.keyboard.press('ControlOrMeta+w');
@@ -521,7 +525,8 @@ test.describe('Variable', () => {
     await expect(dialog).not.toBeVisible({ timeout: 5000 });
     {
       const closeActiveTabBtn = contentPage.locator('.tab-list .item.active [data-testid="project-nav-tab-close-btn"]');
-      if (await closeActiveTabBtn.count()) {
+      const closeActiveTabBtnCount = await closeActiveTabBtn.count();
+      if (closeActiveTabBtnCount) {
         await closeActiveTabBtn.first().click();
       } else {
         await contentPage.keyboard.press('ControlOrMeta+w');
@@ -841,7 +846,8 @@ test.describe('Variable', () => {
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     const jsonTip2 = contentPage.locator('.json-tip');
-    if (await jsonTip2.isVisible()) {
+    const jsonTip2Visible = await jsonTip2.isVisible();
+    if (jsonTip2Visible) {
       const hideTipBtn = jsonTip2.locator('.no-tip');
       await hideTipBtn.click();
       await expect(jsonTip2).toBeHidden({ timeout: 5000 });

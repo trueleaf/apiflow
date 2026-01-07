@@ -5,13 +5,9 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 test.describe('Logo', () => {
-  test('点击logo跳转主页面', async ({ topBarPage, contentPage, clearCache }) => {
+  test('点击logo跳转主页面', async ({ topBarPage, contentPage, clearCache, jumpToSettings }) => {
     await clearCache();
-    // 先跳转到设置页面
-    const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
-    await expect(settingsBtn).toBeVisible();
-    await settingsBtn.click();
-    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
+    await jumpToSettings();
     // 点击logo跳转主页面
     const logo = topBarPage.locator('.logo-img');
     await expect(logo).toBeVisible();
@@ -23,16 +19,12 @@ test.describe('Logo', () => {
     const projectSearchInput = contentPage.locator('[data-testid="home-project-search-input"]');
     await expect(projectSearchInput).toBeVisible({ timeout: 5000 });
   });
-  test('设置页面更改应用图标后logo立马被更新, 刷新页面保持更新后的图标', async ({ topBarPage, contentPage }) => {
+  test('设置页面更改应用图标后logo立马被更新, 刷新页面保持更新后的图标', async ({ topBarPage, contentPage, reload, jumpToSettings }) => {
     // 获取初始Logo的src
     const logo = topBarPage.locator('.logo-img');
     await expect(logo).toBeVisible();
     const initialSrc = await logo.getAttribute('src');
-    // 通过顶部Header右侧的设置图标按钮跳转到设置页面
-    const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
-    await expect(settingsBtn).toBeVisible();
-    await settingsBtn.click();
-    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
+    await jumpToSettings();
     // 点击"通用配置"菜单项
     const commonSettingsMenu = contentPage.locator('[data-testid="settings-menu-common-settings"]');
     await expect(commonSettingsMenu).toBeVisible();
@@ -59,14 +51,7 @@ test.describe('Logo', () => {
     await expect(contentLogoPreview).toHaveAttribute('src', /^data:image\//, { timeout: 5000 });
     const updatedContentSrc = await contentLogoPreview.getAttribute('src');
     expect(updatedContentSrc).not.toBe(initialSrc);
-    // 刷新contentPage验证持久化
-    await contentPage.reload();
-    await contentPage.waitForLoadState('domcontentloaded');
-    // 刷新topBarPage验证持久化
-    await topBarPage.reload();
-    await topBarPage.waitForLoadState('domcontentloaded');
-    // 等待握手完成后 topBarView 接收到 contentView 推送的应用设置
-    await topBarPage.waitForTimeout(500);
+    await reload();
     // 验证刷新后Logo仍然保持更新后的图标
     const logoAfterRefresh = topBarPage.locator('.logo-img');
     await expect(logoAfterRefresh).toBeVisible();
@@ -79,15 +64,11 @@ test.describe('Logo', () => {
     // 等待 topBarView 的 logo 更新为 base64 格式（通过 IPC 从 contentView 同步）
     await expect(logoAfterRefresh).toHaveAttribute('src', /^data:image\//, { timeout: 5000 });
   });
-  test('点击重置后，图标恢复为默认', async ({ topBarPage, contentPage }) => {
+  test('点击重置后，图标恢复为默认', async ({ topBarPage, contentPage, jumpToSettings }) => {
     // 先上传自定义图标
     const logo = topBarPage.locator('.logo-img');
     await expect(logo).toBeVisible();
-    // 通过顶部Header右侧的设置图标按钮跳转到设置页面
-    const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
-    await expect(settingsBtn).toBeVisible();
-    await settingsBtn.click();
-    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
+    await jumpToSettings();
     // 点击"通用配置"菜单项
     const commonSettingsMenu = contentPage.locator('[data-testid="settings-menu-common-settings"]');
     await expect(commonSettingsMenu).toBeVisible();

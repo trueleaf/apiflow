@@ -153,10 +153,8 @@ test.describe('DisplayOrderConfig', () => {
     // 验证顺序已改变
     const newFirstModeLabel = await modeItems.first().locator('.mode-label').textContent();
     expect(newFirstModeLabel).toBe(lastModeLabel);
-    // 刷新页面
-    await contentPage.reload();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
-    await contentPage.waitForTimeout(1000);
+    await reload();
+    await contentPage.waitForTimeout(500);
     // 重新打开设置标签页
     const settingsTabAfterReload = contentPage.locator('[data-testid="http-params-tab-settings"]');
     await settingsTabAfterReload.click();

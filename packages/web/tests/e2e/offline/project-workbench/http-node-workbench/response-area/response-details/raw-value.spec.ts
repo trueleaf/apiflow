@@ -30,7 +30,8 @@ test.describe('RawValue', () => {
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
     // 切换到原始值标签页
     const rawTab = contentPage.locator('[data-testid="response-tabs"]').getByRole('tab', { name: /原始值|原始|Raw/i }).first();
-    if (await rawTab.isVisible().catch(() => false)) {
+    const rawTabVisible = await rawTab.isVisible().catch(() => false);
+    if (rawTabVisible) {
       await rawTab.click();
       await contentPage.waitForTimeout(300);
     }

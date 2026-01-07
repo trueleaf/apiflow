@@ -103,10 +103,8 @@ test.describe('LayoutOperation', () => {
     // 验证布局已切换为垂直布局
     const apidocContainer = contentPage.locator('.apidoc');
     await expect(apidocContainer).toHaveClass(/vertical/, { timeout: 5000 });
-    // 刷新页面
-    await contentPage.reload();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
-    await contentPage.waitForTimeout(1000);
+    await reload();
+    await contentPage.waitForTimeout(500);
     // 验证刷新后布局保持为垂直布局
     const apidocContainerAfterReload = contentPage.locator('.apidoc');
     await expect(apidocContainerAfterReload).toHaveClass(/vertical/, { timeout: 5000 });

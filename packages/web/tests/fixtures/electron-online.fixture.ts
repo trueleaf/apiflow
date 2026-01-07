@@ -11,6 +11,8 @@ type ElectronFixtures = {
   clearCache: () => Promise<void>;
   createProject: (name?: string) => Promise<string>;
   loginAccount: (options?: { loginName?: string; password?: string }) => Promise<void>;
+  jumpToSettings: () => Promise<void>;
+  reload: () => Promise<void>;
 };
 // 等待指定窗口加载完成
 const waitForWindow = async (electronApp: ElectronApplication, predicate: (url: string) => boolean, timeout = 10000): Promise<Page> => {
@@ -144,7 +146,8 @@ export const test = base.extend<ElectronFixtures>({
       await expect(serverUrlInput).toBeVisible({ timeout: 5000 });
       await serverUrlInput.fill(serverUrl);
       const saveBtn = contentPage.getByRole('button', { name: /保存|Save/i });
-      if (await saveBtn.isEnabled()) {
+      const saveBtnEnabled = await saveBtn.isEnabled();
+      if (saveBtnEnabled) {
         await saveBtn.click();
         await expect(contentPage.getByText(/保存成功|Saved successfully/i)).toBeVisible({ timeout: 5000 });
       }
@@ -157,6 +160,24 @@ export const test = base.extend<ElectronFixtures>({
       await expect(contentPage.locator('[data-testid="home-add-project-btn"]')).toBeVisible({ timeout: 10000 });
     };
     await use(login);
+  },
+  jumpToSettings: async ({ topBarPage, contentPage }, use) => {
+    const jump = async () => {
+      const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
+      await settingsBtn.click();
+      await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
+    };
+    await use(jump);
+  },
+  reload: async ({ topBarPage, contentPage }, use) => {
+    const doReload = async () => {
+      const refreshBtn = topBarPage.locator('[data-testid="header-refresh-btn"]');
+      await refreshBtn.click();
+      await topBarPage.waitForLoadState('domcontentloaded');
+      await contentPage.waitForLoadState('domcontentloaded');
+      await topBarPage.waitForTimeout(1000);
+    };
+    await use(doReload);
   },
 });
 

@@ -72,10 +72,9 @@ test.describe('CreateProject', () => {
     await expect(activeTab).toContainText(projectName);
   });
 
-  test('新建项目后返回首页,新项目排在全部项目列表第一位', async ({ topBarPage, contentPage, clearCache }) => {
+  test('新建项目后返回首页,新项目排在全部项目列表第一位', async ({ topBarPage, contentPage, clearCache, reload }) => {
     await clearCache();
-    await contentPage.reload();
-    await contentPage.waitForTimeout(500);
+    await reload();
     const projectName = `排序测试项目-${Date.now()}`;
     const addProjectBtn = topBarPage.locator('[data-testid="header-add-project-btn"]');
     await addProjectBtn.click();

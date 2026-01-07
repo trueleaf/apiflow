@@ -60,9 +60,9 @@ test.describe('QuickIcons', () => {
       await topBarPage.waitForTimeout(500);
       // 验证语言按钮文字变为EN
       await expect(languageBtn).toHaveText('EN');
-      // 验证设置按钮的title变为英文
-      const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
-      await expect(settingsBtn).toHaveAttribute('title', 'Settings');
+      // 验证其他按钮的title变为英文（例如首页按钮）
+      const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+      await expect(homeBtn).toHaveAttribute('title', 'Home');
       // 切换回简体中文
       await languageBtn.click();
       const languageMenu2 = contentPage.locator('.language-dropdown-menu');

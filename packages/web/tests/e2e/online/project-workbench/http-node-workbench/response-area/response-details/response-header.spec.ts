@@ -32,7 +32,8 @@ test.describe('ResponseHeader', () => {
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
     // 切换到响应头标签页
     const headerTab = contentPage.locator('[data-testid="response-tabs"]').getByRole('tab', { name: /响应头|Headers|Response Headers/i }).first();
-    if (await headerTab.isVisible().catch(() => false)) {
+    const headerTabVisible = await headerTab.isVisible().catch(() => false);
+    if (headerTabVisible) {
       await headerTab.click();
       await contentPage.waitForTimeout(300);
     }

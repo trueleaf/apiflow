@@ -1,19 +1,16 @@
 import { test, expect } from '../../../../fixtures/electron.fixture';
 
 test.describe('Navigation', () => {
-  test('项目tab显示项目图标,设置tab显示设置图标', async ({ topBarPage, contentPage, createProject }) => {
+  test('项目tab显示项目图标,设置tab显示设置图标', async ({ topBarPage, contentPage, createProject, jumpToSettings }) => {
     const uniqueProjectName = await createProject(`图标验证项目-${Date.now()}`);
     // 验证项目Tab存在且显示Folder图标
     const projectTab = topBarPage.locator('.tab-item').filter({ hasText: uniqueProjectName });
     await expect(projectTab).toBeVisible();
     const projectTabIcon = projectTab.locator('.tab-icon');
     await expect(projectTabIcon).toBeVisible();
-    // Folder图标来自lucide-vue-next，验证图标存在
+    // Folder图标来臯lucide-vue-next，验证图标存在
     await expect(projectTabIcon).toHaveClass(/tab-icon/);
-    // 打开设置Tab
-    const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
-    await settingsBtn.click();
-    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
+    await jumpToSettings();
     // 等待设置Tab出现
     await topBarPage.waitForTimeout(500);
     // 验证设置Tab存在且显示Settings图标（取当前高亮的设置Tab）
@@ -36,11 +33,8 @@ test.describe('Navigation', () => {
     await expect(activeTab).toContainText(uniqueProjectName);
   });
 
-  test('打开设置会新增设置tab并自动高亮', async ({ topBarPage, contentPage }) => {
-    // 点击设置按钮
-    const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
-    await settingsBtn.click();
-    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
+  test('打开设置会新增设置tab并自动高亮', async ({ topBarPage, contentPage, jumpToSettings }) => {
+    await jumpToSettings();
     // 验证存在设置Tab
     const settingsTabs = topBarPage.locator('.tab-item').filter({ hasText: /设置|Settings/ });
     const settingsTabCount = await settingsTabs.count();
@@ -70,7 +64,8 @@ test.describe('Navigation', () => {
     // 等待页面完全加载，并关闭可能的提示弹窗
     await topBarPage.waitForTimeout(500);
     const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
-    if (await confirmBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
+    const confirmBtnVisible = await confirmBtn.isVisible({ timeout: 1000 }).catch(() => false);
+    if (confirmBtnVisible) {
       await confirmBtn.click();
       await topBarPage.waitForTimeout(300);
     }
@@ -92,12 +87,9 @@ test.describe('Navigation', () => {
     await expect(activeTab).toContainText(projectName);
   });
 
-  test('点击已存在的tab高亮而不新增', async ({ topBarPage, contentPage, createProject }) => {
+  test('点击已存在的tab高亮而不新增', async ({ topBarPage, contentPage, createProject, jumpToSettings }) => {
     const uniqueProjectName = await createProject(`切换测试-${Date.now()}`);
-    // 打开设置Tab
-    const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
-    await settingsBtn.click();
-    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
+    await jumpToSettings();
     await topBarPage.waitForTimeout(500);
     // 记录当前Tab数量
     const tabCountBeforeSwitch = await topBarPage.locator('.tab-item').count();
@@ -111,8 +103,7 @@ test.describe('Navigation', () => {
     // 验证项目Tab被高亮
     const activeTab = topBarPage.locator('.tab-item.active');
     await expect(activeTab).toContainText(uniqueProjectName);
-    // 再次点击设置按钮
-    await settingsBtn.click();
+    await jumpToSettings();
     await topBarPage.waitForTimeout(300);
     // 验证Tab数量仍然不变
     const tabCountAfterSettingsClick = await topBarPage.locator('.tab-item').count();
@@ -122,12 +113,9 @@ test.describe('Navigation', () => {
     await expect(activeTabAfterSettings).toContainText(/设置|Settings/);
   });
 
-  test('tab默认排序:项目在前,设置在后', async ({ topBarPage, contentPage, createProject }) => {
+  test('tab默认排序:项目在前,设置在后', async ({ topBarPage, contentPage, createProject, jumpToSettings }) => {
     const projectAName = await createProject(`排序项目A-${Date.now()}`);
-    // 打开设置Tab
-    const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
-    await settingsBtn.click();
-    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
+    await jumpToSettings();
     await topBarPage.waitForTimeout(500);
     // 再创建项目B
     const projectBName = await createProject(`排序项目B-${Date.now()}`);
@@ -265,7 +253,8 @@ test.describe('Navigation', () => {
     await topBarPage.waitForTimeout(500);
     // 关闭可能的提示弹窗
     const msgBoxConfirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
-    if (await msgBoxConfirmBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
+    const msgBoxConfirmBtnVisible = await msgBoxConfirmBtn.isVisible({ timeout: 1000 }).catch(() => false);
+    if (msgBoxConfirmBtnVisible) {
       await msgBoxConfirmBtn.click();
       await topBarPage.waitForTimeout(300);
     }
@@ -314,7 +303,8 @@ test.describe('Navigation', () => {
     await topBarPage.waitForTimeout(500);
     // 关闭可能的提示弹窗
     const msgBoxConfirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
-    if (await msgBoxConfirmBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
+    const msgBoxConfirmBtnVisible = await msgBoxConfirmBtn.isVisible({ timeout: 1000 }).catch(() => false);
+    if (msgBoxConfirmBtnVisible) {
       await msgBoxConfirmBtn.click();
       await topBarPage.waitForTimeout(300);
     }

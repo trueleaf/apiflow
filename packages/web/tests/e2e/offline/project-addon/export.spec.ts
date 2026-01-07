@@ -324,7 +324,8 @@ test.describe('Export', () => {
     await contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: 'xml' }).first().click();
     await contentPage.waitForTimeout(200);
     const rawTextarea = contentPage.locator('.raw-textarea textarea, .raw-editor textarea, [data-testid="raw-body-input"]');
-    if (await rawTextarea.count() > 0) {
+    const rawTextareaCount = await rawTextarea.count();
+    if (rawTextareaCount > 0) {
       await rawTextarea.fill('<?xml version="1.0\"?><root><name>test</name></root>');
     } else {
       const rawEditor = contentPage.locator('.raw-wrap .s-json-editor').first();

@@ -35,7 +35,7 @@ test.describe('Remark', () => {
     await expect(editorContent).toContainText('这是一段普通文本', { timeout: 5000 });
   });
   // 测试用例2: 输入普通文本后保存,刷新页面内容保持不变
-  test('输入普通文本后保存,刷新页面内容保持不变', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('输入普通文本后保存,刷新页面内容保持不变', async ({ contentPage, clearCache, createProject, loginAccount, reload }) => {
     await clearCache();
 
     await loginAccount();
@@ -65,10 +65,8 @@ test.describe('Remark', () => {
     const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
     await contentPage.waitForTimeout(1000);
-    // 刷新页面
-    await contentPage.reload();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
-    await contentPage.waitForTimeout(1000);
+    await reload();
+    await contentPage.waitForTimeout(500);
     // 点击节点重新打开
     const nodeItem = contentPage.locator('.tree-item').filter({ hasText: '备注持久化测试接口' }).first();
     await nodeItem.click();

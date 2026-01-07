@@ -69,7 +69,8 @@ test.describe('Search', () => {
     await contentPage.waitForTimeout(500);
     // 在URL输入框中输入URL
     const urlInput = contentPage.locator('[data-testid="http-request-url-input"] input');
-    if (await urlInput.isVisible()) {
+    const urlInputVisible = await urlInput.isVisible();
+    if (urlInputVisible) {
       await urlInput.fill('/api/test/search');
       await contentPage.waitForTimeout(300);
     }

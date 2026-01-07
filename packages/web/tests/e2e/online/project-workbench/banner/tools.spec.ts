@@ -170,7 +170,8 @@ test.describe('Tools', () => {
     await contentPage.waitForTimeout(300);
     // 点击新增文件夹工具
     const addFolderItem = contentPage.locator('[data-testid="tool-panel-banner-add-folder-btn"]');
-    if (await addFolderItem.isVisible()) {
+    const addFolderItemVisible = await addFolderItem.isVisible();
+    if (addFolderItemVisible) {
       await addFolderItem.click();
       await contentPage.waitForTimeout(300);
       // 验证对话框弹出
@@ -193,7 +194,8 @@ test.describe('Tools', () => {
     await contentPage.waitForTimeout(300);
     // 点击新增文件工具
     const addFileItem = contentPage.locator('[data-testid="tool-panel-banner-add-http-btn"]');
-    if (await addFileItem.isVisible()) {
+    const addFileItemVisible = await addFileItem.isVisible();
+    if (addFileItemVisible) {
       await addFileItem.click();
       await contentPage.waitForTimeout(300);
       // 验证对话框弹出

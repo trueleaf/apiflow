@@ -387,7 +387,8 @@ test.describe('SearchProject', () => {
     await jsonRadio.click();
     await expect(bodyPanel.locator('.json-wrap')).toBeVisible({ timeout: 15000 });
     const jsonTip = bodyPanel.locator('.json-tip');
-    if (await jsonTip.isVisible()) {
+    const jsonTipVisible = await jsonTip.isVisible();
+    if (jsonTipVisible) {
       const hideTipBtn = jsonTip.locator('.no-tip');
       await hideTipBtn.click();
       await expect(jsonTip).toBeHidden({ timeout: 5000 });

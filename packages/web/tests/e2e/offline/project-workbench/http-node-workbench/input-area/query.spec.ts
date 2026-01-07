@@ -273,7 +273,8 @@ test.describe('Query', () => {
     await contentPage.waitForTimeout(300);
     // 取消勾选"是否发送"checkbox
     const sendCheckbox = queryParamsPanel.locator('.el-tree-node__content .el-checkbox').first();
-    if (await sendCheckbox.isVisible()) {
+    const sendCheckboxVisible = await sendCheckbox.isVisible();
+    if (sendCheckboxVisible) {
       await sendCheckbox.click();
       await contentPage.waitForTimeout(200);
     }

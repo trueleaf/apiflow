@@ -45,7 +45,8 @@ test.describe('RawBodyValidation', () => {
     await contentPage.waitForTimeout(300);
     // 输入纯文本内容
     const rawTextarea = contentPage.locator('.raw-textarea textarea, .raw-editor textarea, [data-testid="raw-body-input"]');
-    if (await rawTextarea.count() > 0) {
+    const rawTextareaCount = await rawTextarea.count();
+    if (rawTextareaCount > 0) {
       await rawTextarea.fill('Hello World, this is plain text content.');
     } else {
       const rawEditor = contentPage.locator('.raw-wrap .s-json-editor').first();
@@ -107,7 +108,8 @@ test.describe('RawBodyValidation', () => {
     await contentPage.waitForTimeout(300);
     // 输入HTML内容
     const rawTextarea = contentPage.locator('.raw-textarea textarea, .raw-editor textarea, [data-testid="raw-body-input"]');
-    if (await rawTextarea.count() > 0) {
+    const rawTextareaCount = await rawTextarea.count();
+    if (rawTextareaCount > 0) {
       await rawTextarea.fill('<html><body><h1>Test</h1></body></html>');
     } else {
       const rawEditor = contentPage.locator('.raw-wrap .s-json-editor').first();
@@ -173,7 +175,8 @@ test.describe('RawBodyValidation', () => {
     await contentPage.waitForTimeout(300);
     // 输入XML内容
     const rawTextarea = contentPage.locator('.raw-textarea textarea, .raw-editor textarea, [data-testid="raw-body-input"]');
-    if (await rawTextarea.count() > 0) {
+    const rawTextareaCount = await rawTextarea.count();
+    if (rawTextareaCount > 0) {
       await rawTextarea.fill('<?xml version="1.0"?><root><name>test</name></root>');
     } else {
       const rawEditor = contentPage.locator('.raw-wrap .s-json-editor').first();
@@ -238,7 +241,8 @@ test.describe('RawBodyValidation', () => {
     await contentPage.waitForTimeout(300);
     // 输入JavaScript代码
     const rawTextarea = contentPage.locator('.raw-textarea textarea, .raw-editor textarea, [data-testid="raw-body-input"]');
-    if (await rawTextarea.count() > 0) {
+    const rawTextareaCount = await rawTextarea.count();
+    if (rawTextareaCount > 0) {
       await rawTextarea.fill('function hello() { return "world"; }');
     } else {
       const rawEditor = contentPage.locator('.raw-wrap .s-json-editor').first();

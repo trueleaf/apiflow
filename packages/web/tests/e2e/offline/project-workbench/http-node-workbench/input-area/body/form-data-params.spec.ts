@@ -407,7 +407,8 @@ test.describe('FormDataParams', () => {
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
       const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
       const selectLabel = fileValueWrapper.locator('[data-testid="params-tree-file-select-label"]');
-      if (await varInput.isVisible()) {
+      const varInputVisible = await varInput.isVisible();
+      if (varInputVisible) {
         await toggleBtn.dispatchEvent('click');
         await contentPage.waitForTimeout(300);
       }
@@ -473,7 +474,8 @@ test.describe('FormDataParams', () => {
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
       const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
       const selectLabel = fileValueWrapper.locator('[data-testid="params-tree-file-select-label"]');
-      if (await varInput.isVisible()) {
+      const varInputVisible = await varInput.isVisible();
+      if (varInputVisible) {
         await toggleBtn.click();
         await contentPage.waitForTimeout(300);
       }
@@ -538,7 +540,8 @@ test.describe('FormDataParams', () => {
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
       const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
       const selectLabel = fileValueWrapper.locator('[data-testid="params-tree-file-select-label"]');
-      if (await varInput.isVisible()) {
+      const varInputVisible = await varInput.isVisible();
+      if (varInputVisible) {
         await toggleBtn.click();
         await contentPage.waitForTimeout(300);
       }
@@ -613,7 +616,8 @@ test.describe('FormDataParams', () => {
       const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
       const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
-      if (!(await varInput.isVisible())) {
+      const isVarInputVisible = await varInput.isVisible();
+      if (!isVarInputVisible) {
         await toggleBtn.click();
         await contentPage.waitForTimeout(300);
       }
@@ -691,7 +695,8 @@ test.describe('FormDataParams', () => {
       const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
       const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
-      if (!(await varInput.isVisible())) {
+      const isVarInputVisible = await varInput.isVisible();
+      if (!isVarInputVisible) {
         await toggleBtn.click();
         await contentPage.waitForTimeout(300);
       }
@@ -750,7 +755,8 @@ test.describe('FormDataParams', () => {
       const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
       const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
-      if (!(await varInput.isVisible())) {
+      const isVarInputVisible = await varInput.isVisible();
+      if (!isVarInputVisible) {
         await toggleBtn.click();
         await contentPage.waitForTimeout(300);
       }
@@ -826,7 +832,8 @@ test.describe('FormDataParams', () => {
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
       const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
       const selectLabel = fileValueWrapper.locator('[data-testid="params-tree-file-select-label"]');
-      if (await varInput.isVisible()) {
+      const varInputVisible = await varInput.isVisible();
+      if (varInputVisible) {
         await toggleBtn.click();
         await contentPage.waitForTimeout(300);
       }
@@ -891,7 +898,8 @@ test.describe('FormDataParams', () => {
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
       const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
       const selectLabel = fileValueWrapper.locator('[data-testid="params-tree-file-select-label"]');
-      if (await varInput.isVisible()) {
+      const varInputVisible = await varInput.isVisible();
+      if (varInputVisible) {
         await toggleBtn.click();
         await contentPage.waitForTimeout(300);
       }
@@ -972,7 +980,8 @@ test.describe('FormDataParams', () => {
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
       const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
       const selectLabel = fileValueWrapper.locator('[data-testid="params-tree-file-select-label"]');
-      if (await varInput.isVisible()) {
+      const varInputVisible = await varInput.isVisible();
+      if (varInputVisible) {
         await toggleBtn.click();
         await contentPage.waitForTimeout(300);
       }
@@ -1043,7 +1052,8 @@ test.describe('FormDataParams', () => {
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
       const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
       const selectLabel = fileValueWrapper.locator('[data-testid="params-tree-file-select-label"]');
-      if (await varInput.isVisible()) {
+      const varInputVisible = await varInput.isVisible();
+      if (varInputVisible) {
         await toggleBtn.click();
         await contentPage.waitForTimeout(300);
       }
@@ -1123,7 +1133,8 @@ test.describe('FormDataParams', () => {
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
       const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
       const selectLabel = fileValueWrapper.locator('[data-testid="params-tree-file-select-label"]');
-      if (await varInput.isVisible()) {
+      const varInputVisible = await varInput.isVisible();
+      if (varInputVisible) {
         await toggleBtn.click();
         await contentPage.waitForTimeout(300);
       }

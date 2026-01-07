@@ -112,7 +112,8 @@ test.describe('PreScriptEditorFeatures', () => {
     await contentPage.waitForTimeout(300);
     // 尝试点击格式化按钮
     const formatBtn = contentPage.locator('.format-btn, [data-testid="format-btn"], button', { hasText: /格式化|Format/ });
-    if (await formatBtn.isVisible()) {
+    const formatBtnVisible = await formatBtn.isVisible();
+    if (formatBtnVisible) {
       await formatBtn.click();
       await contentPage.waitForTimeout(500);
     } else {

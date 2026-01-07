@@ -32,7 +32,8 @@ test.describe('ResponseCookie', () => {
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
     // 切换到Cookie标签页
     const cookieTab = contentPage.locator('[data-testid="response-tabs"]').getByRole('tab', { name: /Cookie|Cookies/i }).first();
-    if (await cookieTab.isVisible().catch(() => false)) {
+    const cookieTabVisible = await cookieTab.isVisible().catch(() => false);
+    if (cookieTabVisible) {
       await cookieTab.click();
       await contentPage.waitForTimeout(300);
     }
@@ -63,7 +64,8 @@ test.describe('ResponseCookie', () => {
     await contentPage.waitForTimeout(300);
     // 添加Cookie请求头
     const headerKeyInput = contentPage.locator('.custom-headers input[placeholder*="名称"], .custom-headers input[placeholder*="Key"]').first();
-    if (await headerKeyInput.isVisible().catch(() => false)) {
+    const headerKeyInputVisible = await headerKeyInput.isVisible().catch(() => false);
+    if (headerKeyInputVisible) {
       await headerKeyInput.fill('Cookie');
       await contentPage.waitForTimeout(200);
       const headerValueInput = contentPage.locator('.custom-headers input[placeholder*="值"], .custom-headers input[placeholder*="Value"]').first();

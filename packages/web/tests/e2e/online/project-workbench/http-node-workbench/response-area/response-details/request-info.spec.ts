@@ -32,7 +32,8 @@ test.describe('RequestInfo', () => {
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
     // 切换到请求信息标签页
     const requestInfoTab = contentPage.locator('[data-testid="response-tabs"]').getByRole('tab', { name: /请求信息|Request Info|Request/i }).first();
-    if (await requestInfoTab.isVisible().catch(() => false)) {
+    const requestInfoTabVisible = await requestInfoTab.isVisible().catch(() => false);
+    if (requestInfoTabVisible) {
       await requestInfoTab.click();
       await contentPage.waitForTimeout(300);
     }
@@ -74,7 +75,8 @@ test.describe('RequestInfo', () => {
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入数据
     const jsonEditor = contentPage.locator('.json-editor .s-monaco-editor, .body-json .s-monaco-editor').first();
-    if (await jsonEditor.isVisible().catch(() => false)) {
+    const jsonEditorVisible = await jsonEditor.isVisible().catch(() => false);
+    if (jsonEditorVisible) {
       await jsonEditor.click();
       await contentPage.waitForTimeout(300);
       await contentPage.keyboard.type('{"name": "test", "value": 123}');

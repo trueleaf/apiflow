@@ -12,6 +12,8 @@ type ElectronFixtures = {
   contentPage: Page;
   clearCache: () => Promise<void>;
   createProject: (name?: string) => Promise<string>;
+  jumpToSettings: () => Promise<void>;
+  reload: () => Promise<void>;
 };
 
 // 等待指定窗口加载完成的辅助函数
@@ -132,6 +134,24 @@ export const test = base.extend<ElectronFixtures>({
       return projectName;
     };
     await use(create);
+  },
+  jumpToSettings: async ({ topBarPage, contentPage }, use) => {
+    const jump = async () => {
+      const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
+      await settingsBtn.click();
+      await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
+    };
+    await use(jump);
+  },
+  reload: async ({ topBarPage, contentPage }, use) => {
+    const doReload = async () => {
+      const refreshBtn = topBarPage.locator('[data-testid="header-refresh-btn"]');
+      await refreshBtn.click();
+      await topBarPage.waitForLoadState('domcontentloaded');
+      await contentPage.waitForLoadState('domcontentloaded');
+      await topBarPage.waitForTimeout(1000);
+    };
+    await use(doReload);
   },
 });
 

@@ -250,7 +250,8 @@ test.describe('CustomHeaders', () => {
     // 取消勾选"是否发送"checkbox
     const firstRow = headersTree.locator('.el-tree-node').first();
     const sendCheckbox = firstRow.locator('.el-tree-node__content > .el-checkbox').first();
-    if (await sendCheckbox.isVisible()) {
+    const sendCheckboxVisible = await sendCheckbox.isVisible();
+    if (sendCheckboxVisible) {
       await sendCheckbox.click();
       await contentPage.waitForTimeout(200);
     }

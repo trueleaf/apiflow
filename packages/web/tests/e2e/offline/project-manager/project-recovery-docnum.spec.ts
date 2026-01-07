@@ -16,7 +16,8 @@ test.describe('ProjectRecoveryDocNum', () => {
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 })
     await contentPage.waitForTimeout(500)
     const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary')
-    if (await confirmBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
+    const confirmBtnVisible = await confirmBtn.isVisible({ timeout: 1000 }).catch(() => false)
+    if (confirmBtnVisible) {
       await confirmBtn.click()
       await contentPage.waitForTimeout(300)
     }

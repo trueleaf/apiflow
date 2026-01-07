@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../fixtures/electron-online.fixture';
 
 test.describe('Online团队管理', () => {
   test('在线模式显示团队管理Tab并可进入', async ({ contentPage, clearCache, loginAccount }) => {
@@ -86,7 +86,8 @@ test.describe('Online团队管理', () => {
     await groupListResponse;
 
     const emptyState = contentPage.locator('.empty-state-card');
-    if (await emptyState.isVisible({ timeout: 500 }).catch(() => false)) {
+    const emptyStateVisible = await emptyState.isVisible({ timeout: 500 }).catch(() => false);
+    if (emptyStateVisible) {
       await emptyState.getByRole('button', { name: /创建团队|Create Team/i }).click();
       const dialog = contentPage.locator('.el-dialog').filter({ hasText: /创建团队|Create Team/i });
       await expect(dialog).toBeVisible({ timeout: 5000 });
@@ -254,7 +255,8 @@ test.describe('Online团队管理', () => {
     await groupListResponse;
 
     const emptyState = contentPage.locator('.empty-state-card');
-    if (await emptyState.isVisible({ timeout: 500 }).catch(() => false)) {
+    const emptyStateVisible = await emptyState.isVisible({ timeout: 500 }).catch(() => false);
+    if (emptyStateVisible) {
       await emptyState.getByRole('button', { name: /创建团队|Create Team/i }).click();
       const dialog = contentPage.locator('.el-dialog').filter({ hasText: /创建团队|Create Team/i });
       await expect(dialog).toBeVisible({ timeout: 5000 });

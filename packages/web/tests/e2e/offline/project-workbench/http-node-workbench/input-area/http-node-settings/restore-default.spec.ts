@@ -99,10 +99,8 @@ test.describe('RestoreDefault', () => {
     const userAgentResetBtn = contentPage.locator('.config-item').filter({ hasText: 'User-Agent' }).locator('.reset-btn');
     await userAgentResetBtn.click();
     await contentPage.waitForTimeout(500);
-    // 刷新页面
-    await contentPage.reload();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
-    await contentPage.waitForTimeout(1000);
+    await reload();
+    await contentPage.waitForTimeout(500);
     // 重新打开设置标签页
     const settingsTabAfterReload = contentPage.locator('[data-testid="http-params-tab-settings"]');
     await settingsTabAfterReload.click();

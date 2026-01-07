@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../fixtures/electron-online.fixture';
 
 test.describe('Online后台管理权限', () => {
   test('管理员账号可看到入口并进入后台管理', async ({ topBarPage, contentPage, clearCache, loginAccount }) => {
@@ -12,7 +12,8 @@ test.describe('Online后台管理权限', () => {
 
     await loginAccount({ loginName: loginName1, password: password1 });
     const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
-    if (!(await adminBtn.isVisible({ timeout: 1000 }).catch(() => false))) {
+    const adminBtnVisible = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
+    if (!adminBtnVisible) {
       if (!loginName2 || !password2) test.skip(true, '未配置第二账号，且当前账号不是管理员');
       await loginAccount({ loginName: loginName2, password: password2 });
     }

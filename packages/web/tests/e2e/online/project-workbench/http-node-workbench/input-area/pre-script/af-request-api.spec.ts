@@ -222,7 +222,8 @@ af.request.queryParams["newParam"] = "newValue";`;
     // 在Path参数区域找到userId参数并设置初始值
     const pathParamsArea = contentPage.locator('.path-params');
     const userIdInput = pathParamsArea.locator('input[placeholder*="参数值"], input[placeholder*="Value"]').first();
-    if (await userIdInput.isVisible()) {
+    const userIdInputVisible = await userIdInput.isVisible();
+    if (userIdInputVisible) {
       await userIdInput.fill('123');
       await contentPage.waitForTimeout(300);
     }
@@ -360,7 +361,8 @@ af.request.body.json.newField = "addedValue";`;
     await contentPage.waitForTimeout(300);
     // 添加一个form-data字段
     const keyInput = contentPage.locator('.formdata-params input[placeholder*="名称"], .formdata-params input[placeholder*="Key"]').first();
-    if (await keyInput.isVisible()) {
+    const keyInputVisible = await keyInput.isVisible();
+    if (keyInputVisible) {
       await keyInput.fill('fieldname');
       await contentPage.waitForTimeout(200);
       const valueInput = contentPage.locator('.formdata-params input[placeholder*="值"], .formdata-params input[placeholder*="Value"]').first();

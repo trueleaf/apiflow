@@ -94,7 +94,8 @@ test.describe('CookieBusiness', () => {
     const headerKeyAutocomplete = contentPage.getByTestId('params-tree-key-autocomplete');
     const headerKeyInputs = contentPage.getByTestId('params-tree-key-input');
     const headerValueInputs = contentPage.getByTestId('params-tree-value-input');
-    if (await headerKeyAutocomplete.count() > 0) {
+    const headerKeyAutocompleteCount = await headerKeyAutocomplete.count();
+    if (headerKeyAutocompleteCount > 0) {
       await headerKeyAutocomplete.first().locator('input').fill('Cookie');
     } else {
       await headerKeyInputs.first().fill('Cookie');

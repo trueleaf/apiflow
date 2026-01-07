@@ -83,12 +83,11 @@ test.describe('CreateProject', () => {
     await expect(activeTab).toContainText(projectName);
   });
 
-  test('新建项目后返回首页,新项目排在全部项目列表第一位', async ({ topBarPage, contentPage, clearCache, loginAccount }) => {
+  test('新建项目后返回首页,新项目排在全部项目列表第一位', async ({ topBarPage, contentPage, clearCache, loginAccount, reload }) => {
     await clearCache();
 
     await loginAccount();
-    await contentPage.reload();
-    await contentPage.waitForTimeout(500);
+    await reload();
     const projectName = `排序测试项目-${Date.now()}`;
     const addProjectBtn = topBarPage.locator('[data-testid="header-add-project-btn"]');
     await addProjectBtn.click();
@@ -131,7 +130,8 @@ test.describe('CreateProject', () => {
 
     const groupName = `E2E-项目团队-${Date.now()}`;
     const emptyState = contentPage.locator('.empty-state-card');
-    if (await emptyState.isVisible({ timeout: 500 }).catch(() => false)) {
+    const emptyStateVisible = await emptyState.isVisible({ timeout: 500 }).catch(() => false);
+    if (emptyStateVisible) {
       await emptyState.getByRole('button', { name: /创建团队|Create Team/i }).click();
     } else {
       await contentPage.getByTitle(/创建团队|Create Team/i).first().click();

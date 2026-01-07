@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../fixtures/electron-online.fixture';
 
 test.describe('Online团队成员权限', () => {
   test('添加成员后可修改权限并移除成员', async ({ contentPage, clearCache, loginAccount }) => {
@@ -17,7 +17,8 @@ test.describe('Online团队成员权限', () => {
     await groupListResponse;
 
     const emptyState = contentPage.locator('.empty-state-card');
-    if (await emptyState.isVisible({ timeout: 500 }).catch(() => false)) {
+    const emptyStateVisible = await emptyState.isVisible({ timeout: 500 }).catch(() => false);
+    if (emptyStateVisible) {
       await emptyState.getByRole('button', { name: /创建团队|Create Team/i }).click();
       const dialog = contentPage.locator('.el-dialog').filter({ hasText: /创建团队|Create Team/i });
       await expect(dialog).toBeVisible({ timeout: 5000 });
@@ -90,7 +91,8 @@ test.describe('Online团队成员权限', () => {
     await groupListResponse;
 
     const emptyState = contentPage.locator('.empty-state-card');
-    if (await emptyState.isVisible({ timeout: 500 }).catch(() => false)) {
+    const emptyStateVisible = await emptyState.isVisible({ timeout: 500 }).catch(() => false);
+    if (emptyStateVisible) {
       await emptyState.getByRole('button', { name: /创建团队|Create Team/i }).click();
       const dialog = contentPage.locator('.el-dialog').filter({ hasText: /创建团队|Create Team/i });
       await expect(dialog).toBeVisible({ timeout: 5000 });
@@ -162,7 +164,8 @@ test.describe('Online团队成员权限', () => {
     await groupListResponse;
 
     const emptyState = contentPage.locator('.empty-state-card');
-    if (await emptyState.isVisible({ timeout: 500 }).catch(() => false)) {
+    const emptyStateVisible = await emptyState.isVisible({ timeout: 500 }).catch(() => false);
+    if (emptyStateVisible) {
       await emptyState.getByRole('button', { name: /创建团队|Create Team/i }).click();
       const dialog = contentPage.locator('.el-dialog').filter({ hasText: /创建团队|Create Team/i });
       await expect(dialog).toBeVisible({ timeout: 5000 });
@@ -230,7 +233,8 @@ test.describe('Online团队成员权限', () => {
     await groupListResponse;
 
     const emptyState = contentPage.locator('.empty-state-card');
-    if (await emptyState.isVisible({ timeout: 500 }).catch(() => false)) {
+    const emptyStateVisible = await emptyState.isVisible({ timeout: 500 }).catch(() => false);
+    if (emptyStateVisible) {
       test.skip(true, '没有团队可以退出');
     }
 
@@ -256,7 +260,8 @@ test.describe('Online团队成员权限', () => {
     await groupListResponse;
 
     const emptyState = contentPage.locator('.empty-state-card');
-    if (await emptyState.isVisible({ timeout: 500 }).catch(() => false)) {
+    const emptyStateVisible = await emptyState.isVisible({ timeout: 500 }).catch(() => false);
+    if (emptyStateVisible) {
       await emptyState.getByRole('button', { name: /创建团队|Create Team/i }).click();
       const dialog = contentPage.locator('.el-dialog').filter({ hasText: /创建团队|Create Team/i });
       await expect(dialog).toBeVisible({ timeout: 5000 });

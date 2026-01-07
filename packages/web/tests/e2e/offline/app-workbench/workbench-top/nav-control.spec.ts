@@ -28,7 +28,7 @@ test.describe('NavControl', () => {
     await expect(projectTabAfterRefresh).toHaveClass(/active/);
   });
 
-  test('前进后退按钮按历史栈导航', async ({ topBarPage, contentPage, createProject }) => {
+  test('前进后退按钮按历史栈导航', async ({ topBarPage, contentPage, createProject, jumpToSettings }) => {
     // 创建三个项目
     const projectAName = await createProject(`项目A-${Date.now()}`);
     await createProject(`项目B-${Date.now()}`);
@@ -38,13 +38,12 @@ test.describe('NavControl', () => {
     await projectATab.click();
     await topBarPage.waitForTimeout(300);
     await expect(projectATab).toHaveClass(/active/);
-    // 打开设置页面
-    const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
-    await settingsBtn.click();
-    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
+    await jumpToSettings();
+    const settingsTab = topBarPage.locator('.tab-item[data-id="settings-offline"]');
+    await expect(settingsTab).toHaveClass(/active/);
     // 导航历史栈现在是: 项目C -> 项目A -> 设置
     // 点击后退按钮，应回到项目A
-    const backBtn = topBarPage.locator('[data-testid="header-back-btn"]');
+    const backBtn = topBarPage.locator('[data-testid="header-back-btn"]');      
     await expect(backBtn).toBeVisible();
     await backBtn.click();
     await topBarPage.waitForTimeout(500);
@@ -59,11 +58,11 @@ test.describe('NavControl', () => {
     // 等待 Tab 高亮状态同步
     await topBarPage.waitForTimeout(500);
     // 验证回到设置页面
-    const settingsTab = topBarPage.locator('.tab-item').filter({ hasText: /设置|Settings/ });
     await expect(settingsTab).toBeVisible();
+    await expect(settingsTab).toHaveClass(/active/);
   });
 
-  test('多次后退和前进验证完整历史栈', async ({ topBarPage, contentPage, createProject }) => {
+  test('多次后退和前进验证完整历史栈', async ({ topBarPage, contentPage, createProject, jumpToSettings }) => {
     // 创建三个项目
     const projectAName = await createProject(`历史A-${Date.now()}`);
     const projectBName = await createProject(`历史B-${Date.now()}`);
@@ -72,12 +71,11 @@ test.describe('NavControl', () => {
     const projectATab = topBarPage.locator('.tab-item').filter({ hasText: projectAName });
     await projectATab.click();
     await topBarPage.waitForTimeout(300);
-    // 打开设置页面
-    const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
-    await settingsBtn.click();
-    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
+    await jumpToSettings();
+    const settingsTab = topBarPage.locator('.tab-item[data-id="settings-offline"]');
+    await expect(settingsTab).toHaveClass(/active/);
     // 导航历史栈: 项目C -> 项目A -> 设置
-    const backBtn = topBarPage.locator('[data-testid="header-back-btn"]');
+    const backBtn = topBarPage.locator('[data-testid="header-back-btn"]');      
     const forwardBtn = topBarPage.locator('[data-testid="header-forward-btn"]');
     // 后退：设置 -> 项目A
     await backBtn.click();
@@ -97,23 +95,14 @@ test.describe('NavControl', () => {
     await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
     // 等待 Tab 高亮状态同步
     await topBarPage.waitForTimeout(500);
-    const settingsTab = topBarPage.locator('.tab-item').filter({ hasText: /设置|Settings/ });
     await expect(settingsTab).toBeVisible();
+    await expect(settingsTab).toHaveClass(/active/);
   });
 
-  test('历史栈为空时后退到主页面', async ({ topBarPage, contentPage, clearCache }) => {
+  test('历史栈为空时后退到主页面', async ({ topBarPage, contentPage, clearCache, reload, jumpToSettings }) => {
     await clearCache();
-    // 刷新页面使缓存清除生效
-    await contentPage.reload();
-    await contentPage.waitForLoadState('domcontentloaded');
-    await topBarPage.reload();
-    await topBarPage.waitForLoadState('domcontentloaded');
-    await topBarPage.waitForTimeout(500);
-    // 打开设置页面
-    const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
-    await expect(settingsBtn).toBeVisible();
-    await settingsBtn.click();
-    await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
+    await reload();
+    await jumpToSettings();
     // 点击后退按钮，应回到主页面
     const backBtn = topBarPage.locator('[data-testid="header-back-btn"]');
     await backBtn.click();
