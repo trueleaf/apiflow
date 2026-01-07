@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, computed, getCurrentInstance, onMounted, onBeforeUnmount, useSlots } from 'vue'
+import { inject, computed, getCurrentInstance, onMounted, onBeforeUnmount, useSlots, watch } from 'vue'
 import type { TabsContext } from '../types'
 
 const props = withDefaults(defineProps<{
@@ -29,6 +29,15 @@ const tabsContext = inject<TabsContext>('cleanTabsContext')
 
 const isActive = computed(() => {
   return tabsContext?.activeTabName.value === props.name
+})
+
+watch(() => [props.label, props.disabled], () => {
+  if (tabsContext) {
+    tabsContext.updatePane(uid, {
+      label: props.label || props.name,
+      disabled: props.disabled
+    })
+  }
 })
 
 onMounted(() => {

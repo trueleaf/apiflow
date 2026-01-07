@@ -391,8 +391,12 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.navigateToLogin)
   })
 
-  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab, () => {        
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab, () => {
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab)
+  })
+
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.activeTabUpdated, (_, activeTabId: string) => {
+    topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.activeTabUpdated, activeTabId)
   })
 
   ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, (_, mode: RuntimeNetworkMode) => {

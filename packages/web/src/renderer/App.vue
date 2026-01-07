@@ -448,6 +448,11 @@ const initAppHeader = () => {
           if (runtimeStore.networkMode === 'online') {
             window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToLogin)
           }
+        } else if (newRoute.path === '/settings') {
+          window.electronAPI?.ipcManager.sendToMain(
+            IPC_EVENTS.apiflow.contentToTopBar.activeTabUpdated,
+            `settings-${runtimeStore.networkMode}`
+          )
         }
       },
       { immediate: true, deep: true }

@@ -76,6 +76,12 @@ const unregisterPane = (uid: number) => {
     tabPanes.value.splice(index, 1)
   }
 }
+const updatePane = (uid: number, updates: Partial<Pick<TabPane, 'label' | 'disabled'>>) => {
+  const pane = tabPanes.value.find((p: TabPane) => p.uid === uid)
+  if (pane) {
+    Object.assign(pane, updates)
+  }
+}
 const handleTabClick = (paneName: string, pane: TabPane) => {
   if (pane.disabled) return
   if (activeTabName.value !== paneName) {
@@ -95,6 +101,7 @@ watch(() => props.modelValue, (newValue) => {
 const tabsContext: TabsContext = {
   registerPane,
   unregisterPane,
+  updatePane,
   activeTabName: computed(() => activeTabName.value),
   updateHasContent
 }

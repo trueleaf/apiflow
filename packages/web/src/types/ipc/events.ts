@@ -91,6 +91,7 @@ export const IPC_EVENTS = {
       navigateToLogin: 'apiflow:content:to:topbar:navigate-to-login',
       /** 打开设置标签 */
       openSettingsTab: 'apiflow:content:to:topbar:open-settings-tab',
+      activeTabUpdated: 'apiflow:content:to:topbar:active-tab-updated',
       /** 应用设置已变更 */
       appSettingsChanged: 'apiflow:content:to:topbar:app-settings-changed',
       /** Header Tab 右键菜单操作 */

@@ -1063,7 +1063,7 @@ onUnmounted(() => {
   .el-collapse-transition-leave-active {
     transition: none !important;
   }
-
+  
   // 节点展示更多信息
   .show-more {
     .el-tree-node__content {

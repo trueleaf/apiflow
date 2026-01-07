@@ -10,6 +10,7 @@ export interface TabPane {
 export interface TabsContext {
   registerPane: (pane: TabPane) => void
   unregisterPane: (uid: number) => void
+  updatePane: (uid: number, updates: Partial<Pick<TabPane, 'label' | 'disabled'>>) => void
   activeTabName: ComputedRef<string>
   updateHasContent: (hasContent: boolean) => void
 }

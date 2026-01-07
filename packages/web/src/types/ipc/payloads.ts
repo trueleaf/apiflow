@@ -193,6 +193,10 @@ export interface IPCEventMap {
     request: void;
     response: void;
   };
+  [IPC_EVENTS.apiflow.contentToTopBar.activeTabUpdated]: {
+    request: string;
+    response: void;
+  };
 
   // 渲染进程 -> 主进程 (请求-响应)
   [IPC_EVENTS.apiflow.rendererToMain.topBarIsReady]: {

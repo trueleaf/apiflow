@@ -464,6 +464,11 @@ const bindEvent = () => {
     activeTabId.value = 'login'
     syncActiveTabToContentView()
   })
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.activeTabUpdated, (nextActiveTabId: string) => {
+    activeTabId.value = nextActiveTabId
+    syncActiveTabToContentView()
+    scrollToActiveTab()
+  })
 
   // 监听来自 App.vue 的初始化数据
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.initTabsData, (data: { tabs: AppWorkbenchHeaderTab[], activeTabId: string, language: Language, networkMode: RuntimeNetworkMode }) => {
