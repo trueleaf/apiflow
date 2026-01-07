@@ -52,7 +52,7 @@ import STable from '@/components/common/table/ClTable.vue'
 import { Ref, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { uniqueByKey } from '@/helper';
-import { ElMessageBox } from 'element-plus';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
 import { request } from '@/api/api';
 
 
@@ -116,7 +116,9 @@ const handleSelect = (routeList: PermissionServerRoute[]) => {
 }
 //删除前端路由组件
 const handleDeleteServerRoute = (row: PermissionServerRoute) => {
-  ElMessageBox.confirm(t('此操作将永久删除此条记录, 是否继续?'), t('提示'), {
+  ClConfirm({
+    content: t('此操作将永久删除此条记录, 是否继续?'),
+    title: t('提示'),
     confirmButtonText: t('确定/AdminServerRoutesDelete'),
     cancelButtonText: t('取消'),
     type: 'warning',

@@ -350,6 +350,7 @@ export interface ConfirmProps {
   checkboxText?: string
   confirmButtonText?: string
   cancelButtonText?: string
+  distinguishCancelAndClose?: boolean
   zIndex?: number
   onConfirm?: (checked: boolean) => void
   onCancel?: () => void

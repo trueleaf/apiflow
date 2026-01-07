@@ -52,6 +52,7 @@ import { useI18n } from 'vue-i18n'
 import { LocalStorageItem } from '@src/types/apidoc/cache'
 import { formatUnit, message, reloadApp } from '@/helper'
 import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import LocalStorageDialog from '../dialog/LocalStorageDialog.vue'
 
 const { t, locale } = useI18n()
@@ -88,15 +89,13 @@ const handleOpenLocalStorageDetail = (row: LocalStorageItem): void => {
 // 删除localStorage本地数据项
 const handleDeleteLocalStorage = async (row: LocalStorageItem): Promise<void> => {
   try {
-    await ElMessageBox.confirm(
-      t('确定要删除 "{description}" 本地数据吗？此操作将永久删除该本地数据项。', { description: row.description }),
-      t('删除确认'),
-      {
-        confirmButtonText: t('确定删除'),
-        cancelButtonText: t('取消'),
-        type: 'warning'
-      }
-    )
+    await ClConfirm({
+      content: t('确定要删除 "{description}" 本地数据吗？此操作将永久删除该本地数据项。', { description: row.description }),
+      title: t('删除确认'),
+      confirmButtonText: t('确定删除'),
+      cancelButtonText: t('取消'),
+      type: 'warning'
+    })
     localStorage.removeItem(row.key)
     emit('refresh')
     message.success(t('删除成功'))
@@ -121,7 +120,7 @@ const handleClearAllLocalStorage = async (): Promise<void> => {
         cancelButtonText: t('取消'),
         type: 'warning',
         inputPattern,
-        inputErrorMessage: t('请输入"清空所有数据"进行确认', { phrase: confirmPhrase })
+        inputErrorMessage: t('请输入“清空所有数据”进行确认', { phrase: confirmPhrase })
       }
     )
     

@@ -2,6 +2,7 @@ import Axios, { AxiosResponse, AxiosError } from 'axios';
 import { config } from '@src/config/config'
 import { router } from '@/router';
 import { ElMessageBox } from 'element-plus';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
 import { nanoid } from 'nanoid';
 import { sha256 } from 'js-sha256';
 import { parseUrl, getStrParams, getStrHeader, getStrJsonBody } from './sign';
@@ -116,7 +117,9 @@ axiosInstance.interceptors.response.use(
           if (!isExpire) {
             isExpire = true;
             runtimeCache.clearUserInfo();
-            ElMessageBox.confirm(i18n.global.t('登录已过期'), i18n.global.t('提示'), {
+            ClConfirm({
+              content: i18n.global.t('登录已过期'),
+              title: i18n.global.t('提示'),
               confirmButtonText: i18n.global.t('跳转登录'),
               cancelButtonText: i18n.global.t('取消'),
               type: 'warning',

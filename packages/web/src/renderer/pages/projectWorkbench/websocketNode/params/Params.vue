@@ -150,7 +150,7 @@ import { appStateCache } from '@/cache/appState/appStateCache.ts'
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import { webSocketHistoryCache } from '@/cache/websocketNode/websocketHistoryCache'
 import type { WebSocketHistory } from '@src/types/history/wsHistory'
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import { WebsocketActiveTabType } from '@src/types/websocketNode'
 import { useRoute } from 'vue-router'
 
@@ -270,15 +270,13 @@ const getHistoryList = (): Promise<void> => {
 };
 
 const handleSelectHistory = (history: WebSocketHistory): void => {
-  ElMessageBox.confirm(
-    t('当前操作将覆盖原有数据，是否继续？'),
-    t('确认覆盖'),
-    {
-      confirmButtonText: t('确定/WebSocketHistoryOverwrite'),
-      cancelButtonText: t('取消'),
-      type: 'warning'
-    }
-  ).then(() => {
+  ClConfirm({
+    content: t('当前操作将覆盖原有数据，是否继续？'),
+    title: t('确认覆盖'),
+    confirmButtonText: t('确定/WebSocketHistoryOverwrite'),
+    cancelButtonText: t('取消'),
+    type: 'warning'
+  }).then(() => {
     // 调用changeWebsocket重新赋值
     websocketStore.changeWebsocket(history.node);
     showHistoryDropdown.value = false;
@@ -291,15 +289,13 @@ const handleSelectHistory = (history: WebSocketHistory): void => {
 };
 
 const handleDeleteHistory = (history: WebSocketHistory): void => {
-  ElMessageBox.confirm(
-    t('确定要删除这条历史记录吗？'),
-    t('确认删除'),
-    {
-      confirmButtonText: t('删除'),
-      cancelButtonText: t('取消'),
-      type: 'warning'
-    }
-  ).then(() => {
+  ClConfirm({
+    content: t('确定要删除这条历史记录吗？'),
+    title: t('确认删除'),
+    confirmButtonText: t('删除'),
+    cancelButtonText: t('取消'),
+    type: 'warning'
+  }).then(() => {
     // 删除操作也改为非阻塞
     webSocketHistoryCache.deleteWsHistoryByNode(websocket.value._id, [history._id])
       .then((success) => {

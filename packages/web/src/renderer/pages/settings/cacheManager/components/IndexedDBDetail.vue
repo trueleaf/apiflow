@@ -52,6 +52,7 @@ import { useI18n } from 'vue-i18n'
 import { IndexedDBItem } from '@src/types/apidoc/cache'
 import { formatUnit } from '@/helper'
 import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import IndexedDBDialog from '../dialog/IndexedDBDialog.vue'
 import { message } from '@/helper'
 
@@ -95,15 +96,13 @@ const handleOpenIndexedDBDetail = (row: IndexedDBItem): void => {
 // 删除单个store
 const handleDelete = async (row: IndexedDBItem): Promise<void> => {
   try {
-    await ElMessageBox.confirm(
-      t('确定要删除 "{description}" 本地数据吗？此操作将清空该存储中的所有数据。', { description: row.description }),
-      t('删除确认'),
-      {
-        confirmButtonText: t('确定删除'),
-        cancelButtonText: t('取消'),
-        type: 'warning'
-      }
-    )
+    await ClConfirm({
+      content: t('确定要删除 "{description}" 本地数据吗？此操作将清空该存储中的所有数据。', { description: row.description }),
+      title: t('删除确认'),
+      confirmButtonText: t('确定删除'),
+      cancelButtonText: t('取消'),
+      type: 'warning'
+    })
 
     if (!props.indexedDBWorkerRef) {
       message.error(t('Worker未初始化'))
@@ -138,7 +137,7 @@ const handleClearAllIndexedDB = async (): Promise<void> => {
         cancelButtonText: t('取消'),
         type: 'warning',
         inputPattern,
-        inputErrorMessage: t('请输入"清空所有数据"进行确认', { phrase: confirmPhrase })
+        inputErrorMessage: t('请输入“清空所有数据”进行确认', { phrase: confirmPhrase })
       }
     )
 

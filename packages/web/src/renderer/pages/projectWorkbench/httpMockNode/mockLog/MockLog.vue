@@ -200,7 +200,8 @@ import { ref, reactive, computed, watch, onMounted, onUnmounted, defineAsyncComp
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
-import { ElEmpty, ElButton, ElInput, ElSelect, ElOption, ElDialog, ElMessageBox } from 'element-plus'
+import { ElEmpty, ElButton, ElInput, ElSelect, ElOption, ElDialog } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import type { MockLog } from '@src/types/mockNode'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache'
 import { Trash2, FileText, AlertCircle, AlertTriangle, Info, List, LayoutList } from 'lucide-vue-next'
@@ -370,7 +371,9 @@ const handleLogsBatch = (logs: MockLog[]) => {
 // 清除日志
 const handleClearLogs = async () => {
   try {
-    await ElMessageBox.confirm('确定要清除所有日志吗？此操作不可恢复。', '确认清除', {
+    await ClConfirm({
+      content: '确定要清除所有日志吗？此操作不可恢复。',
+      title: '确认清除',
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning',

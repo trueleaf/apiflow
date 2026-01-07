@@ -35,7 +35,7 @@ import SEditClientRoute from './edit/Edit.vue'
 import SMultiEditClientRoute from './edit/Edit2.vue'
 import { Ref, ref } from 'vue';
 import { uniqueByKey } from '@/helper';
-import { ElMessageBox } from 'element-plus';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
 import { useI18n } from 'vue-i18n'
 import { request } from '@/api/api';
 import SSearch from '@/components/common/forms/search/ClSearch.vue'
@@ -101,7 +101,9 @@ const handleSelect = (routeList: PermissionClientRoute[]) => {
 }
 //删除前端路由组件
 const handleDeleteClientRoute = (row: PermissionClientRoute) => {
-  ElMessageBox.confirm(t('此操作将永久删除此条记录, 是否继续?'), t('提示'), {
+  ClConfirm({
+    content: t('此操作将永久删除此条记录, 是否继续?'),
+    title: t('提示'),
     confirmButtonText: t('确定/AdminClientRoutesDelete'),
     cancelButtonText: t('取消'),
     type: 'warning',

@@ -210,7 +210,8 @@ import STable from '@/components/common/table/ClTable.vue'
 import { config } from '@src/config/config'
 import { useI18n } from 'vue-i18n'
 import { computed, ref, onMounted, defineAsyncComponent } from 'vue';
-import { ElMessageBox, FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
+import { FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
 import { request } from '@/api/api';
 import { message } from '@/helper';
 import { useRoute } from 'vue-router';
@@ -426,7 +427,9 @@ const handleEdit = (row: AddProjectVariableParams) => {
 //=====================================删除====================================//
 //删除一个数据
 const handleDelete = (_id: string) => {
-  ElMessageBox.confirm(t('此操作将永久删除该变量, 是否继续?'), t('提示'), {
+  ClConfirm({
+    content: t('此操作将永久删除该变量, 是否继续?'),
+    title: t('提示'),
     confirmButtonText: t('确定/VariableDelete'),
     cancelButtonText: t('取消'),
     type: 'warning',
@@ -446,7 +449,9 @@ const handleDelete = (_id: string) => {
 
 // 独立模式删除变量
 const handleStandaloneDelete = (_id: string) => {
-  ElMessageBox.confirm(t('此操作将永久删除该变量, 是否继续?'), t('提示'), {
+  ClConfirm({
+    content: t('此操作将永久删除该变量, 是否继续?'),
+    title: t('提示'),
     confirmButtonText: t('确定/VariableDelete'),
     cancelButtonText: t('取消'),
     type: 'warning',

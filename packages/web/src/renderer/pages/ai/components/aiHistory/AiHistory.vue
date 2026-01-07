@@ -70,7 +70,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ArrowLeft, MessageSquare, Trash2, Loader2 } from 'lucide-vue-next'
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import { agentViewCache } from '@/cache/ai/agentViewCache'
 import { useAgentViewStore } from '@/store/ai/agentView'
 import type { AgentViewMessage } from '@src/types/ai'
@@ -157,15 +157,13 @@ const handleDeleteSession = async (sessionId: string) => {
 const handleClearAll = async () => {
   if (sessionList.value.length === 0) return
   try {
-    await ElMessageBox.confirm(
-      t('确定清空所有历史会话吗？此操作不可恢复'),
-      t('确定清空'),
-      {
-        confirmButtonText: t('确定/AiHistoryClearAll'),
-        cancelButtonText: t('取消'),
-        type: 'warning'
-      }
-    )
+    await ClConfirm({
+      content: t('确定清空所有历史会话吗？此操作不可恢复'),
+      title: t('确定清空'),
+      confirmButtonText: t('确定/AiHistoryClearAll'),
+      cancelButtonText: t('取消'),
+      type: 'warning'
+    })
     await agentViewStore.clearAllSessions()
     sessionList.value = []
     sessionTitles.value.clear()

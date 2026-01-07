@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import type { UploadFile } from 'element-plus'
 import { Upload, FileArchive, RotateCcw } from 'lucide-vue-next'
 import { message, reloadApp } from '@/helper'
@@ -128,11 +128,13 @@ const handleImport = async (): Promise<void> => {
   }
   if (importMode.value === 'override') {
     try {
-      await ElMessageBox.confirm(
-        t('覆盖模式将清空所有现有数据，此操作不可恢复！是否继续？'),
-        t('导入选项'),
-        { confirmButtonText: t('确定/DataRestoreOverwrite'), cancelButtonText: t('取消'), type: 'warning' }
-      )
+      await ClConfirm({
+        content: t('覆盖模式将清空所有现有数据，此操作不可恢复！是否继续？'),
+        title: t('导入选项'),
+        confirmButtonText: t('确定/DataRestoreOverwrite'),
+        cancelButtonText: t('取消'),
+        type: 'warning'
+      })
     } catch {
       return
     }

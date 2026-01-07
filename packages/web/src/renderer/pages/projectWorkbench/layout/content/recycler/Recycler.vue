@@ -127,8 +127,7 @@ import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
 import isYesterday from 'dayjs/plugin/isYesterday'
 import 'dayjs/locale/zh-cn'
-import 'element-plus/es/components/message-box/style/css';
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import type { HttpNodeRequestMethod, ApidocType, ResponseTable, ApiNode, HttpNode, WebSocketNode, HttpMockNode, WebSocketMockNode } from '@src/types'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
@@ -404,7 +403,9 @@ const deletedInfo = computed(() => {
 const loading2 = ref(false); //回复按钮
 //恢复接口
 const restoreDocDirectly = (docInfo: DeleteInfo) => {
-  ElMessageBox.confirm(`确实要恢复 ${docInfo.name} 吗?`, '提示', {
+  ClConfirm({
+    content: `确实要恢复 ${docInfo.name} 吗?`,
+    title: '提示',
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',

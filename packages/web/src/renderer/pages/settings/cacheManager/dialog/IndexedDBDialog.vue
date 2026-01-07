@@ -85,7 +85,7 @@ import { ref, computed, onMounted, onUnmounted, defineAsyncComponent } from 'vue
 import { useI18n } from 'vue-i18n'
 import { IndexedDBItem, StoreDetailResponse, StoreDetailItem } from '@src/types/apidoc/cache'
 import { formatUnit } from '@/helper'
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import { message } from '@/helper'
 
 const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
@@ -243,15 +243,13 @@ const handleDeleteItem = async (row: StoreDetailItem): Promise<void> => {
   if (deletingItems.value.has(row.key)) return
 
   try {
-    await ElMessageBox.confirm(
-      `确定要删除键名为 "${row.key}" 的数据吗？此操作不可撤销。`,
-      '删除确认',
-      {
-        confirmButtonText: '确定删除',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ClConfirm({
+      content: `确定要删除键名为 "${row.key}" 的数据吗？此操作不可撤销。`,
+      title: '删除确认',
+      confirmButtonText: '确定删除',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
     // 添加到删除loading状态
     deletingItems.value.add(row.key)
     // 发送删除单个数据项的消息到worker

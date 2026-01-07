@@ -4,8 +4,7 @@ import { ref, computed } from "vue";
 import { findNodeById } from '@/helper';
 import { eventEmitter } from '@/helper';
 import { router } from "@/router";
-import { ElMessageBox } from 'element-plus';
-import 'element-plus/es/components/message-box/style/css';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
 import { i18n } from '@/i18n';
 import { httpNodeCache } from "@/cache/httpNode/httpNodeCache.ts";
 import { projectWorkbenchCache } from "@/cache/projectWorkbench/projectWorkbenchCache.ts";
@@ -193,7 +192,9 @@ export const useProjectNav = defineStore('projectNav', () => {
       const unsavedNav = unsavedNavs[i];
       try {
         // eslint-disable-next-line no-await-in-loop
-        await ElMessageBox.confirm(i18n.global.t('是否要保存对内容的修改', { msg: unsavedNav.label }), i18n.global.t('提示'), {
+        await ClConfirm({
+          content: i18n.global.t('是否要保存对内容的修改', { msg: unsavedNav.label }),
+          title: i18n.global.t('提示'),
           confirmButtonText: i18n.global.t('保存'),
           cancelButtonText: i18n.global.t('不保存'),
           type: 'warning',

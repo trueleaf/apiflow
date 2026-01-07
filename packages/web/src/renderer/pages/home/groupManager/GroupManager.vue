@@ -223,7 +223,7 @@ import { request } from '@/api/api';
 import { ApidocGroupItem, ApidocGroupUser, PermissionUserBaseInfo, CommonResponse } from '@src/types';
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep } from "lodash-es";
-import { ElMessageBox } from 'element-plus';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
 import RemoteSelector from '@/components/common/remoteSelect/ClRemoteSelect.vue';
 import RemoteSelectorItem from '@/components/common/remoteSelect/ClRemoteSelectItem.vue';
 import { useWindowEvent } from '@/hooks/useWindowEvent';
@@ -311,7 +311,9 @@ const handleAddUser = (item: PermissionUserBaseInfo) => {
 //删除用户
 const handleRemoveMember = (groupId: string, userId: string) => {
   const removeTip = userId === runtimeStore.userInfo.id ? t('确认要退出当前团队吗') : t('确定要移除该用户吗？') 
-  ElMessageBox.confirm(removeTip, t('提示'), {
+  ClConfirm({
+    content: removeTip,
+    title: t('提示'),
     confirmButtonText: userId === runtimeStore.userInfo.id ? t('确定/GroupManagerLeaveGroup') : t('确定/GroupManagerRemoveMember'),
     cancelButtonText: t('取消') ,
     type: 'warning',
@@ -403,7 +405,9 @@ const handleChangePermission = (groupId: string, userId: string, permission: "ad
 }
 // 删除团队
 const handleDeleteGroup = (groupId: string) => {
-  ElMessageBox.confirm(t('确定要删除该团队吗？'), t('提示'), {
+  ClConfirm({
+    content: t('确定要删除该团队吗？'),
+    title: t('提示'),
     confirmButtonText: t('确定/GroupManagerDeleteGroup'),
     cancelButtonText: t('取消'),
     type: 'warning',

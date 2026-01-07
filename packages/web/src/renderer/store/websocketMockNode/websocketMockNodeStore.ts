@@ -2,7 +2,7 @@ import { WebSocketMockNode } from "@src/types/mockNode";
 import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
 import { cloneDeep } from 'lodash-es';
-import { ElMessageBox } from 'element-plus';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
 import { useProjectNav } from "../projectWorkbench/projectNavStore.ts";
 import { router } from "@/router/index.ts";
 import { useBanner } from "../projectWorkbench/bannerStore.ts";
@@ -102,7 +102,9 @@ export const useWebSocketMockNode = defineStore('websocketMockNode', () => {
           replaceOriginWebSocketMockNode();
           return;
         }
-        ElMessageBox.confirm(i18n.global.t('当前 WebSocket Mock 不存在，可能已经被删除'), i18n.global.t('提示'), {
+        ClConfirm({
+          content: i18n.global.t('当前 WebSocket Mock 不存在，可能已经被删除'),
+          title: i18n.global.t('提示'),
           confirmButtonText: i18n.global.t('关闭接口'),
           cancelButtonText: i18n.global.t('取消'),
           type: 'warning',
@@ -134,7 +136,9 @@ export const useWebSocketMockNode = defineStore('websocketMockNode', () => {
         params,
       });
       if (res.data === null) {
-        ElMessageBox.confirm(i18n.global.t('当前 WebSocket Mock 不存在，可能已经被删除'), i18n.global.t('提示'), {
+        ClConfirm({
+          content: i18n.global.t('当前 WebSocket Mock 不存在，可能已经被删除'),
+          title: i18n.global.t('提示'),
           confirmButtonText: i18n.global.t('关闭接口'),
           cancelButtonText: i18n.global.t('取消'),
           type: 'warning',

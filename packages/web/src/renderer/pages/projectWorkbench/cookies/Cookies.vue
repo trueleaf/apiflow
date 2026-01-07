@@ -152,7 +152,7 @@
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useCookies } from '@/store/projectWorkbench/cookiesStore';
-import { ElMessageBox } from 'element-plus';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
 import type { ApidocCookie } from '@src/types/projectWorkbench/cookies';
 import { useI18n } from 'vue-i18n';
 import { message } from '@/helper';
@@ -299,15 +299,13 @@ const handleSelectionChange = (selection: ApidocCookie[]) => {
   selectedCookies.value = selection;
 };
 const handleRemoveCookie = (id: string) => {
-  ElMessageBox.confirm(
-    t('确定要删除这个 Cookie 吗？'),
-    t('删除确认'),
-    {
-      confirmButtonText: t('确定/CookiesDelete'),
-      cancelButtonText: t('取消'),
-      type: 'warning',
-    }
-  ).then(() => {
+  ClConfirm({
+    content: t('确定要删除这个 Cookie 吗？'),
+    title: t('删除确认'),
+    confirmButtonText: t('确定/CookiesDelete'),
+    cancelButtonText: t('取消'),
+    type: 'warning',
+  }).then(() => {
     cookiesStore.deleteCookiesById(projectId, id);
     message.success(t('删除成功'));
   }).catch(() => {
@@ -317,15 +315,13 @@ const handleRemoveCookie = (id: string) => {
 const handleBatchDelete = () => {
   if (!selectedCookies.value.length) return;
   
-  ElMessageBox.confirm(
-    t(`确定要删除选中的 ${selectedCookies.value.length} 个 Cookie 吗？`),
-    t('批量删除确认'),
-    {
-      confirmButtonText: t('确定/CookiesDelete'),
-      cancelButtonText: t('取消'),
-      type: 'warning',
-    }
-  ).then(() => {
+  ClConfirm({
+    content: t(`确定要删除选中的 ${selectedCookies.value.length} 个 Cookie 吗？`),
+    title: t('批量删除确认'),
+    confirmButtonText: t('确定/CookiesDelete'),
+    cancelButtonText: t('取消'),
+    type: 'warning',
+  }).then(() => {
     selectedCookies.value.forEach(cookie => {
       cookiesStore.deleteCookiesById(projectId, cookie.id);
     });

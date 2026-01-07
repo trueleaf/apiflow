@@ -65,7 +65,8 @@ import { computed, ref, watch, reactive } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { Refresh, Warning } from '@element-plus/icons-vue'
-import { Effect, ElMessageBox, ElMessage } from 'element-plus'
+import { Effect, ElMessage } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import { config } from '@src/config/config'
 import { validateUrl, type UrlValidationResult } from '@/helper'
 import { router } from '@/router/index'
@@ -128,14 +129,12 @@ const handleBeforePaste = async (text: string, shouldPrevent: { value: boolean }
   if (isCurlCommand(text)) {
     shouldPrevent.value = true
     try {
-      await ElMessageBox.confirm(
-        t('是否解析为请求？'),
-        t('检测到 cURL 命令'),
-        {
-          confirmButtonText: t('确定/OperationParseCurl'),
-          cancelButtonText: t('取消'),
-        }
-      )
+      await ClConfirm({
+        content: t('是否解析为请求？'),
+        title: t('检测到 cURL 命令'),
+        confirmButtonText: t('确定/OperationParseCurl'),
+        cancelButtonText: t('取消'),
+      })
       const parsedData = parseCurlToHttpNode(text)
       if (parsedData) {
         httpNodeStore.updateHttpNodeFromCurl(parsedData)

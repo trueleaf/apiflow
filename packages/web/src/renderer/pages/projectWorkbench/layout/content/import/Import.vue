@@ -161,7 +161,7 @@ import AiImport from './components/AiImport.vue'
 import RepoImport from './components/RepoImport.vue'
 import FormatSelector from './components/FormatSelector.vue'
 import { ref, computed, type Ref } from 'vue'
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import { FileUp, Link, ClipboardCopy, Folder, FileQuestion, Sparkles, GitBranch } from 'lucide-vue-next'
 import type { ApidocBanner, HttpNode, FolderNode } from '@src/types'
 import type { OpenAPIV3, OpenAPIV2 } from 'openapi-types'
@@ -352,7 +352,9 @@ const handleChangeNamedType = () => {
 // 改变导入方式
 const handleChangeIsCover = (val: string | number | boolean | undefined) => {
   if (val) {
-    ElMessageBox.confirm(t('覆盖后的数据将无法还原'), t('提示'), {
+    ClConfirm({
+      content: t('覆盖后的数据将无法还原'),
+      title: t('提示'),
       confirmButtonText: t('确定/ImportCoverOverwrite'),
       cancelButtonText: t('取消'),
       type: 'warning',

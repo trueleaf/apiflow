@@ -129,7 +129,7 @@
 <script lang="ts" setup>
 import { ref, computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import { Plus } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useHttpMockNode } from '@/store/httpMockNode/httpMockNodeStore'
@@ -251,15 +251,13 @@ const handleCloseTag = async (index: number) => {
     : t('确定要删除此条件返回吗？')
 
   try {
-    await ElMessageBox.confirm(
-      confirmMessage,
-      t('提示'),
-      {
-        confirmButtonText: t('确定/MockResponseDeleteResponse'),
-        cancelButtonText: t('取消'),
-        type: 'warning',
-      }
-    )
+    await ClConfirm({
+      content: confirmMessage,
+      title: t('提示'),
+      confirmButtonText: t('确定/MockResponseDeleteResponse'),
+      cancelButtonText: t('取消'),
+      type: 'warning',
+    })
     
     mockResponses.value.splice(index, 1)
     

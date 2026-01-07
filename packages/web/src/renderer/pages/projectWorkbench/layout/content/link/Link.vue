@@ -57,8 +57,7 @@
 
 <script lang="ts" setup>
 import { ref, Ref, computed, onMounted, onUnmounted } from 'vue'
-import 'element-plus/es/components/message-box/style/css';
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import { request } from '@/api/api'
 // import { CirclePlus, Link, Search } from '@element-plus/icons-vue'
 import { Search } from '@element-plus/icons-vue'
@@ -167,7 +166,9 @@ const generateUrlAndPassword = (linkInfo: LinkInfo) => {
 }
 //删除某个链接
 const handleDeleteItem = (pid: string, _id: string) => {
-  ElMessageBox.confirm(t('此操作将永久删除此条记录, 是否继续?'), t('提示'), {
+  ClConfirm({
+    content: t('此操作将永久删除此条记录, 是否继续?'),
+    title: t('提示'),
     confirmButtonText: t('确定/LinkDeleteItem'),
     cancelButtonText: t('取消'),
     type: 'warning'

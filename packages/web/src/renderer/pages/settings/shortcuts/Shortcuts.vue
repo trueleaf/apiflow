@@ -116,7 +116,7 @@ import { shortcutManager } from '@/shortcut/index'
 import KeyRecorder from './KeyRecorder.vue'
 import { message } from '@/helper'
 import { Pencil, Sparkles, Check, X, RotateCcw, Search } from 'lucide-vue-next'
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 
 const { t } = useI18n()
 
@@ -233,15 +233,13 @@ const handleCancelEdit = () => {
   conflictMessage.value = ''
 }
 const handleResetSingle = (shortcut: ShortcutConfig) => {
-  ElMessageBox.confirm(
-    t('确定要重置该快捷键为默认值吗?'),
-    t('确认重置'),
-    {
-      confirmButtonText: t('确定/ShortcutsReset'),
-      cancelButtonText: t('取消'),
-      type: 'warning'
-    }
-  ).then(() => {
+  ClConfirm({
+    content: t('确定要重置该快捷键为默认值吗?'),
+    title: t('确认重置'),
+    confirmButtonText: t('确定/ShortcutsReset'),
+    cancelButtonText: t('取消'),
+    type: 'warning'
+  }).then(() => {
     shortcutManager.resetShortcut(shortcut.id)
     loadShortcuts()
     message.success(t('已重置为默认快捷键'))
@@ -250,15 +248,13 @@ const handleResetSingle = (shortcut: ShortcutConfig) => {
   })
 }
 const handleResetAll = () => {
-  ElMessageBox.confirm(
-    t('确定要重置所有快捷键为默认值吗?'),
-    t('确认重置'),
-    {
-      confirmButtonText: t('确定/ShortcutsReset'),
-      cancelButtonText: t('取消'),
-      type: 'warning'
-    }
-  ).then(() => {
+  ClConfirm({
+    content: t('确定要重置所有快捷键为默认值吗?'),
+    title: t('确认重置'),
+    confirmButtonText: t('确定/ShortcutsReset'),
+    cancelButtonText: t('取消'),
+    type: 'warning'
+  }).then(() => {
     shortcutManager.resetAllShortcuts()
     loadShortcuts()
     message.success(t('已重置所有快捷键'))

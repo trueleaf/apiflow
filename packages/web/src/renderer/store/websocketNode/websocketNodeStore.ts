@@ -7,7 +7,7 @@ import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep, debounce } from "lodash-es";
 import { apiNodesCache } from "@/cache/nodes/nodesCache";
 import { webSocketNodeCache } from "@/cache/websocketNode/websocketNodeCache.ts";
-import { ElMessageBox } from 'element-plus';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
 import { useProjectNav } from "../projectWorkbench/projectNavStore.ts";
 import { router } from "@/router/index.ts";
 import { useBanner } from "../projectWorkbench/bannerStore.ts";
@@ -428,7 +428,9 @@ export const useWebSocket = defineStore('websocket', () => {
           return;
         }
         
-        ElMessageBox.confirm(i18n.global.t('当前 WebSocket 不存在，可能已经被删除'), i18n.global.t('提示'), {
+        ClConfirm({
+          content: i18n.global.t('当前 WebSocket 不存在，可能已经被删除'),
+          title: i18n.global.t('提示'),
           confirmButtonText: i18n.global.t('关闭接口'),
           cancelButtonText: i18n.global.t('取消'),
           type: 'warning',
@@ -471,7 +473,9 @@ export const useWebSocket = defineStore('websocket', () => {
         }),
       }).then((res) => {
         if (res.data === null) {
-          ElMessageBox.confirm(i18n.global.t('当前 WebSocket 不存在，可能已经被删除'), i18n.global.t('提示'), {
+          ClConfirm({
+            content: i18n.global.t('当前 WebSocket 不存在，可能已经被删除'),
+            title: i18n.global.t('提示'),
             confirmButtonText: i18n.global.t('关闭接口'),
             cancelButtonText: i18n.global.t('取消'),
             type: 'warning',

@@ -62,7 +62,7 @@ import SEditUserDialog from './edit/Edit.vue'
 import SResetPasswordDialog from './resetPassword/ResetPassword.vue'
 import { ref } from 'vue';
 import { downloadStringAsText, formatDate } from '@/helper'
-import { ElMessageBox } from 'element-plus';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
 import { request } from '@/api/api';
 import SSearch from '@/components/common/forms/search/ClSearch.vue'
 import SSearchItem from '@/components/common/forms/search/ClSearchItem.vue'     
@@ -95,7 +95,9 @@ const handleChange = (params: Record<string, unknown>) => {
 //禁用角色
 const handleForbidRole = (_id: string, isEnabled: boolean) => {
   const tipLabel = isEnabled ? t('禁用') : t('启用');
-  ElMessageBox.confirm(t('确实要{action}该用户吗', { action: tipLabel }), t('提示'), {
+  ClConfirm({
+    content: t('确实要{action}该用户吗', { action: tipLabel }),
+    title: t('提示'),
     confirmButtonText: isEnabled ? t('确定/AdminUserDisable') : t('确定/AdminUserEnable'),
     cancelButtonText: t('取消'),
     type: 'warning',

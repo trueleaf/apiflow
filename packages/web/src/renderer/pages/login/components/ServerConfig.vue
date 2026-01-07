@@ -26,7 +26,7 @@
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import { message } from '@/helper'
 import { updateAxiosBaseURL } from '@/api/api'
 
@@ -65,14 +65,12 @@ const handleSave = () => {
 
 const handleReset = async () => {
   try {
-    await ElMessageBox.confirm(
-      t('确认将所有配置恢复为默认值吗？'),
-      {
-        type: 'warning',
-        confirmButtonText: t('确定/ServerConfigReset'),
-        cancelButtonText: t('取消'),
-      }
-    )
+    await ClConfirm({
+      content: t('确认将所有配置恢复为默认值吗？'),
+      type: 'warning',
+      confirmButtonText: t('确定/ServerConfigReset'),
+      cancelButtonText: t('取消'),
+    })
   } catch {
     return
   }

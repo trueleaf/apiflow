@@ -332,7 +332,7 @@ import { useHttpNode } from '@/store/httpNode/httpNodeStore'
 import { useRoute } from 'vue-router'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache'
 import { message } from '@/helper'
 import { router } from '@/router'
@@ -593,15 +593,13 @@ const getHistoryList = (): Promise<void> => {
 };
 
 const handleSelectHistory = (history: HttpHistory): void => {
-  ElMessageBox.confirm(
-    t('当前操作将覆盖原有数据,是否继续?'),
-    t('确认覆盖'),
-    {
-      confirmButtonText: t('确定/HttpParamsOverwriteHistory'),
-      cancelButtonText: t('取消'),
-      type: 'warning'
-    }
-  ).then(() => {
+  ClConfirm({
+    content: t('当前操作将覆盖原有数据,是否继续?'),
+    title: t('确认覆盖'),
+    confirmButtonText: t('确定/HttpParamsOverwriteHistory'),
+    cancelButtonText: t('取消'),
+    type: 'warning'
+  }).then(() => {
     // 调用changeHttpNodeInfo重新赋值
     httpNodeStore.changeHttpNodeInfo(history.node);
     showHistoryDropdown.value = false;
@@ -614,15 +612,13 @@ const handleSelectHistory = (history: HttpHistory): void => {
 };
 
 const handleDeleteHistory = (history: HttpHistory): void => {
-  ElMessageBox.confirm(
-    t('确定要删除这条历史记录吗?'),
-    t('确认删除'),
-    {
-      confirmButtonText: t('删除'),
-      cancelButtonText: t('取消'),
-      type: 'warning'
-    }
-  ).then(() => {
+  ClConfirm({
+    content: t('确定要删除这条历史记录吗?'),
+    title: t('确认删除'),
+    confirmButtonText: t('删除'),
+    cancelButtonText: t('取消'),
+    type: 'warning'
+  }).then(() => {
     if (!currentSelectNav.value) return;
     httpNodeHistoryCache.deleteHttpHistoryByNode(currentSelectNav.value._id, [history._id])
       .then((success) => {
@@ -647,15 +643,13 @@ const handleDeleteHistory = (history: HttpHistory): void => {
 };
 
 const handleClearAllHistory = (): void => {
-  ElMessageBox.confirm(
-    t('确定要清除所有历史记录吗？此操作不可恢复。'),
-    t('确认清除'),
-    {
-      confirmButtonText: t('确定清除'),
-      cancelButtonText: t('取消'),
-      type: 'warning'
-    }
-  ).then(() => {
+  ClConfirm({
+    content: t('确定要清除所有历史记录吗？此操作不可恢复。'),
+    title: t('确认清除'),
+    confirmButtonText: t('确定清除'),
+    cancelButtonText: t('取消'),
+    type: 'warning'
+  }).then(() => {
     if (!currentSelectNav.value) return;
     // 获取所有历史记录的ID
     const allHistoryIds = historyList.value.map(h => h._id);

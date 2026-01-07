@@ -16,8 +16,7 @@ import { defineStore, storeToRefs } from "pinia"
 import axios, { Canceler } from 'axios'
 import { request as axiosInstance } from '@/api/api'
 import { ref, watch } from "vue"
-import 'element-plus/es/components/message-box/style/css';
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import { router } from "@/router"
 import { useProjectNav } from "../projectWorkbench/projectNavStore"
 import { useBanner } from "../projectWorkbench/bannerStore"
@@ -494,7 +493,9 @@ export const useHttpNode = defineStore('httpNode', () => {
     if (isOffline()) {
       const doc = await apiNodesCache.getNodeById(payload.id) as HttpNode;
       if (!doc) {
-        ElMessageBox.confirm(i18n.global.t('当前接口不存在，可能已经被删除'), i18n.global.t('提示'), {
+        ClConfirm({
+          content: i18n.global.t('当前接口不存在，可能已经被删除'),
+          title: i18n.global.t('提示'),
           confirmButtonText: i18n.global.t('关闭接口'),
           cancelButtonText: i18n.global.t('取消'),
           type: 'warning',
@@ -536,7 +537,9 @@ export const useHttpNode = defineStore('httpNode', () => {
         }),
       }).then((res) => {
         if (res.data === null) { //接口不存在提示用户删除接口
-          ElMessageBox.confirm(i18n.global.t('当前接口不存在，可能已经被删除'), i18n.global.t('提示'), {
+          ClConfirm({
+            content: i18n.global.t('当前接口不存在，可能已经被删除'),
+            title: i18n.global.t('提示'),
             confirmButtonText: i18n.global.t('关闭接口'),
             cancelButtonText: i18n.global.t('取消'),
             type: 'warning',

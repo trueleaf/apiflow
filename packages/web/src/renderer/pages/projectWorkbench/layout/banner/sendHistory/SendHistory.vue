@@ -4,7 +4,7 @@
     <div class="send-history-search">
       <el-input
         v-model="searchValue"
-        :placeholder="t('过滤历史记录')"
+        :placeholder="t('搜索节点名称或URL')"
         clearable
         size="small"
         @input="handleSearchInput"
@@ -13,11 +13,24 @@
           <el-icon><Search /></el-icon>
         </template>
         <template #suffix>
-          <el-icon class="clear-history-icon" :title="t('清空历史记录')" @click="handleClearHistory">
-            <Delete />
-          </el-icon>
+          <div class="history-input-actions">
+            <el-icon class="filter-history-icon" :class="{ 'is-active': showAdvancedFilter }" :title="t('高级筛选')" @click="handleToggleAdvancedFilter">
+              <ListFilter :size="16" />
+            </el-icon>
+            <el-icon class="clear-history-icon" :title="t('清空历史记录')" @click="handleClearHistory">
+              <Delete />
+            </el-icon>
+          </div>
         </template>
       </el-input>
+      <div v-if="showAdvancedFilter" class="send-history-advanced-filter">
+        <div class="filter-row">
+          <el-checkbox-group v-model="selectedNodeTypes" class="filter-options" size="small">
+            <el-checkbox :value="'http'">{{ t('HTTP节点') }}</el-checkbox>
+            <el-checkbox :value="'websocket'">{{ t('WebSocket节点') }}</el-checkbox>
+          </el-checkbox-group>
+        </div>
+      </div>
       <el-button
         v-if="deletedHistoryCount > 0"
         size="small"
@@ -32,7 +45,7 @@
     <!-- 历史列表 -->
     <div class="send-history-list" ref="listRef" @scroll="handleScroll">
       <div
-        v-for="item in sendHistoryListWithStatus"
+        v-for="item in filteredSendHistoryListWithStatus"
         :key="item._id"
         class="history-item"
         :class="{ 'deleted-item': item.isDeleted }"
@@ -61,10 +74,10 @@
         <el-icon class="is-loading"><Loading /></el-icon>
         {{ t('加载中') }}...
       </div>
-      <div v-if="!hasMore && hasLoadedMore && sendHistoryListWithStatus.length > 0" class="no-more">
+      <div v-if="!hasMore && hasLoadedMore && filteredSendHistoryListWithStatus.length > 0" class="no-more">
         {{ t('没有更多了') }}
       </div>
-      <div v-if="!loading && sendHistoryListWithStatus.length === 0" class="empty">
+      <div v-if="!loading && filteredSendHistoryListWithStatus.length === 0" class="empty">
         {{ t('暂无历史记录') }}
       </div>
     </div>
@@ -75,9 +88,10 @@
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Search, Loading, Delete } from '@element-plus/icons-vue'
-import { ElMessageBox } from 'element-plus'
+import { ListFilter } from 'lucide-vue-next'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import { useSendHistory } from './sendHistoryStore'
-import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
+import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'        
 import { useBanner } from '@/store/projectWorkbench/bannerStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { router } from '@/router/index'
@@ -98,6 +112,8 @@ const { sendHistoryList, loading, hasMore, hasLoadedMore } = storeToRefs(sendHis
 const searchValue = ref(appStateCache.getHistoryFilterText())
 const listRef = ref<HTMLElement | null>(null)
 const searchTimer = ref<number | null>(null)
+const showAdvancedFilter = ref(false)
+const selectedNodeTypes = ref<('http' | 'websocket')[]>(['http', 'websocket'])
 watch(searchValue, (newVal) => {
   appStateCache.setHistoryFilterText(newVal)
 })
@@ -127,9 +143,15 @@ const sendHistoryListWithStatus = computed<SendHistoryItemWithStatus[]>(() => {
     isDeleted: !existingNodeIds.value.has(item.nodeId)
   }))
 })
+const filteredSendHistoryListWithStatus = computed<SendHistoryItemWithStatus[]>(() => {
+  if (selectedNodeTypes.value.length === 0) {
+    return []
+  }
+  return sendHistoryListWithStatus.value.filter(item => selectedNodeTypes.value.includes(item.nodeType))
+})
 // 已删除的历史记录数量
 const deletedHistoryCount = computed(() => {
-  return sendHistoryListWithStatus.value.filter(item => item.isDeleted).length
+  return sendHistoryListWithStatus.value.filter(item => item.isDeleted).length  
 })
 
 // 获取方法标签显示
@@ -180,19 +202,20 @@ const handleSearchInput = () => {
     sendHistoryStore.search(searchValue.value)
   }, 300)
 }
+const handleToggleAdvancedFilter = (): void => {
+  showAdvancedFilter.value = !showAdvancedFilter.value
+}
 
 // 清空历史记录
 const handleClearHistory = async () => {
   try {
-    await ElMessageBox.confirm(
-      t('确定要清空所有历史记录吗？'),
-      t('提示'),
-      {
-        confirmButtonText: t('确定/SendHistoryClearAll'),
-        cancelButtonText: t('取消'),
-        type: 'warning'
-      }
-    )
+    await ClConfirm({
+      content: t('确定要清空所有历史记录吗？'),
+      title: t('提示'),
+      confirmButtonText: t('确定/SendHistoryClearAll'),
+      cancelButtonText: t('取消'),
+      type: 'warning'
+    })
     await sendHistoryCache.clearSendHistory()
     sendHistoryStore.clearSendHistoryList()
   } catch {
@@ -202,15 +225,13 @@ const handleClearHistory = async () => {
 // 清理已删除接口的历史记录
 const handleCleanDeletedHistory = async () => {
   try {
-    await ElMessageBox.confirm(
-      t('确定要清理所有已删除接口的历史记录吗？'),
-      t('提示'),
-      {
-        confirmButtonText: t('确定/SendHistoryCleanDeleted'),
-        cancelButtonText: t('取消'),
-        type: 'warning'
-      }
-    )
+    await ClConfirm({
+      content: t('确定要清理所有已删除接口的历史记录吗？'),
+      title: t('提示'),
+      confirmButtonText: t('确定/SendHistoryCleanDeleted'),
+      cancelButtonText: t('取消'),
+      type: 'warning'
+    })
     const deletedIds = sendHistoryListWithStatus.value
       .filter(item => item.isDeleted)
       .map(item => item._id)
@@ -304,6 +325,26 @@ onUnmounted(() => {
     flex-direction: column;
     gap: 8px;
 
+    .history-input-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filter-history-icon {
+      cursor: pointer;
+      color: var(--text-tertiary);
+      transition: color 0.2s;
+
+      &:hover {
+        color: var(--el-color-primary);
+      }
+
+      &.is-active {
+        color: var(--el-color-primary);
+      }
+    }
+
     .clear-history-icon {
       cursor: pointer;
       color: var(--text-tertiary);
@@ -316,6 +357,36 @@ onUnmounted(() => {
 
     .clean-deleted-btn {
       width: 100%;
+    }
+
+    .send-history-advanced-filter {
+      padding: 6px 8px;
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      background-color: var(--bg-primary);
+
+      .filter-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .filter-options {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        :deep(.el-checkbox__inner) {
+          width: 12px;
+          height: 12px;
+        }
+
+        :deep(.el-checkbox__label) {
+          font-size: 12px;
+          padding-left: 4px;
+        }
+      }
     }
   }
 

@@ -36,7 +36,7 @@
 <script lang="ts" setup>
 import { computed, ref, onMounted, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import { Close, ArrowRight, ArrowDown } from '@element-plus/icons-vue'
 import { reqCompletionSuggestions } from './completionSuggestions'
 import { appStateCache } from '@/cache/appState/appStateCache'
@@ -81,15 +81,13 @@ const handleToggleCollapse = () => {
 }
 // 删除触发条件配置
 const handleDelete = () => {
-  ElMessageBox.confirm(
-    t('确定删除此触发条件配置吗？'),
-    t('提示'),
-    {
-      confirmButtonText: t('确定/MockResponseConditionDelete'),
-      cancelButtonText: t('取消'),
-      type: 'warning',
-    }
-  ).then(() => {
+  ClConfirm({
+    content: t('确定删除此触发条件配置吗？'),
+    title: t('提示'),
+    confirmButtonText: t('确定/MockResponseConditionDelete'),
+    cancelButtonText: t('取消'),
+    type: 'warning',
+  }).then(() => {
     emit('delete', props.responseIndex)
     message.success(t('删除成功'))
   }).catch(() => {

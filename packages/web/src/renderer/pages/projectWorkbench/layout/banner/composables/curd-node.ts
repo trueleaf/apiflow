@@ -1,6 +1,5 @@
 import { Ref } from 'vue'
-import 'element-plus/es/components/message-box/style/css';
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import type { ApidocBanner, CommonResponse, HttpNode, FolderNode, HttpMockNode } from '@src/types'
 import { message } from '@/helper'
 import { WebSocketNode } from '@src/types/websocketNode'
@@ -118,7 +117,9 @@ export const deleteNode = (selectNodes: ApidocBannerWithProjectId[], silent?: bo
     deleteOperation();
     return;
   }
-  ElMessageBox.confirm(deleteTip, i18n.global.t('提示'), {
+  ClConfirm({
+    content: deleteTip,
+    title: i18n.global.t('提示'),
     confirmButtonText: i18n.global.t('确定/CurdNodeDelete'),
     cancelButtonText: i18n.global.t('取消'),
     type: 'warning',

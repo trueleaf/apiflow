@@ -189,7 +189,7 @@ const node: ModelNode = {
         },
         {
           "id": "2",
-          "name": "SendHistory.vue第8行:placeholder=\"t('过滤历史记录')\""
+          "name": "SendHistory.vue第8行:placeholder=\"t('搜索节点名称或URL')\""
         },
         {
           "id": "3",

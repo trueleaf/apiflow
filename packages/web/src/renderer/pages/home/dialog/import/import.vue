@@ -236,7 +236,7 @@ import { useRuntime } from '@/store/runtime/runtimeStore'
 import { message } from '@/helper'
 import { request } from '@/api/api'
 import type { CommonResponse, ApidocProjectInfo, ApidocProjectListInfo, ApidocProjectPermission, ApidocBanner, PermissionUserInfo } from '@src/types'
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import { requestMethods } from '@/data/data'
 import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
 import type { Method } from 'got'
@@ -468,11 +468,10 @@ const handleImport = async () => {
   }
   if (importMode.value === 'overwrite') {
     try {
-      await ElMessageBox.confirm(
-        t('覆盖模式将删除本地相同id项目的所有数据，此操作不可恢复！是否继续？'),
-        t('警告'),
-        {
-          confirmButtonText: t('确定'),
+      await ClConfirm({
+        content: t('覆盖模式将删除本地相同id项目的所有数据，此操作不可恢复！是否继续？'),
+        title: t('警告'),
+        confirmButtonText: t('确定'),
           cancelButtonText: t('取消'),
           type: 'warning',
         }

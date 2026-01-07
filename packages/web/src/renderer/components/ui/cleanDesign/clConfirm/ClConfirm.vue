@@ -2,7 +2,7 @@
   <Teleport to="body">
     <Transition name="confirm-fade">
       <div v-if="visible" class="cl-confirm-wrapper" :style="{ zIndex }">
-        <div class="cl-confirm-overlay" @click="handleCancel"></div>
+        <div class="cl-confirm-overlay" @click="handleOverlayClick"></div>
         <Transition name="confirm-scale">
           <div v-if="visible" class="cl-confirm-container">
             <div class="cl-confirm-header">
@@ -10,7 +10,7 @@
                 <component :is="typeIcon" :size="20" />
               </div>
               <span v-if="title" class="cl-confirm-title">{{ title }}</span>
-              <button class="cl-confirm-close" @click="handleCancel">
+              <button class="cl-confirm-close" @click="handleCloseClick">
                 <X :size="16" />
               </button>
             </div>
@@ -42,6 +42,7 @@ import './style/confirm.css'
 const props = withDefaults(defineProps<ConfirmProps>(), {
   type: 'info',
   showCheckbox: false,
+  distinguishCancelAndClose: false,
   zIndex: 2000,
 })
 const emit = defineEmits<ConfirmEmits>()
@@ -62,7 +63,6 @@ const cancelLabel = computed(() => props.cancelButtonText || t('取消'))
 const handleConfirm = () => {
   emit('confirm', checked.value)
   emit('update:visible', false)
-  emit('close')
   if (props.onConfirm) {
     props.onConfirm(checked.value)
   }
@@ -70,9 +70,30 @@ const handleConfirm = () => {
 const handleCancel = () => {
   emit('cancel')
   emit('update:visible', false)
-  emit('close')
   if (props.onCancel) {
     props.onCancel()
+  }
+}
+const handleOverlayClick = () => {
+  if (props.distinguishCancelAndClose) {
+    emit('close')
+    emit('update:visible', false)
+    if (props.onClose) {
+      props.onClose()
+    }
+  } else {
+    handleCancel()
+  }
+}
+const handleCloseClick = () => {
+  if (props.distinguishCancelAndClose) {
+    emit('close')
+    emit('update:visible', false)
+    if (props.onClose) {
+      props.onClose()
+    }
+  } else {
+    handleCancel()
   }
 }
 </script>

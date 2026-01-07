@@ -1,67 +1,82 @@
-import { createVNode, render } from 'vue'
-import type { ConfirmOptions, ConfirmResult } from '@src/types/components/components'
+import { createApp, h, Component } from 'vue'
 import ClConfirmComponent from './ClConfirm.vue'
+import type { ConfirmType } from '@src/types/components/components'
 
-interface ConfirmInstanceInternal {
-  id: string
-  container: HTMLDivElement
-  close: () => void
-  promise: Promise<ConfirmResult>
-  resolve: (value: ConfirmResult) => void
-  reject: () => void
+export type ClConfirmOptions = {
+  content: string
+  title?: string
+  type?: ConfirmType
+  confirmButtonText?: string
+  cancelButtonText?: string
+  showCheckbox?: boolean
+  checkboxText?: string
+  distinguishCancelAndClose?: boolean
 }
 
-const instances: ConfirmInstanceInternal[] = []
-let seed = 0
-const baseZIndex = 2000
-const getZIndex = (index: number) => baseZIndex + index * 2
-const showConfirm = (options: ConfirmOptions): Promise<ConfirmResult> => {
-  const id = `confirm-${seed++}`
-  const container = document.createElement('div')
-  document.body.appendChild(container)
-  return new Promise<ConfirmResult>((resolve) => {
-    let closed = false
-    const close = () => {
-      if (closed) return
-      closed = true
-      const index = instances.findIndex(item => item.id === id)
-      if (index !== -1) {
-        instances.splice(index, 1)
+type ResolveValue = { value: 'confirm' | 'cancel' | 'close'; checked: boolean }
+
+export const ClConfirm = (options: ClConfirmOptions): Promise<ResolveValue> => {
+  return new Promise((resolve, reject) => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    let visible = true
+    let app: ReturnType<typeof createApp> | null = null
+
+    const destroy = () => {
+      if (app) {
+        app.unmount()
+        app = null
       }
-      render(null, container)
-      document.body.removeChild(container)
+      if (container.parentNode) {
+        container.parentNode.removeChild(container)
+      }
     }
+
     const handleConfirm = (checked: boolean) => {
-      resolve({ confirmed: true, checked })
-      close()
+      visible = false
+      destroy()
+      resolve({ value: 'confirm', checked })
     }
+
     const handleCancel = () => {
-      resolve({ confirmed: false, checked: false })
-      close()
+      visible = false
+      destroy()
+      reject('cancel')
     }
-    const currentIndex = instances.length
-    const zIndex = getZIndex(currentIndex)
-    const vnode = createVNode(ClConfirmComponent, {
-      visible: true,
-      zIndex,
-      ...options,
-      onConfirm: handleConfirm,
-      onCancel: handleCancel,
-      onClose: close,
+
+    const handleClose = () => {
+      visible = false
+      destroy()
+      if (options.distinguishCancelAndClose) {
+        reject('close')
+      } else {
+        reject('cancel')
+      }
+    }
+
+    app = createApp({
+      setup() {
+        return () => h(ClConfirmComponent as Component, {
+          visible: visible,
+          title: options.title,
+          content: options.content,
+          type: options.type || 'info',
+          confirmButtonText: options.confirmButtonText,
+          cancelButtonText: options.cancelButtonText,
+          showCheckbox: options.showCheckbox,
+          checkboxText: options.checkboxText,
+          onConfirm: handleConfirm,
+          onCancel: handleCancel,
+          'onUpdate:visible': (val: boolean) => {
+            if (!val) {
+              handleClose()
+            }
+          }
+        })
+      }
     })
-    render(vnode, container)
-    instances.push({
-      id,
-      container,
-      close,
-      promise: Promise.resolve({ confirmed: false, checked: false }),
-      resolve,
-      reject: () => {},
-    })
+
+    app.mount(container)
   })
 }
-const closeAll = () => {
-  instances.forEach(instance => instance.close())
-}
-
-export { showConfirm, closeAll }

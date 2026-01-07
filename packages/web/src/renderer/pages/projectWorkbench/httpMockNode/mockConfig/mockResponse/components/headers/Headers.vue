@@ -47,7 +47,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import { Close, ArrowRight, ArrowDown, View } from '@element-plus/icons-vue'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { appStateCache } from '@/cache/appState/appStateCache'
@@ -84,15 +84,13 @@ const handleToggleCollapse = () => {
 
 // 删除返回头配置
 const handleDelete = () => {
-  ElMessageBox.confirm(
-    t('确定删除此返回头配置吗？'),
-    t('提示'),
-    {
-      confirmButtonText: t('确定/MockResponseHeadersDelete'),
-      cancelButtonText: t('取消'),
-      type: 'warning',
-    }
-  ).then(() => {
+  ClConfirm({
+    content: t('确定删除此返回头配置吗？'),
+    title: t('提示'),
+    confirmButtonText: t('确定/MockResponseHeadersDelete'),
+    cancelButtonText: t('取消'),
+    type: 'warning',
+  }).then(() => {
     emit('delete', props.responseIndex)
     message.success(t('删除成功'))
   }).catch(() => {

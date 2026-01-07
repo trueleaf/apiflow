@@ -68,7 +68,7 @@
 import { useI18n } from 'vue-i18n'
 import type { CommonResponse, ApidocProjectMemberInfo, ApidocProjectPermission, ApidocGroupUser } from '@src/types'
 import {  onMounted, ref } from 'vue';
-import { ElMessageBox } from 'element-plus';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { config } from '@src/config/config';
 import { request } from '@/api/api';
@@ -178,7 +178,9 @@ const handleAddMember = (item: ApidocProjectMemberInfo) => {
 };
 //删除成员
 const handleDeleteMember = (row: MemberWithOldPermission, index: number) => {
-  ElMessageBox.confirm(t('确认删除当前成员吗?'), t('提示'), {
+  ClConfirm({
+    content: t('确认删除当前成员吗?'),
+    title: t('提示'),
     confirmButtonText: t('确定/EditPermissionDeleteMember'),
     cancelButtonText: t('取消'),
     type: 'warning',
@@ -216,7 +218,9 @@ const handleLeaveGroup = (row: MemberWithOldPermission, index: number) => {
     })
     return;
   }
-  ElMessageBox.confirm(t('确认离开当前团队吗?'), t('提示'), {
+  ClConfirm({
+    content: t('确认离开当前团队吗?'),
+    title: t('提示'),
     confirmButtonText: t('确定/EditPermissionLeaveGroup'),
     cancelButtonText: t('取消'),
     type: 'warning',
@@ -258,7 +262,9 @@ const handleChangePermission = (row: MemberWithOldPermission) => {
     return;
   }
   if (oldPermission === 'admin') {
-    ElMessageBox.confirm(t('确认改变当前管理员权限吗?'), t('提示'), {
+    ClConfirm({
+      content: t('确认改变当前管理员权限吗?'),
+      title: t('提示'),
       confirmButtonText: t('确定/EditPermissionChangeAdminPermission'),
       cancelButtonText: t('取消'),
       type: 'warning',

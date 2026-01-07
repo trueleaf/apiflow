@@ -222,7 +222,7 @@ import type { AdvancedSearchConditions, GroupedSearchResults, SearchResultItem }
 import { performAdvancedSearch } from '@/composables/useAdvancedSearch';
 import { computed, onMounted, ref, watch } from 'vue';
 import 'element-plus/es/components/message-box/style/css';
-import { ElMessageBox } from 'element-plus';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
 import { router } from '@/router';
 import { formatDate } from '@/helper';
 import { debounce } from "lodash-es";
@@ -350,7 +350,9 @@ const handleOpenPermissionDialog = (item: ApidocProjectInfo) => {
 }
 //删除项目
 const deleteProject = (_id: string) => {
-  ElMessageBox.confirm(t('确定要删除此项目吗?'), t('提示'), {
+  ClConfirm({
+    content: t('确定要删除此项目吗?'),
+    title: t('提示'),
     confirmButtonText: t('确定/ProjectManagerDeleteProject'),
     cancelButtonText: t('取消'),
     type: 'warning'

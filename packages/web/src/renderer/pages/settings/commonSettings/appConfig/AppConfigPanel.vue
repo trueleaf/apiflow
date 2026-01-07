@@ -102,7 +102,7 @@
 import { ref, computed, watch } from 'vue'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 import { processImageUpload } from '@/utils/imageHelper'
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 import { useI18n } from 'vue-i18n'
 import { AppWindow, Palette, Globe } from 'lucide-vue-next'
 import type { UploadFile } from 'element-plus'
@@ -179,14 +179,12 @@ const handleSave = () => {
 }
 const handleReset = async () => {
   try {
-    await ElMessageBox.confirm(
-      t('确认将所有配置恢复为默认值吗？'),
-      {
-        type: 'warning',
-        confirmButtonText: t('确定/AppConfigReset'),
-        cancelButtonText: t('取消'),
-      }
-    )
+    await ClConfirm({
+      content: t('确认将所有配置恢复为默认值吗？'),
+      type: 'warning',
+      confirmButtonText: t('确定/AppConfigReset'),
+      cancelButtonText: t('取消'),
+    })
   } catch {
     return
   }

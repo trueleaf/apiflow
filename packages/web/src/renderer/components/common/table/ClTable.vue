@@ -55,7 +55,7 @@ import SLoading from '@/components/common/loading/ClLoading.vue'
 import { computed, nextTick, onMounted, ref } from 'vue';
 import { debounce } from "lodash-es";
 import { request } from '@/api/api';
-import { ElMessageBox } from 'element-plus';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
 import { useWindowEvent } from '@/hooks/useWindowEvent';
 
 
@@ -228,7 +228,9 @@ const handleSelectionChange = (val: Record<string, unknown>[]) => {
 }
 //批量删除
 const deleteData = () => {
-  ElMessageBox.confirm(t('此操作将删除条记录, 是否继续?', { msg: selectData.value.length.toString() }), t('提示'), {
+  ClConfirm({
+    content: t('此操作将删除条记录, 是否继续?', { msg: selectData.value.length.toString() }),
+    title: t('提示'),
     confirmButtonText: t('确定/ClTableDeleteMany'),
     cancelButtonText: t('取消'),
     type: 'warning'

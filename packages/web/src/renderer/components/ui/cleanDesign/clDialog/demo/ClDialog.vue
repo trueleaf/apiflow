@@ -596,6 +596,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import ClDialog from '../ClDialog.vue'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 const currentTheme = ref<'light' | 'dark'>('light')
 const showCode1 = ref(false)
 const showCode2 = ref(false)
@@ -660,7 +661,9 @@ const handleClose = () => {
   addEventLog('close - 开始关闭对话框')
 }
 const handleBeforeClose = (done: () => void) => {
-  ElMessageBox.confirm('确定要关闭对话框吗？', '提示', {
+  ClConfirm({
+    content: '确定要关闭对话框吗？',
+    title: '提示',
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
@@ -861,10 +864,12 @@ const beforeCloseCode = `<template>
 
 <script setup>
 import { ref } from 'vue'
-import { ElMessageBox } from 'element-plus'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
 const visible = ref(false)
 const handleBeforeClose = (done: () => void) => {
-  ElMessageBox.confirm('确定要关闭对话框吗？', '提示', {
+  ClConfirm({
+    content: '确定要关闭对话框吗？',
+    title: '提示',
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
