@@ -4,7 +4,7 @@
       <div class="config-item">
         <div class="config-meta">
           <div class="meta-text">
-            <div class="meta-title">{{ t('文本Body最大大小') }} (MB)</div>
+            <div class="meta-title">{{ t('返回文本Body最大大小') }} (MB)</div>
             <div class="meta-hint">{{ t('超过此大小的文本响应将被截断') }}</div>
           </div>
         </div>
@@ -31,7 +31,7 @@
       <div class="config-item">
         <div class="config-meta">
           <div class="meta-text">
-            <div class="meta-title">{{ t('原始Body最大大小') }} (MB)</div>
+            <div class="meta-title">{{ t('返回原始Body最大大小') }} (MB)</div>
             <div class="meta-hint">{{ t('超过此大小的原始响应将被截断') }}</div>
           </div>
         </div>

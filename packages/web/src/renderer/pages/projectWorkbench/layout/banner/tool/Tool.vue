@@ -4,7 +4,7 @@
       <h2 v-if="projectName" class="gray-700 f-lg text-center text-ellipsis" :title="projectName">{{ projectName }}</h2>
       <h2 v-else class="gray-700 f-lg text-center text-ellipsis" :title="projectName">/</h2>
       <el-popover :visible="toggleProjectVisible" transition="none" placement="right"
-        width="500px">
+        width="520px">
         <template #reference>
           <div class="toggle-btn" :title="t('切换项目')" data-testid="banner-toggle-project-btn" @click.stop="handleToggleProjectModel">
             <el-icon>
@@ -13,18 +13,86 @@
           </div>
         </template>
         <SLoading :loading="projectLoading" class="tool-toggle-project">
-          <h3 v-if="startProjectList.length > 0">{{ t('收藏的项目') }}</h3>
-          <div class="project-wrap">
-            <div v-for="(item, index) in startProjectList" :key="index" class="item" @click="handleChangeProject(item)">
-              <span class="item-title">{{ item.projectName }}</span>
-              <span class="item-content gray-600">{{ item.owner.name }}</span>
-            </div>
-          </div>
-          <h3>{{ t('项目列表') }}</h3>
-          <div class="project-wrap">
-            <div v-for="(item, index) in projectList" :key="index" class="item" @click="handleChangeProject(item)">
-              <span class="item-title">{{ item.projectName }}</span>
-              <span class="item-content gray-600">{{ item.owner.name }}</span>
+
+          
+          <div class="project-list-container">
+            <template v-if="recentProjectList.length > 0">
+              <h3>{{ t('最近访问') }}</h3>
+              <div class="project-wrap">
+                <div 
+                  v-for="(item, index) in recentProjectList" 
+                  :key="index" 
+                  class="item" 
+                  :class="{ 'is-current': item._id === currentProjectId }"
+                  @click="handleChangeProject(item)">
+                  <div class="item-left">
+                    <span class="item-title" :title="item.projectName">{{ item.projectName }}</span>
+                    <div class="item-meta">
+                      <span class="item-owner gray-600">{{ item.owner.name }}</span>
+                      <span class="item-dot">·</span>
+                      <span class="item-time gray-500">{{ formatRelativeTime(item.updatedAt) }}</span>
+                    </div>
+                  </div>
+                  <el-tag v-if="getUserPermission(item)" :type="getPermissionTagType(item)" size="small" class="permission-tag">
+                    {{ getUserPermission(item) }}
+                  </el-tag>
+                </div>
+              </div>
+            </template>
+
+            <template v-if="filteredStarProjectList.length > 0">
+              <h3>{{ t('收藏的项目') }}</h3>
+              <div class="project-wrap">
+                <div 
+                  v-for="(item, index) in filteredStarProjectList" 
+                  :key="index" 
+                  class="item"
+                  :class="{ 'is-current': item._id === currentProjectId }"
+                  @click="handleChangeProject(item)">
+                  <div class="item-left">
+                    <span class="item-title" :title="item.projectName">{{ item.projectName }}</span>
+                    <div class="item-meta">
+                      <span class="item-owner gray-600">{{ item.owner.name }}</span>
+                      <span class="item-dot">·</span>
+                      <span class="item-time gray-500">{{ formatRelativeTime(item.updatedAt) }}</span>
+                    </div>
+                  </div>
+                  <el-tag v-if="getUserPermission(item)" :type="getPermissionTagType(item)" size="small" class="permission-tag">
+                    {{ getUserPermission(item) }}
+                  </el-tag>
+                </div>
+              </div>
+            </template>
+
+            <template v-if="filteredAllProjectList.length > 0">
+              <h3>{{ t('项目列表') }}</h3>
+              <div class="project-wrap">
+                <div 
+                  v-for="(item, index) in filteredAllProjectList" 
+                  :key="index" 
+                  class="item"
+                  :class="{ 'is-current': item._id === currentProjectId }"
+                  @click="handleChangeProject(item)">
+                  <div class="item-left">
+                    <span class="item-title" :title="item.projectName">{{ item.projectName }}</span>
+                    <div class="item-meta">
+                      <span class="item-owner gray-600">{{ item.owner.name }}</span>
+                      <span class="item-dot">·</span>
+                      <span class="item-time gray-500">{{ formatRelativeTime(item.updatedAt) }}</span>
+                    </div>
+                  </div>
+                  <el-tag v-if="getUserPermission(item)" :type="getPermissionTagType(item)" size="small" class="permission-tag">
+                    {{ getUserPermission(item) }}
+                  </el-tag>
+                </div>
+              </div>
+            </template>
+
+            <div v-if="showEmptyState" class="empty-state">
+              <div class="empty-icon">
+                <Search :size="48" :stroke-width="1.5" class="gray-400" />
+              </div>
+              <p class="empty-text gray-500">{{ projectSearchKeyword ? t('未找到匹配的项目') : t('暂无项目') }}</p>
             </div>
           </div>
         </SLoading>
@@ -166,7 +234,7 @@ import { ref, Ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import SDraggable from 'vuedraggable'
 import { MoreFilled, Close, Switch } from '@element-plus/icons-vue'
-import { Variable, ArrowDownToLine, ArrowUpToLine } from 'lucide-vue-next'
+import { Variable, ArrowDownToLine, ArrowUpToLine, Search } from 'lucide-vue-next'
 import type { ApidocBanner, ApidocOperations, ApidocProjectInfo } from '@src/types'
 import { forEachForest } from '@/helper'
 import { router } from '@/router/index'
@@ -618,7 +686,94 @@ const handleFilterBanner = () => {
 | 切换项目相关
 |--------------------------------------------------------------------------
 */
-const startProjectList = computed(() => projectList.value.filter((item) => item.isStared));
+const projectSearchKeyword = ref('');
+const currentProjectId = computed(() => router.currentRoute.value.query.id as string);
+const recentVisitedProjectIds = ref<string[]>([]);
+//最近访问的项目
+const recentProjectList = computed(() => {
+  if (!recentVisitedProjectIds.value.length) return [];
+  const recentProjects = recentVisitedProjectIds.value
+    .map(id => projectList.value.find(p => p._id === id))
+    .filter((p): p is ApidocProjectInfo => p !== undefined)
+    .slice(0, 3);
+  return recentProjects;
+});
+//收藏的项目（排除最近访问中已展示的）
+const filteredStarProjectList = computed(() => {
+  const starList = projectList.value.filter((item) => item.isStared);
+  const keyword = projectSearchKeyword.value.toLowerCase().trim();
+  let filtered = starList;
+  if (keyword) {
+    filtered = starList.filter(item => 
+      item.projectName.toLowerCase().includes(keyword) || 
+      item.owner.name.toLowerCase().includes(keyword)
+    );
+  }
+  const recentIds = new Set(recentProjectList.value.map(p => p._id));
+  return filtered.filter(item => !recentIds.has(item._id));
+});
+//所有项目（排除最近访问和收藏中已展示的）
+const filteredAllProjectList = computed(() => {
+  const keyword = projectSearchKeyword.value.toLowerCase().trim();
+  let filtered = projectList.value;
+  if (keyword) {
+    filtered = projectList.value.filter(item => 
+      item.projectName.toLowerCase().includes(keyword) || 
+      item.owner.name.toLowerCase().includes(keyword)
+    );
+  }
+  const recentIds = new Set(recentProjectList.value.map(p => p._id));
+  const starIds = new Set(filteredStarProjectList.value.map(p => p._id));
+  return filtered.filter(item => !recentIds.has(item._id) && !starIds.has(item._id));
+});
+//是否显示空状态
+const showEmptyState = computed(() => {
+  return recentProjectList.value.length === 0 && 
+         filteredStarProjectList.value.length === 0 && 
+         filteredAllProjectList.value.length === 0;
+});
+//格式化相对时间
+const formatRelativeTime = (dateStr: string): string => {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  if (seconds < 60) return t('刚刚');
+  if (minutes < 60) return t('{n}分钟前', { n: minutes });
+  if (hours < 24) return t('{n}小时前', { n: hours });
+  if (days < 7) return t('{n}天前', { n: days });
+  if (days < 30) return t('{n}周前', { n: Math.floor(days / 7) });
+  if (days < 365) return t('{n}个月前', { n: Math.floor(days / 30) });
+  return t('{n}年前', { n: Math.floor(days / 365) });
+};
+//获取用户在项目中的权限
+const getUserPermission = (project: ApidocProjectInfo): string => {
+  const userInfo = runtimeStore.userInfo;
+  if (!userInfo?.id) return '';
+  if (project.owner.id === userInfo.id) return t('管理员');
+  const member = project.members.find(m => m.name === userInfo.loginName);
+  if (!member?.permission) return '';
+  const permissionMap: Record<string, string> = {
+    'readAndWrite': t('读写'),
+    'readOnly': t('只读'),
+    'admin': t('管理员'),
+  };
+  return permissionMap[member.permission] || '';
+};
+//获取权限标签类型
+const getPermissionTagType = (project: ApidocProjectInfo): 'success' | 'info' | 'warning' => {
+  const userInfo = runtimeStore.userInfo;
+  if (!userInfo?.id) return 'info';
+  if (project.owner.id === userInfo.id) return 'success';
+  const member = project.members.find(m => m.name === userInfo.loginName);
+  if (member?.permission === 'readAndWrite') return 'info';
+  if (member?.permission === 'readOnly') return 'warning';
+  if (member?.permission === 'admin') return 'success';
+  return 'info';
+};
 const getProjectList = async () => {
   if (projectLoading.value) {
     return;
@@ -626,25 +781,47 @@ const getProjectList = async () => {
   projectLoading.value = true;
   try {
     await projectManagerStore.getProjectList();
+    await loadRecentVisitedProjects();
   } catch (err) {
     console.error(err);
   } finally {
     projectLoading.value = false;
   }
 }
+//加载最近访问的项目ID列表
+const loadRecentVisitedProjects = async () => {
+  try {
+    const stored = localStorage.getItem('recentVisitedProjects');
+    if (stored) {
+      recentVisitedProjectIds.value = JSON.parse(stored);
+    }
+  } catch (err) {
+    console.error('加载最近访问项目失败', err);
+  }
+};
+//记录项目访问
+const recordProjectVisit = (projectId: string) => {
+  const ids = recentVisitedProjectIds.value.filter(id => id !== projectId);
+  ids.unshift(projectId);
+  recentVisitedProjectIds.value = ids.slice(0, 10);
+  try {
+    localStorage.setItem('recentVisitedProjects', JSON.stringify(recentVisitedProjectIds.value));
+  } catch (err) {
+    console.error('保存最近访问项目失败', err);
+  }
+};
 //改变项目列表
 const handleChangeProject = (item: ApidocProjectInfo) => {
   if (item._id === router.currentRoute.value.query.id) {
+    toggleProjectVisible.value = false;
     return;
   }
   projectManagerStore.recordVisited(item._id);
-
-  // 同步更新header tabs - 发送事件通知header添加或激活对应的项目tab
+  recordProjectVisit(item._id);
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.switchProject, {
     projectId: item._id,
     projectName: item.projectName
   });
-
   router.push({
     path: '/workbench',
     query: {
@@ -659,10 +836,12 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
     bannerStore.changeBannerLoading(false)
   });
   emits('changeProject', item._id)
+  toggleProjectVisible.value = false;
 }
 //打开或者关闭项目列表切换
 const handleToggleProjectModel = () => {
   if (!toggleProjectVisible.value) {
+    projectSearchKeyword.value = '';
     getProjectList();
   }
   toggleProjectVisible.value = !toggleProjectVisible.value;
@@ -890,43 +1069,125 @@ const handleToggleProjectModel = () => {
 
 .tool-toggle-project {
   min-height: 300px;
+  max-height: 600px;
+  display: flex;
+  flex-direction: column;
 
-  h3 {
-    margin-top: 5px;
-    margin-bottom: 5px;
+  .project-search-bar {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--gray-300);
+    flex-shrink: 0;
   }
 
-  .project-wrap {
-    padding: 0 10px 0 20px;
-    max-height: 300px;
+  .project-list-container {
+    flex: 1;
     overflow-y: auto;
   }
 
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gray-600);
+    padding: 2px 5px;
+    margin: 0px 0 0px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .project-wrap {
+    padding: 0 8px;
+  }
+
   .item {
-    height: 35px;
-    padding: 10px;
+    padding: 10px 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+
+    .item-left {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
 
     .item-title {
-      flex: 0 0 75%;
+      font-size: 14px;
+      font-weight: 500;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      margin-right: 25px;
+      color: var(--gray-800);
+    }
+
+    .item-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .item-owner {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .item-dot {
+      color: var(--gray-400);
+    }
+
+    .item-time {
+      flex-shrink: 0;
+    }
+
+    .permission-tag {
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+
+    &.is-current {
+      background-color: var(--theme-color-light-9);
+      border: 1px solid var(--theme-color-light-7);
+
+      .item-title {
+        color: var(--theme-color);
+        font-weight: 600;
+      }
     }
 
     &:hover {
-      background-color: var(--theme-color);
-      color: var(--white);
-      cursor: pointer;
+      background-color: var(--gray-200);
 
-      .item-content {
-        color: var(--white);
+      &.is-current {
+        background-color: var(--theme-color-light-8);
       }
     }
   }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+
+    .empty-icon {
+      margin-bottom: 16px;
+    }
+
+    .empty-text {
+      font-size: 14px;
+      margin: 0;
+    }
+  }
+
   .toolbar-header {
     border-bottom: 1px solid var(--gray-300);
   }
