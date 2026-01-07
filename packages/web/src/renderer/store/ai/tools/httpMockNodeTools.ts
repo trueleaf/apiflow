@@ -77,22 +77,23 @@ const normalizeHttpMethods = (value: unknown): { ok: true; methods: (Method | 'A
 export const httpMockNodeTools: AgentTool[] = [
   {
     name: 'simpleCreateHttpMockNode',
-    description: '根据用户的简单描述创建httpMockNode节点（推荐）。当用户没有提供完整的method、url、port等参数时，使用此工具自动推断',
+    description: 'Create an HTTP Mock server node from natural language description (Smart Mode - Recommended). Automatically infers HTTP methods, URL path, port number, and response delay from user input. Use this when the user wants to quickly set up a mock endpoint without specifying technical details. Example: "Create a mock user list API listening on port 3001" will auto-generate appropriate configuration.',
     type: 'httpMockNode',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: '项目id',
+          description: 'The unique identifier of the project where the mock server will be created',
         },
         description: {
           type: 'string',
-          description: 'Mock服务的自然语言描述，例如"创建一个Mock用户列表接口，监听3001端口"',
+          description: 'Natural language description of the mock service requirements, including endpoint purpose, methods, and port if specific',
         },
         pid: {
           type: 'string',
-          description: '父节点id，根节点留空字符串',
+          description: 'Optional parent folder ID. If omitted or empty string, the mock will be created at the root level',
+
         },
       },
       required: ['projectId', 'description'],
@@ -124,25 +125,26 @@ export const httpMockNodeTools: AgentTool[] = [
   },
   {
     name: 'createHttpMockNode',
-    description: '创建一个新的httpMockNode节点',
+    description: 'Create an HTTP Mock server node with precise control over all parameters (Precise Mode). Use this when you need explicit control over methods, URL, port, and delay. Mock servers simulate API endpoints locally for offline development and testing. For simpler creation from natural language, prefer simpleCreateHttpMockNode instead.',
     type: 'httpMockNode',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: '项目id',
+          description: 'The unique identifier of the project where the mock server will be created',
         },
         name: {
           type: 'string',
-          description: '节点名称',
+          description: 'The display name for the mock server node',
         },
         pid: {
           type: 'string',
-          description: '父节点id，根节点留空字符串',
+          description: 'Optional parent folder ID. If omitted or empty string, the mock will be created at the root level',
         },
         method: {
-          description: 'HTTP方法数组，如["GET", "POST"]或["ALL"]',
+          description: 'Array of HTTP methods this mock should respond to. Use ["ALL"] to match all methods',
+
           type: 'array',
           items: {
             type: 'string',
@@ -151,19 +153,19 @@ export const httpMockNodeTools: AgentTool[] = [
         },
         url: {
           type: 'string',
-          description: 'Mock的URL路径，如/api/users',
+          description: 'URL path for the Mock, e.g., /api/users',
         },
         port: {
           type: 'number',
-          description: 'Mock服务监听端口，默认3000',
+          description: 'Port for the Mock service to listen on, default is 3000',
         },
         delay: {
           type: 'number',
-          description: '响应延迟（毫秒），默认0',
+          description: 'Response delay in milliseconds, default is 0',
         },
         description: {
           type: 'string',
-          description: 'Mock节点描述',
+          description: 'Description of the Mock node',
         },
       },
       required: ['projectId', 'name'],
@@ -199,13 +201,14 @@ export const httpMockNodeTools: AgentTool[] = [
   },
   {
     name: 'getHttpMockNodeDetail',
-    description: '获取指定httpMockNode节点详情（会加载到当前HttpMock编辑器store中）',
+    description: 'Retrieve complete configuration and settings of an HTTP Mock server node. Loads the mock data into the editor store for inspection or modification. Use this to view the current state of a mock endpoint.',
     type: 'httpMockNode',
     parameters: {
       type: 'object',
       properties: {
-        projectId: { type: 'string', description: '项目id' },
-        nodeId: { type: 'string', description: 'httpMock节点id' },
+        projectId: { type: 'string', description: 'The unique identifier of the project containing the mock' },
+        nodeId: { type: 'string', description: 'The unique identifier of the HTTP Mock node to retrieve' },
+
       },
       required: ['projectId', 'nodeId'],
     },
@@ -223,24 +226,25 @@ export const httpMockNodeTools: AgentTool[] = [
   },
   {
     name: 'updateHttpMockNodeBasic',
-    description: '更新httpMockNode的基础信息（名称/方法/url/port/delay）。会先按projectId+nodeId加载节点到store，然后更新store内数据',
+    description: 'Modify basic configuration of an HTTP Mock server node including name, methods, URL, port, and response delay. Automatically loads the node if not currently in the editor. Use this for updating mock endpoint settings.',
     type: 'httpMockNode',
     parameters: {
       type: 'object',
       properties: {
-        projectId: { type: 'string', description: '项目id' },
-        nodeId: { type: 'string', description: 'httpMock节点id' },
-        name: { type: 'string', description: '名称' },
+        projectId: { type: 'string', description: 'The unique identifier of the project containing the mock' },
+        nodeId: { type: 'string', description: 'The unique identifier of the HTTP Mock node to update' },
+        name: { type: 'string', description: 'New display name for the mock server' },
         method: {
-          description: 'HTTP方法，支持字符串或字符串数组（在execute内校验）',
+          description: 'New HTTP methods (string or array). Validated during execution. Examples: "GET", ["GET", "POST"], or ["ALL"]',
           anyOf: [
             { type: 'string' },
             { type: 'array', items: { type: 'string' } },
           ],
         },
-        requestUrl: { type: 'string', description: '请求URL，例如 /api/mock' },
-        port: { type: 'number', description: '端口' },
-        delay: { type: 'number', description: '延迟(ms)' },
+        requestUrl: { type: 'string', description: 'New URL path pattern, e.g., /api/mock or /users/:id' },
+        port: { type: 'number', description: 'New port number for the mock server to listen on' },
+        delay: { type: 'number', description: 'New artificial response delay in milliseconds (useful for simulating network latency)' },
+
       },
       required: ['projectId', 'nodeId'],
     },
@@ -283,8 +287,9 @@ export const httpMockNodeTools: AgentTool[] = [
   },
   {
     name: 'saveCurrentHttpMockNode',
-    description: '保存当前选中的httpMockNode（依赖当前Tab选中态）',
+    description: 'Save changes to the currently selected HTTP Mock server node in the editor. Relies on the active tab state to determine which mock to save. Use this after making modifications to persist the configuration.',
     type: 'httpMockNode',
+
     parameters: {
       type: 'object',
       properties: {},
@@ -303,13 +308,14 @@ export const httpMockNodeTools: AgentTool[] = [
   },
   {
     name: 'startHttpMockServerByNodeId',
-    description: '启动指定nodeId的HttpMock服务（Electron环境）',
+    description: 'Start the HTTP Mock service for a specific mock node. Launches a local mock server that responds to requests according to the configured rules. Only available in Electron/desktop environment. Use this when the user wants to activate a mock endpoint for testing.',
     type: 'httpMockNode',
     parameters: {
       type: 'object',
       properties: {
-        projectId: { type: 'string', description: '项目id' },
-        nodeId: { type: 'string', description: 'httpMock节点id' },
+        projectId: { type: 'string', description: 'The unique identifier of the project containing the mock' },
+        nodeId: { type: 'string', description: 'The unique identifier of the HTTP Mock node to start' },
+
       },
       required: ['projectId', 'nodeId'],
     },
@@ -335,12 +341,13 @@ export const httpMockNodeTools: AgentTool[] = [
   },
   {
     name: 'stopHttpMockServerByNodeId',
-    description: '停止指定nodeId的HttpMock服务（Electron环境）',
+    description: 'Stop the running HTTP Mock service for a specific mock node. Shuts down the local mock server and frees the port. Only available in Electron/desktop environment. Use this when the user wants to deactivate a mock endpoint.',
     type: 'httpMockNode',
     parameters: {
       type: 'object',
       properties: {
-        nodeId: { type: 'string', description: 'httpMock节点id' },
+        nodeId: { type: 'string', description: 'The unique identifier of the HTTP Mock node to stop' },
+
       },
       required: ['nodeId'],
     },
@@ -360,12 +367,13 @@ export const httpMockNodeTools: AgentTool[] = [
   },
   {
     name: 'getHttpMockEnabledStatus',
-    description: '查询指定nodeId的HttpMock服务是否已启用（Electron环境）',
+    description: 'Check whether an HTTP Mock service is currently running for a specific node. Returns enabled status. Only available in Electron/desktop environment. Use this to verify if a mock endpoint is active.',
     type: 'httpMockNode',
     parameters: {
       type: 'object',
       properties: {
-        nodeId: { type: 'string', description: 'httpMock节点id' },
+        nodeId: { type: 'string', description: 'The unique identifier of the HTTP Mock node to check' },
+
       },
       required: ['nodeId'],
     },
@@ -382,13 +390,14 @@ export const httpMockNodeTools: AgentTool[] = [
   },
   {
     name: 'getHttpMockLogs',
-    description: '获取指定nodeId的HttpMock日志（从IndexedDB缓存读取）',
+    description: 'Retrieve request logs for an HTTP Mock server node. Shows incoming requests received by the mock endpoint including timestamps, methods, URLs, and responses. Reads from local IndexedDB cache. Use this to debug mock behavior or verify test requests.',
     type: 'httpMockNode',
     parameters: {
       type: 'object',
       properties: {
-        nodeId: { type: 'string', description: 'httpMock节点id' },
-        limit: { type: 'number', description: '可选，限制返回条数（默认50）' },
+        nodeId: { type: 'string', description: 'The unique identifier of the HTTP Mock node whose logs to retrieve' },
+        limit: { type: 'number', description: 'Optional maximum number of log entries to return (default: 50, most recent first)' },
+
       },
       required: ['nodeId'],
     },

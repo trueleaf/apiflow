@@ -6,14 +6,14 @@ import { simpleCreateProjectPrompt } from '@/store/ai/prompt/prompt'
 export const projectTools: AgentTool[] = [
   {
     name: 'simpleCreateProject',
-    description: '根据用户的简单描述创建项目（推荐）。当用户没有提供明确的项目名称时，使用此工具自动推断',
+    description: 'Create a project based on user\'s simple description (recommended). Use this tool to automatically infer when the user does not provide a clear project name',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         description: {
           type: 'string',
-          description: '项目的自然语言描述，例如"创建一个电商系统项目"',
+          description: 'Natural language description of the project, for example "Create an e-commerce system project"',
         },
       },
       required: ['description'],
@@ -43,7 +43,7 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'getProjectList',
-    description: '获取项目列表',
+    description: 'Get project list',
     type: 'projectManager',
     parameters: {
       type: 'object',
@@ -62,14 +62,14 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'getProjectById',
-    description: '根据项目ID获取项目信息',
+    description: 'Get project information by project ID',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: '项目ID',
+          description: 'Project ID',
         },
       },
       required: ['projectId'],
@@ -87,14 +87,14 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'createProject',
-    description: '创建一个新项目',
+    description: 'Create a new project',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         projectName: {
           type: 'string',
-          description: '项目名称',
+          description: 'Project name',
         },
       },
       required: ['projectName'],
@@ -112,17 +112,17 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'batchCreateProjects',
-    description: '批量创建项目',
+    description: 'Batch create projects',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         projectNames: {
           type: 'array',
-          description: '项目名称列表',
+          description: 'List of project names',
           items: {
             type: 'string',
-            description: '项目名称',
+            description: 'Project name',
           },
         },
       },
@@ -149,26 +149,26 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'searchProject',
-    description: '根据关键词、项目名称、创建者等条件搜索项目，支持模糊匹配。当需要通过项目名称或创建者查找项目时使用此工具',
+    description: 'Search projects by keyword, project name, creator and other conditions, supports fuzzy matching. Use this tool when you need to find projects by project name or creator',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         keyword: {
           type: 'string',
-          description: '通用关键词，同时搜索项目名称和描述（模糊匹配）',
+          description: 'General keyword, searches both project name and description (fuzzy matching)',
         },
         projectName: {
           type: 'string',
-          description: '项目名称（模糊匹配）',
+          description: 'Project name (fuzzy matching)',
         },
         creator: {
           type: 'string',
-          description: '创建者（模糊匹配）',
+          description: 'Creator (fuzzy matching)',
         },
         isStared: {
           type: 'boolean',
-          description: '是否收藏',
+          description: 'Whether is starred',
         },
       },
       required: [],
@@ -190,18 +190,18 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'updateProjectName',
-    description: '更新项目名称',
+    description: 'Update project name',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: '项目ID',
+          description: 'Project ID',
         },
         projectName: {
           type: 'string',
-          description: '新的项目名称',
+          description: 'New project name',
         },
       },
       required: ['projectId', 'projectName'],
@@ -220,14 +220,14 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'deleteProject',
-    description: '删除单个项目。如需删除多个项目，请使用 batchDeleteProjects；如需删除所有项目，请使用 deleteAllProjects',
+    description: 'Delete a single project. To delete multiple projects, use batchDeleteProjects; to delete all projects, use deleteAllProjects',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: '要删除的项目ID',
+          description: 'Project ID to delete',
         },
       },
       required: ['projectId'],
@@ -245,17 +245,17 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'batchDeleteProjects',
-    description: '批量删除多个项目',
+    description: 'Batch delete multiple projects',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         projectIds: {
           type: 'array',
-          description: '要删除的项目ID列表',
+          description: 'List of project IDs to delete',
           items: {
             type: 'string',
-            description: '项目ID',
+            description: 'Project ID',
           },
         },
       },
@@ -282,7 +282,7 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'deleteAllProjects',
-    description: '删除所有项目。这是一个危险操作，会删除系统中的全部项目',
+    description: 'Delete all projects. This is a dangerous operation that will delete all projects in the system',
     type: 'projectManager',
     parameters: {
       type: 'object',
@@ -305,14 +305,14 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'starProject',
-    description: '收藏项目',
+    description: 'Star a project',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: '要收藏的项目ID',
+          description: 'Project ID to star',
         },
       },
       required: ['projectId'],
@@ -330,14 +330,14 @@ export const projectTools: AgentTool[] = [
   },
   {
     name: 'unstarProject',
-    description: '取消收藏项目',
+    description: 'Unstar a project',
     type: 'projectManager',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: '要取消收藏的项目ID',
+          description: 'Project ID to unstar',
         },
       },
       required: ['projectId'],

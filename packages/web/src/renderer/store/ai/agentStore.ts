@@ -7,12 +7,12 @@ import { useAgentViewStore } from './agentView'
 import { openaiTools, rawTools, getToolSummaries, getToolsByNames } from './tools/tools.ts'
 import { LLMessage } from '@src/types/ai/agent.type.ts'
 import type { AgentToolCallInfo, OpenAiToolDefinition } from '@src/types/ai'
-import type { CommonResponse } from '@src/types'
+import type { CommonResponse, Language } from '@src/types'
 import { generateAgentExecutionMessage, generateCompletionMessage, generateInfoMessage } from '@/helper'
 import { config } from '@src/config/config'
 import { nanoid } from 'nanoid'
 import { agentSystemPrompt, toolSelectionSystemPrompt } from '@/store/ai/prompt/prompt'
-import { i18n } from '@/i18n'
+import { i18n, detectInputLanguage, translateWithLocale } from '@/i18n'
 export const useAgentStore = defineStore('agent', () => {
 	let agentAbortController: AbortController | null = null
 	const checkAborted = (signal: AbortSignal | undefined) => {
@@ -92,17 +92,17 @@ export const useAgentStore = defineStore('agent', () => {
 		// 注意：工具执行结果不加入历史，避免干扰新任务的理解
 		return historyMessages
 	}
-	const selectToolsByLLM = async (params: { prompt: string; contextText: string; historyMessages: LLMessage[]; signal?: AbortSignal }): Promise<{ tools: OpenAiToolDefinition[]; totalTokens: number }> => {
-		const { prompt, contextText, historyMessages, signal } = params
+	const selectToolsByLLM = async (params: { prompt: string; contextText: string; historyMessages: LLMessage[]; signal?: AbortSignal; targetLocale: Language }): Promise<{ tools: OpenAiToolDefinition[]; totalTokens: number }> => {
+		const { prompt, contextText, historyMessages, signal, targetLocale } = params
 		const llmClientStore = useLLMClientStore()
 		checkAborted(signal)
 		const toolListText = JSON.stringify(getToolSummaries())
 		const messages: LLMessage[] = [
 			{ role: 'system', content: toolSelectionSystemPrompt },
-			{ role: 'system', content: `${i18n.global.t('可用工具列表')}：${toolListText}` },
+			{ role: 'system', content: `${translateWithLocale('可用工具列表', targetLocale)}：${toolListText}` },
 			{ role: 'system', content: contextText },
 			...historyMessages,
-			{ role: 'user', content: `${i18n.global.t('用户意图')}：${prompt}` }
+			{ role: 'user', content: `${translateWithLocale('用户意图', targetLocale)}：${prompt}` }
 		]
 		try {
 			const response = await llmClientStore.chat({ messages, response_format: { type: 'json_object' } })
@@ -133,8 +133,8 @@ export const useAgentStore = defineStore('agent', () => {
 			return { tools: openaiTools, totalTokens: 0 }
 		}
 	}
-	const executeAgentLoop = async (params: { messages: LLMessage[]; tools: OpenAiToolDefinition[]; messageId: string; signal?: AbortSignal }): Promise<{ content: string; needFallback: boolean; hasToolCalls: boolean }> => {
-		const { messages, tools, messageId, signal } = params
+	const executeAgentLoop = async (params: { messages: LLMessage[]; tools: OpenAiToolDefinition[]; messageId: string; signal?: AbortSignal; targetLocale: Language }): Promise<{ content: string; needFallback: boolean; hasToolCalls: boolean }> => {
+		const { messages, tools, messageId, signal, targetLocale } = params
 		const agentViewStore = useAgentViewStore()
 		const llmClientStore = useLLMClientStore()
 		let currentToolCalls: AgentToolCallInfo[] = []
@@ -175,7 +175,7 @@ export const useAgentStore = defineStore('agent', () => {
 				void agentViewStore.updateCurrentMessageById(messageId, { toolCalls: currentToolCalls })
 				const tool = rawTools.find(t => t.name === toolCall.function.name)
 				if (!tool) {
-					const errorMsg = i18n.global.t('工具不存在', { name: toolCall.function.name })
+					const errorMsg = translateWithLocale('工具不存在', targetLocale, { name: toolCall.function.name })
 					currentToolCalls = currentToolCalls.map(tc =>
 						tc.id === toolCall.id
 							? { ...tc, status: 'error' as const, error: errorMsg, endTime: Date.now() }
@@ -202,8 +202,8 @@ export const useAgentStore = defineStore('agent', () => {
 					messages.push({
 						role: 'tool',
 						content: result.code === 0
-							? `${i18n.global.t('执行成功')}：${JSON.stringify(result.data)}`
-							: `${i18n.global.t('执行失败')}：${JSON.stringify(result.data)}`,
+							? `${translateWithLocale('执行成功', targetLocale)}：${JSON.stringify(result.data)}`
+							: `${translateWithLocale('执行失败', targetLocale)}：${JSON.stringify(result.data)}`,
 						tool_call_id: toolCall.id
 					})
 				} catch (err) {
@@ -218,7 +218,7 @@ export const useAgentStore = defineStore('agent', () => {
 					void agentViewStore.updateCurrentMessageById(messageId, { toolCalls: currentToolCalls })
 					messages.push({
 						role: 'tool',
-						content: `${i18n.global.t('工具执行异常')}：${err instanceof Error ? err.message : String(err)}`,
+						content: `${translateWithLocale('工具执行异常', targetLocale)}：${err instanceof Error ? err.message : String(err)}`,
 						tool_call_id: toolCall.id
 					})
 				}
@@ -241,16 +241,26 @@ export const useAgentStore = defineStore('agent', () => {
 		agentAbortController = new AbortController()
 		const signal = agentAbortController.signal
 		const agentViewStore = useAgentViewStore()
+		// 检测用户输入语言
+		const currentInterfaceLocale = i18n.global.locale.value as Language
+		const detectedLocale = detectInputLanguage(prompt, currentInterfaceLocale)
 		const context = buildAgentContext()
-		const contextText = `【上下文（只读）】以下信息来自 ApiFlow 当前界面状态，用于辅助工具入参填充与减少反问。
-规则：
-- 不要编造 id（projectId/nodeId/folderId），优先从这里读取；若为 null，再询问用户或先用搜索/详情类工具定位。
-- activeTab 不为 null 时，通常可直接用 activeTab.id 作为 nodeId；结合 activeTab.type 判断节点类型。
-- 当需要 projectId（如创建节点/启停 Mock/启动服务等）时，优先使用 project.id；若为 null，先提示用户选择/打开项目。
-JSON：${JSON.stringify({ project: context.project, activeTab: context.activeTab, variables: context.variables })}`
+		const languageMap: Record<Language, string> = {
+			'zh-cn': 'Chinese',
+			'zh-tw': 'Traditional Chinese',
+			'en': 'English',
+			'ja': 'Japanese'
+		}
+		const contextText = `[Context (Read-only)] The following information comes from ApiFlow's current interface state, used to assist tool parameter filling and reduce back-and-forth questions.
+Rules:
+- Don't fabricate IDs (projectId/nodeId/folderId), prioritize reading from here; if null, ask user or use search/detail tools to locate first.
+- When activeTab is not null, you can usually use activeTab.id directly as nodeId; combine with activeTab.type to determine node type.
+- When projectId is needed (e.g., creating nodes/starting-stopping Mock/starting services), prioritize using project.id; if null, prompt user to select/open project first.
+JSON: ${JSON.stringify({ project: context.project, activeTab: context.activeTab, variables: context.variables })}`
 		const historyMessages = buildHistoryMessages()
 		const messages: LLMessage[] = [
 			{ role: 'system', content: agentSystemPrompt },
+			{ role: 'system', content: `[User's Preferred Language: ${languageMap[detectedLocale]}]` },
 			{ role: 'system', content: contextText },
 			...historyMessages,
 			{ role: 'user', content: prompt }
@@ -261,7 +271,7 @@ JSON：${JSON.stringify({ project: context.project, activeTab: context.activeTab
 			const loadingMessage: import('@src/types/ai').LoadingMessage = {
 				id: nanoid(),
 				type: 'loading',
-				content: i18n.global.t('准备执行'),
+				content: translateWithLocale('准备执行', detectedLocale),
 				timestamp: new Date().toISOString(),
 				sessionId: agentViewStore.currentSessionId,
 				mode: 'agent',
@@ -269,21 +279,21 @@ JSON：${JSON.stringify({ project: context.project, activeTab: context.activeTab
 			}
 			agentViewStore.currentMessageList.push(loadingMessage)
 			setTimeout(() => {
-				agentViewStore.updateMessageById(loadingMessage.id, { content: i18n.global.t('搜索工具中') })
+				agentViewStore.updateMessageById(loadingMessage.id, { content: translateWithLocale('搜索工具中', detectedLocale) })
 			}, 1000)
-			const { tools: selectedTools, totalTokens } = await selectToolsByLLM({ prompt, contextText, historyMessages, signal })
+			const { tools: selectedTools, totalTokens } = await selectToolsByLLM({ prompt, contextText, historyMessages, signal, targetLocale: detectedLocale })
 			agentViewStore.deleteCurrentMessageById(loadingMessage.id)
 			const toolNames = selectedTools.map(tool => tool.function.name)
 			const infoMessage = generateInfoMessage(
 				agentViewStore.currentSessionId,
-				i18n.global.t('已挑选工具', { count: selectedTools.length }),
+				translateWithLocale('已挑选工具', detectedLocale, { count: selectedTools.length }),
 				'agent',
 				totalTokens,
 				toolNames
 			)
 			agentViewStore.currentMessageList.push(infoMessage)
 			agentViewStore.currentMessageList.push(agentMessage)
-			const result = await executeAgentLoop({ messages, tools: selectedTools, messageId, signal })
+			const result = await executeAgentLoop({ messages, tools: selectedTools, messageId, signal, targetLocale: detectedLocale })
 			await agentViewStore.updateCurrentMessageById(messageId, { status: 'success', isStreaming: false })
 			const completionMessage = generateCompletionMessage(agentViewStore.currentSessionId, result.content)
 			await agentViewStore.addCurrentMessage(completionMessage)

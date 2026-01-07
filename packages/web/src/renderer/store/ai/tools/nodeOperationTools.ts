@@ -61,19 +61,19 @@ const nodeToBanner = (node: HttpNode | WebSocketNode | HttpMockNode | FolderNode
 export const nodeOperationTools: AgentTool[] = [
   {
     name: 'getChildNodes',
-    description: '获取指定文件夹下的子节点列表。可以获取根目录或任意文件夹下的直接子节点，支持按节点类型过滤。常用于查看项目结构、统计节点、批量操作前的信息收集等场景',
+    description: 'Get the list of child nodes under the specified folder. Can retrieve direct child nodes from the root directory or any folder, with support for filtering by node type. Commonly used for viewing project structure, counting nodes, and collecting information before batch operations',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: '文件夹ID。传空字符串或不传表示获取根目录下的节点',
+          description: 'Folder ID. Pass empty string or omit to get nodes under the root directory',
         },
         filterType: {
           type: 'string',
           enum: ['folder', 'http', 'httpMock', 'websocket', 'websocketMock'],
-          description: '可选，按节点类型过滤。不传则返回所有类型的节点',
+          description: 'Optional, filter by node type. If not provided, returns all types of nodes',
         },
       },
       required: [],
@@ -133,19 +133,19 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'copyNodes',
-    description: '复制节点到剪贴板。可以复制单个或多个节点，复制后可以使用pasteNodes粘贴到目标位置',
+    description: 'Copy nodes to clipboard. Can copy single or multiple nodes, after copying can use pasteNodes to paste to target location',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         nodeIds: {
           type: 'array',
-          description: '要复制的节点ID列表',
+          description: 'List of node IDs to copy',
           items: { type: 'string' },
         },
         projectId: {
           type: 'string',
-          description: '节点所属的项目ID',
+          description: 'Project ID that the nodes belong to',
         },
       },
       required: ['nodeIds', 'projectId'],
@@ -171,19 +171,19 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'cutNodes',
-    description: '剪切节点。剪切后粘贴时会删除原节点',
+    description: 'Cut nodes. Original nodes will be deleted when pasted',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         nodeIds: {
           type: 'array',
-          description: '要剪切的节点ID列表',
+          description: 'List of node IDs to cut',
           items: { type: 'string' },
         },
         projectId: {
           type: 'string',
-          description: '节点所属的项目ID',
+          description: 'Project ID that the nodes belong to',
         },
       },
       required: ['nodeIds', 'projectId'],
@@ -209,18 +209,18 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'pasteNodes',
-    description: '粘贴节点到目标文件夹。只能粘贴到文件夹内或根目录。如果之前是剪切操作，粘贴后会删除原节点',
+    description: 'Paste nodes to target folder. Can only paste into a folder or root directory. If previous operation was cut, original nodes will be deleted after pasting',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         targetFolderId: {
           type: 'string',
-          description: '目标文件夹ID，如果粘贴到根目录则传空字符串',
+          description: 'Target folder ID, pass empty string to paste to root directory',
         },
         nodes: {
           type: 'array',
-          description: '要粘贴的节点数据（从copyNodes或cutNodes的返回结果中获取）',
+          description: 'Node data to paste (obtained from return results of copyNodes or cutNodes)',
           items: { type: 'object' },
         },
       },
@@ -342,14 +342,14 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'forkNode',
-    description: '生成节点的副本。在原节点后面插入一个名称带"_副本"后缀的拷贝',
+    description: 'Generate a copy of the node. Inserts a copy with "_副本" suffix in the name after the original node',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         nodeId: {
           type: 'string',
-          description: '要复制的节点ID',
+          description: 'Node ID to copy',
         },
       },
       required: ['nodeId'],
@@ -396,23 +396,23 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'dragNode',
-    description: '拖拽节点到新位置。支持before（放在目标节点前）、after（放在目标节点后）、inner（放入目标文件夹内）三种放置类型。注意：文件夹只能放在文件夹之前，非文件夹节点不能放在文件夹前面，只有文件夹可以包含子节点',
+    description: 'Drag node to new position. Supports three placement types: before (place before target node), after (place after target node), inner (place inside target folder). Note: folders can only be placed before other folders, non-folder nodes cannot be placed before folders, only folders can contain child nodes',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         sourceNodeId: {
           type: 'string',
-          description: '要拖拽的源节点ID',
+          description: 'Source node ID to drag',
         },
         targetNodeId: {
           type: 'string',
-          description: '目标节点ID',
+          description: 'Target node ID',
         },
         dropType: {
           type: 'string',
           enum: ['before', 'after', 'inner'],
-          description: '放置类型：before-放在目标前面，after-放在目标后面，inner-放入目标内部（仅限文件夹）',
+          description: 'Placement type: before-place before target, after-place after target, inner-place inside target (folders only)',
         },
       },
       required: ['sourceNodeId', 'targetNodeId', 'dropType'],
@@ -467,18 +467,18 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'moveNode',
-    description: '移动节点到新的父文件夹。可以将节点移动到其他文件夹下或移动到根目录。注意：文件夹不能移动到非文件夹节点内部',
+    description: 'Move node to new parent folder. Can move node to other folders or move to root directory. Note: folders cannot be moved inside non-folder nodes',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         nodeId: {
           type: 'string',
-          description: '要移动的节点ID',
+          description: 'Node ID to move',
         },
         newPid: {
           type: 'string',
-          description: '新的父节点ID（必须是文件夹），移动到根目录则传空字符串',
+          description: 'New parent node ID (must be a folder), pass empty string to move to root directory',
         },
       },
       required: ['nodeId', 'newPid'],
@@ -533,18 +533,18 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'renameNode',
-    description: '重命名节点',
+    description: 'Rename node',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         nodeId: {
           type: 'string',
-          description: '节点ID',
+          description: 'Node ID',
         },
         newName: {
           type: 'string',
-          description: '新的节点名称',
+          description: 'New node name',
         },
       },
       required: ['nodeId', 'newName'],
@@ -574,14 +574,14 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'deleteNodes',
-    description: '删除节点。如果删除的是文件夹，会级联删除所有子节点',
+    description: 'Delete nodes. If deleting a folder, all child nodes will be cascaded deleted',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         nodeIds: {
           type: 'array',
-          description: '要删除的节点ID列表',
+          description: 'List of node IDs to delete',
           items: { type: 'string' },
         },
       },
@@ -646,7 +646,7 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'getAllNodeIds',
-    description: '获取当前项目下的所有节点ID列表（包括文件夹和所有子节点）。常用于批量删除、批量操作等场景。如需删除全部节点，推荐直接使用 deleteAllNodes 工具',
+    description: 'Get list of all node IDs in the current project (including folders and all child nodes). Commonly used for batch deletion, batch operations, etc. To delete all nodes, recommend using deleteAllNodes tool directly',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
@@ -654,7 +654,7 @@ export const nodeOperationTools: AgentTool[] = [
         filterType: {
           type: 'string',
           enum: ['folder', 'http', 'httpMock', 'websocket', 'websocketMock'],
-          description: '可选，按节点类型过滤。不传则返回所有类型的节点',
+          description: 'Optional, filter by node type. If not provided, returns all types of nodes',
         },
       },
       required: [],
@@ -685,7 +685,7 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'deleteAllNodes',
-    description: '删除当前项目下的所有节点（清空当前项目的内容）。注意：这不会删除项目本身，只会删除项目中的全部文件夹和接口节点。如需删除项目，请使用 deleteProject 工具',
+    description: 'Delete all nodes in the current project (clear current project content). Note: this will not delete the project itself, only all folders and API nodes in the project. To delete the project, use deleteProject tool',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
@@ -723,18 +723,18 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'changeNodeSort',
-    description: '改变节点的排序值。sort值越小越靠前，越大越靠后',
+    description: 'Change the sort value of a node. Smaller sort value means higher position, larger value means lower position',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         nodeId: {
           type: 'string',
-          description: '要改变排序的节点ID',
+          description: 'Node ID to change sort',
         },
         sort: {
           type: 'number',
-          description: '新的排序值',
+          description: 'New sort value',
         },
       },
       required: ['nodeId', 'sort'],
@@ -755,19 +755,19 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'changeNodesSort',
-    description: '批量改变多个节点的排序值。sort值越小越靠前，越大越靠后',
+    description: 'Batch change sort values of multiple nodes. Smaller sort value means higher position, larger value means lower position',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         nodes: {
           type: 'array',
-          description: '要修改排序的节点列表',
+          description: 'List of nodes to change sort',
           items: {
             type: 'object',
             properties: {
-              nodeId: { type: 'string', description: '节点ID' },
-              sort: { type: 'number', description: '新的排序值' },
+              nodeId: { type: 'string', description: 'Node ID' },
+              sort: { type: 'number', description: 'New sort value' },
             },
             required: ['nodeId', 'sort'],
           },
@@ -800,35 +800,35 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'searchNodes',
-    description: '搜索节点。支持按名称、类型、关键词等条件搜索项目中的所有节点（包括folder、http、websocket、httpMock等类型），返回匹配的节点列表',
+    description: 'Search nodes. Supports searching all nodes in the project by name, type, keyword and other conditions (including folder, http, websocket, httpMock types), returns matching node list',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         keyword: {
           type: 'string',
-          description: '通用关键词，同时搜索名称和URL（模糊匹配）',
+          description: 'General keyword, searches both name and URL (fuzzy match)',
         },
         type: {
           type: 'string',
           enum: ['folder', 'http', 'httpMock', 'websocket', 'websocketMock'],
-          description: '节点类型（精确匹配）',
+          description: 'Node type (exact match)',
         },
         name: {
           type: 'string',
-          description: '节点名称（模糊匹配）',
+          description: 'Node name (fuzzy match)',
         },
         maintainer: {
           type: 'string',
-          description: '维护人员（模糊匹配）',
+          description: 'Maintainer (fuzzy match)',
         },
         limit: {
           type: 'number',
-          description: '返回结果数量限制，默认50。传 -1 或 0 可获取全部节点',
+          description: 'Return result count limit, default 50. Pass -1 or 0 to get all nodes',
         },
         includeDeleted: {
           type: 'boolean',
-          description: '是否包含已删除的节点，默认false',
+          description: 'Whether to include deleted nodes, default false',
         },
       },
       required: [],
@@ -902,14 +902,14 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'getFolderList',
-    description: '获取项目下所有文件夹（目录）列表，包括子文件夹',
+    description: 'Get list of all folders (directories) in the project, including subfolders',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: '项目ID',
+          description: 'Project ID',
         },
       },
       required: ['projectId'],
@@ -932,18 +932,18 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'renameFolder',
-    description: '重命名单个文件夹（目录）',
+    description: 'Rename a single folder (directory)',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: '文件夹ID',
+          description: 'Folder ID',
         },
         newName: {
           type: 'string',
-          description: '新的文件夹名称',
+          description: 'New folder name',
         },
       },
       required: ['folderId', 'newName'],
@@ -962,24 +962,24 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'batchRenameFolders',
-    description: '批量重命名多个文件夹（目录）',
+    description: 'Batch rename multiple folders (directories)',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         items: {
           type: 'array',
-          description: '重命名项列表',
+          description: 'List of rename items',
           items: {
             type: 'object',
             properties: {
               folderId: {
                 type: 'string',
-                description: '文件夹ID',
+                description: 'Folder ID',
               },
               newName: {
                 type: 'string',
-                description: '新的文件夹名称',
+                description: 'New folder name',
               },
             },
             required: ['folderId', 'newName'],
@@ -1001,18 +1001,18 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'getFolderChildrenForRename',
-    description: '获取指定文件夹及其所有子节点内容，用于根据子节点内容生成有意义的文件夹命名。返回目标文件夹、所有子文件夹和所有类型的子节点信息。',
+    description: 'Get the specified folder and all its child node content, used to generate meaningful folder names based on child node content. Returns target folder, all subfolders, and all types of child node information.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: '目标文件夹ID',
+          description: 'Target folder ID',
         },
         projectId: {
           type: 'string',
-          description: '项目ID',
+          description: 'Project ID',
         },
       },
       required: ['folderId', 'projectId'],
@@ -1037,18 +1037,18 @@ export const nodeOperationTools: AgentTool[] = [
   },
   {
     name: 'autoRenameFoldersByContent',
-    description: '根据文件夹下所有子节点内容，自动调用AI生成有意义的文件夹命名并执行重命名。适用于用户希望批量重命名目录但未指定具体名称的场景。',
+    description: 'Based on all child node content under the folder, automatically call AI to generate meaningful folder names and execute renaming. Suitable for scenarios where users want to batch rename directories but have not specified specific names.',
     type: 'nodeOperation',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: '目标文件夹ID',
+          description: 'Target folder ID',
         },
         projectId: {
           type: 'string',
-          description: '项目ID',
+          description: 'Project ID',
         },
       },
       required: ['folderId', 'projectId'],

@@ -11,7 +11,7 @@ export const commonTools: AgentTool[] = [
   // 获取当前打开的所有Tab列表
   {
     name: 'getOpenTabs',
-    description: '获取当前项目中打开的所有Tab列表',
+    description: 'Get all currently open tabs in the workspace. Returns tab ID, label, type, and save status. Use this when you need to view what API nodes or documents are currently open for editing.',
     type: 'common',
     parameters: {
       type: 'object',
@@ -41,14 +41,14 @@ export const commonTools: AgentTool[] = [
   // 关闭指定的Tab
   {
     name: 'closeTab',
-    description: '关闭指定的Tab（通过Tab的_id）',
+    description: 'Close a specific tab in the workspace. Use this when the user wants to close an API editor or document tab. Requires confirmation to prevent accidental closure. The tab must be identified by its _id from getOpenTabs.',
     type: 'common',
     parameters: {
       type: 'object',
       properties: {
         tabId: {
           type: 'string',
-          description: 'Tab的_id',
+          description: 'The unique identifier (_id) of the tab to close, obtained from getOpenTabs',
         },
       },
       required: ['tabId'],
@@ -74,7 +74,7 @@ export const commonTools: AgentTool[] = [
   // 关闭所有Tab
   {
     name: 'closeAllTabs',
-    description: '关闭当前项目中的所有Tab',
+    description: 'Close all open tabs in the current project workspace. Use this for workspace cleanup when the user wants a fresh start or to close multiple tabs at once. Requires confirmation as this is a potentially disruptive action.',
     type: 'common',
     parameters: {
       type: 'object',
@@ -96,14 +96,14 @@ export const commonTools: AgentTool[] = [
   // 切换到指定Tab
   {
     name: 'switchTab',
-    description: '切换到指定的Tab（通过Tab的_id）',
+    description: 'Switch focus to a specific tab in the workspace. Use this to navigate between open API editors or documents when the user wants to view or edit a different node. The tab must be already open (check with getOpenTabs first).',
     type: 'common',
     parameters: {
       type: 'object',
       properties: {
         tabId: {
           type: 'string',
-          description: 'Tab的_id',
+          description: 'The unique identifier (_id) of the tab to switch to, obtained from getOpenTabs',
         },
       },
       required: ['tabId'],
@@ -129,7 +129,7 @@ export const commonTools: AgentTool[] = [
   // 获取当前选中的Tab
   {
     name: 'getCurrentTab',
-    description: '获取当前选中的Tab信息',
+    description: 'Get detailed information about the currently focused tab. Returns tab ID, label, type, and save status. Use this to understand what the user is currently viewing or editing before performing operations.',
     type: 'common',
     parameters: {
       type: 'object',
@@ -158,18 +158,18 @@ export const commonTools: AgentTool[] = [
   // 导航到指定项目
   {
     name: 'navigateToProject',
-    description: '导航到指定项目的编辑页面（通过项目ID和项目名称）',
+    description: 'Open a project in edit mode. Use this when the user wants to switch to a different project or open a project from the project list. Both project ID and name are required for navigation.',
     type: 'common',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: '项目ID',
+          description: 'The unique identifier of the target project',
         },
         projectName: {
           type: 'string',
-          description: '项目名称',
+          description: 'The display name of the target project',
         },
       },
       required: ['projectId', 'projectName'],
@@ -194,7 +194,7 @@ export const commonTools: AgentTool[] = [
   // 导航到首页
   {
     name: 'navigateToHome',
-    description: '导航到首页（项目列表页）',
+    description: 'Navigate to the home page where all projects are listed. Use this when the user wants to return to the project list, create a new project, or switch between projects.',
     type: 'common',
     parameters: {
       type: 'object',
@@ -210,7 +210,7 @@ export const commonTools: AgentTool[] = [
   // 导航到设置页面
   {
     name: 'navigateToSettings',
-    description: '导航到设置页面',
+    description: 'Navigate to the application settings page. Use this when the user wants to configure preferences, manage account information, or adjust application behavior.',
     type: 'common',
     parameters: {
       type: 'object',
@@ -226,7 +226,7 @@ export const commonTools: AgentTool[] = [
   // 获取已删除的节点列表（回收站）
   {
     name: 'getDeletedNodes',
-    description: '获取当前项目中已删除的节点列表（回收站数据）',
+    description: 'Retrieve all deleted nodes from the recycle bin for the current project. Returns node ID, name, type, and deletion time. Use this when the user wants to view or restore previously deleted API nodes or folders.',
     type: 'common',
     parameters: {
       type: 'object',
@@ -253,14 +253,14 @@ export const commonTools: AgentTool[] = [
   // 恢复已删除的节点
   {
     name: 'restoreNode',
-    description: '从回收站恢复指定的节点（通过节点ID）',
+    description: 'Restore a deleted node from the recycle bin back to its original location in the project tree. Use this to recover accidentally deleted API nodes or folders. Requires confirmation and the node ID must exist in the recycle bin.',
     type: 'common',
     parameters: {
       type: 'object',
       properties: {
         nodeId: {
           type: 'string',
-          description: '要恢复的节点ID',
+          description: 'The unique identifier of the deleted node to restore, obtained from getDeletedNodes',
         },
       },
       required: ['nodeId'],
@@ -285,18 +285,18 @@ export const commonTools: AgentTool[] = [
   // 创建文件夹节点
   {
     name: 'createFolder',
-    description: '在当前项目中创建一个文件夹节点',
+    description: 'Create a new folder to organize API nodes in the project tree. Use this when the user wants to add structure to their project by grouping related APIs. Folders can be nested by specifying a parent ID.',
     type: 'common',
     parameters: {
       type: 'object',
       properties: {
         name: {
           type: 'string',
-          description: '文件夹名称',
+          description: 'The display name for the new folder',
         },
         pid: {
           type: 'string',
-          description: '父节点ID，不填则创建在根目录',
+          description: 'Optional parent folder ID. If omitted, the folder will be created at the root level of the project',
         },
       },
       required: ['name'],
@@ -321,24 +321,24 @@ export const commonTools: AgentTool[] = [
   // 批量创建文件夹节点
   {
     name: 'batchCreateFolders',
-    description: '在当前项目中批量创建文件夹节点',
+    description: 'Create multiple folders at once to quickly establish project structure. Use this when the user wants to set up an organized folder hierarchy efficiently. Returns success/failure counts and details. Requires confirmation as it creates multiple items.',
     type: 'common',
     parameters: {
       type: 'object',
       properties: {
         folders: {
           type: 'array',
-          description: '文件夹列表',
+          description: 'Array of folder definitions to create',
           items: {
             type: 'object',
             properties: {
               name: {
                 type: 'string',
-                description: '文件夹名称',
+                description: 'The display name for this folder',
               },
               pid: {
                 type: 'string',
-                description: '父节点ID，不填则创建在根目录',
+                description: 'Optional parent folder ID. If omitted, the folder will be created at the root level',
               },
             },
             required: ['name'],

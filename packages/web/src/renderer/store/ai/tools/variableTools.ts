@@ -9,7 +9,7 @@ const getCurrentProjectId = (): string | null => {
 export const variableTools: AgentTool[] = [
   {
     name: 'getVariables',
-    description: '获取当前项目的所有变量列表',
+    description: 'Get all variables list of the current project',
     type: 'variable',
     parameters: {
       type: 'object',
@@ -29,14 +29,14 @@ export const variableTools: AgentTool[] = [
   },
   {
     name: 'getVariableById',
-    description: '根据变量ID获取单个变量的详细信息',
+    description: 'Get detailed information of a single variable by variable ID',
     type: 'variable',
     parameters: {
       type: 'object',
       properties: {
         variableId: {
           type: 'string',
-          description: '变量ID',
+          description: 'Variable ID',
         },
       },
       required: ['variableId'],
@@ -54,23 +54,23 @@ export const variableTools: AgentTool[] = [
   },
   {
     name: 'createVariable',
-    description: '在当前项目中创建一个新变量',
+    description: 'Create a new variable in the current project',
     type: 'variable',
     parameters: {
       type: 'object',
       properties: {
         name: {
           type: 'string',
-          description: '变量名称',
+          description: 'Variable name',
         },
         value: {
           type: 'string',
-          description: '变量值',
+          description: 'Variable value',
         },
         type: {
           type: 'string',
           enum: ['string', 'number', 'boolean', 'null', 'any', 'file'],
-          description: '变量类型，默认为string',
+          description: 'Variable type, default is string',
         },
       },
       required: ['name', 'value'],
@@ -98,27 +98,27 @@ export const variableTools: AgentTool[] = [
   },
   {
     name: 'updateVariable',
-    description: '更新指定变量的信息',
+    description: 'Update information of a specified variable',
     type: 'variable',
     parameters: {
       type: 'object',
       properties: {
         variableId: {
           type: 'string',
-          description: '要更新的变量ID',
+          description: 'Variable ID to update',
         },
         name: {
           type: 'string',
-          description: '新的变量名称',
+          description: 'New variable name',
         },
         value: {
           type: 'string',
-          description: '新的变量值',
+          description: 'New variable value',
         },
         type: {
           type: 'string',
           enum: ['string', 'number', 'boolean', 'null', 'any', 'file'],
-          description: '新的变量类型',
+          description: 'New variable type',
         },
       },
       required: ['variableId'],
@@ -146,7 +146,7 @@ export const variableTools: AgentTool[] = [
   },
   {
     name: 'deleteVariables',
-    description: '批量删除指定的变量',
+    description: 'Batch delete specified variables',
     type: 'variable',
     parameters: {
       type: 'object',
@@ -154,7 +154,7 @@ export const variableTools: AgentTool[] = [
         variableIds: {
           type: 'array',
           items: { type: 'string' },
-          description: '要删除的变量ID数组',
+          description: 'Array of variable IDs to delete',
         },
       },
       required: ['variableIds'],
@@ -172,14 +172,14 @@ export const variableTools: AgentTool[] = [
   },
   {
     name: 'searchVariables',
-    description: '在当前项目中按名称搜索变量',
+    description: 'Search variables by name in the current project',
     type: 'variable',
     parameters: {
       type: 'object',
       properties: {
         keyword: {
           type: 'string',
-          description: '搜索关键词，会匹配变量名称',
+          description: 'Search keyword, will match variable name',
         },
       },
       required: ['keyword'],

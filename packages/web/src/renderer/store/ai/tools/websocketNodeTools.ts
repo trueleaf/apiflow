@@ -89,22 +89,22 @@ const normalizeIpcResult = (result: unknown): { ok: boolean; payload: unknown } 
 export const websocketNodeTools: AgentTool[] = [
   {
     name: 'simpleCreateWebsocketNode',
-    description: '根据用户的简单描述创建websocketNode节点（推荐）。当用户没有提供完整的protocol、url、headers等参数时，使用此工具自动推断',
+    description: 'Create a WebSocket connection node from natural language description (Smart Mode - Recommended). Automatically infers protocol (ws/wss), URL, query parameters, and headers from user input. Use this when the user wants to set up a WebSocket connection without specifying technical details. Example: "Create a chat room WebSocket requiring token authentication" will auto-generate appropriate configuration.',
     type: 'websocketNode',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: '项目id',
+          description: 'The unique identifier of the project where the WebSocket node will be created',
         },
         description: {
           type: 'string',
-          description: 'WebSocket连接的自然语言描述，例如"创建一个聊天室WebSocket连接，需要token认证"',
+          description: 'Natural language description of the WebSocket connection requirements, including purpose, authentication needs, and parameters',
         },
         pid: {
           type: 'string',
-          description: '父节点id，根节点留空字符串',
+          description: 'Optional parent folder ID. If omitted or empty string, the WebSocket will be created at the root level',
         },
       },
       required: ['projectId', 'description'],
@@ -136,65 +136,65 @@ export const websocketNodeTools: AgentTool[] = [
   },
   {
     name: 'createWebsocketNode',
-    description: '创建一个新的websocketNode节点',
+    description: 'Create a WebSocket connection node with precise control over all parameters (Precise Mode). Use this when you need explicit control over protocol, URL, headers, and query parameters. For simpler creation from natural language, prefer simpleCreateWebsocketNode instead.',
     type: 'websocketNode',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: '项目id',
+          description: 'The unique identifier of the project where the WebSocket node will be created',
         },
         name: {
           type: 'string',
-          description: '节点名称',
+          description: 'The display name for the WebSocket connection node',
         },
         pid: {
           type: 'string',
-          description: '父节点id，根节点留空字符串',
+          description: 'Parent node ID, leave empty string for root node',
         },
         protocol: {
           type: 'string',
           enum: ['ws', 'wss'],
-          description: 'WebSocket协议，ws或wss',
+          description: 'WebSocket protocol, ws or wss',
         },
         urlPath: {
           type: 'string',
-          description: 'WebSocket路径，如/ws/chat',
+          description: 'WebSocket path, e.g., /ws/chat',
         },
         urlPrefix: {
           type: 'string',
-          description: 'URL前缀',
+          description: 'URL prefix',
         },
         queryParams: {
           type: 'array',
-          description: '查询参数数组',
+          description: 'Query parameters array',
           items: {
             type: 'object',
             properties: {
-              key: { type: 'string', description: '参数名' },
-              value: { type: 'string', description: '参数值' },
-              description: { type: 'string', description: '参数说明' },
+              key: { type: 'string', description: 'Parameter name' },
+              value: { type: 'string', description: 'Parameter value' },
+              description: { type: 'string', description: 'Parameter description' },
             },
             required: ['key'],
           },
         },
         headers: {
           type: 'array',
-          description: '请求头数组',
+          description: 'Request headers array',
           items: {
             type: 'object',
             properties: {
-              key: { type: 'string', description: '请求头名' },
-              value: { type: 'string', description: '请求头值' },
-              description: { type: 'string', description: '说明' },
+              key: { type: 'string', description: 'Header name' },
+              value: { type: 'string', description: 'Header value' },
+              description: { type: 'string', description: 'Description' },
             },
             required: ['key'],
           },
         },
         description: {
           type: 'string',
-          description: 'WebSocket节点描述',
+          description: 'WebSocket node description',
         },
       },
       required: ['projectId', 'name'],
@@ -249,13 +249,13 @@ export const websocketNodeTools: AgentTool[] = [
   },
   {
     name: 'getWebsocketNodeDetail',
-    description: '获取指定websocketNode节点详情（会加载到当前WebSocket编辑器store中）',
+    description: 'Get details of the specified websocketNode (will be loaded into the current WebSocket editor store)',
     type: 'websocketNode',
     parameters: {
       type: 'object',
       properties: {
-        projectId: { type: 'string', description: '项目id' },
-        nodeId: { type: 'string', description: 'websocket节点id' },
+        projectId: { type: 'string', description: 'Project ID' },
+        nodeId: { type: 'string', description: 'WebSocket node ID' },
       },
       required: ['projectId', 'nodeId'],
     },
@@ -265,7 +265,7 @@ export const websocketNodeTools: AgentTool[] = [
       const projectId = args.projectId
       const nodeId = args.nodeId
       if (!isString(projectId) || !isString(nodeId)) {
-        return { code: 1, data: { error: 'projectId与nodeId必须为字符串' } }
+        return { code: 1, data: { error: 'projectId and nodeId must be strings' } }
       }
       await websocketStore.getWebsocketDetail({ id: nodeId, projectId })
       return { code: websocketStore.websocket?._id === nodeId ? 0 : 1, data: websocketStore.websocket }
@@ -273,18 +273,18 @@ export const websocketNodeTools: AgentTool[] = [
   },
   {
     name: 'updateWebsocketNodeMeta',
-    description: '更新websocketNode的基本信息（名称/描述/协议/path/prefix）。会先按projectId+nodeId加载节点到store，然后更新store内数据',
+    description: 'Update basic information of websocketNode (name/description/protocol/path/prefix). Will first load the node into store by projectId+nodeId, then update the data in store',
     type: 'websocketNode',
     parameters: {
       type: 'object',
       properties: {
-        projectId: { type: 'string', description: '项目id' },
-        nodeId: { type: 'string', description: 'websocket节点id' },
-        name: { type: 'string', description: '名称' },
-        description: { type: 'string', description: '描述' },
-        protocol: { type: 'string', description: '协议(ws/wss)，在execute内校验' },
-        path: { type: 'string', description: '请求路径，例如 /ws' },
-        prefix: { type: 'string', description: '请求前缀，例如 {{host}}' },
+        projectId: { type: 'string', description: 'Project ID' },
+        nodeId: { type: 'string', description: 'WebSocket node ID' },
+        name: { type: 'string', description: 'Name' },
+        description: { type: 'string', description: 'Description' },
+        protocol: { type: 'string', description: 'Protocol (ws/wss), validated in execute' },
+        path: { type: 'string', description: 'Request path, e.g., /ws' },
+        prefix: { type: 'string', description: 'Request prefix, e.g., {{host}}' },
       },
       required: ['projectId', 'nodeId'],
     },
@@ -294,7 +294,7 @@ export const websocketNodeTools: AgentTool[] = [
       const projectId = args.projectId
       const nodeId = args.nodeId
       if (!isString(projectId) || !isString(nodeId)) {
-        return { code: 1, data: { error: 'projectId与nodeId必须为字符串' } }
+        return { code: 1, data: { error: 'projectId and nodeId must be strings' } }
       }
       if (websocketStore.websocket?._id !== nodeId) {
         await websocketStore.getWebsocketDetail({ id: nodeId, projectId })
@@ -312,7 +312,7 @@ export const websocketNodeTools: AgentTool[] = [
       }
       if (typeof protocol !== 'undefined') {
         if (!isWebSocketProtocol(protocol)) {
-          return { code: 1, data: { error: 'protocol仅支持ws或wss' } }
+          return { code: 1, data: { error: 'protocol only supports ws or wss' } }
         }
         websocketStore.changeWebSocketProtocol(protocol)
       }
@@ -327,22 +327,22 @@ export const websocketNodeTools: AgentTool[] = [
   },
   {
     name: 'addWebsocketNodeHeader',
-    description: '为指定websocketNode添加一个自定义header（会先按projectId+nodeId加载节点到store）',
+    description: 'Add a custom header to the specified websocketNode (will first load the node into store by projectId+nodeId)',
     type: 'websocketNode',
     parameters: {
       type: 'object',
       properties: {
-        projectId: { type: 'string', description: '项目id' },
-        nodeId: { type: 'string', description: 'websocket节点id' },
+        projectId: { type: 'string', description: 'Project ID' },
+        nodeId: { type: 'string', description: 'WebSocket node ID' },
         header: {
           type: 'object',
-          description: 'header信息',
+          description: 'Header information',
           properties: {
-            key: { type: 'string', description: 'header名称' },
-            value: { type: 'string', description: 'header值' },
-            description: { type: 'string', description: '备注' },
-            required: { type: 'boolean', description: '是否必填' },
-            select: { type: 'boolean', description: '是否选中' },
+            key: { type: 'string', description: 'Header name' },
+            value: { type: 'string', description: 'Header value' },
+            description: { type: 'string', description: 'Remark' },
+            required: { type: 'boolean', description: 'Whether required' },
+            select: { type: 'boolean', description: 'Whether selected' },
           },
         },
       },
@@ -354,14 +354,14 @@ export const websocketNodeTools: AgentTool[] = [
       const projectId = args.projectId
       const nodeId = args.nodeId
       if (!isString(projectId) || !isString(nodeId)) {
-        return { code: 1, data: { error: 'projectId与nodeId必须为字符串' } }
+        return { code: 1, data: { error: 'projectId and nodeId must be strings' } }
       }
       if (websocketStore.websocket?._id !== nodeId) {
         await websocketStore.getWebsocketDetail({ id: nodeId, projectId })
       }
       const header = args.header
       if (!isRecord(header)) {
-        return { code: 1, data: { error: 'header必须为对象' } }
+        return { code: 1, data: { error: 'header must be an object' } }
       }
       const key = header.key
       const value = header.value
@@ -369,7 +369,7 @@ export const websocketNodeTools: AgentTool[] = [
       const required = header.required
       const select = header.select
       if (!isString(key)) {
-        return { code: 1, data: { error: 'header.key必须为字符串' } }
+        return { code: 1, data: { error: 'header.key must be a string' } }
       }
       websocketStore.addWebSocketHeader({
         key,
@@ -383,7 +383,7 @@ export const websocketNodeTools: AgentTool[] = [
   },
   {
     name: 'saveCurrentWebsocketNode',
-    description: '保存当前选中的websocketNode（依赖当前Tab选中态）',
+    description: 'Save the currently selected websocketNode (depends on current Tab selection state)',
     type: 'websocketNode',
     parameters: {
       type: 'object',
@@ -394,7 +394,7 @@ export const websocketNodeTools: AgentTool[] = [
     execute: async () => {
       const projectNavStore = useProjectNav()
       if (!projectNavStore.currentSelectNav) {
-        return { code: 1, data: { error: '当前没有选中的Tab' } }
+        return { code: 1, data: { error: 'No Tab currently selected' } }
       }
       const websocketStore = useWebSocket()
       await websocketStore.saveWebsocket()
@@ -403,30 +403,30 @@ export const websocketNodeTools: AgentTool[] = [
   },
   {
     name: 'connectWebsocketByNodeId',
-    description: '通过nodeId与url建立WebSocket连接（Electron环境）。headers可选，枚举校验在execute内完成',
+    description: 'Establish WebSocket connection via nodeId and url (Electron environment). Headers are optional, enumeration validation is done in execute',
     type: 'websocketNode',
     parameters: {
       type: 'object',
       properties: {
-        nodeId: { type: 'string', description: 'websocket节点id' },
-        url: { type: 'string', description: '完整连接地址，例如 ws://127.0.0.1:8080/ws' },
-        headers: { type: 'object', description: '可选，请求头键值对' },
+        nodeId: { type: 'string', description: 'WebSocket node ID' },
+        url: { type: 'string', description: 'Complete connection URL, e.g., ws://127.0.0.1:8080/ws' },
+        headers: { type: 'object', description: 'Optional, request headers key-value pairs' },
       },
       required: ['nodeId', 'url'],
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
       if (!window.electronAPI?.websocket?.connect) {
-        return { code: 1, data: { error: '当前环境不支持WebSocket连接' } }
+        return { code: 1, data: { error: 'Current environment does not support WebSocket connection' } }
       }
       const nodeId = args.nodeId
       const url = args.url
       const headers = args.headers
       if (!isString(nodeId) || !isString(url)) {
-        return { code: 1, data: { error: 'nodeId与url必须为字符串' } }
+        return { code: 1, data: { error: 'nodeId and url must be strings' } }
       }
       if (typeof headers !== 'undefined' && !isRecordString(headers)) {
-        return { code: 1, data: { error: 'headers必须为Record<string,string>' } }
+        return { code: 1, data: { error: 'headers must be Record<string,string>' } }
       }
       const result = await window.electronAPI.websocket.connect({
         nodeId,
@@ -439,29 +439,29 @@ export const websocketNodeTools: AgentTool[] = [
   },
   {
     name: 'sendWebsocketMessageByNodeId',
-    description: '向指定nodeId的WebSocket连接发送消息（会先检查该nodeId是否已连接）',
+    description: 'Send message to the WebSocket connection of the specified nodeId (will first check if the nodeId is connected)',
     type: 'websocketNode',
     parameters: {
       type: 'object',
       properties: {
-        nodeId: { type: 'string', description: 'websocket节点id' },
-        message: { type: 'string', description: '要发送的消息文本' },
+        nodeId: { type: 'string', description: 'WebSocket node ID' },
+        message: { type: 'string', description: 'Message text to send' },
       },
       required: ['nodeId', 'message'],
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
       if (!window.electronAPI?.websocket?.checkNodeConnection || !window.electronAPI?.websocket?.send) {
-        return { code: 1, data: { error: '当前环境不支持WebSocket发送消息' } }
+        return { code: 1, data: { error: 'Current environment does not support sending WebSocket messages' } }
       }
       const nodeId = args.nodeId
       const message = args.message
       if (!isString(nodeId) || !isString(message)) {
-        return { code: 1, data: { error: 'nodeId与message必须为字符串' } }
+        return { code: 1, data: { error: 'nodeId and message must be strings' } }
       }
       const stateResult = await window.electronAPI.websocket.checkNodeConnection(nodeId)
       if (!isRecord(stateResult) || stateResult.connected !== true || !isString(stateResult.connectionId)) {
-        return { code: 1, data: { error: '当前nodeId未建立连接' } }
+        return { code: 1, data: { error: 'Current nodeId has not established a connection' } }
       }
       const result = await window.electronAPI.websocket.send(stateResult.connectionId, message)
       const normalized = normalizeIpcResult(result)
@@ -470,23 +470,23 @@ export const websocketNodeTools: AgentTool[] = [
   },
   {
     name: 'disconnectWebsocketByNodeId',
-    description: '断开指定nodeId的WebSocket连接（Electron环境）',
+    description: 'Disconnect the WebSocket connection of the specified nodeId (Electron environment)',
     type: 'websocketNode',
     parameters: {
       type: 'object',
       properties: {
-        nodeId: { type: 'string', description: 'websocket节点id' },
+        nodeId: { type: 'string', description: 'WebSocket node ID' },
       },
       required: ['nodeId'],
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
       if (!window.electronAPI?.websocket?.disconnectByNode) {
-        return { code: 1, data: { error: '当前环境不支持WebSocket断开连接' } }
+        return { code: 1, data: { error: 'Current environment does not support disconnecting WebSocket connection' } }
       }
       const nodeId = args.nodeId
       if (!isString(nodeId)) {
-        return { code: 1, data: { error: 'nodeId必须为字符串' } }
+        return { code: 1, data: { error: 'nodeId must be a string' } }
       }
       const result = await window.electronAPI.websocket.disconnectByNode(nodeId)
       const normalized = normalizeIpcResult(result)

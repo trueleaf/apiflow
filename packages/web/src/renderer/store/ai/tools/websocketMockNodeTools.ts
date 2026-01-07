@@ -16,12 +16,12 @@ type LLMInferredWebsocketMockParams = {
   echoMode?: boolean
   responseContent?: string
 }
-//将LLM返回的简化JSON转换为完整的CreateWebsocketMockNodeOptions
+// Convert simplified JSON returned by LLM to complete CreateWebsocketMockNodeOptions
 const buildCreateWebsocketMockNodeOptions = (projectId: string, params: LLMInferredWebsocketMockParams, pid?: string): CreateWebsocketMockNodeOptions => {
   const options: CreateWebsocketMockNodeOptions = {
     projectId,
     pid: pid || '',
-    name: params.name || '未命名WebSocket Mock',
+    name: params.name || 'Untitled WebSocket Mock',
     description: params.description || '',
   }
   if (params.path) {
@@ -42,13 +42,13 @@ const buildCreateWebsocketMockNodeOptions = (projectId: string, params: LLMInfer
   return options
 }
 
-//校验是否为字符串
+// Validate if value is a string
 const isString = (value: unknown): value is string => typeof value === 'string'
-//校验是否为对象
+// Validate if value is an object
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null
-//校验是否为数字
+// Validate if value is a number
 const isNumber = (value: unknown): value is number => typeof value === 'number' && !Number.isNaN(value)
-//解析并校验Electron IPC返回
+// Parse and validate Electron IPC return
 const normalizeIpcResult = (result: unknown): { ok: boolean; payload: unknown } => {
   if (!isRecord(result)) {
     return { ok: false, payload: result }
@@ -63,22 +63,22 @@ const normalizeIpcResult = (result: unknown): { ok: boolean; payload: unknown } 
 export const websocketMockNodeTools: AgentTool[] = [
   {
     name: 'simpleCreateWebsocketMockNode',
-    description: '根据用户的简单描述创建websocketMockNode节点（推荐，仅离线模式）。当用户没有提供完整的path、port、echoMode等参数时，使用此工具自动推断',
+    description: 'Create a websocketMockNode based on user\'s simple description (recommended, offline mode only). Use this tool to automatically infer parameters when the user does not provide complete path, port, echoMode, etc.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: '项目id',
+          description: 'Project id',
         },
         description: {
           type: 'string',
-          description: 'WebSocket Mock服务的自然语言描述，例如"创建一个WebSocket聊天Mock服务，监听3002端口，回显模式"',
+          description: 'Natural language description of the WebSocket Mock service, for example: "Create a WebSocket chat Mock service, listen on port 3002, echo mode"',
         },
         pid: {
           type: 'string',
-          description: '父节点id，根节点留空字符串',
+          description: 'Parent node id, leave empty string for root node',
         },
       },
       required: ['projectId', 'description'],
@@ -87,7 +87,7 @@ export const websocketMockNodeTools: AgentTool[] = [
     execute: async (args: Record<string, unknown>) => {
       const runtimeStore = useRuntime()
       if (runtimeStore.networkMode !== 'offline') {
-        return { code: 1, data: { error: '在线模式暂不支持WebSocket Mock节点' } }
+        return { code: 1, data: { error: 'WebSocket Mock node is not supported in online mode' } }
       }
       const skillStore = useSkill()
       const llmClientStore = useLLMClientStore()
@@ -108,52 +108,52 @@ export const websocketMockNodeTools: AgentTool[] = [
         const node = await skillStore.createWebsocketMockNode(options)
         return { code: node ? 0 : 1, data: node }
       } catch (error) {
-        return { code: 1, data: { error: error instanceof Error ? error.message : '创建失败' } }
+        return { code: 1, data: { error: error instanceof Error ? error.message : 'Creation failed' } }
       }
     },
   },
   {
     name: 'createWebsocketMockNode',
-    description: '创建一个新的websocketMockNode节点（仅离线模式）',
+    description: 'Create a new websocketMockNode (offline mode only)',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
       properties: {
         projectId: {
           type: 'string',
-          description: '项目id',
+          description: 'Project id',
         },
         name: {
           type: 'string',
-          description: '节点名称',
+          description: 'Node name',
         },
         pid: {
           type: 'string',
-          description: '父节点id，根节点留空字符串',
+          description: 'Parent node id, leave empty string for root node',
         },
         path: {
           type: 'string',
-          description: 'WebSocket路径，如/ws/chat',
+          description: 'WebSocket path, e.g. /ws/chat',
         },
         port: {
           type: 'number',
-          description: 'Mock服务监听端口，默认3000',
+          description: 'Mock service listen port, default 3000',
         },
         delay: {
           type: 'number',
-          description: '响应延迟（毫秒），默认0',
+          description: 'Response delay (milliseconds), default 0',
         },
         echoMode: {
           type: 'boolean',
-          description: '回显模式，true时回显客户端消息，false时使用固定响应内容',
+          description: 'Echo mode, when true echoes client messages, when false uses fixed response content',
         },
         responseContent: {
           type: 'string',
-          description: '固定响应内容（当echoMode为false时使用）',
+          description: 'Fixed response content (used when echoMode is false)',
         },
         description: {
           type: 'string',
-          description: 'WebSocket Mock节点描述',
+          description: 'WebSocket Mock node description',
         },
       },
       required: ['projectId', 'name'],
@@ -162,7 +162,7 @@ export const websocketMockNodeTools: AgentTool[] = [
     execute: async (args: Record<string, unknown>) => {
       const runtimeStore = useRuntime()
       if (runtimeStore.networkMode !== 'offline') {
-        return { code: 1, data: { error: '在线模式暂不支持WebSocket Mock节点' } }
+        return { code: 1, data: { error: 'WebSocket Mock node is not supported in online mode' } }
       }
       const skillStore = useSkill()
       const projectId = args.projectId as string
@@ -196,13 +196,13 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'getWebsocketMockNodeDetail',
-    description: '获取指定websocketMockNode节点详情（仅离线模式，会加载到当前WebSocketMock编辑器store中）',
+    description: 'Get specified websocketMockNode details (offline mode only, will be loaded into the current WebSocketMock editor store)',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
       properties: {
-        projectId: { type: 'string', description: '项目id' },
-        nodeId: { type: 'string', description: 'websocketMock节点id' },
+        projectId: { type: 'string', description: 'Project id' },
+        nodeId: { type: 'string', description: 'WebsocketMock node id' },
       },
       required: ['projectId', 'nodeId'],
     },
@@ -210,13 +210,13 @@ export const websocketMockNodeTools: AgentTool[] = [
     execute: async (args: Record<string, unknown>) => {
       const runtimeStore = useRuntime()
       if (runtimeStore.networkMode !== 'offline') {
-        return { code: 1, data: { error: '在线模式暂不支持WebSocket Mock节点' } }
+        return { code: 1, data: { error: 'WebSocket Mock node is not supported in online mode' } }
       }
       const websocketMockStore = useWebSocketMockNode()
       const projectId = args.projectId
       const nodeId = args.nodeId
       if (!isString(projectId) || !isString(nodeId)) {
-        return { code: 1, data: { error: 'projectId与nodeId必须为字符串' } }
+        return { code: 1, data: { error: 'projectId and nodeId must be strings' } }
       }
       await websocketMockStore.getWebSocketMockNodeDetail({ id: nodeId, projectId })
       return { code: websocketMockStore.websocketMock?._id === nodeId ? 0 : 1, data: websocketMockStore.websocketMock }
@@ -224,19 +224,19 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'updateWebsocketMockNodeBasic',
-    description: '更新websocketMockNode的基础信息（name/path/port/delay/echoMode/responseContent）。仅离线模式，会先加载到store再更新',
+    description: 'Update websocketMockNode basic information (name/path/port/delay/echoMode/responseContent). Offline mode only, will load into store first then update',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
       properties: {
-        projectId: { type: 'string', description: '项目id' },
-        nodeId: { type: 'string', description: 'websocketMock节点id' },
-        name: { type: 'string', description: '名称' },
-        path: { type: 'string', description: '路径，例如 /ws-mock' },
-        port: { type: 'number', description: '端口' },
-        delay: { type: 'number', description: '延迟(ms)' },
-        echoMode: { type: 'boolean', description: '是否开启echo模式' },
-        responseContent: { type: 'string', description: '响应内容' },
+        projectId: { type: 'string', description: 'Project id' },
+        nodeId: { type: 'string', description: 'WebsocketMock node id' },
+        name: { type: 'string', description: 'Name' },
+        path: { type: 'string', description: 'Path, e.g. /ws-mock' },
+        port: { type: 'number', description: 'Port' },
+        delay: { type: 'number', description: 'Delay (ms)' },
+        echoMode: { type: 'boolean', description: 'Whether to enable echo mode' },
+        responseContent: { type: 'string', description: 'Response content' },
       },
       required: ['projectId', 'nodeId'],
     },
@@ -244,13 +244,13 @@ export const websocketMockNodeTools: AgentTool[] = [
     execute: async (args: Record<string, unknown>) => {
       const runtimeStore = useRuntime()
       if (runtimeStore.networkMode !== 'offline') {
-        return { code: 1, data: { error: '在线模式暂不支持WebSocket Mock节点' } }
+        return { code: 1, data: { error: 'WebSocket Mock node is not supported in online mode' } }
       }
       const websocketMockStore = useWebSocketMockNode()
       const projectId = args.projectId
       const nodeId = args.nodeId
       if (!isString(projectId) || !isString(nodeId)) {
-        return { code: 1, data: { error: 'projectId与nodeId必须为字符串' } }
+        return { code: 1, data: { error: 'projectId and nodeId must be strings' } }
       }
       if (websocketMockStore.websocketMock?._id !== nodeId) {
         await websocketMockStore.getWebSocketMockNodeDetail({ id: nodeId, projectId })
@@ -284,7 +284,7 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'saveCurrentWebsocketMockNode',
-    description: '保存当前选中的websocketMockNode（仅离线模式，依赖当前Tab选中态）',
+    description: 'Save the currently selected websocketMockNode (offline mode only, depends on current Tab selection)',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
@@ -295,11 +295,11 @@ export const websocketMockNodeTools: AgentTool[] = [
     execute: async () => {
       const runtimeStore = useRuntime()
       if (runtimeStore.networkMode !== 'offline') {
-        return { code: 1, data: { error: '在线模式暂不支持WebSocket Mock节点' } }
+        return { code: 1, data: { error: 'WebSocket Mock node is not supported in online mode' } }
       }
       const projectNavStore = useProjectNav()
       if (!projectNavStore.currentSelectNav) {
-        return { code: 1, data: { error: '当前没有选中的Tab' } }
+        return { code: 1, data: { error: 'No Tab currently selected' } }
       }
       const websocketMockStore = useWebSocketMockNode()
       await websocketMockStore.saveWebSocketMockNode()
@@ -308,13 +308,13 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'startWebsocketMockServerByNodeId',
-    description: '启动指定nodeId的WebSocket Mock服务（仅离线模式，Electron环境）',
+    description: 'Start the WebSocket Mock service for the specified nodeId (offline mode only, Electron environment)',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
       properties: {
-        projectId: { type: 'string', description: '项目id' },
-        nodeId: { type: 'string', description: 'websocketMock节点id' },
+        projectId: { type: 'string', description: 'Project id' },
+        nodeId: { type: 'string', description: 'WebsocketMock node id' },
       },
       required: ['projectId', 'nodeId'],
     },
@@ -322,16 +322,16 @@ export const websocketMockNodeTools: AgentTool[] = [
     execute: async (args: Record<string, unknown>) => {
       const runtimeStore = useRuntime()
       if (runtimeStore.networkMode !== 'offline') {
-        return { code: 1, data: { error: '在线模式暂不支持WebSocket Mock节点' } }
+        return { code: 1, data: { error: 'WebSocket Mock node is not supported in online mode' } }
       }
       if (!window.electronAPI?.websocketMock?.startServer) {
-        return { code: 1, data: { error: '当前环境不支持启动WebSocket Mock服务' } }
+        return { code: 1, data: { error: 'Current environment does not support starting WebSocket Mock service' } }
       }
       const websocketMockStore = useWebSocketMockNode()
       const projectId = args.projectId
       const nodeId = args.nodeId
       if (!isString(projectId) || !isString(nodeId)) {
-        return { code: 1, data: { error: 'projectId与nodeId必须为字符串' } }
+        return { code: 1, data: { error: 'projectId and nodeId must be strings' } }
       }
       if (websocketMockStore.websocketMock?._id !== nodeId) {
         await websocketMockStore.getWebSocketMockNodeDetail({ id: nodeId, projectId })
@@ -344,23 +344,23 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'stopWebsocketMockServerByNodeId',
-    description: '停止指定nodeId的WebSocket Mock服务（Electron环境）',
+    description: 'Stop the WebSocket Mock service for the specified nodeId (Electron environment)',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
       properties: {
-        nodeId: { type: 'string', description: 'websocketMock节点id' },
+        nodeId: { type: 'string', description: 'WebsocketMock node id' },
       },
       required: ['nodeId'],
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
       if (!window.electronAPI?.websocketMock?.stopServer) {
-        return { code: 1, data: { error: '当前环境不支持停止WebSocket Mock服务' } }
+        return { code: 1, data: { error: 'Current environment does not support stopping WebSocket Mock service' } }
       }
       const nodeId = args.nodeId
       if (!isString(nodeId)) {
-        return { code: 1, data: { error: 'nodeId必须为字符串' } }
+        return { code: 1, data: { error: 'nodeId must be a string' } }
       }
       const result = await window.electronAPI.websocketMock.stopServer(nodeId)
       const normalized = normalizeIpcResult(result)
@@ -369,12 +369,12 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'getWebsocketMockEnabledStatus',
-    description: '查询指定nodeId的WebSocket Mock服务是否已启用（Electron环境）',
+    description: 'Query whether the WebSocket Mock service for the specified nodeId is enabled (Electron environment)',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
       properties: {
-        nodeId: { type: 'string', description: 'websocketMock节点id' },
+        nodeId: { type: 'string', description: 'WebsocketMock node id' },
       },
       required: ['nodeId'],
     },
@@ -382,7 +382,7 @@ export const websocketMockNodeTools: AgentTool[] = [
     execute: async (args: Record<string, unknown>) => {
       const nodeId = args.nodeId
       if (!isString(nodeId)) {
-        return { code: 1, data: { error: 'nodeId必须为字符串' } }
+        return { code: 1, data: { error: 'nodeId must be a string' } }
       }
       const websocketMockStore = useWebSocketMockNode()
       const enabled = await websocketMockStore.checkMockNodeEnabledStatus(nodeId)

@@ -4,7 +4,7 @@ import { AgentTool } from '@src/types/ai'
 export const commonHeaderTools: AgentTool[] = [
   {
     name: 'deleteAllCommonHeaders',
-    description: '删除当前项目下的所有公共请求头（包括全局公共头与所有文件夹公共头）。这是一个危险操作，不可恢复',
+    description: 'Delete all common request headers in the current project (including global headers and all folder headers). This is a dangerous operation and cannot be undone',
     type: 'commonHeader',
     parameters: {
       type: 'object',
@@ -18,10 +18,10 @@ export const commonHeaderTools: AgentTool[] = [
       return { code: result.ok ? 0 : 1, data: result }
     },
   },
-  // ==================== 全局公共请求头工具 ====================
+  // ==================== Global Common Request Header Tools ====================
   {
     name: 'getGlobalCommonHeaders',
-    description: '获取当前项目的所有全局公共请求头列表',
+    description: 'Get the list of all global common request headers in the current project',
     type: 'commonHeader',
     parameters: {
       type: 'object',
@@ -37,14 +37,14 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'getGlobalCommonHeaderById',
-    description: '根据ID获取单个全局公共请求头的详细信息',
+    description: 'Get detailed information of a single global common request header by ID',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         headerId: {
           type: 'string',
-          description: '公共请求头ID',
+          description: 'Common request header ID',
         },
       },
       required: ['headerId'],
@@ -62,22 +62,22 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'createGlobalCommonHeader',
-    description: '创建一个新的全局公共请求头，对项目内所有接口生效',
+    description: 'Create a new global common request header that applies to all APIs in the project',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         key: {
           type: 'string',
-          description: '请求头的键名，如 Authorization、Content-Type 等',
+          description: 'Header key name, such as Authorization, Content-Type, etc.',
         },
         value: {
           type: 'string',
-          description: '请求头的值',
+          description: 'Header value',
         },
         description: {
           type: 'string',
-          description: '请求头的描述说明',
+          description: 'Header description',
         },
       },
       required: ['key', 'value'],
@@ -98,30 +98,30 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'updateGlobalCommonHeader',
-    description: '更新指定全局公共请求头的信息',
+    description: 'Update the information of the specified global common request header',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         headerId: {
           type: 'string',
-          description: '要更新的公共请求头ID',
+          description: 'Common request header ID to update',
         },
         key: {
           type: 'string',
-          description: '新的请求头键名',
+          description: 'New header key name',
         },
         value: {
           type: 'string',
-          description: '新的请求头值',
+          description: 'New header value',
         },
         description: {
           type: 'string',
-          description: '新的描述说明',
+          description: 'New description',
         },
         select: {
           type: 'boolean',
-          description: '是否启用该请求头',
+          description: 'Whether to enable this header',
         },
       },
       required: ['headerId'],
@@ -152,7 +152,7 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'deleteGlobalCommonHeaders',
-    description: '批量删除全局公共请求头',
+    description: 'Batch delete global common request headers',
     type: 'commonHeader',
     parameters: {
       type: 'object',
@@ -160,7 +160,7 @@ export const commonHeaderTools: AgentTool[] = [
         headerIds: {
           type: 'array',
           items: { type: 'string' },
-          description: '要删除的公共请求头ID数组',
+          description: 'Array of common request header IDs to delete',
         },
       },
       required: ['headerIds'],
@@ -178,14 +178,14 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'searchGlobalCommonHeaders',
-    description: '按键名搜索全局公共请求头',
+    description: 'Search global common request headers by key name',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         keyword: {
           type: 'string',
-          description: '搜索关键词，会匹配请求头的键名',
+          description: 'Search keyword that matches header key names',
         },
       },
       required: ['keyword'],
@@ -198,17 +198,17 @@ export const commonHeaderTools: AgentTool[] = [
       return { code: 0, data: result }
     },
   },
-  // ==================== 文件夹级公共请求头工具 ====================
+  // ==================== Folder-level Common Request Header Tools ====================
   {
     name: 'getFolderCommonHeaders',
-    description: '获取指定文件夹的公共请求头列表，这些请求头会应用于该文件夹下的所有接口',
+    description: 'Get the list of common request headers for a specified folder, which will be applied to all APIs in the folder',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: '文件夹ID',
+          description: 'Folder ID',
         },
       },
       required: ['folderId'],
@@ -226,26 +226,26 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'addFolderCommonHeader',
-    description: '为指定文件夹添加一个公共请求头，该请求头会应用于文件夹下的所有接口',
+    description: 'Add a common request header to a specified folder, which will be applied to all APIs in the folder',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: '文件夹ID',
+          description: 'Folder ID',
         },
         key: {
           type: 'string',
-          description: '请求头的键名',
+          description: 'Header key name',
         },
         value: {
           type: 'string',
-          description: '请求头的值',
+          description: 'Header value',
         },
         description: {
           type: 'string',
-          description: '请求头的描述说明',
+          description: 'Header description',
         },
       },
       required: ['folderId', 'key', 'value'],
@@ -267,34 +267,34 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'updateFolderCommonHeader',
-    description: '更新指定文件夹中某个公共请求头的信息',
+    description: 'Update the information of a common request header in a specified folder',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: '文件夹ID',
+          description: 'Folder ID',
         },
         headerId: {
           type: 'string',
-          description: '要更新的公共请求头ID',
+          description: 'Common request header ID to update',
         },
         key: {
           type: 'string',
-          description: '新的请求头键名',
+          description: 'New header key name',
         },
         value: {
           type: 'string',
-          description: '新的请求头值',
+          description: 'New header value',
         },
         description: {
           type: 'string',
-          description: '新的描述说明',
+          description: 'New description',
         },
         select: {
           type: 'boolean',
-          description: '是否启用该请求头',
+          description: 'Whether to enable this header',
         },
       },
       required: ['folderId', 'headerId'],
@@ -326,19 +326,19 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'deleteFolderCommonHeaders',
-    description: '批量删除指定文件夹中的公共请求头',
+    description: 'Batch delete common request headers in a specified folder',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: '文件夹ID',
+          description: 'Folder ID',
         },
         headerIds: {
           type: 'array',
           items: { type: 'string' },
-          description: '要删除的公共请求头ID数组',
+          description: 'Array of common request header IDs to delete',
         },
       },
       required: ['folderId', 'headerIds'],
@@ -357,29 +357,29 @@ export const commonHeaderTools: AgentTool[] = [
   },
   {
     name: 'setFolderCommonHeaders',
-    description: '设置文件夹的全部公共请求头（覆盖式更新），会替换原有的所有公共请求头',
+    description: 'Set all common request headers for a folder (overwrite update), will replace all existing common request headers',
     type: 'commonHeader',
     parameters: {
       type: 'object',
       properties: {
         folderId: {
           type: 'string',
-          description: '文件夹ID',
+          description: 'Folder ID',
         },
         headers: {
           type: 'array',
           items: {
             type: 'object',
             properties: {
-              _id: { type: 'string', description: '请求头ID，新建时可不传' },
-              key: { type: 'string', description: '请求头键名' },
-              value: { type: 'string', description: '请求头值' },
-              description: { type: 'string', description: '描述说明' },
-              select: { type: 'boolean', description: '是否启用' },
+              _id: { type: 'string', description: 'Header ID, optional when creating new' },
+              key: { type: 'string', description: 'Header key name' },
+              value: { type: 'string', description: 'Header value' },
+              description: { type: 'string', description: 'Description' },
+              select: { type: 'boolean', description: 'Whether to enable' },
             },
             required: ['key', 'value'],
           },
-          description: '公共请求头数组',
+          description: 'Array of common request headers',
         },
       },
       required: ['folderId', 'headers'],
