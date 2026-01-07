@@ -270,6 +270,9 @@ const formatRequestBody = (log: Extract<MockLog, { type: 'request' }>) => {
   if (!body) {
     return { type: 'empty', value: '无请求体' }
   }
+  if (body.startsWith('[Binary Data:')) {
+    return { type: 'raw', value: body }
+  }
   try {
     if (contentType.includes('application/json')) {
       try {

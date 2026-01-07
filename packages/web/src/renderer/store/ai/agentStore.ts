@@ -264,52 +264,71 @@ JSON: ${JSON.stringify({ project: context.project, activeTab: context.activeTab,
 			{ role: 'system', content: contextText },
 			...historyMessages,
 			{ role: 'user', content: prompt }
-		]
-		const agentMessage = generateAgentExecutionMessage(agentViewStore.currentSessionId)
-		const messageId = agentMessage.id
-		try {
-			const loadingMessage: import('@src/types/ai').LoadingMessage = {
-				id: nanoid(),
-				type: 'loading',
-				content: translateWithLocale('准备执行', detectedLocale),
-				timestamp: new Date().toISOString(),
-				sessionId: agentViewStore.currentSessionId,
-				mode: 'agent',
-				canBeContext: false
-			}
-			agentViewStore.currentMessageList.push(loadingMessage)
-			setTimeout(() => {
-				agentViewStore.updateMessageById(loadingMessage.id, { content: translateWithLocale('搜索工具中', detectedLocale) })
-			}, 1000)
-			const { tools: selectedTools, totalTokens } = await selectToolsByLLM({ prompt, contextText, historyMessages, signal, targetLocale: detectedLocale })
-			agentViewStore.deleteCurrentMessageById(loadingMessage.id)
-			const toolNames = selectedTools.map(tool => tool.function.name)
-			const infoMessage = generateInfoMessage(
-				agentViewStore.currentSessionId,
-				translateWithLocale('已挑选工具', detectedLocale, { count: selectedTools.length }),
-				'agent',
-				totalTokens,
-				toolNames
-			)
-			agentViewStore.currentMessageList.push(infoMessage)
-			agentViewStore.currentMessageList.push(agentMessage)
-			const result = await executeAgentLoop({ messages, tools: selectedTools, messageId, signal, targetLocale: detectedLocale })
-			await agentViewStore.updateCurrentMessageById(messageId, { status: 'success', isStreaming: false })
-			const completionMessage = generateCompletionMessage(agentViewStore.currentSessionId, result.content)
-			await agentViewStore.addCurrentMessage(completionMessage)
-			agentAbortController = null
-			return { code: 0, msg: '', data: result.content }
-		} catch (err) {
-			const isAborted = err instanceof Error && err.message === 'AGENT_ABORTED'
-			if (isAborted) {
-				await agentViewStore.updateCurrentMessageById(messageId, { status: 'aborted', isStreaming: false })
-			} else {
-				agentViewStore.deleteCurrentMessageById(messageId)
-			}
-			agentAbortController = null
-			const errorMessage = err instanceof Error ? err.message : String(err)
-			return { code: isAborted ? -2 : -1, msg: errorMessage, data: '' }
-		}
+                ]
+                const agentMessage = generateAgentExecutionMessage(agentViewStore.currentSessionId)
+                const messageId = agentMessage.id
+                let loadingMessageId: string | null = null
+                try {
+                        const loadingMessage: import('@src/types/ai').LoadingMessage = {
+                                id: nanoid(),
+                                type: 'loading',
+                                content: translateWithLocale('准备执行', detectedLocale),
+                                timestamp: new Date().toISOString(),
+                                sessionId: agentViewStore.currentSessionId,
+                                mode: 'agent',
+                                canBeContext: false
+                        }
+                        loadingMessageId = loadingMessage.id
+                        agentViewStore.currentMessageList.push(loadingMessage)
+                        setTimeout(() => {
+                                agentViewStore.updateMessageById(loadingMessage.id, { content: translateWithLocale('搜索工具中', detectedLocale) })
+                        }, 1000)
+                        const { tools: selectedTools, totalTokens } = await selectToolsByLLM({ prompt, contextText, historyMessages, signal, targetLocale: detectedLocale })
+                        if (loadingMessageId) {
+                                agentViewStore.deleteCurrentMessageById(loadingMessageId)
+                                loadingMessageId = null
+                        }
+                        const toolNames = selectedTools.map(tool => tool.function.name)
+                        const infoMessage = generateInfoMessage(
+                                agentViewStore.currentSessionId,
+                                translateWithLocale('已挑选工具', detectedLocale, { count: selectedTools.length }),
+                                'agent',
+                                totalTokens,
+                                toolNames
+                        )
+                        agentViewStore.currentMessageList.push(infoMessage)
+                        agentViewStore.currentMessageList.push(agentMessage)
+                        const result = await executeAgentLoop({ messages, tools: selectedTools, messageId, signal, targetLocale: detectedLocale })
+                        await agentViewStore.updateCurrentMessageById(messageId, { status: 'success', isStreaming: false })
+                        const completionMessage = generateCompletionMessage(agentViewStore.currentSessionId, result.content)
+                        await agentViewStore.addCurrentMessage(completionMessage)
+                        agentAbortController = null
+                        return { code: 0, msg: '', data: result.content }
+                } catch (err) {
+                        const isAborted = err instanceof Error && err.message === 'AGENT_ABORTED'
+                        if (isAborted) {
+                                if (loadingMessageId) {
+                                        agentViewStore.deleteCurrentMessageById(loadingMessageId)
+                                        loadingMessageId = null
+                                }
+                                const currentMessage = agentViewStore.getMessageById(messageId)
+                                if (currentMessage && currentMessage.type === 'agentExecution') {
+                                        const nextToolCalls: AgentToolCallInfo[] = currentMessage.toolCalls.map(tc => (tc.status === 'running' || tc.status === 'pending' || tc.status === 'waiting-confirm') ? { ...tc, status: 'cancelled' as const } : tc)
+                                        await agentViewStore.updateCurrentMessageById(messageId, { status: 'aborted', isStreaming: false, toolCalls: nextToolCalls })
+                                } else {
+                                        await agentViewStore.updateCurrentMessageById(messageId, { status: 'aborted', isStreaming: false })
+                                }
+                        } else {
+                                if (loadingMessageId) {
+                                        agentViewStore.deleteCurrentMessageById(loadingMessageId)
+                                        loadingMessageId = null
+                                }
+                                agentViewStore.deleteCurrentMessageById(messageId)
+                        }
+                        agentAbortController = null
+                        const errorMessage = err instanceof Error ? err.message : String(err)
+                        return { code: isAborted ? -2 : -1, msg: errorMessage, data: '' }
+                }
 	}
 	return {
 		stopAgent,

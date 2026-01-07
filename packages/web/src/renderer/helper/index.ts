@@ -121,6 +121,7 @@ export const message = new Message()
 export const generateDefaultHttpNodeConfig = (): HttpNodeConfig => ({
   maxTextBodySize: config.httpNodeConfig.maxTextBodySize,
   maxRawBodySize: config.httpNodeConfig.maxRawBodySize,
+  maxSendFileSize: config.httpNodeConfig.maxSendFileSize,
   userAgent: config.httpNodeConfig.userAgent,
   followRedirect: config.httpNodeConfig.followRedirect,
   maxRedirects: config.httpNodeConfig.maxRedirects,

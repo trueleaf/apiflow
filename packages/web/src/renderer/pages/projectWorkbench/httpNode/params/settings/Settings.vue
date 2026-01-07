@@ -58,6 +58,33 @@
       <div class="config-item">
         <div class="config-meta">
           <div class="meta-text">
+            <div class="meta-title">{{ t('发送文件最大大小') }} (MB)</div>
+            <div class="meta-hint">{{ t('超过此大小的文件将终止发送') }}</div>
+          </div>
+        </div>
+        <div class="config-control">
+          <el-input-number
+            v-model="maxSendFileSizeMB"
+            :min="minBodySizeMB"
+            :max="maxBodySizeMB"
+            :precision="2"
+            :controls="false"
+            size="small"
+            class="control-number"
+          />
+          <el-button
+            link
+            size="small"
+            class="reset-btn"
+            @click="handleReset('maxSendFileSize')"
+          >
+            {{ t('恢复') }}
+          </el-button>
+        </div>
+      </div>
+      <div class="config-item">
+        <div class="config-meta">
+          <div class="meta-text">
             <div class="meta-title">User-Agent</div>
             <div class="meta-hint">{{ t('自定义请求的User-Agent标识') }}</div>
           </div>
@@ -243,7 +270,7 @@ const MIN_BODY_BYTES = 1024
 const MAX_BODY_BYTES = 100000000
 const minBodySizeMB = MIN_BODY_BYTES / BYTES_IN_MEGABYTE
 const maxBodySizeMB = MAX_BODY_BYTES / BYTES_IN_MEGABYTE
-type BodySizeKey = 'maxTextBodySize' | 'maxRawBodySize'
+type BodySizeKey = 'maxTextBodySize' | 'maxRawBodySize' | 'maxSendFileSize'
 const formatBytesToMB = (bytes: number | undefined) => {
   if (!bytes || Number.isNaN(bytes)) {
     return Math.round(minBodySizeMB * 100) / 100
@@ -267,6 +294,12 @@ const maxRawBodySizeMB = computed({
   get: () => formatBytesToMB(formData.value.maxRawBodySize),
   set: (value: number) => {
     updateBodySize('maxRawBodySize', value)
+  }
+})
+const maxSendFileSizeMB = computed({
+  get: () => formatBytesToMB(formData.value.maxSendFileSize),
+  set: (value: number) => {
+    updateBodySize('maxSendFileSize', value)
   }
 })
 const handleReset = (key: keyof typeof defaultConfig) => {

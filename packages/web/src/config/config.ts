@@ -47,6 +47,7 @@ export const config: Config = {
   httpNodeConfig: {
     maxTextBodySize: 1024 * 1024 * 50, //最大可展示文本格式数大小
     maxRawBodySize: 1024 * 1024 * 50, //最大可以显示原始值类型
+    maxSendFileSize: 1024 * 1024 * 10, //发送文件大小限制（binary/form-data）
     userAgent: "https://github.com/trueleaf/apiflow",
     followRedirect: true, //是否允许重定向
     maxRedirects: 10, //最大重定向次数

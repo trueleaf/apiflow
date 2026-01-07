@@ -337,9 +337,6 @@ const getProjectList = async () => {
     projectLoading.value = false;
   }
 };
-const handleImport = () => {
-  importDialogVisible.value = true;
-};
 //编辑项目弹窗
 const handleOpenEditDialog = (item: ApidocProjectInfo) => {
   currentEditProjectId.value = item._id;

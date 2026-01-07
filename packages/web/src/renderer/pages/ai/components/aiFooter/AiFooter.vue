@@ -136,8 +136,8 @@ const closeMenus = () => {
 }
 const handleStop = async () => {
   if (agentViewStore.mode === 'agent') {
+    await agentViewStore.stopCurrentAgentExecution()
     agentStore.stopAgent()
-    agentViewStore.setWorkingStatus('finish')
     return
   }
   await agentViewStore.stopCurrentConversation()
@@ -152,7 +152,7 @@ const handleSend = async () => {
     agentViewStore.setWorkingStatus('working')
     const result = await agentStore.runAgent({ prompt: message })
     agentViewStore.setWorkingStatus('finish')
-    if (result.code !== 0) {
+    if (result.code !== 0 && result.code !== -2) {
       const errorMessage = agentViewStore.createErrorMessage(result.msg, message, 'agent')
       agentViewStore.addCurrentMessage(errorMessage)
     }

@@ -177,7 +177,7 @@ const getToolStatusIcon = (status: AgentToolCallStatus) => {
     success: CheckCircle2,
     error: XCircle,
     'waiting-confirm': AlertCircle,
-    cancelled: XCircle
+    cancelled: StopCircle
   }
   return icons[status]
 }
@@ -330,9 +330,11 @@ const getTokenUsage = (toolCall: { tokenUsage?: { total_tokens: number } }) => {
 .timeline-dot.status-success {
   background: #10b981;
 }
-.timeline-dot.status-error,
-.timeline-dot.status-cancelled {
+.timeline-dot.status-error {
   background: #ef4444;
+}
+.timeline-dot.status-cancelled {
+  background: #f59e0b;
 }
 .timeline-dot.status-waiting-confirm {
   background: #f59e0b;
@@ -384,9 +386,11 @@ const getTokenUsage = (toolCall: { tokenUsage?: { total_tokens: number } }) => {
 .tool-status-icon.status-success {
   color: #10b981;
 }
-.tool-status-icon.status-error,
-.tool-status-icon.status-cancelled {
+.tool-status-icon.status-error {
   color: #ef4444;
+}
+.tool-status-icon.status-cancelled {
+  color: #f59e0b;
 }
 .tool-status-icon.status-waiting-confirm {
   color: #f59e0b;

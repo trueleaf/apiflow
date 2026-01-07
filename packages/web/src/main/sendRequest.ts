@@ -7,7 +7,7 @@ import {
 import { got } from 'got';
 import type { OptionsInit, PlainResponse, RequestError, Method } from 'got'
 import FormData from 'form-data';
-import { fileTypeFromBuffer } from 'file-type';
+import { fileTypeFromBuffer, type FileTypeResult } from 'file-type';
 import mime from "mime";
 import fs from 'fs/promises';
 import http, { ClientRequest } from 'node:http';
@@ -24,7 +24,7 @@ import { config } from '../config/config';
 */
 
 // 从响应头中提取文件名
-const getFileNameFromHeaders = (headers: Record<string, string | string[] | undefined>, fileTypeInfo: any, defaultExt: string): string => {
+const getFileNameFromHeaders = (headers: Record<string, string | string[] | undefined>, fileTypeInfo: FileTypeResult | undefined, defaultExt: string): string => {
   const contentDisposition = headers['content-disposition'];
   if (contentDisposition) {
     const dispositionStr = Array.isArray(contentDisposition) ? contentDisposition[0] : contentDisposition;
@@ -40,8 +40,9 @@ const getFileNameFromHeaders = (headers: Record<string, string | string[] | unde
   return `download_${timestamp}.${ext}`;
 };
 
-const getFormDataFromRendererFormData = async (rendererFormDataList: RendererFormDataBody) => {
+const getFormDataFromRendererFormData = async (rendererFormDataList: RendererFormDataBody, maxSendFileSize: number) => {
   const formData = new FormData();
+  const maxSendFileSizeMB = Math.round((maxSendFileSize / (1024 * 1024)) * 100) / 100
   for (let i = 0; i < rendererFormDataList.length; i++) {
     const formDataParam = rendererFormDataList[i];
     const { id, key, type, value, isTempFile } = formDataParam;
@@ -72,18 +73,18 @@ const getFormDataFromRendererFormData = async (rendererFormDataList: RendererFor
       }
       try {
         const fsStat = await fs.stat(value);
-        if (!fsStat.isFile) {
+        if (!fsStat.isFile()) {
           return Promise.resolve({
             id,
             msg: '不是文件无法读取(发送被终止)',
             fullMsg: `formData参数${key}对应的非文件类型文件，发送被终止`
           })
         }
-        if (fsStat.size > 1024 * 1024 * 10) {
+        if (fsStat.size > maxSendFileSize) {
           return Promise.resolve({
             id,
-            msg: '文件大小超过10MB(发送被终止)',
-            fullMsg: `formData参数${key}对应的文件大小超过10MB，发送被终止，如需更改可以前往设置页面(ctrl+,)`
+            msg: `文件大小超过${maxSendFileSizeMB}MB(发送被终止)`,
+            fullMsg: `formData参数${key}对应的文件大小超过${maxSendFileSizeMB}MB，发送被终止，如需更改请前往HTTP节点设置`
           })
         }
       } catch (error) {
@@ -110,7 +111,8 @@ const getFormDataFromRendererFormData = async (rendererFormDataList: RendererFor
   }
   return Promise.resolve(formData);
 }
-const getFileBufferByPath = async (path: string) => {
+const getFileBufferByPath = async (path: string, maxSendFileSize: number) => {
+  const maxSendFileSizeMB = Math.round((maxSendFileSize / (1024 * 1024)) * 100) / 100
   try {
     await fs.access(path, fs.constants.F_OK)
   } catch {
@@ -121,16 +123,16 @@ const getFileBufferByPath = async (path: string) => {
   }
   try {
     const fsStat = await fs.stat(path);
-    if (!fsStat.isFile) {
+    if (!fsStat.isFile()) {
       return Promise.resolve({
         msg: '不是文件无法读取(发送被终止)',
         fullMsg: `文件${path}对应的非文件类型文件，发送被终止`
       })
     }
-    if (fsStat.size > 1024 * 1024 * 10) {
+    if (fsStat.size > maxSendFileSize) {
       return Promise.resolve({
-        msg: '文件大小超过10MB(发送被终止)',
-        fullMsg: `文件${path}大小超过10MB，发送被终止，如需更改可以前往设置页面(ctrl+,)`
+        msg: `文件大小超过${maxSendFileSizeMB}MB(发送被终止)`,
+        fullMsg: `文件${path}大小超过${maxSendFileSizeMB}MB，发送被终止，如需更改请前往HTTP节点设置`
       })
     }
     const buffer = await fs.readFile(path);
@@ -146,6 +148,7 @@ const getFileBufferByPath = async (path: string) => {
 export const gotRequest = async (options: GotRequestOptions) => {
   try {
     const responseInfo = generateEmptyResponse();
+    const maxSendFileSize = options.maxSendFileSize ?? config.httpNodeConfig.maxSendFileSize
     const abortController = new AbortController();
     let reqeustBody: FormData | {
       id: string,
@@ -157,7 +160,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
     const isFormDataBody = options.body?.type === 'formdata';
     const isBinaryBody = options.body?.type === 'binary';
     if (isFormDataBody) {
-      reqeustBody = await getFormDataFromRendererFormData(options.body!.value as RendererFormDataBody);
+      reqeustBody = await getFormDataFromRendererFormData(options.body!.value as RendererFormDataBody, maxSendFileSize);
       if (!(reqeustBody instanceof FormData)) {
         options.onReadFileFormDataError?.(reqeustBody);
         return
@@ -165,7 +168,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
       responseInfo.requestData.body = reqeustBody.getBuffer().toString();
     } else if (isBinaryBody) {
       const { value } = options.body as GotRequestBinaryBody
-      reqeustBody = await getFileBufferByPath(value.path) as Buffer;
+      reqeustBody = await getFileBufferByPath(value.path, maxSendFileSize) as Buffer;
       if (!Buffer.isBuffer(reqeustBody)) {
         options.onReadBinaryDataError?.(reqeustBody);
         return

@@ -2,26 +2,18 @@
   <div class="body-params">
     <div class="body-type d-flex a-center mb-1">
       <!-- body类型选择 -->
-      <draggable
-        v-model="bodyModeOrder"
-        class="body-mode-list"
-        item-key="mode"
-        :animation="200"
-        ghost-class="ghost"
-        @end="handleDragEnd"
-      >
-        <template #item="{ element: mode }">
-          <div
-            :class="['body-mode-item', { active: bodyType === mode }]"
-            @contextmenu.stop.prevent="(e: MouseEvent) => mode === 'formdata' || mode === 'urlencoded' ? handleContextmenu(e, mode) : undefined"
-          >
-            <GripVertical :size="14" class="drag-handle" />
-            <el-radio :value="mode" v-model="bodyType" @change="changeBodyType">
-              {{ getModeLabel(mode) }}
-            </el-radio>
-          </div>
-        </template>
-      </draggable>
+      <div class="body-mode-list">
+        <div
+          v-for="mode in bodyModeOrder"
+          :key="mode"
+          :class="['body-mode-item', { active: bodyType === mode }]"
+          @contextmenu.stop.prevent="(e: MouseEvent) => mode === 'formdata' || mode === 'urlencoded' ? handleContextmenu(e, mode) : undefined"
+        >
+          <el-radio :value="mode" v-model="bodyType" @change="changeBodyType">
+            {{ getModeLabel(mode) }}
+          </el-radio>
+        </div>
+      </div>
     </div>
     <div v-if="bodyType === 'json' || bodyType === 'formdata' || bodyType === 'urlencoded'" class="params-wrap" @click="handleFocus">
       <SJsonEditor v-show="bodyType === 'json'" ref="jsonComponent" manual-undo-redo :model-value="rawJsonData" :config="jsonEditorConfig"
@@ -125,7 +117,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, onMounted, onUnmounted, Ref, watch, defineAsyncComponent } from 'vue'
+import { computed, ref, onMounted, onUnmounted, onActivated, Ref, watch, defineAsyncComponent } from 'vue'
 import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType, ApidocProperty } from '@src/types'
 import { useI18n } from 'vue-i18n'
 import { appStateCache } from '@/cache/appState/appStateCache'
@@ -136,7 +128,6 @@ import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import SContextmenu from '@/components/common/contextmenu/ClContextmenu.vue'
 import SContextmenuItem from '@/components/common/contextmenu/ClContextmenuItem.vue'
 import { Close } from '@element-plus/icons-vue'
-import { GripVertical } from 'lucide-vue-next'
 import { getCompiledTemplate } from '@/helper';
 import mime from 'mime';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
@@ -146,7 +137,6 @@ import { cloneDeep } from 'lodash-es'
 import type * as Monaco from 'monaco-editor'
 import { bodyModeOrderCache } from '@/cache/httpNode/bodyModeOrderCache'
 import { cacheKey } from '@/cache/cacheKey'
-import draggable from 'vuedraggable'
 
 const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
@@ -444,7 +434,7 @@ const handleChangeBinaryVarValue = (value: string) => {
     const mimeType = mime.getType(result.split('\\').pop()) as HttpNodeContentType;
     httpNodeStore.changeContentType(mimeType || 'application/octet-stream')
   }).catch(error => {
-    console.log(error)
+    console.warn(error)
   })
   httpNodeStore.handleChangeBinaryInfo({ varValue: value });
   const newValue = {
@@ -471,7 +461,7 @@ const handleSelectFile = (e: Event) => {
     const mimeType = mime.getType(result.split('\\').pop()) as HttpNodeContentType;
     httpNodeStore.changeContentType(mimeType || 'application/octet-stream')
     }).catch(error => {
-      console.log(error)
+      console.warn(error)
     })
     const newValue = {
       requestBody: cloneDeep(httpNodeStore.httpNodeInfo.item.requestBody),
@@ -499,7 +489,7 @@ const handleClearSelectFile = () => {
 }
 /*
 |--------------------------------------------------------------------------
-| Body Mode 拖拽排序
+| Body Mode 顺序
 |--------------------------------------------------------------------------
 */
 const bodyModeOrder = ref<HttpNodeBodyMode[]>(bodyModeOrderCache.getBodyModeOrder())
@@ -514,10 +504,6 @@ const getModeLabel = (mode: HttpNodeBodyMode): string => {
     none: 'none',
   }
   return labels[mode]
-}
-// 拖拽结束，保存新顺序
-const handleDragEnd = () => {
-  bodyModeOrderCache.setBodyModeOrder(bodyModeOrder.value)
 }
 // 监听全局配置变化
 const handleStorageChange = (e: StorageEvent) => {
@@ -599,6 +585,9 @@ onMounted(async () => {
   document.body.addEventListener('click', bindGlobalClick);
   window.addEventListener('storage', handleStorageChange);
 });
+onActivated(() => {
+  bodyModeOrder.value = bodyModeOrderCache.getBodyModeOrder()
+})
 onUnmounted(() => {
   document.body.removeEventListener('click', bindGlobalClick);
   window.removeEventListener('storage', handleStorageChange);
@@ -672,30 +661,12 @@ const recordRawDataOperation = (oldValue: { data: string; dataType: string }, ne
     gap: 4px;
     padding: 4px 8px;
     border-radius: 4px;
-    cursor: move;
+    cursor: pointer;
     transition: all 0.2s;
     user-select: none;
-    &:hover {
-      .drag-handle {
-        opacity: 1;
-      }
-    }
     &.active {
       background-color: var(--theme-color-light);
     }
-    .drag-handle {
-      opacity: 0;
-      color: var(--gray-500);
-      cursor: grab;
-      transition: opacity 0.2s;
-      &:active {
-        cursor: grabbing;
-      }
-    }
-  }
-  .ghost {
-    opacity: 0.5;
-    background-color: var(--gray-200);
   }
 
   .operation {

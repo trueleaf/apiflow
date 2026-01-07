@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { ChatRequestBody, LLMessage } from '@src/types/ai/agent.type';
-import type { AgentViewMessage, AskMessage, TextResponseMessage, LoadingMessage, ErrorMessage } from '@src/types/ai';
+import type { AgentViewMessage, AskMessage, TextResponseMessage, LoadingMessage, ErrorMessage, AgentExecutionMessage } from '@src/types/ai';
 import { agentViewCache } from '@/cache/ai/agentViewCache';
 import { appStateCache } from '@/cache/appState/appStateCache';
 import { nanoid } from 'nanoid/non-secure';
@@ -310,6 +310,16 @@ export const useAgentViewStore = defineStore('agentView', () => {
     resetStreamState();
     setWorkingStatus('finish');
   };
+  const stopCurrentAgentExecution = async (): Promise<void> => {
+    const agentLoadingIds = currentMessageList.value.filter(msg => msg.type === 'loading' && msg.mode === 'agent').map(msg => msg.id);
+    agentLoadingIds.forEach(id => deleteCurrentMessageById(id));
+    const runningAgentExecutionMessages = currentMessageList.value.filter((msg): msg is AgentExecutionMessage => msg.type === 'agentExecution' && msg.mode === 'agent' && (msg.status === 'running' || msg.status === 'pending'));
+    for (const msg of runningAgentExecutionMessages) {
+      const nextToolCalls = msg.toolCalls.map(tc => (tc.status === 'running' || tc.status === 'pending' || tc.status === 'waiting-confirm') ? { ...tc, status: 'cancelled' as const } : tc);
+      await updateCurrentMessageById(msg.id, { status: 'aborted', isStreaming: false, toolCalls: nextToolCalls });
+    }
+    setWorkingStatus('finish');
+  };
   // 发送 Ask 消息（从输入框读取）
   const sendAskFromInput = async (): Promise<void> => {
     if (mode.value !== 'ask') return;
@@ -561,6 +571,7 @@ export const useAgentViewStore = defineStore('agentView', () => {
     buildOpenAIRequestBody,
     resetStreamState,
     stopCurrentConversation,
+    stopCurrentAgentExecution,
     sendAskFromInput,
     sendAskPrompt,
     handleStreamData,

@@ -79,14 +79,35 @@ export class HttpMockManager {
     const body = (ctx.request as any).body;
     const rawBody = (ctx.request as any).rawBody;
     const files = (ctx.request as any).files;
+    const contentType = ctx.get('content-type') || '';
+    const contentLength = parseInt(ctx.get('content-length') || '0', 10);
+
+    // 优先检查rawBody是否为Buffer（二进制数据）
+    if (Buffer.isBuffer(rawBody)) {
+      const size = rawBody.length;
+      return `[Binary Data: ${size} bytes, Content-Type: ${contentType || 'application/octet-stream'}]`;
+    }
+
+    // 检查是否为二进制Content-Type且有Content-Length（即使已被解析为字符串）
+    if (contentLength > 0 && (
+      contentType.includes('application/octet-stream') ||
+      contentType.includes('application/x-msdownload') ||
+      contentType.includes('application/x-msdos-program') ||
+      contentType.includes('application/x-executable') ||
+      contentType.includes('application/x-dosexec')
+    )) {
+      // 如果body是字符串但应该是二进制，说明被错误解析了
+      if (typeof body === 'string' && body.length > 0) {
+        return `[Binary Data: ${contentLength} bytes, Content-Type: ${contentType}]`;
+      }
+    }
+
     if ((body === undefined || body === null) && !files) {
       if (rawBody && typeof rawBody === 'string') {
         return rawBody;
       }
       return '';
     }
-
-    const contentType = ctx.get('content-type') || '';
 
     // 处理 multipart/form-data（koa-body 解析后的数据）
     if (contentType.includes('multipart/form-data')) {
@@ -557,7 +578,24 @@ export class HttpMockManager {
       app.use(async (ctx, next) => {
         const contentType = ctx.get('content-type') || '';
         const isXmlType = contentType.includes('xml');
-        if (isXmlType) {
+        
+        // 对于二进制类型，手动读取原始数据
+        const isBinaryType = contentType.includes('application/octet-stream') ||
+          contentType.includes('application/x-msdownload') ||
+          contentType.includes('application/x-msdos-program') ||
+          contentType.includes('application/x-executable') ||
+          contentType.includes('application/x-dosexec');
+          
+        if (isBinaryType) {
+          const chunks: Buffer[] = [];
+          for await (const chunk of ctx.req) {
+            chunks.push(chunk);
+          }
+          const rawBody = Buffer.concat(chunks);
+          (ctx.request as any).rawBody = rawBody;
+          (ctx.request as any).body = null;
+          await next();
+        } else if (isXmlType) {
           // XML 类型：使用自定义中间件处理
           await xmlBodyMiddleware(ctx, next);
         } else {

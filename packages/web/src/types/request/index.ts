@@ -154,6 +154,7 @@ export type GotRequestOptions = {
   headers: Record<string, string | null>;
   followRedirect?: boolean;
   maxRedirects?: number;
+  maxSendFileSize?: number;
   signal: (cancelRequest: () => void) => void;
   onResponse?: (responseInfo: ResponseInfo) => void;
   onResponseEnd?: (responseInfo: ResponseInfo) => void;

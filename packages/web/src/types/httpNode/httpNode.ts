@@ -160,6 +160,7 @@ export type FolderNode = {
 export type HttpNodeConfig = {
   maxTextBodySize: number;
   maxRawBodySize: number;
+  maxSendFileSize: number;
   userAgent: string;
   followRedirect: boolean;
   maxRedirects: number;

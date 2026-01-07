@@ -540,6 +540,7 @@ export const sendRequest = async () => {
       headers: finalSendHeaders,
       followRedirect: httpNodeConfigData.followRedirect,
       maxRedirects: httpNodeConfigData.maxRedirects,
+      maxSendFileSize: httpNodeConfigData.maxSendFileSize,
       signal(cancelRequest) {
         changeCancelRequestRef(cancelRequest);
       },

@@ -211,7 +211,10 @@ const handleCleanDeletedHistory = async () => {
         type: 'warning'
       }
     )
-    // 已删除记录id列表（目前只统计，不直接操作）
+    const deletedIds = sendHistoryListWithStatus.value
+      .filter(item => item.isDeleted)
+      .map(item => item._id)
+    await sendHistoryStore.cleanDeletedHistory(deletedIds)
   } catch {
     // 用户取消
   }
