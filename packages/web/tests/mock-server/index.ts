@@ -4,10 +4,12 @@ import http from 'http';
 import { execFile } from 'child_process';
 import type { Server } from 'http';
 import type { Files, File } from 'formidable';
+import { WebSocketServer } from 'ws';
 
 const PORT = Number(process.env.MOCK_SERVER_PORT || '3456');
 let server: Server | null = null;
 let startPromise: Promise<Server> | null = null;
+let wsServer: WebSocketServer | null = null;
 
 type FileInfo = {
   fieldName: string;
@@ -19,6 +21,14 @@ type FileInfo = {
 const sleep = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 // 判断服务是否监听
 const isListening = (srv: Server | null): srv is Server => Boolean(srv && srv.listening);
+// 关闭 WebSocket 服务
+const stopWebSocketServer = async (): Promise<void> => {
+  if (!wsServer) return;
+  const currentWsServer = wsServer;
+  wsServer = null;
+  currentWsServer.clients.forEach((client) => client.terminate());
+  await new Promise<void>((resolve) => currentWsServer.close(() => resolve()));
+};
 // 请求本地 mock 服务器
 const requestMockEcho = (port: number): Promise<unknown> => {
   return new Promise((resolve, reject) => {
@@ -441,6 +451,19 @@ export const startServer = async (): Promise<Server> => {
     try {
       const nextServer = await listenOnce();
       server = nextServer;
+      if (!wsServer) {
+        wsServer = new WebSocketServer({ server: nextServer, path: '/ws' });
+        wsServer.on('connection', (socket) => {
+          socket.on('message', (data, isBinary) => {
+            const messageText = typeof data === 'string' ? data : data.toString('utf-8');
+            if (messageText === 'ping') {
+              socket.send('pong');
+              return;
+            }
+            socket.send(data, { binary: isBinary });
+          });
+        });
+      }
       return nextServer;
     } catch (error) {
       const errnoError = error as NodeJS.ErrnoException;
@@ -453,6 +476,19 @@ export const startServer = async (): Promise<Server> => {
       await sleep(200);
       const retryServer = await listenOnce();
       server = retryServer;
+      if (!wsServer) {
+        wsServer = new WebSocketServer({ server: retryServer, path: '/ws' });
+        wsServer.on('connection', (socket) => {
+          socket.on('message', (data, isBinary) => {
+            const messageText = typeof data === 'string' ? data : data.toString('utf-8');
+            if (messageText === 'ping') {
+              socket.send('pong');
+              return;
+            }
+            socket.send(data, { binary: isBinary });
+          });
+        });
+      }
       return retryServer;
     }
   })().finally(() => {
@@ -463,6 +499,7 @@ export const startServer = async (): Promise<Server> => {
 // 关闭服务器
 export const stopServer = (): Promise<void> => {
   return new Promise((resolve) => {
+    stopWebSocketServer().finally(() => {
     if (server) {
       const currentServer = server;
       currentServer.close(() => {
@@ -472,6 +509,7 @@ export const stopServer = (): Promise<void> => {
       return;
     }
     resolve();
+    });
   });
 };
 // Playwright 全局 setup

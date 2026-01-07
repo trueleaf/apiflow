@@ -34,9 +34,6 @@
         <Bot :size="16" />
       </button>
       <div class="navigation-control">
-        <el-icon class="icon" size="16" :title="t('刷新页面')" data-testid="header-refresh-btn" @click="refreshApp"><RefreshRight /></el-icon>
-        <el-icon class="icon" size="16" :title="t('后退')" data-testid="header-back-btn" @click="goBack"><Back /></el-icon>
-        <el-icon class="icon" size="16" :title="t('前进')" data-testid="header-forward-btn" @click="goForward"><Right /></el-icon>
         <el-icon class="icon" size="16" :title="t('设置')" data-testid="header-settings-btn" @click="jumpToSettings">
           <Settings :size="16" />
         </el-icon>
@@ -73,11 +70,10 @@ import { Language } from '@src/types'
 import type { AnchorRect } from '@src/types/common'
 import type { AppWorkbenchHeaderTab } from '@src/types/appWorkbench/appWorkbenchType'
  import type { RuntimeNetworkMode } from '@src/types/runtime'
- import { RefreshRight, Back, Right } from '@element-plus/icons-vue'       
  import { useI18n } from 'vue-i18n'
  import { Folder, Settings, Bot, Shield, Home } from 'lucide-vue-next'
   import { changeLanguage } from '@/i18n'
-  import { useAppSettings } from '@/store/appSettings/appSettingsStore'     
+  import { useAppSettings } from '@/store/appSettings/appSettingsStore'
   import { useRuntime } from '@/store/runtime/runtimeStore'
  import { useRouter } from 'vue-router'
  import { appWorkbenchCache } from '@/cache/appWorkbench/appWorkbenchCache'
@@ -146,16 +142,6 @@ const scrollToActiveTab = () => {
     const activeNode = tabWrap?.querySelector('.tab-item.active') as HTMLElement | null
     activeNode?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
   })
-}
-// 导航控制
-const refreshApp = () => {
-  window.location.reload()
-}
-const goBack = () => {
-  router.back()
-}
-const goForward = () => {
-  router.forward()
 }
 // 语言切换
 const currentLanguageDisplay = computed(() => {
