@@ -348,8 +348,4 @@ contextBridge.exposeInMainWorld('electronAPI', {
     setUpdateSource: updateSetUpdateSource,
     testConnection: updateTestConnection,
   },
-  projectScan: {
-    selectFolder: () => ipcRenderer.invoke(IPC_EVENTS.projectScan.rendererToMain.selectFolder),
-    readFiles: (folderPath: string) => ipcRenderer.invoke(IPC_EVENTS.projectScan.rendererToMain.readFiles, folderPath),
-  }
 })

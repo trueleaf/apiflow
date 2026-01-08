@@ -1079,7 +1079,7 @@ export default {
   '数据库名称': 'Database name',
   '数据来源': 'Data Source',
   '数据列表': 'Data list',
-  '数据输入': 'Data Input',
+  '数据输入': 'インポートするデータを選択してください',
   '数据为空': 'No data',
   '数据无法被缓存，切换tab或者刷新页面缓存值将会清空': 'Data cannot be cached. Switching tabs or refreshing will clear the cached value',
   '数据详情': 'Data details',

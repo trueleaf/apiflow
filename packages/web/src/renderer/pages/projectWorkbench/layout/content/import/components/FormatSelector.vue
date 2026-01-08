@@ -25,7 +25,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { FileJson, FileCode, Mail, Sparkles, GitBranch } from 'lucide-vue-next'
+import { FileJson, FileCode, Mail, Sparkles } from 'lucide-vue-next'
 import type { ImportFormatType } from '@/composables/useImport'
 
 const props = defineProps<{
@@ -42,7 +42,6 @@ const formats = computed(() => [
   { value: 'openapi' as ImportFormatType, label: 'OpenAPI', icon: FileCode, disabled: false },
   { value: 'postman' as ImportFormatType, label: 'Postman', icon: Mail, disabled: false },
   { value: 'ai' as ImportFormatType, label: 'AI识别', icon: Sparkles, disabled: true },
-  { value: 'repository' as ImportFormatType, label: '代码仓库', icon: GitBranch, disabled: true },
 ])
 const detectedFormatLabel = computed(() => {
   const format = formats.value.find(f => f.value === props.detectedFormat)

@@ -49,7 +49,7 @@ import { ElMessage } from 'element-plus'
 import type { HttpNode, FolderNode } from '@src/types'
 
 const emit = defineEmits<{
-  (e: 'success', data: { docs: (HttpNode | FolderNode)[]; type: 'ai' | 'repository' }): void
+  (e: 'success', data: { docs: (HttpNode | FolderNode)[]; type: 'ai' }): void
   (e: 'error', message: string): void
 }>()
 const props = defineProps<{

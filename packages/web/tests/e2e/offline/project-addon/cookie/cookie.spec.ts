@@ -7,6 +7,7 @@ test.describe('CookieBusiness', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 创建测试接口
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
@@ -16,6 +17,7 @@ test.describe('CookieBusiness', () => {
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
+    // 发送第一个请求，设置 af_override=old_value
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/set-cookie/override/old_value`);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -23,13 +25,16 @@ test.describe('CookieBusiness', () => {
     const responseArea = contentPage.getByTestId('response-area');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    // 发送第二个请求，设置 af_override=new_value 覆盖旧值
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/set-cookie/override/new_value`);
     await sendBtn.click();
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    // 发送请求验证自动携带最新的 Cookie 值
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await sendBtn.click();
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     const responseBody = responseArea.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    // 验证携带的是新值而非旧值
     await expect(responseBody).toContainText('af_override=new_value', { timeout: 10000 });
     await expect(responseBody).not.toContainText('af_override=old_value', { timeout: 10000 });
   });
@@ -38,6 +43,7 @@ test.describe('CookieBusiness', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 创建测试接口
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
@@ -49,16 +55,19 @@ test.describe('CookieBusiness', () => {
     await contentPage.waitForTimeout(500);
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    // 设置带 Path=/echo/path-only 限制的 Cookie
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/set-cookie/path`);
     await sendBtn.click();
     const responseArea = contentPage.getByTestId('response-area');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    // 访问匹配路径，应该携带 Cookie
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/path-only/1`);
     await sendBtn.click();
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     const responseBody = responseArea.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('af_path=path_value', { timeout: 10000 });
+    // 访问不匹配路径，不应该携带 Cookie
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/other`);
     await sendBtn.click();
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
@@ -69,6 +78,7 @@ test.describe('CookieBusiness', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 创建测试接口
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
@@ -80,11 +90,13 @@ test.describe('CookieBusiness', () => {
     await contentPage.waitForTimeout(500);
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    // 先设置一个自动保存的 Cookie
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/set-cookie/basic`);
     await sendBtn.click();
     const responseArea = contentPage.getByTestId('response-area');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    // 切换到 Headers 标签页，手动添加 Cookie 请求头
     const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
     await headersTab.click();
     await contentPage.waitForTimeout(300);
@@ -94,10 +106,12 @@ test.describe('CookieBusiness', () => {
     await headerValueInputs.first().click();
     await contentPage.keyboard.type('manual_cookie=1');
     await contentPage.waitForTimeout(300);
+    // 发送请求验证手动 Cookie 完全覆盖自动注入
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await sendBtn.click();
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     const responseBody = responseArea.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    // 验证只有手动 Cookie，自动 Cookie 被完全覆盖
     await expect(responseBody).toContainText('manual_cookie=1', { timeout: 10000 });
     await expect(responseBody).not.toContainText('af_basic=basic_value', { timeout: 10000 });
   });
@@ -106,6 +120,7 @@ test.describe('CookieBusiness', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 创建测试接口
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
@@ -117,11 +132,13 @@ test.describe('CookieBusiness', () => {
     await contentPage.waitForTimeout(500);
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    // 在 127.0.0.1 域名下设置 Cookie
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/set-cookie/basic`);
     await sendBtn.click();
     const responseArea = contentPage.getByTestId('response-area');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    // 访问不同的 host (::1 IPv6 地址)，验证不携带 Cookie
     await urlInput.fill(`http://[::1]:${MOCK_SERVER_PORT}/echo`);
     await sendBtn.click();
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
@@ -133,6 +150,7 @@ test.describe('CookieBusiness', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 创建测试接口
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
@@ -144,11 +162,13 @@ test.describe('CookieBusiness', () => {
     await contentPage.waitForTimeout(500);
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    // 设置一个 Domain 属性不匹配的 Cookie
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/set-cookie/domain-mismatch`);
     await sendBtn.click();
     const responseArea = contentPage.getByTestId('response-area');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    // 发送请求验证 Domain 不匹配的 Cookie 不会被携带
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await sendBtn.click();
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
@@ -160,6 +180,7 @@ test.describe('CookieBusiness', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 创建测试接口
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
@@ -172,18 +193,22 @@ test.describe('CookieBusiness', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     const responseArea = contentPage.getByTestId('response-area');
+    // 设置一个基础 Cookie
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/set-cookie/basic`);
     await sendBtn.click();
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    // 验证 Cookie 已保存并自动携带
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await sendBtn.click();
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     const responseBody = responseArea.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('af_basic=basic_value', { timeout: 10000 });
+    // 发送请求删除 Cookie (通过 Max-Age=0)
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/set-cookie/delete-basic`);
     await sendBtn.click();
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    // 验证 Cookie 已被删除，不再自动携带
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await sendBtn.click();
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
@@ -194,6 +219,7 @@ test.describe('CookieBusiness', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 创建测试接口
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
@@ -206,10 +232,12 @@ test.describe('CookieBusiness', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     const responseArea = contentPage.getByTestId('response-area');
+    // 设置两个同名不同 Path 的 Cookie
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/set-cookie/order`);
     await sendBtn.click();
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    // 验证 Cookie 发送顺序：Path 更长的在前
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/path-only/1`);
     await sendBtn.click();
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
@@ -221,6 +249,7 @@ test.describe('CookieBusiness', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 创建测试接口
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
     const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
@@ -233,15 +262,18 @@ test.describe('CookieBusiness', () => {
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     const responseArea = contentPage.getByTestId('response-area');
+    // 设置一个未指定 Path 的 Cookie，默认使用请求路径的目录部分
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/set-cookie/default-path/dir/leaf`);
     await sendBtn.click();
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    // 访问同目录下的其他路径，应该携带 Cookie
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/set-cookie/default-path/dir/next`);
     await sendBtn.click();
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     const responseBody = responseArea.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('af_default_path=1', { timeout: 10000 });
+    // 访问不同目录，不应该携带 Cookie
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/set-cookie/default-path/other`);
     await sendBtn.click();
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });

@@ -19,7 +19,7 @@
     </SFieldset>
 
     <!-- 数据输入区域 -->
-    <SFieldset :title="t('数据输入')">
+    <SFieldset :title="t('请选择需要导入的数据')">
       <!-- 本地文件上传 -->
       <FileImport v-if="currentSourceType === 'file'" @success="handleDataLoaded" @error="handleError" />
       <!-- URL导入 -->
@@ -28,8 +28,6 @@
       <PasteImport v-else-if="currentSourceType === 'paste'" @success="handleDataLoaded" @error="handleError" />
       <!-- AI智能识别 -->
       <AiImport v-else-if="currentSourceType === 'ai'" :project-id="projectId" @success="handleAiDataLoaded" @error="handleError" />
-      <!-- 代码仓库识别 -->
-      <RepoImport v-else-if="currentSourceType === 'repository'" :project-id="projectId" @success="handleAiDataLoaded" @error="handleError" />
     </SFieldset>
 
     <!-- 文档格式选择 -->
@@ -158,11 +156,10 @@ import FileImport from './components/FileImport.vue'
 import UrlImport from './components/UrlImport.vue'
 import PasteImport from './components/PasteImport.vue'
 import AiImport from './components/AiImport.vue'
-import RepoImport from './components/RepoImport.vue'
 import FormatSelector from './components/FormatSelector.vue'
 import { ref, computed, type Ref } from 'vue'
 import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
-import { FileUp, Link, ClipboardCopy, Folder, FileQuestion, Sparkles, GitBranch } from 'lucide-vue-next'
+import { FileUp, Link, ClipboardCopy, Folder, FileQuestion, Sparkles } from 'lucide-vue-next'
 import type { ApidocBanner, HttpNode, FolderNode } from '@src/types'
 import type { OpenAPIV3, OpenAPIV2 } from 'openapi-types'
 import { router } from '@/router/index'
@@ -204,13 +201,12 @@ const bannerStore = useBanner()
 const projectId = router.currentRoute.value.query.id as string
 const folderIcon = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href
 // 数据来源类型
-const currentSourceType: Ref<ImportSourceType | 'ai' | 'repository'> = ref('file')
+const currentSourceType: Ref<ImportSourceType | 'ai'> = ref('file')
 const importSources = [
   { label: '本地文件', value: 'file' as const, icon: FileUp, desc: '上传 JSON/YAML 文件' },
   { label: 'URL导入', value: 'url' as const, icon: Link, desc: '从远程 URL 获取' },
   { label: '粘贴内容', value: 'paste' as const, icon: ClipboardCopy, desc: '直接粘贴内容' },
   { label: 'AI智能识别', value: 'ai' as const, icon: Sparkles, desc: 'AI 自动识别格式' },
-  { label: '代码仓库识别', value: 'repository' as const, icon: GitBranch, desc: '从代码提取 API' },
 ]
 // 目标树
 const docTree2: Ref<TreeNodeOptions['store'] | null> = ref(null)
@@ -288,7 +284,7 @@ const previewNavTreeData = computed(() => {
   return sortRecursively(result)
 })
 // 选择数据来源
-const handleSelectSourceType = (type: ImportSourceType | 'ai' | 'repository') => {
+const handleSelectSourceType = (type: ImportSourceType | 'ai') => {
   currentSourceType.value = type
   resetData()
 }
@@ -309,7 +305,7 @@ const handleDataLoaded = (data: unknown) => {
   convertData(typeInfo.name)
 }
 // AI 数据加载成功
-const handleAiDataLoaded = (data: { docs: (HttpNode | FolderNode)[]; type: 'ai' | 'repository' }) => {
+const handleAiDataLoaded = (data: { docs: (HttpNode | FolderNode)[]; type: 'ai' }) => {
   formInfo.value.moyuData.docs = data.docs
   formInfo.value.type = data.type
   importTypeInfo.value = { name: data.type, version: '' }

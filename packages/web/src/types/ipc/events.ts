@@ -351,19 +351,6 @@ export const IPC_EVENTS = {
     },
   },
 
-  /**
-   * 项目扫描事件（代码仓库导入）
-   */
-  projectScan: {
-    /** 渲染进程 -> 主进程 */
-    rendererToMain: {
-      /** 选择项目文件夹 */
-      selectFolder: 'project-scan:renderer:to:main:select-folder',
-      /** 读取项目文件 */
-      readFiles: 'project-scan:renderer:to:main:read-files',
-    },
-  },
-
 } as const;
 
 /**

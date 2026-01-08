@@ -3,7 +3,7 @@ import type { ChatRequestBody, OpenAiResponseBody } from '@src/types/ai/agent.ty
 import { createEmptyHttpNode, createEmptyFolderNode, generateId } from '@/composables/useImport'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import type { HttpNodeContentType, HttpNodeBodyMode, HttpNodeRequestMethod } from '@src/types/httpNode/types'
-import { aiImportPrompt, codeAnalyzePrompt, projectAnalyzePrompt, apiExtractPrompt } from '@/store/ai/prompt/prompt'
+import { aiImportPrompt } from '@/store/ai/prompt/prompt'
 
 // AI 识别的 API 结构
 type AiRecognizedApi = {
@@ -49,25 +49,6 @@ export class AiImportTranslator {
   // 分析数据并返回 HttpNode 列表
   async analyze(rawData: string): Promise<(HttpNode | FolderNode)[]> {
     const prompt = aiImportPrompt + rawData
-    const body: ChatRequestBody = {
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 8000,
-      temperature: 0.1,
-      response_format: { type: 'json_object' },
-    }
-    const response: OpenAiResponseBody = await this.llmStore.chat(body)
-    const content = response.choices[0]?.message?.content
-    if (!content) {
-      throw new Error('AI 返回内容为空')
-    }
-    const result = this.parseAiResponse(content)
-    return this.convertToNodes(result)
-  }
-  // 分析代码仓库
-  async analyzeCode(code: string, framework: string, language: string): Promise<(HttpNode | FolderNode)[]> {
-    const prompt = codeAnalyzePrompt
-      .replace('{framework}', framework)
-      .replace('{language}', language) + code
     const body: ChatRequestBody = {
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 8000,
@@ -179,19 +160,7 @@ export class AiImportTranslator {
     return node
   }
 }
-// 项目文件信息
-type ProjectFile = {
-  path: string
-  content: string
-}
-// 项目分析结果
-type ProjectAnalysisResult = {
-  framework: string
-  language: string
-  routeFiles: string[]
-  confidence: 'high' | 'medium' | 'low'
-}
-// 从代码中分析项目结构
+
 const analyzeProjectStructure = async (
   llmStore: ReturnType<typeof useLLMClientStore>,
   files: ProjectFile[],
