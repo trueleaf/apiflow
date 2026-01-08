@@ -2,7 +2,7 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('DeleteNode', () => {
   test.describe('删除httpNode节点', () => {
-    test('鼠标右键httpNode节点删除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('鼠标右键httpNode节点删除', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -41,7 +41,7 @@ test.describe('DeleteNode', () => {
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除HTTP节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
-    test('鼠标移动到httpNode节点,点击更多操作删除节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('鼠标移动到httpNode节点,点击更多操作删除节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -82,7 +82,7 @@ test.describe('DeleteNode', () => {
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除HTTP节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
-    test('按住ctrl鼠标左键批量选择httpNode节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('按住ctrl鼠标左键批量选择httpNode节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -138,7 +138,7 @@ test.describe('DeleteNode', () => {
     });
   });
   test.describe('删除websocketNode节点', () => {
-    test('鼠标右键websocketNode节点删除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('鼠标右键websocketNode节点删除', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -180,7 +180,7 @@ test.describe('DeleteNode', () => {
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除Websocket节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
-    test('鼠标移动到websocketNode节点,点击更多按钮', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('鼠标移动到websocketNode节点,点击更多按钮', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -224,7 +224,7 @@ test.describe('DeleteNode', () => {
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除Websocket节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
-    test('按住ctrl鼠标左键批量选择websocketNode节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('按住ctrl鼠标左键批量选择websocketNode节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -283,7 +283,7 @@ test.describe('DeleteNode', () => {
     });
   });
   test.describe('删除httpMockNode节点', () => {
-    test('鼠标右键httpMockNode节点删除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('鼠标右键httpMockNode节点删除', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -325,7 +325,7 @@ test.describe('DeleteNode', () => {
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除HttpMock节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
-    test('鼠标移动到httpMockNode节点,点击更多操作删除节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('鼠标移动到httpMockNode节点,点击更多操作删除节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -369,7 +369,7 @@ test.describe('DeleteNode', () => {
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除HttpMock节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
-    test('按住ctrl鼠标左键批量选择httpMockNode节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('按住ctrl鼠标左键批量选择httpMockNode节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -428,7 +428,7 @@ test.describe('DeleteNode', () => {
     });
   });
   test.describe('删除websocketMockNode节点', () => {
-    test('鼠标右键websocketMockNode节点删除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('鼠标右键websocketMockNode节点删除', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -470,7 +470,7 @@ test.describe('DeleteNode', () => {
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除WsMock节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
-    test('鼠标移动到websocketMockNode节点,点击更多操作删除节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('鼠标移动到websocketMockNode节点,点击更多操作删除节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -514,7 +514,7 @@ test.describe('DeleteNode', () => {
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除WsMock节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
-    test('按住ctrl鼠标左键批量选择websocketMockNode节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('按住ctrl鼠标左键批量选择websocketMockNode节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -573,7 +573,7 @@ test.describe('DeleteNode', () => {
     });
   });
   test.describe('删除folder节点', () => {
-    test('鼠标右键folder节点删除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('鼠标右键folder节点删除', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -612,7 +612,7 @@ test.describe('DeleteNode', () => {
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除文件夹' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
-    test('鼠标移动到folder节点,点击更多操作删除节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('鼠标移动到folder节点,点击更多操作删除节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -653,7 +653,7 @@ test.describe('DeleteNode', () => {
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除文件夹' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
-    test('按住ctrl鼠标左键批量选择folder节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('按住ctrl鼠标左键批量选择folder节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -709,7 +709,7 @@ test.describe('DeleteNode', () => {
     });
   });
   test.describe('删除混合节点', () => {
-    test('按住ctrl鼠标左键批量选择httpNode,websocketNode,httpMockNode,websocketMockNode,folder节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('按住ctrl鼠标左键批量选择httpNode,websocketNode,httpMockNode,websocketMockNode,folder节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();

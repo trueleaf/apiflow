@@ -265,47 +265,106 @@ test.describe('Navigation', () => {
     await expect(activeTab).toContainText(projectCName);
   });
 
-  test('关闭最右侧高亮Tab后高亮左侧最近的Tab', async ({ topBarPage, createProject, clearCache, loginAccount }) => {
+  test('关闭最右侧高亮Tab后高亮左侧最近的Tab', async ({ topBarPage, contentPage, createProject, clearCache, loginAccount, jumpToSettings }) => {
     await clearCache();
-
     await loginAccount();
     const projectAName = await createProject(`最右侧A-${Date.now()}`);
     const projectBName = await createProject(`最右侧B-${Date.now()}`);
     const projectCName = await createProject(`最右侧C-${Date.now()}`);
     const projectDName = await createProject(`最右侧D-${Date.now()}`);
     await topBarPage.waitForTimeout(500);
-    // 当前项目D应该被高亮（最后创建的）
+    // 场景1：关闭最右侧的项目Tab
     let activeTab = topBarPage.locator('.tab-item.active');
     await expect(activeTab).toContainText(projectDName);
-    // 关闭项目D（最右侧的高亮Tab）
     const projectDTab = topBarPage.locator('.tab-item').filter({ hasText: projectDName });
-    const closeBtn = projectDTab.locator('.close-btn');
+    let closeBtn = projectDTab.locator('.close-btn');
     await closeBtn.click();
     await topBarPage.waitForTimeout(500);
-    // 验证项目D Tab已关闭
     await expect(projectDTab).toBeHidden();
-    // 验证左侧最近的Tab（项目C）被高亮
     activeTab = topBarPage.locator('.tab-item.active');
     await expect(activeTab).toContainText(projectCName);
+    // 场景2：添加Settings tab到最右侧，然后关闭它
+    await jumpToSettings();
+    await topBarPage.waitForTimeout(500);
+    activeTab = topBarPage.locator('.tab-item.active');
+    await expect(activeTab).toContainText(/设置|Settings/);
+    const settingsTab = topBarPage.locator('.tab-item').filter({ hasText: /设置|Settings/ });
+    closeBtn = settingsTab.locator('.close-btn');
+    await closeBtn.click();
+    await topBarPage.waitForTimeout(500);
+    await expect(settingsTab).toBeHidden();
+    activeTab = topBarPage.locator('.tab-item.active');
+    await expect(activeTab).toContainText(projectCName);
+    // 场景3：激活Admin按钮，关闭最右侧的项目Tab，验证Admin保持active
+    const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
+    await expect(adminBtn).toBeVisible({ timeout: 5000 });
+    await adminBtn.click();
+    await topBarPage.waitForTimeout(500);
+    await expect(contentPage).toHaveURL(/.*#\/admin/, { timeout: 5000 });
+    await expect(adminBtn).toHaveClass(/active/);
+    const projectCTab = topBarPage.locator('.tab-item').filter({ hasText: projectCName });
+    closeBtn = projectCTab.locator('.close-btn');
+    await closeBtn.click();
+    await topBarPage.waitForTimeout(500);
+    await expect(projectCTab).toBeHidden();
+    await expect(adminBtn).toHaveClass(/active/);
+    await expect(contentPage).toHaveURL(/.*#\/admin/, { timeout: 5000 });
   });
 
-  test('关闭非高亮Tab不影响当前高亮状态', async ({ topBarPage, createProject, loginAccount }) => {
+  test('关闭非高亮Tab不影响当前高亮状态', async ({ topBarPage, contentPage, createProject, loginAccount, jumpToSettings }) => {
     await loginAccount();
     const projectAName = await createProject(`非高亮A-${Date.now()}`);
     const projectBName = await createProject(`非高亮B-${Date.now()}`);
-    // 当前项目B应该被高亮
+    const projectCName = await createProject(`非高亮C-${Date.now()}`);
+    await topBarPage.waitForTimeout(500);
+    // 场景1：项目C高亮，关闭项目A
     let activeTab = topBarPage.locator('.tab-item.active');
-    await expect(activeTab).toContainText(projectBName);
-    // 关闭项目A（非高亮Tab）
+    await expect(activeTab).toContainText(projectCName);
     const projectATab = topBarPage.locator('.tab-item').filter({ hasText: projectAName });
-    const closeBtn = projectATab.locator('.close-btn');
+    let closeBtn = projectATab.locator('.close-btn');
     await closeBtn.click();
     await topBarPage.waitForTimeout(500);
-    // 验证项目A Tab已关闭
     await expect(projectATab).toBeHidden();
-    // 验证项目B仍然保持高亮
     activeTab = topBarPage.locator('.tab-item.active');
-    await expect(activeTab).toContainText(projectBName);
+    await expect(activeTab).toContainText(projectCName);
+    // 场景2：切换到Settings tab高亮，关闭项目B
+    await jumpToSettings();
+    await topBarPage.waitForTimeout(500);
+    activeTab = topBarPage.locator('.tab-item.active');
+    await expect(activeTab).toContainText(/设置|Settings/);
+    const projectBTab = topBarPage.locator('.tab-item').filter({ hasText: projectBName });
+    closeBtn = projectBTab.locator('.close-btn');
+    await closeBtn.click();
+    await topBarPage.waitForTimeout(500);
+    await expect(projectBTab).toBeHidden();
+    activeTab = topBarPage.locator('.tab-item.active');
+    await expect(activeTab).toContainText(/设置|Settings/);
+    // 场景3：切换到项目C高亮，关闭Settings tab
+    const projectCTab = topBarPage.locator('.tab-item').filter({ hasText: projectCName });
+    await projectCTab.click();
+    await topBarPage.waitForTimeout(300);
+    activeTab = topBarPage.locator('.tab-item.active');
+    await expect(activeTab).toContainText(projectCName);
+    const settingsTab = topBarPage.locator('.tab-item').filter({ hasText: /设置|Settings/ });
+    closeBtn = settingsTab.locator('.close-btn');
+    await closeBtn.click();
+    await topBarPage.waitForTimeout(500);
+    await expect(settingsTab).toBeHidden();
+    activeTab = topBarPage.locator('.tab-item.active');
+    await expect(activeTab).toContainText(projectCName);
+    // 场景4：激活Admin按钮，关闭项目C tab，验证Admin保持active
+    const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
+    await expect(adminBtn).toBeVisible({ timeout: 5000 });
+    await adminBtn.click();
+    await topBarPage.waitForTimeout(500);
+    await expect(contentPage).toHaveURL(/.*#\/admin/, { timeout: 5000 });
+    await expect(adminBtn).toHaveClass(/active/);
+    closeBtn = projectCTab.locator('.close-btn');
+    await closeBtn.click();
+    await topBarPage.waitForTimeout(500);
+    await expect(projectCTab).toBeHidden();
+    await expect(adminBtn).toHaveClass(/active/);
+    await expect(contentPage).toHaveURL(/.*#\/admin/, { timeout: 5000 });
   });
 
   test('更新项目名称后tab页签名称同步更新', async ({ topBarPage, contentPage, createProject, loginAccount }) => {
@@ -327,13 +386,6 @@ test.describe('Navigation', () => {
     await homeBtn.click();
     await Promise.all([projectListPromise, urlPromise]);
     await topBarPage.waitForTimeout(500);
-    // 关闭可能的提示弹窗
-    const msgBoxConfirmBtn = contentPage.locator('.cl-confirm-footer-right .el-button--primary');
-    const msgBoxConfirmBtnVisible = await msgBoxConfirmBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    if (msgBoxConfirmBtnVisible) {
-      await msgBoxConfirmBtn.click();
-      await topBarPage.waitForTimeout(300);
-    }
     // 等待项目列表加载
     await expect(contentPage.locator('[data-testid="home-project-card-0"]')).toBeVisible({ timeout: 5000 });
     // 找到项目卡片并点击编辑按钮（修改项目名称的按钮，不是进入编辑的按钮）

@@ -3,22 +3,13 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('NoneBodyValidation', () => {
-  test.beforeEach(async ({ createProject, contentPage, clearCache, loginAccount }) => {
+  test.beforeEach(async ({ createProject, contentPage, clearCache, loginAccount, createNode }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill(`NoneBody测试-${Date.now()}`);
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: `NoneBody测试-${Date.now()}` });
   });
 
   test('调用echo接口验证body为none请求是否正常返回,content-type是否正确', async ({ contentPage }) => {

@@ -2,22 +2,14 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('RequestMethodRedo', () => {
   // 测试用例1: 切换请求方法两次后点击撤销按钮,再点击重做按钮,请求方法恢复到撤销前的状态
-  test('切换请求方法两次后点击撤销按钮再点击重做按钮,请求方法恢复到撤销前的状态', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('切换请求方法两次后点击撤销按钮再点击重做按钮,请求方法恢复到撤销前的状态', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('请求方法重做按钮测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '请求方法重做按钮测试' });
     // 初始请求方法为GET,切换为POST
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
@@ -47,22 +39,14 @@ test.describe('RequestMethodRedo', () => {
     await expect(methodSelect).toContainText('PUT', { timeout: 5000 });
   });
   // 测试用例2: 切换请求方法两次后按ctrl+z,再按ctrl+shift+z,请求方法恢复到撤销前的状态
-  test('切换请求方法两次后按ctrl+z再按ctrl+shift+z,请求方法恢复到撤销前的状态', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('切换请求方法两次后按ctrl+z再按ctrl+shift+z,请求方法恢复到撤销前的状态', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('请求方法重做快捷键测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '请求方法重做快捷键测试' });
     // 初始请求方法为GET,切换为POST
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();

@@ -2,22 +2,14 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('RequestUrlUndo', () => {
   // 测试用例1: 请求url中输入字符串ab,点击撤销按钮,url值为a,再次点击撤销按钮,url值为空
-  test('输入字符串后点击撤销按钮逐步撤销', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('输入字符串后点击撤销按钮逐步撤销', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('URL撤销测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'URL撤销测试接口' });
     // 在url输入框输入字符
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
@@ -40,22 +32,14 @@ test.describe('RequestUrlUndo', () => {
     await expect(urlInput).toHaveText(/^\s*$/, { timeout: 5000 });
   });
   // 测试用例2: 请求url中输入字符串ab,按ctrl+z,url值为a,再次按ctrl+z,url值为空
-  test('输入字符串后按ctrl+z快捷键逐步撤销', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('输入字符串后按ctrl+z快捷键逐步撤销', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('URL快捷键撤销测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'URL快捷键撤销测试接口' });
     // 在url输入框输入字符
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
@@ -77,22 +61,14 @@ test.describe('RequestUrlUndo', () => {
     await expect(urlInput).toHaveText(/^\s*$/, { timeout: 5000 });
   });
   // 测试用例3: 请求url中输入中文字符串,点击撤销按钮,url值为空
-  test('输入中文字符串后撤销', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('输入中文字符串后撤销', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('中文URL撤销测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '中文URL撤销测试接口' });
     // 在url输入框输入中文字符
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
@@ -107,22 +83,14 @@ test.describe('RequestUrlUndo', () => {
     await expect(urlInput).toHaveText(/^\s*$/, { timeout: 5000 });
   });
   // 测试用例4: 请求url中输入字符a,粘贴test.demo.com,撤销后url值为a
-  test('输入字符后粘贴内容再撤销', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('输入字符后粘贴内容再撤销', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('粘贴撤销测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '粘贴撤销测试接口' });
     // 在url输入框输入字符a
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();

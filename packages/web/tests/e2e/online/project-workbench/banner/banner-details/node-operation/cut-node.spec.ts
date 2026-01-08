@@ -2,7 +2,7 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('CutNode', () => {
   test.describe('剪切HTTP节点', () => {
-    test('剪切单个httpNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('剪切单个httpNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -44,7 +44,7 @@ test.describe('CutNode', () => {
       const cutNodeAfterPaste = contentPage.locator('.custom-tree-node.cut-node');
       await expect(cutNodeAfterPaste).toHaveCount(0);
     });
-    test('剪切单个httpNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('剪切单个httpNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -96,7 +96,7 @@ test.describe('CutNode', () => {
       const rootNodes = contentPage.locator('.tree-wrap > .el-tree > .el-tree-node > .el-tree-node__content').filter({ hasText: '源HTTP节点' });
       await expect(rootNodes).toHaveCount(0);
     });
-    test('剪切多个httpNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('剪切多个httpNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -163,7 +163,7 @@ test.describe('CutNode', () => {
       await expect(allNode2).toHaveCount(1, { timeout: 5000 });
       await expect(allNode3).toHaveCount(1, { timeout: 5000 });
     });
-    test('剪切httpNode节点在非folder节点右键不显示粘贴选项', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('剪切httpNode节点在非folder节点右键不显示粘贴选项', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -198,7 +198,7 @@ test.describe('CutNode', () => {
     });
   });
   test.describe('剪切WebSocket节点', () => {
-    test('剪切单个websocketNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('剪切单个websocketNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -238,7 +238,7 @@ test.describe('CutNode', () => {
       const allNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '源WebSocket节点' });
       await expect(allNodes).toHaveCount(1, { timeout: 5000 });
     });
-    test('剪切单个websocketNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('剪切单个websocketNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -288,7 +288,7 @@ test.describe('CutNode', () => {
     });
   });
   test.describe('剪切HTTP Mock节点', () => {
-    test('剪切单个httpMockNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('剪切单个httpMockNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -326,7 +326,7 @@ test.describe('CutNode', () => {
       const allNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '源HTTP Mock节点' });
       await expect(allNodes).toHaveCount(1, { timeout: 5000 });
     });
-    test('剪切单个httpMockNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('剪切单个httpMockNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -376,7 +376,7 @@ test.describe('CutNode', () => {
     });
   });
   test.describe('剪切WebSocket Mock节点', () => {
-    test('剪切单个websocketMockNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('剪切单个websocketMockNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -414,7 +414,7 @@ test.describe('CutNode', () => {
       const allNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '源WS Mock节点' });
       await expect(allNodes).toHaveCount(1, { timeout: 5000 });
     });
-    test('剪切单个websocketMockNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('剪切单个websocketMockNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -464,7 +464,7 @@ test.describe('CutNode', () => {
     });
   });
   test.describe('剪切文件夹节点', () => {
-    test('剪切单个folder节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('剪切单个folder节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -500,7 +500,7 @@ test.describe('CutNode', () => {
       const allFolders = contentPage.locator('.el-tree-node__content').filter({ hasText: '源文件夹' });
       await expect(allFolders).toHaveCount(1, { timeout: 5000 });
     });
-    test('剪切包含子节点的folder节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('剪切包含子节点的folder节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -566,7 +566,7 @@ test.describe('CutNode', () => {
     });
   });
   test.describe('剪切混合节点', () => {
-    test('批量剪切不同类型节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('批量剪切不同类型节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -640,7 +640,7 @@ test.describe('CutNode', () => {
     });
   });
   test.describe('快捷键剪切粘贴', () => {
-    test('使用Ctrl+X和Ctrl+V剪切粘贴节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('使用Ctrl+X和Ctrl+V剪切粘贴节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -689,7 +689,7 @@ test.describe('CutNode', () => {
     });
   });
   test.describe('剪切特殊情况', () => {
-    test('剪切节点后进行复制操作,原剪切内容被覆盖', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('剪切节点后进行复制操作,原剪切内容被覆盖', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();

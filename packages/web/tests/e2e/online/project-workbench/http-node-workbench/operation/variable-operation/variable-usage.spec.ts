@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('VariableUsage', () => {
   // 测试用例1: 在url中使用{{ 变量名 }}语法,发送请求时变量被正确替换
-  test('在url中使用变量语法发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('在url中使用变量语法发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('URL变量替换测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'URL变量替换测试接口' });
     // 打开变量管理页签并创建变量
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();
@@ -60,22 +52,14 @@ test.describe('VariableUsage', () => {
     await expect(responseTabs).toContainText('/echo', { timeout: 10000 });
   });
   // 测试用例2: 在query参数value中使用变量,发送请求时变量被正确替换
-  test('在query参数中使用变量发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('在query参数中使用变量发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Query变量替换测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Query变量替换测试接口' });
     // 打开变量管理页签并创建变量
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();
@@ -116,22 +100,14 @@ test.describe('VariableUsage', () => {
     await expect(responseTabs).toContainText('12345', { timeout: 10000 });
   });
   // 测试用例3: 在header参数value中使用变量,发送请求时变量被正确替换
-  test('在header参数中使用变量发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('在header参数中使用变量发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Header变量替换测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Header变量替换测试接口' });
     // 打开变量管理页签并创建变量
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();
@@ -188,22 +164,14 @@ test.describe('VariableUsage', () => {
     await expect(responseTabs).toContainText('Bearer xyz123', { timeout: 10000 });
   });
   // 测试用例4: 在body json中使用变量,发送请求时变量被正确替换
-  test('在body json中使用变量发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('在body json中使用变量发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Body变量替换测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Body变量替换测试接口' });
     // 打开变量管理页签并创建变量
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();

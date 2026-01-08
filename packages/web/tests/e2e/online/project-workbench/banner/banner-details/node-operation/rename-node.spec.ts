@@ -2,7 +2,7 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('RenameNode', () => {
   test.describe('重命名httpNode节点', () => {
-    test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -42,7 +42,7 @@ test.describe('RenameNode', () => {
       const oldNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待重命名HTTP节点' });
       await expect(oldNode).toBeHidden({ timeout: 5000 });
     });
-    test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -79,7 +79,7 @@ test.describe('RenameNode', () => {
       const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: 'F2重命名后HTTP节点' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
-    test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -120,7 +120,7 @@ test.describe('RenameNode', () => {
       const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '更多操作重命名后HTTP节点' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
-    test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -160,7 +160,7 @@ test.describe('RenameNode', () => {
     });
   });
   test.describe('重命名websocketNode节点', () => {
-    test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -200,7 +200,7 @@ test.describe('RenameNode', () => {
       const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '新WS节点名称' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
-    test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -238,7 +238,7 @@ test.describe('RenameNode', () => {
       const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: 'F2重命名后WS节点' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
-    test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -281,7 +281,7 @@ test.describe('RenameNode', () => {
       const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '更多操作重命名后WS节点' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
-    test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -324,7 +324,7 @@ test.describe('RenameNode', () => {
     });
   });
   test.describe('重命名httpMockNode节点', () => {
-    test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -364,7 +364,7 @@ test.describe('RenameNode', () => {
       const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '新HttpMock节点名称' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
-    test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -402,7 +402,7 @@ test.describe('RenameNode', () => {
       const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: 'F2重命名后HttpMock节点' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
-    test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -445,7 +445,7 @@ test.describe('RenameNode', () => {
       const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '更多操作重命名后HttpMock节点' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
-    test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -488,7 +488,7 @@ test.describe('RenameNode', () => {
     });
   });
   test.describe('重命名websocketMockNode节点', () => {
-    test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -528,7 +528,7 @@ test.describe('RenameNode', () => {
       const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '新WsMock节点名称' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
-    test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -566,7 +566,7 @@ test.describe('RenameNode', () => {
       const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: 'F2重命名后WsMock节点' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
-    test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -609,7 +609,7 @@ test.describe('RenameNode', () => {
       const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '更多操作重命名后WsMock节点' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
-    test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -652,7 +652,7 @@ test.describe('RenameNode', () => {
     });
   });
   test.describe('重命名folder节点', () => {
-    test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('active节点,点击节点右键,点击重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -689,7 +689,7 @@ test.describe('RenameNode', () => {
       const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '新文件夹名称' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
-    test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('active节点,F2重命名,输入名称,回车', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -724,7 +724,7 @@ test.describe('RenameNode', () => {
       const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: 'F2重命名后文件夹' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
-    test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('点击节点更多操作,点击重命名,输入名称,blur', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -764,7 +764,7 @@ test.describe('RenameNode', () => {
       const renamedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '更多操作重命名后文件夹' });
       await expect(renamedNode).toBeVisible({ timeout: 5000 });
     });
-    test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('节点名称未填写不允许重命名', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();

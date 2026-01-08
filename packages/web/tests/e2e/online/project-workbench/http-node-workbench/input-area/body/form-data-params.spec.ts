@@ -9,22 +9,14 @@ test.describe('FormDataParams', () => {
   // ========== stringOnlyFormdata: 类型全为string的formdata参数 ==========
   test.describe('StringOnlyFormdata', () => {
     // 测试用例1: formdata参数key输入值以后,如果不存在next节点,则自动新增一行数据,自动新增数据需要被选中
-    test('formdata参数key输入值以后自动新增一行数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('formdata参数key输入值以后自动新增一行数据', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       // 新增HTTP节点
-      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const fileNameInput = addFileDialog.locator('input').first();
-      await fileNameInput.fill('FormData自动新增测试');
-      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmAddBtn.click();
-      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      await createNode(contentPage, { nodeType: 'http', name: 'FormData自动新增测试' });
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
@@ -49,22 +41,14 @@ test.describe('FormDataParams', () => {
       expect(firstKeyValue).toBe('username');
     });
     // 测试用例2: formdata参数key,value,description输入值以后,调用echo接口返回结果正确
-    test('formdata参数key,value输入值以后调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('formdata参数key,value输入值以后调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       // 新增HTTP节点
-      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const fileNameInput = addFileDialog.locator('input').first();
-      await fileNameInput.fill('FormData发送测试');
-      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmAddBtn.click();
-      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      await createNode(contentPage, { nodeType: 'http', name: 'FormData发送测试' });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -109,7 +93,7 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('123456', { timeout: 10000 });
     });
     // 测试用例3: formdata参数key,value支持变量,调用echo接口返回结果正确
-    test('formdata参数key,value支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('formdata参数key,value支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -137,15 +121,7 @@ test.describe('FormDataParams', () => {
       await addBtn.click();
       await contentPage.waitForTimeout(500);
       // 新增HTTP节点
-      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const fileNameInput = addFileDialog.locator('input').first();
-      await fileNameInput.fill('FormData变量测试');
-      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmAddBtn.click();
-      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      await createNode(contentPage, { nodeType: 'http', name: 'FormData变量测试' });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -186,22 +162,14 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('token_abc123', { timeout: 10000 });
     });
     // 测试用例4: formdata参数key,value支持mock,调用echo接口返回结果正确
-    test('formdata参数key,value支持mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('formdata参数key,value支持mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       // 新增HTTP节点
-      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const fileNameInput = addFileDialog.locator('input').first();
-      await fileNameInput.fill('FormData Mock测试');
-      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmAddBtn.click();
-      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      await createNode(contentPage, { nodeType: 'http', name: 'FormData Mock测试' });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -244,7 +212,7 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('user_id', { timeout: 10000 });
     });
     // 测试用例5: formdata参数key,value支持混合变量,调用echo接口返回结果正确
-    test('formdata参数key,value支持混合变量,调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('formdata参数key,value支持混合变量,调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -267,15 +235,7 @@ test.describe('FormDataParams', () => {
       await addBtn.click();
       await contentPage.waitForTimeout(500);
       // 新增HTTP节点
-      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const fileNameInput = addFileDialog.locator('input').first();
-      await fileNameInput.fill('FormData混合变量测试');
-      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmAddBtn.click();
-      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      await createNode(contentPage, { nodeType: 'http', name: 'FormData混合变量测试' });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -316,22 +276,14 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('REQ_', { timeout: 10000 });
     });
     // 测试用例6: formdata参数是否发送未勾选那么当前
-    test('formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       // 新增HTTP节点
-      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const fileNameInput = addFileDialog.locator('input').first();
-      await fileNameInput.fill('FormData发送控制测试');
-      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmAddBtn.click();
-      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      await createNode(contentPage, { nodeType: 'http', name: 'FormData发送控制测试' });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -383,22 +335,14 @@ test.describe('FormDataParams', () => {
   // ========== fileOnlyFormdata: 类型全为file的formdata参数 ==========
   test.describe('FileOnlyFormdata', () => {
     // 测试用例1: value模式切换后要清空之前的数据
-    test('value模式切换后要清空之前的数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('value模式切换后要清空之前的数据', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       // 新增HTTP节点
-      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const fileNameInput = addFileDialog.locator('input').first();
-      await fileNameInput.fill('FileOnlyFormData模式切换测试');
-      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmAddBtn.click();
-      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      await createNode(contentPage, { nodeType: 'http', name: 'FileOnlyFormData模式切换测试' });
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
@@ -445,22 +389,14 @@ test.describe('FormDataParams', () => {
       await expect(fileText).not.toContainText('logo.png', { timeout: 5000 });
     });
     // 测试用例2: value如果为文件模式,选择文件,调用echo接口返回结果正确
-    test('value如果为文件模式选择文件调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('value如果为文件模式选择文件调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       // 新增HTTP节点
-      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const fileNameInput = addFileDialog.locator('input').first();
-      await fileNameInput.fill('FileOnlyFormData文件模式发送测试');
-      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmAddBtn.click();
-      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      await createNode(contentPage, { nodeType: 'http', name: 'FileOnlyFormData文件模式发送测试' });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -512,22 +448,14 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
     });
     // 测试用例3: value如果为文件模式,未选择文件,value输入框下方提示文件不存在
-    test('value如果为文件模式未选择文件时提示文件不存在', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('value如果为文件模式未选择文件时提示文件不存在', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       // 新增HTTP节点
-      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const fileNameInput = addFileDialog.locator('input').first();
-      await fileNameInput.fill('FileOnlyFormData文件模式未选文件测试');
-      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmAddBtn.click();
-      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      await createNode(contentPage, { nodeType: 'http', name: 'FileOnlyFormData文件模式未选文件测试' });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -575,7 +503,7 @@ test.describe('FormDataParams', () => {
       await expect(responseError).toBeVisible({ timeout: 10000 });
     });
     // 测试用例4: value如果为变量模式,并且值为文件类型变量,并且文件存在,调用echo接口返回结果正确
-    test('value如果为变量模式且文件存在调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('value如果为变量模式且文件存在调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -598,15 +526,7 @@ test.describe('FormDataParams', () => {
       await addBtn.click();
       await contentPage.waitForTimeout(500);
       // 新增HTTP节点
-      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const fileNameInput = addFileDialog.locator('input').first();
-      await fileNameInput.fill('FileOnlyFormData变量模式文件存在测试');
-      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmAddBtn.click();
-      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      await createNode(contentPage, { nodeType: 'http', name: 'FileOnlyFormData变量模式文件存在测试' });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -656,7 +576,7 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
     });
     // 测试用例5: value如果为变量模式,并且值为文件类型变量,并且文件不存在,提示文件不存在
-    test('value如果为变量模式且文件不存在时提示文件不存在', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('value如果为变量模式且文件不存在时提示文件不存在', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -679,15 +599,7 @@ test.describe('FormDataParams', () => {
       await addBtn.click();
       await contentPage.waitForTimeout(500);
       // 新增HTTP节点
-      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const fileNameInput = addFileDialog.locator('input').first();
-      await fileNameInput.fill('FileOnlyFormData变量模式文件不存在测试');
-      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmAddBtn.click();
-      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      await createNode(contentPage, { nodeType: 'http', name: 'FileOnlyFormData变量模式文件不存在测试' });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -734,22 +646,14 @@ test.describe('FormDataParams', () => {
       await expect(responseArea.getByTestId('response-error')).toBeVisible({ timeout: 10000 });
     });
     // 测试用例6: value如果为变量模式,并且值不是变量,提示文件不存在
-    test('value如果为变量模式但值不是变量时提示文件不存在', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('value如果为变量模式但值不是变量时提示文件不存在', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       // 新增HTTP节点
-      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const fileNameInput = addFileDialog.locator('input').first();
-      await fileNameInput.fill('FileOnlyFormData变量模式非变量值测试');
-      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmAddBtn.click();
-      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      await createNode(contentPage, { nodeType: 'http', name: 'FileOnlyFormData变量模式非变量值测试' });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -796,7 +700,7 @@ test.describe('FormDataParams', () => {
       await expect(responseArea.getByTestId('response-error')).toBeVisible({ timeout: 10000 });
     });
     // 测试用例7: value值合法,formdata参数key为变量,调用echo接口返回结果正确
-    test('formdata参数key为变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('formdata参数key为变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -819,15 +723,7 @@ test.describe('FormDataParams', () => {
       await addBtn.click();
       await contentPage.waitForTimeout(300);
       // 新增HTTP节点
-      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const fileNameInput = addFileDialog.locator('input').first();
-      await fileNameInput.fill('FileOnlyFormData key变量测试');
-      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmAddBtn.click();
-      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      await createNode(contentPage, { nodeType: 'http', name: 'FileOnlyFormData key变量测试' });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -880,22 +776,14 @@ test.describe('FormDataParams', () => {
       expect(responseText || '').not.toContain('{{upload_key}}');
     });
     // 测试用例8: value值合法,formdata参数key为mock,调用echo接口返回结果正确
-    test('formdata参数key为mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('formdata参数key为mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       // 新增HTTP节点
-      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const fileNameInput = addFileDialog.locator('input').first();
-      await fileNameInput.fill('FileOnlyFormData key mock测试');
-      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmAddBtn.click();
-      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      await createNode(contentPage, { nodeType: 'http', name: 'FileOnlyFormData key mock测试' });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -949,7 +837,7 @@ test.describe('FormDataParams', () => {
       expect(responseText || '').toContain('@id');
     });
     // 测试用例9: value值合法,formdata参数key为混合变量,调用echo接口返回结果正确
-    test('formdata参数key为混合变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('formdata参数key为混合变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -971,15 +859,7 @@ test.describe('FormDataParams', () => {
       await addBtn.click();
       await contentPage.waitForTimeout(500);
       // 新增HTTP节点
-      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const fileNameInput = addFileDialog.locator('input').first();
-      await fileNameInput.fill('FileOnlyFormData key 混合变量测试');
-      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmAddBtn.click();
-      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      await createNode(contentPage, { nodeType: 'http', name: 'FileOnlyFormData key 混合变量测试' });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -1033,22 +913,14 @@ test.describe('FormDataParams', () => {
       expect(responseText || '').not.toContain('{{service}}');
     });
     // 测试用例10: file类型formdata参数是否发送未勾选那么当前参数不会发送
-    test('file类型formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('file类型formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       // 新增HTTP节点
-      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const fileNameInput = addFileDialog.locator('input').first();
-      await fileNameInput.fill('FileOnlyFormData是否发送控制测试');
-      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmAddBtn.click();
-      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      await createNode(contentPage, { nodeType: 'http', name: 'FileOnlyFormData是否发送控制测试' });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -1116,22 +988,14 @@ test.describe('FormDataParams', () => {
   // ========== mixedFormdata: 类型为file和string的混合类型的formdata参数 ==========
   test.describe('MixedFormdata', () => {
     // 测试用例1: 存在string类型value和file类型value时候,调用echo接口返回结果正确
-    test('存在string类型value和file类型value时候调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('存在string类型value和file类型value时候调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       // 新增HTTP节点
-      const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const fileNameInput = addFileDialog.locator('input').first();
-      await fileNameInput.fill('MixedFormData发送测试');
-      const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmAddBtn.click();
-      await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+      await createNode(contentPage, { nodeType: 'http', name: 'MixedFormData发送测试' });
       // 设置请求URL
       const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
       await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);

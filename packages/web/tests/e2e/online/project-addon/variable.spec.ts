@@ -5,7 +5,7 @@ import path from 'path';
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('Variable', () => {
-  test('打开变量管理页面,显示新增变量表单和变量列表', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('打开变量管理页面,显示新增变量表单和变量列表', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -24,7 +24,7 @@ test.describe('Variable', () => {
     await expect(variableList).toBeVisible();
   });
 
-  test('新增string类型变量成功,变量列表中显示新增的变量', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('新增string类型变量成功,变量列表中显示新增的变量', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -50,7 +50,7 @@ test.describe('Variable', () => {
     await expect(variableTable).toContainText('string');
   });
 
-  test('新增number类型变量成功', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('新增number类型变量成功', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -81,7 +81,7 @@ test.describe('Variable', () => {
     await expect(variableTable).toContainText('number');
   });
 
-  test('新增boolean类型变量成功', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('新增boolean类型变量成功', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -112,7 +112,7 @@ test.describe('Variable', () => {
     await expect(variableTable).toContainText('boolean');
   });
 
-  test('新增重复变量名显示错误提示', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('新增重复变量名显示错误提示', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -140,7 +140,7 @@ test.describe('Variable', () => {
     await expect(errorMessage).toBeVisible({ timeout: 3000 });
   });
 
-  test('删除变量成功,变量从列表中移除', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('删除变量成功,变量从列表中移除', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -170,7 +170,7 @@ test.describe('Variable', () => {
     await expect(variableTable).not.toContainText('toBeDeleted');
   });
 
-  test('编辑变量成功,变量值更新', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('编辑变量成功,变量值更新', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -204,7 +204,7 @@ test.describe('Variable', () => {
     await expect(variableTable).toContainText('updated value');
   });
 
-  test('在请求Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('在请求Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -224,15 +224,7 @@ test.describe('Variable', () => {
     const addBtn = variablePage.locator('.left .el-button--primary');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '测试接口' });
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
@@ -264,7 +256,7 @@ test.describe('Variable', () => {
     await expect(responseBody).toContainText('variable_value', { timeout: 10000 });
   });
 
-  test('在请求URL中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('在请求URL中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -284,15 +276,7 @@ test.describe('Variable', () => {
     const addBtn = variablePage.locator('.left .el-button--primary');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('URL变量测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'URL变量测试' });
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill('{{baseUrl}}/echo');
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -302,7 +286,7 @@ test.describe('Variable', () => {
     await expect(responseBody).toContainText('/echo', { timeout: 10000 });
   });
 
-  test('在请求Headers中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('在请求Headers中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
     await loginAccount();
     await createProject();
@@ -321,15 +305,7 @@ test.describe('Variable', () => {
     const addBtn = variablePage.locator('.left .el-button--primary');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Headers变量测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Headers变量测试' });
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
@@ -348,7 +324,7 @@ test.describe('Variable', () => {
     await expect(responseBody).toContainText('Bearer test-token-123', { timeout: 10000 });
   });
 
-  test('在请求Params(Path/Query)中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('在请求Params(Path/Query)中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -376,15 +352,7 @@ test.describe('Variable', () => {
     await valueTextarea.fill('hello_query');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Params变量测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Params变量测试' });
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/users/{id}`);
     await contentPage.waitForTimeout(500);
@@ -448,15 +416,7 @@ test.describe('Variable', () => {
     }
     await expect(variablePage).toBeHidden({ timeout: 5000 });
 
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('公共请求头变量测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '公共请求头变量测试' });
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
 
@@ -559,15 +519,7 @@ test.describe('Variable', () => {
     }
     await expect(cookiePage).toBeHidden({ timeout: 5000 });
 
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Cookie变量测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Cookie变量测试' });
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -577,7 +529,7 @@ test.describe('Variable', () => {
     await expect(responseBody).toContainText('var_cookie=cookie_value_123', { timeout: 10000 });
   });
 
-  test('在Raw Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('在Raw Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -598,15 +550,7 @@ test.describe('Variable', () => {
     await addBtn.click();
     await contentPage.waitForTimeout(500);
 
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Raw变量测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Raw变量测试' });
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
@@ -636,7 +580,7 @@ test.describe('Variable', () => {
     await expect(responseBody).toContainText('raw_variable_value', { timeout: 10000 });
   });
 
-  test('在Urlencoded Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('在Urlencoded Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -657,15 +601,7 @@ test.describe('Variable', () => {
     await addBtn.click();
     await contentPage.waitForTimeout(500);
 
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Urlencoded变量测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Urlencoded变量测试' });
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
@@ -692,7 +628,7 @@ test.describe('Variable', () => {
     await expect(responseBody).toContainText('urlencoded_value', { timeout: 10000 });
   });
 
-  test('在Form-Data Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('在Form-Data Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -713,15 +649,7 @@ test.describe('Variable', () => {
     await addBtn.click();
     await contentPage.waitForTimeout(500);
 
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('FormData变量测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'FormData变量测试' });
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
@@ -777,15 +705,7 @@ test.describe('Variable', () => {
     await addBtn.click();
     await contentPage.waitForTimeout(500);
 
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Binary变量测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Binary变量测试' });
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
@@ -823,7 +743,7 @@ test.describe('Variable', () => {
     }
   });
 
-  test('新增any类型变量执行JavaScript表达式,动态时间戳', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('新增any类型变量执行JavaScript表达式,动态时间戳', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
     await loginAccount();
     await createProject();
@@ -854,21 +774,13 @@ test.describe('Variable', () => {
     await expect(variableTable).toContainText('timestamp');
     await expect(variableTable).toContainText('any');
   });
-  test('使用不存在的变量时保留原始文本', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用不存在的变量时保留原始文本', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('不存在变量测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '不存在变量测试' });
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     const methodSelect = contentPage.locator('[data-testid="method-select"]');

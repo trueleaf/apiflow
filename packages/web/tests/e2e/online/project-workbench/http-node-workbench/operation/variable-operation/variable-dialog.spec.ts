@@ -2,22 +2,14 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('VariableDialog', () => {
   // 测试用例1: 点击变量按钮打开变量管理页签,页签展示变量维护页面
-  test('点击变量按钮打开变量管理页签', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('点击变量按钮打开变量管理页签', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('变量弹窗测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '变量弹窗测试接口' });
     // 查找并点击变量管理按钮
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();
@@ -30,22 +22,14 @@ test.describe('VariableDialog', () => {
     await expect(confirmAddBtn2).toBeVisible({ timeout: 5000 });
   });
   // 测试用例2: 变量管理页签可关闭并再次打开
-  test('变量管理页签可关闭并再次打开', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('变量管理页签可关闭并再次打开', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('弹窗拖拽测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '弹窗拖拽测试接口' });
     // 打开变量管理弹窗
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();

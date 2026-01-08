@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('ResponseBasicInfo', () => {
   // 测试用例1: 未发送请求时,响应基本信息展示:状态码,时长,大小,格式显示为?图标
-  test('未发送请求时响应基本信息显示问号图标', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('未发送请求时响应基本信息显示问号图标', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('响应信息测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '响应信息测试接口' });
     // 验证响应摘要区域存在
     const responseSummary = contentPage.locator('.response-summary-view');
     await expect(responseSummary).toBeVisible({ timeout: 5000 });
@@ -36,22 +28,14 @@ test.describe('ResponseBasicInfo', () => {
     await expect(responseSummary).toContainText(/格式|Format/);
   });
   // 测试用例2: 发送请求成功,展示正确的http状态码和颜色
-  test('发送请求成功展示正确的状态码和颜色', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('发送请求成功展示正确的状态码和颜色', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('状态码测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '状态码测试接口' });
     // 测试200状态码 - 绿色
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
@@ -76,22 +60,14 @@ test.describe('ResponseBasicInfo', () => {
     await expect(status404).toBeVisible({ timeout: 5000 });
   });
   // 测试用例3: 发送请求成功,展示正确的时长
-  test('发送请求成功展示正确的响应时长', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('发送请求成功展示正确的响应时长', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('时长测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '时长测试接口' });
     // 发送快速响应请求
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
@@ -106,22 +82,14 @@ test.describe('ResponseBasicInfo', () => {
     await expect(responseSummary).toContainText(/\d+\s*(ms|s|毫秒|秒)/);
   });
   // 测试用例4: 发送请求成功,展示正确的返回大小
-  test('发送请求成功展示正确的返回大小', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('发送请求成功展示正确的返回大小', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('大小测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '大小测试接口' });
     // 发送请求
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
@@ -136,22 +104,14 @@ test.describe('ResponseBasicInfo', () => {
     await expect(responseSummary).toContainText(/\d+(\.\d+)?\s*(B|KB|MB|bytes|字节)/);
   });
   // 测试用例5: 发送请求成功,展示正确的返回格式
-  test('发送请求成功展示正确的返回格式', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('发送请求成功展示正确的返回格式', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('格式测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '格式测试接口' });
     // 发送请求
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();

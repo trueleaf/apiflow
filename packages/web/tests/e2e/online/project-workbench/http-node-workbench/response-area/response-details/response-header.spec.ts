@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('ResponseHeader', () => {
   // 测试用例1: 返回头正确展示
-  test('响应头正确展示', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('响应头正确展示', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('响应头测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '响应头测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -43,22 +35,14 @@ test.describe('ResponseHeader', () => {
     expect(hasHeaders || await responseTabs.isVisible()).toBeTruthy();
   });
   // 测试用例2: 响应头列表显示完整信息
-  test('响应头列表显示Content-Type等标准头', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('响应头列表显示Content-Type等标准头', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('响应头详情测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '响应头详情测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);

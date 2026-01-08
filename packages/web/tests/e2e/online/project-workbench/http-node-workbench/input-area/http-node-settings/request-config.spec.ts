@@ -4,7 +4,7 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('RequestConfig', () => {
   // 修改最大文本Body大小配置,验证超过限制时的处理
-  test('修改最大文本Body大小配置', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('修改最大文本Body大小配置', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -12,15 +12,7 @@ test.describe('RequestConfig', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
 
     // 创建HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await expect(addHttpBtn).toBeVisible({ timeout: 10000 });
-    await addHttpBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 10000 });
-    const nameInput = addFileDialog.locator('input').first();
-    await nameInput.fill('最大文本Body大小测试');
-    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmBtn.click();
+    await createNode(contentPage, { nodeType: 'http', name: '最大文本Body大小测试' });
 
     // 切换到设置标签
     const settingsTab = contentPage.locator('[data-testid="http-params-tab-settings"]');
@@ -37,7 +29,7 @@ test.describe('RequestConfig', () => {
     await maxBodySizeInput.fill('1');
   });
   // 修改最大原始Body大小配置,验证超过限制时的处理
-  test('修改最大原始Body大小配置', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('修改最大原始Body大小配置', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -45,15 +37,7 @@ test.describe('RequestConfig', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
 
     // 创建HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await expect(addHttpBtn).toBeVisible({ timeout: 10000 });
-    await addHttpBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 10000 });
-    const nameInput = addFileDialog.locator('input').first();
-    await nameInput.fill('最大原始Body大小测试');
-    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmBtn.click();
+    await createNode(contentPage, { nodeType: 'http', name: '最大原始Body大小测试' });
 
     // 切换到设置标签
     const settingsTab = contentPage.locator('[data-testid="http-params-tab-settings"]');
@@ -69,7 +53,7 @@ test.describe('RequestConfig', () => {
     await maxRawBodySizeInput.fill('1');
   });
   // 修改自定义User-Agent配置,发送请求后验证User-Agent已更改
-  test('修改自定义User-Agent配置', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('修改自定义User-Agent配置', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -77,15 +61,7 @@ test.describe('RequestConfig', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
 
     // 创建HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await expect(addHttpBtn).toBeVisible({ timeout: 10000 });
-    await addHttpBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 10000 });
-    const nameInput = addFileDialog.locator('input').first();
-    await nameInput.fill('自定义User-Agent测试');
-    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmBtn.click();
+    await createNode(contentPage, { nodeType: 'http', name: '自定义User-Agent测试' });
 
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
@@ -116,7 +92,7 @@ test.describe('RequestConfig', () => {
     await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 修改请求头值最大展示长度配置,验证请求头展示截断正确
-  test('修改请求头值最大展示长度配置', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('修改请求头值最大展示长度配置', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -124,15 +100,7 @@ test.describe('RequestConfig', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
 
     // 创建HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await expect(addHttpBtn).toBeVisible({ timeout: 10000 });
-    await addHttpBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 10000 });
-    const nameInput = addFileDialog.locator('input').first();
-    await nameInput.fill('请求头展示长度测试');
-    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmBtn.click();
+    await createNode(contentPage, { nodeType: 'http', name: '请求头展示长度测试' });
 
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');

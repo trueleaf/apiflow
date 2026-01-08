@@ -24,21 +24,13 @@ test.describe('Search', () => {
   });
 
   // 测试用例2: 搜索匹配节点名称
-  test('输入内容可以匹配节点名称', async ({ contentPage, clearCache, createProject }) => {
+  test('输入内容可以匹配节点名称', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
-    await addHttpBtn.click();
-    const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
-    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
-    await addApiDialog.locator('input').first().fill('未命名接口');
-    await addApiDialog.locator('.el-button--primary').last().click();
-    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '未命名接口' });
     // 验证节点存在
     const treeNode = contentPage.locator('.el-tree-node');
     await expect(treeNode.first()).toBeVisible({ timeout: 5000 });
@@ -52,21 +44,13 @@ test.describe('Search', () => {
   });
 
   // 测试用例3: 搜索匹配节点URL
-  test('输入内容可以匹配节点URL', async ({ contentPage, clearCache, createProject }) => {
+  test('输入内容可以匹配节点URL', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
-    await addHttpBtn.click();
-    const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
-    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
-    await addApiDialog.locator('input').first().fill('未命名接口');
-    await addApiDialog.locator('.el-button--primary').last().click();
-    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '未命名接口' });
     // 在URL输入框中输入URL
     const urlInput = contentPage.locator('[data-testid="http-request-url-input"] input');
     const urlInputVisible = await urlInput.isVisible();
@@ -86,21 +70,13 @@ test.describe('Search', () => {
   });
 
   // 测试用例4: 无搜索结果时节点树显示为空
-  test('无搜索结果时节点树不显示节点', async ({ contentPage, clearCache, createProject }) => {
+  test('无搜索结果时节点树不显示节点', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
-    await addHttpBtn.click();
-    const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
-    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
-    await addApiDialog.locator('input').first().fill('未命名接口');
-    await addApiDialog.locator('.el-button--primary').last().click();
-    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '未命名接口' });
     // 输入不存在的内容
     const searchInput = contentPage.locator('[data-testid="banner-search-input"] input');
     await searchInput.fill('xyz完全不存在的内容123abc');
@@ -113,21 +89,13 @@ test.describe('Search', () => {
   });
 
   // 测试用例5: 搜索结果中关键字高亮显示
-  test('搜索结果中关键字高亮显示', async ({ contentPage, clearCache, createProject }) => {
+  test('搜索结果中关键字高亮显示', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
-    await addHttpBtn.click();
-    const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
-    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
-    await addApiDialog.locator('input').first().fill('未命名接口');
-    await addApiDialog.locator('.el-button--primary').last().click();
-    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '未命名接口' });
     // 搜索关键字
     const searchInput = contentPage.locator('[data-testid="banner-search-input"] input');
     await searchInput.fill('未命名');

@@ -136,18 +136,13 @@ test.describe('SearchProject', () => {
   });
 
   // 测试用例3: 搜索条件功能验证
-  test('高级搜索可以按节点名称搜索', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+  test('高级搜索可以按节点名称搜索', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     const projectName = await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 添加一个HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
-    await addHttpBtn.click();
-    const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
-    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
-    await addApiDialog.locator('input').first().fill('未命名接口');
+    await createNode(contentPage, { nodeType: 'http', name: '未命名接口' });
     await addApiDialog.locator('.el-button--primary').last().click();
     await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForTimeout(500);

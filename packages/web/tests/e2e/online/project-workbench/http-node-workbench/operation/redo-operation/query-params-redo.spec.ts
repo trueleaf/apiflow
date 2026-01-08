@@ -2,22 +2,14 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('QueryParamsRedo', () => {
   // 测试用例1: query参数key输入值后撤销,再重做,值恢复到撤销前的状态
-  test('query参数key输入值后撤销再重做,值恢复到撤销前的状态', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('query参数key输入值后撤销再重做,值恢复到撤销前的状态', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Query参数重做测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Query参数重做测试' });
     // 确保选中当前HTTP节点（用于记录撤销/重做）
     const navTab = contentPage.locator('.nav .item').filter({ hasText: 'Query参数重做测试' }).first();
     await navTab.click();
@@ -60,22 +52,14 @@ test.describe('QueryParamsRedo', () => {
     await expect(keyInputs.first()).toHaveValue('page', { timeout: 5000 });
   });
   // 测试用例2: query参数拖拽后撤销,再重做,顺序恢复到撤销前的状态
-  test('query参数拖拽后撤销再重做,顺序恢复到撤销前的状态', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('query参数拖拽后撤销再重做,顺序恢复到撤销前的状态', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Query参数拖拽重做测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Query参数拖拽重做测试' });
     // 确保选中当前HTTP节点（用于记录撤销/重做）
     const navTab = contentPage.locator('.nav .item').filter({ hasText: 'Query参数拖拽重做测试' }).first();
     await navTab.click();

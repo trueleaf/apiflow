@@ -3,22 +3,14 @@ import { test, expect } from '../../../../../fixtures/electron-online.fixture';
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('PathParamsValidation', () => {
-  test('调用echo接口验证path参数是否正常返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('调用echo接口验证path参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Path参数测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Path参数测试接口' });
     // 设置请求URL包含path参数占位符
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/users/{userId}/posts/{postId}`);
@@ -56,22 +48,14 @@ test.describe('PathParamsValidation', () => {
     await expect(responseBody).toContainText('456', { timeout: 10000 });
   });
 
-  test('调用echo接口验证单个path参数是否正常返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('调用echo接口验证单个path参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('单个Path参数测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '单个Path参数测试' });
     // 设置请求URL包含单个path参数
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/items/{id}`);
@@ -97,22 +81,14 @@ test.describe('PathParamsValidation', () => {
     await expect(responseBody).toContainText('item_001', { timeout: 10000 });
   });
 
-  test('调用echo接口验证中文path参数是否正常返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('调用echo接口验证中文path参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('中文Path参数测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '中文Path参数测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/{param}`);
@@ -138,7 +114,7 @@ test.describe('PathParamsValidation', () => {
     await expect(responseBody).toContainText('param', { timeout: 10000 });
   });
 
-  test('调用echo接口验证使用变量的path参数是否正常返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('调用echo接口验证使用变量的path参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -161,15 +137,7 @@ test.describe('PathParamsValidation', () => {
     await addBtn.click();
     await contentPage.waitForTimeout(500);
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('变量Path参数测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '变量Path参数测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/users/{id}`);
@@ -194,22 +162,14 @@ test.describe('PathParamsValidation', () => {
     await expect(responseBody).toContainText('/echo/users/user_12345', { timeout: 10000 });
   });
 
-  test('调用echo接口验证多个path参数混合URL编码', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('调用echo接口验证多个path参数混合URL编码', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('多Path参数编码测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '多Path参数编码测试' });
     // 设置请求URL包含三个path参数
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/users/{userId}/posts/{postId}/comments/{commentId}`);

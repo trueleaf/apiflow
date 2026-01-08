@@ -2,22 +2,14 @@ import { test, expect } from '../../../../../fixtures/electron-online.fixture';
 
 test.describe('ResponseParams', () => {
   // 测试用例1: 返回参数可以新增,可以删除(但是必须保留一个),可以修改名称,可以修改状态码,可以数据类型
-  test('返回参数可以新增、删除、修改名称、状态码和数据类型', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('返回参数可以新增、删除、修改名称、状态码和数据类型', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('返回参数CRUD测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '返回参数CRUD测试接口' });
     // 切换到返回参数标签页
     const responseTab = contentPage.locator('[data-testid="http-params-tab-response"]');
     await responseTab.click();
@@ -58,22 +50,14 @@ test.describe('ResponseParams', () => {
     await expect(lastDeleteBtn).toBeHidden({ timeout: 5000 });
   });
   // 测试用例2: 允许选择常见响应码,也允许用户自定义100~999的响应码,不同大小响应码颜色不同
-  test('状态码选择和颜色显示正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('状态码选择和颜色显示正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('状态码测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '状态码测试接口' });
     // 切换到返回参数标签页
     const responseTab = contentPage.locator('[data-testid="http-params-tab-response"]');
     await responseTab.click();
@@ -104,22 +88,14 @@ test.describe('ResponseParams', () => {
     await expect(statusCodeGreen).toContainText('200', { timeout: 5000 });
   });
   // 测试用例3: 允许选择常见响应类型,也允许用户自定义响应类型,不同响应类型对应不同输入框
-  test('响应类型选择和对应输入框显示正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('响应类型选择和对应输入框显示正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('响应类型测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '响应类型测试接口' });
     // 切换到返回参数标签页
     const responseTab = contentPage.locator('[data-testid="http-params-tab-response"]');
     await responseTab.click();

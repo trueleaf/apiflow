@@ -2,22 +2,14 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('RequestMethodUndo', () => {
   // 测试用例1: 切换请求方法两次,点击撤销按钮,请求方法恢复到上一次的状态
-  test('切换请求方法后点击撤销按钮恢复', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('切换请求方法后点击撤销按钮恢复', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('请求方法撤销测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '请求方法撤销测试接口' });
     // 验证初始请求方法为GET
     const methodSelector = contentPage.locator('[data-testid="method-select"]').first();
     await expect(methodSelector).toContainText('GET', { timeout: 5000 });
@@ -48,22 +40,14 @@ test.describe('RequestMethodUndo', () => {
     await expect(methodSelector).toContainText('GET', { timeout: 5000 });
   });
   // 测试用例2: 切换请求方法两次,按ctrl+z,请求方法恢复到上一次的状态
-  test('切换请求方法后按ctrl+z快捷键恢复', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('切换请求方法后按ctrl+z快捷键恢复', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('请求方法快捷键撤销测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '请求方法快捷键撤销测试接口' });
     // 验证初始请求方法为GET
     const methodSelector = contentPage.locator('[data-testid="method-select"]').first();
     await expect(methodSelector).toContainText('GET', { timeout: 5000 });

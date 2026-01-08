@@ -2,22 +2,14 @@ import { test, expect } from '../../../../../fixtures/electron-online.fixture';
 
 test.describe('Remark', () => {
   // 测试用例1: 备注编辑器支持Markdown格式输入和预览
-  test('备注编辑器支持Markdown格式输入和预览', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('备注编辑器支持Markdown格式输入和预览', async ({ contentPage, clearCache, createProject, loginAccount, createNode }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Markdown备注测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'http', name: 'Markdown备注测试接口' });
     // 切换到备注标签页
     const remarksTab = contentPage.locator('[data-testid="http-params-tab-remarks"]');
     await remarksTab.click();
@@ -35,22 +27,14 @@ test.describe('Remark', () => {
     await expect(editorContent).toContainText('这是一段普通文本', { timeout: 5000 });
   });
   // 测试用例2: 输入普通文本后保存,刷新页面内容保持不变
-  test('输入普通文本后保存,刷新页面内容保持不变', async ({ contentPage, clearCache, createProject, loginAccount, reload }) => {
+  test('输入普通文本后保存,刷新页面内容保持不变', async ({ contentPage, clearCache, createProject, loginAccount, reload, createNode }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('备注持久化测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'http', name: '备注持久化测试接口' });
     // 切换到备注标签页
     const remarksTab = contentPage.locator('[data-testid="http-params-tab-remarks"]');
     await remarksTab.click();
@@ -79,22 +63,14 @@ test.describe('Remark', () => {
     await expect(editorContentAfterReload).toContainText(testRemark, { timeout: 5000 });
   });
   // 测试用例3: 输入Markdown标题(# 标题)正确渲染为标题样式
-  test('输入Markdown标题正确渲染为标题样式', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('输入Markdown标题正确渲染为标题样式', async ({ contentPage, clearCache, createProject, loginAccount, createNode }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Markdown标题测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'http', name: 'Markdown标题测试接口' });
     // 切换到备注标签页
     const remarksTab = contentPage.locator('[data-testid="http-params-tab-remarks"]');
     await remarksTab.click();
@@ -113,22 +89,14 @@ test.describe('Remark', () => {
     await expect(h2Element).toContainText('二级标题', { timeout: 5000 });
   });
   // 测试用例4: 输入Markdown粗体(**粗体**)正确渲染为粗体样式
-  test('输入Markdown粗体正确渲染为粗体样式', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('输入Markdown粗体正确渲染为粗体样式', async ({ contentPage, clearCache, createProject, loginAccount, createNode }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Markdown粗体测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'http', name: 'Markdown粗体测试接口' });
     // 切换到备注标签页
     const remarksTab = contentPage.locator('[data-testid="http-params-tab-remarks"]');
     await remarksTab.click();
@@ -148,22 +116,14 @@ test.describe('Remark', () => {
     await expect(strongElement).toContainText('粗体文本', { timeout: 5000 });
   });
   // 测试用例5: 输入Markdown链接([文字](url))正确渲染为可点击链接
-  test('输入Markdown链接正确渲染为可点击链接', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('输入Markdown链接正确渲染为可点击链接', async ({ contentPage, clearCache, createProject, loginAccount, createNode }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Markdown链接测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'http', name: 'Markdown链接测试接口' });
     // 切换到备注标签页
     const remarksTab = contentPage.locator('[data-testid="http-params-tab-remarks"]');
     await remarksTab.click();
@@ -187,22 +147,14 @@ test.describe('Remark', () => {
     await expect(linkElement).toHaveAttribute('href', 'https://example.com');
   });
   // 测试用例6: 输入Markdown代码块正确渲染并支持语
-  test('输入Markdown代码块正确渲染', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('输入Markdown代码块正确渲染', async ({ contentPage, clearCache, createProject, loginAccount, createNode }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Markdown代码块测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'http', name: 'Markdown代码块测试接口' });
     // 切换到备注标签页
     const remarksTab = contentPage.locator('[data-testid="http-params-tab-remarks"]');
     await remarksTab.click();
@@ -220,22 +172,14 @@ test.describe('Remark', () => {
     await expect(codeElement.first()).toBeVisible({ timeout: 5000 });
   });
   // 测试用例7: 备注内容变更后出现未保存小圆点,保存后小圆点消失
-  test('备注内容变更后出现未保存小圆点,保存后小圆点消失', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('备注内容变更后出现未保存小圆点,保存后小圆点消失', async ({ contentPage, clearCache, createProject, loginAccount, createNode }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('未保存标记测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'http', name: '未保存标记测试接口' });
     // 先保存确保初始状态没有未保存标记
     const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
@@ -259,22 +203,14 @@ test.describe('Remark', () => {
     await expect(unsavedIndicator).not.toBeVisible({ timeout: 5000 });
   });
   // 测试用例8: 备注支持撤销操作,ctrl+z可以撤销输入
-  test('备注支持撤销操作,ctrl+z可以撤销输入', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('备注支持撤销操作,ctrl+z可以撤销输入', async ({ contentPage, clearCache, createProject, loginAccount, createNode }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('撤销操作测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'http', name: '撤销操作测试接口' });
     // 切换到备注标签页
     const remarksTab = contentPage.locator('[data-testid="http-params-tab-remarks"]');
     await remarksTab.click();
@@ -297,22 +233,14 @@ test.describe('Remark', () => {
     await expect(editorContent).not.toContainText('第二段内容', { timeout: 5000 });
   });
   // 测试用例9: 备注支持重做操作,ctrl+shift+z可以重做撤销的操作
-  test('备注支持重做操作,ctrl+shift+z可以重做撤销的操作', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('备注支持重做操作,ctrl+shift+z可以重做撤销的操作', async ({ contentPage, clearCache, createProject, loginAccount, createNode }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('重做操作测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'http', name: '重做操作测试接口' });
     // 切换到备注标签页
     const remarksTab = contentPage.locator('[data-testid="http-params-tab-remarks"]');
     await remarksTab.click();

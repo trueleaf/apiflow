@@ -4,7 +4,7 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('CustomHeaders', () => {
   // 用户输入请求头key,如果匹配上预设的请求头,会出现请求头下拉列表
-  test('请求头key输入匹配时出现下拉列表并支持键盘选择', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('请求头key输入匹配时出现下拉列表并支持键盘选择', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -12,14 +12,7 @@ test.describe('CustomHeaders', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addHttpBtn.click();
-    await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    const nameInput = addFileDialog.locator('input').first();
-    await nameInput.fill('请求头下拉列表测试');
-    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmBtn.click();
+    await createNode(contentPage, { nodeType: 'http', name: '请求头下拉列表测试' });
     await contentPage.waitForTimeout(500);
     // 切换到Headers标签
     const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
@@ -42,7 +35,7 @@ test.describe('CustomHeaders', () => {
     expect(inputValue.toLowerCase()).toContain('auth');
   });
   // 用户输入请求头如果key相同(key忽略大小写比较)则会覆盖默认请求头
-  test('自定义请求头key忽略大小写覆盖默认请求头', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('自定义请求头key忽略大小写覆盖默认请求头', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -50,14 +43,7 @@ test.describe('CustomHeaders', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addHttpBtn.click();
-    await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    const nameInput = addFileDialog.locator('input').first();
-    await nameInput.fill('请求头覆盖测试');
-    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmBtn.click();
+    await createNode(contentPage, { nodeType: 'http', name: '请求头覆盖测试' });
     await contentPage.waitForTimeout(500);
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
@@ -89,7 +75,7 @@ test.describe('CustomHeaders', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
   });
   // header参数key输入值以后,如果不存在next节点,则自动新增一行数据
-  test('header参数key输入后自动新增一行', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('header参数key输入后自动新增一行', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -97,14 +83,7 @@ test.describe('CustomHeaders', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addHttpBtn.click();
-    await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    const nameInput = addFileDialog.locator('input').first();
-    await nameInput.fill('Header自动新增行测试');
-    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmBtn.click();
+    await createNode(contentPage, { nodeType: 'http', name: 'Header自动新增行测试' });
     await contentPage.waitForTimeout(500);
     // 切换到Headers标签
     const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
@@ -127,7 +106,7 @@ test.describe('CustomHeaders', () => {
     expect(newRowCount).toBeGreaterThan(initialRowCount);
   });
   // header参数key,value输入值以后,调用echo接口验证header参数正确发送
-  test('自定义header参数正确发送到服务器', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('自定义header参数正确发送到服务器', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -135,14 +114,7 @@ test.describe('CustomHeaders', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addHttpBtn.click();
-    await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    const nameInput = addFileDialog.locator('input').first();
-    await nameInput.fill('Header发送测试');
-    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmBtn.click();
+    await createNode(contentPage, { nodeType: 'http', name: 'Header发送测试' });
     await contentPage.waitForTimeout(500);
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
@@ -174,7 +146,7 @@ test.describe('CustomHeaders', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
   });
   // header参数key,value支持变量替换
-  test('header参数支持变量替换', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('header参数支持变量替换', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -182,14 +154,7 @@ test.describe('CustomHeaders', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addHttpBtn.click();
-    await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    const nameInput = addFileDialog.locator('input').first();
-    await nameInput.fill('Header变量替换测试');
-    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmBtn.click();
+    await createNode(contentPage, { nodeType: 'http', name: 'Header变量替换测试' });
     await contentPage.waitForTimeout(500);
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
@@ -221,7 +186,7 @@ test.describe('CustomHeaders', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
   });
   // header参数是否发送未勾选那么当前参数不会发送
-  test('未勾选的header参数不会发送', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('未勾选的header参数不会发送', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -229,14 +194,7 @@ test.describe('CustomHeaders', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addHttpBtn.click();
-    await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    const nameInput = addFileDialog.locator('input').first();
-    await nameInput.fill('Header是否发送测试');
-    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmBtn.click();
+    await createNode(contentPage, { nodeType: 'http', name: 'Header是否发送测试' });
     await contentPage.waitForTimeout(500);
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');

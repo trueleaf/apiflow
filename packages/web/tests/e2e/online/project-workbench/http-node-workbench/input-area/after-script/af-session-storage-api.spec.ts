@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('AfSessionStorageApi', () => {
   // 使用af.sessionStorage.set(key, value)存储会话数据
-  test('使用af.sessionStorage.set(key, value)存储会话数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.sessionStorage.set(key, value)存储会话数据', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('sessionStorage设置测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'sessionStorage设置测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -42,22 +34,14 @@ test.describe('AfSessionStorageApi', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 使用af.sessionStorage.get(key)获取会话数据
-  test('使用af.sessionStorage.get(key)获取会话数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.sessionStorage.get(key)获取会话数据', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('sessionStorage获取测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'sessionStorage获取测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -80,22 +64,14 @@ test.describe('AfSessionStorageApi', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 使用af.sessionStorage.remove(key)删除会话数据
-  test('使用af.sessionStorage.remove(key)删除会话数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.sessionStorage.remove(key)删除会话数据', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('sessionStorage删除测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'sessionStorage删除测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -118,22 +94,14 @@ test.describe('AfSessionStorageApi', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 使用af.sessionStorage.clear()清空所有会话数据
-  test('使用af.sessionStorage.clear()清空所有会话数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.sessionStorage.clear()清空所有会话数据', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('sessionStorage清空测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'sessionStorage清空测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);

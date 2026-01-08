@@ -6,7 +6,7 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('BinaryParams', () => {
   // 变量模式,若没有输入有效变量,发送返回值中正确提示发送被终止
-  test('变量模式下无效变量发送被阻止', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('变量模式下无效变量发送被阻止', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -14,15 +14,7 @@ test.describe('BinaryParams', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const nameInput = addFileDialog.locator('input').first();
-    await nameInput.fill('Binary变量模式无效变量测试');
-    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Binary变量模式无效变量测试' });
     // 设置POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
@@ -60,7 +52,7 @@ test.describe('BinaryParams', () => {
     await expect(errorMessage).toBeVisible({ timeout: 10000 });
   });
   // 变量模式,输入有效变量,请求头自动添加contentType并正确发送
-  test('变量模式下有效变量正确发送', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('变量模式下有效变量正确发送', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -75,15 +67,7 @@ test.describe('BinaryParams', () => {
     }
     fs.writeFileSync(testFilePath, 'test binary content');
     // 创建HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const nameInput = addFileDialog.locator('input').first();
-    await nameInput.fill('Binary变量模式有效变量测试');
-    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Binary变量模式有效变量测试' });
     // 打开变量管理页签并创建变量
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();
@@ -146,7 +130,7 @@ test.describe('BinaryParams', () => {
     }
   });
   // 文件模式,未选择文件,发送返回值中正确提示发送被终止
-  test('文件模式下未选择文件发送被阻止', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('文件模式下未选择文件发送被阻止', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -154,15 +138,7 @@ test.describe('BinaryParams', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const nameInput = addFileDialog.locator('input').first();
-    await nameInput.fill('Binary文件模式未选择文件测试');
-    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Binary文件模式未选择文件测试' });
     // 设置POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
@@ -196,7 +172,7 @@ test.describe('BinaryParams', () => {
     await expect(errorMessage).toBeVisible({ timeout: 10000 });
   });
   // 文件模式,选择正确的文件,请求头自动添加contentType并正确发送
-  test('文件模式下选择文件正确发送', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('文件模式下选择文件正确发送', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -213,15 +189,7 @@ test.describe('BinaryParams', () => {
     const pngHeader = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
     fs.writeFileSync(testFilePath, pngHeader);
     // 创建HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const nameInput = addFileDialog.locator('input').first();
-    await nameInput.fill('Binary文件模式选择文件测试');
-    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Binary文件模式选择文件测试' });
     // 设置POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();

@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('RequestUrlDisplay', () => {
   // 测试用例1: url地址展示encode后的结果
-  test('url地址展示encode后的结果', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('url地址展示encode后的结果', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('URL编码测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'URL编码测试' });
     // 输入包含中文的URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?name=测试`);
@@ -33,22 +25,14 @@ test.describe('RequestUrlDisplay', () => {
     await expect(urlDisplay).toContainText('%', { timeout: 5000 });
   });
   // 测试用例2: 如果url地址存在异常需要提示tooltip
-  test('url地址存在异常时需要提示', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('url地址存在异常时需要提示', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('URL异常提示测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'URL异常提示测试' });
     // 输入包含未定义变量的URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/{{undefinedVar}}`);
@@ -63,22 +47,14 @@ test.describe('RequestUrlDisplay', () => {
     await expect(warningIcon).toBeVisible({ timeout: 5000 });
   });
   // 测试用例3: url如果没有http://或者https://开头自动添加http://
-  test('url没有协议时自动添加http前缀', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('url没有协议时自动添加http前缀', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('自动添加协议测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '自动添加协议测试' });
     // 输入不带协议的URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`127.0.0.1:${MOCK_SERVER_PORT}/echo`);

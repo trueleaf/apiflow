@@ -2,30 +2,16 @@ import { test, expect } from '../../../../fixtures/electron-online.fixture';
 
 test.describe('TabDrag', () => {
   // 测试用例1: 拖拽tab页签改变顺序
-  test('拖拽tab页签改变顺序', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('拖拽tab页签改变顺序', async ({ contentPage, clearCache, createProject, loginAccount, createNode }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增多个HTTP节点
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('接口1');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
-    await addFileBtn.click();
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('接口2');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
-    await addFileBtn.click();
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('接口3');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '接口1' });
+    await createNode(contentPage, { nodeType: 'http', name: '接口2' });
+    await createNode(contentPage, { nodeType: 'http', name: '接口3' });
     // 获取初始顺序
     const tabs = contentPage.locator('.nav .drag-wrap .item');
     const initialFirstTabText = await tabs.first().locator('.item-text').textContent();
@@ -44,25 +30,15 @@ test.describe('TabDrag', () => {
     expect(newFirstTabText).toContain('接口3');
   });
   // 测试用例2: 拖拽tab页签后激活状态保持
-  test('拖拽tab页签后激活状态保持', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('拖拽tab页签后激活状态保持', async ({ contentPage, clearCache, createProject, loginAccount, createNode }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增两个HTTP节点
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('拖拽A');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
-    await addFileBtn.click();
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('拖拽B');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '拖拽A' });
+    await createNode(contentPage, { nodeType: 'http', name: '拖拽B' });
     // 选中拖拽A
     const tabA = contentPage.locator('.nav .item').filter({ hasText: '拖拽A' });
     await tabA.click();
@@ -81,22 +57,16 @@ test.describe('TabDrag', () => {
     await expect(activeTab).toContainText('拖拽A');
   });
   // 测试用例3: 拖拽后页签数量不变
-  test('拖拽后页签数量不变', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('拖拽后页签数量不变', async ({ contentPage, clearCache, createProject, loginAccount, createNode }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增三个HTTP节点
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
-    for (let i = 1; i <= 3; i++) {
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      await addFileDialog.locator('input').first().fill(`数量测试${i}`);
-      await addFileDialog.locator('.el-button--primary').last().click();
-      await contentPage.waitForTimeout(500);
-    }
+    await createNode(contentPage, { nodeType: 'http', name: '数量测试1' });
+    await createNode(contentPage, { nodeType: 'http', name: '数量测试2' });
+    await createNode(contentPage, { nodeType: 'http', name: '数量测试3' });
     // 获取初始tab数量
     const initialCount = await contentPage.locator('.nav .drag-wrap .item').count();
     expect(initialCount).toBe(3);
@@ -113,20 +83,14 @@ test.describe('TabDrag', () => {
     expect(finalCount).toBe(initialCount);
   });
   // 测试用例4: 拖拽单个tab时无变化
-  test('只有单个tab时拖拽无变化', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('只有单个tab时拖拽无变化', async ({ contentPage, clearCache, createProject, loginAccount, createNode }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增一个HTTP节点
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('单个拖拽测试');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '单个拖拽测试' });
     // 验证只有一个tab
     const tabCount = await contentPage.locator('.nav .drag-wrap .item').count();
     expect(tabCount).toBe(1);
@@ -142,25 +106,15 @@ test.describe('TabDrag', () => {
     await expect(tab).toContainText('单个拖拽测试');
   });
   // 测试用例5: 拖拽后固定状态保持
-  test('拖拽后固定状态保持', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('拖拽后固定状态保持', async ({ contentPage, clearCache, createProject, loginAccount, createNode }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增两个HTTP节点（新增时为固定状态）
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('固定状态A');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
-    await addFileBtn.click();
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('固定状态B');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '固定状态A' });
+    await createNode(contentPage, { nodeType: 'http', name: '固定状态B' });
     // 验证A是固定状态
     const tabA = contentPage.locator('.nav .item').filter({ hasText: '固定状态A' });
     const itemTextA = tabA.locator('.item-text');

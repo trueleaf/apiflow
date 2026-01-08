@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('LayoutOperation', () => {
   // 测试用例1: 点击水平布局按钮,请求区域和响应区域左右排列
-  test('点击水平布局按钮,请求区域和响应区域左右排列', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('点击水平布局按钮,请求区域和响应区域左右排列', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('水平布局测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '水平布局测试' });
     // 点击布局下拉按钮
     const layoutDropdown = contentPage.locator('[data-testid="http-params-layout-dropdown"]');
     await layoutDropdown.click();
@@ -44,22 +36,14 @@ test.describe('LayoutOperation', () => {
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
   });
   // 测试用例2: 点击垂直布局按钮,请求区域和响应区域上下排列
-  test('点击垂直布局按钮,请求区域和响应区域上下排列', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('点击垂直布局按钮,请求区域和响应区域上下排列', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('垂直布局测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '垂直布局测试' });
     // 点击布局下拉按钮
     const layoutDropdown = contentPage.locator('[data-testid="http-params-layout-dropdown"]');
     await layoutDropdown.click();
@@ -77,22 +61,14 @@ test.describe('LayoutOperation', () => {
     await expect(requestLayout).toHaveClass(/vertical/, { timeout: 5000 });
   });
   // 测试用例3: 切换布局后刷新页面,布局保持不变
-  test('切换布局后刷新页面,布局保持不变', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('切换布局后刷新页面,布局保持不变', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('布局持久化测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '布局持久化测试' });
     // 点击布局下拉按钮,切换到上下布局
     const layoutDropdown = contentPage.locator('[data-testid="http-params-layout-dropdown"]');
     await layoutDropdown.click();

@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('FormdataBodyValidation', () => {
   // 测试用例1: 调用echo接口验证常规formdata是否正常返回,content-type是否设置正确
-  test('调用echo接口验证常规formdata是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('调用echo接口验证常规formdata是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('FormData测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'FormData测试接口' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -71,7 +63,7 @@ test.describe('FormdataBodyValidation', () => {
   });
 
   // 测试用例2: 调用echo接口验证使用变量的formdata是否正常返回,content-type是否设置正确
-  test('调用echo接口验证使用变量的formdata是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('调用echo接口验证使用变量的formdata是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -99,15 +91,7 @@ test.describe('FormdataBodyValidation', () => {
     await addBtn.click();
     await contentPage.waitForTimeout(500);
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('FormData变量测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'FormData变量测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -150,22 +134,14 @@ test.describe('FormdataBodyValidation', () => {
   });
 
   // 测试用例3: 调用echo接口验证使用mock的formdata是否正常返回,content-type是否设置正确
-  test('调用echo接口验证使用mock的formdata是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('调用echo接口验证使用mock的formdata是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('FormData Mock测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'FormData Mock测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);

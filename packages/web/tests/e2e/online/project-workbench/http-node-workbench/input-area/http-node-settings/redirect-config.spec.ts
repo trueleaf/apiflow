@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('RedirectConfig', () => {
   // 测试用例1: 开启自动跟随重定向时,请求自动跟随重定向并返回最终响应
-  test('开启自动跟随重定向时,请求自动跟随重定向并返回最终响应', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('开启自动跟随重定向时,请求自动跟随重定向并返回最终响应', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('自动跟随重定向测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '自动跟随重定向测试接口' });
     // 切换到设置标签页
     const settingsTab = contentPage.locator('[data-testid="http-params-tab-settings"]');
     await settingsTab.click();
@@ -48,22 +40,14 @@ test.describe('RedirectConfig', () => {
     await expect(responseBody).toContainText('method', { timeout: 10000 });
   });
   // 测试用例2: 关闭自动跟随重定向时,请求返回重定向响应不继续跟随
-  test('关闭自动跟随重定向时,请求返回重定向响应不继续跟随', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('关闭自动跟随重定向时,请求返回重定向响应不继续跟随', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('禁用重定向测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '禁用重定向测试接口' });
     // 切换到设置标签页
     const settingsTab = contentPage.locator('[data-testid="http-params-tab-settings"]');
     await settingsTab.click();
@@ -89,22 +73,14 @@ test.describe('RedirectConfig', () => {
     await expect(statusCodeArea).toContainText('302', { timeout: 10000 });
   });
   // 测试用例3: 修改最大重定向次数配置,超过次数后停止重定向并提示
-  test('修改最大重定向次数配置,超过次数后停止重定向并提示', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('修改最大重定向次数配置,超过次数后停止重定向并提示', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('最大重定向次数测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '最大重定向次数测试接口' });
     // 切换到设置标签页
     const settingsTab = contentPage.locator('[data-testid="http-params-tab-settings"]');
     await settingsTab.click();

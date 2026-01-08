@@ -10,6 +10,7 @@ type ElectronFixtures = {
   contentPage: Page;
   clearCache: () => Promise<void>;
   createProject: (name?: string) => Promise<string>;
+  createNode: (contentPage: Page, options: { nodeType: 'http' | 'httpMock' | 'websocket' | 'folder', name?: string, pid?: string }) => Promise<string>;
   loginAccount: (options?: { loginName?: string; password?: string }) => Promise<void>;
   jumpToSettings: () => Promise<void>;
   reload: () => Promise<void>;
@@ -113,6 +114,68 @@ export const test = base.extend<ElectronFixtures>({
       await expect(projectDialog).toBeHidden({ timeout: 5000 });
       await topBarPage.waitForTimeout(500);
       return projectName;
+    };
+    await use(create);
+  },
+  // 创建节点
+  createNode: async ({ contentPage }, use) => {
+    const create = async (page: Page, options: { nodeType: 'http' | 'httpMock' | 'websocket' | 'folder', name?: string, pid?: string }) => {
+      const { nodeType, name, pid } = options;
+      const nodeName = name || `测试节点-${Date.now()}`;
+      if (pid) {
+        const parentNode = page.locator(`[data-test-node-id="${pid}"]`);
+        await expect(parentNode).toBeVisible({ timeout: 5000 });
+        await parentNode.click({ button: 'right' });
+        const contextMenu = page.locator('.s-contextmenu');
+        await expect(contextMenu).toBeVisible({ timeout: 5000 });
+        if (nodeType === 'folder') {
+          const newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
+          await newFolderItem.click();
+        } else if (nodeType === 'http') {
+          const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
+          await newInterfaceItem.click();
+        } else if (nodeType === 'websocket') {
+          const newWebsocketItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建WebSocket/ });
+          await newWebsocketItem.click();
+        } else if (nodeType === 'httpMock') {
+          const newMockItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建Mock/ });
+          await newMockItem.click();
+        }
+      } else {
+        if (nodeType === 'http') {
+          const addFileBtn = page.getByTestId('banner-add-http-btn');
+          await addFileBtn.click();
+        } else if (nodeType === 'folder') {
+          const treeWrap = page.locator('.tree-wrap');
+          await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
+          const contextMenu = page.locator('.s-contextmenu');
+          await expect(contextMenu).toBeVisible({ timeout: 5000 });
+          const newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
+          await newFolderItem.click();
+        } else if (nodeType === 'websocket') {
+          const addWebsocketBtn = page.getByTestId('banner-add-websocket-btn');
+          await addWebsocketBtn.click();
+        } else if (nodeType === 'httpMock') {
+          const addMockBtn = page.getByTestId('banner-add-mock-btn');
+          await addMockBtn.click();
+        }
+      }
+      const dialogPattern = nodeType === 'folder' ? /新建文件夹|新增文件夹/ : nodeType === 'http' ? /新建接口|新增接口/ : nodeType === 'websocket' ? /新建WebSocket|新增WebSocket/ : /新建Mock|新增Mock/;
+      const dialog = page.locator('.el-dialog').filter({ hasText: dialogPattern });
+      await expect(dialog).toBeVisible({ timeout: 5000 });
+      const nameInput = dialog.locator('input').first();
+      await nameInput.fill(nodeName);
+      const confirmBtn = dialog.locator('.el-button--primary').last();
+      await confirmBtn.click();
+      await expect(dialog).toBeHidden({ timeout: 5000 });
+      await page.waitForTimeout(500);
+      const createdNode = page.locator('.custom-tree-node').filter({ hasText: new RegExp(`^${nodeName}`) }).first();
+      await expect(createdNode).toBeVisible({ timeout: 5000 });
+      const nodeId = await createdNode.getAttribute('data-test-node-id');
+      if (!nodeId) {
+        throw new Error(`创建节点失败：无法获取 nodeId`);
+      }
+      return nodeId;
     };
     await use(create);
   },

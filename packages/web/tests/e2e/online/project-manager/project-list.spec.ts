@@ -258,7 +258,7 @@ test.describe('ProjectList', () => {
     await expect(restoredProjectName).toContainText(projectName);
   });
 
-  test('接口数量需要正确展示,folder节点不计入接口总数', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('接口数量需要正确展示,folder节点不计入接口总数', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount, createNode }) => {
     const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache, reload);
     await loginAccount();
     await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
@@ -270,95 +270,40 @@ test.describe('ProjectList', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const bannerTree = contentPage.locator('[data-testid="banner-doc-tree"]');
     await expect(bannerTree).toBeVisible({ timeout: 5000 });
-    const addFolderBtn = contentPage.locator('[data-testid="banner-add-folder-btn"]').first();
-    const addApiBtn = contentPage.locator('[data-testid="banner-add-http-btn"]').first();
-    const addFolderDialog = contentPage.locator('[data-testid="add-folder-dialog"]');
-    const addApiDialog = contentPage.locator('.el-dialog:has(.add-file-dialog__body)');
-    const contextmenu = contentPage.locator('[data-testid="contextmenu"]');
-    const ctxAddFolderItem = contentPage.locator('[data-testid="contextmenu-item-新建文件夹"], [data-testid="contextmenu-item-New Folder"]');
-    const ctxAddApiItem = contentPage.locator('[data-testid="contextmenu-item-新建接口"], [data-testid="contextmenu-item-New Interface"]');
+    
+    // 创建3个根目录folder：A、B、C
     const rootFolderAName = `A-${Date.now()}`;
     const rootFolderBName = `B-${Date.now()}`;
     const rootFolderCName = `C-${Date.now()}`;
+    const folderAId = await createNode(contentPage, { nodeType: 'folder', name: rootFolderAName });
+    const folderBId = await createNode(contentPage, { nodeType: 'folder', name: rootFolderBName });
+    await createNode(contentPage, { nodeType: 'folder', name: rootFolderCName });
+    
+    // 在folder A下创建子folder A-1
     const folderA1Name = `A-1-${Date.now()}`;
+    const folderA1Id = await createNode(contentPage, { nodeType: 'folder', name: folderA1Name, pid: folderAId });
+    
+    // 在A-1下创建子folder A-1-1
     const folderA111Name = `A-1-1-${Date.now()}`;
+    const folderA111Id = await createNode(contentPage, { nodeType: 'folder', name: folderA111Name, pid: folderA1Id });
+    
+    // 创建1个根HTTP节点
     const rootHttpName = `HTTP-${Date.now()}`;
+    await createNode(contentPage, { nodeType: 'http', name: rootHttpName });
+    
+    // 在folder A下创建WebSocket节点
     const wsName = `WebSocket-${Date.now()}`;
+    await createNode(contentPage, { nodeType: 'websocket', name: wsName, pid: folderAId });
+    
+    // 在A-1-1下创建HTTPMock节点
     const httpMockName = `HTTPMock-${Date.now()}`;
+    await createNode(contentPage, { nodeType: 'httpMock', name: httpMockName, pid: folderA111Id });
+    
+    // 在folder B下创建WebSocketMock节点 (使用手动方式，因为createNode不支持websocketMock)
     const wsMockName = `WebSocketMock-${Date.now()}`;
-    await expect(addFolderBtn).toBeVisible({ timeout: 5000 });
-    await addFolderBtn.click();
-    await expect(addFolderDialog).toBeVisible({ timeout: 5000 });
-    await addFolderDialog.locator('[data-testid="add-folder-name-input"] input').fill(rootFolderAName);
-    await addFolderDialog.locator('[data-testid="add-folder-confirm-btn"]').click();
-    await expect(addFolderDialog).toBeHidden({ timeout: 5000 });
-    await expect(bannerTree).toContainText(rootFolderAName);
-    await addFolderBtn.click();
-    await expect(addFolderDialog).toBeVisible({ timeout: 5000 });
-    await addFolderDialog.locator('[data-testid="add-folder-name-input"] input').fill(rootFolderBName);
-    await addFolderDialog.locator('[data-testid="add-folder-confirm-btn"]').click();
-    await expect(addFolderDialog).toBeHidden({ timeout: 5000 });
-    await expect(bannerTree).toContainText(rootFolderBName);
-    await addFolderBtn.click();
-    await expect(addFolderDialog).toBeVisible({ timeout: 5000 });
-    await addFolderDialog.locator('[data-testid="add-folder-name-input"] input').fill(rootFolderCName);
-    await addFolderDialog.locator('[data-testid="add-folder-confirm-btn"]').click();
-    await expect(addFolderDialog).toBeHidden({ timeout: 5000 });
-    await expect(bannerTree).toContainText(rootFolderCName);
-    const rootFolderARow = bannerTree.locator('.el-tree-node__content', { hasText: rootFolderAName }).first();
-    await rootFolderARow.scrollIntoViewIfNeeded();
-    await rootFolderARow.click({ button: 'right' });
-    await expect(contextmenu).toBeVisible({ timeout: 5000 });
-    await expect(ctxAddFolderItem).toBeVisible({ timeout: 5000 });
-    await ctxAddFolderItem.click();
-    await expect(addFolderDialog).toBeVisible({ timeout: 5000 });
-    await addFolderDialog.locator('[data-testid="add-folder-name-input"] input').fill(folderA1Name);
-    await addFolderDialog.locator('[data-testid="add-folder-confirm-btn"]').click();
-    await expect(addFolderDialog).toBeHidden({ timeout: 5000 });
-    await expect(bannerTree).toContainText(folderA1Name);
-    await bannerTree.locator('.el-tree-node__content', { hasText: folderA1Name }).first().click({ button: 'right' });
-    await expect(contextmenu).toBeVisible({ timeout: 5000 });
-    await expect(ctxAddFolderItem).toBeVisible({ timeout: 5000 });
-    await ctxAddFolderItem.click();
-    await expect(addFolderDialog).toBeVisible({ timeout: 5000 });
-    await addFolderDialog.locator('[data-testid="add-folder-name-input"] input').fill(folderA111Name);
-    await addFolderDialog.locator('[data-testid="add-folder-confirm-btn"]').click();
-    await expect(addFolderDialog).toBeHidden({ timeout: 5000 });
-    await expect(bannerTree).toContainText(folderA111Name);
-    await bannerTree.locator('.el-tree-node__content', { hasText: folderA1Name }).first().locator('.el-tree-node__expand-icon').click();
-    await addApiBtn.click();
-    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
-    await addApiDialog.locator('input').first().fill(rootHttpName);
-    await addApiDialog.locator('.el-dialog__footer .el-button--primary').click();
-    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
-    await bannerTree.locator('.el-tree-node__content', { hasText: rootFolderAName }).first().click({ button: 'right' });
-    await expect(contextmenu).toBeVisible({ timeout: 5000 });
-    await expect(ctxAddApiItem).toBeVisible({ timeout: 5000 });
-    await ctxAddApiItem.click();
-    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
-    await addApiDialog.locator('input').first().fill(wsName);
-    await addApiDialog.locator('.el-radio').filter({ hasText: /^WebSocket$/ }).click();
-    await addApiDialog.locator('.el-dialog__footer .el-button--primary').click();
-    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
-    const folderA1Row = bannerTree.locator('.el-tree-node__content', { hasText: folderA1Name }).first();
-    const folderA111Row = bannerTree.locator('.el-tree-node__content', { hasText: folderA111Name }).first();
-    const folderA1RowVisible = await folderA1Row.isVisible({ timeout: 500 }).catch(() => false);
-    if (!folderA1RowVisible) {
-      await bannerTree.locator('.el-tree-node__content', { hasText: rootFolderAName }).first().locator('.el-tree-node__expand-icon').click();
-    }
-    const folderA111RowVisible = await folderA111Row.isVisible({ timeout: 500 }).catch(() => false);
-    if (!folderA111RowVisible) {
-      await folderA1Row.locator('.el-tree-node__expand-icon').click();
-    }
-    await folderA111Row.click({ button: 'right' });
-    await expect(contextmenu).toBeVisible({ timeout: 5000 });
-    await expect(ctxAddApiItem).toBeVisible({ timeout: 5000 });
-    await ctxAddApiItem.click();
-    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
-    await addApiDialog.locator('input').first().fill(httpMockName);
-    await addApiDialog.locator('.el-radio').filter({ hasText: 'HTTP Mock' }).click();
-    await addApiDialog.locator('.el-dialog__footer .el-button--primary').click();
-    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
+    const addApiDialog = contentPage.locator('.el-dialog:has(.add-file-dialog__body)');
+    const contextmenu = contentPage.locator('[data-testid="contextmenu"]');
+    const ctxAddApiItem = contentPage.locator('[data-testid="contextmenu-item-新建接口"], [data-testid="contextmenu-item-New Interface"]');
     await bannerTree.locator('.el-tree-node__content', { hasText: rootFolderBName }).first().click({ button: 'right' });
     await expect(contextmenu).toBeVisible({ timeout: 5000 });
     await expect(ctxAddApiItem).toBeVisible({ timeout: 5000 });
@@ -368,6 +313,7 @@ test.describe('ProjectList', () => {
     await addApiDialog.locator('.el-radio').filter({ hasText: 'WebSocket Mock' }).click();
     await addApiDialog.locator('.el-dialog__footer .el-button--primary').click();
     await expect(addApiDialog).toBeHidden({ timeout: 5000 });
+    
     // 返回首页查看接口总数
     const logo = topBarPage.locator('.logo-img');
     const projectListPromise = contentPage.waitForResponse(

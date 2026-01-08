@@ -11,7 +11,7 @@ const getRecyclerDeletedDocByName = (recyclerPage: Locator, name: string) =>
   });
 
 test.describe('Trash', () => {
-  test('打开回收站页面,显示回收站标题和搜索条件', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('打开回收站页面,显示回收站标题和搜索条件', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -31,7 +31,7 @@ test.describe('Trash', () => {
     const docNameInput = recyclerPage.locator('.el-input').filter({ hasText: /接口名称/ }).or(recyclerPage.locator('input[placeholder*="接口名称"]'));
     await expect(docNameInput.first()).toBeVisible();
   });
-  test('回收站筛选条件（互联网模式）：操作人员/日期范围/接口名称/接口url', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('回收站筛选条件（互联网模式）：操作人员/日期范围/接口名称/接口url', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
     await loginAccount();
     await createProject();
@@ -230,24 +230,16 @@ test.describe('Trash', () => {
     await urlNoMatchRequest;
     await expect(recyclerPage.locator('.docinfo')).toHaveCount(0, { timeout: 5000 });
   });
-  test('删除接口后在回收站中显示被删除的接口', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('删除接口后在回收站中显示被删除的接口', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('待删除接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    const nodeId = await createNode(contentPage, { nodeType: 'http', name: '待删除接口' });
     const bannerTree = contentPage.getByTestId('banner-doc-tree');
     await expect(bannerTree).toBeVisible({ timeout: 5000 });
-    const treeNode = bannerTree.locator('.el-tree-node__content', { hasText: '待删除接口' }).first();
+    const treeNode = contentPage.locator(`[data-test-node-id="${nodeId}"]`);
     await expect(treeNode).toBeVisible({ timeout: 5000 });
     await treeNode.click({ button: 'right' });
     const contextMenu = contentPage.locator('.s-contextmenu');
@@ -270,24 +262,16 @@ test.describe('Trash', () => {
     const deletedDoc = recyclerPage.locator('.docinfo').filter({ hasText: '待删除接口' });
     await expect(deletedDoc).toBeVisible({ timeout: 5000 });
   });
-  test('恢复已删除的接口,接口重新出现在导航树中', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('恢复已删除的接口,接口重新出现在导航树中', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('待恢复接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    const nodeId = await createNode(contentPage, { nodeType: 'http', name: '待恢复接口' });
     const bannerTree = contentPage.getByTestId('banner-doc-tree');
     await expect(bannerTree).toBeVisible({ timeout: 5000 });
-    const treeNode = bannerTree.locator('.el-tree-node__content', { hasText: '待恢复接口' }).first();
+    const treeNode = contentPage.locator(`[data-test-node-id="${nodeId}"]`);
     await expect(treeNode).toBeVisible({ timeout: 5000 });
     await treeNode.click({ button: 'right' });
     const contextMenu2 = contentPage.locator('.s-contextmenu');
@@ -319,48 +303,30 @@ test.describe('Trash', () => {
     const restoredNode = bannerTree.locator('.el-tree-node__content', { hasText: '待恢复接口' }).first();
     await expect(restoredNode).toBeVisible({ timeout: 5000 });
   });
-  test('删除所有类型节点后逐个恢复', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('删除所有类型节点后逐个恢复', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const bannerTree = contentPage.getByTestId('banner-doc-tree');
     await expect(bannerTree).toBeVisible({ timeout: 5000 });
-    const addFolderBtn = contentPage.getByTestId('banner-add-folder-btn');
-    await addFolderBtn.click();
-    const addFolderDialog = contentPage.getByTestId('add-folder-dialog');
-    await expect(addFolderDialog).toBeVisible({ timeout: 5000 });
-    await addFolderDialog.locator('[data-testid="add-folder-name-input"] input').first().fill('类型-文件夹');
-    await addFolderDialog.getByTestId('add-folder-confirm-btn').click();
-    await contentPage.waitForTimeout(500);
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
-    const addFileDialog = contentPage.getByTestId('add-file-dialog');
-    const fileList: { name: string; typeRadio: RegExp | null }[] = [
-      { name: '类型-HTTP', typeRadio: null },
-      { name: '类型-WebSocket', typeRadio: /^WebSocket$/ },
-      { name: '类型-HTTPMock', typeRadio: /^HTTP Mock$/ },
-      { name: '类型-WebSocketMock', typeRadio: /^WebSocket Mock$/ },
-    ];
-    for (let i = 0; i < fileList.length; i += 1) {
-      const item = fileList[i];
-      await addFileBtn.click();
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      await addFileDialog.locator('input').first().fill(item.name);
-      if (item.typeRadio) {
-        await addFileDialog.locator('.el-radio').filter({ hasText: item.typeRadio }).click();
-      }
-      await addFileDialog.locator('.el-button--primary').last().click();
-      await contentPage.waitForTimeout(500);
-    }
-    const allNodeNames = ['类型-文件夹', ...fileList.map((v) => v.name)];
-    for (let i = 0; i < allNodeNames.length; i += 1) {
-      const nodeName = allNodeNames[i];
-      const node = bannerTree.locator('.el-tree-node__content', { hasText: nodeName }).first();
+    
+    const folderId = await createNode(contentPage, { nodeType: 'folder', name: '类型-文件夹' });
+    const httpId = await createNode(contentPage, { nodeType: 'http', name: '类型-HTTP' });
+    const websocketId = await createNode(contentPage, { nodeType: 'websocket', name: '类型-WebSocket' });
+    const httpMockId1 = await createNode(contentPage, { nodeType: 'httpMock', name: '类型-HTTPMock' });
+    const httpMockId2 = await createNode(contentPage, { nodeType: 'httpMock', name: '类型-WebSocketMock' });
+    
+    const allNodeIds = [folderId, httpId, websocketId, httpMockId1, httpMockId2];
+    const allNodeNames = ['类型-文件夹', '类型-HTTP', '类型-WebSocket', '类型-HTTPMock', '类型-WebSocketMock'];
+    
+    for (let i = 0; i < allNodeIds.length; i += 1) {
+      const node = bannerTree.locator(`[data-test-node-id="${allNodeIds[i]}"]`);
       await expect(node).toBeVisible({ timeout: 5000 });
     }
-    for (let i = allNodeNames.length - 1; i >= 0; i -= 1) {
-      const nodeName = allNodeNames[i];
-      const node = bannerTree.locator('.el-tree-node__content', { hasText: nodeName }).first();
+    for (let i = allNodeIds.length - 1; i >= 0; i -= 1) {
+      const nodeId = allNodeIds[i];
+      const node = bannerTree.locator(`[data-test-node-id="${nodeId}"]`);
       await expect(node).toBeVisible({ timeout: 5000 });
       await node.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
@@ -401,51 +367,33 @@ test.describe('Trash', () => {
       await expect(restoredNode).toBeVisible({ timeout: 5000 });
     }
   });
-  test('父子节点同时删除后恢复时同步恢复全部', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('父子节点同时删除后恢复时同步恢复全部', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const bannerTree = contentPage.getByTestId('banner-doc-tree');
     await expect(bannerTree).toBeVisible({ timeout: 5000 });
-    const addFolderBtn = contentPage.getByTestId('banner-add-folder-btn');
-    const addFolderDialog = contentPage.getByTestId('add-folder-dialog');
-    const addFileDialog = contentPage.getByTestId('add-file-dialog');
-    const groupList: { folderName: string; childName: string; childTypeRadio: RegExp | null; restoreTarget: 'folder' | 'child' }[] = [
-      { folderName: '父节点1', childName: '子节点1-HTTP', childTypeRadio: null, restoreTarget: 'child' },
-      { folderName: '父节点2', childName: '子节点2-WebSocketMock', childTypeRadio: /^WebSocket Mock$/, restoreTarget: 'folder' },
-    ];
+    
+    const groupList: { folderId: string; folderName: string; childId: string; childName: string; restoreTarget: 'folder' | 'child' }[] = [];
+    
+    const folder1Id = await createNode(contentPage, { nodeType: 'folder', name: '父节点1' });
+    const child1Id = await createNode(contentPage, { nodeType: 'http', name: '子节点1-HTTP', pid: folder1Id });
+    groupList.push({ folderId: folder1Id, folderName: '父节点1', childId: child1Id, childName: '子节点1-HTTP', restoreTarget: 'child' });
+    
+    const folder2Id = await createNode(contentPage, { nodeType: 'folder', name: '父节点2' });
+    const child2Id = await createNode(contentPage, { nodeType: 'httpMock', name: '子节点2-WebSocketMock', pid: folder2Id });
+    groupList.push({ folderId: folder2Id, folderName: '父节点2', childId: child2Id, childName: '子节点2-WebSocketMock', restoreTarget: 'folder' });
     for (let i = 0; i < groupList.length; i += 1) {
       const group = groupList[i];
-      await addFolderBtn.click();
-      await expect(addFolderDialog).toBeVisible({ timeout: 5000 });
-      await addFolderDialog.locator('[data-testid="add-folder-name-input"] input').first().fill(group.folderName);
-      await addFolderDialog.getByTestId('add-folder-confirm-btn').click();
-      await contentPage.waitForTimeout(500);
-      const folderNode = bannerTree.locator('.el-tree-node__content', { hasText: group.folderName }).first();
-      await expect(folderNode).toBeVisible({ timeout: 5000 });
-      await folderNode.click({ button: 'right' });
-      const contextMenu = contentPage.locator('.s-contextmenu');
-      await expect(contextMenu).toBeVisible({ timeout: 3000 });
-      await contextMenu.locator('.s-contextmenu-item').filter({ hasText: /新建接口/ }).click();
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      await addFileDialog.locator('input').first().fill(group.childName);
-      if (group.childTypeRadio) {
-        await addFileDialog.locator('.el-radio').filter({ hasText: group.childTypeRadio }).click();
-      }
-      await addFileDialog.locator('.el-button--primary').last().click();
-      await contentPage.waitForTimeout(500);
-    }
-    for (let i = 0; i < groupList.length; i += 1) {
-      const group = groupList[i];
-      const folderTreeNode = bannerTree.locator('.el-tree-node').filter({ hasText: group.folderName }).first();
+      const folderTreeNode = bannerTree.locator(`[data-test-node-id="${group.folderId}"]`);
       const expandIcon = folderTreeNode.locator('.el-tree-node__expand-icon').first();
       const expandClass = await expandIcon.getAttribute('class');
       if (expandClass && !expandClass.includes('expanded')) {
         await expandIcon.click();
         await contentPage.waitForTimeout(200);
       }
-      const childNode = bannerTree.locator('.el-tree-node__content', { hasText: group.childName }).first();
+      const childNode = bannerTree.locator(`[data-test-node-id="${group.childId}"]`);
       await expect(childNode).toBeVisible({ timeout: 5000 });
       await childNode.click({ button: 'right' });
       const childMenu = contentPage.locator('.s-contextmenu');
@@ -455,7 +403,7 @@ test.describe('Trash', () => {
       await expect(confirmDialog1).toBeVisible({ timeout: 3000 });
       await confirmDialog1.locator('.el-button--primary').click();
       await contentPage.waitForTimeout(500);
-      const folderNode = bannerTree.locator('.el-tree-node__content', { hasText: group.folderName }).first();
+      const folderNode = bannerTree.locator(`[data-test-node-id="${group.folderId}"]`);
       await folderNode.click({ button: 'right' });
       const folderMenu = contentPage.locator('.s-contextmenu');
       await expect(folderMenu).toBeVisible({ timeout: 3000 });
@@ -491,16 +439,16 @@ test.describe('Trash', () => {
       await contentPage.waitForTimeout(500);
       await expect(deletedFolder).not.toBeVisible({ timeout: 5000 });
       await expect(deletedChild).not.toBeVisible({ timeout: 5000 });
-      const folderNode = bannerTree.locator('.el-tree-node__content', { hasText: group.folderName }).first();
+      const folderNode = bannerTree.locator(`[data-test-node-id="${group.folderId}"]`);
       await expect(folderNode).toBeVisible({ timeout: 5000 });
-      const restoredFolderTreeNode = bannerTree.locator('.el-tree-node').filter({ hasText: group.folderName }).first();
+      const restoredFolderTreeNode = bannerTree.locator(`[data-test-node-id="${group.folderId}"]`);
       const restoredExpandIcon = restoredFolderTreeNode.locator('.el-tree-node__expand-icon').first();
       const restoredExpandClass = await restoredExpandIcon.getAttribute('class');
       if (restoredExpandClass && !restoredExpandClass.includes('expanded')) {
         await restoredExpandIcon.click();
         await contentPage.waitForTimeout(200);
       }
-      const childNode = bannerTree.locator('.el-tree-node__content', { hasText: group.childName }).first();
+      const childNode = bannerTree.locator(`[data-test-node-id="${group.childId}"]`);
       await expect(childNode).toBeVisible({ timeout: 5000 });
     }
   });

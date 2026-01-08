@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('AfVariablesApi', () => {
   // 使用af.variables.get(name)获取指定变量值
-  test('使用af.variables.get(name)获取指定变量值', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.variables.get(name)获取指定变量值', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('变量获取测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '变量获取测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -43,22 +35,14 @@ test.describe('AfVariablesApi', () => {
     await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 使用af.variables.set(name, value)设置变量值
-  test('使用af.variables.set(name, value)设置变量值', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.variables.set(name, value)设置变量值', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('变量设置测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '变量设置测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -82,22 +66,14 @@ test.describe('AfVariablesApi', () => {
     await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 后置脚本中设置的变量在下次请求中可以使用
-  test('后置脚本中设置的变量在下次请求中可以使用', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('后置脚本中设置的变量在下次请求中可以使用', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增第一个HTTP节点用于设置变量
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('设置Token接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '设置Token接口' });
     // 设置第一个请求的URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -120,12 +96,7 @@ test.describe('AfVariablesApi', () => {
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
     // 新增第二个HTTP节点用于验证变量
-    await addFileBtn.click();
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput2 = addFileDialog.locator('input').first();
-    await fileNameInput2.fill('验证Token接口');
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '验证Token接口' });
     // 设置第二个请求的URL，使用变量
     const urlInput2 = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput2.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?token={{token_from_response}}`);

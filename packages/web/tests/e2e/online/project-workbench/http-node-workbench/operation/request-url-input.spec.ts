@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('RequestUrlInput', () => {
   // 测试用例1: 输入localhost地址调用echo接口成功返回
-  test('输入localhost地址调用echo接口成功返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('输入localhost地址调用echo接口成功返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('localhost测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'localhost测试' });
     // 输入localhost URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://localhost:${MOCK_SERVER_PORT}/echo`);
@@ -35,22 +27,14 @@ test.describe('RequestUrlInput', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例2: 输入127.0.0.1地址调用echo接口成功返回
-  test('输入127.0.0.1地址调用echo接口成功返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('输入127.0.0.1地址调用echo接口成功返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('IP地址测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'IP地址测试' });
     // 输入IP地址URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -66,7 +50,7 @@ test.describe('RequestUrlInput', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例3: 使用变量调用echo接口成功返回
-  test('使用变量调用echo接口成功返回', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用变量调用echo接口成功返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -89,15 +73,7 @@ test.describe('RequestUrlInput', () => {
     await addBtn.click();
     await contentPage.waitForTimeout(500);
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('变量URL测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '变量URL测试' });
     // 输入带变量的URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://{{localUrl}}:${MOCK_SERVER_PORT}/echo`);
@@ -113,22 +89,14 @@ test.describe('RequestUrlInput', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例4: 不带协议的URL自动添加http://后成功请求
-  test('不带协议的URL自动添加http后成功请求', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('不带协议的URL自动添加http后成功请求', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('无协议URL测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '无协议URL测试' });
     // 输入不带协议的URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -147,22 +115,14 @@ test.describe('RequestUrlInput', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例5: URL中的query参数自动解析到参数列表
-  test('URL中的query参数自动解析到参数列表', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('URL中的query参数自动解析到参数列表', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Query参数解析测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Query参数解析测试' });
     // 输入带query参数的URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?id=3&name=lee`);
@@ -177,22 +137,14 @@ test.describe('RequestUrlInput', () => {
     expect(keyCount).toBeGreaterThanOrEqual(2);
   });
   // 测试用例6: URL中带query参数发送请求返回结果正
-  test('URL中带query参数发送请求返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('URL中带query参数发送请求返回结果正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Query参数请求测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Query参数请求测试' });
     // 输入带query参数的URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?id=3&name=lee`);
@@ -213,22 +165,14 @@ test.describe('RequestUrlInput', () => {
     await expect(responseBody).toContainText('name', { timeout: 10000 });
   });
   // 测试用例7: 粘贴的URL去除前后空格
-  test('粘贴的URL去除前后空格', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('粘贴的URL去除前后空格', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('粘贴空格测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '粘贴空格测试' });
     // 先清空URL输入框
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill('');

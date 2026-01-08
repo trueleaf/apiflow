@@ -2,22 +2,14 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('QueryParamsUndo', () => {
   // 测试用例1: query参数key输入字符串ab,按ctrl+z逐步撤销
-  test('query参数key输入后按ctrl+z撤销', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('query参数key输入后按ctrl+z撤销', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Query参数撤销测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Query参数撤销测试接口' });
     // 切换到Params标签页
     const paramsTab = contentPage.locator('[data-testid="http-params-tab-params"]');
     await paramsTab.click();
@@ -48,22 +40,14 @@ test.describe('QueryParamsUndo', () => {
     await expect(keyInput).toHaveValue('', { timeout: 5000 });
   });
   // 测试用例2: query参数value输入字符串后撤销
-  test('query参数value输入后按ctrl+z撤销', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('query参数value输入后按ctrl+z撤销', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Query参数value撤销测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Query参数value撤销测试接口' });
     // 切换到Params标签页
     const paramsTab = contentPage.locator('[data-testid="http-params-tab-params"]');
     await paramsTab.click();
@@ -95,22 +79,14 @@ test.describe('QueryParamsUndo', () => {
     await expect(valueEditor).toHaveText('v1', { timeout: 5000 });
   });
   // 测试用例3: url和query参数联动撤销
-  test('url和query参数联动变化后撤销', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('url和query参数联动变化后撤销', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('URL联动撤销测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'URL联动撤销测试接口' });
     // 在url输入框输入带query参数的url
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();

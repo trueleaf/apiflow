@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('RefreshButton', () => {
   // 测试用例1: 刷新按钮点击后,清空修改的值
-  test('刷新按钮点击后清空修改的值', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('刷新按钮点击后清空修改的值', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('刷新按钮测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '刷新按钮测试' });
     // 设置初始URL并保存
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -44,22 +36,14 @@ test.describe('RefreshButton', () => {
     expect(restoredUrl).toBe(savedUrl);
   });
   // 测试用例2: 验证录入项变更后刷新页面数据恢复
-  test('验证录入项变更后刷新页面数据恢复', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('验证录入项变更后刷新页面数据恢复', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('刷新恢复测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '刷新恢复测试' });
     // 设置初始URL并保存
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     const initialUrl = `http://127.0.0.1:${MOCK_SERVER_PORT}/initial`;

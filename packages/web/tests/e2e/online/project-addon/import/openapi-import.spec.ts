@@ -68,20 +68,14 @@ test.describe('OpenapiImport', () => {
     await expect(targetDirConfig).toBeVisible({ timeout: 3000 });
   });
   // 测试用例4: 选择追加导入方式并选择目标目录
-  test('选择追加导入方式并选择目标目录', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('选择追加导入方式并选择目标目录', async ({ contentPage, clearCache, createProject, loginAccount, createNode }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 先创建一个文件夹
-    const addFolderBtn = contentPage.getByTestId('banner-add-folder-btn');
-    await addFolderBtn.click();
-    const addFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增文件夹|新建文件夹|Add Folder/ });
-    await expect(addFolderDialog).toBeVisible({ timeout: 5000 });
-    await addFolderDialog.locator('input').first().fill('导入目标文件夹');
-    await addFolderDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'folder', name: '导入目标文件夹' });
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();

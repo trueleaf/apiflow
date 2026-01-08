@@ -2,18 +2,12 @@ import { test, expect } from '../../../../fixtures/electron.fixture';
 
 test.describe('TabOperation', () => {
   // 测试用例1: 点击关闭按钮关闭当前tab
-  test('点击关闭按钮关闭当前tab', async ({ contentPage, clearCache, createProject }) => {
+  test('点击关闭按钮关闭当前tab', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('关闭测试接口');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '关闭测试接口' });
     // 验证tab存在
     const tab = contentPage.locator('.nav .item').filter({ hasText: '关闭测试接口' });
     await expect(tab).toBeVisible({ timeout: 3000 });
@@ -25,18 +19,12 @@ test.describe('TabOperation', () => {
     await expect(tab).not.toBeVisible({ timeout: 3000 });
   });
   // 测试用例2: 右键菜单关闭当前tab
-  test('右键菜单关闭当前tab', async ({ contentPage, clearCache, createProject }) => {
+  test('右键菜单关闭当前tab', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('右键关闭测试');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '右键关闭测试' });
     // 右键点击tab
     const tab = contentPage.locator('.nav .item').filter({ hasText: '右键关闭测试' });
     await tab.click({ button: 'right' });
@@ -49,19 +37,13 @@ test.describe('TabOperation', () => {
     await expect(tab).not.toBeVisible({ timeout: 3000 });
   });
   // 测试用例3: 右键菜单关闭左侧tab
-  test('右键菜单关闭左侧tab', async ({ contentPage, clearCache, createProject }) => {
+  test('右键菜单关闭左侧tab', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增三个HTTP节点
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 3; i++) {
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      await addFileDialog.locator('input').first().fill(`左侧测试${i}`);
-      await addFileDialog.locator('.el-button--primary').last().click();
-      await contentPage.waitForTimeout(500);
+      await createNode(contentPage, { nodeType: 'http', name: `左侧测试${i}` });
     }
     // 右键点击第三个tab
     const tab3 = contentPage.locator('.nav .item').filter({ hasText: '左侧测试3' });
@@ -78,19 +60,13 @@ test.describe('TabOperation', () => {
     await expect(tab3).toBeVisible();
   });
   // 测试用例4: 右键菜单关闭右侧tab
-  test('右键菜单关闭右侧tab', async ({ contentPage, clearCache, createProject }) => {
+  test('右键菜单关闭右侧tab', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增三个HTTP节点
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 3; i++) {
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      await addFileDialog.locator('input').first().fill(`右侧测试${i}`);
-      await addFileDialog.locator('.el-button--primary').last().click();
-      await contentPage.waitForTimeout(500);
+      await createNode(contentPage, { nodeType: 'http', name: `右侧测试${i}` });
     }
     // 右键点击第一个tab
     const tab1 = contentPage.locator('.nav .item').filter({ hasText: '右侧测试1' });
@@ -107,19 +83,13 @@ test.describe('TabOperation', () => {
     await expect(tab1).toBeVisible();
   });
   // 测试用例5: 右键菜单关闭其他tab
-  test('右键菜单关闭其他tab', async ({ contentPage, clearCache, createProject }) => {
+  test('右键菜单关闭其他tab', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增三个HTTP节点
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 3; i++) {
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      await addFileDialog.locator('input').first().fill(`其他测试${i}`);
-      await addFileDialog.locator('.el-button--primary').last().click();
-      await contentPage.waitForTimeout(500);
+      await createNode(contentPage, { nodeType: 'http', name: `其他测试${i}` });
     }
     // 右键点击第二个tab
     const tab2 = contentPage.locator('.nav .item').filter({ hasText: '其他测试2' });
@@ -138,19 +108,13 @@ test.describe('TabOperation', () => {
     expect(tabCount).toBe(1);
   });
   // 测试用例6: 右键菜单全部关闭
-  test('右键菜单全部关闭', async ({ contentPage, clearCache, createProject }) => {
+  test('右键菜单全部关闭', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增两个HTTP节点
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
     for (let i = 1; i <= 2; i++) {
-      await addFileBtn.click();
-      const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      await addFileDialog.locator('input').first().fill(`全部关闭${i}`);
-      await addFileDialog.locator('.el-button--primary').last().click();
-      await contentPage.waitForTimeout(500);
+      await createNode(contentPage, { nodeType: 'http', name: `全部关闭${i}` });
     }
     // 右键点击任意tab
     const tab = contentPage.locator('.nav .item').first();
@@ -165,23 +129,13 @@ test.describe('TabOperation', () => {
     expect(tabCount).toBe(0);
   });
   // 测试用例7: 点击tab切换选中状态
-  test('点击tab切换选中状态', async ({ contentPage, clearCache, createProject }) => {
+  test('点击tab切换选中状态', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增两个HTTP节点
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('选中测试A');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
-    await addFileBtn.click();
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('选中测试B');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '选中测试A' });
+    await createNode(contentPage, { nodeType: 'http', name: '选中测试B' });
     // 验证B是当前激活的
     const tabB = contentPage.locator('.nav .item').filter({ hasText: '选中测试B' });
     await expect(tabB).toHaveClass(/active/);
@@ -194,7 +148,7 @@ test.describe('TabOperation', () => {
     await expect(tabB).not.toHaveClass(/active/);
   });
   // 测试用例8: 新增空白接口按钮功能
-  test('新增空白接口按钮功能', async ({ contentPage, clearCache, createProject }) => {
+  test('新增空白接口按钮功能', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
@@ -212,18 +166,12 @@ test.describe('TabOperation', () => {
     await expect(activeTab).toContainText(/未命名接口|Untitled/);
   });
   // 测试用例9: 双击tab固定非固定页签
-  test('双击tab固定非固定页签', async ({ contentPage, clearCache, createProject }) => {
+  test('双击tab固定非固定页签', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('双击固定测试');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '双击固定测试' });
     // 关闭固定tab
     await contentPage.locator('[data-testid="project-nav-tab-close-btn"]').first().click();
     await contentPage.waitForTimeout(300);

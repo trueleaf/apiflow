@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('AfLocalStorageApi', () => {
   // 测试用例1: 使用af.localStorage.set(key, value)存储持久数据
-  test('使用af.localStorage.set(key, value)存储持久数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.localStorage.set(key, value)存储持久数据', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('localStorage set测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'localStorage set测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -49,7 +41,7 @@ test.describe('AfLocalStorageApi', () => {
     expect(storedValue).toBe('"12345"');
   });
   // 测试用例2: 使用af.localStorage.get(key)获取持久数据
-  test('使用af.localStorage.get(key)获取持久数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.localStorage.get(key)获取持久数据', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -60,15 +52,7 @@ test.describe('AfLocalStorageApi', () => {
       localStorage.setItem('af_test_key', '"test_value"');
     });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('localStorage get测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'localStorage get测试' });
     // 设置请求URL（使用变量将获取的值传递到请求中验证）
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -92,7 +76,7 @@ test.describe('AfLocalStorageApi', () => {
     await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
   // 测试用例3: 使用af.localStorage.remove(key)删除持久数据
-  test('使用af.localStorage.remove(key)删除持久数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.localStorage.remove(key)删除持久数据', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -108,15 +92,7 @@ test.describe('AfLocalStorageApi', () => {
     });
     expect(initialValue).toBe('"remove_value"');
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('localStorage remove测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'localStorage remove测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -145,7 +121,7 @@ test.describe('AfLocalStorageApi', () => {
     expect(deletedValue).toBeNull();
   });
   // 测试用例4: 使用af.localStorage.clear()清空所有持久数据
-  test('使用af.localStorage.clear()清空所有持久数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.localStorage.clear()清空所有持久数据', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -169,15 +145,7 @@ test.describe('AfLocalStorageApi', () => {
     expect(initialValues.key2).toBe('"value2"');
     expect(initialValues.key3).toBe('"value3"');
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('localStorage clear测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'localStorage clear测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -212,22 +180,14 @@ test.describe('AfLocalStorageApi', () => {
     expect(clearedValues.key3).toBeNull();
   });
   // 测试用例5: 获取不存在的键返回null
-  test('获取不存在的键返回null', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('获取不存在的键返回null', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('localStorage get不存在的键测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'localStorage get不存在的键测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);

@@ -53,19 +53,11 @@ test.describe('Export', () => {
     await openapiOption.click();
     await expect(openapiOption).toHaveClass(/active/);
   });
-  test('开启选择导出后显示el-tree节点树', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+  test('开启选择导出后显示el-tree节点树', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '测试接口' });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const exportItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导出文档/ });
@@ -82,19 +74,11 @@ test.describe('Export', () => {
     const treeNode = tree.locator('.el-tree-node');
     await expect(treeNode.first()).toBeVisible();
   });
-  test('导出JSON文档格式,点击确定导出按钮触发下载', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+  test('导出JSON文档格式,点击确定导出按钮触发下载', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增接口|新建接口|Add/ });
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('导出测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '导出测试接口' });
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const exportItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导出文档/ });
@@ -131,49 +115,21 @@ test.describe('Export', () => {
     });
     expect(filenames.some((name) => name.endsWith('.json'))).toBeTruthy();
   });
-  test('离线模式创建全类型节点与参数组合,导出OpenAPI并校验schema与required', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+  test('离线模式创建全类型节点与参数组合,导出OpenAPI并校验schema与required', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     const projectName = '导出OpenAPI全量测试项目';
     await createProject(projectName);
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
 
-    const addFolderBtn = contentPage.getByTestId('banner-add-folder-btn');
-    await addFolderBtn.click();
-    const addFolderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增文件夹|新建文件夹|Add Folder/ });
-    await expect(addFolderDialog).toBeVisible({ timeout: 5000 });
-    await addFolderDialog.locator('input').first().fill('导出测试文件夹');
-    await addFolderDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'folder', name: '导出测试文件夹' });
 
-    const addFileBtn = contentPage.getByTestId('banner-add-http-btn');
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await createNode(contentPage, { nodeType: 'websocket', name: '导出测试WebSocket节点' });
 
-    await addFileBtn.click();
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('导出测试WebSocket节点');
-    await addFileDialog.locator('.el-radio').filter({ hasText: 'WebSocket' }).first().click();
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http-mock', name: '导出测试HTTP Mock节点' });
 
-    await addFileBtn.click();
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('导出测试HTTP Mock节点');
-    await addFileDialog.locator('.el-radio').filter({ hasText: 'HTTP Mock' }).first().click();
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'websocket-mock', name: '导出测试WebSocket Mock节点' });
 
-    await addFileBtn.click();
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('导出测试WebSocket Mock节点');
-    await addFileDialog.locator('.el-radio').filter({ hasText: 'WebSocket Mock' }).first().click();
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
-
-    await addFileBtn.click();
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('OpenAPI-参数组合接口');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'OpenAPI-参数组合接口' });
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/params/{userId}`);
     await contentPage.waitForTimeout(500);
@@ -207,11 +163,7 @@ test.describe('Export', () => {
     await headerRows.nth(0).locator('[data-testid="params-tree-description-input"] input').fill('令牌');
     await contentPage.waitForTimeout(300);
 
-    await addFileBtn.click();
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('OpenAPI-JSON请求体接口');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'OpenAPI-JSON请求体接口' });
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/json`);
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
@@ -255,11 +207,7 @@ test.describe('Export', () => {
     await contentPage.keyboard.type('error');
     await contentPage.waitForTimeout(300);
 
-    await addFileBtn.click();
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('OpenAPI-FormData请求体接口');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'OpenAPI-FormData请求体接口' });
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/formdata`);
     await methodSelect.click();
     await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first().click();
@@ -282,11 +230,7 @@ test.describe('Export', () => {
     await formRows.nth(1).locator('[data-testid="params-tree-description-input"] input').fill('名称');
     await contentPage.waitForTimeout(300);
 
-    await addFileBtn.click();
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('OpenAPI-UrlEncoded请求体接口');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'OpenAPI-UrlEncoded请求体接口' });
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/urlencoded`);
     await methodSelect.click();
     await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first().click();
@@ -307,11 +251,7 @@ test.describe('Export', () => {
     await urlencodedRows.nth(1).locator('[data-testid="params-tree-description-input"] input').fill('b非必填');
     await contentPage.waitForTimeout(300);
 
-    await addFileBtn.click();
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('OpenAPI-Raw请求体接口');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'OpenAPI-Raw请求体接口' });
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/raw`);
     await methodSelect.click();
     await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first().click();

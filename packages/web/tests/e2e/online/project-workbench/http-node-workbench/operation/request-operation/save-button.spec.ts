@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('SaveButton', () => {
   // 测试用例1: 无任何数据变更时候可以点击保存按钮
-  test('无任何数据变更时可以点击保存按钮', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('无任何数据变更时可以点击保存按钮', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('无变更保存测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '无变更保存测试' });
     // 直接点击保存按钮（无任何修改）
     const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
@@ -37,15 +29,7 @@ test.describe('SaveButton', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('保存变更测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '保存变更测试' });
     // 修改URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     const newUrl = `http://127.0.0.1:${MOCK_SERVER_PORT}/saved-url`;
@@ -70,15 +54,7 @@ test.describe('SaveButton', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('全字段保存测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '全字段保存测试' });
     // 修改URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     const testUrl = `http://127.0.0.1:${MOCK_SERVER_PORT}/full-save-test`;

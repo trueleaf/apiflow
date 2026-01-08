@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('RequestBasicInfo', () => {
   // 测试用例1: 发送请求后,基本信息区域内容展示,需要展示请求地址,请求方式,维护人员,创建人员等
-  test('发送请求后基本信息区域内容正确展示', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('发送请求后基本信息区域内容正确展示', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('基本信息测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '基本信息测试接口' });
     // 设置URL并发送请求
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
@@ -39,22 +31,14 @@ test.describe('RequestBasicInfo', () => {
     await expect(baseInfoView).toContainText('GET');
   });
   // 测试用例2: 发送请求后,验证请求方法颜色,验证各种请求方法颜色
-  test('发送不同请求方法验证颜色显示正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('发送不同请求方法验证颜色显示正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('请求方法颜色测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '请求方法颜色测试' });
     // 设置URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();

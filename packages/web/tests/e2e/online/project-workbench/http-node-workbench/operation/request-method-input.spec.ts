@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('RequestMethodInput', () => {
   // 测试用例1: 正确展示GET, POST, PUT, DEL, PATCH, HEAD, OPTIONS,选择或者点击空白区域下拉菜单消失
-  test('正确展示GET,POST,PUT,DEL,PATCH,HEAD,OPTIONS,选择或点击空白区域下拉菜单消失', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('正确展示GET,POST,PUT,DEL,PATCH,HEAD,OPTIONS,选择或点击空白区域下拉菜单消失', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('请求方法下拉测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '请求方法下拉测试' });
     // 点击请求方法下拉框
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
@@ -51,22 +43,14 @@ test.describe('RequestMethodInput', () => {
     await expect(dropdown).toBeHidden({ timeout: 5000 });
   });
   // 测试用例2: 切换请求方法不会改变banner节点中的请求方法,只有保存后才会生效
-  test('切换请求方法不会改变banner节点中的请求方法,只有保存后才会生效', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('切换请求方法不会改变banner节点中的请求方法,只有保存后才会生效', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点并保存
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('方法保存测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '方法保存测试' });
     // 保存节点
     const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
@@ -89,22 +73,14 @@ test.describe('RequestMethodInput', () => {
     await expect(bannerNode).toContainText('POST', { timeout: 5000 });
   });
   // 测试用例3: 切换所有请求方法,点击发送请求,调用测试服务器/echo接口,返回method为选中的method
-  test('切换请求方法后发送请求,响应中method字段与选中的方法一致', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('切换请求方法后发送请求,响应中method字段与选中的方法一致', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('请求方法验证测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '请求方法验证测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);

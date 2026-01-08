@@ -3,7 +3,7 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 test.describe('CopyNode', () => {
   test.describe('复制HTTP节点', () => {
     // 复制单个httpNode节点粘贴到根节点下
-    test('复制单个httpNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('复制单个httpNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -47,7 +47,7 @@ test.describe('CopyNode', () => {
       await expect(allNodes).toHaveCount(2, { timeout: 5000 });
     });
     // 复制单个httpNode节点粘贴到folder节点下
-    test('复制单个httpNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('复制单个httpNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -104,7 +104,7 @@ test.describe('CopyNode', () => {
       await expect(childNode).toBeVisible({ timeout: 5000 });
     });
     // 复制多个httpNode节点粘贴到根节点下
-    test('复制多个httpNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('复制多个httpNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -163,7 +163,7 @@ test.describe('CopyNode', () => {
   });
   test.describe('复制WebSocket节点', () => {
     // 复制单个websocketNode节点粘贴到根节点下
-    test('复制单个websocketNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('复制单个websocketNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -208,7 +208,7 @@ test.describe('CopyNode', () => {
       await expect(allNodes).toHaveCount(2, { timeout: 5000 });
     });
     // 复制单个websocketNode节点粘贴到folder节点下
-    test('复制单个websocketNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('复制单个websocketNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -264,7 +264,7 @@ test.describe('CopyNode', () => {
   });
   test.describe('复制HTTP Mock节点', () => {
     // 复制单个httpMockNode节点粘贴到根节点下
-    test('复制单个httpMockNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('复制单个httpMockNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -308,7 +308,7 @@ test.describe('CopyNode', () => {
       await expect(allNodes).toHaveCount(2, { timeout: 5000 });
     });
     // 复制单个httpMockNode节点粘贴到folder节点下
-    test('复制单个httpMockNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('复制单个httpMockNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -364,7 +364,7 @@ test.describe('CopyNode', () => {
   });
   test.describe('复制WebSocket Mock节点', () => {
     // 复制单个websocketMockNode节点粘贴到根节点下
-    test('复制单个websocketMockNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('复制单个websocketMockNode节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -408,7 +408,7 @@ test.describe('CopyNode', () => {
       await expect(allNodes).toHaveCount(2, { timeout: 5000 });
     });
     // 复制单个websocketMockNode节点粘贴到folder节点下
-    test('复制单个websocketMockNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('复制单个websocketMockNode节点粘贴到folder节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -464,7 +464,7 @@ test.describe('CopyNode', () => {
   });
   test.describe('复制文件夹节点', () => {
     // 复制单个folder节点粘贴到根节点下
-    test('复制单个folder节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('复制单个folder节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -504,7 +504,7 @@ test.describe('CopyNode', () => {
       await expect(allFolders).toHaveCount(2, { timeout: 5000 });
     });
     // 复制包含子节点的folder节点
-    test('复制包含子节点的folder节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('复制包含子节点的folder节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -579,7 +579,7 @@ test.describe('CopyNode', () => {
   });
   test.describe('复制混合节点', () => {
     // 批量复制不同类型节点
-    test('批量复制不同类型节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('批量复制不同类型节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -644,7 +644,7 @@ test.describe('CopyNode', () => {
   });
   test.describe('快捷键复制粘贴', () => {
     // 使用Ctrl+C和Ctrl+V复制粘贴节点
-    test('使用Ctrl+C和Ctrl+V复制粘贴节点', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    test('使用Ctrl+C和Ctrl+V复制粘贴节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();

@@ -2,22 +2,14 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('RestoreDefault', () => {
   // 测试用例1: 点击恢复默认按钮,所有配置项恢复为默认值
-  test('点击恢复默认按钮所有配置项恢复为默认值', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('点击恢复默认按钮所有配置项恢复为默认值', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('恢复默认测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '恢复默认测试' });
     // 点击设置标签页
     const settingsTab = contentPage.locator('[data-testid="http-params-tab-settings"]');
     await settingsTab.click();
@@ -39,22 +31,14 @@ test.describe('RestoreDefault', () => {
     expect(restoredUserAgent).toBe(originalUserAgent);
   });
   // 测试用例2: 修改重定向配置后点击恢复按钮,配置恢复为默认值
-  test('修改重定向配置后点击恢复按钮配置恢复为默认值', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('修改重定向配置后点击恢复按钮配置恢复为默认值', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('重定向恢复默认测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '重定向恢复默认测试' });
     // 点击设置标签页
     const settingsTab = contentPage.locator('[data-testid="http-params-tab-settings"]');
     await settingsTab.click();
@@ -76,22 +60,14 @@ test.describe('RestoreDefault', () => {
     expect(restoredMaxRedirects).toBe(originalMaxRedirects);
   });
   // 测试用例3: 恢复默认后刷新页面,配置保持为默认值
-  test('恢复默认后刷新页面配置保持为默认值', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('恢复默认后刷新页面配置保持为默认值', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('恢复默认持久化测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '恢复默认持久化测试' });
     // 点击设置标签页
     const settingsTab = contentPage.locator('[data-testid="http-params-tab-settings"]');
     await settingsTab.click();
@@ -117,22 +93,14 @@ test.describe('RestoreDefault', () => {
     expect(userAgentAfterReload).toBe(originalUserAgent);
   });
   // 测试用例4: Body参数显示顺序恢复默认后,顺序恢复为初始状态
-  test('Body参数显示顺序恢复默认后顺序恢复为初始状态', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('Body参数显示顺序恢复默认后顺序恢复为初始状态', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Body顺序恢复默认测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Body顺序恢复默认测试' });
     // 点击设置标签页
     const settingsTab = contentPage.locator('[data-testid="http-params-tab-settings"]');
     await settingsTab.click();

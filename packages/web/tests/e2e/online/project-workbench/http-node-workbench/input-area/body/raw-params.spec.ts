@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('RawParams', () => {
   // 测试用例1: raw text参数输入值以后,请求头自动添加contentType:text/plain,调用127.0.0.1:{环境变量中的端口}/echo,返回结果参数和请求头正确
-  test('raw text参数输入值以后,请求头自动添加contentType:text/plain,调用echo接口返回结果参数和请求头正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('raw text参数输入值以后,请求头自动添加contentType:text/plain,调用echo接口返回结果参数和请求头正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Raw Text参数测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'http', name: 'Raw Text参数测试' });' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -63,22 +55,14 @@ test.describe('RawParams', () => {
     await expect(responseBody).toContainText('This is plain text content', { timeout: 10000 });
   });
   // 测试用例2: raw html参数输入值以后,请求头自动添加contentType:text/html,调用127.0.0.1:{环境变量中的端口}/echo,返回结果参数和请求头正确
-  test('raw html参数输入值以后,请求头自动添加contentType:text/html,调用echo接口返回结果参数和请求头正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('raw html参数输入值以后,请求头自动添加contentType:text/html,调用echo接口返回结果参数和请求头正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Raw HTML参数测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'http', name: 'Raw HTML参数测试' });' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -124,22 +108,14 @@ test.describe('RawParams', () => {
     await expect(responseBody).toContainText('Hello World', { timeout: 10000 });
   });
   // 测试用例3: raw xml参数输入值以后,请求头自动添加contentType:application/xml,调用127.0.0.1:{环境变量中的端口}/echo,返回结果参数和请求头正确
-  test('raw xml参数输入值以后,请求头自动添加contentType:application/xml,调用echo接口返回结果参数和请求头正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('raw xml参数输入值以后,请求头自动添加contentType:application/xml,调用echo接口返回结果参数和请求头正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Raw XML参数测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'http', name: 'Raw XML参数测试' });' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -186,22 +162,14 @@ test.describe('RawParams', () => {
     await expect(responseBody).toContainText('test', { timeout: 10000 });
   });
   // 测试用例4: raw javascript参数输入值以后,请求头自动添加contentType:text/javascript,调用127.0.0.1:{环境变量中的端口}/echo,返回结果参数和请求头正确
-  test('raw javascript参数输入值以后,请求头自动添加contentType:text/javascript,调用echo接口返回结果参数和请求头正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('raw javascript参数输入值以后,请求头自动添加contentType:text/javascript,调用echo接口返回结果参数和请求头正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Raw JavaScript参数测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'http', name: 'Raw JavaScript参数测试' });' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -245,22 +213,14 @@ test.describe('RawParams', () => {
     await expect(responseBody).toContainText('var x = 123', { timeout: 10000 });
   });
   // 测试用例5: raw 参数(text,html,xml,json格式)无任何值,请求头不自动添加,调用127.0.0.1:{环境变量中的端口}/echo,返回结果参数和请求头正确
-  test('raw参数无任何值时,请求头不自动添加Content-Type', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('raw参数无任何值时,请求头不自动添加Content-Type', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Raw空值参数测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'http', name: 'Raw空值参数测试' });' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);

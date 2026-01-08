@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('UrlencodedParams', () => {
   // 测试用例1: urlencoded参数key输入值以后,如果不存在next节点,则自动新增一行数据,自动新增数据需要被选中
-  test('urlencoded参数key输入值以后自动新增一行数据', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('urlencoded参数key输入值以后自动新增一行数据', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Urlencoded自动新增测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Urlencoded自动新增测试' });
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
@@ -44,22 +36,14 @@ test.describe('UrlencodedParams', () => {
     expect(firstKeyValue).toBe('username');
   });
   // 测试用例2: urlencoded参数key,value输入值以后,调用echo接口返回结果正确
-  test('urlencoded参数key,value输入值以后调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('urlencoded参数key,value输入值以后调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Urlencoded发送测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Urlencoded发送测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -103,7 +87,7 @@ test.describe('UrlencodedParams', () => {
     await expect(responseBody).toContainText('secret', { timeout: 10000 });
   });
   // 测试用例3: urlencoded参数key,value支持变量,调用echo接口返回结果正确
-  test('urlencoded参数key,value支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('urlencoded参数key,value支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -126,15 +110,7 @@ test.describe('UrlencodedParams', () => {
     await addBtn.click();
     await contentPage.waitForTimeout(500);
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Urlencoded变量测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Urlencoded变量测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -168,22 +144,14 @@ test.describe('UrlencodedParams', () => {
     await expect(responseBody).toContainText('user123', { timeout: 10000 });
   });
   // 测试用例4: urlencoded参数key,value支持mock,调用echo接口返回结果正确
-  test('urlencoded参数key,value支持mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('urlencoded参数key,value支持mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Urlencoded Mock测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Urlencoded Mock测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -225,7 +193,7 @@ test.describe('UrlencodedParams', () => {
     await expect(responseBody).toContainText('email', { timeout: 10000 });
   });
   // 测试用例5: urlencoded参数key,value支持混合变量,调用echo接口返回结果正确
-  test('urlencoded参数key,value支持混合变量,调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('urlencoded参数key,value支持混合变量,调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -248,15 +216,7 @@ test.describe('UrlencodedParams', () => {
     await addBtn.click();
     await contentPage.waitForTimeout(500);
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Urlencoded混合变量测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Urlencoded混合变量测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -296,22 +256,14 @@ test.describe('UrlencodedParams', () => {
     await expect(responseBody).toContainText('REQ_', { timeout: 10000 });
   });
   // 测试用例6: urlencoded参数是否发送未勾选那么
-  test('urlencoded参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('urlencoded参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Urlencoded发送控制测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'Urlencoded发送控制测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);

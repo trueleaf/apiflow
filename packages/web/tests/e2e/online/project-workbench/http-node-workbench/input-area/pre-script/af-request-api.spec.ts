@@ -4,22 +4,14 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('AfRequestApi', () => {
   // 测试用例1: 使用af.request.prefix获取并修改请求前缀,发送请求后验证前缀已更改
-  test('使用af.request.prefix修改请求前缀', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.request.prefix修改请求前缀', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('af.request.prefix测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'af.request.prefix测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill('http://invalid-host.local/echo');
@@ -51,22 +43,14 @@ test.describe('AfRequestApi', () => {
     await expect(responseBody).toContainText('127.0.0.1', { timeout: 10000 });
   });
   // 测试用例2: 使用af.request.path获取并修改请求路径,发送请求后验证路径已更改
-  test('使用af.request.path修改请求路径', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.request.path修改请求路径', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('af.request.path测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'af.request.path测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/original-path`);
@@ -98,22 +82,14 @@ test.describe('AfRequestApi', () => {
     await expect(responseBody).toContainText('/echo', { timeout: 10000 });
   });
   // 测试用例3: 使用af.request.headers获取并修改请求头,发送请求后验证请求头已更改
-  test('使用af.request.headers修改请求头', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.request.headers修改请求头', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('af.request.headers测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'af.request.headers测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -146,22 +122,14 @@ test.describe('AfRequestApi', () => {
     await expect(responseBody).toContainText('custom-value-123', { timeout: 10000 });
   });
   // 测试用例4: 使用af.request.queryParams获取并修改Query参数,发送请求后验证参数已更改
-  test('使用af.request.queryParams修改Query参数', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.request.queryParams修改Query参数', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('af.request.queryParams测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'af.request.queryParams测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?page=1`);
@@ -196,22 +164,14 @@ af.request.queryParams["newParam"] = "newValue";`;
     await expect(responseBody).toContainText('newValue', { timeout: 10000 });
   });
   // 测试用例5: 使用af.request.pathParams获取并修改Path参数,发送请求后验证参数已更改
-  test('使用af.request.pathParams获取并修改Path参数', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.request.pathParams获取并修改Path参数', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('af.request.pathParams测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'af.request.pathParams测试' });
     // 设置请求URL，使用路径参数
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/users/{userId}`);
@@ -255,22 +215,14 @@ af.request.queryParams["newParam"] = "newValue";`;
     await expect(responseBody).toContainText('999', { timeout: 10000 });
   });
   // 测试用例6: 使用af.request.body.jso改
-  test('使用af.request.body.json修改JSON body', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.request.body.json修改JSON body', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('af.request.body.json测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'af.request.body.json测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -326,22 +278,14 @@ af.request.body.json.newField = "addedValue";`;
     await expect(responseBody).toContainText('addedValue', { timeout: 10000 });
   });
   // 测试用例7: 使用af.request.body.formdata获取并修改formdata body,发送请求后验证body已更改
-  test('使用af.request.body.formdata修改formdata body', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.request.body.formdata修改formdata body', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('af.request.body.formdata测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'af.request.body.formdata测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -397,22 +341,14 @@ af.request.body.json.newField = "addedValue";`;
     await expect(responseBody).toContainText('newvalue-from-script', { timeout: 10000 });
   });
   // 测试用例8: 使用af.request.method获取并修改请求方法,发送请求后验证方法已更改
-  test('使用af.request.method修改请求方法', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.request.method修改请求方法', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('af.request.method测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'af.request.method测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -450,22 +386,14 @@ af.request.body.json.newField = "addedValue";`;
     await expect(responseBody).toContainText('PUT', { timeout: 10000 });
   });
   // 测试用例9: 使用af.request.replaceUrl()替换整个URL,发送请求后验证URL已更改
-  test('使用af.request.replaceUrl替换整个URL', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('使用af.request.replaceUrl替换整个URL', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('af.request.replaceUrl测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'af.request.replaceUrl测试' });
     // 设置一个初始的无效URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill('http://invalid-host.local/invalid-path');

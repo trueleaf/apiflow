@@ -2,22 +2,14 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('AfterScriptEditorFeatures', () => {
   // 测试用例1: 后置脚本编辑器支持JavaScript语法高亮
-  test('后置脚本编辑器支持JavaScript语法高亮', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('后置脚本编辑器支持JavaScript语法高亮', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('语法高亮测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '语法高亮测试接口' });
     // 点击后置脚本标签页
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
@@ -39,22 +31,14 @@ test.describe('AfterScriptEditorFeatures', () => {
     await expect(hasTokens.first()).toBeVisible();
   });
   // 测试用例2: 输入af.后出现代码补全提示,包括response,sessionStorage,localStorage,cookies,variables等API
-  test('输入af.后出现代码补全提示', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('输入af.后出现代码补全提示', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('代码补全测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '代码补全测试接口' });
     // 点击后置脚本标签页
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
@@ -75,22 +59,14 @@ test.describe('AfterScriptEditorFeatures', () => {
     expect(hasResponseApi).toBeTruthy();
   });
   // 测试用例3: 点击格式化按钮,代码格式化正确
-  test('点击格式化按钮代码格式化正确', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('点击格式化按钮代码格式化正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('格式化测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '格式化测试接口' });
     // 点击后置脚本标签页
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();

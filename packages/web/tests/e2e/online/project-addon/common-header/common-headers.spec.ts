@@ -16,30 +16,14 @@ const waitForCommonHeaderSave = (page: Page) =>
 
 test.describe('CommonHeaders', () => {
   // 测试用例1: 为folder节点设置公共请求头,该folder下所有接口自动继承这些请求头
-  test('为folder节点设置公共请求头,该folder下所有接口自动继承这些请求头', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('为folder节点设置公共请求头,该folder下所有接口自动继承这些请求头', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // await contentPage.waitForTimeout(500);
-    const treeWrap = contentPage.locator('.tree-wrap');
-    // 创建一个folder节点
-    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
-    // await contentPage.waitForTimeout(300);
-    const contextMenu = contentPage.locator('.s-contextmenu');
-    const newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
-    await newFolderItem.click();
-    // await contentPage.waitForTimeout(300);
-    const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
-    await expect(folderDialog).toBeVisible({ timeout: 5000 });
-    const folderNameInput = folderDialog.locator('input').first();
-    await folderNameInput.fill('测试文件夹');
-    const folderConfirmBtn = folderDialog.locator('.el-button--primary').last();
-    await folderConfirmBtn.click();
-    // await contentPage.waitForTimeout(500);
-    // 右键folder节点,点击设置公共请求头
-    const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试文件夹' });
+    const folderId = await createNode(contentPage, { nodeType: 'folder', name: '测试文件夹' });
+    const folderNode = contentPage.locator(`[data-test-node-id="${folderId}"]`);
     await folderNode.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
     const commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
@@ -66,19 +50,7 @@ test.describe('CommonHeaders', () => {
     await confirmBtn.click();
     await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     await saveCommonHeader;
-    // 在folder下创建一个HTTP节点
-    await folderNode.click({ button: 'right' });
-    // await contentPage.waitForTimeout(300);
-    const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
-    await newInterfaceItem.click();
-    // await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|新增接口/ });
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('测试接口');
-    const fileConfirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await fileConfirmBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '测试接口', pid: folderId });
     // 设置请求URL并发送
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -95,7 +67,7 @@ test.describe('CommonHeaders', () => {
     await expect(requestInfo).toContainText('Bearer testtoken', { timeout: 10000 });
   });
   // 测试用例2: 公共请求头支持表格模式和多行编辑模式切换,两种模式数据同步
-  test('公共请求头支持表格模式和多行编辑模式切换,两种模式数据同步', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('公共请求头支持表格模式和多行编辑模式切换,两种模式数据同步', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -164,7 +136,7 @@ test.describe('CommonHeaders', () => {
     expect(finalKeyValue).toBe('Content-Type');
   });
   // 测试用例3: 批量模式应用参数后自动在尾部添加空行
-  test('批量模式应用参数后自动在尾部添加空行', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('批量模式应用参数后自动在尾部添加空行', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -222,7 +194,7 @@ test.describe('CommonHeaders', () => {
     expect(secondValueValue).toBe('*/*');
   });
   // 测试用例4: 公共请求头顺序在刷新后保持一致，且在HTTP节点中展示顺序相同
-  test('公共请求头顺序在刷新后保持一致,且在HTTP节点中展示顺序相同', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('公共请求头顺序在刷新后保持一致,且在HTTP节点中展示顺序相同', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -273,19 +245,7 @@ test.describe('CommonHeaders', () => {
     expect(firstKey).toBe('a');
     expect(secondKey).toBe('b');
     expect(thirdKey).toBe('c');
-    // 创建HTTP节点验证公共请求头顺序
-    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
-    // await contentPage.waitForTimeout(300);
-    const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
-    await newInterfaceItem.click();
-    // await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|新增接口/ });
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('测试接口');
-    const fileConfirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await fileConfirmBtn.click();
-    // await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '测试接口' });
     // 切换到Headers标签
     // 注意：data-testid 在 el-tab-pane（pane）上，真正可点击的是 tab
     await contentPage.locator('#tab-SRequestHeaders').click();
@@ -302,30 +262,16 @@ test.describe('CommonHeaders', () => {
     expect(thirdRowKey?.trim()).toBe('c');
   });
   // 测试用例5: 在目录A中设置公共请求头,在A目录下创建的httpNode继承A目录的公共请求头
-  test('在目录下创建的httpNode继承该目录的公共请求头', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('在目录下创建的httpNode继承该目录的公共请求头', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // await contentPage.waitForTimeout(500);
-    const treeWrap = contentPage.locator('.tree-wrap');
     // 创建一个folder节点
-    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
-    // await contentPage.waitForTimeout(300);
-    const contextMenu = contentPage.locator('.s-contextmenu');
-    const newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
-    await newFolderItem.click();
-    // await contentPage.waitForTimeout(300);
-    const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
-    await expect(folderDialog).toBeVisible({ timeout: 5000 });
-    const folderNameInput = folderDialog.locator('input').first();
-    await folderNameInput.fill('目录A');
-    const folderConfirmBtn = folderDialog.locator('.el-button--primary').last();
-    await folderConfirmBtn.click();
-    // await contentPage.waitForTimeout(500);
+    const folderAId = await createNode(contentPage, { nodeType: 'folder', name: '目录A' });
     // 右键folder节点,设置公共请求头
-    const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '目录A' });
+    const folderNode = contentPage.locator(`[data-test-node-id="${folderAId}"]`);
     await folderNode.click({ button: 'right' });
     // await contentPage.waitForTimeout(300);
     const commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
@@ -347,20 +293,8 @@ test.describe('CommonHeaders', () => {
     await confirmBtn.click();
     await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     await saveCommonHeader;
-    // await contentPage.waitForTimeout(500);
     // 在folder下创建一个HTTP节点
-    await folderNode.click({ button: 'right' });
-    // await contentPage.waitForTimeout(300);
-    const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
-    await newInterfaceItem.click();
-    // await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|新增接口/ });
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('测试接口A');
-    const fileConfirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await fileConfirmBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '测试接口A', pid: folderAId });
     // 发送请求验证公共请求头被继承
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -376,30 +310,16 @@ test.describe('CommonHeaders', () => {
     await expect(requestInfo).toContainText('folder-a-value', { timeout: 10000 });
   });
   // 测试用例6: 多层目录嵌套的公共请求头继承场景
-  test('多层目录嵌套的公共请求头继承场景', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('多层目录嵌套的公共请求头继承场景', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // await contentPage.waitForTimeout(500);
-    const treeWrap = contentPage.locator('.tree-wrap');
     // 创建第一层目录: 目录Level1
-    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
-    // await contentPage.waitForTimeout(300);
-    let contextMenu = contentPage.locator('.s-contextmenu');
-    let newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
-    await newFolderItem.click();
-    // await contentPage.waitForTimeout(300);
-    let folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
-    await expect(folderDialog).toBeVisible({ timeout: 5000 });
-    let folderNameInput = folderDialog.locator('input').first();
-    await folderNameInput.fill('目录Level1');
-    let folderConfirmBtn = folderDialog.locator('.el-button--primary').last();
-    await folderConfirmBtn.click();
-    // await contentPage.waitForTimeout(500);
+    const level1FolderId = await createNode(contentPage, { nodeType: 'folder', name: '目录Level1' });
     // 为Level1目录设置公共请求头
-    const level1Folder = contentPage.locator('.el-tree-node__content').filter({ hasText: '目录Level1' });
+    const level1Folder = contentPage.locator(`[data-test-node-id="${level1FolderId}"]`);
     await level1Folder.click({ button: 'right' });
     // await contentPage.waitForTimeout(300);
     let commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
@@ -419,23 +339,10 @@ test.describe('CommonHeaders', () => {
     await confirmBtn.click();
     await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     await saveCommonHeaderLevel1;
-    // await contentPage.waitForTimeout(500);
     // 在Level1下创建第二层目录: 目录Level2
-    await level1Folder.click({ button: 'right' });
-    // await contentPage.waitForTimeout(300);
-    contextMenu = contentPage.locator('.s-contextmenu');
-    newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
-    await newFolderItem.click();
-    // await contentPage.waitForTimeout(300);
-    folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
-    await expect(folderDialog).toBeVisible({ timeout: 5000 });
-    folderNameInput = folderDialog.locator('input').first();
-    await folderNameInput.fill('目录Level2');
-    folderConfirmBtn = folderDialog.locator('.el-button--primary').last();
-    await folderConfirmBtn.click();
-    // await contentPage.waitForTimeout(500);
+    const level2FolderId = await createNode(contentPage, { nodeType: 'folder', name: '目录Level2', pid: level1FolderId });
     // 为Level2目录设置公共请求头
-    const level2Folder = contentPage.locator('.el-tree-node__content').filter({ hasText: '目录Level2' });
+    const level2Folder = contentPage.locator(`[data-test-node-id="${level2FolderId}"]`);
     await level2Folder.click({ button: 'right' });
     // await contentPage.waitForTimeout(300);
     commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
@@ -455,23 +362,10 @@ test.describe('CommonHeaders', () => {
     await confirmBtn.click();
     await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     await saveCommonHeaderLevel2;
-    // await contentPage.waitForTimeout(500);
     // 在Level2下创建第三层目录: 目录Level3
-    await level2Folder.click({ button: 'right' });
-    // await contentPage.waitForTimeout(300);
-    contextMenu = contentPage.locator('.s-contextmenu');
-    newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
-    await newFolderItem.click();
-    // await contentPage.waitForTimeout(300);
-    folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
-    await expect(folderDialog).toBeVisible({ timeout: 5000 });
-    folderNameInput = folderDialog.locator('input').first();
-    await folderNameInput.fill('目录Level3');
-    folderConfirmBtn = folderDialog.locator('.el-button--primary').last();
-    await folderConfirmBtn.click();
-    // await contentPage.waitForTimeout(500);
+    const level3FolderId = await createNode(contentPage, { nodeType: 'folder', name: '目录Level3', pid: level2FolderId });
     // 为Level3目录设置公共请求头
-    const level3Folder = contentPage.locator('.el-tree-node__content').filter({ hasText: '目录Level3' });
+    const level3Folder = contentPage.locator(`[data-test-node-id="${level3FolderId}"]`);
     await level3Folder.click({ button: 'right' });
     // await contentPage.waitForTimeout(300);
     commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
@@ -491,20 +385,8 @@ test.describe('CommonHeaders', () => {
     await confirmBtn.click();
     await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     await saveCommonHeaderLevel3;
-    // await contentPage.waitForTimeout(500);
     // 在Level3下创建一个HTTP节点
-    await level3Folder.click({ button: 'right' });
-    // await contentPage.waitForTimeout(300);
-    const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
-    await newInterfaceItem.click();
-    // await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|新增接口/ });
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('嵌套测试接口');
-    const fileConfirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await fileConfirmBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '嵌套测试接口', pid: level3FolderId });
     // 发送请求验证多层公共请求头都被继承
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -524,30 +406,16 @@ test.describe('CommonHeaders', () => {
     await expect(requestInfo).toContainText('level3-value', { timeout: 10000 });
   });
   // 测试用例7: 子目录公共请求头优先级高于父目录（相同key的情况）
-  test('子目录公共请求头优先级高于父目录', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('子目录公共请求头优先级高于父目录', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // await contentPage.waitForTimeout(500);
-    const treeWrap = contentPage.locator('.tree-wrap');
     // 创建父目录
-    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
-    // await contentPage.waitForTimeout(300);
-    let contextMenu = contentPage.locator('.s-contextmenu');
-    let newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
-    await newFolderItem.click();
-    // await contentPage.waitForTimeout(300);
-    let folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
-    await expect(folderDialog).toBeVisible({ timeout: 5000 });
-    let folderNameInput = folderDialog.locator('input').first();
-    await folderNameInput.fill('父目录');
-    let folderConfirmBtn = folderDialog.locator('.el-button--primary').last();
-    await folderConfirmBtn.click();
-    // await contentPage.waitForTimeout(500);
+    const parentFolderId = await createNode(contentPage, { nodeType: 'folder', name: '父目录' });
     // 为父目录设置公共请求头
-    const parentFolder = contentPage.locator('.el-tree-node__content').filter({ hasText: '父目录' });
+    const parentFolder = contentPage.locator(`[data-test-node-id="${parentFolderId}"]`);
     await parentFolder.click({ button: 'right' });
     // await contentPage.waitForTimeout(300);
     let commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
@@ -567,23 +435,10 @@ test.describe('CommonHeaders', () => {
     await confirmBtn.click();
     await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     await saveCommonHeaderParent;
-    // await contentPage.waitForTimeout(500);
     // 在父目录下创建子目录
-    await parentFolder.click({ button: 'right' });
-    // await contentPage.waitForTimeout(300);
-    contextMenu = contentPage.locator('.s-contextmenu');
-    newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
-    await newFolderItem.click();
-    // await contentPage.waitForTimeout(300);
-    folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
-    await expect(folderDialog).toBeVisible({ timeout: 5000 });
-    folderNameInput = folderDialog.locator('input').first();
-    await folderNameInput.fill('子目录');
-    folderConfirmBtn = folderDialog.locator('.el-button--primary').last();
-    await folderConfirmBtn.click();
-    // await contentPage.waitForTimeout(500);
+    const childFolderId = await createNode(contentPage, { nodeType: 'folder', name: '子目录', pid: parentFolderId });
     // 为子目录设置相同key但不同value的公共请求头
-    const childFolder = contentPage.locator('.el-tree-node__content').filter({ hasText: '子目录' });
+    const childFolder = contentPage.locator(`[data-test-node-id="${childFolderId}"]`);
     await childFolder.click({ button: 'right' });
     // await contentPage.waitForTimeout(300);
     commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
@@ -603,20 +458,8 @@ test.describe('CommonHeaders', () => {
     await confirmBtn.click();
     await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
     await saveCommonHeaderChild;
-    // await contentPage.waitForTimeout(500);
     // 在子目录下创建HTTP节点
-    await childFolder.click({ button: 'right' });
-    // await contentPage.waitForTimeout(300);
-    const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
-    await newInterfaceItem.click();
-    // await contentPage.waitForTimeout(300);
-    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|新增接口/ });
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('优先级测试接口');
-    const fileConfirmBtn = addFileDialog.locator('.el-button--primary').last();
-    await fileConfirmBtn.click();
-    // await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '优先级测试接口', pid: childFolderId });
     // 切换到Headers标签，验证UI上父级被标记为低优先级，子级为高优先级
     await contentPage.locator('#tab-SRequestHeaders').click();
     // await contentPage.waitForTimeout(500);
@@ -641,6 +484,328 @@ test.describe('CommonHeaders', () => {
     await expect(requestInfo).toContainText('child-value', { timeout: 10000 });
     const requestText = await requestInfo.textContent();
     expect(requestText).not.toContain('parent-value');
+  });
+  // 测试用例8: 全局公共请求头对根目录HTTP节点生效
+  test('全局公共请求头对根目录HTTP节点生效', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const treeWrap = contentPage.locator('.tree-wrap');
+    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
+    const contextMenu = contentPage.locator('.s-contextmenu');
+    const commonHeaderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchCommonHeader = waitForCommonHeaderFetch(contentPage);
+    await commonHeaderItem.click();
+    await fetchCommonHeader;
+    const commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
+    const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.first().fill('X-Global-Header');
+    await valueInputs.first().click();
+    await contentPage.keyboard.type('global-value');
+    const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveCommonHeader = waitForCommonHeaderSave(contentPage);
+    await confirmBtn.click();
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveCommonHeader;
+    await createNode(contentPage, { nodeType: 'http', name: '根目录接口' });
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    await expect(contentPage.locator('[data-testid="response-tabs"]')).toBeVisible({ timeout: 10000 });
+    await contentPage.locator('#tab-SRequestView').click();
+    const requestInfo = contentPage.locator('.request-info');
+    await expect(requestInfo).toBeVisible({ timeout: 10000 });
+    await expect(requestInfo).toContainText('X-Global-Header', { timeout: 10000 });
+    await expect(requestInfo).toContainText('global-value', { timeout: 10000 });
+  });
+  // 测试用例9: 全局公共请求头对目录下HTTP节点生效
+  test('全局公共请求头对目录下HTTP节点生效', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const treeWrap = contentPage.locator('.tree-wrap');
+    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
+    const contextMenu = contentPage.locator('.s-contextmenu');
+    const commonHeaderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchCommonHeader = waitForCommonHeaderFetch(contentPage);
+    await commonHeaderItem.click();
+    await fetchCommonHeader;
+    const commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
+    const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.first().fill('X-Global-Header');
+    await valueInputs.first().click();
+    await contentPage.keyboard.type('global-value');
+    const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveCommonHeader = waitForCommonHeaderSave(contentPage);
+    await confirmBtn.click();
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveCommonHeader;
+    const folderId = await createNode(contentPage, { nodeType: 'folder', name: '测试文件夹' });
+    await createNode(contentPage, { nodeType: 'http', name: '文件夹内接口', pid: folderId });
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    await expect(contentPage.locator('[data-testid="response-tabs"]')).toBeVisible({ timeout: 10000 });
+    await contentPage.locator('#tab-SRequestView').click();
+    const requestInfo = contentPage.locator('.request-info');
+    await expect(requestInfo).toBeVisible({ timeout: 10000 });
+    await expect(requestInfo).toContainText('X-Global-Header', { timeout: 10000 });
+    await expect(requestInfo).toContainText('global-value', { timeout: 10000 });
+  });
+  // 测试用例10: 全局、目录、自定义请求头优先级-相同key
+  test('全局、目录、自定义请求头优先级-相同key', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const treeWrap = contentPage.locator('.tree-wrap');
+    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
+    const contextMenu = contentPage.locator('.s-contextmenu');
+    let commonHeaderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchGlobalHeader = waitForCommonHeaderFetch(contentPage);
+    await commonHeaderItem.click();
+    await fetchGlobalHeader;
+    let commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
+    let keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    let valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.first().fill('X-Priority-Test');
+    await valueInputs.first().click();
+    await contentPage.keyboard.type('global');
+    let confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveGlobalHeader = waitForCommonHeaderSave(contentPage);
+    await confirmBtn.click();
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveGlobalHeader;
+    const folderId = await createNode(contentPage, { nodeType: 'folder', name: '测试文件夹' });
+    const folderNode = contentPage.locator(`[data-test-node-id="${folderId}"]`);
+    await folderNode.click({ button: 'right' });
+    commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchFolderHeader = waitForCommonHeaderFetch(contentPage);
+    await commonHeaderItem.click();
+    await fetchFolderHeader;
+    commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
+    keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.first().fill('X-Priority-Test');
+    await valueInputs.first().click();
+    await contentPage.keyboard.type('folder');
+    confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveFolderHeader = waitForCommonHeaderSave(contentPage);
+    await confirmBtn.click();
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveFolderHeader;
+    await createNode(contentPage, { nodeType: 'http', name: '优先级测试', pid: folderId });
+    await contentPage.locator('#tab-SRequestHeaders').click();
+    const headerKeyInputs = contentPage.locator('.custom-header [data-testid="params-tree-key-input"]');
+    const headerValueInputs = contentPage.locator('.custom-header [data-testid="params-tree-value-input"]');
+    await headerKeyInputs.first().fill('X-Priority-Test');
+    await headerValueInputs.first().click();
+    await contentPage.keyboard.type('custom');
+    await contentPage.waitForTimeout(500);
+    const commonHeaderTable = contentPage.locator('.header-info .el-table').first();
+    const globalRow = commonHeaderTable.locator('.el-table__body-wrapper tbody tr', { hasText: 'global' }).first();
+    const folderRow = commonHeaderTable.locator('.el-table__body-wrapper tbody tr', { hasText: 'folder' }).first();
+    const customRow = commonHeaderTable.locator('.el-table__body-wrapper tbody tr', { hasText: 'custom' }).first();
+    await expect(globalRow).toBeVisible({ timeout: 5000 });
+    await expect(folderRow).toBeVisible({ timeout: 5000 });
+    await expect(customRow).toBeVisible({ timeout: 5000 });
+    await expect(globalRow.locator('.inactive-common-header', { hasText: 'X-Priority-Test' }).first()).toBeVisible({ timeout: 5000 });
+    await expect(folderRow.locator('.inactive-common-header', { hasText: 'X-Priority-Test' }).first()).toBeVisible({ timeout: 5000 });
+    await expect(customRow.locator('.inactive-common-header')).toHaveCount(0);
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    await expect(contentPage.locator('[data-testid="response-tabs"]')).toBeVisible({ timeout: 10000 });
+    await contentPage.locator('#tab-SRequestView').click();
+    const requestInfo = contentPage.locator('.request-info');
+    await expect(requestInfo).toBeVisible({ timeout: 10000 });
+    await expect(requestInfo).toContainText('custom', { timeout: 10000 });
+    const requestText = await requestInfo.textContent();
+    expect(requestText).not.toContain('global');
+    expect(requestText).not.toContain('folder');
+  });
+  // 测试用例11: 全局、目录、自定义请求头优先级-不同key
+  test('全局、目录、自定义请求头优先级-不同key', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const treeWrap = contentPage.locator('.tree-wrap');
+    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
+    const contextMenu = contentPage.locator('.s-contextmenu');
+    let commonHeaderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchGlobalHeader = waitForCommonHeaderFetch(contentPage);
+    await commonHeaderItem.click();
+    await fetchGlobalHeader;
+    let commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
+    let keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    let valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.first().fill('X-Global');
+    await valueInputs.first().click();
+    await contentPage.keyboard.type('global-value');
+    let confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveGlobalHeader = waitForCommonHeaderSave(contentPage);
+    await confirmBtn.click();
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveGlobalHeader;
+    const folderId = await createNode(contentPage, { nodeType: 'folder', name: '测试文件夹' });
+    const folderNode = contentPage.locator(`[data-test-node-id="${folderId}"]`);
+    await folderNode.click({ button: 'right' });
+    commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchFolderHeader = waitForCommonHeaderFetch(contentPage);
+    await commonHeaderItem.click();
+    await fetchFolderHeader;
+    commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
+    keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.first().fill('X-Folder');
+    await valueInputs.first().click();
+    await contentPage.keyboard.type('folder-value');
+    confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveFolderHeader = waitForCommonHeaderSave(contentPage);
+    await confirmBtn.click();
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveFolderHeader;
+    await createNode(contentPage, { nodeType: 'http', name: '多key测试', pid: folderId });
+    await contentPage.locator('#tab-SRequestHeaders').click();
+    const headerKeyInputs = contentPage.locator('.custom-header [data-testid="params-tree-key-input"]');
+    const headerValueInputs = contentPage.locator('.custom-header [data-testid="params-tree-value-input"]');
+    await headerKeyInputs.first().fill('X-Custom');
+    await headerValueInputs.first().click();
+    await contentPage.keyboard.type('custom-value');
+    await contentPage.waitForTimeout(500);
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    await expect(contentPage.locator('[data-testid="response-tabs"]')).toBeVisible({ timeout: 10000 });
+    await contentPage.locator('#tab-SRequestView').click();
+    const requestInfo = contentPage.locator('.request-info');
+    await expect(requestInfo).toBeVisible({ timeout: 10000 });
+    await expect(requestInfo).toContainText('X-Global', { timeout: 10000 });
+    await expect(requestInfo).toContainText('global-value', { timeout: 10000 });
+    await expect(requestInfo).toContainText('X-Folder', { timeout: 10000 });
+    await expect(requestInfo).toContainText('folder-value', { timeout: 10000 });
+    await expect(requestInfo).toContainText('X-Custom', { timeout: 10000 });
+    await expect(requestInfo).toContainText('custom-value', { timeout: 10000 });
+  });
+  // 测试用例12: 嵌套目录时全局请求头的继承
+  test('嵌套目录时全局请求头的继承', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const treeWrap = contentPage.locator('.tree-wrap');
+    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
+    const contextMenu = contentPage.locator('.s-contextmenu');
+    let commonHeaderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchGlobalHeader = waitForCommonHeaderFetch(contentPage);
+    await commonHeaderItem.click();
+    await fetchGlobalHeader;
+    let commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
+    let keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    let valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.first().fill('X-Global');
+    await valueInputs.first().click();
+    await contentPage.keyboard.type('global');
+    let confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveGlobalHeader = waitForCommonHeaderSave(contentPage);
+    await confirmBtn.click();
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveGlobalHeader;
+    const level1FolderId = await createNode(contentPage, { nodeType: 'folder', name: '目录Level1' });
+    const level1Folder = contentPage.locator(`[data-test-node-id="${level1FolderId}"]`);
+    await level1Folder.click({ button: 'right' });
+    commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchLevel1Header = waitForCommonHeaderFetch(contentPage);
+    await commonHeaderItem.click();
+    await fetchLevel1Header;
+    commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
+    keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.first().fill('X-Level1');
+    await valueInputs.first().click();
+    await contentPage.keyboard.type('level1');
+    confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveLevel1Header = waitForCommonHeaderSave(contentPage);
+    await confirmBtn.click();
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveLevel1Header;
+    const level2FolderId = await createNode(contentPage, { nodeType: 'folder', name: '目录Level2', pid: level1FolderId });
+    const level2Folder = contentPage.locator(`[data-test-node-id="${level2FolderId}"]`);
+    await level2Folder.click({ button: 'right' });
+    commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchLevel2Header = waitForCommonHeaderFetch(contentPage);
+    await commonHeaderItem.click();
+    await fetchLevel2Header;
+    commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
+    keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.first().fill('X-Level2');
+    await valueInputs.first().click();
+    await contentPage.keyboard.type('level2');
+    confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveLevel2Header = waitForCommonHeaderSave(contentPage);
+    await confirmBtn.click();
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveLevel2Header;
+    const level3FolderId = await createNode(contentPage, { nodeType: 'folder', name: '目录Level3', pid: level2FolderId });
+    const level3Folder = contentPage.locator(`[data-test-node-id="${level3FolderId}"]`);
+    await level3Folder.click({ button: 'right' });
+    commonHeaderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ });
+    const fetchLevel3Header = waitForCommonHeaderFetch(contentPage);
+    await commonHeaderItem.click();
+    await fetchLevel3Header;
+    commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
+    keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.first().fill('X-Level3');
+    await valueInputs.first().click();
+    await contentPage.keyboard.type('level3');
+    confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    const saveLevel3Header = waitForCommonHeaderSave(contentPage);
+    await confirmBtn.click();
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await saveLevel3Header;
+    await createNode(contentPage, { nodeType: 'http', name: '深层嵌套接口', pid: level3FolderId });
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    await expect(contentPage.locator('[data-testid="response-tabs"]')).toBeVisible({ timeout: 10000 });
+    await contentPage.locator('#tab-SRequestView').click();
+    const requestInfo = contentPage.locator('.request-info');
+    await expect(requestInfo).toBeVisible({ timeout: 10000 });
+    await expect(requestInfo).toContainText('X-Global', { timeout: 10000 });
+    await expect(requestInfo).toContainText('global', { timeout: 10000 });
+    await expect(requestInfo).toContainText('X-Level1', { timeout: 10000 });
+    await expect(requestInfo).toContainText('level1', { timeout: 10000 });
+    await expect(requestInfo).toContainText('X-Level2', { timeout: 10000 });
+    await expect(requestInfo).toContainText('level2', { timeout: 10000 });
+    await expect(requestInfo).toContainText('X-Level3', { timeout: 10000 });
+    await expect(requestInfo).toContainText('level3', { timeout: 10000 });
   });
 });
 

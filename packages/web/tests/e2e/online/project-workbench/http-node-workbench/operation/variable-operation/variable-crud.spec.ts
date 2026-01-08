@@ -2,22 +2,14 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('VariableCrud', () => {
   // 测试用例1: 新增string类型变量,输入变量名和值后保存成功
-  test('新增string类型变量保存成功', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('新增string类型变量保存成功', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('变量CRUD测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '变量CRUD测试接口' });
     // 打开变量管理页签
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();
@@ -37,22 +29,14 @@ test.describe('VariableCrud', () => {
     await expect(variablePage.locator('.right')).toContainText('testString', { timeout: 5000 });
   });
   // 测试用例2: 新增number类型变量,输入变量名和数字值后保存成功
-  test('新增number类型变量保存成功', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('新增number类型变量保存成功', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('数字变量测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '数字变量测试接口' });
     // 打开变量管理页签
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();
@@ -78,22 +62,14 @@ test.describe('VariableCrud', () => {
     await expect(variablePage.locator('.right')).toContainText('testNumber', { timeout: 5000 });
   });
   // 测试用例3: 修改已存在变量的值,保存后变量值更新
-  test('修改已存在变量的值保存后更新', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('修改已存在变量的值保存后更新', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('变量修改测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '变量修改测试接口' });
     // 打开变量管理页签
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();
@@ -126,22 +102,14 @@ test.describe('VariableCrud', () => {
     await expect(variablePage.locator('.right')).toContainText('new_value', { timeout: 5000 });
   });
   // 测试用例4: 删除变量后,变量从列表中移除
-  test('删除变量后从列表中移除', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  test('删除变量后从列表中移除', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('变量删除测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '变量删除测试接口' });
     // 打开变量管理页签
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();
