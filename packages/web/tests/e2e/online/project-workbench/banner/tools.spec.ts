@@ -3,13 +3,14 @@ import { test, expect } from '../../../../fixtures/electron-online.fixture';
 test.describe('Tools', () => {
   // 测试用例1: 工具栏默认显示固定工具
   test('工具栏默认显示固定工具', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    // 清除缓存并登录
     await clearCache();
-
     await loginAccount();
+    // 创建项目并进入工作台
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    // 验证工具栏区域存在
+    // 验证工具栏区域存在并可见
     const toolIcon = contentPage.locator('.tool-icon');
     await expect(toolIcon).toBeVisible({ timeout: 5000 });
     // 验证固定工具栏区域存在(SDraggable渲染的operation区域)
@@ -22,18 +23,19 @@ test.describe('Tools', () => {
 
   // 测试用例2: 点击更多操作按钮展开工具面板
   test('点击更多操作按钮展开工具面板', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    // 清除缓存并登录
     await clearCache();
-
     await loginAccount();
+    // 创建项目并进入工作台
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    // 点击更多操作按钮
+    // 点击更多操作按钮展开面板
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await expect(moreBtn).toBeVisible({ timeout: 5000 });
     await moreBtn.click();
     await contentPage.waitForTimeout(300);
-    // 验证面板展开(tool-panel是popper-class)
+    // 验证工具面板成功展开(tool-panel是popper-class)
     const toolPanel = contentPage.locator('.tool-panel');
     await expect(toolPanel).toBeVisible({ timeout: 5000 });
     // 验证面板标题显示"快捷操作"
@@ -44,20 +46,21 @@ test.describe('Tools', () => {
 
   // 测试用例3: 更多操作面板显示完整工具列表
   test('更多操作面板显示完整工具列表', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    // 清除缓存并登录
     await clearCache();
-
     await loginAccount();
+    // 创建项目并进入工作台
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    // 点击更多操作按钮
+    // 点击更多操作按钮展开面板
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     await contentPage.waitForTimeout(300);
-    // 验证工具列表存在
+    // 验证工具列表存在并可见
     const dropdownItems = contentPage.locator('.tool-panel .dropdown-item');
     await expect(dropdownItems.first()).toBeVisible({ timeout: 5000 });
-    // 验证工具项包含:图标、名称、固定按钮
+    // 验证工具项包含必要的元素:图标、名称、固定按钮
     const firstItem = dropdownItems.first();
     // 验证固定按钮存在
     const pinBtn = firstItem.locator('.pin');

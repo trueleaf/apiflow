@@ -67,7 +67,7 @@ test.describe('CreateProject', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const url = contentPage.url();
     expect(url).toContain('mode=edit');
-    const activeTab = topBarPage.locator('.tab-item.active');
+    const activeTab = topBarPage.locator('[data-test-id^="header-tab-item-"].active');
     await expect(activeTab).toBeVisible({ timeout: 3000 });
     await expect(activeTab).toContainText(projectName);
   });

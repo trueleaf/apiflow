@@ -2,9 +2,12 @@ import { test, expect } from '../../../fixtures/electron-online.fixture';
 
 test.describe('CreateProject', () => {
   test('点击顶部栏新建项目按钮打开弹窗,输入框自动聚焦', async ({ topBarPage, contentPage, loginAccount }) => {
+    // 登录账号
     await loginAccount();
+    // 点击顶部栏新建项目按钮
     const addProjectBtn = topBarPage.locator('[data-testid="header-add-project-btn"]');
     await addProjectBtn.click();
+    // 验证新建项目弹窗显示，且输入框自动聚焦
     const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
     await expect(projectDialog).toBeVisible({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -13,9 +16,10 @@ test.describe('CreateProject', () => {
   });
 
   test('点击首页内容区新建项目按钮打开弹窗,输入框自动聚焦', async ({ topBarPage, contentPage, clearCache, loginAccount }) => {
+    // 清除缓存并登录
     await clearCache();
-
     await loginAccount();
+    // 点击顶部栏首页按钮进入首页
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
     const projectListPromise = contentPage.waitForResponse(
       (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
@@ -25,8 +29,10 @@ test.describe('CreateProject', () => {
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await projectListPromise;
     await contentPage.waitForTimeout(500);
+    // 点击首页内容区新建项目按钮
     const addProjectBtn = contentPage.locator('[data-testid="home-add-project-btn"]');
     await addProjectBtn.click();
+    // 验证新建项目弹窗显示，且输入框自动聚焦
     const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
     await expect(projectDialog).toBeVisible({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -35,13 +41,16 @@ test.describe('CreateProject', () => {
   });
 
   test('不输入项目名称直接点击确定,显示必填错误提示', async ({ topBarPage, contentPage, loginAccount }) => {
+    // 登录并打开新建项目弹窗
     await loginAccount();
     const addProjectBtn = topBarPage.locator('[data-testid="header-add-project-btn"]');
     await addProjectBtn.click();
     const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
     await expect(projectDialog).toBeVisible({ timeout: 5000 });
+    // 不输入项目名称直接点击确定按钮
     const confirmBtn = projectDialog.locator('.el-button--primary').last();
     await confirmBtn.click();
+    // 验证显示必填错误提示，弹窗仍然显示
     const errorMessage = projectDialog.locator('.el-form-item__error');
     await expect(errorMessage).toBeVisible({ timeout: 3000 });
     await expect(errorMessage).toContainText(/请填写项目名称/);
@@ -49,15 +58,18 @@ test.describe('CreateProject', () => {
   });
 
   test('输入纯空格作为项目名称,显示空格校验错误提示', async ({ topBarPage, contentPage, loginAccount }) => {
+    // 登录并打开新建项目弹窗
     await loginAccount();
     const addProjectBtn = topBarPage.locator('[data-testid="header-add-project-btn"]');
     await addProjectBtn.click();
     const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
     await expect(projectDialog).toBeVisible({ timeout: 5000 });
+    // 在项目名称输入框中填入纯空格
     const projectNameInput = projectDialog.locator('input').first();
     await projectNameInput.fill('   ');
     await projectDialog.locator('.el-dialog__header').click();
     await contentPage.waitForTimeout(300);
+    // 验证显示空格校验错误提示
     const errorMessage = projectDialog.locator('.el-form-item__error');
     await expect(errorMessage).toBeVisible({ timeout: 3000 });
     await expect(errorMessage).toContainText(/项目名称不能为空或仅包含空格/);
@@ -78,16 +90,17 @@ test.describe('CreateProject', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const url = contentPage.url();
     expect(url).toContain('mode=edit');
-    const activeTab = topBarPage.locator('.tab-item.active');
+    const activeTab = topBarPage.locator('[data-test-id^="header-tab-item-"].active');
     await expect(activeTab).toBeVisible({ timeout: 3000 });
     await expect(activeTab).toContainText(projectName);
   });
 
   test('新建项目后返回首页,新项目排在全部项目列表第一位', async ({ topBarPage, contentPage, clearCache, loginAccount, reload }) => {
+    // 清除缓存并登录
     await clearCache();
-
     await loginAccount();
     await reload();
+    // 打开新建项目弹窗并输入项目名称
     const projectName = `排序测试项目-${Date.now()}`;
     const addProjectBtn = topBarPage.locator('[data-testid="header-add-project-btn"]');
     await addProjectBtn.click();
@@ -97,8 +110,10 @@ test.describe('CreateProject', () => {
     await projectNameInput.fill(projectName);
     const confirmBtn = projectDialog.locator('.el-button--primary').last();
     await confirmBtn.click();
+    // 等待项目创建完成，并跳转到项目工作台
     await expect(projectDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 点击顶部栏首页按钮返回首页
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
     const projectListPromiseAfterCreate = contentPage.waitForResponse(
       (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
@@ -108,6 +123,7 @@ test.describe('CreateProject', () => {
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await projectListPromiseAfterCreate;
     await contentPage.waitForTimeout(500);
+    // 验证新建的项目显示在列表第一位
     const firstProjectCard = contentPage.locator('[data-testid="home-project-card-0"]');
     await expect(firstProjectCard).toBeVisible({ timeout: 5000 });
     await expect(firstProjectCard).toContainText(projectName);

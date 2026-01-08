@@ -189,17 +189,19 @@ export const test = base.extend<ElectronFixtures>({
       }
       const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
       await expect(networkToggle).toBeVisible({ timeout: 5000 });
-      const networkText = await networkToggle.locator('.network-text').innerText();
+      const networkText = await networkToggle.locator('.icon-text').innerText();
       if (/离线|Offline/i.test(networkText)) {
         await networkToggle.click();
+        await topBarPage.waitForTimeout(500);
       } else {
         const userMenuBtn = topBarPage.locator('[data-testid="header-user-menu-btn"]');
         const hasUserMenu = await userMenuBtn.isVisible({ timeout: 1000 }).catch(() => false);
         if (hasUserMenu) {
           await userMenuBtn.click();
-          const logoutBtn = contentPage.getByText(/退出登录|Logout/i);
+          const logoutBtn = contentPage.locator('[data-test-id="user-menu-logout-btn"]');
           await expect(logoutBtn).toBeVisible({ timeout: 5000 });
           await logoutBtn.click();
+          await contentPage.waitForTimeout(500);
         }
       }
       await contentPage.waitForURL(/.*?#?\/login/, { timeout: 10000 });

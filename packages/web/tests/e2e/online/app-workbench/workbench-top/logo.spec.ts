@@ -10,7 +10,7 @@ test.describe('Logo', () => {
     await loginAccount();
     await jumpToSettings();
     // 点击logo跳转主页面
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     const projectListPromise = contentPage.waitForResponse(
       (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
       { timeout: 20000 },
@@ -29,7 +29,7 @@ test.describe('Logo', () => {
     await clearCache();
     await loginAccount();
     // 获取初始Logo的src
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await expect(logo).toBeVisible();
     const initialSrc = await logo.getAttribute('src');
     await jumpToSettings();
@@ -61,7 +61,7 @@ test.describe('Logo', () => {
     expect(updatedContentSrc).not.toBe(initialSrc);
     await reload();
     // 验证刷新后Logo仍然保持更新后的图标
-    const logoAfterRefresh = topBarPage.locator('.logo-img');
+    const logoAfterRefresh = topBarPage.locator('[data-test-id="header-logo"]');
     await expect(logoAfterRefresh).toBeVisible();
     // 验证localStorage中存储了新Logo
     const storedLogo = await contentPage.evaluate(() => {
@@ -76,7 +76,7 @@ test.describe('Logo', () => {
     await clearCache();
     await loginAccount();
     // 先上传自定义图标
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await expect(logo).toBeVisible();
     await jumpToSettings();
     // 点击"通用配置"菜单项

@@ -44,7 +44,7 @@ test.describe('ProjectRecoveryDocNum', () => {
       }
       return id
     }, { name: projectName })
-    const projectTab = topBarPage.locator('.tab-item').filter({ hasText: projectName }).first()
+    const projectTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectName }).first()
     await expect(projectTab).toBeVisible({ timeout: 5000 })
     await projectTab.click()
     const bannerTree = contentPage.locator('[data-testid="banner-doc-tree"]')

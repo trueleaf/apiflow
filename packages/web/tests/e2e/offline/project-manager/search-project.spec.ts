@@ -7,7 +7,7 @@ test.describe('SearchProject', () => {
     const projectName = await createProject();
     await contentPage.waitForTimeout(500);
     // 返回首页
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -33,7 +33,7 @@ test.describe('SearchProject', () => {
     const projectName = await createProject();
     await contentPage.waitForTimeout(500);
     // 返回首页
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -59,7 +59,7 @@ test.describe('SearchProject', () => {
     const project1 = await createProject('测试项目AAA');
     await contentPage.waitForTimeout(300);
     // 返回首页
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(300);
@@ -147,7 +147,7 @@ test.describe('SearchProject', () => {
     await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 返回首页
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -205,7 +205,7 @@ test.describe('SearchProject', () => {
     await expect(saveBtn).toBeVisible({ timeout: 5000 });
     await saveBtn.click();
     await contentPage.waitForTimeout(800);
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -294,7 +294,7 @@ test.describe('SearchProject', () => {
     await contentPage.waitForTimeout(200);
     await mockDialog.locator('.el-button--primary').last().click();
     await contentPage.waitForTimeout(500);
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -451,7 +451,7 @@ test.describe('SearchProject', () => {
     await expect(wsSaveBtn).toBeVisible({ timeout: 5000 });
     await wsSaveBtn.click();
     await contentPage.waitForTimeout(800);
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -507,7 +507,7 @@ test.describe('SearchProject', () => {
     await addFileDialog.locator('input').first().fill(`更新日期节点-${docKeyword}`);
     await addFileDialog.locator('.el-button--primary').last().click();
     await contentPage.waitForTimeout(800);
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -582,7 +582,7 @@ test.describe('SearchProject', () => {
     await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 返回首页
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -624,7 +624,7 @@ test.describe('SearchProject', () => {
     await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 返回首页
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -664,7 +664,7 @@ test.describe('SearchProject', () => {
     await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 返回首页
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -703,7 +703,7 @@ test.describe('SearchProject', () => {
     await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 返回首页
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -729,7 +729,7 @@ test.describe('SearchProject', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 返回首页
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);

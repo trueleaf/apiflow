@@ -9,7 +9,7 @@ test.describe('SearchProject', () => {
     const projectName = await createProject();
     await contentPage.waitForTimeout(500);
     // 返回首页
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     const projectListPromise = contentPage.waitForResponse(
       (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
       { timeout: 20000 },
@@ -42,7 +42,7 @@ test.describe('SearchProject', () => {
     const projectName = await createProject();
     await contentPage.waitForTimeout(500);
     // 返回首页
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     const projectListPromise = contentPage.waitForResponse(
       (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
       { timeout: 20000 },
@@ -76,7 +76,7 @@ test.describe('SearchProject', () => {
     const project1 = await createProject(`测试项目AAA_${uniqueId}`);
     await contentPage.waitForTimeout(300);
     // 返回首页
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     const projectListPromise = contentPage.waitForResponse(
       (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
       { timeout: 20000 },

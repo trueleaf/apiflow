@@ -4,11 +4,11 @@ test.describe('NavControl', () => {
   test('点击刷新按钮后Tab状态保持', async ({ topBarPage, contentPage, createProject }) => {
     const projectName = await createProject(`刷新测试-${Date.now()}`);
     // 验证项目Tab存在且被高亮
-    const projectTab = topBarPage.locator('.tab-item').filter({ hasText: projectName });
+    const projectTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectName });
     await expect(projectTab).toBeVisible();
     await expect(projectTab).toHaveClass(/active/);
     // 记录刷新前的Tab数量
-    const tabCountBefore = await topBarPage.locator('.tab-item').count();
+    const tabCountBefore = await topBarPage.locator('[data-test-id^="header-tab-item-"]').count();
     // 点击刷新按钮
     const refreshBtn = topBarPage.locator('[data-testid="header-refresh-btn"]');
     await expect(refreshBtn).toBeVisible();
@@ -19,10 +19,10 @@ test.describe('NavControl', () => {
     // 等待Tab列表从localStorage恢复
     await topBarPage.waitForTimeout(1000);
     // 验证Tab列表恢复，项目Tab仍然存在
-    const projectTabAfterRefresh = topBarPage.locator('.tab-item').filter({ hasText: projectName });
+    const projectTabAfterRefresh = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectName });
     await expect(projectTabAfterRefresh).toBeVisible({ timeout: 10000 });
     // 验证Tab数量保持不变
-    const tabCountAfter = await topBarPage.locator('.tab-item').count();
+    const tabCountAfter = await topBarPage.locator('[data-test-id^="header-tab-item-"]').count();
     expect(tabCountAfter).toBe(tabCountBefore);
     // 验证之前高亮的Tab保持高亮状态
     await expect(projectTabAfterRefresh).toHaveClass(/active/);
@@ -34,12 +34,12 @@ test.describe('NavControl', () => {
     await createProject(`项目B-${Date.now()}`);
     await createProject(`项目C-${Date.now()}`);
     // 当前在项目C，切换到项目A
-    const projectATab = topBarPage.locator('.tab-item').filter({ hasText: projectAName });
+    const projectATab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectAName });
     await projectATab.click();
     await topBarPage.waitForTimeout(300);
     await expect(projectATab).toHaveClass(/active/);
     await jumpToSettings();
-    const settingsTab = topBarPage.locator('.tab-item[data-id="settings-offline"]');
+    const settingsTab = topBarPage.locator('[data-test-id^="header-tab-item-"][data-id="settings-offline"]');
     await expect(settingsTab).toHaveClass(/active/);
     // 导航历史栈现在是: 项目C -> 项目A -> 设置
     // 点击后退按钮，应回到项目A
@@ -68,11 +68,11 @@ test.describe('NavControl', () => {
     const projectBName = await createProject(`历史B-${Date.now()}`);
     const projectCName = await createProject(`历史C-${Date.now()}`);
     // 切换到项目A
-    const projectATab = topBarPage.locator('.tab-item').filter({ hasText: projectAName });
+    const projectATab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectAName });
     await projectATab.click();
     await topBarPage.waitForTimeout(300);
     await jumpToSettings();
-    const settingsTab = topBarPage.locator('.tab-item[data-id="settings-offline"]');
+    const settingsTab = topBarPage.locator('[data-test-id^="header-tab-item-"][data-id="settings-offline"]');
     await expect(settingsTab).toHaveClass(/active/);
     // 导航历史栈: 项目C -> 项目A -> 设置
     const backBtn = topBarPage.locator('[data-testid="header-back-btn"]');      
@@ -84,7 +84,7 @@ test.describe('NavControl', () => {
     // 后退：项目A -> 项目C
     await backBtn.click();
     await topBarPage.waitForTimeout(500);
-    const projectCTab = topBarPage.locator('.tab-item').filter({ hasText: projectCName });
+    const projectCTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectCName });
     await expect(projectCTab).toHaveClass(/active/);
     // 前进：项目C -> 项目A
     await forwardBtn.click();

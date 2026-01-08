@@ -6,30 +6,38 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('Variable', () => {
   test('打开变量管理页面,显示新增变量表单和变量列表', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    // 清除缓存并登录
     await clearCache();
-
     await loginAccount();
+    // 创建项目并进入工作台
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 点击更多操作按钮展开工具面板
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
+    // 点击全局变量选项
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
     await variableOption.click();
     await contentPage.waitForTimeout(500);
+    // 验证变量管理页面成功打开
     const variablePage = contentPage.locator('.s-variable');
     await expect(variablePage).toBeVisible({ timeout: 5000 });
+    // 验证左侧新增变量表单区域存在
     const addVariableForm = variablePage.locator('.left');
     await expect(addVariableForm).toBeVisible();
+    // 验证右侧变量列表区域存在
     const variableList = variablePage.locator('.right');
     await expect(variableList).toBeVisible();
   });
 
   test('新增string类型变量成功,变量列表中显示新增的变量', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    // 清除缓存并登录
     await clearCache();
-
     await loginAccount();
+    // 创建项目并进入工作台
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 打开变量管理页面
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -37,13 +45,17 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(500);
     const variablePage = contentPage.locator('.s-variable');
     await expect(variablePage).toBeVisible({ timeout: 5000 });
+    // 输入变量名称
     const nameInput = variablePage.locator('.left input').first();
     await nameInput.fill('testString');
+    // 输入变量值(string类型默认使用textarea)
     const valueTextarea = variablePage.locator('.left textarea');
     await valueTextarea.fill('hello world');
+    // 点击新增按钮
     const addBtn = variablePage.locator('.left .el-button--primary');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
+    // 验证变量列表中显示新增的变量
     const variableTable = variablePage.locator('.right .el-table');
     await expect(variableTable).toContainText('testString');
     await expect(variableTable).toContainText('hello world');
@@ -51,11 +63,13 @@ test.describe('Variable', () => {
   });
 
   test('新增number类型变量成功', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    // 清除缓存并登录
     await clearCache();
-
     await loginAccount();
+    // 创建项目并进入工作台
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 打开变量管理页面
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -63,18 +77,23 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(500);
     const variablePage = contentPage.locator('.s-variable');
     await expect(variablePage).toBeVisible({ timeout: 5000 });
+    // 输入变量名称
     const nameInput = variablePage.locator('.left input').first();
     await nameInput.fill('testNumber');
+    // 选择变量类型为number
     const typeSelect = variablePage.locator('.left .el-select');
     await typeSelect.click();
     const numberOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'number' });
     await numberOption.click();
     await contentPage.waitForTimeout(300);
+    // 输入数字值
     const numberInput = variablePage.locator('.left .el-input-number input');
     await numberInput.fill('123');
+    // 点击新增按钮
     const addBtn = variablePage.locator('.left .el-button--primary');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
+    // 验证变量列表中显示新增的number类型变量
     const variableTable = variablePage.locator('.right .el-table');
     await expect(variableTable).toContainText('testNumber');
     await expect(variableTable).toContainText('123');
@@ -82,11 +101,13 @@ test.describe('Variable', () => {
   });
 
   test('新增boolean类型变量成功', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    // 清除缓存并登录
     await clearCache();
-
     await loginAccount();
+    // 创建项目并进入工作台
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 打开变量管理页面
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -94,18 +115,23 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(500);
     const variablePage = contentPage.locator('.s-variable');
     await expect(variablePage).toBeVisible({ timeout: 5000 });
+    // 输入变量名称
     const nameInput = variablePage.locator('.left input').first();
     await nameInput.fill('testBoolean');
+    // 选择变量类型为boolean
     const typeSelect = variablePage.locator('.left .el-select');
     await typeSelect.click();
     const booleanOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'boolean' });
     await booleanOption.click();
     await contentPage.waitForTimeout(300);
+    // 选择true值
     const trueRadio = variablePage.locator('.left .el-radio').first();
     await trueRadio.click();
+    // 点击新增按钮
     const addBtn = variablePage.locator('.left .el-button--primary');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
+    // 验证变量列表中显示新增的boolean类型变量
     const variableTable = variablePage.locator('.right .el-table');
     await expect(variableTable).toContainText('testBoolean');
     await expect(variableTable).toContainText('true');
@@ -113,11 +139,13 @@ test.describe('Variable', () => {
   });
 
   test('新增重复变量名显示错误提示', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    // 清除缓存并登录
     await clearCache();
-
     await loginAccount();
+    // 创建项目并进入工作台
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 打开变量管理页面
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -125,6 +153,7 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(500);
     const variablePage = contentPage.locator('.s-variable');
     await expect(variablePage).toBeVisible({ timeout: 5000 });
+    // 新增第一个变量
     const nameInput = variablePage.locator('.left input').first();
     await nameInput.fill('duplicateVar');
     const valueTextarea = variablePage.locator('.left textarea');
@@ -132,20 +161,24 @@ test.describe('Variable', () => {
     const addBtn = variablePage.locator('.left .el-button--primary');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
+    // 尝试新增同名变量
     await nameInput.fill('duplicateVar');
     await valueTextarea.fill('second value');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
+    // 验证显示错误提示消息
     const errorMessage = contentPage.locator('.el-message--error');
     await expect(errorMessage).toBeVisible({ timeout: 3000 });
   });
 
   test('删除变量成功,变量从列表中移除', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    // 清除缓存并登录
     await clearCache();
-
     await loginAccount();
+    // 创建项目并进入工作台
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 打开变量管理页面
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -153,6 +186,7 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(500);
     const variablePage = contentPage.locator('.s-variable');
     await expect(variablePage).toBeVisible({ timeout: 5000 });
+    // 新增一个变量用于后续删除
     const nameInput = variablePage.locator('.left input').first();
     await nameInput.fill('toBeDeleted');
     const valueTextarea = variablePage.locator('.left textarea');
@@ -160,22 +194,28 @@ test.describe('Variable', () => {
     const addBtn = variablePage.locator('.left .el-button--primary');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
+    // 验证变量已添加到列表
     const variableTable = variablePage.locator('.right .el-table');
     await expect(variableTable).toContainText('toBeDeleted');
+    // 点击删除按钮
     const deleteBtn = variablePage.locator('.right .el-table .el-button').filter({ hasText: /删除|Delete/ });
     await deleteBtn.click();
+    // 确认删除操作
     const confirmBtn = contentPage.locator('.cl-confirm-footer-right .el-button--primary');
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
+    // 验证变量已从列表中移除
     await expect(variableTable).not.toContainText('toBeDeleted');
   });
 
   test('编辑变量成功,变量值更新', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    // 清除缓存并登录
     await clearCache();
-
     await loginAccount();
+    // 创建项目并进入工作台
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 打开变量管理页面
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
@@ -183,6 +223,7 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(500);
     const variablePage = contentPage.locator('.s-variable');
     await expect(variablePage).toBeVisible({ timeout: 5000 });
+    // 新增一个变量用于后续编辑
     const nameInput = variablePage.locator('.left input').first();
     await nameInput.fill('toBeEdited');
     const valueTextarea = variablePage.locator('.left textarea');
@@ -190,16 +231,21 @@ test.describe('Variable', () => {
     const addBtn = variablePage.locator('.left .el-button--primary');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
+    // 点击编辑按钮
     const editBtn = variablePage.locator('.right .el-table .el-button').filter({ hasText: /编辑|Edit/ });
     await editBtn.click();
     await contentPage.waitForTimeout(300);
+    // 验证编辑对话框弹出
     const editDialog = contentPage.locator('.el-dialog').filter({ hasText: /修改变量|Edit/ });
     await expect(editDialog).toBeVisible({ timeout: 5000 });
+    // 修改变量值
     const editValueTextarea = editDialog.locator('textarea');
     await editValueTextarea.fill('updated value');
+    // 确认修改
     const confirmBtn = editDialog.locator('.el-button--primary');
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
+    // 验证变量值已更新
     const variableTable = variablePage.locator('.right .el-table');
     await expect(variableTable).toContainText('updated value');
   });

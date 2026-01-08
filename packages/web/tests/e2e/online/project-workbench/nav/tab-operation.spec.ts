@@ -3,9 +3,10 @@ import { test, expect } from '../../../../fixtures/electron-online.fixture';
 test.describe('TabOperation', () => {
   // 测试用例1: 点击关闭按钮关闭当前tab
   test('点击关闭按钮关闭当前tab', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    // 清除缓存并登录
     await clearCache();
-
     await loginAccount();
+    // 创建项目并进入工作台
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
@@ -13,18 +14,18 @@ test.describe('TabOperation', () => {
     // 验证tab存在
     const tab = contentPage.locator('.nav .item').filter({ hasText: '关闭测试接口' });
     await expect(tab).toBeVisible({ timeout: 3000 });
-    // 点击关闭按钮
+    // 点击关闭按钮并验证tab不存在
     const closeBtn = tab.locator('[data-testid="project-nav-tab-close-btn"]');
     await closeBtn.click();
     await contentPage.waitForTimeout(300);
-    // 验证tab不存在
     await expect(tab).not.toBeVisible({ timeout: 3000 });
   });
   // 测试用例2: 右键菜单关闭当前tab
   test('右键菜单关闭当前tab', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    // 清除缓存并登录
     await clearCache();
-
     await loginAccount();
+    // 创建项目并进入工作台
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
@@ -33,18 +34,18 @@ test.describe('TabOperation', () => {
     const tab = contentPage.locator('.nav .item').filter({ hasText: '右键关闭测试' });
     await tab.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
-    // 点击关闭菜单项
+    // 点击关闭菜单项并验证tab不存在
     const closeMenuItem = contentPage.locator('[data-testid="contextmenu-item-关闭"], [data-testid="contextmenu-item-Close"]');
     await closeMenuItem.click();
     await contentPage.waitForTimeout(300);
-    // 验证tab不存在
     await expect(tab).not.toBeVisible({ timeout: 3000 });
   });
   // 测试用例3: 右键菜单关闭左侧tab
   test('右键菜单关闭左侧tab', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    // 清除缓存并登录
     await clearCache();
-
     await loginAccount();
+    // 创建项目并进入工作台
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增三个HTTP节点
@@ -67,52 +68,50 @@ test.describe('TabOperation', () => {
   });
   // 测试用例4: 右键菜单关闭右侧tab
   test('右键菜单关闭右侧tab', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    // 清除缓存并登录
     await clearCache();
-
     await loginAccount();
+    // 创建项目并进入工作台
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增三个HTTP节点
     for (let i = 1; i <= 3; i++) {
       await createNode(contentPage, { nodeType: 'http', name: `右侧测试${i}` });
     }
-    // 右键点击第一个tab
+    // 右键点击第一个tab并点击关闭右侧
     const tab1 = contentPage.locator('.nav .item').filter({ hasText: '右侧测试1' });
     await tab1.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
-    // 点击关闭右侧
     const closeRightMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: /关闭右侧|Close Right/ });
     await closeRightMenuItem.click();
     await contentPage.waitForTimeout(300);
-    // 验证右侧tab不存在
+    // 验证右侧tab不存在，第一个tab仍然存在
     await expect(contentPage.locator('.nav .item').filter({ hasText: '右侧测试2' })).not.toBeVisible();
     await expect(contentPage.locator('.nav .item').filter({ hasText: '右侧测试3' })).not.toBeVisible();
-    // 验证第一个tab仍然存在
     await expect(tab1).toBeVisible();
   });
   // 测试用例5: 右键菜单关闭其他tab
   test('右键菜单关闭其他tab', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    // 清除缓存并登录
     await clearCache();
-
     await loginAccount();
+    // 创建项目并进入工作台
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增三个HTTP节点
     for (let i = 1; i <= 3; i++) {
       await createNode(contentPage, { nodeType: 'http', name: `其他测试${i}` });
     }
-    // 右键点击第二个tab
+    // 右键点击第二个tab并点击关闭其他
     const tab2 = contentPage.locator('.nav .item').filter({ hasText: '其他测试2' });
     await tab2.click({ button: 'right' });
     await contentPage.waitForTimeout(300);
-    // 点击关闭其他
     const closeOtherMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: /关闭其他|Close Other/ });
     await closeOtherMenuItem.click();
     await contentPage.waitForTimeout(300);
-    // 验证其他tab不存在
+    // 验证其他tab不存在，第二个tab仍然存在且是唯一的tab
     await expect(contentPage.locator('.nav .item').filter({ hasText: '其他测试1' })).not.toBeVisible();
     await expect(contentPage.locator('.nav .item').filter({ hasText: '其他测试3' })).not.toBeVisible();
-    // 验证第二个tab仍然存在且是唯一的tab
     await expect(tab2).toBeVisible();
     const tabCount = await contentPage.locator('.nav .drag-wrap .item').count();
     expect(tabCount).toBe(1);

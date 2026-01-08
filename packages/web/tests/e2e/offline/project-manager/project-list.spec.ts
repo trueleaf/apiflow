@@ -76,7 +76,7 @@ test.describe('ProjectList', () => {
     const url = contentPage.url();
     expect(url).toContain('mode=edit');
     // 验证顶部导航栏新增Tab并高亮
-    const projectTab = topBarPage.locator('.tab-item').filter({ hasText: projectName });
+    const projectTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectName });
     await expect(projectTab).toBeVisible({ timeout: 5000 });
     // 验证Tab处于激活状态
     await expect(projectTab).toHaveClass(/active/);
@@ -140,7 +140,7 @@ test.describe('ProjectList', () => {
     const updatedProjectName = contentPage.locator('[data-testid="home-project-card-0"] .project-name');
     await expect(updatedProjectName).toContainText(newProjectName, { timeout: 5000 });
     // 验证顶部导航栏Tab名称更新
-    const projectTab = topBarPage.locator('.tab-item').filter({ hasText: newProjectName });
+    const projectTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: newProjectName });
     await expect(projectTab).toBeVisible({ timeout: 5000 });
   });
 
@@ -349,7 +349,7 @@ test.describe('ProjectList', () => {
     await addApiDialog.locator('.el-dialog__footer .el-button--primary').click();
     await expect(addApiDialog).toBeHidden({ timeout: 5000 });
     // 返回首页查看接口总数
-    const logo = topBarPage.locator('.logo-img');
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);

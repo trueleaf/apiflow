@@ -138,7 +138,7 @@ test.describe('QuickIcons', () => {
       // 在离线模式下创建项目
       const offlineProjectName = await createProject(`离线项目-${Date.now()}`);
       // 验证项目Tab存在
-      const offlineTab = topBarPage.locator('.tab-item').filter({ hasText: offlineProjectName });
+      const offlineTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: offlineProjectName });
       await expect(offlineTab).toBeVisible();
       // 切换到在线模式
       await networkBtn.click();
