@@ -95,6 +95,7 @@
   background: transparent;
   padding: 0;
   border-radius: 2px;
+  margin-left: auto;
 }
 
 .cl-confirm-close:hover {
