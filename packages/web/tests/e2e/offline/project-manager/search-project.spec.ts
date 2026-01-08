@@ -793,3 +793,4 @@ test.describe('SearchProject', () => {
     await expect(datePicker).toBeHidden();
   });
 });
+

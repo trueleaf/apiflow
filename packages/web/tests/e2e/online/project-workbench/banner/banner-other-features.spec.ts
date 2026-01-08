@@ -183,3 +183,4 @@ test.describe('BannerOtherFeatures', () => {
     // TODO: 验证banner区域显示呼吸动画指示器
   });
 });
+

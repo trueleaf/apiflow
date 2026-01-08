@@ -164,7 +164,7 @@ test.describe('Variable', () => {
     await expect(variableTable).toContainText('toBeDeleted');
     const deleteBtn = variablePage.locator('.right .el-table .el-button').filter({ hasText: /删除|Delete/ });
     await deleteBtn.click();
-    const confirmBtn = contentPage.locator('.el-message-box .el-button--primary');
+    const confirmBtn = contentPage.locator('.cl-confirm-footer-right .el-button--primary');
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
     await expect(variableTable).not.toContainText('toBeDeleted');
@@ -900,3 +900,4 @@ test.describe('Variable', () => {
     await expect(responseBody).toContainText('{{notExistVar}}', { timeout: 10000 });
   });
 });
+

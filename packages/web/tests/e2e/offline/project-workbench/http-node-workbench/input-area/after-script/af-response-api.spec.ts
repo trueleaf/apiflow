@@ -272,3 +272,4 @@ test.describe('AfResponseApi', () => {
     await expect(responseBody).toContainText('ip', { timeout: 10000 });
   });
 });
+

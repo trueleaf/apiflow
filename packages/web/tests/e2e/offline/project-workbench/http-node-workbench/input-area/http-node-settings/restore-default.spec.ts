@@ -162,3 +162,4 @@ test.describe('RestoreDefault', () => {
     expect(restoredFirstModeLabel).toBe(originalFirstModeLabel);
   });
 });
+

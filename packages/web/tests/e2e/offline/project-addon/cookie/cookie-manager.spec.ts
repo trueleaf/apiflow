@@ -111,7 +111,7 @@ test.describe('CookieManagement', () => {
     await expect(cookieTable).toContainText('deletableCookie');
     const deleteBtn = cookiePage.locator('.el-table .el-button--danger').filter({ hasText: /删除/ }).first();
     await deleteBtn.click();
-    const confirmDialog = contentPage.locator('.el-message-box');
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 3000 });
     const confirmBtn = confirmDialog.locator('.el-button--primary');
     await confirmBtn.click();
@@ -160,3 +160,4 @@ test.describe('CookieManagement', () => {
     await expect(cookieTable).not.toContainText('otherCookie');
   });
 });
+

@@ -81,3 +81,4 @@ test.describe('ResponseCookie', () => {
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
   });
 });
+

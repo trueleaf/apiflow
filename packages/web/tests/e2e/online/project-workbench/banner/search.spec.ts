@@ -163,3 +163,4 @@ test.describe('Search', () => {
     await expect(filterBtn).toBeHidden({ timeout: 5000 });
   });
 });
+

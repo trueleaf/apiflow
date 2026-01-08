@@ -508,7 +508,7 @@ test.describe('ContextMenu', () => {
       await deleteItem.click();
       await contentPage.waitForTimeout(300);
       // 确认删除对话框
-      const confirmDialog = contentPage.locator('.el-message-box');
+      const confirmDialog = contentPage.locator('.cl-confirm-container');
       await expect(confirmDialog).toBeVisible({ timeout: 5000 });
       const confirmBtn = confirmDialog.locator('.el-button--primary');
       await confirmBtn.click();
@@ -774,7 +774,7 @@ test.describe('ContextMenu', () => {
       await deleteItem.click();
       await contentPage.waitForTimeout(300);
       // 确认删除对话框
-      const confirmDialog = contentPage.locator('.el-message-box');
+      const confirmDialog = contentPage.locator('.cl-confirm-container');
       await expect(confirmDialog).toBeVisible({ timeout: 5000 });
       const confirmDeleteBtn = confirmDialog.locator('.el-button--primary');
       await confirmDeleteBtn.click();
@@ -785,3 +785,4 @@ test.describe('ContextMenu', () => {
     });
   });
 });
+

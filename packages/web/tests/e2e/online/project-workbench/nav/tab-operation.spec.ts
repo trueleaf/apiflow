@@ -260,3 +260,4 @@ test.describe('TabOperation', () => {
     await expect(itemText).not.toHaveClass(/unfixed/);
   });
 });
+

@@ -130,3 +130,4 @@ test.describe('NodeHistory', () => {
     await expect(emptyState).toBeVisible({ timeout: 5000 });
   });
 });
+

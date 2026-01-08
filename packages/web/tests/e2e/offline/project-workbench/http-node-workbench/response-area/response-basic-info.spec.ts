@@ -156,3 +156,4 @@ test.describe('ResponseBasicInfo', () => {
     await expect(responseSummary).toContainText(/application\/json|text\/|json/);
   });
 });
+

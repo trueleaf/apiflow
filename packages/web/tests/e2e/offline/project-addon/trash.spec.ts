@@ -51,7 +51,7 @@ test.describe('Trash', () => {
     await expect(contextMenu).toBeVisible({ timeout: 3000 });
     const deleteOption = contextMenu.locator('.s-contextmenu-item').filter({ hasText: /删除/ });
     await deleteOption.click();
-    const confirmDialog = contentPage.locator('.el-message-box');
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 3000 });
     const confirmBtn = confirmDialog.locator('.el-button--primary');
     await confirmBtn.click();
@@ -89,7 +89,7 @@ test.describe('Trash', () => {
     await expect(contextMenu2).toBeVisible({ timeout: 3000 });
     const deleteOption = contextMenu2.locator('.s-contextmenu-item').filter({ hasText: /删除/ });
     await deleteOption.click();
-    const confirmDialog = contentPage.locator('.el-message-box');
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 3000 });
     const confirmBtn = confirmDialog.locator('.el-button--primary');
     await confirmBtn.click();
@@ -105,7 +105,7 @@ test.describe('Trash', () => {
     await expect(deletedDoc).toBeVisible({ timeout: 5000 });
     const restoreBtn = deletedDoc.locator('.el-button').filter({ hasText: /恢复/ });
     await restoreBtn.click();
-    const restoreConfirmDialog = contentPage.locator('.el-message-box');
+    const restoreConfirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(restoreConfirmDialog).toBeVisible({ timeout: 3000 });
     const restoreConfirmBtn = restoreConfirmDialog.locator('.el-button--primary');
     await restoreConfirmBtn.click();
@@ -159,7 +159,7 @@ test.describe('Trash', () => {
       const contextMenu = contentPage.locator('.s-contextmenu');
       await expect(contextMenu).toBeVisible({ timeout: 3000 });
       await contextMenu.locator('.s-contextmenu-item').filter({ hasText: /删除/ }).click();
-      const confirmDialog = contentPage.locator('.el-message-box');
+      const confirmDialog = contentPage.locator('.cl-confirm-container');
       await expect(confirmDialog).toBeVisible({ timeout: 3000 });
       await confirmDialog.locator('.el-button--primary').click();
       await contentPage.waitForTimeout(500);
@@ -181,7 +181,7 @@ test.describe('Trash', () => {
       const nodeName = allNodeNames[i];
       const deletedDoc = getRecyclerDeletedDocByName(recyclerPage, nodeName);
       await deletedDoc.locator('.el-button').filter({ hasText: /恢复/ }).click();
-      const restoreConfirmDialog = contentPage.locator('.el-message-box');
+      const restoreConfirmDialog = contentPage.locator('.cl-confirm-container');
        await expect(restoreConfirmDialog).toBeVisible({ timeout: 3000 });
        await restoreConfirmDialog.locator('.el-button--primary').click();
       await contentPage.waitForTimeout(500);
@@ -239,7 +239,7 @@ test.describe('Trash', () => {
       const childMenu = contentPage.locator('.s-contextmenu');
       await expect(childMenu).toBeVisible({ timeout: 3000 });
       await childMenu.locator('.s-contextmenu-item').filter({ hasText: /删除/ }).click();
-      const confirmDialog1 = contentPage.locator('.el-message-box');
+      const confirmDialog1 = contentPage.locator('.cl-confirm-container');
       await expect(confirmDialog1).toBeVisible({ timeout: 3000 });
       await confirmDialog1.locator('.el-button--primary').click();
       await contentPage.waitForTimeout(500);
@@ -248,7 +248,7 @@ test.describe('Trash', () => {
       const folderMenu = contentPage.locator('.s-contextmenu');
       await expect(folderMenu).toBeVisible({ timeout: 3000 });
       await folderMenu.locator('.s-contextmenu-item').filter({ hasText: /删除/ }).click();
-      const confirmDialog2 = contentPage.locator('.el-message-box');
+      const confirmDialog2 = contentPage.locator('.cl-confirm-container');
       await expect(confirmDialog2).toBeVisible({ timeout: 3000 });
       await confirmDialog2.locator('.el-button--primary').click();
       await contentPage.waitForTimeout(500);
@@ -273,7 +273,7 @@ test.describe('Trash', () => {
       const deletedChild = recyclerPage.locator('.docinfo').filter({ hasText: group.childName });
       const restoreTarget = group.restoreTarget === 'child' ? deletedChild : deletedFolder;
       await restoreTarget.locator('.el-button').filter({ hasText: /恢复/ }).click();
-      const restoreConfirmDialog = contentPage.locator('.el-message-box');
+      const restoreConfirmDialog = contentPage.locator('.cl-confirm-container');
       await expect(restoreConfirmDialog).toBeVisible({ timeout: 3000 });
       await restoreConfirmDialog.locator('.el-button--primary').click();
       await contentPage.waitForTimeout(500);
@@ -293,3 +293,4 @@ test.describe('Trash', () => {
     }
   });
 });
+

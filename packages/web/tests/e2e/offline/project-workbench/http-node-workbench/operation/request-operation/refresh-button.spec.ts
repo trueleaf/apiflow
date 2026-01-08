@@ -82,3 +82,4 @@ test.describe('RefreshButton', () => {
     expect(restoredUrl).toBe(initialUrl);
   });
 });
+

@@ -95,3 +95,4 @@ test.describe('CreateProject', () => {
     await expect(firstProjectCard).toContainText(projectName);
   });
 });
+

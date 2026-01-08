@@ -244,3 +244,4 @@ test.describe('DefaultHeaders', () => {
     await expect(responseBody).toContainText('application/custom', { timeout: 10000 });
   });
 });
+

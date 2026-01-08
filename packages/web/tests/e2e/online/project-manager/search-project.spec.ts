@@ -108,3 +108,4 @@ test.describe('SearchProject', () => {
     await expect(projectNameEl).toContainText(`AAA_${uniqueId}`);
   });
 });
+

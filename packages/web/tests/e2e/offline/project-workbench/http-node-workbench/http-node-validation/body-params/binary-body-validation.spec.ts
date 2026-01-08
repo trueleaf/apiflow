@@ -540,3 +540,4 @@ test.describe('BinaryBodyValidation', () => {
     expect(placeholder).toContain('}}');
   });
 });
+

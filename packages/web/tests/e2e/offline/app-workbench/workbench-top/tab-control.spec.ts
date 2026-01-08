@@ -63,7 +63,7 @@ test.describe('Navigation', () => {
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     // 等待页面完全加载，并关闭可能的提示弹窗
     await topBarPage.waitForTimeout(500);
-    const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
+    const confirmBtn = contentPage.locator('.cl-confirm-footer-right .el-button--primary');
     const confirmBtnVisible = await confirmBtn.isVisible({ timeout: 1000 }).catch(() => false);
     if (confirmBtnVisible) {
       await confirmBtn.click();
@@ -252,7 +252,7 @@ test.describe('Navigation', () => {
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await topBarPage.waitForTimeout(500);
     // 关闭可能的提示弹窗
-    const msgBoxConfirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
+    const msgBoxConfirmBtn = contentPage.locator('.cl-confirm-footer-right .el-button--primary');
     const msgBoxConfirmBtnVisible = await msgBoxConfirmBtn.isVisible({ timeout: 1000 }).catch(() => false);
     if (msgBoxConfirmBtnVisible) {
       await msgBoxConfirmBtn.click();
@@ -302,7 +302,7 @@ test.describe('Navigation', () => {
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await topBarPage.waitForTimeout(500);
     // 关闭可能的提示弹窗
-    const msgBoxConfirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
+    const msgBoxConfirmBtn = contentPage.locator('.cl-confirm-footer-right .el-button--primary');
     const msgBoxConfirmBtnVisible = await msgBoxConfirmBtn.isVisible({ timeout: 1000 }).catch(() => false);
     if (msgBoxConfirmBtnVisible) {
       await msgBoxConfirmBtn.click();
@@ -321,7 +321,7 @@ test.describe('Navigation', () => {
     await deleteBtn.click();
     await topBarPage.waitForTimeout(300);
     // 确认删除对话框
-    const confirmDialog = contentPage.locator('.el-message-box');
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     const confirmBtn = confirmDialog.locator('.el-button--primary');
     await confirmBtn.click();
@@ -331,4 +331,236 @@ test.describe('Navigation', () => {
     // 验证项目B的Tab仍然存在
     await expect(projectBTab).toBeVisible();
   });
+
+  test('历史栈为空时多次点击后退按钮停留在首页', async ({ topBarPage, contentPage, clearCache, reload }) => {
+    await clearCache();
+    await reload();
+    // 验证当前在首页
+    await contentPage.waitForURL(/.*#\/(home)?$/, { timeout: 5000 });
+    // 多次点击后退按钮
+    const backBtn = topBarPage.locator('[data-testid="header-back-btn"]');
+    await backBtn.click();
+    await topBarPage.waitForTimeout(300);
+    await backBtn.click();
+    await topBarPage.waitForTimeout(300);
+    await backBtn.click();
+    await topBarPage.waitForTimeout(300);
+    // 验证仍然停留在首页，没有报错
+    await expect(contentPage).toHaveURL(/.*#\/(home)?$/, { timeout: 5000 });
+  });
+
+  test('刷新页面后tab切换与前进后退功能正常', async ({ topBarPage, contentPage, createProject, jumpToSettings }) => {
+    const projectAName = await createProject(`刷新A-${Date.now()}`);
+    const projectBName = await createProject(`刷新B-${Date.now()}`);
+    const projectCName = await createProject(`刷新C-${Date.now()}`);
+    // 切换到项目A
+    const projectATab = topBarPage.locator('.tab-item').filter({ hasText: projectAName });
+    await projectATab.click();
+    await topBarPage.waitForTimeout(300);
+    await expect(projectATab).toHaveClass(/active/);
+    // 跳转到设置
+    await jumpToSettings();
+    await topBarPage.waitForTimeout(500);
+    const settingsTab = topBarPage.locator('.tab-item[data-id="settings-offline"]');
+    await expect(settingsTab).toHaveClass(/active/);
+    // 刷新页面
+    const refreshBtn = topBarPage.locator('[data-testid="header-refresh-btn"]');
+    await refreshBtn.click();
+    await topBarPage.waitForLoadState('domcontentloaded');
+    await contentPage.waitForLoadState('domcontentloaded');
+    await topBarPage.waitForTimeout(1000);
+    // 点击项目B的tab进行切换
+    const projectBTab = topBarPage.locator('.tab-item').filter({ hasText: projectBName });
+    await projectBTab.click();
+    await topBarPage.waitForTimeout(500);
+    await expect(projectBTab).toHaveClass(/active/);
+    // 验证后退功能：应回到设置页面
+    const backBtn = topBarPage.locator('[data-testid="header-back-btn"]');
+    await backBtn.click();
+    await topBarPage.waitForTimeout(500);
+    await expect(settingsTab).toHaveClass(/active/);
+    await expect(contentPage).toHaveURL(/.*#\/settings.*/, { timeout: 5000 });
+    // 验证前进功能：应回到项目B
+    const forwardBtn = topBarPage.locator('[data-testid="header-forward-btn"]');
+    await forwardBtn.click();
+    await topBarPage.waitForTimeout(500);
+    await expect(projectBTab).toHaveClass(/active/);
+  });
+
+  test('右键点击tab显示右键菜单', async ({ topBarPage, contentPage, createProject }) => {
+    // 创建一个项目并验证tab存在
+    const projectName = await createProject(`右键菜单-${Date.now()}`);
+    const projectTab = topBarPage.locator('.tab-item').filter({ hasText: projectName });
+    await expect(projectTab).toBeVisible();
+    // 在tab上右键点击
+    await projectTab.click({ button: 'right' });
+    await topBarPage.waitForTimeout(500);
+    // 验证右键菜单显示
+    const contextMenu = contentPage.locator('.header-tab-contextmenu-overlay');
+    await expect(contextMenu).toBeVisible();
+    // 验证所有菜单项都显示
+    const closeMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: '关闭' }).first();
+    const closeLeftMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: '关闭左侧' });
+    const closeRightMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: '关闭右侧' });
+    const closeOtherMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: '关闭其他' });
+    const closeAllMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: '全部关闭' });
+    await expect(closeMenuItem).toBeVisible();
+    await expect(closeLeftMenuItem).toBeVisible();
+    await expect(closeRightMenuItem).toBeVisible();
+    await expect(closeOtherMenuItem).toBeVisible();
+    await expect(closeAllMenuItem).toBeVisible();
+  });
+
+  test('右键菜单关闭当前tab', async ({ topBarPage, contentPage, createProject }) => {
+    // 创建两个项目tab
+    const projectAName = await createProject(`关闭A-${Date.now()}`);
+    const projectBName = await createProject(`关闭B-${Date.now()}`);
+    await topBarPage.waitForTimeout(500);
+    // 右键点击项目A的tab
+    const projectATab = topBarPage.locator('.tab-item').filter({ hasText: projectAName });
+    await expect(projectATab).toBeVisible();
+    await projectATab.click({ button: 'right' });
+    await topBarPage.waitForTimeout(500);
+    // 点击关闭菜单项
+    const closeMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: '关闭' }).first();
+    await closeMenuItem.click();
+    await topBarPage.waitForTimeout(500);
+    // 验证项目A的tab已关闭，项目B的tab仍然存在
+    await expect(projectATab).toBeHidden();
+    const projectBTab = topBarPage.locator('.tab-item').filter({ hasText: projectBName });
+    await expect(projectBTab).toBeVisible();
+  });
+
+  test('右键菜单关闭左侧tab', async ({ topBarPage, contentPage, createProject }) => {
+    // 创建三个项目tab，顺序为A、B、C
+    const projectAName = await createProject(`左侧A-${Date.now()}`);
+    const projectBName = await createProject(`左侧B-${Date.now()}`);
+    const projectCName = await createProject(`左侧C-${Date.now()}`);
+    await topBarPage.waitForTimeout(500);
+    // 右键点击项目C的tab
+    const projectCTab = topBarPage.locator('.tab-item').filter({ hasText: projectCName });
+    await projectCTab.click({ button: 'right' });
+    await topBarPage.waitForTimeout(500);
+    // 点击"关闭左侧"菜单项
+    const closeLeftMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: '关闭左侧' });
+    await closeLeftMenuItem.click();
+    await topBarPage.waitForTimeout(500);
+    // 验证项目A和B的tab已关闭，项目C的tab保留
+    const projectATab = topBarPage.locator('.tab-item').filter({ hasText: projectAName });
+    const projectBTab = topBarPage.locator('.tab-item').filter({ hasText: projectBName });
+    await expect(projectATab).toBeHidden();
+    await expect(projectBTab).toBeHidden();
+    await expect(projectCTab).toBeVisible();
+  });
+
+  test('右键菜单关闭右侧tab', async ({ topBarPage, contentPage, createProject }) => {
+    // 创建三个项目tab，顺序为A、B、C
+    const projectAName = await createProject(`右侧A-${Date.now()}`);
+    const projectBName = await createProject(`右侧B-${Date.now()}`);
+    const projectCName = await createProject(`右侧C-${Date.now()}`);
+    await topBarPage.waitForTimeout(500);
+    // 右键点击项目A的tab
+    const projectATab = topBarPage.locator('.tab-item').filter({ hasText: projectAName });
+    await projectATab.click({ button: 'right' });
+    await topBarPage.waitForTimeout(500);
+    // 点击"关闭右侧"菜单项
+    const closeRightMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: '关闭右侧' });
+    await closeRightMenuItem.click();
+    await topBarPage.waitForTimeout(500);
+    // 验证项目A的tab保留，项目B和C的tab已关闭
+    const projectBTab = topBarPage.locator('.tab-item').filter({ hasText: projectBName });
+    const projectCTab = topBarPage.locator('.tab-item').filter({ hasText: projectCName });
+    await expect(projectATab).toBeVisible();
+    await expect(projectBTab).toBeHidden();
+    await expect(projectCTab).toBeHidden();
+  });
+
+  test('右键菜单关闭其他tab', async ({ topBarPage, contentPage, createProject }) => {
+    // 创建三个项目tab
+    const projectAName = await createProject(`其他A-${Date.now()}`);
+    const projectBName = await createProject(`其他B-${Date.now()}`);
+    const projectCName = await createProject(`其他C-${Date.now()}`);
+    await topBarPage.waitForTimeout(500);
+    // 右键点击项目B的tab
+    const projectBTab = topBarPage.locator('.tab-item').filter({ hasText: projectBName });
+    await projectBTab.click({ button: 'right' });
+    await topBarPage.waitForTimeout(500);
+    // 点击"关闭其他"菜单项
+    const closeOtherMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: '关闭其他' });
+    await closeOtherMenuItem.click();
+    await topBarPage.waitForTimeout(500);
+    // 验证只有项目B的tab保留，项目A和C的tab已关闭
+    const projectATab = topBarPage.locator('.tab-item').filter({ hasText: projectAName });
+    const projectCTab = topBarPage.locator('.tab-item').filter({ hasText: projectCName });
+    await expect(projectATab).toBeHidden();
+    await expect(projectBTab).toBeVisible();
+    await expect(projectCTab).toBeHidden();
+  });
+
+  test('右键菜单全部关闭tab后跳转到主页', async ({ topBarPage, contentPage, createProject }) => {
+    // 创建两个项目tab
+    await createProject(`全部关闭A-${Date.now()}`);
+    await createProject(`全部关闭B-${Date.now()}`);
+    await topBarPage.waitForTimeout(500);
+    // 右键点击第一个tab
+    const firstTab = topBarPage.locator('.tab-item').first();
+    await firstTab.click({ button: 'right' });
+    await topBarPage.waitForTimeout(500);
+    // 点击"全部关闭"菜单项
+    const closeAllMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: '全部关闭' });
+    await closeAllMenuItem.click();
+    await topBarPage.waitForTimeout(500);
+    // 验证所有tab都已关闭，并且页面跳转到主页
+    const allTabs = topBarPage.locator('.tab-item');
+    await expect(allTabs).toHaveCount(0);
+    await expect(contentPage).toHaveURL(/.*#\/home/, { timeout: 5000 });
+  });
+
+  test('右键菜单项禁用状态正确', async ({ topBarPage, contentPage, createProject }) => {
+    // 创建三个项目tab
+    const projectAName = await createProject(`禁用A-${Date.now()}`);
+    const projectBName = await createProject(`禁用B-${Date.now()}`);
+    const projectCName = await createProject(`禁用C-${Date.now()}`);
+    await topBarPage.waitForTimeout(500);
+    // 右键点击第一个tab，验证"关闭左侧"菜单项被禁用
+    const projectATab = topBarPage.locator('.tab-item').filter({ hasText: projectAName });
+    await projectATab.click({ button: 'right' });
+    await topBarPage.waitForTimeout(500);
+    const closeLeftMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: '关闭左侧' });
+    await expect(closeLeftMenuItem).toHaveClass(/disabled/);
+    // 关闭菜单
+    const contextMenuOverlay = contentPage.locator('.header-tab-contextmenu-overlay');
+    await contextMenuOverlay.click();
+    await topBarPage.waitForTimeout(300);
+    // 右键点击最后一个tab，验证"关闭右侧"菜单项被禁用
+    const projectCTab = topBarPage.locator('.tab-item').filter({ hasText: projectCName });
+    await projectCTab.click({ button: 'right' });
+    await topBarPage.waitForTimeout(500);
+    const closeRightMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: '关闭右侧' });
+    await expect(closeRightMenuItem).toHaveClass(/disabled/);
+  });
+
+  test('右键关闭后tab高亮状态正确', async ({ topBarPage, contentPage, createProject }) => {
+    // 创建三个项目tab
+    const projectAName = await createProject(`高亮A-${Date.now()}`);
+    const projectBName = await createProject(`高亮B-${Date.now()}`);
+    const projectCName = await createProject(`高亮C-${Date.now()}`);
+    await topBarPage.waitForTimeout(500);
+    // 点击项目B使其高亮
+    const projectBTab = topBarPage.locator('.tab-item').filter({ hasText: projectBName });
+    await projectBTab.click();
+    await topBarPage.waitForTimeout(300);
+    await expect(projectBTab).toHaveClass(/active/);
+    // 右键点击项目B，关闭右侧的tab
+    await projectBTab.click({ button: 'right' });
+    await topBarPage.waitForTimeout(500);
+    const closeRightMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: '关闭右侧' });
+    await closeRightMenuItem.click();
+    await topBarPage.waitForTimeout(500);
+    // 验证项目B保持高亮状态，项目C已关闭
+    await expect(projectBTab).toHaveClass(/active/);
+    const projectCTab = topBarPage.locator('.tab-item').filter({ hasText: projectCName });
+    await expect(projectCTab).toBeHidden();
+  });
 });
+

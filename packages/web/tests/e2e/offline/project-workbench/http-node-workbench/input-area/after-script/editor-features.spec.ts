@@ -109,3 +109,4 @@ test.describe('AfterScriptEditorFeatures', () => {
     expect(afterFormat).not.toBe(beforeFormat);
   });
 });
+

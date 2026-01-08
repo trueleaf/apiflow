@@ -98,11 +98,11 @@ test.describe('Logo', () => {
     await expect(resetBtn).toBeVisible();
     await resetBtn.click();
     // 在确认对话框中点击"确定"
-    const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
+    const confirmBtn = contentPage.locator('.cl-confirm-footer-right .el-button--primary');
     await expect(confirmBtn).toBeVisible({ timeout: 5000 });
     await confirmBtn.click();
     // 等待对话框关闭
-    await expect(contentPage.locator('.el-message-box')).toBeHidden({ timeout: 5000 });
+    await expect(contentPage.locator('.cl-confirm-container')).toBeHidden({ timeout: 5000 });
     // 验证 Logo 预览恢复为默认（不再是 base64 格式）
     await expect(contentLogoPreview).not.toHaveAttribute('src', /^data:image\//, { timeout: 5000 });
     // 验证 localStorage 中的 logo 被清除
@@ -115,3 +115,4 @@ test.describe('Logo', () => {
     await expect(logo).not.toHaveAttribute('src', /^data:image\//, { timeout: 5000 });
   });
 });
+

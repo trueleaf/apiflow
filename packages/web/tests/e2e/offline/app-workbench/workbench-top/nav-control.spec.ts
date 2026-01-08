@@ -110,3 +110,4 @@ test.describe('NavControl', () => {
     await contentPage.waitForURL(/.*#\/(home)?$/, { timeout: 5000 });
   });
 });
+

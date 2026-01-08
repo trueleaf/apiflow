@@ -57,3 +57,4 @@ test.describe('VariableDialog', () => {
     await expect(variableTab).toBeVisible({ timeout: 5000 });
   });
 });
+

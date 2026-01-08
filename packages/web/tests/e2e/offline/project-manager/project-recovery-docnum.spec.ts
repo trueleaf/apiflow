@@ -15,7 +15,7 @@ test.describe('ProjectRecoveryDocNum', () => {
     await homeBtn.click()
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 })
     await contentPage.waitForTimeout(500)
-    const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary')
+    const confirmBtn = contentPage.locator('.cl-confirm-footer-right .el-button--primary')
     const confirmBtnVisible = await confirmBtn.isVisible({ timeout: 1000 }).catch(() => false)
     if (confirmBtnVisible) {
       await confirmBtn.click()
@@ -88,7 +88,7 @@ test.describe('ProjectRecoveryDocNum', () => {
     await expect(projectCard).toBeVisible({ timeout: 5000 })
     await expect(projectCard.locator('.project-api-count .teal')).toContainText('4')
     await projectCard.locator('[data-testid="home-project-delete-btn"]').click()
-    const confirmDialog = contentPage.locator('.el-message-box')
+    const confirmDialog = contentPage.locator('.cl-confirm-container')
     await expect(confirmDialog).toBeVisible({ timeout: 5000 })
     await confirmDialog.locator('.el-button--primary').click()
     await expect(confirmDialog).toBeHidden({ timeout: 5000 })
@@ -164,3 +164,4 @@ test.describe('ProjectRecoveryDocNum', () => {
     await expect(restoredProjectCard.locator('.project-api-count .teal')).toContainText('4')
   })
 })
+

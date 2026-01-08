@@ -65,7 +65,7 @@ test.describe('Online团队管理', () => {
       { timeout: 20000 },
     );
     await groupItem.locator('.del-icon').click();
-    const confirmDialog = contentPage.locator('.el-message-box');
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     await confirmDialog.locator('.el-button--primary').click();
     await deleteConfirm;
@@ -212,7 +212,7 @@ test.describe('Online团队管理', () => {
     await groupItem.click();
 
     await groupItem.locator('.del-icon').click();
-    const confirmDialog = contentPage.locator('.el-message-box');
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     await expect(confirmDialog).toContainText(/确认删除|Confirm delete/i, { timeout: 2000 });
 
@@ -358,3 +358,4 @@ test.describe('Online团队管理', () => {
     await expect(contentPage.locator('.el-menu-item').filter({ hasText: groupName }).first()).toBeVisible({ timeout: 5000 });
   });
 });
+

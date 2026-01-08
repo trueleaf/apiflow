@@ -482,3 +482,4 @@ af.request.body.json.newField = "addedValue";`;
     await expect(responseBody).toContainText('123', { timeout: 10000 });
   });
 });
+

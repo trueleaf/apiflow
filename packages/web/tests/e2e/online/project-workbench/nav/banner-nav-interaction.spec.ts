@@ -230,7 +230,7 @@ test.describe('BannerNavInteraction', () => {
     // 点击删除选项
     const deleteMenuItem = contentPage.locator('[data-testid="contextmenu-item-删除"], [data-testid="contextmenu-item-Delete"]');
     await deleteMenuItem.click();
-    const confirmDeleteBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
+    const confirmDeleteBtn = contentPage.locator('.cl-confirm-footer-right .el-button--primary');
     await expect(confirmDeleteBtn).toBeVisible({ timeout: 3000 });
     await confirmDeleteBtn.click();
     await contentPage.waitForTimeout(500);
@@ -336,3 +336,4 @@ test.describe('BannerNavInteraction', () => {
     await expect(itemText).not.toHaveClass(/unfixed/);
   });
 });
+

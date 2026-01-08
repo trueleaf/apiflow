@@ -93,13 +93,13 @@ test.describe('CallHistory', () => {
     await deleteIcon.click();
     await contentPage.waitForTimeout(300);
     // 验证弹出确认对话框
-    const confirmDialog = contentPage.locator('.el-message-box');
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     // 验证对话框内容
-    const dialogContent = confirmDialog.locator('.el-message-box__message');
+    const dialogContent = confirmDialog.locator('.cl-confirm-content');
     await expect(dialogContent).toContainText(/确定要清空所有历史记录吗/);
     // 点击"取消"按钮
-    const cancelBtn = confirmDialog.locator('.el-message-box__btns button').filter({ hasText: /取消/ });
+    const cancelBtn = confirmDialog.locator('.cl-confirm-footer-right button').filter({ hasText: /取消/ });
     await cancelBtn.click();
     await contentPage.waitForTimeout(300);
     // 验证对话框关闭
@@ -218,7 +218,7 @@ test.describe('CallHistory', () => {
   const deleteMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: /删除|Delete/ }).first();
     await expect(deleteMenuItem).toBeVisible({ timeout: 5000 });
     await deleteMenuItem.click();
-    const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
+    const confirmBtn = contentPage.locator('.cl-confirm-footer-right .el-button--primary');
     await expect(confirmBtn).toBeVisible({ timeout: 5000 });
     await confirmBtn.click();
     await contentPage.waitForTimeout(800);
@@ -339,7 +339,7 @@ test.describe('CallHistory', () => {
     const deleteMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: /删除|Delete/ }).first();
     await expect(deleteMenuItem).toBeVisible({ timeout: 5000 });
     await deleteMenuItem.click();
-    const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
+    const confirmBtn = contentPage.locator('.cl-confirm-footer-right .el-button--primary');
     await expect(confirmBtn).toBeVisible({ timeout: 5000 });
     await confirmBtn.click();
     await contentPage.waitForTimeout(800);
@@ -357,16 +357,16 @@ test.describe('CallHistory', () => {
 
     // 点击清理按钮，验证确认对话框并取消
     await cleanDeletedBtn.click();
-    const confirmDialog = contentPage.locator('.el-message-box');
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 5000 });
-    const cancelBtn = confirmDialog.locator('.el-message-box__btns button').filter({ hasText: /取消/ });
+    const cancelBtn = confirmDialog.locator('.cl-confirm-footer-right button').filter({ hasText: /取消/ });
     await cancelBtn.click();
     await expect(confirmDialog).toBeHidden({ timeout: 5000 });
 
     // 再次点击清理按钮并确认，验证清理后列表为空状态（从UI角度验证）
     await cleanDeletedBtn.click();
     await expect(confirmDialog).toBeVisible({ timeout: 5000 });
-    const confirmClearBtn = confirmDialog.locator('.el-message-box__btns .el-button--primary');
+    const confirmClearBtn = confirmDialog.locator('.cl-confirm-footer-right .el-button--primary');
     await expect(confirmClearBtn).toBeVisible({ timeout: 5000 });
     await confirmClearBtn.click();
     await expect(confirmDialog).toBeHidden({ timeout: 5000 });
@@ -385,3 +385,4 @@ test.describe('CallHistory', () => {
     await expect(cleanDeletedBtn).toBeHidden({ timeout: 5000 });
   });
 });
+

@@ -156,10 +156,11 @@ test.describe('VariableCrud', () => {
     const deleteBtn = row.locator('button').filter({ hasText: /删除|Delete/ }).first();
     await deleteBtn.click();
     await contentPage.waitForTimeout(300);
-    const confirmDialog = contentPage.locator('.el-message-box').first();
+    const confirmDialog = contentPage.locator('.cl-confirm-container').first();
     const confirmDeleteBtn = confirmDialog.locator('.el-button--primary').first();
     await confirmDeleteBtn.click();
     await contentPage.waitForTimeout(500);
     await expect(variablePage.locator('.right')).not.toContainText('toDelete', { timeout: 5000 });
   });
 });
+

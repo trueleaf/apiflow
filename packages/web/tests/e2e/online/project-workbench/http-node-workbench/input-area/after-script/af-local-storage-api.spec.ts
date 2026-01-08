@@ -256,3 +256,4 @@ test.describe('AfLocalStorageApi', () => {
     expect(resultValue).toBe('"is_null"');
   });
 });
+

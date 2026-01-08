@@ -299,3 +299,4 @@ test.describe('Query', () => {
     await expect(responseSummary).toBeVisible({ timeout: 10000 });
   });
 });
+

@@ -168,3 +168,4 @@ test.describe('DisplayOrderConfig', () => {
     expect(firstModeLabelAfterReload).toBe(lastModeLabel);
   });
 });
+

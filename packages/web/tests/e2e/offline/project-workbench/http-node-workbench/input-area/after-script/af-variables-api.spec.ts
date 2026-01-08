@@ -141,3 +141,4 @@ test.describe('AfVariablesApi', () => {
     await expect(responseBody).toContainText('test_token_abc123', { timeout: 10000 });
   });
 });
+

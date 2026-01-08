@@ -231,7 +231,7 @@ test.describe('Online项目成员权限', () => {
       { timeout: 20000 },
     );
     await memberRow.getByRole('button', { name: /删除|Delete/i }).click();
-    const confirmDialog = contentPage.locator('.el-message-box');
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     await confirmDialog.locator('.el-button--primary').click();
     await removeResponse;
@@ -308,7 +308,7 @@ test.describe('Online项目成员权限', () => {
       { timeout: 20000 },
     );
     await selfRow.getByRole('button', { name: /退出|Leave/i }).click();
-    const confirmDialog = contentPage.locator('.el-message-box');
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     await confirmDialog.locator('.el-button--primary').click();
     await removeResponse;
@@ -429,7 +429,7 @@ test.describe('Online项目成员权限', () => {
     await memberRow.locator('.el-select').click();
     await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /只读|Read Only/i }).first().click();
 
-    const confirmDialog = contentPage.locator('.el-message-box');
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     await expect(confirmDialog).toContainText(/确认改变当前管理员权限|Confirm change admin/i, { timeout: 2000 });
     await confirmDialog.locator('.el-button:not(.el-button--primary)').click();
@@ -558,3 +558,4 @@ test.describe('Online项目成员权限', () => {
     await expect(groupRow.locator('.el-tag--success')).toContainText(/组|Group/i, { timeout: 2000 });
   });
 });
+

@@ -85,7 +85,7 @@ test.describe('ApiflowImport', () => {
     await coverRadio.click();
     await contentPage.waitForTimeout(300);
     // 验证确认对话框出现
-    const confirmDialog = contentPage.locator('.el-message-box').filter({ hasText: /覆盖后的数据将无法还原|cannot be restored/ });
+    const confirmDialog = contentPage.locator('.cl-confirm-container').filter({ hasText: /覆盖后的数据将无法还原|cannot be restored/ });
     await expect(confirmDialog).toBeVisible({ timeout: 3000 });
     // 取消操作
     const cancelBtn = confirmDialog.locator('.el-button').filter({ hasText: /取消|Cancel/ });
@@ -136,3 +136,4 @@ test.describe('ApiflowImport', () => {
     await expect(pasteSource).toHaveClass(/active/);
   });
 });
+

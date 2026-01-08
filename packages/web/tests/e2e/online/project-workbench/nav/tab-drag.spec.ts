@@ -178,3 +178,4 @@ test.describe('TabDrag', () => {
     await expect(movedItemTextA).not.toHaveClass(/unfixed/);
   });
 });
+

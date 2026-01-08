@@ -65,3 +65,4 @@ test.describe('SendButton', () => {
     await expect(sendBtn).toBeVisible({ timeout: 5000 });
   });
 });
+

@@ -30,7 +30,7 @@ const createProjectAndGoHome = async (topBarPage: any, contentPage: any, createP
   await projectListPromise;
   await contentPage.waitForTimeout(500);
   // 关闭可能的提示弹窗
-  const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
+  const confirmBtn = contentPage.locator('.cl-confirm-footer-right .el-button--primary');
   const confirmBtnVisible = await confirmBtn.isVisible({ timeout: 1000 }).catch(() => false);
   if (confirmBtnVisible) {
     await confirmBtn.click();
@@ -128,7 +128,7 @@ test.describe('ProjectList', () => {
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 关闭可能的提示弹窗
-    const msgBoxConfirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary');
+    const msgBoxConfirmBtn = contentPage.locator('.cl-confirm-footer-right .el-button--primary');
     const msgBoxConfirmBtnVisible = await msgBoxConfirmBtn.isVisible({ timeout: 1000 }).catch(() => false);
     if (msgBoxConfirmBtnVisible) {
       await msgBoxConfirmBtn.click();
@@ -233,7 +233,7 @@ test.describe('ProjectList', () => {
     const deleteBtn = projectCard.locator('[data-testid="home-project-delete-btn"]');
     await deleteBtn.click();
     // 验证确认对话框弹出
-    const confirmDialog = contentPage.locator('.el-message-box');
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     // 点击确定按钮
     const deleteConfirmBtn = confirmDialog.locator('.el-button--primary');
@@ -385,6 +385,7 @@ test.describe('ProjectList', () => {
     await expect(docNumInfo).toContainText('4');
   });
 });
+
 
 
 

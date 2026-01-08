@@ -272,3 +272,4 @@ test.describe('RequestMethodValidation', () => {
     await expect(methodSelect).toContainText('GET');
   });
 });
+

@@ -156,3 +156,4 @@ test.describe('AfSessionStorageApi', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
 });
+

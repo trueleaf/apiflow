@@ -68,7 +68,7 @@ test.describe('Online团队成员权限', () => {
       { timeout: 20000 },
     );
     await memberRow.getByRole('button', { name: /删除|Delete/i }).click();
-    const confirmDialog = contentPage.locator('.el-message-box');
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     await confirmDialog.locator('.el-button--primary').click();
     await removeResponse;
@@ -142,7 +142,7 @@ test.describe('Online团队成员权限', () => {
       { timeout: 20000 },
     );
     await memberRow.getByRole('button', { name: /删除|Delete/i }).click();
-    const confirmDialog = contentPage.locator('.el-message-box');
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     await confirmDialog.locator('.el-button--primary').click();
     await removeResponse;
@@ -211,7 +211,7 @@ test.describe('Online团队成员权限', () => {
       { timeout: 20000 },
     );
     await memberRow.getByRole('button', { name: /删除|Delete/i }).click();
-    const confirmDialog = contentPage.locator('.el-message-box');
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     await confirmDialog.locator('.el-button--primary').click();
     await removeResponse;
@@ -241,7 +241,7 @@ test.describe('Online团队成员权限', () => {
     const selfRow = contentPage.locator('.el-table__row').filter({ hasText: loginName }).first();
     await expect(selfRow).toBeVisible({ timeout: 5000 });
     await selfRow.getByRole('button', { name: /退出|Leave/i }).click();
-    const confirmDialog = contentPage.locator('.el-message-box');
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     await expect(confirmDialog).toContainText(/退出|Leave/i, { timeout: 2000 });
     await confirmDialog.locator('.el-button:not(.el-button--primary)').click();
@@ -342,4 +342,5 @@ test.describe('Online团队成员权限', () => {
     await expect(selfRow.locator('.permission')).toContainText(/只读|Read Only/i, { timeout: 5000 });
   });
 });
+
 
