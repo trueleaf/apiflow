@@ -22,6 +22,9 @@
         size="small"
         @selection-change="handleSelectionChange"
       >
+        <template #empty>
+          <el-empty :description="t('暂无Cookie数据')" />
+        </template>
         <el-table-column type="selection" width="55" />
         <el-table-column align="center" prop="name" label="Name" sortable />
         <el-table-column align="center" prop="value" width='500' label="Value" sortable>
@@ -236,6 +239,18 @@ const formRef = ref();
 const rules = {
   name: [{ required: true, message: t('请输入名称'), trigger: 'blur' }],
   value: [{ required: true, message: t('请输入值'), trigger: 'blur' }],
+  path: [
+    {
+      validator: (rule: unknown, value: string, callback: (error?: Error) => void) => {
+        if (value && !value.startsWith('/')) {
+          callback(new Error(t('路径必须以 / 开头')));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'blur'
+    }
+  ]
 };
 const expiresDate = ref<Date | ''>('');
 const now = ref(new Date());

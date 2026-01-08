@@ -978,6 +978,8 @@ export default {
   '请输入应用名称': 'Enter app name',
   '请输入有效的接口调用地址': 'Enter a valid API endpoint',
   '请输入值': 'Enter value',
+  '路径必须以 / 开头': 'パスは / で始まる必要があります',
+  '暂无Cookie数据': 'Cookieデータがありません',
   '请输入重定向目标URL，支持变量替换，例如：': 'Enter a target URL (variables supported), e.g. ',
   '请输入URL地址': 'Enter a URL',
   '请填写团队名称': 'Please enter team name',

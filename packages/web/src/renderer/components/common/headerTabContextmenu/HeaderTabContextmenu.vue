@@ -1,12 +1,12 @@
 <template>
-  <div v-if="visible" class="header-tab-contextmenu-overlay" @click="handleClose"></div>
-  <SContextmenu v-if="visible" :left="position.x" :top="position.y">
-    <SContextmenuItem :label="t('关闭')" @click="handleAction('close')"></SContextmenuItem>
+  <div v-if="visible" class="header-tab-contextmenu-overlay" data-test-id="header-tab-contextmenu-overlay" @click="handleClose"></div>
+  <SContextmenu v-if="visible" data-test-id="header-tab-contextmenu" :left="position.x" :top="position.y">
+    <SContextmenuItem data-test-id="header-tab-contextmenu-close" :label="t('关闭')" @click="handleAction('close')"></SContextmenuItem>
     <SContextmenuItem type="divider"></SContextmenuItem>
-    <SContextmenuItem :label="t('关闭左侧')" :disabled="!hasLeft" @click="handleAction('closeLeft')"></SContextmenuItem>
-    <SContextmenuItem :label="t('关闭右侧')" :disabled="!hasRight" @click="handleAction('closeRight')"></SContextmenuItem>
-    <SContextmenuItem :label="t('关闭其他')" :disabled="!hasOther" @click="handleAction('closeOther')"></SContextmenuItem>
-    <SContextmenuItem :label="t('全部关闭')" :disabled="!hasAny" @click="handleAction('closeAll')"></SContextmenuItem>
+    <SContextmenuItem data-test-id="header-tab-contextmenu-close-left" :label="t('关闭左侧')" :disabled="!hasLeft" @click="handleAction('closeLeft')"></SContextmenuItem>
+    <SContextmenuItem data-test-id="header-tab-contextmenu-close-right" :label="t('关闭右侧')" :disabled="!hasRight" @click="handleAction('closeRight')"></SContextmenuItem>
+    <SContextmenuItem data-test-id="header-tab-contextmenu-close-other" :label="t('关闭其他')" :disabled="!hasOther" @click="handleAction('closeOther')"></SContextmenuItem>
+    <SContextmenuItem data-test-id="header-tab-contextmenu-close-all" :label="t('全部关闭')" :disabled="!hasAny" @click="handleAction('closeAll')"></SContextmenuItem>
   </SContextmenu>
 </template>
 

@@ -2,12 +2,14 @@
   <div
     v-if="visible"
     class="user-dropdown-menu"
+    data-test-id="user-menu"
     :style="menuStyle"
     @click.stop
     role="menu"
   >
     <div
       class="user-menu-item"
+      data-test-id="user-menu-logout-btn"
       role="menuitem"
       tabindex="0"
       @click="handleLogout"
@@ -21,6 +23,7 @@
   <div
     v-if="visible"
     class="user-menu-overlay"
+    data-test-id="user-menu-overlay"
     @click="handleClose"
   ></div>
 </template>

@@ -1,7 +1,7 @@
 <template>
   <div class="s-header" @click="handleDocumentClick">
     <div class="logo">
-      <img :src="appSettingsStore.appLogo" :alt="appSettingsStore.appTitle" class="logo-img" width="24" height="24" draggable="false" @click="jumpToHome"/>
+      <img data-test-id="header-logo" :src="appSettingsStore.appLogo" :alt="appSettingsStore.appTitle" class="logo-img" width="24" height="24" draggable="false" @click="jumpToHome"/>
     </div>
     <div class="home" :class="{ active: activeTabId === ''}" data-testid="header-home-btn" @click="jumpToHome">
       <Home class="menu-icon" :size="14" />
@@ -14,15 +14,15 @@
     <div v-if="filteredTabs.length > 0" class="short-divider">
       <span class="short-divider-content"></span>
     </div>
-    <div class="tabs">
+    <div class="tabs" data-test-id="header-tabs-container">
       <draggable ref="tabListRef" v-model="draggableTabs" class="tab-list" :animation="150" ghost-class="sortable-ghost"
         chosen-class="sortable-chosen" drag-class="sortable-drag" item-key="id">
         <template #item="{ element: tab }">
-          <li :class="['tab-item', { active: tab.id === activeTabId }]" :title="tab.title" :data-id="tab.id" @click="switchTab(tab.id)" @contextmenu.stop.prevent="handleTabContextmenu($event, tab)">
+          <li :data-test-id="`header-tab-item-${tab.id}`" :class="['tab-item', { active: tab.id === activeTabId }]" :title="tab.title" :data-id="tab.id" @click="switchTab(tab.id)" @contextmenu.stop.prevent="handleTabContextmenu($event, tab)">
             <Folder v-if="tab.type === 'project'" class="tab-icon" :size="14" />
             <Settings v-if="tab.type === 'settings'" class="tab-icon" :size="14" />
             <span class="tab-title">{{ tab.title }}</span>
-            <span class="close-btn iconfont iconguanbi" @click.stop="deleteTab(tab.id)"></span>
+            <span :data-test-id="`header-tab-close-btn-${tab.id}`" class="close-btn iconfont iconguanbi" @click.stop="deleteTab(tab.id)"></span>
           </li>
         </template>
       </draggable>

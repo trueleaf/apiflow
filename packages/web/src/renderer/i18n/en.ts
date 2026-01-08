@@ -1358,6 +1358,8 @@ export default {
   请输入应用名称: 'Enter app name',
   请输入有效的接口调用地址: 'Enter a valid API endpoint',
   请输入值: 'Enter value',
+  '路径必须以 / 开头': 'Path must start with /',
+  '暂无Cookie数据': 'No cookies yet',
   请填写团队名称: 'Enter a team name',
   请先前往AI设置配置apiKey与apiUrl: 'Go to AI Settings to configure apiKey and apiUrl first',
   '请先完成 API 配置': 'Complete API configuration first',
