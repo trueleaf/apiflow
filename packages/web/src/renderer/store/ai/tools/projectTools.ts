@@ -6,7 +6,7 @@ import { simpleCreateProjectPrompt } from '@/store/ai/prompt/prompt'
 export const projectTools: AgentTool[] = [
   {
     name: 'simpleCreateProject',
-    description: 'Create a project from natural language description (Smart Mode - Recommended). Automatically extracts and infers project name from user input. Use this when the user describes a project concept without explicitly stating a name. Example: "Create an e-commerce system project" will auto-generate a project named "E-commerce System".',
+    description: 'Create a project from natural language description (Smart Mode - Recommended). Automatically extracts and infers project name from user input. Use this when the user describes a project concept without explicitly stating a name. Example: "Create an e-commerce system project" will auto-generate a project named "E-commerce System". Note: This tool only creates the project and does NOT navigate to it. If the user needs to perform subsequent operations within the project, you must call navigateToProject separately.',
     type: 'projectManager',
     parameters: {
       type: 'object',
@@ -350,6 +350,31 @@ export const projectTools: AgentTool[] = [
       return {
         code: result ? 0 : 1,
         data: result,
+      }
+    },
+  },
+  {
+    name: 'navigateToProject',
+    description: 'Navigate to a specific project workspace. Use this ONLY when the user needs to perform subsequent operations within a project (such as creating nodes, modifying settings, etc.). Do NOT use this tool when: (1) The user is batch creating multiple projects without subsequent operations, (2) The user only wants to create a project without specifying follow-up actions, (3) The user explicitly says "do not open" or similar. IMPORTANT: This tool changes the current view context, so call it carefully based on user intent.',
+    type: 'projectManager',
+    parameters: {
+      type: 'object',
+      properties: {
+        projectId: {
+          type: 'string',
+          description: 'The unique identifier of the project to navigate to',
+        },
+      },
+      required: ['projectId'],
+    },
+    needConfirm: false,
+    execute: async (args: Record<string, unknown>) => {
+      const skillStore = useSkill()
+      const projectId = args.projectId as string
+      const result = await skillStore.navigateToProject(projectId)
+      return {
+        code: result ? 0 : 1,
+        data: { message: result ? '已跳转到项目工作台' : '项目不存在或跳转失败' },
       }
     },
   },

@@ -10,6 +10,7 @@ import { useHttpNode } from "../httpNode/httpNodeStore";
 import { useProjectManagerStore } from "../projectManager/projectManagerStore";
 import { useBanner } from "../projectWorkbench/bannerStore";
 import { useProjectNav } from "../projectWorkbench/projectNavStore";
+import { useProjectWorkbench } from "../projectWorkbench/projectWorkbenchStore";
 import { useCommonHeader } from "../projectWorkbench/commonHeaderStore";
 import { useRuntime } from "../runtime/runtimeStore";
 import { router } from "@/router";
@@ -1218,6 +1219,28 @@ export const useSkill = defineStore('skill', () => {
     const projectManagerStore = useProjectManagerStore();
     return await projectManagerStore.unstarProject(projectId);
   }
+  //跳转到项目
+  const navigateToProject = async (projectId: string): Promise<boolean> => {
+    const projectManagerStore = useProjectManagerStore();
+    const projectWorkbenchStore = useProjectWorkbench();
+    await projectManagerStore.getProjectList();
+    const project = projectManagerStore.projectList.find(p => p._id === projectId);
+    if (!project) {
+      logger.error('项目不存在', { projectId });
+      return false;
+    }
+    projectManagerStore.recordVisited(projectId);
+    router.push({
+      path: '/workbench',
+      query: {
+        id: projectId,
+        name: project.projectName,
+        mode: 'edit',
+      },
+    });
+    projectWorkbenchStore.changeProjectId(projectId);
+    return true;
+  }
   //创建文件夹节点
   const createFolderNode = async (options: { projectId: string; name: string; pid?: string }): Promise<FolderNode | null> => {
     const now = new Date().toISOString();
@@ -1645,6 +1668,7 @@ export const useSkill = defineStore('skill', () => {
     deleteAllProjects,
     starProject,
     unstarProject,
+    navigateToProject,
     createFolderNode,
     batchCreateFolderNodes,
     getFolderList,
