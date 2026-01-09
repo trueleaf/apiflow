@@ -1292,6 +1292,8 @@ export default {
   '支持 .json / .yaml 格式': 'Supports .json / .yaml format',
   '支持 OpenAPI、Postman、ApiFlow 等格式的 JSON/YAML 文件 URL': 'Supports JSON/YAML file URL in OpenAPI, Postman, ApiFlow formats',
   '支持openapi3.0规范文档、postman文档、apiflow格式文档': 'Supports OpenAPI 3.0 specs, Postman docs, and ApiFlow docs',
+  '支持格式：': 'サポート形式：',
+  '若导入格式不满足上述格式，可以采用 AI 智能识别方式进行导入': '上記の形式に該当しない場合は、AI スマート認識機能をご利用ください',
   '至少需要保留一个返回配置': 'At least one response config must be kept',
   '重定向': 'Redirect',
   '重定向目标URL': 'Redirect Target URL',

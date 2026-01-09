@@ -19,7 +19,7 @@
     </SFieldset>
 
     <!-- 数据输入区域 -->
-    <SFieldset :title="t('请选择需要导入的数据')">
+    <SFieldset :title="t('数据输入')">
       <!-- 本地文件上传 -->
       <FileImport v-if="currentSourceType === 'file'" @success="handleDataLoaded" @error="handleError" />
       <!-- URL导入 -->
@@ -28,6 +28,11 @@
       <PasteImport v-else-if="currentSourceType === 'paste'" @success="handleDataLoaded" @error="handleError" />
       <!-- AI智能识别 -->
       <AiImport v-else-if="currentSourceType === 'ai'" :project-id="projectId" @success="handleAiDataLoaded" @error="handleError" />
+      <!-- 格式支持说明 -->
+      <div v-if="currentSourceType === 'file'" class="format-support-hint">
+        <div class="format-list">{{ t('支持格式：') }}OpenAPI 3.0、Postman、Swagger、YAPI、ApiFlow</div>
+        <div class="ai-hint">{{ t('若导入格式不满足上述格式，可以采用 AI 智能识别方式进行导入') }}</div>
+      </div>
     </SFieldset>
 
     <!-- 文档格式选择 -->
@@ -578,6 +583,26 @@ const handleSubmit = async () => {
     padding-top: 0;
     padding-bottom: 0;
     margin-top: -1px;
+  }
+
+  .format-support-hint {
+    margin-top: 16px;
+    padding: 12px;
+    background-color: var(--s-color-neutral-1);
+    border-radius: 4px;
+
+    .format-list {
+      font-size: 13px;
+      color: var(--s-color-text-1);
+      line-height: 1.6;
+    }
+
+    .ai-hint {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--s-color-text-3);
+      line-height: 1.5;
+    }
   }
 }
 </style>

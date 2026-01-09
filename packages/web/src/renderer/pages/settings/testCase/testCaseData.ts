@@ -17,7 +17,6 @@ import apiflowImport from './projectAddon/import/apiflowImport'
 import openapiImport from './projectAddon/import/openapiImport'
 import postmanImport from './projectAddon/import/postmanImport'
 import aiDataImport from './projectAddon/import/aiDataImport'
-import codeRepoImport from './projectAddon/import/codeRepoImport'
 import exportModule from './projectAddon/export'
 import variable from './projectAddon/variable'
 import globalCommonHeaders from './projectAddon/commonHeader/globalCommonHeaders'
@@ -235,7 +234,6 @@ export const testCase: TestCase = [
           openapiImport,
           postmanImport,
           aiDataImport,
-          codeRepoImport,
         ],
       },
       exportModule,
