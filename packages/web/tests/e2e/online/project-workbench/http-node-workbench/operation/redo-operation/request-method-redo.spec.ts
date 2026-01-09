@@ -2,7 +2,7 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('RequestMethodRedo', () => {
   // 测试用例1: 切换请求方法两次后点击撤销按钮,再点击重做按钮,请求方法恢复到撤销前的状态
-  test('切换请求方法两次后点击撤销按钮再点击重做按钮,请求方法恢复到撤销前的状态', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('切换请求方法两次后点击撤销按钮再点击重做按钮,请求方法恢复到撤销前的状态', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -39,7 +39,7 @@ test.describe('RequestMethodRedo', () => {
     await expect(methodSelect).toContainText('PUT', { timeout: 5000 });
   });
   // 测试用例2: 切换请求方法两次后按ctrl+z,再按ctrl+shift+z,请求方法恢复到撤销前的状态
-  test('切换请求方法两次后按ctrl+z再按ctrl+shift+z,请求方法恢复到撤销前的状态', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('切换请求方法两次后按ctrl+z再按ctrl+shift+z,请求方法恢复到撤销前的状态', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -74,4 +74,5 @@ test.describe('RequestMethodRedo', () => {
     await expect(methodSelect).toContainText('PUT', { timeout: 5000 });
   });
 });
+
 

@@ -2,7 +2,7 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('RestoreDefault', () => {
   // 测试用例1: 点击恢复默认按钮,所有配置项恢复为默认值
-  test('点击恢复默认按钮所有配置项恢复为默认值', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('点击恢复默认按钮所有配置项恢复为默认值', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -31,7 +31,7 @@ test.describe('RestoreDefault', () => {
     expect(restoredUserAgent).toBe(originalUserAgent);
   });
   // 测试用例2: 修改重定向配置后点击恢复按钮,配置恢复为默认值
-  test('修改重定向配置后点击恢复按钮配置恢复为默认值', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('修改重定向配置后点击恢复按钮配置恢复为默认值', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -60,7 +60,7 @@ test.describe('RestoreDefault', () => {
     expect(restoredMaxRedirects).toBe(originalMaxRedirects);
   });
   // 测试用例3: 恢复默认后刷新页面,配置保持为默认值
-  test('恢复默认后刷新页面配置保持为默认值', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('恢复默认后刷新页面配置保持为默认值', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -93,7 +93,7 @@ test.describe('RestoreDefault', () => {
     expect(userAgentAfterReload).toBe(originalUserAgent);
   });
   // 测试用例4: Body参数显示顺序恢复默认后,顺序恢复为初始状态
-  test('Body参数显示顺序恢复默认后顺序恢复为初始状态', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('Body参数显示顺序恢复默认后顺序恢复为初始状态', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -138,4 +138,5 @@ test.describe('RestoreDefault', () => {
     expect(restoredFirstModeLabel).toBe(originalFirstModeLabel);
   });
 });
+
 

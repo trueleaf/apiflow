@@ -2,7 +2,7 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('VariableCrud', () => {
   // 测试用例1: 新增string类型变量,输入变量名和值后保存成功
-  test('新增string类型变量保存成功', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('新增string类型变量保存成功', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -29,7 +29,7 @@ test.describe('VariableCrud', () => {
     await expect(variablePage.locator('.right')).toContainText('testString', { timeout: 5000 });
   });
   // 测试用例2: 新增number类型变量,输入变量名和数字值后保存成功
-  test('新增number类型变量保存成功', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('新增number类型变量保存成功', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -62,7 +62,7 @@ test.describe('VariableCrud', () => {
     await expect(variablePage.locator('.right')).toContainText('testNumber', { timeout: 5000 });
   });
   // 测试用例3: 修改已存在变量的值,保存后变量值更新
-  test('修改已存在变量的值保存后更新', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('修改已存在变量的值保存后更新', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -102,7 +102,7 @@ test.describe('VariableCrud', () => {
     await expect(variablePage.locator('.right')).toContainText('new_value', { timeout: 5000 });
   });
   // 测试用例4: 删除变量后,变量从列表中移除
-  test('删除变量后从列表中移除', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('删除变量后从列表中移除', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -139,4 +139,5 @@ test.describe('VariableCrud', () => {
     await expect(variablePage.locator('.right')).not.toContainText('toDelete', { timeout: 5000 });
   });
 });
+
 

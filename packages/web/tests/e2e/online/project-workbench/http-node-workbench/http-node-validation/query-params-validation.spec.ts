@@ -4,7 +4,7 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('QueryParamsValidation', () => {
   // 测试用例1: 调用echo接口验证参数为空是否正常返回/echo?id=
-  test('调用echo接口验证参数为空是否正常返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('调用echo接口验证参数为空是否正常返回', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -33,7 +33,7 @@ test.describe('QueryParamsValidation', () => {
     await expect(responseBody).toContainText('id', { timeout: 10000 });
   });
   // 测试用例2: 调用echo接口验证常规参数是否正常返回/echo?id=1
-  test('调用echo接口验证常规参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('调用echo接口验证常规参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -66,7 +66,7 @@ test.describe('QueryParamsValidation', () => {
     await expect(responseBody).toContainText('1', { timeout: 10000 });
   });
   // 测试用例3: 调用echo接口验证同名参数是否正常返回/echo?id=1&id=3
-  test('调用echo接口验证同名参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('调用echo接口验证同名参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -105,7 +105,7 @@ test.describe('QueryParamsValidation', () => {
     await expect(responseBody).toContainText('3', { timeout: 10000 });
   });
   // 测试用例4: 调用echo接口验证中文参数是否正常返回/echo?name=张三&tag=a+b
-  test('调用echo接口验证中文参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('调用echo接口验证中文参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -144,4 +144,5 @@ test.describe('QueryParamsValidation', () => {
     await expect(responseBody).toContainText('tag', { timeout: 10000 });
   });
 });
+
 

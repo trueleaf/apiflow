@@ -4,7 +4,7 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('RequestMethodValidation', () => {
   // 验证GET方法能正常发送
-  test('验证GET方法能正常发送', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('验证GET方法能正常发送', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -29,7 +29,7 @@ test.describe('RequestMethodValidation', () => {
     await expect(responseBody).toContainText('"method": "GET"', { timeout: 10000 });
   });
   // 验证POST方法能正常发送
-  test('验证POST方法能正常发送', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('验证POST方法能正常发送', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -56,7 +56,7 @@ test.describe('RequestMethodValidation', () => {
     await expect(responseBody).toContainText('"method": "POST"', { timeout: 10000 });
   });
   // 验证PUT方法能正常发送
-  test('验证PUT方法能正常发送', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('验证PUT方法能正常发送', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -83,7 +83,7 @@ test.describe('RequestMethodValidation', () => {
     await expect(responseBody).toContainText('"method": "PUT"', { timeout: 10000 });
   });
   // 验证DELETE方法能正常发送
-  test('验证DELETE方法能正常发送', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('验证DELETE方法能正常发送', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -110,7 +110,7 @@ test.describe('RequestMethodValidation', () => {
     await expect(responseBody).toContainText('"method": "DELETE"', { timeout: 10000 });
   });
   // 验证PATCH方法能正常发送
-  test('验证PATCH方法能正常发送', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('验证PATCH方法能正常发送', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -137,7 +137,7 @@ test.describe('RequestMethodValidation', () => {
     await expect(responseBody).toContainText('"method": "PATCH"', { timeout: 10000 });
   });
   // 验证HEAD方法响应不包含body
-  test('验证HEAD方法响应不包含body', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('验证HEAD方法响应不包含body', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -164,7 +164,7 @@ test.describe('RequestMethodValidation', () => {
     await expect(responseArea).not.toContainText('"method":');
   });
   // 验证OPTIONS方法能正常发送
-  test('验证OPTIONS方法能正常发送', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('验证OPTIONS方法能正常发送', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -191,7 +191,7 @@ test.describe('RequestMethodValidation', () => {
     await expect(responseBody).toContainText('OPTIONS', { timeout: 10000 });
   });
   // 验证方法切换后UI立即更新显示新的方法
-  test('验证方法切换后UI立即更新显示新的方法', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('验证方法切换后UI立即更新显示新的方法', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -224,4 +224,5 @@ test.describe('RequestMethodValidation', () => {
     await expect(methodSelect).toContainText('GET');
   });
 });
+
 

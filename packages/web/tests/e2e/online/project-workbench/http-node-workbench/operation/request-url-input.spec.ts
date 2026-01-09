@@ -4,7 +4,7 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('RequestUrlInput', () => {
   // 测试用例1: 输入localhost地址调用echo接口成功返回
-  test('输入localhost地址调用echo接口成功返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('输入localhost地址调用echo接口成功返回', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -27,7 +27,7 @@ test.describe('RequestUrlInput', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例2: 输入127.0.0.1地址调用echo接口成功返回
-  test('输入127.0.0.1地址调用echo接口成功返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('输入127.0.0.1地址调用echo接口成功返回', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -50,7 +50,7 @@ test.describe('RequestUrlInput', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例3: 使用变量调用echo接口成功返回
-  test('使用变量调用echo接口成功返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('使用变量调用echo接口成功返回', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -89,7 +89,7 @@ test.describe('RequestUrlInput', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例4: 不带协议的URL自动添加http://后成功请求
-  test('不带协议的URL自动添加http后成功请求', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('不带协议的URL自动添加http后成功请求', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -115,7 +115,7 @@ test.describe('RequestUrlInput', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例5: URL中的query参数自动解析到参数列表
-  test('URL中的query参数自动解析到参数列表', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('URL中的query参数自动解析到参数列表', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -137,7 +137,7 @@ test.describe('RequestUrlInput', () => {
     expect(keyCount).toBeGreaterThanOrEqual(2);
   });
   // 测试用例6: URL中带query参数发送请求返回结果正
-  test('URL中带query参数发送请求返回结果正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('URL中带query参数发送请求返回结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -165,7 +165,7 @@ test.describe('RequestUrlInput', () => {
     await expect(responseBody).toContainText('name', { timeout: 10000 });
   });
   // 测试用例7: 粘贴的URL去除前后空格
-  test('粘贴的URL去除前后空格', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('粘贴的URL去除前后空格', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -194,4 +194,5 @@ test.describe('RequestUrlInput', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
 });
+
 

@@ -4,7 +4,7 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('RefreshButton', () => {
   // 测试用例1: 刷新按钮点击后,清空修改的值
-  test('刷新按钮点击后清空修改的值', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('刷新按钮点击后清空修改的值', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -36,7 +36,7 @@ test.describe('RefreshButton', () => {
     expect(restoredUrl).toBe(savedUrl);
   });
   // 测试用例2: 验证录入项变更后刷新页面数据恢复
-  test('验证录入项变更后刷新页面数据恢复', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('验证录入项变更后刷新页面数据恢复', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -70,4 +70,5 @@ test.describe('RefreshButton', () => {
     expect(restoredUrl).toBe(initialUrl);
   });
 });
+
 

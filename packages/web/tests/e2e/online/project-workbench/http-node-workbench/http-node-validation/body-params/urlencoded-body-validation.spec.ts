@@ -3,7 +3,7 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('UrlencodedBodyValidation', () => {
-  test('调用echo接口验证urlencoded参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('调用echo接口验证urlencoded参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -76,7 +76,7 @@ test.describe('UrlencodedBodyValidation', () => {
     await expect(statusCode).toContainText('200');
   });
 
-  test('PUT方法配合URLEncoded请求体验证', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('PUT方法配合URLEncoded请求体验证', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -138,4 +138,5 @@ test.describe('UrlencodedBodyValidation', () => {
     await expect(statusCode).toContainText('200');
   });
 });
+
 

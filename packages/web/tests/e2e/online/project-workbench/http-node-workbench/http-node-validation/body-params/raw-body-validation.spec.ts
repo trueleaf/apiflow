@@ -4,7 +4,7 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('RawBodyValidation', () => {
   // 测试用例1: 调用echo接口验证text格式参数是否正常返回,content-type是否设置正确
-  test('调用echo接口验证text格式参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('调用echo接口验证text格式参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -59,7 +59,7 @@ test.describe('RawBodyValidation', () => {
   });
 
   // 测试用例2: 调用echo接口验证html格式参数是否正常返回,content-type是否设置正确
-  test('调用echo接口验证html格式参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('调用echo接口验证html格式参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -118,7 +118,7 @@ test.describe('RawBodyValidation', () => {
   });
 
   // 测试用例3: 调用echo接口验证xml格式参数是否正常返回,content-type是否设置正确
-  test('调用echo接口验证xml格式参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('调用echo接口验证xml格式参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -176,7 +176,7 @@ test.describe('RawBodyValidation', () => {
   });
 
   // 测试用例4: 调用echo接口验证javascript格式参数是否正常返回,content-type是否设置正确
-  test('调用echo接口验证javascript格式参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('调用echo接口验证javascript格式参数是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -233,4 +233,5 @@ test.describe('RawBodyValidation', () => {
     await expect(responseBody).toContainText('world', { timeout: 10000 });
   });
 });
+
 

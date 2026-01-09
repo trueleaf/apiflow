@@ -4,7 +4,7 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('SaveButton', () => {
   // 测试用例1: 无任何数据变更时候可以点击保存按钮
-  test('无任何数据变更时可以点击保存按钮', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('无任何数据变更时可以点击保存按钮', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -81,4 +81,5 @@ test.describe('SaveButton', () => {
     expect(methodText).toContain('POST');
   });
 });
+
 

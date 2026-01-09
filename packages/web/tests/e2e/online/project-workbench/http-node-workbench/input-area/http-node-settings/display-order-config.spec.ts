@@ -2,7 +2,7 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('DisplayOrderConfig', () => {
   // 测试用例1: 拖拽调整Body参数模式显示顺序后,Body区域按新顺序展示
-  test('拖拽调整Body参数模式显示顺序后Body区域按新顺序展示', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('拖拽调整Body参数模式显示顺序后Body区域按新顺序展示', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -49,7 +49,7 @@ test.describe('DisplayOrderConfig', () => {
     expect(firstRadioText?.toLowerCase()).toContain(lastModeLabel?.toLowerCase() || '');
   });
   // 测试用例2: 拖拽调整标签页显示顺序后,标签按新顺序展示
-  test('拖拽调整标签页显示顺序后标签按新顺序展示', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('拖拽调整标签页显示顺序后标签按新顺序展示', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -94,7 +94,7 @@ test.describe('DisplayOrderConfig', () => {
     expect(firstTabText?.trim()).toContain(lastTabLabel?.trim() || '');
   });
   // 测试用例3: 显示顺序修改后刷新页面,顺序保持不变
-  test('显示顺序修改后刷新页面顺序保持不变', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('显示顺序修改后刷新页面顺序保持不变', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -144,4 +144,5 @@ test.describe('DisplayOrderConfig', () => {
     expect(firstModeLabelAfterReload).toBe(lastModeLabel);
   });
 });
+
 

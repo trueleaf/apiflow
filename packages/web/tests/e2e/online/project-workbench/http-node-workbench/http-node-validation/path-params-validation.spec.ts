@@ -3,7 +3,7 @@ import { test, expect } from '../../../../../fixtures/electron-online.fixture';
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('PathParamsValidation', () => {
-  test('调用echo接口验证path参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('调用echo接口验证path参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -48,7 +48,7 @@ test.describe('PathParamsValidation', () => {
     await expect(responseBody).toContainText('456', { timeout: 10000 });
   });
 
-  test('调用echo接口验证单个path参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('调用echo接口验证单个path参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -81,7 +81,7 @@ test.describe('PathParamsValidation', () => {
     await expect(responseBody).toContainText('item_001', { timeout: 10000 });
   });
 
-  test('调用echo接口验证中文path参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('调用echo接口验证中文path参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -114,7 +114,7 @@ test.describe('PathParamsValidation', () => {
     await expect(responseBody).toContainText('param', { timeout: 10000 });
   });
 
-  test('调用echo接口验证使用变量的path参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('调用echo接口验证使用变量的path参数是否正常返回', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -162,7 +162,7 @@ test.describe('PathParamsValidation', () => {
     await expect(responseBody).toContainText('/echo/users/user_12345', { timeout: 10000 });
   });
 
-  test('调用echo接口验证多个path参数混合URL编码', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('调用echo接口验证多个path参数混合URL编码', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -212,4 +212,5 @@ test.describe('PathParamsValidation', () => {
     await expect(responseBody).toContainText('comment003', { timeout: 10000 });
   });
 });
+
 

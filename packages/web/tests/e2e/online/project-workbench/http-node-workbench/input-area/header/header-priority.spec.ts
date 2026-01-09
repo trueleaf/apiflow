@@ -4,7 +4,7 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('HeaderPriority', () => {
   // 测试用例1: 自定义请求头优先级大于公共请求头,相同key时自定义header值被发送
-  test('自定义请求头优先级大于公共请求头,相同key时自定义header值被发送', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('自定义请求头优先级大于公共请求头,相同key时自定义header值被发送', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -62,7 +62,7 @@ test.describe('HeaderPriority', () => {
     await expect(responseBody).toContainText('from-custom', { timeout: 10000 });
   });
   // 测试用例2: 公共请求头优先级大于可更改的默认请求头(User-Agent)
-  test('公共请求头优先级大于可更改的默认请求头', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('公共请求头优先级大于可更改的默认请求头', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -109,7 +109,7 @@ test.describe('HeaderPriority', () => {
     await expect(responseBody).toContainText('CustomAgent/1.0', { timeout: 10000 });
   });
   // 测试用例3: 自定义请求头优先级大于默认请求头(User-Agent)
-  test('自定义请求头优先级大于默认请求头', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('自定义请求头优先级大于默认请求头', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -146,7 +146,7 @@ test.describe('HeaderPriority', () => {
     await expect(responseBody).toContainText('MyCustomAgent/2.0', { timeout: 10000 });
   });
   // 测试用例4: 完整优先级链验证 - 自定义header > 公共header > 默认header
-  test('完整优先级链验证 - 自定义header优先级高于公共header优先级高于默认header', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('完整优先级链验证 - 自定义header优先级高于公共header优先级高于默认header', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -204,4 +204,5 @@ test.describe('HeaderPriority', () => {
     await expect(responseBody).toContainText('CustomAgent/2.0', { timeout: 10000 });
   });
 });
+
 

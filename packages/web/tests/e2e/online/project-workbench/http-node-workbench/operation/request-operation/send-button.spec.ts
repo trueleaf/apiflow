@@ -4,7 +4,7 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('SendButton', () => {
   // 测试用例1: 发送请求按钮点击后请求过程中出现取消请求按钮
-  test('发送请求按钮点击后出现取消请求按钮点击后取消请求', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('发送请求按钮点击后出现取消请求按钮点击后取消请求', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -24,7 +24,7 @@ test.describe('SendButton', () => {
     await expect(sendBtn).toBeVisible({ timeout: 5000 });
   });
   // 测试用例2: 发送请求按钮点击后变成取消请求按钮,请求完成后恢复
-  test('发送请求按钮请求完成后恢复为发送请求按钮', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('发送请求按钮请求完成后恢复为发送请求按钮', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -49,4 +49,5 @@ test.describe('SendButton', () => {
     await expect(sendBtn).toBeVisible({ timeout: 5000 });
   });
 });
+
 

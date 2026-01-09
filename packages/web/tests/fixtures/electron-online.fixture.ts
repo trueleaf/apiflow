@@ -10,7 +10,7 @@ type ElectronFixtures = {
   contentPage: Page;
   clearCache: () => Promise<void>;
   createProject: (name?: string) => Promise<string>;
-  createNode: (contentPage: Page, options: { nodeType: 'http' | 'httpMock' | 'websocket' | 'folder', name?: string, pid?: string }) => Promise<string>;
+  createNode: (contentPage: Page, options: { nodeType: 'http' | 'httpMock' | 'websocket' | 'websocketMock' | 'folder', name?: string, pid?: string }) => Promise<string>;
   loginAccount: (options?: { loginName?: string; password?: string }) => Promise<void>;
   jumpToSettings: () => Promise<void>;
   reload: () => Promise<void>;
@@ -119,7 +119,7 @@ export const test = base.extend<ElectronFixtures>({
   },
   // 创建节点
   createNode: async ({ contentPage }, use) => {
-    const create = async (page: Page, options: { nodeType: 'http' | 'httpMock' | 'websocket' | 'folder', name?: string, pid?: string }) => {
+    const create = async (page: Page, options: { nodeType: 'http' | 'httpMock' | 'websocket' | 'websocketMock' | 'folder', name?: string, pid?: string }) => {
       const { nodeType, name, pid } = options;
       const nodeName = name || `测试节点-${Date.now()}`;
       if (pid) {
@@ -140,6 +140,9 @@ export const test = base.extend<ElectronFixtures>({
         } else if (nodeType === 'httpMock') {
           const newMockItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建Mock/ });
           await newMockItem.click();
+        } else if (nodeType === 'websocketMock') {
+          const newWsMockItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建WebSocket Mock/ });
+          await newWsMockItem.click();
         }
       } else {
         if (nodeType === 'http') {
@@ -158,9 +161,12 @@ export const test = base.extend<ElectronFixtures>({
         } else if (nodeType === 'httpMock') {
           const addMockBtn = page.getByTestId('banner-add-mock-btn');
           await addMockBtn.click();
+        } else if (nodeType === 'websocketMock') {
+          const addWsMockBtn = page.getByTestId('banner-add-ws-mock-btn');
+          await addWsMockBtn.click();
         }
       }
-      const dialogPattern = nodeType === 'folder' ? /新建文件夹|新增文件夹/ : nodeType === 'http' ? /新建接口|新增接口/ : nodeType === 'websocket' ? /新建WebSocket|新增WebSocket/ : /新建Mock|新增Mock/;
+      const dialogPattern = nodeType === 'folder' ? /新建文件夹|新增文件夹/ : nodeType === 'http' ? /新建接口|新增接口/ : nodeType === 'websocket' ? /新建WebSocket|新增WebSocket/ : nodeType === 'websocketMock' ? /新建WebSocket Mock|新增WebSocket Mock/ : /新建Mock|新增Mock/;
       const dialog = page.locator('.el-dialog').filter({ hasText: dialogPattern });
       await expect(dialog).toBeVisible({ timeout: 5000 });
       const nameInput = dialog.locator('input').first();

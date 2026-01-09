@@ -2,7 +2,7 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('VariableDialog', () => {
   // 测试用例1: 点击变量按钮打开变量管理页签,页签展示变量维护页面
-  test('点击变量按钮打开变量管理页签', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('点击变量按钮打开变量管理页签', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -22,7 +22,7 @@ test.describe('VariableDialog', () => {
     await expect(confirmAddBtn2).toBeVisible({ timeout: 5000 });
   });
   // 测试用例2: 变量管理页签可关闭并再次打开
-  test('变量管理页签可关闭并再次打开', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('变量管理页签可关闭并再次打开', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -45,4 +45,5 @@ test.describe('VariableDialog', () => {
     await expect(variableTab).toBeVisible({ timeout: 5000 });
   });
 });
+
 

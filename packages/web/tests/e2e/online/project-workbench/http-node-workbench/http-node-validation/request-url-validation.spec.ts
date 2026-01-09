@@ -4,7 +4,7 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('RequestUrlValidation', () => {
   // 测试用例1: 验证localhost格式的url,调用echo接口,能正确请求,并且显示正确的url地址
-  test('验证localhost格式的url能正确请求并显示正确的url地址', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('验证localhost格式的url能正确请求并显示正确的url地址', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -31,7 +31,7 @@ test.describe('RequestUrlValidation', () => {
     await expect(responseBody).toContainText('/echo', { timeout: 10000 });
   });
   // 测试用例2: 验证127.0.0.1这样的ip url,调用echo接口,能正确请求,并且显示正确的url地址
-  test('验证127.0.0.1格式的ip url能正确请求并显示正确的url地址', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('验证127.0.0.1格式的ip url能正确请求并显示正确的url地址', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -58,4 +58,5 @@ test.describe('RequestUrlValidation', () => {
     await expect(responseBody).toContainText('/echo', { timeout: 10000 });
   });
 });
+
 

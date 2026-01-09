@@ -2,7 +2,7 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('QueryParamsUndo', () => {
   // 测试用例1: query参数key输入字符串ab,按ctrl+z逐步撤销
-  test('query参数key输入后按ctrl+z撤销', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('query参数key输入后按ctrl+z撤销', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -40,7 +40,7 @@ test.describe('QueryParamsUndo', () => {
     await expect(keyInput).toHaveValue('', { timeout: 5000 });
   });
   // 测试用例2: query参数value输入字符串后撤销
-  test('query参数value输入后按ctrl+z撤销', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('query参数value输入后按ctrl+z撤销', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -79,7 +79,7 @@ test.describe('QueryParamsUndo', () => {
     await expect(valueEditor).toHaveText('v1', { timeout: 5000 });
   });
   // 测试用例3: url和query参数联动撤销
-  test('url和query参数联动变化后撤销', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('url和query参数联动变化后撤销', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -101,4 +101,5 @@ test.describe('QueryParamsUndo', () => {
     await expect(urlInput).toHaveText(/^\s*$/, { timeout: 5000 });
   });
 });
+
 

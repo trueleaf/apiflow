@@ -4,7 +4,7 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('AfterScriptExecution', () => {
   // 后置脚本语法错误时,在响应区域展示脚本错误信息
-  test('后置脚本语法错误时在响应区域展示脚本错误信息', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('后置脚本语法错误时在响应区域展示脚本错误信息', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -37,7 +37,7 @@ test.describe('AfterScriptExecution', () => {
     await expect(responseError).toContainText(/error|错误/i, { timeout: 10000 });
   });
   // 后置脚本运行时错误时,在响应区域展示运行时错误信息
-  test('后置脚本运行时错误时在响应区域展示运行时错误信息', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('后置脚本运行时错误时在响应区域展示运行时错误信息', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -70,7 +70,7 @@ test.describe('AfterScriptExecution', () => {
     await expect(responseError).toContainText(/error|错误/i, { timeout: 10000 });
   });
   // 后置脚本在主请求响应后执行
-  test('后置脚本在主请求响应后执行', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('后置脚本在主请求响应后执行', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -107,4 +107,5 @@ test.describe('AfterScriptExecution', () => {
     await expect(responseBody).toContainText('127.0.0.1', { timeout: 10000 });
   });
 });
+
 

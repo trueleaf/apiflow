@@ -4,7 +4,7 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('EnvVariableAccess', () => {
   // 测试用例1: 使用af.envs获取所有环境变量列表
-  test('使用af.envs获取所有环境变量列表', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('使用af.envs获取所有环境变量列表', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -58,7 +58,7 @@ test.describe('EnvVariableAccess', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
   // 测试用例2: 使用af.currentEnv获取当前激活的环境变量
-  test('使用af.currentEnv获取当前激活的环境变量', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('使用af.currentEnv获取当前激活的环境变量', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -107,4 +107,5 @@ test.describe('EnvVariableAccess', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
 });
+
 

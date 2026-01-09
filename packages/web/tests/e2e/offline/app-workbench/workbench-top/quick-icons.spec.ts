@@ -62,7 +62,7 @@ test.describe('QuickIcons', () => {
       await expect(languageBtn).toHaveText('EN');
       // 验证其他按钮的title变为英文（例如首页按钮）
       const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
-      await expect(homeBtn).toHaveAttribute('title', 'Home');
+      await expect(homeBtn.locator('div').last()).toContainText('Home');
       // 切换回简体中文
       await languageBtn.click();
       const languageMenu2 = contentPage.locator('.language-dropdown-menu');
@@ -141,4 +141,5 @@ test.describe('QuickIcons', () => {
     });
   });
 });
+
 

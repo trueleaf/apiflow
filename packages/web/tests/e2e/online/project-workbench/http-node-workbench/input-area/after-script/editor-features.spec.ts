@@ -2,7 +2,7 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('AfterScriptEditorFeatures', () => {
   // 测试用例1: 后置脚本编辑器支持JavaScript语法高亮
-  test('后置脚本编辑器支持JavaScript语法高亮', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('后置脚本编辑器支持JavaScript语法高亮', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -31,7 +31,7 @@ test.describe('AfterScriptEditorFeatures', () => {
     await expect(hasTokens.first()).toBeVisible();
   });
   // 测试用例2: 输入af.后出现代码补全提示,包括response,sessionStorage,localStorage,cookies,variables等API
-  test('输入af.后出现代码补全提示', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('输入af.后出现代码补全提示', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -59,7 +59,7 @@ test.describe('AfterScriptEditorFeatures', () => {
     expect(hasResponseApi).toBeTruthy();
   });
   // 测试用例3: 点击格式化按钮,代码格式化正确
-  test('点击格式化按钮代码格式化正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('点击格式化按钮代码格式化正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -91,4 +91,5 @@ test.describe('AfterScriptEditorFeatures', () => {
     expect(afterFormat).not.toBe(beforeFormat);
   });
 });
+
 

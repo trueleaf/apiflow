@@ -3,7 +3,7 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 test.describe('AddNode', () => {
   test.describe('添加HTTP节点', () => {
     // 测试用例1: 鼠标右键空白区域添加http节点
-    test('鼠标右键空白区域添加http节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('鼠标右键空白区域添加http节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -43,7 +43,7 @@ test.describe('AddNode', () => {
       await expect(newNode).toBeVisible({ timeout: 5000 });
     });
     // 测试用例2: 鼠标右键目录添加http节点
-    test('鼠标右键目录添加http节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('鼠标右键目录添加http节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -90,7 +90,7 @@ test.describe('AddNode', () => {
       await expect(httpNode).toBeVisible({ timeout: 5000 });
     });
     // 测试用例3: 点击新增按钮添加http节点
-    test('点击新增按钮添加http节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('点击新增按钮添加http节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -180,7 +180,7 @@ test.describe('AddNode', () => {
   });
   test.describe('添加WebSocket节点', () => {
     // 测试用例5: 鼠标右键空白区域添加websocket节点
-    test('鼠标右键空白区域添加websocket节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('鼠标右键空白区域添加websocket节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -217,7 +217,7 @@ test.describe('AddNode', () => {
       await expect(newNode).toBeVisible({ timeout: 5000 });
     });
     // 测试用例6: 鼠标右键目录添加websocket节点
-    test('鼠标右键目录添加websocket节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('鼠标右键目录添加websocket节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -266,7 +266,7 @@ test.describe('AddNode', () => {
       await expect(wsNode).toBeVisible({ timeout: 5000 });
     });
     // 测试用例7: 点击新增按钮添加websocket节点
-    test('点击新增按钮添加websocket节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('点击新增按钮添加websocket节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -303,7 +303,7 @@ test.describe('AddNode', () => {
   });
   test.describe('添加HTTP Mock节点', () => {
     // 测试用例8: 鼠标右键空白区域添加httpMock节点
-    test('鼠标右键空白区域添加httpMock节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('鼠标右键空白区域添加httpMock节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -340,7 +340,7 @@ test.describe('AddNode', () => {
       await expect(newNode).toBeVisible({ timeout: 5000 });
     });
     // 测试用例9: 鼠标右键目录添加httpMock节点
-    test('鼠标右键目录添加httpMock节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('鼠标右键目录添加httpMock节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -389,7 +389,7 @@ test.describe('AddNode', () => {
       await expect(mockNode).toBeVisible({ timeout: 5000 });
     });
     // 测试用例10: 点击新增按钮添加httpMock节点
-    test('点击新增按钮添加httpMock节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('点击新增按钮添加httpMock节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -426,7 +426,7 @@ test.describe('AddNode', () => {
   });
   test.describe('添加WebSocket Mock节点', () => {
     // 测试用例11: 鼠标右键空白区域添加websocketMock节点
-    test('鼠标右键空白区域添加websocketMock节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('鼠标右键空白区域添加websocketMock节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -463,7 +463,7 @@ test.describe('AddNode', () => {
       await expect(newNode).toBeVisible({ timeout: 5000 });
     });
     // 测试用例12: 鼠标右键目录添加websocketMock节点
-    test('鼠标右键目录添加websocketMock节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('鼠标右键目录添加websocketMock节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -512,7 +512,7 @@ test.describe('AddNode', () => {
       await expect(wsMockNode).toBeVisible({ timeout: 5000 });
     });
     // 测试用例13: 点击新增按钮添加websocketMock节点
-    test('点击新增按钮添加websocketMock节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('点击新增按钮添加websocketMock节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -549,7 +549,7 @@ test.describe('AddNode', () => {
   });
   test.describe('添加Folder节点', () => {
     // 测试用例14: 鼠标右键空白区域添加folder节点
-    test('鼠标右键空白区域添加folder节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('鼠标右键空白区域添加folder节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -583,7 +583,7 @@ test.describe('AddNode', () => {
       await expect(newFolder).toBeVisible({ timeout: 5000 });
     });
     // 测试用例15: 鼠标右键目录添加folder节点
-    test('鼠标右键目录添加folder节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('鼠标右键目录添加folder节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -628,7 +628,7 @@ test.describe('AddNode', () => {
       await expect(subFolder).toBeVisible({ timeout: 5000 });
     });
     // 测试用例16: 点击新增按钮添加folder节点
-    test('点击新增按钮添加folder节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('点击新增按钮添加folder节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -659,7 +659,7 @@ test.describe('AddNode', () => {
       await expect(newFolder).toBeVisible({ timeout: 5000 });
     });
     // 测试用例17: 在folder节点上点击更多按钮添加folder节点
-    test('在folder节点上点击更多按钮添加folder节点', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('在folder节点上点击更多按钮添加folder节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -710,7 +710,7 @@ test.describe('AddNode', () => {
   });
   test.describe('边界情况测试', () => {
     // 测试用例18: 鼠标右键非folder节点不出现新建接口选项
-    test('鼠标右键非folder节点不出现新建接口选项', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('鼠标右键非folder节点不出现新建接口选项', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -748,7 +748,7 @@ test.describe('AddNode', () => {
       await expect(newFolderOption).toBeHidden();
     });
     // 测试用例19: 非folder节点点击更多按钮不出现新建接口选项
-    test('非folder节点点击更多按钮不出现新建接口选项', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+    test('非folder节点点击更多按钮不出现新建接口选项', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -789,4 +789,5 @@ test.describe('AddNode', () => {
     });
   });
 });
+
 

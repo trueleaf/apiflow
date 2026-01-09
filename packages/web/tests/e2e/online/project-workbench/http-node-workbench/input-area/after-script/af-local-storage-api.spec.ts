@@ -180,7 +180,7 @@ test.describe('AfLocalStorageApi', () => {
     expect(clearedValues.key3).toBeNull();
   });
   // 测试用例5: 获取不存在的键返回null
-  test('获取不存在的键返回null', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('获取不存在的键返回null', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -216,4 +216,5 @@ test.describe('AfLocalStorageApi', () => {
     expect(resultValue).toBe('"is_null"');
   });
 });
+
 

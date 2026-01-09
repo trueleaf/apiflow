@@ -4,7 +4,7 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('FormdataBodyValidation', () => {
   // 测试用例1: 调用echo接口验证常规formdata是否正常返回,content-type是否设置正确
-  test('调用echo接口验证常规formdata是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('调用echo接口验证常规formdata是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -63,7 +63,7 @@ test.describe('FormdataBodyValidation', () => {
   });
 
   // 测试用例2: 调用echo接口验证使用变量的formdata是否正常返回,content-type是否设置正确
-  test('调用echo接口验证使用变量的formdata是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('调用echo接口验证使用变量的formdata是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -134,7 +134,7 @@ test.describe('FormdataBodyValidation', () => {
   });
 
   // 测试用例3: 调用echo接口验证使用mock的formdata是否正常返回,content-type是否设置正确
-  test('调用echo接口验证使用mock的formdata是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('调用echo接口验证使用mock的formdata是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -195,4 +195,5 @@ test.describe('FormdataBodyValidation', () => {
   // 测试用例4: 调用echo接口验证文件上传是否正常返回,content-type是否设置正确
   test.skip('调用echo接口验证文件上传是否正常返回,content-type是否设置正确', async () => {});
 });
+
 

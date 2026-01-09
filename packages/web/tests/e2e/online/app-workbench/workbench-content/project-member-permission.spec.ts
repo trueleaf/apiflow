@@ -285,6 +285,11 @@ test.describe('Online项目成员权限', () => {
       await backHomeProjectListResponse;
       await contentPage.waitForTimeout(500);
 
+      // 确保在项目列表tab
+      const projectTab = contentPage.locator('[data-testid="home-tab-projects"]');
+      await projectTab.click();
+      await contentPage.waitForTimeout(300);
+
       const projectCard = contentPage.locator('[data-testid^="home-project-card-"]').filter({ hasText: projectName }).first();
       await expect(projectCard).toBeVisible({ timeout: 5000 });
 
@@ -317,6 +322,11 @@ test.describe('Online项目成员权限', () => {
       await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
       await backHomeProjectListResponse;
       await contentPage.waitForTimeout(500);
+
+      // 确保在项目列表tab
+      const projectTab = contentPage.locator('[data-testid="home-tab-projects"]');
+      await projectTab.click();
+      await contentPage.waitForTimeout(300);
 
       const projectCard = contentPage.locator('[data-testid^="home-project-card-"]').filter({ hasText: projectName }).first();
       await expect(projectCard).toBeVisible({ timeout: 5000 });
@@ -397,6 +407,11 @@ test.describe('Online项目成员权限', () => {
       await backHomeProjectListResponse;
       await contentPage.waitForTimeout(500);
 
+      // 确保在项目列表tab
+      const projectTab = contentPage.locator('[data-testid="home-tab-projects"]');
+      await projectTab.click();
+      await contentPage.waitForTimeout(300);
+
       const projectCard = contentPage.locator('[data-testid^="home-project-card-"]').filter({ hasText: projectName }).first();
       await expect(projectCard).toBeVisible({ timeout: 5000 });
 
@@ -455,6 +470,11 @@ test.describe('Online项目成员权限', () => {
       await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
       await backHomeProjectListResponse;
       await contentPage.waitForTimeout(500);
+
+      // 确保在项目列表tab
+      const projectTab = contentPage.locator('[data-testid="home-tab-projects"]');
+      await projectTab.click();
+      await contentPage.waitForTimeout(300);
 
       const projectCard = contentPage.locator('[data-testid^="home-project-card-"]').filter({ hasText: projectName }).first();
       await expect(projectCard).toBeVisible({ timeout: 5000 });
@@ -531,6 +551,11 @@ test.describe('Online项目成员权限', () => {
       await backHomeProjectListResponse;
       await contentPage.waitForTimeout(500);
 
+      // 确保在项目列表tab
+      const projectTab = contentPage.locator('[data-testid="home-tab-projects"]');
+      await projectTab.click();
+      await contentPage.waitForTimeout(300);
+
       const projectCard = contentPage.locator('[data-testid^="home-project-card-"]').filter({ hasText: projectName }).first();
       await expect(projectCard).toBeVisible({ timeout: 5000 });
 
@@ -590,6 +615,11 @@ test.describe('Online项目成员权限', () => {
       await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
       await backHomeProjectListResponse;
       await contentPage.waitForTimeout(500);
+
+      // 确保在项目列表tab
+      const projectTab = contentPage.locator('[data-testid="home-tab-projects"]');
+      await projectTab.click();
+      await contentPage.waitForTimeout(300);
 
       const projectCard = contentPage.locator('[data-testid^="home-project-card-"]').filter({ hasText: projectName }).first();
       await expect(projectCard).toBeVisible({ timeout: 5000 });
@@ -674,6 +704,11 @@ test.describe('Online项目成员权限', () => {
       await backHomeProjectListResponse;
       await contentPage.waitForTimeout(500);
 
+      // 确保在项目列表tab
+      const projectTab = contentPage.locator('[data-testid="home-tab-projects"]');
+      await projectTab.click();
+      await contentPage.waitForTimeout(300);
+
       const projectCard = contentPage.locator('[data-testid^="home-project-card-"]').filter({ hasText: projectName }).first();
       await expect(projectCard).toBeVisible({ timeout: 5000 });
 
@@ -750,6 +785,11 @@ test.describe('Online项目成员权限', () => {
       await backHomeProjectListResponse;
       await contentPage.waitForTimeout(500);
 
+      // 确保在项目列表tab
+      const projectTab = contentPage.locator('[data-testid="home-tab-projects"]');
+      await projectTab.click();
+      await contentPage.waitForTimeout(300);
+
       const projectCard = contentPage.locator('[data-testid^="home-project-card-"]').filter({ hasText: projectName }).first();
       await expect(projectCard).toBeVisible({ timeout: 5000 });
 
@@ -824,6 +864,11 @@ test.describe('Online项目成员权限', () => {
       await backHomeProjectListResponse;
       await contentPage.waitForTimeout(500);
 
+      // 确保在项目列表tab
+      const projectTab = contentPage.locator('[data-testid="home-tab-projects"]');
+      await projectTab.click();
+      await contentPage.waitForTimeout(300);
+
       const projectCard = contentPage.locator('[data-testid^="home-project-card-"]').filter({ hasText: projectName }).first();
       await expect(projectCard).toBeVisible({ timeout: 5000 });
 
@@ -897,6 +942,11 @@ test.describe('Online项目成员权限', () => {
       await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
       await backHomeProjectListResponse;
       await contentPage.waitForTimeout(500);
+
+      // 确保在项目列表tab
+      const projectTab = contentPage.locator('[data-testid="home-tab-projects"]');
+      await projectTab.click();
+      await contentPage.waitForTimeout(300);
 
       const projectCard = contentPage.locator('[data-testid^="home-project-card-"]').filter({ hasText: projectName }).first();
       await expect(projectCard).toBeVisible({ timeout: 5000 });
@@ -981,6 +1031,11 @@ test.describe('Online项目成员权限', () => {
       await backHomeProjectListResponse;
       await contentPage.waitForTimeout(500);
 
+      // 确保在项目列表tab
+      const projectTab = contentPage.locator('[data-testid="home-tab-projects"]');
+      await projectTab.click();
+      await contentPage.waitForTimeout(300);
+
       const projectCard = contentPage.locator('[data-testid^="home-project-card-"]').filter({ hasText: projectName }).first();
       await expect(projectCard).toBeVisible({ timeout: 5000 });
 
@@ -1062,6 +1117,11 @@ test.describe('Online项目成员权限', () => {
       await backHomeProjectListResponse;
       await contentPage.waitForTimeout(500);
 
+      // 确保在项目列表tab
+      const projectTab = contentPage.locator('[data-testid="home-tab-projects"]');
+      await projectTab.click();
+      await contentPage.waitForTimeout(300);
+
       const projectCard = contentPage.locator('[data-testid^="home-project-card-"]').filter({ hasText: projectName }).first();
       await expect(projectCard).toBeVisible({ timeout: 5000 });
 
@@ -1130,6 +1190,11 @@ test.describe('Online项目成员权限', () => {
       await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
       await backHomeProjectListResponse;
       await contentPage.waitForTimeout(500);
+
+      // 确保在项目列表tab
+      const projectTab = contentPage.locator('[data-testid="home-tab-projects"]');
+      await projectTab.click();
+      await contentPage.waitForTimeout(300);
 
       const projectCard = contentPage.locator('[data-testid^="home-project-card-"]').filter({ hasText: projectName }).first();
       await expect(projectCard).toBeVisible({ timeout: 5000 });

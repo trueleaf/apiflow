@@ -2,7 +2,7 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('RequestMethodUndo', () => {
   // 测试用例1: 切换请求方法两次,点击撤销按钮,请求方法恢复到上一次的状态
-  test('切换请求方法后点击撤销按钮恢复', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('切换请求方法后点击撤销按钮恢复', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -40,7 +40,7 @@ test.describe('RequestMethodUndo', () => {
     await expect(methodSelector).toContainText('GET', { timeout: 5000 });
   });
   // 测试用例2: 切换请求方法两次,按ctrl+z,请求方法恢复到上一次的状态
-  test('切换请求方法后按ctrl+z快捷键恢复', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('切换请求方法后按ctrl+z快捷键恢复', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -77,4 +77,5 @@ test.describe('RequestMethodUndo', () => {
     await expect(methodSelector).toContainText('GET', { timeout: 5000 });
   });
 });
+
 

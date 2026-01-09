@@ -4,7 +4,7 @@ const MOCK_SERVER_PORT = 3456;
 
 test.describe('UrlencodedParams', () => {
   // 测试用例1: urlencoded参数key输入值以后,如果不存在next节点,则自动新增一行数据,自动新增数据需要被选中
-  test('urlencoded参数key输入值以后自动新增一行数据', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('urlencoded参数key输入值以后自动新增一行数据', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -36,7 +36,7 @@ test.describe('UrlencodedParams', () => {
     expect(firstKeyValue).toBe('username');
   });
   // 测试用例2: urlencoded参数key,value输入值以后,调用echo接口返回结果正确
-  test('urlencoded参数key,value输入值以后调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('urlencoded参数key,value输入值以后调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -87,7 +87,7 @@ test.describe('UrlencodedParams', () => {
     await expect(responseBody).toContainText('secret', { timeout: 10000 });
   });
   // 测试用例3: urlencoded参数key,value支持变量,调用echo接口返回结果正确
-  test('urlencoded参数key,value支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('urlencoded参数key,value支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -144,7 +144,7 @@ test.describe('UrlencodedParams', () => {
     await expect(responseBody).toContainText('user123', { timeout: 10000 });
   });
   // 测试用例4: urlencoded参数key,value支持mock,调用echo接口返回结果正确
-  test('urlencoded参数key,value支持mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('urlencoded参数key,value支持mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -193,7 +193,7 @@ test.describe('UrlencodedParams', () => {
     await expect(responseBody).toContainText('email', { timeout: 10000 });
   });
   // 测试用例5: urlencoded参数key,value支持混合变量,调用echo接口返回结果正确
-  test('urlencoded参数key,value支持混合变量,调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('urlencoded参数key,value支持混合变量,调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -256,7 +256,7 @@ test.describe('UrlencodedParams', () => {
     await expect(responseBody).toContainText('REQ_', { timeout: 10000 });
   });
   // 测试用例6: urlencoded参数是否发送未勾选那么
-  test('urlencoded参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('urlencoded参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -309,4 +309,5 @@ test.describe('UrlencodedParams', () => {
     expect(responseText).not.toContain('token');
   });
 });
+
 

@@ -2,7 +2,7 @@ import { test, expect } from '../../../../../../fixtures/electron-online.fixture
 
 test.describe('QueryParamsRedo', () => {
   // 测试用例1: query参数key输入值后撤销,再重做,值恢复到撤销前的状态
-  test('query参数key输入值后撤销再重做,值恢复到撤销前的状态', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('query参数key输入值后撤销再重做,值恢复到撤销前的状态', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -52,7 +52,7 @@ test.describe('QueryParamsRedo', () => {
     await expect(keyInputs.first()).toHaveValue('page', { timeout: 5000 });
   });
   // 测试用例2: query参数拖拽后撤销,再重做,顺序恢复到撤销前的状态
-  test('query参数拖拽后撤销再重做,顺序恢复到撤销前的状态', async ({ contentPage, clearCache, createProject, createNode, createNode, loginAccount }) => {
+  test('query参数拖拽后撤销再重做,顺序恢复到撤销前的状态', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -117,4 +117,5 @@ test.describe('QueryParamsRedo', () => {
     await expect(keyInputs.first()).toHaveValue('size', { timeout: 5000 });
   });
 });
+
 
