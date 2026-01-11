@@ -23,6 +23,8 @@
     "build:ci:linux": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && node scripts/build-electron.mjs linux",
     "build:local:pack": "vite build && electron-builder --dir",
     "build:local:win": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --win --publish never",
+    "build:local:win:store": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --win appx --publish never",
+    "build:ci:win:store": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --win appx",
     "build:local:mac": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --mac --publish never",
     "build:local:linux": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --linux --publish never",
     "test": "npm run test:e2e",
@@ -166,11 +168,31 @@
             "x64",
             "arm64"
           ]
+        },
+        {
+          "target": "appx",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ],
       "icon": "public/icons/icon.ico",
       "artifactName": "${productName}-${version}-${arch}.${ext}",
       "requestedExecutionLevel": "asInvoker"
+    },
+    "appx": {
+      "applicationId": "TrueleafTeam.ApiFlow",
+      "identityName": "TrueleafTeam.ApiFlow",
+      "publisher": "CN=Trueleaf Team",
+      "publisherDisplayName": "Trueleaf Team",
+      "displayName": "ApiFlow",
+      "backgroundColor": "#ffffff",
+      "showNameOnTiles": true,
+      "languages": [
+        "zh-CN",
+        "en-US"
+      ]
     },
     "nsis": {
       "oneClick": false,
