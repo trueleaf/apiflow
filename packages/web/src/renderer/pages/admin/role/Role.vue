@@ -25,7 +25,7 @@
 import { ref } from 'vue';
 import SAddRole from './add/Add.vue'
 import SEditRole from './edit/Edit.vue'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 import { useI18n } from 'vue-i18n'
 import STable from '@/components/common/table/ClTable.vue'
 import { request } from '@/api/api';

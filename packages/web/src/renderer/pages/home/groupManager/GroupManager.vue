@@ -223,7 +223,7 @@ import { request } from '@/api/api';
 import { ApidocGroupItem, ApidocGroupUser, PermissionUserBaseInfo, CommonResponse } from '@src/types';
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep } from "lodash-es";
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 import RemoteSelector from '@/components/common/remoteSelect/ClRemoteSelect.vue';
 import RemoteSelectorItem from '@/components/common/remoteSelect/ClRemoteSelectItem.vue';
 import { useWindowEvent } from '@/hooks/useWindowEvent';

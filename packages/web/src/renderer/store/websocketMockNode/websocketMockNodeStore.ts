@@ -2,7 +2,7 @@ import { WebSocketMockNode } from "@src/types/mockNode";
 import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
 import { cloneDeep } from 'lodash-es';
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 import { useProjectNav } from "../projectWorkbench/projectNavStore.ts";
 import { router } from "@/router/index.ts";
 import { useBanner } from "../projectWorkbench/bannerStore.ts";

@@ -35,7 +35,7 @@ import SEditClientRoute from './edit/Edit.vue'
 import SMultiEditClientRoute from './edit/Edit2.vue'
 import { Ref, ref } from 'vue';
 import { uniqueByKey } from '@/helper';
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 import { useI18n } from 'vue-i18n'
 import { request } from '@/api/api';
 import SSearch from '@/components/common/forms/search/ClSearch.vue'

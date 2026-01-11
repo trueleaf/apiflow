@@ -66,7 +66,7 @@ import Card from '@/components/common/card/ClCard.vue'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { request } from '@/api/api'
 import { findParentById, forEachForest } from '@/helper'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 import { message } from '@/helper'
 
 

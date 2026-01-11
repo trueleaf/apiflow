@@ -62,7 +62,7 @@ import SEditUserDialog from './edit/Edit.vue'
 import SResetPasswordDialog from './resetPassword/ResetPassword.vue'
 import { ref } from 'vue';
 import { downloadStringAsText, formatDate } from '@/helper'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 import { request } from '@/api/api';
 import SSearch from '@/components/common/forms/search/ClSearch.vue'
 import SSearchItem from '@/components/common/forms/search/ClSearchItem.vue'     

@@ -236,7 +236,7 @@ import { useRuntime } from '@/store/runtime/runtimeStore'
 import { message } from '@/helper'
 import { request } from '@/api/api'
 import type { CommonResponse, ApidocProjectInfo, ApidocProjectListInfo, ApidocProjectPermission, ApidocBanner, PermissionUserInfo } from '@src/types'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 import { requestMethods } from '@/data/data'
 import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
 import type { Method } from 'got'

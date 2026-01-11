@@ -55,7 +55,7 @@ import SLoading from '@/components/common/loading/ClLoading.vue'
 import { computed, nextTick, onMounted, ref } from 'vue';
 import { debounce } from "lodash-es";
 import { request } from '@/api/api';
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 import { useWindowEvent } from '@/hooks/useWindowEvent';
 
 

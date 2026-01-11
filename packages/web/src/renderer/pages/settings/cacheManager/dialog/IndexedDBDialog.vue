@@ -85,7 +85,7 @@ import { ref, computed, onMounted, onUnmounted, defineAsyncComponent } from 'vue
 import { useI18n } from 'vue-i18n'
 import { IndexedDBItem, StoreDetailResponse, StoreDetailItem } from '@src/types/apidoc/cache'
 import { formatUnit } from '@/helper'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 import { message } from '@/helper'
 
 const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))

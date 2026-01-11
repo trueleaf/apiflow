@@ -70,7 +70,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ArrowLeft, MessageSquare, Trash2, Loader2 } from 'lucide-vue-next'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 import { agentViewCache } from '@/cache/ai/agentViewCache'
 import { useAgentViewStore } from '@/store/ai/agentView'
 import type { AgentViewMessage } from '@src/types/ai'
