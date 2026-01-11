@@ -52,7 +52,7 @@ import STable from '@/components/common/table/ClTable.vue'
 import { Ref, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { uniqueByKey } from '@/helper';
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/clConfirm.ts';
 import { request } from '@/api/api';
 
 

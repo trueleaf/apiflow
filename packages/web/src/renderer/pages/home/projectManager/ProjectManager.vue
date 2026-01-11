@@ -222,7 +222,7 @@ import type { AdvancedSearchConditions, GroupedSearchResults, SearchResultItem }
 import { performAdvancedSearch } from '@/composables/useAdvancedSearch';
 import { computed, onMounted, ref, watch } from 'vue';
 import 'element-plus/es/components/message-box/style/css';
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/clConfirm.ts';
 import { router } from '@/router';
 import { formatDate } from '@/helper';
 import { debounce } from "lodash-es";

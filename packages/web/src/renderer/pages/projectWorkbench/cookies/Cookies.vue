@@ -155,7 +155,7 @@
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useCookies } from '@/store/projectWorkbench/cookiesStore';
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/clConfirm.ts';
 import type { ApidocCookie } from '@src/types/projectWorkbench/cookies';
 import { useI18n } from 'vue-i18n';
 import { message } from '@/helper';

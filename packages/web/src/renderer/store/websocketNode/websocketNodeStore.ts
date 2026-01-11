@@ -7,7 +7,7 @@ import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep, debounce } from "lodash-es";
 import { apiNodesCache } from "@/cache/nodes/nodesCache";
 import { webSocketNodeCache } from "@/cache/websocketNode/websocketNodeCache.ts";
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/clConfirm.ts';
 import { useProjectNav } from "../projectWorkbench/projectNavStore.ts";
 import { router } from "@/router/index.ts";
 import { useBanner } from "../projectWorkbench/bannerStore.ts";

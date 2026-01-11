@@ -150,7 +150,7 @@ import { appStateCache } from '@/cache/appState/appStateCache.ts'
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import { webSocketHistoryCache } from '@/cache/websocketNode/websocketHistoryCache'
 import type { WebSocketHistory } from '@src/types/history/wsHistory'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/clConfirm.ts';
 import { WebsocketActiveTabType } from '@src/types/websocketNode'
 import { useRoute } from 'vue-router'
 

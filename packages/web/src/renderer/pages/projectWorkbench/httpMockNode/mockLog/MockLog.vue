@@ -201,7 +201,7 @@ import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { ElEmpty, ElButton, ElInput, ElSelect, ElOption, ElDialog } from 'element-plus'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/clConfirm.ts';
 import type { MockLog } from '@src/types/mockNode'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache'
 import { Trash2, FileText, AlertCircle, AlertTriangle, Info, List, LayoutList } from 'lucide-vue-next'

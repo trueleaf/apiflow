@@ -57,7 +57,7 @@
 
 <script lang="ts" setup>
 import { ref, Ref, computed, onMounted, onUnmounted } from 'vue'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/clConfirm.ts';
 import { request } from '@/api/api'
 // import { CirclePlus, Link, Search } from '@element-plus/icons-vue'
 import { Search } from '@element-plus/icons-vue'

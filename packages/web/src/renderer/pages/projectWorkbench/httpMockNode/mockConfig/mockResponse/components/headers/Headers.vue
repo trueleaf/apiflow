@@ -47,7 +47,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/clConfirm.ts';
 import { Close, ArrowRight, ArrowDown, View } from '@element-plus/icons-vue'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { appStateCache } from '@/cache/appState/appStateCache'

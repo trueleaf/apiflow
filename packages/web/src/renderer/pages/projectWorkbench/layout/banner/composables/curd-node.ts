@@ -1,5 +1,5 @@
 import { Ref } from 'vue'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/clConfirm.ts';
 import type { ApidocBanner, CommonResponse, HttpNode, FolderNode, HttpMockNode } from '@src/types'
 import { message } from '@/helper'
 import { WebSocketNode } from '@src/types/websocketNode'

@@ -210,7 +210,7 @@ import STable from '@/components/common/table/ClTable.vue'
 import { config } from '@src/config/config'
 import { useI18n } from 'vue-i18n'
 import { computed, ref, onMounted, defineAsyncComponent } from 'vue';
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/clConfirm.ts';
 import { FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
 import { request } from '@/api/api';
 import { message } from '@/helper';
