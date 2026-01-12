@@ -1,6 +1,6 @@
 ## 🚀 {{VERSION}}
 
-A **completely free**, **AI-powered** API testing tool - the modern open-source alternative to Postman and Apifox.
+A **completely free**, **AI-powered** API testing tool - the modern open-source alternative to Postman and Insomnia.
 
 ### 📦 Quick Download
 

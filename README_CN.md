@@ -21,7 +21,11 @@
 
 ## 🖥️ 界面预览
 
-（此处可添加产品截图）
+### Agent展示
+![AI 代理](./docs/zh/agent_zh.gif)
+
+### SSE与MOCK展示
+![SSE](./docs/zh/sse_zh.gif)
 
 ---
 

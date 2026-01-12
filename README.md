@@ -24,7 +24,11 @@
 ---
 ## 🖥️ Preview
 
+### AI Agent
+![AI Agent](./docs/en/agent.gif)
 
+### Server-Sent Events (SSE)
+![SSE](./docs/en/sse.gif)
 
 ---
 ## 🚀 What is Apiflow?
