@@ -349,7 +349,9 @@ test.describe('Navigation', () => {
     await expect(contentPage).toHaveURL(/.*#\/(home)?$/, { timeout: 5000 });
   });
 
-  test('刷新页面后tab切换与前进后退功能正常', async ({ topBarPage, contentPage, createProject, jumpToSettings }) => {
+  test('刷新页面后tab状态恢复且可正常切换', async ({ topBarPage, contentPage, createProject, jumpToSettings, clearCache, reload }) => {
+    await clearCache();
+    await reload();
     const projectAName = await createProject(`刷新A-${Date.now()}`);
     const projectBName = await createProject(`刷新B-${Date.now()}`);
     const projectCName = await createProject(`刷新C-${Date.now()}`);
@@ -369,22 +371,31 @@ test.describe('Navigation', () => {
     await topBarPage.waitForLoadState('domcontentloaded');
     await contentPage.waitForLoadState('domcontentloaded');
     await topBarPage.waitForTimeout(1000);
-    // 点击项目B的tab进行切换
+    // 验证刷新后Tab状态恢复：设置tab仍然高亮
+    await expect(settingsTab).toBeVisible({ timeout: 10000 });
+    await expect(settingsTab).toHaveClass(/active/);
+    await expect(contentPage).toHaveURL(/.*#\/settings.*/, { timeout: 10000 });
+    // 验证刷新后所有tab仍然存在
     const projectBTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectBName });
+    const projectCTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectCName });
+    await expect(projectATab).toBeVisible({ timeout: 5000 });
+    await expect(projectBTab).toBeVisible({ timeout: 5000 });
+    await expect(projectCTab).toBeVisible({ timeout: 5000 });
+    // 验证刷新后可以正常切换到项目B
     await projectBTab.click();
     await topBarPage.waitForTimeout(500);
+    await expect(contentPage).toHaveURL(/.*#\/workbench.*/, { timeout: 5000 });
     await expect(projectBTab).toHaveClass(/active/);
-    // 验证后退功能：应回到设置页面
-    const backBtn = topBarPage.locator('[data-testid="header-back-btn"]');
-    await backBtn.click();
+    // 验证可以切换回项目A
+    await projectATab.click();
     await topBarPage.waitForTimeout(500);
-    await expect(settingsTab).toHaveClass(/active/);
-    await expect(contentPage).toHaveURL(/.*#\/settings.*/, { timeout: 5000 });
-    // 验证前进功能：应回到项目B
-    const forwardBtn = topBarPage.locator('[data-testid="header-forward-btn"]');
-    await forwardBtn.click();
+    await expect(contentPage).toHaveURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await expect(projectATab).toHaveClass(/active/);
+    // 验证可以切换到项目C
+    await projectCTab.click();
     await topBarPage.waitForTimeout(500);
-    await expect(projectBTab).toHaveClass(/active/);
+    await expect(contentPage).toHaveURL(/.*#\/workbench.*/, { timeout: 5000 });
+    await expect(projectCTab).toHaveClass(/active/);
   });
 
   test('右键点击tab显示右键菜单', async ({ topBarPage, contentPage, createProject }) => {

@@ -323,10 +323,12 @@ test.describe('CookieManagement', () => {
     await contentPage.waitForTimeout(300);
     await expect(cookieTable).toContainText('universal_cookie');
     await expect(cookieTable).not.toContainText('domain_127_cookie');
-    await expect(cookieTable).not.toContainText('domain_localhost_cookie');
+    await expect(cookieTable).not.toContainText('domain_localhost_cookie');     
     const rows2 = cookieTable.locator('.el-table__row');
     await expect(rows2).toHaveCount(1);
     // 场景3: 清空筛选
+    // 悬停展示清除按钮后再清空筛选
+    await domainSelect.hover();
     const clearBtn = domainSelect.locator('.el-select__clear');
     await clearBtn.click();
     await contentPage.waitForTimeout(300);

@@ -218,5 +218,14 @@ export const test = base.extend<ElectronFixtures>({
     await use(doReload);
   },
 });
-
+test.beforeEach(async ({ topBarPage }) => {
+  const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
+  await expect(networkToggle).toBeVisible({ timeout: 5000 });
+  const networkText = networkToggle.locator('.icon-text');
+  const currentText = await networkText.innerText();
+  if (!/离线模式|Offline/i.test(currentText)) {
+    await networkToggle.click();
+    await expect(networkText).toContainText(/离线模式|Offline/);
+  }
+});
 export { expect };

@@ -65,9 +65,9 @@ test.describe('QuickIcons', () => {
       await topBarPage.waitForTimeout(500);
       // 验证语言按钮文字变为EN
       await expect(languageBtn).toHaveText('EN');
-      // 验证其他按钮的title变为英文（例如首页按钮）
+      // 验证其他按钮的文案变为英文（例如首页按钮）
       const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
-      await expect(homeBtn).toHaveAttribute('title', 'Home');
+      await expect(homeBtn).toContainText('Home');
       // 切换回简体中文
       await languageBtn.click();
       const languageMenu2 = contentPage.locator('.language-dropdown-menu');
@@ -103,24 +103,26 @@ test.describe('QuickIcons', () => {
       await clearCache();
       await loginAccount();
       const networkBtn = topBarPage.locator('[data-testid="header-network-toggle"]');
+      const networkText = networkBtn.locator('.icon-text');
+      const onlineTextPattern = /联网模式|Online|Internet/;
+      const offlineTextPattern = /离线模式|Offline/;
       // 获取当前模式
-      const initialText = await networkBtn.textContent();
-      const isOnline = initialText?.includes('联网') || initialText?.includes('Online');
+      const initialText = await networkText.innerText();
+      const isOnline = onlineTextPattern.test(initialText);
       await networkBtn.click();
-      await topBarPage.waitForTimeout(500);
-      // 验证模式切换
+      // 等待模式文案更新
       if (isOnline) {
-        await expect(networkBtn).toContainText(/离线模式|Offline/);
+        await expect(networkText).toContainText(offlineTextPattern);
       } else {
-        await expect(networkBtn).toContainText(/联网模式|Online/);
+        await expect(networkText).toContainText(onlineTextPattern);
       }
       // 切换回原模式
       await networkBtn.click();
-      await topBarPage.waitForTimeout(500);
+      // 等待模式文案恢复
       if (isOnline) {
-        await expect(networkBtn).toContainText(/联网模式|Online/);
+        await expect(networkText).toContainText(onlineTextPattern);
       } else {
-        await expect(networkBtn).toContainText(/离线模式|Offline/);
+        await expect(networkText).toContainText(offlineTextPattern);
       }
     });
     test('网络模式切换后Tab列表按模式过滤', async ({ topBarPage, clearCache, createProject, loginAccount }) => {
@@ -128,12 +130,15 @@ test.describe('QuickIcons', () => {
       await loginAccount();
       // 创建一个离线模式的项目
       const networkBtn = topBarPage.locator('[data-testid="header-network-toggle"]');
-      const initialText = await networkBtn.textContent();
-      const isOnline = initialText?.includes('联网') || initialText?.includes('Online');
+      const networkText = networkBtn.locator('.icon-text');
+      const onlineTextPattern = /联网模式|Online|Internet/;
+      const offlineTextPattern = /离线模式|Offline/;
+      const initialText = await networkText.innerText();
+      const isOnline = onlineTextPattern.test(initialText);
       // 如果当前是在线模式，先切换到离线模式
       if (isOnline) {
         await networkBtn.click();
-        await topBarPage.waitForTimeout(500);
+        await expect(networkText).toContainText(offlineTextPattern);
       }
       // 在离线模式下创建项目
       const offlineProjectName = await createProject(`离线项目-${Date.now()}`);
@@ -142,12 +147,12 @@ test.describe('QuickIcons', () => {
       await expect(offlineTab).toBeVisible();
       // 切换到在线模式
       await networkBtn.click();
-      await topBarPage.waitForTimeout(500);
+      await expect(networkText).toContainText(onlineTextPattern);
       // 验证离线项目Tab被隐藏
       await expect(offlineTab).toBeHidden();
       // 切换回离线模式
       await networkBtn.click();
-      await topBarPage.waitForTimeout(500);
+      await expect(networkText).toContainText(offlineTextPattern);
       // 验证离线项目Tab恢复显示
       await expect(offlineTab).toBeVisible();
     });
