@@ -304,7 +304,7 @@ test.describe('CookieManagement', () => {
       await contentPage.waitForTimeout(500);
     }
     // 场景1: 筛选特定域名
-    const domainSelect = cookiePage.locator('.el-select');
+    const domainSelect = cookiePage.locator('.el-select').first();
     await domainSelect.click();
     await contentPage.waitForTimeout(300);
     const option127 = contentPage.locator('.el-select-dropdown__item').filter({ hasText: '127.0.0.1' });

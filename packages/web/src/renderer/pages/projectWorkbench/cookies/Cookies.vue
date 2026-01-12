@@ -2,7 +2,6 @@
   <div class="cookies-page">
     <div class="mx-5">
       <!-- 搜索添加区域 -->
-      {{ filterDomain }}
       <div class="d-flex a-center j-between mb-2">
         <span class="title">{{ t('Cookies 管理') }}</span>
         <div class="d-flex a-center" style="gap: 16px;">
@@ -219,7 +218,7 @@ const domainOptions = computed(() => {
     if (c.domain) {
       set.add(c.domain);
     } else {
-      set.add('万能域名');
+      set.add(t('万能域名'));
     }
   });
   return Array.from(set);
