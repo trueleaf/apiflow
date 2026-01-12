@@ -2,7 +2,7 @@ import Axios, { AxiosResponse, AxiosError } from 'axios';
 import { config } from '@src/config/config'
 import { router } from '@/router';
 import { ElMessageBox } from 'element-plus';
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 import { nanoid } from 'nanoid';
 import { sha256 } from 'js-sha256';
 import { parseUrl, getStrParams, getStrHeader, getStrJsonBody } from './sign';

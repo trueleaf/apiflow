@@ -16,7 +16,7 @@ import { defineStore, storeToRefs } from "pinia"
 import axios, { Canceler } from 'axios'
 import { request as axiosInstance } from '@/api/api'
 import { ref, watch } from "vue"
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2.ts'
 import { router } from "@/router"
 import { useProjectNav } from "../projectWorkbench/projectNavStore"
 import { useBanner } from "../projectWorkbench/bannerStore"

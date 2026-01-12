@@ -116,7 +116,7 @@ import { shortcutManager } from '@/shortcut/index'
 import KeyRecorder from './KeyRecorder.vue'
 import { message } from '@/helper'
 import { Pencil, Sparkles, Check, X, RotateCcw, Search } from 'lucide-vue-next'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 
 const { t } = useI18n()
 

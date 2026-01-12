@@ -68,7 +68,7 @@
 import { useI18n } from 'vue-i18n'
 import type { CommonResponse, ApidocProjectMemberInfo, ApidocProjectPermission, ApidocGroupUser } from '@src/types'
 import {  onMounted, ref } from 'vue';
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { config } from '@src/config/config';
 import { request } from '@/api/api';

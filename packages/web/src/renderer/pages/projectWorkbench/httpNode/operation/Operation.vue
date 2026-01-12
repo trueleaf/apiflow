@@ -66,7 +66,7 @@ import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { Refresh, Warning } from '@element-plus/icons-vue'
 import { Effect, ElMessage } from 'element-plus'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 import { config } from '@src/config/config'
 import { validateUrl, type UrlValidationResult } from '@/helper'
 import { router } from '@/router/index'

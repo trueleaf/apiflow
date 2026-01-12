@@ -4,7 +4,7 @@ import { ref, computed } from "vue";
 import { findNodeById } from '@/helper';
 import { eventEmitter } from '@/helper';
 import { router } from "@/router";
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 import { i18n } from '@/i18n';
 import { httpNodeCache } from "@/cache/httpNode/httpNodeCache.ts";
 import { projectWorkbenchCache } from "@/cache/projectWorkbench/projectWorkbenchCache.ts";

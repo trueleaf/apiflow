@@ -36,7 +36,7 @@
 <script lang="ts" setup>
 import { computed, ref, onMounted, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 import { Close, ArrowRight, ArrowDown } from '@element-plus/icons-vue'
 import { reqCompletionSuggestions } from './completionSuggestions'
 import { appStateCache } from '@/cache/appState/appStateCache'

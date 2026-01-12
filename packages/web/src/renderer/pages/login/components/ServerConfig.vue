@@ -26,7 +26,7 @@
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 import { message } from '@/helper'
 import { updateAxiosBaseURL } from '@/api/api'
 

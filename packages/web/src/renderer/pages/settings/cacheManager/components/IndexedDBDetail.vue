@@ -52,7 +52,7 @@ import { useI18n } from 'vue-i18n'
 import { IndexedDBItem } from '@src/types/apidoc/cache'
 import { formatUnit } from '@/helper'
 import { ElMessageBox } from 'element-plus'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 import IndexedDBDialog from '../dialog/IndexedDBDialog.vue'
 import { message } from '@/helper'
 

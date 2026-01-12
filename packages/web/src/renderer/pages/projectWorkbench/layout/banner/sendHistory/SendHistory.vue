@@ -89,7 +89,7 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Search, Loading, Delete } from '@element-plus/icons-vue'
 import { ListFilter } from 'lucide-vue-next'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 import { useSendHistory } from './sendHistoryStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'        
 import { useBanner } from '@/store/projectWorkbench/bannerStore'

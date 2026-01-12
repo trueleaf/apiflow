@@ -596,7 +596,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import ClDialog from '../ClDialog.vue'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 const currentTheme = ref<'light' | 'dark'>('light')
 const showCode1 = ref(false)
 const showCode2 = ref(false)
