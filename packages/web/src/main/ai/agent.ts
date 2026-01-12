@@ -53,6 +53,7 @@ export class LLMClient {
   // 流式聊天(原始方法)
   chatStream(body: ChatRequestBody, callbacks: ChatStreamCallbacks) {
     const { apiKey, baseURL, model, customHeaders, extraBody } = this.config;
+    console.log(this.config);
     const extraBodyText = extraBody?.trim() ?? '';
     let resolvedExtraBody: Record<string, unknown> = {};
     if (extraBodyText) {

@@ -31,5 +31,25 @@ class LLMProviderCache {
       return false;
     }
   }
+  // 获取是否使用免费LLM
+  getUseFreeLLM(): boolean {
+    try {
+      const cached = localStorage.getItem(cacheKey.ai.useFreeLLM);
+      return cached === 'true';
+    } catch (error) {
+      logger.error('获取 useFreeLLM 失败', { error });
+      return true; // 默认开启
+    }
+  }
+  // 保存是否使用免费LLM
+  setUseFreeLLM(value: boolean): boolean {
+    try {
+      localStorage.setItem(cacheKey.ai.useFreeLLM, String(value));
+      return true;
+    } catch (error) {
+      logger.error('保存 useFreeLLM 失败', { error });
+      return false;
+    }
+  }
 }
 export const llmProviderCache = new LLMProviderCache();

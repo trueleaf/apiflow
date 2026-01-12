@@ -11,9 +11,22 @@
         <div class="form-grid">
           <div class="form-item full-row">
             <div class="form-label">
+              {{ t('使用免费API') }}
+            </div>
+            <div class="free-api-switch">
+              <el-switch v-model="localUseFreeLLM" @change="handleFreeLLMChange" />
+              <span class="switch-label">{{ t('使用服务器提供的免费 LLM 服务') }}</span>
+            </div>
+            <el-alert v-if="localUseFreeLLM" type="info" :closable="false" show-icon class="free-api-alert">
+              {{ t('当前使用免费API，无需配置API Key。如需使用自己的API Key，请关闭此开关。') }}
+            </el-alert>
+          </div>
+
+          <div class="form-item full-row">
+            <div class="form-label">
               {{ t('API Provider') }}
             </div>
-            <el-select v-model="providerType" class="form-input" @change="handleProviderChange">
+            <el-select v-model="providerType" class="form-input" :disabled="localUseFreeLLM" @change="handleProviderChange">
               <el-option label="DeepSeek" value="DeepSeek" />
               <el-option label="OpenAI Compatible" value="OpenAICompatible" />
             </el-select>
@@ -25,7 +38,7 @@
                 {{ t('API Key') }}
               </div>
               <el-input v-model="localApiKey" :type="showApiKey ? 'text' : 'password'"
-                :placeholder="t('请输入 DeepSeek API Key')" clearable class="form-input">
+                :placeholder="t('请输入 DeepSeek API Key')" :disabled="localUseFreeLLM" clearable class="form-input">
                 <template #suffix>
                   <span class="password-toggle" @click="showApiKey = !showApiKey">
                     {{ showApiKey ? t('隐藏') : t('显示') }}
@@ -37,7 +50,7 @@
               <div class="form-label">
                 {{ t('Model') }}
               </div>
-              <el-select v-model="localModel" class="form-input">
+              <el-select v-model="localModel" class="form-input" :disabled="localUseFreeLLM">
                 <el-option label="deepseek-chat" value="deepseek-chat" />
                 <el-option label="deepseek-reasoner" value="deepseek-reasoner" />
               </el-select>
@@ -49,14 +62,14 @@
               <div class="form-label">
                 {{ t('Base URL') }}
               </div>
-              <el-input v-model="localBaseURL" :placeholder="t('请输入 API Base URL')" clearable class="form-input" />
+              <el-input v-model="localBaseURL" :placeholder="t('请输入 API Base URL')" :disabled="localUseFreeLLM" clearable class="form-input" />
             </div>
             <div class="form-item">
               <div class="form-label">
                 {{ t('API Key') }}
               </div>
               <el-input v-model="localApiKey" :type="showApiKey ? 'text' : 'password'" :placeholder="t('请输入 API Key')"
-                clearable class="form-input">
+                :disabled="localUseFreeLLM" clearable class="form-input">
                 <template #suffix>
                   <span class="password-toggle" @click="showApiKey = !showApiKey">
                     {{ showApiKey ? t('隐藏') : t('显示') }}
@@ -68,7 +81,7 @@
               <div class="form-label">
                 {{ t('Model ID') }}
               </div>
-              <el-input v-model="localModel" :placeholder="t('请输入模型 ID')" clearable class="form-input" />
+              <el-input v-model="localModel" :placeholder="t('请输入模型 ID')" :disabled="localUseFreeLLM" clearable class="form-input" />
             </div>
 
             <div class="form-item full-row">
@@ -78,13 +91,13 @@
               </div>
               <div class="custom-headers">
                 <div v-for="(header, index) in localCustomHeaders" :key="index" class="header-row">
-                  <el-input v-model="header.key" :placeholder="t('Header Key')" class="header-key" />
-                  <el-input v-model="header.value" :placeholder="t('Header Value')" class="header-value" />
-                  <el-button type="danger" text class="header-remove" @click="removeHeader(index)">
+                  <el-input v-model="header.key" :placeholder="t('Header Key')" :disabled="localUseFreeLLM" class="header-key" />
+                  <el-input v-model="header.value" :placeholder="t('Header Value')" :disabled="localUseFreeLLM" class="header-value" />
+                  <el-button type="danger" text class="header-remove" :disabled="localUseFreeLLM" @click="removeHeader(index)">
                     {{ t('删除') }}
                   </el-button>
                 </div>
-                <el-button type="primary" text class="add-header-btn" @click="addHeader">
+                <el-button type="primary" text class="add-header-btn" :disabled="localUseFreeLLM" @click="addHeader">
                   {{ t('添加请求头') }}
                 </el-button>
               </div>
@@ -101,6 +114,7 @@
                 :auto-height="true"
                 :max-height="260"
                 :min-height="140"
+                :disabled="localUseFreeLLM"
               />
             </div>
           </div>
@@ -155,10 +169,14 @@ const localBaseURL = ref('')
 const localModel = ref('')
 const localCustomHeaders = ref<CustomHeader[]>([])
 const localExtraBody = ref('')
+const localUseFreeLLM = ref(true)
 const showApiKey = ref(false)
 const isSaving = ref(false)
 // 判断配置是否有效
 const isConfigValid = computed(() => {
+  if (localUseFreeLLM.value) {
+    return true
+  }
   const config = llmClientStore.LLMConfig
   const hasApiKey = config.apiKey.trim() !== ''
   if (config.provider === 'OpenAICompatible') {
@@ -175,6 +193,11 @@ const syncFromStore = () => {
   localModel.value = provider.model
   localCustomHeaders.value = [...provider.customHeaders.map(h => ({ ...h }))]
   localExtraBody.value = provider.extraBody
+  localUseFreeLLM.value = llmClientStore.useFreeLLM
+}
+// 处理免费LLM开关变化
+const handleFreeLLMChange = (value: boolean) => {
+  llmClientStore.setUseFreeLLM(value)
 }
 // 处理 Provider 类型变更
 const handleProviderChange = (type: LLMProviderType) => {
@@ -360,5 +383,17 @@ onMounted(() => {
   margin-top: 24px;
   padding-top: 24px;
   border-top: 1px solid var(--border-light);
+}
+.free-api-switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  .switch-label {
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+}
+.free-api-alert {
+  margin-top: 8px;
 }
 </style>

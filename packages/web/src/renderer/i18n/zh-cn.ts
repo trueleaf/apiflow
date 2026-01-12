@@ -1263,6 +1263,9 @@ export default {
   // settings目录补全的翻译
   'API Provider 配置': 'API Provider 配置',
   '配置大语言模型服务提供商': '配置大语言模型服务提供商',
+  '使用免费API': '使用免费API',
+  '使用服务器提供的免费 LLM 服务': '使用服务器提供的免费 LLM 服务',
+  '当前使用免费API，无需配置API Key。如需使用自己的API Key，请关闭此开关。': '当前使用免费API，无需配置API Key。如需使用自己的API Key，请关闭此开关。',
   'API Provider': 'API Provider',
   'Model': 'Model',
   '请输入 DeepSeek API Key': '请输入 DeepSeek API Key',
