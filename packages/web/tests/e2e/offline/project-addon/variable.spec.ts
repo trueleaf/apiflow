@@ -208,6 +208,14 @@ test.describe('Variable', () => {
     const addBtn = variablePage.locator('.left .el-button--primary');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
+    const closeActiveTabBtn = contentPage.locator('.tab-list .item.active [data-testid="project-nav-tab-close-btn"]');
+    const closeActiveTabBtnCount = await closeActiveTabBtn.count();
+    if (closeActiveTabBtnCount) {
+      await closeActiveTabBtn.first().click();
+    } else {
+      await contentPage.keyboard.press('ControlOrMeta+w');
+    }
+    await expect(variablePage).toBeHidden({ timeout: 5000 });
     await createNode(contentPage, { nodeType: 'http', name: '测试接口' });
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -258,6 +266,14 @@ test.describe('Variable', () => {
     const addBtn = variablePage.locator('.left .el-button--primary');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
+    const closeActiveTabBtn = contentPage.locator('.tab-list .item.active [data-testid="project-nav-tab-close-btn"]');
+    const closeActiveTabBtnCount = await closeActiveTabBtn.count();
+    if (closeActiveTabBtnCount) {
+      await closeActiveTabBtn.first().click();
+    } else {
+      await contentPage.keyboard.press('ControlOrMeta+w');
+    }
+    await expect(variablePage).toBeHidden({ timeout: 5000 });
     await createNode(contentPage, { nodeType: 'http', name: 'URL变量测试' });
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill('{{baseUrl}}/echo');
@@ -286,6 +302,14 @@ test.describe('Variable', () => {
     const addBtn = variablePage.locator('.left .el-button--primary');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
+    const closeActiveTabBtn = contentPage.locator('.tab-list .item.active [data-testid="project-nav-tab-close-btn"]');
+    const closeActiveTabBtnCount = await closeActiveTabBtn.count();
+    if (closeActiveTabBtnCount) {
+      await closeActiveTabBtn.first().click();
+    } else {
+      await contentPage.keyboard.press('ControlOrMeta+w');
+    }
+    await expect(variablePage).toBeHidden({ timeout: 5000 });
     await createNode(contentPage, { nodeType: 'http', name: 'Headers变量测试' });
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -331,6 +355,14 @@ test.describe('Variable', () => {
     await valueTextarea.fill('hello_query');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
+    const closeActiveTabBtn = contentPage.locator('.tab-list .item.active [data-testid="project-nav-tab-close-btn"]');
+    const closeActiveTabBtnCount = await closeActiveTabBtn.count();
+    if (closeActiveTabBtnCount) {
+      await closeActiveTabBtn.first().click();
+    } else {
+      await contentPage.keyboard.press('ControlOrMeta+w');
+    }
+    await expect(variablePage).toBeHidden({ timeout: 5000 });
     await createNode(contentPage, { nodeType: 'http', name: 'Params变量测试' });
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/users/{id}`);
@@ -522,7 +554,14 @@ test.describe('Variable', () => {
     await valueTextarea.fill('raw_variable_value');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
-
+    const closeActiveTabBtn = contentPage.locator('.tab-list .item.active [data-testid="project-nav-tab-close-btn"]');
+    const closeActiveTabBtnCount = await closeActiveTabBtn.count();
+    if (closeActiveTabBtnCount) {
+      await closeActiveTabBtn.first().click();
+    } else {
+      await contentPage.keyboard.press('ControlOrMeta+w');
+    }
+    await expect(variablePage).toBeHidden({ timeout: 5000 });
     await createNode(contentPage, { nodeType: 'http', name: 'Raw变量测试' });
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
@@ -571,7 +610,14 @@ test.describe('Variable', () => {
     await valueTextarea.fill('urlencoded_value');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
-
+    const closeActiveTabBtn = contentPage.locator('.tab-list .item.active [data-testid="project-nav-tab-close-btn"]');
+    const closeActiveTabBtnCount = await closeActiveTabBtn.count();
+    if (closeActiveTabBtnCount) {
+      await closeActiveTabBtn.first().click();
+    } else {
+      await contentPage.keyboard.press('ControlOrMeta+w');
+    }
+    await expect(variablePage).toBeHidden({ timeout: 5000 });
     await createNode(contentPage, { nodeType: 'http', name: 'Urlencoded变量测试' });
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
@@ -617,7 +663,14 @@ test.describe('Variable', () => {
     await valueTextarea.fill('formdata_value');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
-
+    const closeActiveTabBtn = contentPage.locator('.tab-list .item.active [data-testid="project-nav-tab-close-btn"]');
+    const closeActiveTabBtnCount = await closeActiveTabBtn.count();
+    if (closeActiveTabBtnCount) {
+      await closeActiveTabBtn.first().click();
+    } else {
+      await contentPage.keyboard.press('ControlOrMeta+w');
+    }
+    await expect(variablePage).toBeHidden({ timeout: 5000 });
     await createNode(contentPage, { nodeType: 'http', name: 'FormData变量测试' });
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
@@ -671,7 +724,14 @@ test.describe('Variable', () => {
     await valueTextarea.fill(testFilePath);
     await addBtn.click();
     await contentPage.waitForTimeout(500);
-
+    const closeActiveTabBtn = contentPage.locator('.tab-list .item.active [data-testid="project-nav-tab-close-btn"]');
+    const closeActiveTabBtnCount = await closeActiveTabBtn.count();
+    if (closeActiveTabBtnCount) {
+      await closeActiveTabBtn.first().click();
+    } else {
+      await contentPage.keyboard.press('ControlOrMeta+w');
+    }
+    await expect(variablePage).toBeHidden({ timeout: 5000 });
     await createNode(contentPage, { nodeType: 'http', name: 'Binary变量测试' });
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();

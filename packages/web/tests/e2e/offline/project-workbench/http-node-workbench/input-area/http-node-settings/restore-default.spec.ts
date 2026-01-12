@@ -72,7 +72,7 @@ test.describe('RestoreDefault', () => {
     expect(restoredMaxRedirects).toBe(originalMaxRedirects);
   });
   // 测试用例3: 恢复默认后刷新页面,配置保持为默认值
-  test('恢复默认后刷新页面配置保持为默认值', async ({ contentPage, clearCache, createProject }) => {
+  test('恢复默认后刷新页面配置保持为默认值', async ({ contentPage, clearCache, createProject, reload }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });

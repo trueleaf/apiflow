@@ -113,6 +113,7 @@ test.describe('Trash', () => {
       const item = fileList[i];
       await createNode(contentPage, { nodeType: item.nodeType, name: item.name });
     }
+    const allNodeNames = ['类型-文件夹', ...fileList.map((item) => item.name)];
     for (let i = 0; i < allNodeNames.length; i += 1) {
       const nodeName = allNodeNames[i];
       const node = bannerTree.locator('.el-tree-node__content', { hasText: nodeName }).first();

@@ -124,8 +124,9 @@ export const test = base.extend<ElectronFixtures>({
       const projectName = name || `测试项目-${Date.now()}`;
       const addProjectBtn = topBarPage.locator('[data-testid="header-add-project-btn"]');
       await addProjectBtn.click();
+      await topBarPage.waitForTimeout(300);
       const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
-      await expect(projectDialog).toBeVisible({ timeout: 5000 });
+      await expect(projectDialog).toBeVisible({ timeout: 8000 });
       const projectNameInput = projectDialog.locator('input').first();
       await projectNameInput.fill(projectName);
       const confirmBtn = projectDialog.locator('.el-button--primary').last();

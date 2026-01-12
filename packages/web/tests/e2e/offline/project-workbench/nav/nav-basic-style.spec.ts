@@ -80,7 +80,7 @@ test.describe('NavBasicStyle', () => {
   test('HTTP节点tab显示请求方法标识', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*?#?/workbench/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await createNode(contentPage, { nodeType: 'http', name: 'GET方法测试' });
     // 验证tab显示GET方法标识
     const activeTab = contentPage.locator('.nav .item.active');
@@ -90,7 +90,7 @@ test.describe('NavBasicStyle', () => {
   test('页签文本过长显示省略号', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*?#?/workbench/, { timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     const longName = '这是一个非常非常长的接口名称用于测试省略号效果ABCDEFG';
     await createNode(contentPage, { nodeType: 'http', name: longName });
     // 验证tab存在

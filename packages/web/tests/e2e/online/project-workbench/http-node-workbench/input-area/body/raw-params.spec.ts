@@ -11,7 +11,7 @@ test.describe('RawParams', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    await createNode(contentPage, { nodeType: 'http', name: 'Raw Text参数测试' });' });
+    await createNode(contentPage, { nodeType: 'http', name: 'Raw Text参数测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -62,7 +62,7 @@ test.describe('RawParams', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    await createNode(contentPage, { nodeType: 'http', name: 'Raw HTML参数测试' });' });
+    await createNode(contentPage, { nodeType: 'http', name: 'Raw HTML参数测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -115,7 +115,7 @@ test.describe('RawParams', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    await createNode(contentPage, { nodeType: 'http', name: 'Raw XML参数测试' });' });
+    await createNode(contentPage, { nodeType: 'http', name: 'Raw XML参数测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -169,7 +169,7 @@ test.describe('RawParams', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    await createNode(contentPage, { nodeType: 'http', name: 'Raw JavaScript参数测试' });' });
+    await createNode(contentPage, { nodeType: 'http', name: 'Raw JavaScript参数测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -220,7 +220,7 @@ test.describe('RawParams', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    await createNode(contentPage, { nodeType: 'http', name: 'Raw空值参数测试' });' });
+    await createNode(contentPage, { nodeType: 'http', name: 'Raw空值参数测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);

@@ -106,7 +106,7 @@ test.describe('DisplayOrderConfig', () => {
     expect(firstTabText?.trim()).toContain(lastTabLabel?.trim() || '');
   });
   // 测试用例3: 显示顺序修改后刷新页面,顺序保持不变
-  test('显示顺序修改后刷新页面顺序保持不变', async ({ contentPage, clearCache, createProject }) => {
+  test('显示顺序修改后刷新页面顺序保持不变', async ({ contentPage, clearCache, createProject, reload }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });

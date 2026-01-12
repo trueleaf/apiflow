@@ -11,7 +11,7 @@ test.describe('DefaultHeaders', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    await createNode(contentPage, { nodeType: 'http', name: '默认请求头测试' });' });
+    await createNode(contentPage, { nodeType: 'http', name: '默认请求头测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -42,7 +42,7 @@ test.describe('DefaultHeaders', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    await createNode(contentPage, { nodeType: 'http', name: '隐藏请求头修改测试' });' });
+    await createNode(contentPage, { nodeType: 'http', name: '隐藏请求头修改测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -87,7 +87,7 @@ test.describe('DefaultHeaders', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    await createNode(contentPage, { nodeType: 'http', name: '隐藏请求头展开收起测试' });' });
+    await createNode(contentPage, { nodeType: 'http', name: '隐藏请求头展开收起测试' });
     // 点击Header标签页
     const headerTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
     await headerTab.click();
@@ -125,7 +125,7 @@ test.describe('DefaultHeaders', () => {
     await fileNameInput.fill('ContentType自动添加测试');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
-    await expect(addFileDialog).toBeHidden({ timeout: 10000 });' });
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
@@ -166,7 +166,7 @@ test.describe('DefaultHeaders', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
-    await createNode(contentPage, { nodeType: 'http', name: 'ContentType覆盖测试' });' });
+    await createNode(contentPage, { nodeType: 'http', name: 'ContentType覆盖测试' });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
