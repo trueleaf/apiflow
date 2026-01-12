@@ -52,7 +52,7 @@ import { useI18n } from 'vue-i18n'
 import { LocalStorageItem } from '@src/types/apidoc/cache'
 import { formatUnit, message, reloadApp } from '@/helper'
 import { ElMessageBox } from 'element-plus'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/clConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 import LocalStorageDialog from '../dialog/LocalStorageDialog.vue'
 
 const { t, locale } = useI18n()

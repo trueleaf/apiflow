@@ -127,7 +127,7 @@ import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
 import isYesterday from 'dayjs/plugin/isYesterday'
 import 'dayjs/locale/zh-cn'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/clConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 import type { HttpNodeRequestMethod, ApidocType, ResponseTable, ApiNode, HttpNode, WebSocketNode, HttpMockNode, WebSocketMockNode } from '@src/types'
 import { router } from '@/router/index'
 import { request } from '@/api/api'

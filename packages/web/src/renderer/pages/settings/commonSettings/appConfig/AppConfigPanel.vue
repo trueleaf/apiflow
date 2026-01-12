@@ -102,7 +102,7 @@
 import { ref, computed, watch } from 'vue'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 import { processImageUpload } from '@/utils/imageHelper'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/clConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 import { useI18n } from 'vue-i18n'
 import { AppWindow, Palette, Globe } from 'lucide-vue-next'
 import type { UploadFile } from 'element-plus'

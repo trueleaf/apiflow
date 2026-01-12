@@ -332,7 +332,7 @@ import { useHttpNode } from '@/store/httpNode/httpNodeStore'
 import { useRoute } from 'vue-router'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/clConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache'
 import { message } from '@/helper'
 import { router } from '@/router'

@@ -129,7 +129,7 @@ class TranslatorFactory {
         type: translator.type,
       }
     } catch (error) {
-      const isDev = config.renderConfig.env === 'development' || import.meta.env.DEV
+      const isDev = config.isDev || import.meta.env.DEV
       const errorMessage = error instanceof Error ? error.message : String(error)
       
       return {
@@ -208,7 +208,7 @@ class TranslatorFactory {
         nodes,
       }
     } catch (error) {
-      const isDev = config.renderConfig.env === 'development' || import.meta.env.DEV
+      const isDev = config.isDev || import.meta.env.DEV
       const errorMessage = error instanceof Error ? error.message : String(error)
       
       return {

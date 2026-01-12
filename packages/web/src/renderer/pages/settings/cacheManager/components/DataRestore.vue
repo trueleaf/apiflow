@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/clConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 import type { UploadFile } from 'element-plus'
 import { Upload, FileArchive, RotateCcw } from 'lucide-vue-next'
 import { message, reloadApp } from '@/helper'

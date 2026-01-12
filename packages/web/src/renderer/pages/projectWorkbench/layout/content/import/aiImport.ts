@@ -5,6 +5,52 @@ import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import type { HttpNodeContentType, HttpNodeBodyMode, HttpNodeRequestMethod } from '@src/types/httpNode/types'
 import { aiImportPrompt } from '@/store/ai/prompt/prompt'
 
+// 项目文件类型（用于代码仓库导入）
+type ProjectFile = {
+  path: string
+  content: string
+}
+
+// 项目分析结果类型
+type ProjectAnalysisResult = {
+  framework: string
+  language: string
+  routeFiles: string[]
+  confidence: 'high' | 'medium' | 'low'
+}
+
+// 项目结构分析prompt
+const projectAnalyzePrompt = `分析以下项目文件列表，识别项目框架和语言，并找出可能包含API路由定义的文件：
+
+文件列表：
+{fileList}
+
+请返回JSON格式：
+{
+  "framework": "框架名称（如：Express, FastAPI, Spring Boot等）",
+  "language": "编程语言",
+  "routeFiles": ["路由文件路径1", "路由文件路径2"],
+  "confidence": "high/medium/low"
+}`
+
+// API提取prompt  
+const apiExtractPrompt = `从以下{framework}代码中提取API接口信息：
+
+{codeContent}
+
+请返回JSON格式：
+{
+  "apis": [
+    {
+      "name": "接口名称",
+      "method": "HTTP方法",
+      "url": "路径",
+      "description": "描述"
+    }
+  ],
+  "folders": ["文件夹名1", "文件夹名2"]
+}`
+
 // AI 识别的 API 结构
 type AiRecognizedApi = {
   name: string

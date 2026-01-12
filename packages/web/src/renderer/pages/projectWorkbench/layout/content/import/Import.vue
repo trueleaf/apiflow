@@ -163,7 +163,7 @@ import PasteImport from './components/PasteImport.vue'
 import AiImport from './components/AiImport.vue'
 import FormatSelector from './components/FormatSelector.vue'
 import { ref, computed, type Ref } from 'vue'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/clConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 import { FileUp, Link, ClipboardCopy, Folder, FileQuestion, Sparkles } from 'lucide-vue-next'
 import type { ApidocBanner, HttpNode, FolderNode } from '@src/types'
 import type { OpenAPIV3, OpenAPIV2 } from 'openapi-types'

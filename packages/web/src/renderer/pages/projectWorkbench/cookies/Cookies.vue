@@ -155,7 +155,7 @@
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useCookies } from '@/store/projectWorkbench/cookiesStore';
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/clConfirm.ts';
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 import type { ApidocCookie } from '@src/types/projectWorkbench/cookies';
 import { useI18n } from 'vue-i18n';
 import { message } from '@/helper';
@@ -241,7 +241,7 @@ const rules = {
   value: [{ required: true, message: t('请输入值'), trigger: 'blur' }],
   path: [
     {
-      validator: (rule: unknown, value: string, callback: (error?: Error) => void) => {
+      validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
         if (value && !value.startsWith('/')) {
           callback(new Error(t('路径必须以 / 开头')));
         } else {
