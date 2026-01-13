@@ -1284,6 +1284,13 @@ export default {
   '例如：200': 'e.g. 200',
   连接异常: 'Connection error',
   '浏览器环境不支持发送HTTP请求，请使用Electron客户端': 'HTTP requests are not supported in the browser. Use the Electron app instead.',
+  'Web浏览器环境限制': 'Web Browser Limitation',
+  '由于浏览器的CORS安全策略限制，无法直接发送跨域HTTP请求。': 'Due to browser CORS security policy restrictions, cross-origin HTTP requests cannot be sent directly.',
+  '下载Electron客户端可获得完整功能，包括：': 'Download the Electron app for full features, including:',
+  '无CORS限制，支持所有HTTP请求': 'No CORS restrictions, supports all HTTP requests',
+  '支持Mock服务器和WebSocket连接': 'Supports Mock server and WebSocket connections',
+  '更好的性能和离线使用体验': 'Better performance and offline experience',
+  '下载Electron客户端': 'Download Electron App',
   浏览器环境不支持启用Mock服务: 'Mock service is not supported in the browser.',
   '浏览器环境不支持WebSocket连接功能，请使用Electron客户端': 'WebSocket connections are not supported in the browser. Use the Electron app instead.',
   流式发送: 'Streaming send',
@@ -1670,6 +1677,7 @@ export default {
   '无法识别的文档格式，是否尝试使用 AI 智能解析？': 'Unrecognized document format, would you like to try AI smart parsing?',
   '未识别的文档格式': 'Unrecognized document format',
   '格式验证失败': 'Format validation failed',
+  '\u5BA2\u6237\u7AEF\u4E0B\u8F7D\u5730\u5740\uFF1A': 'Client download URL:',
 }
 
 

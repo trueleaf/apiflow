@@ -303,7 +303,45 @@
     >
       {{ t('返回值大于 {size}，响应缓存已失效，请重新请求最新数据', { size: formatUnit(config.cacheConfig.httpNodeResponseCache.singleResponseBodySize, 'bytes') }) }}
     </div>
-    <div v-if="httpNodeResponseStore.responseInfo.responseData.canApiflowParseType === 'error'" class="red" data-testid="response-error">{{ httpNodeResponseStore.responseInfo.responseData.errorData }}</div>
+    <div v-if="httpNodeResponseStore.responseInfo.responseData.canApiflowParseType === 'error'" class="response-error" data-testid="response-error">
+      <div v-if="showClientDownloadLink" class="web-limit-alert">
+        <el-alert
+          :title="t('Web浏览器环境限制')"
+          type="warning"
+          :closable="false"
+        >
+          <template #default>
+            <div class="web-limit-content">
+              <p class="web-limit-desc">{{ t('由于浏览器的CORS安全策略限制，无法直接发送跨域HTTP请求。') }}</p>
+              <div class="web-limit-features">
+                <p class="features-title">{{ t('下载Electron客户端可获得完整功能，包括：') }}</p>
+                <ul class="features-list">
+                  <li>
+                    <CheckCircle :size="16" class="feature-icon" />
+                    <span>{{ t('无CORS限制，支持所有HTTP请求') }}</span>
+                  </li>
+                  <li>
+                    <CheckCircle :size="16" class="feature-icon" />
+                    <span>{{ t('支持Mock服务器和WebSocket连接') }}</span>
+                  </li>
+                  <li>
+                    <CheckCircle :size="16" class="feature-icon" />
+                    <span>{{ t('更好的性能和离线使用体验') }}</span>
+                  </li>
+                </ul>
+              </div>
+              <div class="web-limit-actions">
+                <el-button type="primary" @click="handleDownloadClient">
+                  <Download :size="16" class="btn-icon" />
+                  {{ t('下载Electron客户端') }}
+                </el-button>
+              </div>
+            </div>
+          </template>
+        </el-alert>
+      </div>
+      <div v-else class="red">{{ httpNodeResponseStore.responseInfo.responseData.errorData }}</div>
+    </div>
     <video ref="videoRef" v-show="false"></video>
   </div>
 </template>
@@ -313,7 +351,7 @@ import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchSt
 import { useHttpNodeResponse } from '@/store/httpNode/httpNodeResponseStore';
 import { computed, onMounted, onUnmounted, ref, watch, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n'
-import { downloadStringAsText } from '@/helper'
+import { downloadStringAsText, isElectron } from '@/helper'
 import { formatHeader, formatUnit } from '@/helper'
 import { config } from '@src/config/config'
 import SSseView from '@/components/common/sseView/ClSseView.vue'
@@ -324,6 +362,7 @@ import { ElDialog } from 'element-plus';
 import beautify, { html as htmlBeautify, css as cssBeautify } from 'js-beautify';
 import worker from '@/worker/prettier.worker.ts?worker&inline';
 import { Download, Loading } from '@element-plus/icons-vue';
+import { CheckCircle } from 'lucide-vue-next';
 
 const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
@@ -350,6 +389,13 @@ const isRedirectStatusCode = computed(() => {
 });
 const videoRef = ref<HTMLVideoElement>();
 const { t } = useI18n()
+const clientDownloadUrl = 'https://github.com/trueleaf/apiflow/releases'
+const isElectronEnv = isElectron()
+const showClientDownloadLink = computed(() => {
+  return !isElectronEnv
+    && httpNodeResponseStore.responseInfo.responseData.canApiflowParseType === 'error'
+    && httpNodeResponseStore.responseInfo.responseData.errorData === t('浏览器环境不支持发送HTTP请求，请使用Electron客户端')
+})
 
 const formatedText = ref('');
 const projectNavStore = useProjectNav();
@@ -518,6 +564,10 @@ const handleToggleRedirect = (value: string | number | boolean) => {
   const projectId = projectWorkbenchStore.projectId;
   httpNodeConfigStore.setHttpNodeConfig(projectId, { followRedirect: Boolean(value) });
 }
+//下载客户端
+const handleDownloadClient = () => {
+  window.open(clientDownloadUrl, '_blank', 'noopener,noreferrer');
+}
 //下载文件
 const handleDownload = () => {
   const { fileData } = httpNodeResponseStore.responseInfo.responseData;
@@ -620,6 +670,58 @@ onUnmounted(() => {
     right: 15px;
     top: 0px;
     z-index: var(--zIndex-contextmenu);
+  }
+  .response-error {
+    padding: 20px;
+  }
+  .web-limit-alert {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .web-limit-content {
+    .web-limit-desc {
+      margin: 0 0 16px 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-primary);
+    }
+    .web-limit-features {
+      margin-bottom: 20px;
+      .features-title {
+        margin: 0 0 12px 0;
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--text-primary);
+      }
+      .features-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        li {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 8px;
+          font-size: 13px;
+          line-height: 1.5;
+          color: var(--text-secondary);
+          .feature-icon {
+            color: var(--color-success);
+            flex-shrink: 0;
+          }
+        }
+        li:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+    .web-limit-actions {
+      display: flex;
+      gap: 12px;
+      .btn-icon {
+        margin-right: 4px;
+      }
+    }
   }
   .text-wrap {
     height: 100%;
