@@ -12,6 +12,12 @@
       <div v-else-if="filteredMessages.length === 0" class="ai-empty-state">
         <Bot class="ai-empty-icon" :size="48" />
         <p class="ai-empty-text">{{ t('问我任何问题') }}</p>
+        <div v-if="llmClientStore.useFreeLLM" class="ai-free-api-tip">
+          <span class="tip-text">{{ t('目前使用免费 API 可能不稳定，建议') }}</span>
+          <button class="tip-link" type="button" @click="agentViewStore.switchToConfig()">
+            {{ t('配置自定义 API Key') }}
+          </button>
+        </div>
       </div>
       <template v-else>
         <template v-for="message in filteredMessages" :key="message.id">
@@ -31,6 +37,7 @@ import { ref, watch, nextTick, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Bot, AlertTriangle, ArrowRight } from 'lucide-vue-next'
 import { useAgentViewStore } from '@/store/ai/agentView'
+import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import AskMessageItem from './components/AskMessageItem.vue'
 import LoadingMessageItem from './components/LoadingMessageItem.vue'
 import TextResponseMessageItem from './components/TextResponseMessageItem.vue'
@@ -39,6 +46,7 @@ import ErrorMessageItem from './components/ErrorMessageItem.vue'
 
 const { t } = useI18n()
 const agentViewStore = useAgentViewStore()
+const llmClientStore = useLLMClientStore()
 const messagesRef = ref<HTMLElement | null>(null)
 const filteredMessages = computed(() => agentViewStore.currentMessageList.filter(msg => msg.mode === 'ask'))
 const scrollToBottom = () => {
@@ -103,6 +111,29 @@ defineExpose({
 .ai-empty-text {
   font-size: 14px;
   margin: 0;
+}
+.ai-free-api-tip {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--el-color-warning);
+}
+.tip-text {
+  color: var(--ai-text-secondary);
+}
+.tip-link {
+  background: none;
+  border: none;
+  color: var(--el-color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: 12px;
+}
+.tip-link:hover {
+  opacity: 0.8;
 }
 .ai-config-btn {
   display: flex;

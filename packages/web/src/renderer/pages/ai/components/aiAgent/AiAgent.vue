@@ -12,6 +12,12 @@
       <div v-else-if="filteredMessages.length === 0" class="ai-empty-state">
         <Sparkles class="ai-empty-icon" :size="48" />
         <p class="ai-empty-text">{{ t('Agent模式可以自动执行工具调用') }}</p>
+        <div v-if="llmClientStore.useFreeLLM" class="ai-free-api-tip">
+          <span class="tip-text">{{ t('目前使用免费 API 可能不稳定，建议') }}</span>
+          <button class="tip-link" type="button" @click="agentViewStore.switchToConfig()">
+            {{ t('配置自定义 API Key') }}
+          </button>
+        </div>
       </div>
       <template v-else>
         <template v-for="message in filteredMessages" :key="message.id">
@@ -35,6 +41,7 @@ import { Sparkles, AlertTriangle, ArrowRight } from 'lucide-vue-next'
 import type { ErrorMessage } from '@src/types/ai'
 import { useAgentViewStore } from '@/store/ai/agentView'
 import { useAgentStore } from '@/store/ai/agentStore'
+import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import AskMessageItem from '../aiAsk/components/AskMessageItem.vue'
 import LoadingMessageItem from '../aiAsk/components/LoadingMessageItem.vue'
 import TextResponseMessageItem from '../aiAsk/components/TextResponseMessageItem.vue'
@@ -45,6 +52,7 @@ import AgentExecutionMessageItem from './components/AgentExecutionMessageItem.vu
 const { t } = useI18n()
 const agentViewStore = useAgentViewStore()
 const agentStore = useAgentStore()
+const llmClientStore = useLLMClientStore()
 const messagesRef = ref<HTMLElement | null>(null)
 const filteredMessages = computed(() => agentViewStore.currentMessageList.filter(msg => msg.mode === 'agent'))
 const scrollToBottom = () => {
@@ -126,6 +134,29 @@ defineExpose({
 .ai-empty-text {
   font-size: 14px;
   margin: 0;
+}
+.ai-free-api-tip {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--el-color-warning);
+}
+.tip-text {
+  color: var(--ai-text-secondary);
+}
+.tip-link {
+  background: none;
+  border: none;
+  color: var(--el-color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: 12px;
+}
+.tip-link:hover {
+  opacity: 0.8;
 }
 .ai-config-btn {
   display: flex;

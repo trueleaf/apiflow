@@ -1142,6 +1142,8 @@ export default {
   '请先前往AI设置配置apiKey与apiUrl': '请先前往AI设置配置apiKey与apiUrl',
   '配置ApiKey': '配置ApiKey',
   'Agent模式可以自动执行工具调用': 'Agent模式可以自动执行工具调用',
+  '目前使用免费 API 可能不稳定，建议': '目前使用免费 API 可能不稳定，建议',
+  '配置自定义 API Key': '配置自定义 API Key',
   '更多设置': '更多设置',
   '停止': '停止',
   '新建对话': '新建对话',

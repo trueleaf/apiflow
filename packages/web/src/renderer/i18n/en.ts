@@ -1471,6 +1471,8 @@ export default {
   文件名称: 'File name',
   文件中没有可导入的数据: 'No importable data found in the file',
   问我任何问题: 'Ask me anything',
+  '目前使用免费 API 可能不稳定，建议': 'Free API may be unstable, recommend to',
+  '配置自定义 API Key': 'configure custom API Key',
   无法删除: 'Cannot delete',
   无返回内容: 'No response content',
   无响应内容: 'No response content',
