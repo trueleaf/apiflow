@@ -113,6 +113,42 @@ Download the latest version for your platform:
 
 ---
 
+## 🐳 Local Deployment (Docker)
+
+### Requirements
+- Docker
+- Docker Compose
+
+### First Deployment
+
+```bash
+git clone https://github.com/trueleaf/apiflow
+cd apiflow
+
+cp .env.example .env
+# edit .env to configure MongoDB credentials
+
+docker compose pull
+docker compose up -d
+
+# Verify deployment
+curl http://localhost  
+curl http://localhost/api/health 
+```
+
+### 🚀Code Update
+
+If you are running Apiflow with Docker, updating the code does not require rebuilding locally.
+
+Simply pull the latest images and restart the services:
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+---
+
 ## 💻 Local Development
 
 ### Prerequisites
@@ -180,42 +216,6 @@ This is a multi-package monorepo:
 - The frontend supports hot module replacement (HMR) for fast development
 - Backend auto-restarts when files change
 - You can develop packages independently by running their specific dev commands
-
----
-
-## 🐳 Local Deployment (Docker)
-
-### Requirements
-- Docker
-- Docker Compose
-
-### First Deployment
-
-```bash
-git clone https://github.com/trueleaf/apiflow
-cd apiflow
-
-cp .env.example .env
-# edit .env to configure MongoDB credentials
-
-docker compose pull
-docker compose up -d
-
-# Verify deployment
-curl http://localhost  
-curl http://localhost/api/health 
-```
-
-### 🚀Code Update
-
-If you are running Apiflow with Docker, updating the code does not require rebuilding locally.
-
-Simply pull the latest images and restart the services:
-
-```bash
-docker compose pull
-docker compose up -d
-```
 
 ## 📜 License
 

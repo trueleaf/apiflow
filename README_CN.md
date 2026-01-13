@@ -31,8 +31,7 @@
 
 ## 🚀 Apiflow 是什么？
 
-**Apiflow** 是一个 **完全免费**、**内置 AI 能力** 的 API 接口工具，致力于成为  
-**Postman、Apifox 的现代化开源替代方案**。
+**Apiflow** 是一个 **完全免费**、**内置 AI 能力** 的 API 接口工具，致力于成为**Postman、Apifox 的现代化开源替代方案**。
 
 它集成了 **API 测试、Mock、WebSocket、AI Agent、团队协作、离线使用、本地部署** 等能力，并全面拥抱 **OpenAPI 3.0 生态体系**。
 
@@ -108,6 +107,41 @@
 
 ---
 
+## 🐳 本地部署（Docker）
+
+### 环境要求
+- Docker
+- Docker Compose
+
+### 首次部署
+
+```bash
+git clone https://gitee.com/wildsell/apiflow
+cd apiflow
+
+cp .env.example .env
+# 编辑 .env，配置 MongoDB 等参数
+
+docker compose -f docker-compose.yml -f docker-compose.cn.yml pull
+docker compose -f docker-compose.yml -f docker-compose.cn.yml up -d
+
+# 验证部署
+curl http://localhost             
+curl http://localhost/api/health 
+```
+
+## 🚀 代码更新
+
+如果你是通过 Docker 运行 Apiflow，更新代码时无需在本地重新构建。
+
+只需拉取最新镜像并重启服务即可：
+```bash
+docker compose -f docker-compose.yml -f docker-compose.cn.yml pull
+docker compose -f docker-compose.yml -f docker-compose.cn.yml up -d
+```
+
+---
+
 ## 💻本地开发
 
 ### 环境要求
@@ -175,41 +209,6 @@ npm run dev
 - 前端支持热模块替换（HMR），可快速开发调试
 - 后端文件变更时会自动重启
 - 可以通过运行特定命令独立开发各个包
-
----
-
-## 🐳 本地部署（Docker）
-
-### 环境要求
-- Docker
-- Docker Compose
-
-### 首次部署
-
-```bash
-git clone https://gitee.com/wildsell/apiflow
-cd apiflow
-
-cp .env.example .env
-# 编辑 .env，配置 MongoDB 等参数
-
-docker compose -f docker-compose.yml -f docker-compose.cn.yml pull
-docker compose -f docker-compose.yml -f docker-compose.cn.yml up -d
-
-# 验证部署
-curl http://localhost             
-curl http://localhost/api/health 
-```
-
-## 🚀 代码更新
-
-如果你是通过 Docker 运行 Apiflow，更新代码时无需在本地重新构建。
-
-只需拉取最新镜像并重启服务即可：
-```bash
-docker compose -f docker-compose.yml -f docker-compose.cn.yml pull
-docker compose -f docker-compose.yml -f docker-compose.cn.yml up -d
-```
 ## 📜 许可证
 
 本项目采用 **MIT** 许可证进行许可
