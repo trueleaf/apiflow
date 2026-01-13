@@ -177,6 +177,7 @@ export const getStrJsonBody = async (data: Record<string, string>) => {
     const hashBuffer = await crypto.subtle.digest('SHA-256', encodedData);
     return getHashedContent(hashBuffer);
   }
+  return '';
 }
 export const getHashedContent = (hashBuffer: ArrayBuffer) => {
   const hashArray = Array.from(new Uint8Array(hashBuffer));
