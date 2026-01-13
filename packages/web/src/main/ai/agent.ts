@@ -49,10 +49,9 @@ export class LLMClient {
         }
       );
       const responseBody = response.body as unknown;
-      console.log(222, responseBody);
-      if (responseBody && typeof responseBody === 'object' && 'code' in responseBody && 'msg' in responseBody) {
-        const errorResponse = responseBody as { code: number; msg: string };
-        throw new Error(errorResponse.msg);
+      if (responseBody && typeof responseBody === 'object' && 'success' in responseBody && responseBody.success === false && 'message' in responseBody) {
+        const errorResponse = responseBody as { success: boolean; code: string; message: string };
+        throw new Error(errorResponse.message);
       }
       return response.body;
     }
@@ -94,9 +93,9 @@ export class LLMClient {
       }
     );
     const responseBody = response.body as unknown;
-    if (responseBody && typeof responseBody === 'object' && 'code' in responseBody && 'msg' in responseBody) {
-      const errorResponse = responseBody as { code: number; msg: string };
-      throw new Error(errorResponse.msg);
+    if (responseBody && typeof responseBody === 'object' && 'success' in responseBody && responseBody.success === false && 'message' in responseBody) {
+      const errorResponse = responseBody as { success: boolean; code: string; message: string };
+      throw new Error(errorResponse.message);
     }
     return response.body;
   }
@@ -133,9 +132,9 @@ export class LLMClient {
           const trimmed = chunkStr.trim();
           if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
             try {
-              const parsed: { code?: number; msg?: string } = JSON.parse(trimmed);
-              if (parsed.code && parsed.msg) {
-                callbacks.onError(new Error(parsed.msg));
+              const parsed: { success?: boolean; message?: string } = JSON.parse(trimmed);
+              if (parsed.success === false && parsed.message) {
+                callbacks.onError(new Error(parsed.message));
                 abortController.abort();
                 return;
               }
