@@ -144,6 +144,7 @@ export default (): MidwayConfig => {
         '/api/project/share_doc_detail',
         '/api/project/verify_share_password',
         '/api/llm/chat',
+        '/api/llm/chat/stream',
       ],
     },
     security: {

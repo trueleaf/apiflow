@@ -1,6 +1,7 @@
 import { Controller, Post, Body, Inject, Config } from '@midwayjs/core';
 import { Context } from '@midwayjs/koa';
 import { PassThrough } from 'stream';
+import { ReqSign } from '../decorator/req_sign.decorator.js';
 
 type ChatMessage = {
   role: 'user' | 'assistant' | 'system';
@@ -27,8 +28,9 @@ export class LLMController {
     baseUrl: string;
     model: string;
   };
-
+  
   // 非流式chat接口
+  @ReqSign()
   @Post('/chat')
   async chat(@Body() body: ChatRequestBody) {
     const { apiKey, baseUrl, model } = this.llmConfig;
@@ -56,7 +58,6 @@ export class LLMController {
         },
         body: JSON.stringify(requestBody),
       });
-
       if (!response.ok) {
         const errorText = await response.text();
         return {
@@ -78,10 +79,11 @@ export class LLMController {
   }
 
   // 流式chat接口
+  @ReqSign()
   @Post('/chat/stream')
   async chatStream(@Body() body: ChatRequestBody) {
     const { apiKey, baseUrl, model } = this.llmConfig;
-    
+    console.log(123)
     if (!apiKey || !baseUrl) {
       this.ctx.status = 500;
       this.ctx.body = {
@@ -107,7 +109,6 @@ export class LLMController {
         },
         body: JSON.stringify(requestBody),
       });
-
       if (!response.ok) {
         const errorText = await response.text();
         this.ctx.status = response.status;
