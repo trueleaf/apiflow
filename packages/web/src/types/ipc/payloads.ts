@@ -105,7 +105,7 @@ export interface IPCEventMap {
   };
 
   [IPC_EVENTS.apiflow.topBarToContent.openSettingsTab]: {
-    request: void;
+    request: { targetTab?: string } | void;
     response: void;
   };
 

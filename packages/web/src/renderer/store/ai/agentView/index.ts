@@ -394,8 +394,23 @@ export const useAgentViewStore = defineStore('agentView', () => {
     if (currentStreamRequestId.value !== requestId) return;
     const lines = chunk.split('\n');
     for (const line of lines) {
-      if (!line.trim() || !line.startsWith('data: ')) continue;
-      const data = line.substring(6).trim();
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      if (!trimmed.startsWith('data: ')) {
+        if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+          try {
+            const parsed: { code?: number; msg?: string } = JSON.parse(trimmed);
+            if (parsed.code && parsed.msg) {
+              handleStreamError(requestId, parsed.msg);
+              return;
+            }
+          } catch {
+            // 忽略无效JSON
+          }
+        }
+        continue;
+      }
+      const data = trimmed.substring(6).trim();
       if (data === '[DONE]') continue;
       try {
         const parsed = JSON.parse(data);

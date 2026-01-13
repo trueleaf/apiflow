@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, type Component } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { appStateCache } from '@/cache/appState/appStateCache.ts'
 import CacheManagement from './cacheManager/CacheManagement.vue'
@@ -96,6 +96,18 @@ const handleUpdateBadge = (show: boolean) => {
 watch(activeTab, (newValue) => {
   appStateCache.setActiveLocalDataMenu(newValue)
 }, { immediate: false })
+
+onMounted(() => {
+  window.electronAPI?.ipcManager.onMain('apiflow:topbar:to:content:open-settings-tab', (data?: { targetTab?: string }) => {
+    if (data?.targetTab) {
+      activeTab.value = data.targetTab
+    }
+  })
+})
+
+onUnmounted(() => {
+  window.electronAPI?.ipcManager.removeListener('apiflow:topbar:to:content:open-settings-tab')
+})
 </script>
 
 <style lang="scss" scoped>

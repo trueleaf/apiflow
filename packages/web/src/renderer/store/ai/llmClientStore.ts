@@ -4,6 +4,9 @@ import type { ChatRequestBody, OpenAiResponseBody, LLMProviderSetting, ChatStrea
 import { generateDeepSeekProvider, isElectron, logger } from '@/helper';
 import { llmProviderCache } from '@/cache/ai/llmProviderCache';
 import { config } from '@src/config/config';
+import { nanoid } from 'nanoid';
+import { sha256 } from 'js-sha256';
+import { parseUrl, getStrParams, getStrJsonBody, getStrHeader } from '@/api/sign';
 
 // AI 请求超时时间（60秒）
 const AI_REQUEST_TIMEOUT = 60 * 1000;
@@ -19,7 +22,22 @@ const webChat = async (body: ChatRequestBody, config: LLMProviderSetting, signal
     'Content-Type': 'application/json'
   };
   
-  if (!useFreeLLM) {
+  // 如果使用免费LLM，添加签名
+  if (useFreeLLM) {
+    const timestamp = Date.now();
+    const nonce = nanoid();
+    const method = 'post';
+    const parsedUrlInfo = parseUrl(targetUrl);
+    const url = parsedUrlInfo.url;
+    const strParams = getStrParams(parsedUrlInfo.queryParams);
+    const strBody = getStrJsonBody(body as Record<string, unknown>);
+    const { strHeader, sortedHeaderKeys } = getStrHeader(headers);
+    const signContent = `${method}\n${url}\n${strParams}\n${strBody}\n${strHeader}\n${timestamp}\n${nonce}`;
+    headers['x-sign'] = sha256(signContent);
+    headers['x-sign-headers'] = sortedHeaderKeys.join(',');
+    headers['x-sign-timestamp'] = String(timestamp);
+    headers['x-sign-nonce'] = nonce;
+  } else {
     if (!config.apiKey || !config.baseURL) {
       throw new Error('请先配置 API Key 和 Base URL');
     }
@@ -88,7 +106,22 @@ const webChatStream = (body: ChatRequestBody, config: LLMProviderSetting, callba
     'Content-Type': 'application/json'
   };
   
-  if (!useFreeLLM) {
+  // 如果使用免费LLM，添加签名
+  if (useFreeLLM) {
+    const timestamp = Date.now();
+    const nonce = nanoid();
+    const method = 'post';
+    const parsedUrlInfo = parseUrl(targetUrl);
+    const url = parsedUrlInfo.url;
+    const strParams = getStrParams(parsedUrlInfo.queryParams);
+    const strBody = getStrJsonBody(body as Record<string, unknown>);
+    const { strHeader, sortedHeaderKeys } = getStrHeader(headers);
+    const signContent = `${method}\n${url}\n${strParams}\n${strBody}\n${strHeader}\n${timestamp}\n${nonce}`;
+    headers['x-sign'] = sha256(signContent);
+    headers['x-sign-headers'] = sortedHeaderKeys.join(',');
+    headers['x-sign-timestamp'] = String(timestamp);
+    headers['x-sign-nonce'] = nonce;
+  } else {
     if (!config.apiKey || !config.baseURL) {
       callbacks.onError(new Error('请先配置 API Key 和 Base URL'));
       return { abort: () => abortController.abort() };
@@ -129,6 +162,20 @@ const webChatStream = (body: ChatRequestBody, config: LLMProviderSetting, callba
         const errorText = await response.text();
         callbacks.onError(new Error(`API 请求失败: ${response.status} - ${errorText}`));
         return;
+      }
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('text/event-stream') && !contentType.includes('application/json')) {
+        const errorText = await response.text();
+        try {
+          const parsed: { code?: number; msg?: string } = JSON.parse(errorText);
+          if (parsed.code && parsed.msg) {
+            callbacks.onError(new Error(parsed.msg));
+            return;
+          }
+        } catch {
+          callbacks.onError(new Error(`意外的响应类型: ${contentType}`));
+          return;
+        }
       }
       const reader = response.body?.getReader();
       if (!reader) {
@@ -192,14 +239,14 @@ export const useLLMClientStore = defineStore('llmClientStore', () => {
   // 非流式聊天
   const chat = async (body: ChatRequestBody, signal?: AbortSignal): Promise<OpenAiResponseBody> => {
     if (isElectron() && window.electronAPI?.aiManager) {
-      return await window.electronAPI.aiManager.chat(body);
+      return await window.electronAPI.aiManager.chat(body, useFreeLLM.value);
     }
     return await webChat(body, LLMConfig.value, signal, useFreeLLM.value);
   };
   // 流式聊天
   const chatStream = (body: ChatRequestBody, callbacks: ChatStreamCallbacks) => {
     if (isElectron() && window.electronAPI?.aiManager) {
-      return window.electronAPI.aiManager.chatStream(body, callbacks);
+      return window.electronAPI.aiManager.chatStream(body, callbacks, useFreeLLM.value);
     }
     return webChatStream(body, LLMConfig.value, callbacks, useFreeLLM.value);
   };

@@ -5,6 +5,8 @@ import { pipeline } from 'stream/promises'
 import * as path from 'path'
 import * as crypto from 'crypto'
 import { app } from 'electron'
+import * as http from 'http'
+import * as https from 'https'
 import type { UpdateInfo as ElectronUpdateInfo } from 'electron-updater'
 import type { Readable } from 'stream'
 import type { DownloadState, DownloadProgress, DownloadTask } from '@src/types/update'
@@ -16,9 +18,12 @@ export class DownloadManager {
   private progressCallback?: (progress: DownloadProgress) => void
   private stateChangeCallback?: (state: DownloadState, error?: string) => void
   private downloadDir: string
+  private stateFilePath: string
+  private saveStateTimer: NodeJS.Timeout | null = null
 
   constructor() {
     this.downloadDir = path.join(app.getPath('userData'), 'pending-updates')
+    this.stateFilePath = path.join(app.getPath('userData'), 'download-state.json')
     this.ensureDownloadDir()
   }
 
@@ -120,8 +125,16 @@ export class DownloadManager {
     try {
       const downloadStream = got.stream(this.currentTask.url, {
         headers,
+        agent: {
+          http: new http.Agent({ keepAlive: true }),
+          https: new https.Agent({ keepAlive: true }),
+        },
+        followRedirect: true,
+        maxRedirects: 10,
         timeout: {
-          request: 30000, // 30秒请求超时
+          lookup: 10000,
+          connect: 10000,
+          request: 120000000,
         },
       })
       
@@ -162,6 +175,8 @@ export class DownloadManager {
         if (this.progressCallback) {
           this.progressCallback(this.currentTask.progress)
         }
+
+        this.saveStateDebounced()
       })
 
       // 创建写入流（追加模式用于断点续传）
@@ -212,6 +227,7 @@ export class DownloadManager {
     this.currentTask.state = 'completed'
     this.currentTask.progress.percent = 100
     this.notifyStateChange('completed')
+    await this.clearState()
 
     console.log('[DownloadManager] 下载完成:', this.currentTask.filePath)
   }
@@ -251,6 +267,7 @@ export class DownloadManager {
       this.downloadStream = null
     }
 
+    await this.saveState()
     this.notifyStateChange('paused')
     console.log('[DownloadManager] 下载已暂停')
   }
@@ -302,6 +319,7 @@ export class DownloadManager {
       console.warn('[DownloadManager] 清理临时文件失败:', error)
     }
 
+    await this.clearState()
     this.currentTask = null
     console.log('[DownloadManager] 下载已取消')
   }
@@ -328,6 +346,7 @@ export class DownloadManager {
       } catch (error) {
         console.warn('[DownloadManager] 清理下载文件失败:', error)
       }
+      await this.clearState()
       this.currentTask = null
     }
   }
@@ -346,6 +365,72 @@ export class DownloadManager {
   private notifyStateChange(state: DownloadState, error?: string) {
     if (this.stateChangeCallback) {
       this.stateChangeCallback(state, error)
+    }
+  }
+
+  // 防抖保存状态（避免频繁IO）
+  private saveStateDebounced() {
+    if (this.saveStateTimer) {
+      clearTimeout(this.saveStateTimer)
+    }
+    this.saveStateTimer = setTimeout(() => {
+      this.saveState()
+    }, 2000)
+  }
+
+  // 保存下载状态到文件
+  private async saveState(): Promise<void> {
+    if (!this.currentTask) return
+
+    try {
+      const state = {
+        task: {
+          url: this.currentTask.url,
+          filePath: this.currentTask.filePath,
+          tempPath: this.currentTask.tempPath,
+          expectedSha512: this.currentTask.expectedSha512,
+          state: this.currentTask.state,
+          progress: this.currentTask.progress,
+          error: this.currentTask.error,
+          startTime: this.currentTask.startTime,
+          resumable: this.currentTask.resumable,
+        },
+        savedAt: Date.now(),
+      }
+      await fsPromises.writeFile(this.stateFilePath, JSON.stringify(state, null, 2), 'utf-8')
+      console.log('[DownloadManager] 状态已保存')
+    } catch (error) {
+      console.warn('[DownloadManager] 保存状态失败:', error)
+    }
+  }
+
+  // 从文件加载下载状态
+  async loadState(): Promise<DownloadTask | null> {
+    try {
+      const data = await fsPromises.readFile(this.stateFilePath, 'utf-8')
+      const state = JSON.parse(data)
+      if (state.task) {
+        console.log('[DownloadManager] 加载到未完成的下载任务:', state.task)
+        this.currentTask = state.task
+        return state.task
+      }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        console.warn('[DownloadManager] 加载状态失败:', error)
+      }
+    }
+    return null
+  }
+
+  // 清理状态文件
+  private async clearState(): Promise<void> {
+    try {
+      await fsPromises.unlink(this.stateFilePath)
+      console.log('[DownloadManager] 状态文件已清理')
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        console.warn('[DownloadManager] 清理状态文件失败:', error)
+      }
     }
   }
 }

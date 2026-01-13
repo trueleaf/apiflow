@@ -46,7 +46,7 @@ class UpdateManager {
   }
 
   // 初始化UpdateManager
-  init(settings: UpdateSettings) {
+  async init(settings: UpdateSettings) {
     this.currentSettings = settings
     autoUpdater.autoDownload = false
     autoUpdater.forceDevUpdateConfig = !app.isPackaged
@@ -59,6 +59,7 @@ class UpdateManager {
     this.generateDevUpdateConfig(this.currentSettings.source, this.currentSettings.customUrl)
     this.initAutoUpdaterEvent()
     this.registerIPCHandlers()
+    await this.downloadManager.loadState()
   }
 
   // 监听autoUpdater事件
@@ -173,8 +174,16 @@ class UpdateManager {
         if (taskState && taskState.state === 'downloading') {
           return { code: 1, msg: '正在下载中', data: null }
         }
-        // 传递 baseUrl（仅在使用自定义源时需要）
-        const baseUrl = this.currentSettings.source === 'custom' ? this.currentSettings.customUrl : undefined
+        // 根据更新源类型确定 baseUrl
+        let baseUrl: string | undefined
+        if (this.currentSettings.source === 'custom') {
+          baseUrl = this.currentSettings.customUrl
+        } else if (this.currentSettings.source === 'github') {
+          // 构建 GitHub Release 下载 URL
+          const version = this.latestUpdateInfo.version
+          baseUrl = `https://github.com/trueleaf/apiflow/releases/download/v${version}/`
+          console.log('[UpdateManager] GitHub Release baseUrl:', baseUrl)
+        }
         await this.downloadManager.startDownload(this.latestUpdateInfo, baseUrl)
         return { code: 0, msg: '下载开始', data: null }
       } catch (error) {

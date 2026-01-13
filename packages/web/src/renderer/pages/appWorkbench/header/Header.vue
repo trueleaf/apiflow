@@ -31,6 +31,10 @@
     
     <div class="right">
       <div class="navigation-control">
+        <button v-if="showDownloadProgress" class="icon-btn icon-btn-with-text download-progress-btn" :title="t('查看下载进度')" data-testid="header-download-progress-btn" @click="jumpToDownloadPage">
+          <Download :size="14" />
+          <span class="download-percent">{{ downloadPercent }}</span>
+        </button>
         <button class="icon-btn" :title="t('AI助手 Ctrl+L')" data-testid="header-ai-btn" @click="handleShowAiDialog" ref="aiButtonRef">
           <Bot :size="16" />
         </button>
@@ -83,14 +87,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, computed, ComponentPublicInstance } from 'vue'
+import { ref, onMounted, onUnmounted, watch, computed, ComponentPublicInstance, reactive } from 'vue'
 import draggable from 'vuedraggable'
  import { Language, WindowState } from '@src/types'
  import type { AppWorkbenchHeaderTab, AppWorkbenchHeaderTabContextActionPayload } from '@src/types/appWorkbench/appWorkbenchType'
  import type { RuntimeNetworkMode } from '@src/types/runtime'
  import { useI18n } from 'vue-i18n'
- import { Folder, Settings, Bot, User, Shield, RefreshCw, ArrowLeft, ArrowRight, Languages, Wifi, WifiOff, Home } from 'lucide-vue-next'
+ import { Folder, Settings, Bot, User, Shield, RefreshCw, ArrowLeft, ArrowRight, Languages, Wifi, WifiOff, Home, Download } from 'lucide-vue-next'
  import { IPC_EVENTS } from '@src/types/ipc'
+ import { UPDATE_IPC_EVENTS } from '@src/types/ipc/update'
+ import type { DownloadProgress, DownloadState } from '@src/types/update'
  import { changeLanguage } from '@/i18n'
  import { useAppSettings } from '@/store/appSettings/appSettingsStore'
  import { useTheme } from '@/hooks/useTheme'
@@ -107,6 +113,18 @@ const language = ref<Language>('zh-cn')
 const networkMode = ref<RuntimeNetworkMode>('offline')
 const skipNextNetworkModeWatch = ref(false)
 const runtimeStore = useRuntime()
+const downloadState = reactive({
+  state: 'idle' as DownloadState,
+  percent: 0
+})
+const showDownloadProgress = computed(() => {
+  return (downloadState.state === 'downloading' || downloadState.state === 'paused') 
+    && downloadState.percent > 0 
+    && downloadState.percent < 100
+})
+const downloadPercent = computed(() => {
+  return downloadState.percent.toFixed(2) + '%'
+})
 const showAdminMenu = computed(() => {
   return networkMode.value === 'online' && runtimeStore.userInfo.role === 'admin' && Boolean(runtimeStore.userInfo.id)
 })
@@ -394,6 +412,21 @@ const toggleNetworkMode = () => {
 }
 const handleAddProject = () => window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.createProject)
 const handleShowAiDialog = () => window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.showAiDialog)
+const jumpToDownloadPage = () => {
+  const settingsTabId = `settings-${networkMode.value}`
+  const existingTab = tabs.value.find(t => t.id === settingsTabId)
+  if (!existingTab) {
+    tabs.value.push({
+      id: settingsTabId,
+      title: t('设置'),
+      type: 'settings',
+      network: networkMode.value
+    })
+    syncTabsToContentView()
+  }
+  switchTab(settingsTabId)
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab, { targetTab: 'about' })
+}
 // 绑定事件
 const bindEvent = () => {
   window.electronAPI?.windowManager.onWindowResize(handleWindowResize)
@@ -452,6 +485,17 @@ const bindEvent = () => {
 
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab, () => {
     jumpToSettings()
+  })
+
+  window.electronAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.downloadProgress, (data: DownloadProgress) => {
+    downloadState.percent = data.percent
+  })
+
+  window.electronAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.downloadStateChanged, (data: { state: DownloadState; error?: string }) => {
+    downloadState.state = data.state
+    if (data.state === 'completed' || data.state === 'cancelled' || data.state === 'error') {
+      downloadState.percent = 0
+    }
   })
 
   // 监听导航到首页事件
@@ -820,6 +864,16 @@ body {
 .add-tab-btn:hover {
   background: var(--bg-white-15);
   border-radius: 3px;
+}
+
+.download-progress-btn {
+  gap: 4px;
+}
+
+.download-percent {
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .ai-trigger-btn {

@@ -63,6 +63,7 @@ export default {
   '已选{count}个节点': '{count} node(s) selected',
   '覆盖模式将删除本地相同id项目的所有数据，此操作不可恢复！是否继续？': "Overwrite mode will delete all data of the local project with the same ID. This action cannot be undone{'!'} Continue?",
   '获取项目列表失败': 'Failed to fetch project list',
+  查看下载进度: 'View Download Progress',
   '获取项目节点失败': 'Failed to fetch project nodes',
   '登录成功': 'Login successful',
   '登录失败': 'Login failed',

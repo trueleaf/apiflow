@@ -35,7 +35,7 @@
               </div>
               <div class="info-row" v-if="updateInfo.releaseNotes">
                 <span class="info-label">{{ t('更新内容') }}：</span>
-                <div class="release-notes">{{ updateInfo.releaseNotes }}</div>
+                <div class="release-notes" v-html="updateInfo.releaseNotes"></div>
               </div>
             </div>
           </div>
@@ -187,7 +187,7 @@ import { RefreshCw, Sparkles, CheckCircle, XCircle } from 'lucide-vue-next'
 import { appStateCache } from '@/cache/appState/appStateCache'
 import { formatUnit, formatDate } from '@/helper'
 import { UPDATE_IPC_EVENTS } from '@src/types/ipc/update'
-import type { UpdateInfo, UpdateProgress, UpdateError, UpdateSettings, UpdateStatus } from '@src/types/update'
+import type { UpdateInfo, UpdateProgress, UpdateError, UpdateSettings, UpdateStatus, DownloadTask } from '@src/types/update'
 
 const { t } = useI18n()
 const status = ref<UpdateStatus>('idle')
@@ -338,7 +338,7 @@ const initIPCListeners = () => {
 
   // 发现新版本
   window.electronAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.updateAvailable, (data: UpdateInfo) => {
-    status.value = 'available'
+    status.value = 'available';
     updateInfo.value = data
   })
 
@@ -384,7 +384,7 @@ const initIPCListeners = () => {
 }
 
 // 组件挂载
-onMounted(() => {
+onMounted(async () => {
   const cachedSettings = appStateCache.getUpdateSettings()
   Object.assign(settings, cachedSettings);
   // 同步配置到主进程，需要转换为普通对象
@@ -394,7 +394,32 @@ onMounted(() => {
     customUrl: settings.customUrl,
   })
   initIPCListeners()
+  await restoreDownloadState()
 })
+
+// 恢复下载状态
+const restoreDownloadState = async () => {
+  try {
+    const result = await window.electronAPI?.updateManager.getDownloadState()
+    if (result?.code === 0 && result.data) {
+      const taskState = result.data as DownloadTask
+      if (taskState.state === 'downloading') {
+        status.value = 'downloading'
+        Object.assign(downloadProgress, taskState.progress)
+      } else if (taskState.state === 'paused') {
+        status.value = 'paused'
+        Object.assign(downloadProgress, taskState.progress)
+      } else if (taskState.state === 'completed') {
+        status.value = 'downloaded'
+        Object.assign(downloadProgress, { ...taskState.progress, percent: 100 })
+      }
+      console.log('[UpdateCard] 恢复下载状态:', taskState.state)
+    }
+  } catch (error) {
+    console.warn('[UpdateCard] 恢复下载状态失败:', error)
+  }
+}
+
 // 组件卸载
 onUnmounted(() => {
   window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.checkingForUpdate)
@@ -485,7 +510,51 @@ onUnmounted(() => {
               background: var(--bg-primary);
               border-radius: 4px;
               line-height: 1.6;
-              white-space: pre-wrap;
+              max-height: 300px;
+              overflow-y: auto;
+              :deep(p) {
+                margin: 0 0 8px 0;
+                &:last-child {
+                  margin-bottom: 0;
+                }
+              }
+              :deep(ul), :deep(ol) {
+                margin: 8px 0;
+                padding-left: 20px;
+              }
+              :deep(li) {
+                margin-bottom: 4px;
+              }
+              :deep(h1), :deep(h2), :deep(h3), :deep(h4), :deep(h5), :deep(h6) {
+                margin: 12px 0 8px 0;
+                font-weight: 600;
+                &:first-child {
+                  margin-top: 0;
+                }
+              }
+              :deep(code) {
+                padding: 2px 4px;
+                background: var(--el-fill-color-darker);
+                border-radius: 3px;
+                font-size: 0.9em;
+              }
+              :deep(pre) {
+                padding: 8px;
+                background: var(--el-fill-color-darker);
+                border-radius: 4px;
+                overflow-x: auto;
+                code {
+                  padding: 0;
+                  background: transparent;
+                }
+              }
+              :deep(a) {
+                color: var(--el-color-primary);
+                text-decoration: none;
+                &:hover {
+                  text-decoration: underline;
+                }
+              }
             }
           }
         }

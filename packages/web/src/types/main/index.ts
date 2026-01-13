@@ -97,8 +97,8 @@ export type ElectronAPI = {
   };
   aiManager: {
     updateConfig: (config: LLMProviderSetting) => void;
-    chat: (body: ChatRequestBody) => Promise<OpenAiResponseBody>;
-    chatStream: (body: ChatRequestBody, callbacks: ChatStreamCallbacks) => {    
+    chat: (body: ChatRequestBody, useFreeLLM?: boolean) => Promise<OpenAiResponseBody>;
+    chatStream: (body: ChatRequestBody, callbacks: ChatStreamCallbacks, useFreeLLM?: boolean) => {    
       abort: () => void;
     };
   };
