@@ -400,7 +400,7 @@ onMounted(async () => {
 // 恢复下载状态
 const restoreDownloadState = async () => {
   try {
-    const result = await window.electronAPI?.updateManager.getDownloadState()
+    const result = await window.electronAPI?.updateManager.getDownloadState();
     if (result?.code === 0 && result.data) {
       const taskState = result.data as DownloadTask
       if (taskState.state === 'downloading') {

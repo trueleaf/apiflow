@@ -8,7 +8,19 @@ export const sha256 = (data: string): string => {
 
 // url参数解析
 export const parseUrl = (url: string) => {
-  const [urlPart, queryPart] = url.split('?', 2);
+  // 如果是完整的URL（包含协议），先提取路径部分
+  let pathWithQuery = url;
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    try {
+      const urlObj = new URL(url);
+      pathWithQuery = urlObj.pathname + urlObj.search;
+    } catch {
+      // 如果解析失败，使用原始URL
+      pathWithQuery = url;
+    }
+  }
+  
+  const [urlPart, queryPart] = pathWithQuery.split('?', 2);
   const queryParams: Record<string, string> = {};
   if (queryPart) {
     const pairs = queryPart.split('&');

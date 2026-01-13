@@ -460,8 +460,9 @@ test.describe('CookieManagement', () => {
     const pathInput = dialog.locator('.el-form-item').filter({ hasText: /^路径/ }).locator('input');
     await pathInput.fill('/echo');
     // 设置过期时间为明天
-    const datePicker = dialog.locator('.el-date-picker');
-    await datePicker.click();
+    const expiresFormItem = dialog.locator('.el-form-item').filter({ hasText: /^过期时间/ });
+    const datePickerInput = expiresFormItem.locator('input[role="combobox"]');
+    await datePickerInput.click();
     await contentPage.waitForTimeout(300);
     const tomorrowBtn = contentPage.locator('.el-picker-panel__shortcut').filter({ hasText: /24小时后/ });
     await tomorrowBtn.click();
@@ -485,7 +486,7 @@ test.describe('CookieManagement', () => {
     // 在表格中查找该Cookie行并验证各列显示
     const cookieTable = cookiePage.locator('.el-table');
     await expect(cookieTable).toContainText('test_all_attrs');
-    await expect(cookieTable).toContainText('全属性测试Value');
+    await expect(cookieTable).toContainText(encodeURIComponent('全属性测试Value'));
     await expect(cookieTable).toContainText('127.0.0.1');
     await expect(cookieTable).toContainText('/echo');
     // 验证Expires列不是Session

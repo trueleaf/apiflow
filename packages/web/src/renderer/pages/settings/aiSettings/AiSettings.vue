@@ -135,6 +135,7 @@ const handleStreamSend = () => {
         isLoading.value = false
         isStreaming.value = false
         cancelStreamFn = null
+        console.log('stream end')
         if (!responseContent.value) {
           responseContent.value = t('无响应内容')
         }

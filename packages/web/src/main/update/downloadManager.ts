@@ -46,14 +46,77 @@ export class DownloadManager {
     this.stateChangeCallback = callback
   }
 
+  // 根据平台和架构选择合适的安装文件
+  private selectFileByPlatform(files: NonNullable<ElectronUpdateInfo['files']>): NonNullable<ElectronUpdateInfo['files']>[0] | null {
+    if (!files || files.length === 0) {
+      return null
+    }
+    const platform = process.platform
+    const arch = process.arch
+    console.log(`[DownloadManager] 当前平台: ${platform}, 架构: ${arch}`)
+    const archSuffix = arch === 'x64' ? 'x64' : arch === 'arm64' ? 'arm64' : ''
+    let targetFile = null
+    if (platform === 'win32') {
+      if (archSuffix) {
+        targetFile = files.find(file => {
+          const fileName = file.url.toLowerCase()
+          return fileName.includes(`-${archSuffix}.exe`) || fileName.includes(`-${archSuffix}-setup.exe`)
+        })
+      }
+      if (!targetFile) {
+        targetFile = files.find(file => {
+          const fileName = file.url.toLowerCase()
+          return fileName.endsWith('.exe') && !fileName.includes('-x64') && !fileName.includes('-arm64')
+        })
+      }
+    } else if (platform === 'darwin') {
+      if (archSuffix) {
+        targetFile = files.find(file => {
+          const fileName = file.url.toLowerCase()
+          return fileName.includes(`-${archSuffix}.dmg`) || fileName.includes(`-${archSuffix}.zip`)
+        })
+      }
+      if (!targetFile) {
+        targetFile = files.find(file => {
+          const fileName = file.url.toLowerCase()
+          return (fileName.endsWith('.dmg') || fileName.endsWith('.zip')) && 
+                 !fileName.includes('-x64') && !fileName.includes('-arm64')
+        })
+      }
+    } else if (platform === 'linux') {
+      if (archSuffix) {
+        targetFile = files.find(file => {
+          const fileName = file.url.toLowerCase()
+          return fileName.includes(`-${archSuffix}.appimage`) || 
+                 fileName.includes(`_${archSuffix}.deb`) ||
+                 fileName.includes(`_${archSuffix}.rpm`)
+        })
+      }
+      if (!targetFile) {
+        targetFile = files.find(file => {
+          const fileName = file.url.toLowerCase()
+          return (fileName.endsWith('.appimage') || fileName.endsWith('.deb') || fileName.endsWith('.rpm')) &&
+                 !fileName.includes('-x64') && !fileName.includes('-arm64')
+        })
+      }
+    }
+    if (!targetFile) {
+      targetFile = files[0]
+      console.log('[DownloadManager] 未找到匹配架构的文件，使用默认文件')
+    } else {
+      console.log(`[DownloadManager] 选择的文件: ${targetFile.url}`)
+    }
+    return targetFile
+  }
+
   // 开始下载
   async startDownload(updateInfo: ElectronUpdateInfo, baseUrl?: string): Promise<void> {
     if (this.currentTask && this.currentTask.state === 'downloading') {
       throw new Error('已有下载任务正在进行')
     }
 
-    // 获取第一个文件信息
-    const fileInfo = updateInfo.files?.[0]
+    // 根据平台和架构选择合适的文件
+    const fileInfo = this.selectFileByPlatform(updateInfo.files || [])
     if (!fileInfo || !fileInfo.url) {
       throw new Error('无效的更新文件信息')
     }

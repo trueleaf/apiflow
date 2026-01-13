@@ -49,6 +49,7 @@ export class LLMClient {
         }
       );
       const responseBody = response.body as unknown;
+      console.log(222, responseBody);
       if (responseBody && typeof responseBody === 'object' && 'code' in responseBody && 'msg' in responseBody) {
         const errorResponse = responseBody as { code: number; msg: string };
         throw new Error(errorResponse.msg);
