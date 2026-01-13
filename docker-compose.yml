@@ -26,6 +26,9 @@ services:
       NODE_ENV: production
       LOG_DIR: /app/logs
       MONGODB_URI: "mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongo:27017/${MONGO_DATABASE}?authSource=admin"
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL}
     volumes:
       - server_logs:/app/logs
 
