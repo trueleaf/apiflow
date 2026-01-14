@@ -25,6 +25,11 @@ import {
   StarProjectDto,
   SvgCaptchaDto,
   UnStarProjectDto,
+  SendEmailCodeDto,
+  RegisterByEmailDto,
+  LoginByEmailDto,
+  BindEmailDto,
+  ResetPasswordByEmailDto,
 } from '../../types/dto/security/user.dto.js';
 import { UserService } from '../../service/security/user.js';
 import * as svgCaptcha from 'svg-captcha';
@@ -200,5 +205,54 @@ export class UserController {
   async unStarProject(@Body() params: UnStarProjectDto) {
     const data = await this.userService.unStarProject(params);
     return data;
+  }
+  /**
+   * 发送邮箱验证码
+   */
+  @ReqSign()
+  @ReqLimit({ ttl: 1000 * 60, max: 10, limitBy: 'ip', errorMsg: '发送验证码过于频繁' })
+  @Post('/security/send_email_code')
+  async sendEmailCode(@Body() params: SendEmailCodeDto) {
+    await this.userService.sendEmailCode(params);
+    return { message: '验证码发送成功' };
+  }
+  /**
+   * 邮箱注册
+   */
+  @ReqSign()
+  @ReqLimit({ ttl: 1000 * 60 * 60, max: 10, limitBy: 'ip' })
+  @Post('/security/register_email')
+  async registerByEmail(@Body() params: RegisterByEmailDto) {
+    const data = await this.userService.registerByEmail(params);
+    return data;
+  }
+  /**
+   * 邮箱登录
+   */
+  @ReqSign()
+  @ReqLimit({ ttl: 1000 * 60 * 60, max: 10, limitBy: 'ip', limitExtraKey: 'email' })
+  @Post('/security/login_email')
+  async loginByEmail(@Body() params: LoginByEmailDto) {
+    const data = await this.userService.loginByEmail(params);
+    return data;
+  }
+  /**
+   * 绑定邮箱
+   */
+  @ReqSign()
+  @Put('/security/bind_email')
+  async bindEmail(@Body() params: BindEmailDto) {
+    await this.userService.bindEmail(params);
+    return { message: '邮箱绑定成功' };
+  }
+  /**
+   * 通过邮箱重置密码
+   */
+  @ReqSign()
+  @ReqLimit({ ttl: 1000 * 60 * 60, max: 5, limitBy: 'ip', errorMsg: '重置密码过于频繁' })
+  @Post('/security/reset_password_by_email')
+  async resetPasswordByEmail(@Body() params: ResetPasswordByEmailDto) {
+    await this.userService.resetPasswordByEmail(params);
+    return { message: '密码重置成功' };
   }
 }

@@ -31,6 +31,14 @@ import { ClientMenu } from '../../entity/security/client_menu.js';
 import { ClientRoutes } from '../../entity/security/client_routes.js';
 import { Role } from '../../entity/security/role.js';
 import { Group } from '../../entity/security/group.js';
+import { VerifyCodeService } from './verify_code.js';
+import {
+  RegisterByEmailDto,
+  LoginByEmailDto,
+  BindEmailDto,
+  ResetPasswordByEmailDto,
+  SendEmailCodeDto,
+} from '../../types/dto/security/user.dto.js';
 
 const ADMIN_ROLE_ID = '5edf71f2193c7d5fa0ec9b98';
 const USER_ROLE_ID = '5ede0ba06f76185204584700';
@@ -46,6 +54,8 @@ export class UserService {
     securityConfig: GlobalConfig['security']
   @Config('pagination')
     paginationConfig: GlobalConfig['pagination']
+  @Inject()
+    verifyCodeService: VerifyCodeService;
 
   @InjectEntityModel(Role)
     roleModel: ReturnModelType<typeof Role>;
@@ -591,5 +601,146 @@ export class UserService {
         updateUrl: '',
       }
     };
+  }
+  //发送邮箱验证码
+  async sendEmailCode(params: SendEmailCodeDto) {
+    const { email, type } = params;
+    await this.verifyCodeService.checkSendFrequency(email, type);
+    if (type === 'register') {
+      if (!this.securityConfig.allowEmailRegister) {
+        throwError(2009, '系统未开放邮箱注册功能');
+      }
+      const existUser = await this.userModel.findOne({ email });
+      if (existUser) {
+        throwError(2010, '该邮箱已被注册');
+      }
+    } else if (type === 'login' || type === 'reset' || type === 'bind') {
+      const existUser = await this.userModel.findOne({ email });
+      if (type === 'bind') {
+        if (existUser) {
+          throwError(2011, '该邮箱已被其他用户绑定');
+        }
+      } else {
+        if (!existUser) {
+          throwError(2012, '该邮箱尚未注册');
+        }
+        if (!existUser.isEnabled) {
+          throwError(2008, '用户被禁止登录');
+        }
+      }
+    }
+    await this.verifyCodeService.sendVerifyCode(email, type, this.ctx.ip);
+  }
+  //邮箱注册
+  async registerByEmail(params: RegisterByEmailDto) {
+    if (!this.securityConfig.allowEmailRegister) {
+      throwError(2009, '系统未开放邮箱注册功能');
+    }
+    const { email, code, password, loginName } = params;
+    const existUser = await this.userModel.findOne({ email });
+    if (existUser) {
+      throwError(2010, '该邮箱已被注册');
+    }
+    await this.verifyCodeService.verifyCode(email, code, 'register');
+    if (!validatePassword(password)) {
+      throwError(2013, '密码格式不正确，至少8位，必须包含字母和数字');
+    }
+    const finalLoginName = loginName || email.split('@')[0];
+    const existLoginName = await this.userModel.findOne({ loginName: finalLoginName });
+    if (existLoginName) {
+      throwError(2014, '登录名已被使用，请指定其他登录名');
+    }
+    const salt = getRandomNumber(10000, 9999999).toString();
+    const hash = createHash('md5');
+    hash.update((password + salt).slice(2));
+    const hashPassword = hash.digest('hex');
+    const newUser = await this.userModel.create({
+      loginName: finalLoginName,
+      email,
+      password: hashPassword,
+      salt,
+      roleIds: [USER_ROLE_ID],
+      roleNames: ['普通用户'],
+      isEnabled: true,
+    });
+    const role: LoginTokenInfo['role'] = 'user';
+    const loginInfo: LoginTokenInfo = {
+      id: newUser.id,
+      roleIds: newUser.roleIds,
+      loginName: newUser.loginName,
+      role,
+      token: '',
+    };
+    const token = jwt.default.sign(loginInfo, this.jwtConfig.secretOrPrivateKey, {
+      expiresIn: this.jwtConfig.expiresIn,
+    });
+    loginInfo.token = token;
+    return loginInfo;
+  }
+  //邮箱登录
+  async loginByEmail(params: LoginByEmailDto) {
+    const { email, code } = params;
+    const userInfo = await this.userModel.findOne({ email });
+    if (!userInfo) {
+      throwError(2012, '该邮箱尚未注册');
+    }
+    if (!userInfo.isEnabled) {
+      throwError(2008, '用户被禁止登录');
+    }
+    await this.verifyCodeService.verifyCode(email, code, 'login');
+    await this.userModel.findByIdAndUpdate(
+      { _id: userInfo._id },
+      {
+        $inc: { loginTimes: 1 },
+        $set: { lastLogin: new Date() },
+      }
+    );
+    const role: LoginTokenInfo['role'] = userInfo.roleIds?.includes(ADMIN_ROLE_ID) ? 'admin' : 'user';
+    const loginInfo: LoginTokenInfo = {
+      id: userInfo.id,
+      roleIds: userInfo.roleIds,
+      loginName: userInfo.loginName,
+      role,
+      token: '',
+    };
+    const token = jwt.default.sign(loginInfo, this.jwtConfig.secretOrPrivateKey, {
+      expiresIn: this.jwtConfig.expiresIn,
+    });
+    loginInfo.token = token;
+    return loginInfo;
+  }
+  //绑定邮箱
+  async bindEmail(params: BindEmailDto) {
+    const { email, code } = params;
+    const { tokenInfo } = this.ctx;
+    if (!tokenInfo || !tokenInfo.id) {
+      throwError(4100, '请先登录');
+    }
+    const existEmail = await this.userModel.findOne({ email });
+    if (existEmail) {
+      throwError(2011, '该邮箱已被其他用户绑定');
+    }
+    await this.verifyCodeService.verifyCode(email, code, 'bind');
+    await this.userModel.findByIdAndUpdate(tokenInfo.id, { email });
+  }
+  //通过邮箱重置密码
+  async resetPasswordByEmail(params: ResetPasswordByEmailDto) {
+    const { email, code, newPassword } = params;
+    const userInfo = await this.userModel.findOne({ email });
+    if (!userInfo) {
+      throwError(2012, '该邮箱尚未注册');
+    }
+    await this.verifyCodeService.verifyCode(email, code, 'reset');
+    if (!validatePassword(newPassword)) {
+      throwError(2013, '密码格式不正确，至少8位，必须包含字母和数字');
+    }
+    const salt = getRandomNumber(10000, 9999999).toString();
+    const hash = createHash('md5');
+    hash.update((newPassword + salt).slice(2));
+    const hashPassword = hash.digest('hex');
+    await this.userModel.findByIdAndUpdate(userInfo._id, {
+      password: hashPassword,
+      salt,
+    });
   }
 }

@@ -5,6 +5,7 @@
   "type": "module",
   "private": true,
   "dependencies": {
+    "@alicloud/dm20151123": "^1.8.1",
     "@alicloud/dysmsapi20170525": "^3.1.2",
     "@alicloud/openapi-client": "^0.4.6",
     "@alicloud/tea-util": "^1.4.5",

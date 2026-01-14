@@ -6,6 +6,7 @@ import { ClientRoutes } from '../entity/security/client_routes.js';
 import { ServerRoutes } from '../entity/security/server_routes.js';
 import { LoginRecord } from '../entity/security/login_record.js';
 import { UserLimitRecord } from '../entity/security/user_limit_record.js';
+import { EmailVerifyCode } from '../entity/security/email_verify_code.js';
 import { Project } from '../entity/project/project.js';
 import { ProjectVariable } from '../entity/project/project_variable.js';
 import { ProjectCode } from '../entity/project/project_code.js';
@@ -83,6 +84,7 @@ export default (): MidwayConfig => {
             ServerRoutes,
             LoginRecord,
             UserLimitRecord,
+            EmailVerifyCode,
             Project,
             ProjectVariable,
             ProjectCode,
@@ -139,6 +141,10 @@ export default (): MidwayConfig => {
         '/api/security/login_password',
         '/api/security/login_guest',
         '/api/security/captcha',
+        '/api/security/send_email_code',
+        '/api/security/register_email',
+        '/api/security/login_email',
+        '/api/security/reset_password_by_email',
         '/api/project/share_info',
         '/api/project/export/share_banner',
         '/api/project/share_doc_detail',
@@ -149,7 +155,17 @@ export default (): MidwayConfig => {
     },
     security: {
       strictPassword: true,
-      defaultUserPassword: '111111'
+      defaultUserPassword: '111111',
+      allowEmailRegister: process.env.ALLOW_EMAIL_REGISTER === 'true', // 是否允许邮箱注册，默认false
+    },
+    emailConfig: {
+      accessKeyId: process.env.ALIYUN_ACCESS_KEY_ID || '',
+      accessKeySecret: process.env.ALIYUN_ACCESS_KEY_SECRET || '',
+      accountName: process.env.ALIYUN_EMAIL_ACCOUNT || '', // 发件人地址
+      fromAlias: process.env.ALIYUN_EMAIL_FROM_ALIAS || 'ApiFlow', // 发件人名称
+      region: process.env.ALIYUN_EMAIL_REGION || 'cn-hangzhou', // 地域
+      verifyCodeExpire: 5 * 60 * 1000, // 验证码有效期 5分钟
+      verifyCodeLength: 6, // 验证码长度
     },
     pagination: {
       max: 100,

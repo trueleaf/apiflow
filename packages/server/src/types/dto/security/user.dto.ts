@@ -207,3 +207,97 @@ export class UnStarProjectDto {
     projectId: string;
 }
 
+/**
+ * 发送邮箱验证码
+ */
+export class SendEmailCodeDto {
+  /**
+   * 邮箱地址
+   */
+  @Rule(RuleType.string().email().required())
+    email: string;
+  /**
+   * 验证码类型
+   */
+  @Rule(RuleType.string().valid('register', 'login', 'bind', 'reset').required())
+    type: 'register' | 'login' | 'bind' | 'reset';
+}
+
+/**
+ * 邮箱注册
+ */
+export class RegisterByEmailDto {
+  /**
+   * 邮箱地址
+   */
+  @Rule(RuleType.string().email().required())
+    email: string;
+  /**
+   * 验证码
+   */
+  @Rule(RuleType.string().length(6).required())
+    code: string;
+  /**
+   * 密码
+   */
+  @Rule(RuleType.string().min(6).required())
+    password: string;
+  /**
+   * 登录名称（可选，不填则使用邮箱前缀）
+   */
+  @Rule(RuleType.string().allow(''))
+    loginName?: string;
+}
+
+/**
+ * 邮箱登录
+ */
+export class LoginByEmailDto {
+  /**
+   * 邮箱地址
+   */
+  @Rule(RuleType.string().email().required())
+    email: string;
+  /**
+   * 验证码
+   */
+  @Rule(RuleType.string().length(6).required())
+    code: string;
+}
+
+/**
+ * 绑定邮箱
+ */
+export class BindEmailDto {
+  /**
+   * 邮箱地址
+   */
+  @Rule(RuleType.string().email().required())
+    email: string;
+  /**
+   * 验证码
+   */
+  @Rule(RuleType.string().length(6).required())
+    code: string;
+}
+
+/**
+ * 通过邮箱重置密码
+ */
+export class ResetPasswordByEmailDto {
+  /**
+   * 邮箱地址
+   */
+  @Rule(RuleType.string().email().required())
+    email: string;
+  /**
+   * 验证码
+   */
+  @Rule(RuleType.string().length(6).required())
+    code: string;
+  /**
+   * 新密码
+   */
+  @Rule(RuleType.string().min(6).required())
+    newPassword: string;
+}

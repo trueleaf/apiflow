@@ -79,4 +79,9 @@ export class User extends Timestamps {
    */
   @prop({ default: true })
   public isEnabled?: boolean;
+  /**
+   * 邮箱地址
+   */
+  @prop({ unique: true, sparse: true })
+  public email?: string;
 }

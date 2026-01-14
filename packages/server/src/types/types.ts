@@ -45,6 +45,40 @@ export type GlobalConfig = {
      * 初始化&新增用户默认密码
      */
     defaultUserPassword: string;
+    /**
+     * 是否允许邮箱注册
+     */
+    allowEmailRegister: boolean;
+  };
+  emailConfig: {
+    /**
+     * 阿里云AccessKey ID
+     */
+    accessKeyId: string;
+    /**
+     * 阿里云AccessKey Secret
+     */
+    accessKeySecret: string;
+    /**
+     * 发件人邮箱地址
+     */
+    accountName: string;
+    /**
+     * 发件人名称
+     */
+    fromAlias: string;
+    /**
+     * 邮件推送区域
+     */
+    region: string;
+    /**
+     * 验证码有效期（毫秒）
+     */
+    verifyCodeExpire: number;
+    /**
+     * 验证码长度
+     */
+    verifyCodeLength: number;
   };
   /**
    * 分页相关配置
