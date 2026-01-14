@@ -19,7 +19,7 @@ import { getRandomNumber, throwError, uniqueByKey } from '../../utils/utils.js';
 import { GlobalConfig, LoginTokenInfo } from '../../types/types.js';
 import { InjectEntityModel } from '@midwayjs/typegoose';
 import { ReturnModelType } from '@typegoose/typegoose';
-import { createHash } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 import { Context } from '@midwayjs/koa';
 import * as jwt from 'jsonwebtoken';
 import lodash from 'lodash';
@@ -495,7 +495,7 @@ export class UserService {
    */
   async guestLogin() {
     const loginName = `guest_${Date.now().toString().slice(-8)}`;
-    const password = this.securityConfig.defaultUserPassword;
+    const password = randomBytes(9).toString('base64url');
     const user: Partial<User> = {};
     const hash = createHash('md5');
     const salt = getRandomNumber(10000, 9999999).toString();
@@ -511,7 +511,7 @@ export class UserService {
       loginName,
       password,
     });
-    return loginTokenInfo;
+    return { ...loginTokenInfo, password };
   }
   /**
    * 添加最近访问页面
