@@ -34,7 +34,7 @@ export class LLMController {
   @Post('/chat')
   async chat(@Body() body: ChatRequestBody) {
     const { apiKey, baseUrl, model } = this.llmConfig;
-    
+    console.log(this.llmConfig, process.env.DEEPSEEK_API_KEY)
     if (!apiKey || !baseUrl) {
       return {
         success: false,
@@ -83,7 +83,6 @@ export class LLMController {
   @Post('/chat/stream')
   async chatStream(@Body() body: ChatRequestBody) {
     const { apiKey, baseUrl, model } = this.llmConfig;
-    console.log(123)
     if (!apiKey || !baseUrl) {
       this.ctx.status = 500;
       this.ctx.body = {

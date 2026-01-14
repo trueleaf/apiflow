@@ -1,3 +1,10 @@
+// 加载环境变量（必须在配置导入之前）
+import { config as dotenvConfig } from 'dotenv';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+dotenvConfig({ path: resolve(process.cwd(), '.env') });
+dotenvConfig({ path: resolve(process.cwd(), '../../.env'), override: false });
+
 import { Configuration, App, Inject, MidwayDecoratorService, JoinPoint, REQUEST_OBJ_CTX_KEY, Config, IMidwayContainer, InjectClient, MidwayConfig } from '@midwayjs/core';
 import * as koa from '@midwayjs/koa';
 import * as validate from '@midwayjs/validate';
@@ -28,14 +35,11 @@ import { GlobalConfig, ReqLimit } from './types/types.js';
 import * as cacheManager from '@midwayjs/cache-manager';
 import { REQ_SIGN_KEY } from './decorator/req_sign.decorator.js';
 import { getHashedContent, getStrHeader, getStrJsonBody, getStrParams, parseUrl, throwError } from './utils/utils.js';
-import { dirname, resolve } from 'path';
-import { fileURLToPath } from 'url';
 import { CachingFactory, MidwayCache } from '@midwayjs/cache-manager';
 import * as staticFile from '@midwayjs/static-file';
 import * as ws from '@midwayjs/ws';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const filePath = resolve(__dirname, 'config/config.local.js');
 @Configuration({
   imports: [
     koa,
@@ -228,6 +232,7 @@ export class ContainerLifeCycle {
   async onConfigLoad(container: IMidwayContainer) {
     const remoteConfig = {} as MidwayConfig;
     try {
+      const filePath = resolve(__dirname, 'config/config.local.js');
       const moduleUrl = new URL(`file:///${filePath.replace(/\\/g, '/')}`).href
       const config = await import(moduleUrl);
       Object.assign(remoteConfig, config.default)

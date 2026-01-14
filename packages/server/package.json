@@ -28,6 +28,7 @@
     "@types/lodash": "^4.14.195",
     "dayjs": "^1.11.13",
     "docx": "^7.3.0",
+    "dotenv": "^17.2.3",
     "file-type": "^20.3.0",
     "fs-extra": "^11.1.1",
     "json-stable-stringify": "^1.2.1",
