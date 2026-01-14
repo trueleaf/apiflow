@@ -50,12 +50,15 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-const menuStyle = computed(() => ({
-  position: 'fixed' as const,
-  left: `${props.position.x}px`,
-  top: `${props.position.y + 2}px`,
-  zIndex: '9999'
-}))
+const menuStyle = computed(() => {
+  const rightDistance = window.innerWidth - props.position.x - props.position.width
+  return {
+    position: 'fixed' as const,
+    right: `${rightDistance}px`,
+    top: `${props.position.y + 2}px`,
+    zIndex: '9999'
+  }
+})
 
 const handleLogout = () => {
   emit('logout')
