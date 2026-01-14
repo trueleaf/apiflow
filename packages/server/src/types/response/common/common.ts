@@ -67,6 +67,7 @@ export type ResponseWrapper<T = unknown> = {
     | 2012
     | 2013
     | 2014
+    | 2015
     | 4001
     | 4002
     | 4004

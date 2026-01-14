@@ -23,6 +23,7 @@ import { createHash } from 'crypto';
 import { Context } from '@midwayjs/koa';
 import * as jwt from 'jsonwebtoken';
 import lodash from 'lodash';
+import { createRequire } from 'node:module';
 import { User } from '../../entity/security/user.js';
 import { LoginRecord } from '../../entity/security/login_record.js';
 import { validatePassword } from '../../rules/rules.js';
@@ -42,6 +43,9 @@ import {
 
 const ADMIN_ROLE_ID = '5edf71f2193c7d5fa0ec9b98';
 const USER_ROLE_ID = '5ede0ba06f76185204584700';
+const require = createRequire(import.meta.url);
+const serverPackageJson = require('../../../package.json') as { version?: string };
+const appVersion = serverPackageJson.version ?? '0.0.0';
 
 
 @Provide()
@@ -89,10 +93,16 @@ export class UserService {
    */
   async loginByPassword(params: LoginByPasswordDto) {
     const { loginName, password } = params;
-    const userInfo = await this.userModel.findOne({ loginName });
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginName);
+    const userInfo = await this.userModel.findOne({
+      $or: [
+        { loginName },
+        ...(isEmail ? [{ email: loginName }] : [])
+      ]
+    });
     const env = this.ctx.app.getEnv();
     if (!userInfo) {
-      return throwError(2004, env === 'local' ? '用户不存在' : "用户名或密码错误")
+      return throwError(2004, env === 'local' ? '用户不存在' : "用户名/邮箱或密码错误")
     }
     if (!userInfo.isEnabled) {
       return throwError(2008, '用户被禁止登录，管理员可以启用当前用户');
@@ -103,7 +113,7 @@ export class UserService {
     const hashPassword = hash.digest('hex');
     if (userInfo.password !== hashPassword) {
       await this.addLoginTimes();
-      return throwError(2004, '用户名或密码错误');
+      return throwError(2004, '用户名/邮箱或密码错误');
     }
     //登录成功
     await this.loginRecordModel.updateOne(
@@ -211,6 +221,9 @@ export class UserService {
     const hasUser = await this.userModel.findOne({ loginName });
     if (loginName.match(/guest/)) { //用于统计访客，内部部署可忽略
       return throwError(2010, '用户名不能以包含guest')
+    }
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginName)) {
+      return throwError(2015, '用户名不能使用邮箱格式')
     }
     if (hasUser) {
       return throwError(1003, '登录名称已存在')
@@ -592,7 +605,7 @@ export class UserService {
       clientRoutes: clientRoutesResult,
       globalConfig: {
         title: '快乐摸鱼',
-        version: '0.8.0',
+        version: appVersion,
         consoleWelcome: true,
         enableRegister: false,
         enableGuest: true,
@@ -646,6 +659,9 @@ export class UserService {
       throwError(2013, '密码格式不正确，至少8位，必须包含字母和数字');
     }
     const finalLoginName = loginName || email.split('@')[0];
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(finalLoginName)) {
+      throwError(2015, '用户名不能使用邮箱格式');
+    }
     const existLoginName = await this.userModel.findOne({ loginName: finalLoginName });
     if (existLoginName) {
       throwError(2014, '登录名已被使用，请指定其他登录名');
