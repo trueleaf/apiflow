@@ -19,6 +19,9 @@
       <el-button :loading="loading" type="primary" native-type="submit"
         class="w-100" data-testid="login-submit-btn">{{ t("登录") }}</el-button>
     </el-form-item>
+    <el-form-item class="mb-1">
+      <el-button :loading="quickLoginLoading" class="w-100" data-testid="login-quick-login-btn" @click="handleQuickLogin">{{ t('快速登录') }}</el-button>
+    </el-form-item>
     <div class="mt-2 d-flex j-around">
       <a href="https://github.com/trueleaf/apiflow" target="_blank" class="d-flex flex-column j-center a-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('跳转github')">
@@ -75,6 +78,7 @@ const rules = ref({
 const random = ref(Math.random()) //--------验证码随机参数
 const isShowCapture = ref(false) //---------是否展示验证码
 const loading = ref(false) //---------------登录按钮loading
+const quickLoginLoading = ref(false)
 const appSettingsStore = useAppSettings()
 const captchaUrl = computed(() => {
   const requestUrl = appSettingsStore.serverUrl || config.renderConfig.httpRequest.url;
@@ -115,6 +119,24 @@ const handleLogin = async () => {
 const freshCapchaUrl = () => {
   random.value = Math.random();
 }
+//快速登录
+const handleQuickLogin = () => {
+  if (quickLoginLoading.value) return
+  quickLoginLoading.value = true
+  type QuickLoginUserInfo = PermissionUserInfo & { password: string }
+  request.post<CommonResponse<QuickLoginUserInfo>, CommonResponse<QuickLoginUserInfo>>('/api/security/login_guest', {}).then((res) => {
+    const { password, ...safeUserInfo } = res.data
+    runtimeStore.updateUserInfo(safeUserInfo)
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: safeUserInfo.id, loginName: safeUserInfo.loginName, role: safeUserInfo.role, token: safeUserInfo.token, avatar: safeUserInfo.avatar })
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, { loginName: safeUserInfo.loginName, password })
+    message.success(t('登录成功'))
+    router.push('/home')
+  }).catch(() => {
+    message.error(t('登录失败'))
+  }).finally(() => {
+    quickLoginLoading.value = false
+  })
+}
 // //用户注册
 // const handleJumpToRegister = () => {
 //   emits('jumpToRegister');
@@ -123,11 +145,11 @@ const freshCapchaUrl = () => {
 // const handleJumpToResetPassword = () => {
 //   emits('jumpToResetPassword');
 // }
-// //体验账号登录
+// //体验用户登录
 // const handleGuesttLogin = () => {
 //   loading.value = true;
 //   request.post('/api/security/login_guest', userInfo).then((res) => {
-//     // 体验账号登录成功，更新用户信息到store
+//     // 体验用户登录成功，更新用户信息到store
 //     runtimeStore.updateUserInfo(res.data);
 //     router.push('/home');
 //   }).catch((err) => {

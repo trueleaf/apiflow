@@ -38,6 +38,12 @@
         {{ mode === 'register' ? t('注册') : t('登录') }}
       </el-button>
     </el-form-item>
+    <div v-if="mode === 'register' && codeSent" class="code-sent-tip">
+      <span>{{ t('验证码已发送，请注意查收邮件') }}</span>
+    </div>
+    <el-form-item v-if="mode === 'login'" class="mb-1">
+      <el-button :loading="quickLoginLoading" class="w-100" data-testid="login-quick-login-btn" @click="handleQuickLogin">{{ t('快速登录') }}</el-button>
+    </el-form-item>
   </el-form>
 </template>
 
@@ -61,13 +67,15 @@ const { t } = useI18n();
 const runtimeStore = useRuntime();
 const formRef = ref<FormInstance>();
 const loading = ref(false);
+const quickLoginLoading = ref(false);
 const sendingCode = ref(false);
 const countdown = ref(0);
+const codeSent = ref(false);
 const formData = reactive({
-  email: '',
+  email: import.meta.env.DEV && props.mode === 'register' ? '3073155898@qq.com' : '',
   code: '',
-  password: '',
-  confirmPassword: '',
+  password: import.meta.env.DEV && props.mode === 'register' ? '111111aaa' : '',
+  confirmPassword: import.meta.env.DEV && props.mode === 'register' ? '111111aaa' : '',
 });
 const emailValidator = (_rule: unknown, value: string, callback: (error?: Error) => void) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -124,6 +132,7 @@ const handleSendCode = async () => {
       type,
     });
     message.success(t('验证码已发送，请查收邮件'));
+    codeSent.value = true;
     countdown.value = 60;
     const timer = setInterval(() => {
       countdown.value--;
@@ -182,6 +191,31 @@ const handleSubmit = async () => {
     loading.value = false;
   }
 };
+//快速登录
+const handleQuickLogin = async () => {
+  if (quickLoginLoading.value) return
+  quickLoginLoading.value = true
+  type QuickLoginUserInfo = PermissionUserInfo & { password: string }
+  try {
+    const res = await request.post<CommonResponse<QuickLoginUserInfo>, CommonResponse<QuickLoginUserInfo>>('/api/security/login_guest', {})
+    const { password, ...safeUserInfo } = res.data
+    runtimeStore.updateUserInfo(safeUserInfo)
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, {
+      id: safeUserInfo.id,
+      loginName: safeUserInfo.loginName,
+      role: safeUserInfo.role,
+      token: safeUserInfo.token,
+      avatar: safeUserInfo.avatar,
+    })
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, { loginName: safeUserInfo.loginName, password })
+    message.success(t('登录成功'))
+    router.push('/home')
+  } catch (error) {
+    message.error(t('登录失败'))
+  } finally {
+    quickLoginLoading.value = false
+  }
+};
 </script>
 
 <style scoped>
@@ -203,5 +237,15 @@ const handleSubmit = async () => {
 .input-icon {
   width: 16px;
   height: 16px;
+}
+.code-sent-tip {
+  margin-top: -8px;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background-color: var(--el-color-primary-light-9);
+  border-radius: 4px;
+  color: var(--el-color-primary);
+  font-size: 12px;
+  text-align: center;
 }
 </style>

@@ -9,11 +9,11 @@
           <span v-if="config.appConfig.version">({{ config.appConfig.version }})</span>
         </h2>
         <el-tabs v-model="activeName" class="w-100" data-testid="login-tabs">
-          <el-tab-pane :label="$t('账号登录')" name="loginAccount" data-testid="login-tab-account">
+          <el-tab-pane :label="t('用户登录')" name="loginAccount" data-testid="login-tab-account">
           </el-tab-pane>
           <el-tab-pane :label="t('注册')" name="registerEmail" data-testid="login-tab-register">
           </el-tab-pane>
-          <el-tab-pane :label="$t('设置')" name="setting" data-testid="login-tab-setting">
+          <el-tab-pane :label="t('设置')" name="setting" data-testid="login-tab-setting">
           </el-tab-pane>
         </el-tabs>
         <div v-show="activeName === 'loginAccount'">
@@ -25,8 +25,8 @@
         <div v-show="activeName === 'setting'">
           <ServerConfig />
         </div>
-        <div v-if="activeName === 'loginAccount'" class="text-center mt-3">
-          <el-button type="text" @click="handleForgotPassword">{{ $t('忘记密码？') }}</el-button>
+        <div v-if="activeName === 'loginAccount'" class="text-center mt-3">     
+          <el-button type="text" @click="handleForgotPassword">{{ t('忘记密码？') }}</el-button>
         </div>
       </div>
     </div>

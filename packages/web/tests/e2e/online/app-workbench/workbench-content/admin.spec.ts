@@ -11,7 +11,7 @@ test.describe('Online后台管理权限', () => {
     const loginName2 = process.env.TEST_LOGIN_NAME2;
     const password2 = process.env.TEST_LOGIN_PASSWORD2;
     if (!loginName1 || !password1) throw new Error('缺少 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD 环境变量');
-    // 使用第一个账号登录
+    // 使用第一个用户登录
     await loginAccount({ loginName: loginName1, password: password1 });
     const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
     const adminBtnVisible = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
@@ -38,7 +38,7 @@ test.describe('Online后台管理权限', () => {
     const loginName2 = process.env.TEST_LOGIN_NAME2;
     const password2 = process.env.TEST_LOGIN_PASSWORD2;
     if (!loginName1 || !password1) throw new Error('缺少 TEST_LOGIN_NAME/TEST_LOGIN_PASSWORD 环境变量');
-    // 使用第一个账号登录
+    // 使用第一个用户登录
     await loginAccount({ loginName: loginName1, password: password1 });
     const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
     const firstIsAdmin = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);

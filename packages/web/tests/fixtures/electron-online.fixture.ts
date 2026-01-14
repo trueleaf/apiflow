@@ -222,7 +222,7 @@ export const test = base.extend<ElectronFixtures>({
         await saveBtn.click();
         await expect(contentPage.getByText(/保存成功|Saved successfully/i)).toBeVisible({ timeout: 5000 });
       }
-      await contentPage.locator('.el-tabs__item').filter({ hasText: /账号登录|Account/i }).click();
+      await contentPage.locator('.el-tabs__item').filter({ hasText: /用户登录|Sign In/i }).click();
       await expect(contentPage.locator('[data-testid="login-form"]')).toBeVisible({ timeout: 5000 });
       await contentPage.locator('[data-testid="login-username-input"]').fill(loginName);
       await contentPage.locator('[data-testid="login-password-input"]').fill(password);

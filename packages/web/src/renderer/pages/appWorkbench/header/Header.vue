@@ -132,7 +132,7 @@ const quickLoginTipText = computed(() => {
   })
 })
 const showQuickLoginTip = computed(() => {
-  return Boolean(runtimeStore.userInfo.token) && Boolean(quickLoginCredential.value) && !quickLoginTipDismissed.value
+  return networkMode.value === 'online' && Boolean(runtimeStore.userInfo.token) && Boolean(quickLoginCredential.value) && !quickLoginTipDismissed.value
 })
 const downloadState = reactive({
   state: 'idle' as DownloadState,
@@ -667,7 +667,13 @@ watch(() => networkMode.value, (mode, prevMode) => {
     syncActiveTabToContentView()
   }
 })
-
+watch(() => runtimeStore.userInfo.token, (token) => {
+  if (token) return
+  clearQuickLoginCredential()
+  clearQuickLoginTipDismissed()
+  quickLoginCredential.value = null
+  quickLoginTipDismissed.value = false
+})
 </script>
 
 <style lang="scss" scoped>
@@ -940,6 +946,52 @@ body {
   align-items: center;
   // width: 400px;
   margin-left: auto;
+}
+
+.quick-login-tip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  max-width: 520px;
+  height: 28px;
+  border-radius: var(--border-radius-base);
+  background: var(--gray-100);
+  border: 1px solid var(--gray-200);
+  margin-right: 8px;
+  -webkit-app-region: no-drag;
+}
+
+.quick-login-icon {
+  flex-shrink: 0;
+  color: var(--gray-700);
+}
+
+.quick-login-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--gray-800);
+}
+
+.quick-login-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--gray-700);
+  border-radius: var(--border-radius-base);
+}
+
+.quick-login-close-btn:hover {
+  background: var(--gray-200);
 }
 
 .navigation-control {

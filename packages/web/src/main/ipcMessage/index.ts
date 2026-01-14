@@ -15,6 +15,7 @@ import { getWindowState, execCodeInContext } from '../utils/index.ts';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import type { AnchorRect } from '@src/types/common';
 import type { PermissionUserInfo } from '@src/types/project';
+import type { QuickLoginCredential } from '@src/types/security/quickLogin';
 import type { AppWorkbenchHeaderTabContextActionPayload, AppWorkbenchHeaderTabContextmenuData } from '@src/types/appWorkbench/appWorkbenchType';
 
 import { mockManager, websocketMockManager } from '../main.ts';
@@ -455,6 +456,9 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   // 用户信息变更
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, (_, payload: Partial<PermissionUserInfo>) => {
     topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, payload)
+  })
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, (_, payload: QuickLoginCredential) => {
+    topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, payload)
   })
 
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.headerTabContextAction, (_, payload: AppWorkbenchHeaderTabContextActionPayload) => {
