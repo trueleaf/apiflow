@@ -81,6 +81,8 @@ export const IPC_EVENTS = {
       languageChanged: 'apiflow:content:to:topbar:language-changed',
       /** 用户信息已变更 */
       userInfoChanged: 'apiflow:content:to:topbar:user-info-changed',
+      /** 快速登录凭证已变更 */
+      quickLoginCredentialChanged: 'apiflow:content:to:topbar:quick-login-credential-changed',
       /** 显示语言菜单 */
       showLanguageMenu: 'apiflow:content:to:topbar:show-language-menu',
       /** 隐藏语言菜单 */

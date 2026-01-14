@@ -14,10 +14,10 @@
         </template>
       </el-input>
     </el-form-item>
-    <el-form-item v-if="mode === 'register'" prop="loginName">
-      <el-input v-model="formData.loginName" type="text" :placeholder="t('请输入登录名（选填，默认使用邮箱前缀）')">
+    <el-form-item v-if="mode === 'register'" prop="confirmPassword">
+      <el-input v-model="formData.confirmPassword" type="password" :placeholder="t('请再次输入密码')" show-password>
         <template #prefix>
-          <User class="input-icon" />
+          <Lock class="input-icon" />
         </template>
       </el-input>
     </el-form-item>
@@ -45,7 +45,7 @@
 import { ref, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { FormInstance, FormRules } from 'element-plus';
-import { Mail, Lock, User, Shield } from 'lucide-vue-next';
+import { Mail, Lock, Shield } from 'lucide-vue-next';
 import { request } from '@/api/api';
 import { message } from '@/helper';
 import { router } from '@/router';
@@ -67,7 +67,7 @@ const formData = reactive({
   email: '',
   code: '',
   password: '',
-  loginName: '',
+  confirmPassword: '',
 });
 const emailValidator = (_rule: unknown, value: string, callback: (error?: Error) => void) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -94,10 +94,24 @@ const passwordValidator = (_rule: unknown, value: string, callback: (error?: Err
     callback();
   }
 };
+const confirmPasswordValidator = (_rule: unknown, value: string, callback: (error?: Error) => void) => {
+  if (props.mode !== 'register') {
+    callback();
+    return;
+  }
+  if (!value) {
+    callback(new Error(t('请再次输入密码')));
+  } else if (value !== formData.password) {
+    callback(new Error(t('两次输入密码不一致!')));
+  } else {
+    callback();
+  }
+};
 const rules: FormRules = {
   email: [{ validator: emailValidator, trigger: 'blur' }],
   code: [{ required: true, message: t('请输入验证码'), trigger: 'blur' }],
   password: [{ validator: passwordValidator, trigger: 'blur' }],
+  confirmPassword: [{ validator: confirmPasswordValidator, trigger: 'blur' }],
 };
 //发送验证码
 const handleSendCode = async () => {
@@ -133,7 +147,6 @@ const handleSubmit = async () => {
         email: formData.email,
         code: formData.code,
         password: formData.password,
-        loginName: formData.loginName || undefined,
       };
       const res = await request.post<CommonResponse<PermissionUserInfo>, CommonResponse<PermissionUserInfo>>('/api/security/register_email', payload);
       runtimeStore.updateUserInfo(res.data);

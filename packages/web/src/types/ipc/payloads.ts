@@ -9,6 +9,7 @@
 import type { AnchorRect } from '@src/types/common';
 import type { PermissionUserInfo, CommonResponse } from '@src/types/project';
 import type { AppWorkbenchHeaderTabContextActionPayload, AppWorkbenchHeaderTabContextmenuData } from '@src/types/appWorkbench/appWorkbenchType';
+import type { QuickLoginCredential } from '@src/types/security/quickLogin';
 import type { IPC_EVENTS } from './events';
 
 /**
@@ -170,8 +171,13 @@ export interface IPCEventMap {
     response: void;
   };
 
+  [IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged]: {
+    request: QuickLoginCredential;
+    response: void;
+  };
+
   [IPC_EVENTS.apiflow.contentToTopBar.showLanguageMenu]: {
-    request: { position: any; currentLanguage: string };
+    request: { position: AnchorRect; currentLanguage: string };
     response: void;
   };
 

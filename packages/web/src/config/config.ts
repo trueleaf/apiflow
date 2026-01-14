@@ -1,6 +1,8 @@
 import { Config } from '@src/types';
 import { mainConfig } from './mainConfig';
+import webPackageJson from '../../package.json';
 const isDev = process.env.NODE_ENV === 'development';
+const appVersion = (webPackageJson as { version?: string }).version ?? '0.0.0';
 
 export const config: Config = {
   isDev,
@@ -39,7 +41,7 @@ export const config: Config = {
 
   //应用相关配置
   appConfig: {
-    version: '0.8.0', //当前项目版本
+    version: appVersion, //当前项目版本
     appTitle: 'ApiFlow', //应用标题
     appLogo: '', //应用Logo
     appTheme: 'light', //应用主题

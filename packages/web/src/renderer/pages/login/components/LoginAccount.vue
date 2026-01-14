@@ -2,7 +2,7 @@
   <el-form ref="form" class="login-account" :model="userInfo" :rules="rules" data-testid="login-form" @submit.stop.prevent="handleLogin">
     <el-form-item prop="loginName">
       <el-input v-model="userInfo.loginName" :prefix-icon="User" name="loginName" type="text"
-        :placeholder="`${t('请输入用户名')}...`" data-testid="login-username-input"></el-input>
+        :placeholder="`${t('请输入用户名或邮箱')}...`" data-testid="login-username-input"></el-input>
     </el-form-item>
     <el-form-item prop="password">
       <el-input v-model="userInfo.password" :prefix-icon="Lock" name="password" type="password"
@@ -67,7 +67,7 @@ const userInfo = ref({
 
 const form = ref<FormInstance>();
 const rules = ref({
-  loginName: [{ required: true, message: `${t('请输入用户名')}`, trigger: 'blur' }],
+  loginName: [{ required: true, message: `${t('请输入用户名或邮箱')}`, trigger: 'blur' }],
   password: [{ required: true, message: `${t('请输入密码')}`, trigger: 'blur' }],
   captcha: [{ required: true, message: `${t('请输入验证码')}`, trigger: 'blur' }],
 })
