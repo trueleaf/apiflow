@@ -204,7 +204,7 @@ export class ContainerLifeCycle {
           const signContent = `${method}\n${url}\n${strParams}\n${strBody}\n${strHeader}\n${timestamp}\n${nonce}`;
           const hashedContent = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(signContent));
           const strHashedContent = getHashedContent(hashedContent);
-          console.log('验证签名：', { signContent, strHashedContent, originSignContent });
+          console.log('服务端', signContent);
           if (strHashedContent !== originSignContent) {
             return throwError(4002, '接口签名验证不通过');
           }

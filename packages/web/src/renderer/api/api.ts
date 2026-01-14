@@ -20,28 +20,64 @@ let isExpire = false; //是否登录过期
 export const updateAxiosBaseURL = (url: string): void => {
   axiosInstance.defaults.baseURL = url;
 }
+//生成请求签名
+const generateRequestSignature = (params: {
+  method: string;
+  url: string;
+  queryParams?: Record<string, unknown>;
+  body?: unknown;
+  headers: Record<string, unknown>;
+}) => {
+  const userInfo = runtimeCache.getUserInfo();
+  const timestamp = Date.now();
+  const nonce = nanoid();
+  let urlForSign = params.url;
+  if (urlForSign.startsWith('http://') || urlForSign.startsWith('https://')) {
+    try {
+      const urlObj = new URL(urlForSign);
+      urlForSign = urlObj.pathname + urlObj.search;
+    } catch {
+      // URL 解析失败，使用原值
+    }
+  }
+  const parsedUrlInfo = parseUrl(urlForSign);
+  const url = parsedUrlInfo.url;
+  const strParams = getStrParams(Object.assign({}, parsedUrlInfo.queryParams, params.queryParams));
+  const strBody = getStrJsonBody(params.body as Record<string, string>);
+  const headersAsString = Object.fromEntries(
+    Object.entries(params.headers).map(([k, v]) => [k, String(v)])
+  );
+  const { strHeader, sortedHeaderKeys } = getStrHeader(headersAsString);
+  const signContent = `${params.method.toLowerCase()}\n${url}\n${strParams}\n${strBody}\n${strHeader}\n${timestamp}\n${nonce}`;
+  return {
+    authorization: userInfo?.token,
+    sign: sha256(signContent),
+    signHeaders: sortedHeaderKeys.join(','),
+    timestamp,
+    nonce,
+  };
+}
 
 //===============================axiosInstance请求钩子==========================================//
 axiosInstance.interceptors.request.use(async (reqConfig) => {
-  try {
-    const userInfo = runtimeCache.getUserInfo();
-    //接口加签
-    const timestamp = Date.now();
-    const nonce = nanoid(); // 生成16位随机字符串
-    reqConfig.headers.Authorization = userInfo?.token;
-    const method = reqConfig.method!.toLowerCase();
-    const parsedUrlInfo = parseUrl(reqConfig.url!);
-    const url = parsedUrlInfo.url;
-    const strParams = getStrParams(Object.assign({}, parsedUrlInfo.queryParams,reqConfig.params));
-    const strBody = getStrJsonBody(reqConfig.data);
-    const { strHeader, sortedHeaderKeys } = getStrHeader(reqConfig.headers);
-    const signContent = `${method}\n${url}\n${strParams}\n${strBody}\n${strHeader}\n${timestamp}\n${nonce}`;
-    reqConfig.headers['x-sign'] = sha256(signContent);
-    reqConfig.headers['x-sign-headers'] = sortedHeaderKeys.join(',');
-    reqConfig.headers['x-sign-timestamp'] = timestamp;
-    reqConfig.headers['x-sign-nonce'] = nonce;
+  // 如果设置了 raw 标识，跳过所有默认处理
+  if (reqConfig.raw) {
     return reqConfig;
-
+  }
+  try {
+    const signature = generateRequestSignature({
+      method: reqConfig.method!,
+      url: reqConfig.url!,
+      queryParams: reqConfig.params,
+      body: reqConfig.data,
+      headers: reqConfig.headers,
+    });
+    reqConfig.headers.Authorization = signature.authorization;
+    reqConfig.headers['x-sign'] = signature.sign;
+    reqConfig.headers['x-sign-headers'] = signature.signHeaders;
+    reqConfig.headers['x-sign-timestamp'] = signature.timestamp;
+    reqConfig.headers['x-sign-nonce'] = signature.nonce;
+    return reqConfig;
   } catch (error) {
     Promise.reject(error)
   }
@@ -50,6 +86,14 @@ axiosInstance.interceptors.request.use(async (reqConfig) => {
 //===============================axiosInstance响应钩子=======================================//
 axiosInstance.interceptors.response.use(
   async (res: AxiosResponse) => {
+    // 如果设置了 raw 标识，直接返回原始数据
+    if (res.config.raw) {
+      // 对于流式响应，需要返回 body 属性
+      if (res.config.responseType === 'stream' && res.data?.body) {
+        return res.data.body;
+      }
+      return res.data;
+    }
     const result = res.data;
     const headers = res.headers || {};
     const clientKey = headers['x-client-key'];
@@ -194,8 +238,7 @@ axiosInstance.interceptors.response.use(
   },
 );
 
-// 流式请求方法，返回 ReadableStream 供调用方处理
-// 使用 fetch 实现，但复用 axios 的签名拦截器逻辑
+// 流式请求方法，使用原生 fetch API 返回 ReadableStream
 export const requestStream = async (
   url: string,
   data: unknown,
@@ -205,49 +248,40 @@ export const requestStream = async (
     timeout?: number;
   }
 ): Promise<ReadableStream<Uint8Array>> => {
-  // 手动执行签名逻辑（复用拦截器逻辑）
-  const userInfo = runtimeCache.getUserInfo();
-  const timestamp = Date.now();
-  const nonce = nanoid();
-  
-  const headers: Record<string, string> = {
+  const fullUrl = url.startsWith('http') ? url : `${axiosInstance.defaults.baseURL}${url}`;
+  const requestHeaders: Record<string, unknown> = {
     'Content-Type': 'application/json',
     ...options?.headers,
   };
-  
-  headers.Authorization = userInfo?.token || '';
-  
-  const method = 'post';
-  const parsedUrlInfo = parseUrl(url);
-  const urlPath = parsedUrlInfo.url;
-  const strParams = getStrParams(parsedUrlInfo.queryParams);
-  const strBody = getStrJsonBody(data as Record<string, unknown>);
-  const { strHeader, sortedHeaderKeys } = getStrHeader(headers);
-  const signContent = `${method}\n${urlPath}\n${strParams}\n${strBody}\n${strHeader}\n${timestamp}\n${nonce}`;
-  
-  headers['x-sign'] = sha256(signContent);
-  headers['x-sign-headers'] = sortedHeaderKeys.join(',');
-  headers['x-sign-timestamp'] = String(timestamp);
-  headers['x-sign-nonce'] = nonce;
-  
-  // 使用 fetch 发起流式请求
-  const response = await fetch(url, {
+  const signature = generateRequestSignature({
+    method: 'POST',
+    url: fullUrl,
+    body: data,
+    headers: requestHeaders,
+  });
+  const headers = new Headers({
+    'Content-Type': 'application/json',
+    ...options?.headers,
+  });
+  if (signature.authorization) {
+    headers.set('Authorization', signature.authorization);
+  }
+  headers.set('x-sign', signature.sign);
+  headers.set('x-sign-headers', signature.signHeaders);
+  headers.set('x-sign-timestamp', String(signature.timestamp));
+  headers.set('x-sign-nonce', signature.nonce);
+  const response = await fetch(fullUrl, {
     method: 'POST',
     headers,
     body: JSON.stringify(data),
     signal: options?.signal,
-    credentials: config.renderConfig.httpRequest.withCredentials ? 'include' : 'same-origin',
   });
-  
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`API 请求失败: ${response.status} - ${errorText}`);
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
   }
-  
   if (!response.body) {
-    throw new Error('无法获取响应流');
+    throw new Error('Response body is null');
   }
-  
   return response.body;
 };
 

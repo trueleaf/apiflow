@@ -46,7 +46,11 @@ declare module '*?worker&inline' {
   const WorkerFactory: new () => Worker
   export default WorkerFactory
 }
-
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    raw?: boolean;
+  }
+}
 // JSX 命名空间声明
 declare global {
   namespace JSX {

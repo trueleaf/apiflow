@@ -26,7 +26,17 @@ export class LLMClient {
       const timestamp = Date.now();
       const nonce = nanoid();
       const method = 'post';
-      const parsedUrlInfo = parseUrl(targetUrl);
+      // 从完整 URL 中提取路径部分（服务端验签使用 ctx.url 只包含路径）
+      let urlForSign = targetUrl;
+      if (urlForSign.startsWith('http://') || urlForSign.startsWith('https://')) {
+        try {
+          const urlObj = new URL(urlForSign);
+          urlForSign = urlObj.pathname + urlObj.search;
+        } catch {
+          // URL 解析失败，使用原值
+        }
+      }
+      const parsedUrlInfo = parseUrl(urlForSign);
       const url = parsedUrlInfo.url;
       const strParams = getStrParams(parsedUrlInfo.queryParams);
       const strBody = getStrJsonBody(body);
@@ -108,7 +118,17 @@ export class LLMClient {
       const timestamp = Date.now();
       const nonce = nanoid();
       const method = 'post';
-      const parsedUrlInfo = parseUrl(targetUrl);
+      // 从完整 URL 中提取路径部分（服务端验签使用 ctx.url 只包含路径）
+      let urlForSign = targetUrl;
+      if (urlForSign.startsWith('http://') || urlForSign.startsWith('https://')) {
+        try {
+          const urlObj = new URL(urlForSign);
+          urlForSign = urlObj.pathname + urlObj.search;
+        } catch {
+          // URL 解析失败，使用原值
+        }
+      }
+      const parsedUrlInfo = parseUrl(urlForSign);
       const url = parsedUrlInfo.url;
       const strParams = getStrParams(parsedUrlInfo.queryParams);
       const strBody = getStrJsonBody(body);

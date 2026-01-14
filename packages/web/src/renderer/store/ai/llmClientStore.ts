@@ -16,48 +16,71 @@ const getServerLLMUrl = (stream: boolean) => {
 // Web 模式下使用 axios 调用 LLM API（支持免费API）
 const webChat = async (body: ChatRequestBody, config: LLMProviderSetting, signal?: AbortSignal, useFreeLLM = false): Promise<OpenAiResponseBody> => {
   const targetUrl = useFreeLLM ? getServerLLMUrl(false) : config.baseURL;
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json'
-  };
-  
-  // 非免费 LLM 需要添加用户的 Authorization 和自定义 headers
-  if (!useFreeLLM) {
-    if (!config.apiKey || !config.baseURL) {
-      throw new Error('请先配置 API Key 和 Base URL');
-    }
-    headers['Authorization'] = `Bearer ${config.apiKey}`;
-    config.customHeaders?.forEach(h => {
-      if (h.key) headers[h.key] = h.value;
-    });
-  }
-  
-  let extraBody: Record<string, unknown> = {};
-  if (!useFreeLLM) {
-    const extraBodyText = config.extraBody?.trim() ?? '';
-    if (extraBodyText) {
-      try {
-        const parsed: unknown = JSON.parse(extraBodyText);
-        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-          extraBody = parsed as Record<string, unknown>;
-        }
-      } catch {
-        extraBody = {};
-      }
-    }
-  }
-  
-  const requestBody = { ...extraBody, ...body, model: useFreeLLM ? undefined : config.model, stream: false };
-  const requestInfo = { url: targetUrl, method: 'POST', headers, body: requestBody };
+  const requestBody = { ...body, model: useFreeLLM ? undefined : config.model, stream: false };
+  const requestInfo = { url: targetUrl, method: 'POST', body: requestBody };
   logger.info('llmRequestParams', { payload: JSON.stringify(requestInfo) });
   
+  if (useFreeLLM) {
+    try {
+      const response = await request.post(targetUrl, requestBody, {
+        headers: { 'Content-Type': 'application/json' },
+        signal,
+        timeout: AI_REQUEST_TIMEOUT,
+      });
+      return response as unknown as OpenAiResponseBody;
+    } catch (err) {
+      if (err instanceof Error) {
+        if (err.name === 'AbortError' || err.name === 'CanceledError') {
+          throw new Error('请求已取消');
+        }
+        if (err.message?.includes('timeout')) {
+          throw new Error('请求超时，请稍后重试');
+        }
+      }
+      throw err;
+    }
+  }
+  
+  if (!config.apiKey || !config.baseURL) {
+    throw new Error('请先配置 API Key 和 Base URL');
+  }
+  
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${config.apiKey}`,
+  };
+  config.customHeaders?.forEach(h => {
+    if (h.key) headers[h.key] = h.value;
+  });
+  
+  let extraBody: Record<string, unknown> = {};
+  const extraBodyText = config.extraBody?.trim() ?? '';
+  if (extraBodyText) {
+    try {
+      const parsed: unknown = JSON.parse(extraBodyText);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        extraBody = parsed as Record<string, unknown>;
+      }
+    } catch {
+      extraBody = {};
+    }
+  }
+  
+  const finalBody = { ...extraBody, ...requestBody };
+  
   try {
-    const response = await request.post(targetUrl, requestBody, {
+    const response = await fetch(targetUrl, {
+      method: 'POST',
       headers,
+      body: JSON.stringify(finalBody),
       signal,
-      timeout: AI_REQUEST_TIMEOUT,
     });
-    // axios 响应拦截器会返回 res.data，所以这里直接使用 response
-    return response as unknown as OpenAiResponseBody;
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    return await response.json() as OpenAiResponseBody;
   } catch (err) {
     if (err instanceof Error) {
       if (err.name === 'AbortError' || err.name === 'CanceledError') {
@@ -74,47 +97,64 @@ const webChat = async (body: ChatRequestBody, config: LLMProviderSetting, signal
 const webChatStream = (body: ChatRequestBody, config: LLMProviderSetting, callbacks: ChatStreamCallbacks, useFreeLLM = false) => {
   const abortController = new AbortController();
   const targetUrl = useFreeLLM ? getServerLLMUrl(true) : config.baseURL;
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json'
-  };
-  
-  // 非免费 LLM 需要添加用户的 Authorization 和自定义 headers
-  if (!useFreeLLM) {
-    if (!config.apiKey || !config.baseURL) {
-      callbacks.onError(new Error('请先配置 API Key 和 Base URL'));
-      return { abort: () => abortController.abort() };
-    }
-    headers['Authorization'] = `Bearer ${config.apiKey}`;
-    config.customHeaders?.forEach(h => {
-      if (h.key) headers[h.key] = h.value;
-    });
-  }
-  
-  let extraBody: Record<string, unknown> = {};
-  if (!useFreeLLM) {
-    const extraBodyText = config.extraBody?.trim() ?? '';
-    if (extraBodyText) {
-      try {
-        const parsed: unknown = JSON.parse(extraBodyText);
-        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-          extraBody = parsed as Record<string, unknown>;
-        }
-      } catch {
-        extraBody = {};
-      }
-    }
-  }
-  
-  const requestBody = { ...extraBody, ...body, model: useFreeLLM ? undefined : config.model, stream: true };
-  const requestInfo = { url: targetUrl, method: 'POST', headers, body: requestBody };
+  const requestBody = { ...body, model: useFreeLLM ? undefined : config.model, stream: true };
+  const requestInfo = { url: targetUrl, method: 'POST', body: requestBody };
   logger.info('llmRequestParams', { payload: JSON.stringify(requestInfo) });
   
   (async () => {
     try {
-      const stream = await requestStream(targetUrl, requestBody, {
-        headers,
-        signal: abortController.signal,
-      });
+      let stream: ReadableStream<Uint8Array>;
+      
+      if (useFreeLLM) {
+        stream = await requestStream(targetUrl, requestBody, {
+          headers: { 'Content-Type': 'application/json' },
+          signal: abortController.signal,
+        });
+      } else {
+        if (!config.apiKey || !config.baseURL) {
+          callbacks.onError(new Error('请先配置 API Key 和 Base URL'));
+          return;
+        }
+        
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${config.apiKey}`,
+        };
+        config.customHeaders?.forEach(h => {
+          if (h.key) headers[h.key] = h.value;
+        });
+        
+        let extraBody: Record<string, unknown> = {};
+        const extraBodyText = config.extraBody?.trim() ?? '';
+        if (extraBodyText) {
+          try {
+            const parsed: unknown = JSON.parse(extraBodyText);
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+              extraBody = parsed as Record<string, unknown>;
+            }
+          } catch {
+            extraBody = {};
+          }
+        }
+        
+        const finalBody = { ...extraBody, ...requestBody };
+        const response = await fetch(targetUrl, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(finalBody),
+          signal: abortController.signal,
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        if (!response.body) {
+          throw new Error('Response body is null');
+        }
+        
+        stream = response.body;
+      }
       
       const reader = stream.getReader();
       while (true) {
