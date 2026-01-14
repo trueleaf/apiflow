@@ -88,6 +88,10 @@ export type PermissionUserInfo = {
    * 最后登录时间（ISO格式字符串）
    */
   lastLoginTime?: string;
+  /**
+   * 邮箱地址
+   */
+  email?: string;
 };
 
 // 用户基本信息

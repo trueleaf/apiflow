@@ -196,8 +196,8 @@ const syncFromStore = () => {
   localUseFreeLLM.value = llmClientStore.useFreeLLM
 }
 // 处理免费LLM开关变化
-const handleFreeLLMChange = (value: boolean) => {
-  llmClientStore.setUseFreeLLM(value)
+const handleFreeLLMChange = (value: string | number | boolean) => {
+  llmClientStore.setUseFreeLLM(Boolean(value))
 }
 // 处理 Provider 类型变更
 const handleProviderChange = (type: LLMProviderType) => {

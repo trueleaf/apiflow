@@ -2,34 +2,6 @@
   <div class="login-container d-flex a-center j-center">
     <div class="login-box d-flex">
       <div ref="left" tabindex="-1" class="left hidden-md-and-down">
-        <!-- <h2 class="text-center mt-5">{{ t('客户端下载') }}</h2>
-        <el-carousel trigger="click" height="340px" :autoplay="false">
-          <el-carousel-item v-for="item in 4" :key="item">
-            <div class="d-flex a-center j-center h-300px">{{ t('项目特色功能视频演示') }}</div>
-            <img :src="require('@/assets/imgs/login/a.gif')" width="460" height="340">
-          </el-carousel-item>
-        </el-carousel>
-        <div class="w-100 d-flex j-center">
-          <div class="download-wrap">
-            <a href="https://gitee.com/shuzhikai/moyu/releases" target="__blank"
-              class="d-flex flex-column j-center a-center cursor-pointer download-link">
-              <i class="iconfont iconwindows theme-color"></i>
-              <div class="mt-1">Windows{{ t('下载') }}</div>
-            </a>
-            <a href="https://gitee.com/shuzhikai/moyu/releases" target="__blank"
-              class="d-flex flex-column j-center a-center cursor-pointer download-link">
-              <svg class="svg-icon" aria-hidden="true">
-                <use xlink:href="#iconlinux1"></use>
-              </svg>
-              <div class="mt-1">Linux{{ t('下载') }}</div>
-            </a>
-            <a href="https://gitee.com/shuzhikai/moyu/releases" target="__blank"
-              class="d-flex flex-column j-center a-center cursor-pointer download-link">
-              <i class="iconfont iconmac gray-600"></i>
-              <div class="mt-1">Mac{{ t('下载') }}</div>
-            </a>
-          </div>
-        </div> -->
       </div>
       <div class="right">
         <h2 class="text-center">
@@ -37,22 +9,30 @@
           <span v-if="config.appConfig.version">({{ config.appConfig.version }})</span>
         </h2>
         <el-tabs v-model="activeName" class="w-100" data-testid="login-tabs">
-          <!-- 账号登录 -->
           <el-tab-pane :label="$t('账号登录')" name="loginAccount" data-testid="login-tab-account">
           </el-tab-pane>
-          <!-- 设置 -->
+          <el-tab-pane :label="$t('邮箱登录')" name="loginEmail" data-testid="login-tab-email">
+          </el-tab-pane>
+          <el-tab-pane :label="$t('邮箱注册')" name="registerEmail" data-testid="login-tab-register">
+          </el-tab-pane>
           <el-tab-pane :label="$t('设置')" name="setting" data-testid="login-tab-setting">
           </el-tab-pane>
-          <!-- 手机号登录 -->
-          <!-- <el-tab-pane :label="$t('手机登录')" name="loginPhone">
-          </el-tab-pane> -->
-          <!-- 忘记密码 -->
-          <!-- <el-tab-pane :label="$t('忘记密码')" name="reset">
-          </el-tab-pane> -->
         </el-tabs>
-        <keep-alive>
-          <component :is="getComponent()"></component>
-        </keep-alive>
+        <div v-show="activeName === 'loginAccount'">
+          <LoginAccount />
+        </div>
+        <div v-show="activeName === 'loginEmail'">
+          <LoginEmail mode="login" />
+        </div>
+        <div v-show="activeName === 'registerEmail'">
+          <LoginEmail mode="register" />
+        </div>
+        <div v-show="activeName === 'setting'">
+          <ServerConfig />
+        </div>
+        <div v-if="activeName === 'loginAccount' || activeName === 'loginEmail'" class="text-center mt-3">
+          <el-button type="text" @click="handleForgotPassword">{{ $t('忘记密码？') }}</el-button>
+        </div>
       </div>
     </div>
   </div>
@@ -61,18 +41,15 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { config as globalConfig } from '@src/config/config'
+import { router } from '@/router';
 import LoginAccount from './components/LoginAccount.vue';
+import LoginEmail from './components/LoginEmail.vue';
 import ServerConfig from './components/ServerConfig.vue';
 
 const config = ref(globalConfig);
 const activeName = ref('loginAccount');
-
-const getComponent = () => {
-  if (activeName.value === 'loginAccount') {
-    return LoginAccount;
-  } else if (activeName.value === 'setting') {
-    return ServerConfig;
-  }
+const handleForgotPassword = () => {
+  router.push('/forgot-password');
 }
 </script>
 
