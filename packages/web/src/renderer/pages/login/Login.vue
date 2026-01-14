@@ -78,8 +78,8 @@ const getComponent = () => {
 
 <style lang='scss' scoped>
 .login-container {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   background: var(--gray-200);
 
   .login-box {

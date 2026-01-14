@@ -4,9 +4,7 @@ import type { ChatRequestBody, OpenAiResponseBody, LLMProviderSetting, ChatStrea
 import { generateDeepSeekProvider, isElectron, logger } from '@/helper';
 import { llmProviderCache } from '@/cache/ai/llmProviderCache';
 import { config } from '@src/config/config';
-import { nanoid } from 'nanoid';
-import { sha256 } from 'js-sha256';
-import { parseUrl, getStrParams, getStrJsonBody, getStrHeader } from '@/api/sign';
+import { request, requestStream } from '@/api/api';
 
 // AI 请求超时时间（60秒）
 const AI_REQUEST_TIMEOUT = 60 * 1000;
@@ -15,29 +13,15 @@ const getServerLLMUrl = (stream: boolean) => {
   const baseUrl = config.renderConfig.httpRequest.url;
   return stream ? `${baseUrl}/api/llm/chat/stream` : `${baseUrl}/api/llm/chat`;
 };
-// Web 模式下使用 fetch 调用 LLM API（支持免费API）
+// Web 模式下使用 axios 调用 LLM API（支持免费API）
 const webChat = async (body: ChatRequestBody, config: LLMProviderSetting, signal?: AbortSignal, useFreeLLM = false): Promise<OpenAiResponseBody> => {
   const targetUrl = useFreeLLM ? getServerLLMUrl(false) : config.baseURL;
   const headers: Record<string, string> = {
     'Content-Type': 'application/json'
   };
   
-  // 如果使用免费LLM，添加签名
-  if (useFreeLLM) {
-    const timestamp = Date.now();
-    const nonce = nanoid();
-    const method = 'post';
-    const parsedUrlInfo = parseUrl(targetUrl);
-    const url = parsedUrlInfo.url;
-    const strParams = getStrParams(parsedUrlInfo.queryParams);
-    const strBody = getStrJsonBody(body as Record<string, unknown>);
-    const { strHeader, sortedHeaderKeys } = getStrHeader(headers);
-    const signContent = `${method}\n${url}\n${strParams}\n${strBody}\n${strHeader}\n${timestamp}\n${nonce}`;
-    headers['x-sign'] = sha256(signContent);
-    headers['x-sign-headers'] = sortedHeaderKeys.join(',');
-    headers['x-sign-timestamp'] = String(timestamp);
-    headers['x-sign-nonce'] = nonce;
-  } else {
+  // 非免费 LLM 需要添加用户的 Authorization 和自定义 headers
+  if (!useFreeLLM) {
     if (!config.apiKey || !config.baseURL) {
       throw new Error('请先配置 API Key 和 Base URL');
     }
@@ -62,43 +46,31 @@ const webChat = async (body: ChatRequestBody, config: LLMProviderSetting, signal
     }
   }
   
-  // 创建超时控制器
-  const timeoutController = new AbortController();
-  const timeoutId = setTimeout(() => timeoutController.abort(), AI_REQUEST_TIMEOUT);
-  // 合并外部信号和超时信号
-  const combinedSignal = signal
-    ? AbortSignal.any([signal, timeoutController.signal])
-    : timeoutController.signal;
   const requestBody = { ...extraBody, ...body, model: useFreeLLM ? undefined : config.model, stream: false };
   const requestInfo = { url: targetUrl, method: 'POST', headers, body: requestBody };
   logger.info('llmRequestParams', { payload: JSON.stringify(requestInfo) });
+  
   try {
-    const response = await fetch(targetUrl, {
-      method: 'POST',
+    const response = await request.post(targetUrl, requestBody, {
       headers,
-      body: JSON.stringify(requestBody),
-      signal: combinedSignal
+      signal,
+      timeout: AI_REQUEST_TIMEOUT,
     });
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API 请求失败: ${response.status} - ${errorText}`);
-    }
-    return await response.json();
+    // axios 响应拦截器会返回 res.data，所以这里直接使用 response
+    return response as unknown as OpenAiResponseBody;
   } catch (err) {
     if (err instanceof Error) {
-      if (err.name === 'AbortError') {
-        if (signal?.aborted) {
-          throw new Error('请求已取消');
-        }
+      if (err.name === 'AbortError' || err.name === 'CanceledError') {
+        throw new Error('请求已取消');
+      }
+      if (err.message?.includes('timeout')) {
         throw new Error('请求超时，请稍后重试');
       }
     }
     throw err;
-  } finally {
-    clearTimeout(timeoutId);
   }
 };
-// Web 模式下使用 fetch + ReadableStream 实现流式调用（支持免费API）
+// Web 模式下使用 axios + ReadableStream 实现流式调用（支持免费API）
 const webChatStream = (body: ChatRequestBody, config: LLMProviderSetting, callbacks: ChatStreamCallbacks, useFreeLLM = false) => {
   const abortController = new AbortController();
   const targetUrl = useFreeLLM ? getServerLLMUrl(true) : config.baseURL;
@@ -106,22 +78,8 @@ const webChatStream = (body: ChatRequestBody, config: LLMProviderSetting, callba
     'Content-Type': 'application/json'
   };
   
-  // 如果使用免费LLM，添加签名
-  if (useFreeLLM) {
-    const timestamp = Date.now();
-    const nonce = nanoid();
-    const method = 'post';
-    const parsedUrlInfo = parseUrl(targetUrl);
-    const url = parsedUrlInfo.url;
-    const strParams = getStrParams(parsedUrlInfo.queryParams);
-    const strBody = getStrJsonBody(body as Record<string, unknown>);
-    const { strHeader, sortedHeaderKeys } = getStrHeader(headers);
-    const signContent = `${method}\n${url}\n${strParams}\n${strBody}\n${strHeader}\n${timestamp}\n${nonce}`;
-    headers['x-sign'] = sha256(signContent);
-    headers['x-sign-headers'] = sortedHeaderKeys.join(',');
-    headers['x-sign-timestamp'] = String(timestamp);
-    headers['x-sign-nonce'] = nonce;
-  } else {
+  // 非免费 LLM 需要添加用户的 Authorization 和自定义 headers
+  if (!useFreeLLM) {
     if (!config.apiKey || !config.baseURL) {
       callbacks.onError(new Error('请先配置 API Key 和 Base URL'));
       return { abort: () => abortController.abort() };
@@ -150,38 +108,15 @@ const webChatStream = (body: ChatRequestBody, config: LLMProviderSetting, callba
   const requestBody = { ...extraBody, ...body, model: useFreeLLM ? undefined : config.model, stream: true };
   const requestInfo = { url: targetUrl, method: 'POST', headers, body: requestBody };
   logger.info('llmRequestParams', { payload: JSON.stringify(requestInfo) });
+  
   (async () => {
     try {
-      const response = await fetch(targetUrl, {
-        method: 'POST',
+      const stream = await requestStream(targetUrl, requestBody, {
         headers,
-        body: JSON.stringify(requestBody),
-        signal: abortController.signal
+        signal: abortController.signal,
       });
-      if (!response.ok) {
-        const errorText = await response.text();
-        callbacks.onError(new Error(`API 请求失败: ${response.status} - ${errorText}`));
-        return;
-      }
-      const contentType = response.headers.get('content-type') || '';
-      if (!contentType.includes('text/event-stream') && !contentType.includes('application/json')) {
-        const errorText = await response.text();
-        try {
-          const parsed: { code?: number; msg?: string } = JSON.parse(errorText);
-          if (parsed.code && parsed.msg) {
-            callbacks.onError(new Error(parsed.msg));
-            return;
-          }
-        } catch {
-          callbacks.onError(new Error(`意外的响应类型: ${contentType}`));
-          return;
-        }
-      }
-      const reader = response.body?.getReader();
-      if (!reader) {
-        callbacks.onError(new Error('无法获取响应流'));
-        return;
-      }
+      
+      const reader = stream.getReader();
       while (true) {
         const { done, value } = await reader.read();
         if (done) {
@@ -193,13 +128,14 @@ const webChatStream = (body: ChatRequestBody, config: LLMProviderSetting, callba
         }
       }
     } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') {
+      if (err instanceof Error && (err.name === 'AbortError' || err.name === 'CanceledError')) {
         callbacks.onEnd();
         return;
       }
       callbacks.onError(err instanceof Error ? err : new Error(String(err)));
     }
   })();
+  
   return { abort: () => abortController.abort() };
 };
 // 同步配置到缓存和主进程

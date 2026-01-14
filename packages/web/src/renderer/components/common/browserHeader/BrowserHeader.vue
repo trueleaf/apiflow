@@ -50,6 +50,18 @@
           <i class="iconfont network-icon" :class="networkMode === 'online' ? 'iconwifi' : 'iconwifi-off-line'"></i>
           <span class="network-text">{{ networkMode === 'online' ? t('联网模式') : t('离线模式') }}</span>
         </div>
+        <button
+          v-if="networkMode === 'online' && runtimeStore.userInfo.token"
+          class="icon user-btn"
+          :title="runtimeStore.userInfo.loginName"
+          data-testid="header-user-menu-btn"
+          @click.stop="toggleUserMenu"
+          ref="userAvatarButtonRef"
+          type="button"
+        >
+          <img v-if="runtimeStore.userInfo.avatar" class="user-avatar-img" :src="runtimeStore.userInfo.avatar" draggable="false" />
+          <User v-else :size="14" />
+        </button>
       </div>
     </div>
     <!-- 语言选择菜单 -->
@@ -59,6 +71,12 @@
       :current-language="language"
       @language-select="handleLanguageSelect"
       @close="hideLanguageMenu"
+    />
+    <UserMenu
+      :visible="userMenuVisible"
+      :position="userMenuPosition"
+      @logout="handleLogout"
+      @close="hideUserMenu"
     />
   </div>
 </template>
@@ -71,7 +89,7 @@ import type { AnchorRect } from '@src/types/common'
 import type { AppWorkbenchHeaderTab } from '@src/types/appWorkbench/appWorkbenchType'
  import type { RuntimeNetworkMode } from '@src/types/runtime'
  import { useI18n } from 'vue-i18n'
- import { Folder, Settings, Bot, Shield, Home } from 'lucide-vue-next'
+ import { Folder, Settings, Bot, Shield, Home, User } from 'lucide-vue-next'
   import { changeLanguage } from '@/i18n'
   import { useAppSettings } from '@/store/appSettings/appSettingsStore'
   import { useRuntime } from '@/store/runtime/runtimeStore'
@@ -79,6 +97,7 @@ import type { AppWorkbenchHeaderTab } from '@src/types/appWorkbench/appWorkbench
  import { appWorkbenchCache } from '@/cache/appWorkbench/appWorkbenchCache'
 import { useAgentViewStore } from '@/store/ai/agentView'
 import LanguageMenu from '@/components/common/language/Language.vue'
+import UserMenu from '@/components/common/userMenu/UserMenu.vue'
 
 const emit = defineEmits<{
   (e: 'createProject'): void
@@ -99,6 +118,8 @@ const language = ref<Language>('zh-cn')
  // 语言菜单相关状态
  const languageMenuVisible = ref(false)
  const languageMenuPosition = ref<AnchorRect>({ x: 0, y: 0, width: 0, height: 0 })
+ const userMenuVisible = ref(false)
+ const userMenuPosition = ref<AnchorRect>({ x: 0, y: 0, width: 0, height: 0 })
  const showAdminMenu = computed(() => {
    return networkMode.value === 'online' && runtimeStore.userInfo.role === 'admin' && Boolean(runtimeStore.userInfo.id)
  })
@@ -167,6 +188,27 @@ const toggleLanguageMenu = () => {
 }
 const hideLanguageMenu = () => {
   languageMenuVisible.value = false
+}
+const hideUserMenu = () => {
+  userMenuVisible.value = false
+}
+const userAvatarButtonRef = ref<HTMLElement>()
+const toggleUserMenu = () => {
+  hideLanguageMenu()
+  if (!userAvatarButtonRef.value) return
+  const rect = userAvatarButtonRef.value.getBoundingClientRect()
+  userMenuPosition.value = {
+    x: rect.left,
+    y: rect.bottom,
+    width: rect.width,
+    height: rect.height
+  }
+  userMenuVisible.value = !userMenuVisible.value
+}
+const handleLogout = () => {
+  runtimeStore.clearUserInfo()
+  hideUserMenu()
+  router.push('/login')
 }
 const handleLanguageSelect = (lang: Language) => {
   language.value = lang
@@ -342,6 +384,9 @@ watch(() => networkMode.value, (mode, prevMode) => {
 const handleDocumentClick = (event: MouseEvent) => {
   if (languageButtonRef.value && !languageButtonRef.value.contains(event.target as Node)) {
     hideLanguageMenu()
+  }
+  if (userAvatarButtonRef.value && !userAvatarButtonRef.value.contains(event.target as Node)) {
+    hideUserMenu()
   }
 }
 
@@ -638,6 +683,18 @@ defineExpose({
 }
 .network-text {
   font-size: 10px;
+}
+.user-btn {
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+.user-avatar-img {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 .sortable-ghost {
   opacity: 0.6;

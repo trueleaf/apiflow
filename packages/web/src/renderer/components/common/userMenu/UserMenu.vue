@@ -16,6 +16,7 @@
       @keydown.enter="handleLogout"
       @keydown.space.prevent="handleLogout"
     >
+      <LogOut class="user-menu-icon" :size="14" />
       <span class="user-menu-text">{{ t('退出登录') }}</span>
     </div>
   </div>
@@ -31,6 +32,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { LogOut } from 'lucide-vue-next'
 import type { AnchorRect } from '@src/types/common'
 
 const props = withDefaults(defineProps<{
@@ -78,6 +80,11 @@ const handleClose = () => {
   font-size: 13px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
   backdrop-filter: blur(10px);
+}
+
+.user-menu-icon {
+  margin-right: 8px;
+  flex: 0 0 auto;
 }
 
 .user-menu-item {

@@ -71,6 +71,10 @@ axiosInstance.interceptors.response.use(
       } else {
         code = res.data.code; //自定义请求状态码
       }
+      // 如果没有 code 字段（如外部 API），直接返回数据
+      if (code === undefined || code === null) {
+        return result;
+      }
       /*eslint-disable indent*/
       switch (code) {
         case 0: //正确请求
@@ -189,5 +193,62 @@ axiosInstance.interceptors.response.use(
     Promise.reject(err);
   },
 );
+
+// 流式请求方法，返回 ReadableStream 供调用方处理
+// 使用 fetch 实现，但复用 axios 的签名拦截器逻辑
+export const requestStream = async (
+  url: string,
+  data: unknown,
+  options?: {
+    headers?: Record<string, string>;
+    signal?: AbortSignal;
+    timeout?: number;
+  }
+): Promise<ReadableStream<Uint8Array>> => {
+  // 手动执行签名逻辑（复用拦截器逻辑）
+  const userInfo = runtimeCache.getUserInfo();
+  const timestamp = Date.now();
+  const nonce = nanoid();
+  
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...options?.headers,
+  };
+  
+  headers.Authorization = userInfo?.token || '';
+  
+  const method = 'post';
+  const parsedUrlInfo = parseUrl(url);
+  const urlPath = parsedUrlInfo.url;
+  const strParams = getStrParams(parsedUrlInfo.queryParams);
+  const strBody = getStrJsonBody(data as Record<string, unknown>);
+  const { strHeader, sortedHeaderKeys } = getStrHeader(headers);
+  const signContent = `${method}\n${urlPath}\n${strParams}\n${strBody}\n${strHeader}\n${timestamp}\n${nonce}`;
+  
+  headers['x-sign'] = sha256(signContent);
+  headers['x-sign-headers'] = sortedHeaderKeys.join(',');
+  headers['x-sign-timestamp'] = String(timestamp);
+  headers['x-sign-nonce'] = nonce;
+  
+  // 使用 fetch 发起流式请求
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(data),
+    signal: options?.signal,
+    credentials: config.renderConfig.httpRequest.withCredentials ? 'include' : 'same-origin',
+  });
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`API 请求失败: ${response.status} - ${errorText}`);
+  }
+  
+  if (!response.body) {
+    throw new Error('无法获取响应流');
+  }
+  
+  return response.body;
+};
 
 export { axiosInstance as request };
