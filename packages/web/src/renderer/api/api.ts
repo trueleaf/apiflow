@@ -51,7 +51,7 @@ const generateRequestSignature = (params: {
   );
   const { strHeader, sortedHeaderKeys } = getStrHeader(headersAsString);
   const signContent = `${params.method.toLowerCase()}\n${url}\n${strParams}\n${strBody}\n${strHeader}\n${timestamp}\n${nonce}`;
-  console.log('客户端', signContent, strHeader)
+  // console.log('客户端', signContent, strHeader)
   return {
     authorization: userInfo?.token,
     sign: sha256(signContent),

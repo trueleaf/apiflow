@@ -20,7 +20,7 @@ export class EmailService {
         accessKeyId: this.emailConfig.accessKeyId,
         accessKeySecret: this.emailConfig.accessKeySecret,
       });
-      config.endpoint = `dm.${this.emailConfig.region}.aliyuncs.com`;
+      config.endpoint = this.emailConfig.region;
       this.client = new Dm20151123Client(config);
     }
     return this.client;

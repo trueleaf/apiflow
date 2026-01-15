@@ -25,7 +25,6 @@ export class VerifyCodeService {
   public async sendVerifyCode(email: string, type: 'register' | 'login' | 'bind' | 'reset', ip?: string): Promise<void> {
     const code = this.generateCode();
     const expireAt = new Date(Date.now() + this.emailConfig.verifyCodeExpire);
-    console.log('send')
     await this.emailVerifyCodeModel.create({
       email,
       code,
