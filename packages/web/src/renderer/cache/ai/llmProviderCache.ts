@@ -35,6 +35,9 @@ class LLMProviderCache {
   getUseFreeLLM(): boolean {
     try {
       const cached = localStorage.getItem(cacheKey.ai.useFreeLLM);
+      if (cached === null) {
+        return true;
+      }
       return cached === 'true';
     } catch (error) {
       logger.error('获取 useFreeLLM 失败', { error });
