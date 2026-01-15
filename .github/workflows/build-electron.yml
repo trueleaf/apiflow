@@ -603,7 +603,7 @@ jobs:
           SSH_PORT='${{ secrets.SSH_PORT || 22 }}'
           CHANNEL_DIR='${{ steps.calc.outputs.channel_dir }}'
           REMOTE_ROOT='${{ secrets.UPDATE_SERVER_PATH }}/'"$CHANNEL_DIR"'/win'
-          ssh -p "$SSH_PORT" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "mkdir -p \"$REMOTE_ROOT\""
+          ssh -p "$SSH_PORT" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "rm -rf \"$REMOTE_ROOT\" && mkdir -p \"$REMOTE_ROOT\""
           rsync -az -e "ssh -p $SSH_PORT" dist/win/ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$REMOTE_ROOT/"
 
       - name: 下载 Linux 更新产物
@@ -619,7 +619,7 @@ jobs:
           SSH_PORT='${{ secrets.SSH_PORT || 22 }}'
           CHANNEL_DIR='${{ steps.calc.outputs.channel_dir }}'
           REMOTE_ROOT='${{ secrets.UPDATE_SERVER_PATH }}/'"$CHANNEL_DIR"'/linux'
-          ssh -p "$SSH_PORT" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "mkdir -p \"$REMOTE_ROOT\""
+          ssh -p "$SSH_PORT" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "rm -rf \"$REMOTE_ROOT\" && mkdir -p \"$REMOTE_ROOT\""
           rsync -az -e "ssh -p $SSH_PORT" dist/linux/ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$REMOTE_ROOT/"
 
       - name: 下载 macOS 更新产物
@@ -635,7 +635,7 @@ jobs:
           SSH_PORT='${{ secrets.SSH_PORT || 22 }}'
           CHANNEL_DIR='${{ steps.calc.outputs.channel_dir }}'
           REMOTE_ROOT='${{ secrets.UPDATE_SERVER_PATH }}/'"$CHANNEL_DIR"'/mac'
-          ssh -p "$SSH_PORT" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "mkdir -p \"$REMOTE_ROOT\""
+          ssh -p "$SSH_PORT" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "rm -rf \"$REMOTE_ROOT\" && mkdir -p \"$REMOTE_ROOT\""
           rsync -az -e "ssh -p $SSH_PORT" dist/mac/ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$REMOTE_ROOT/"
 
   # 创建 Git Tag 和 Release（仅手动构建且指定版本时）
