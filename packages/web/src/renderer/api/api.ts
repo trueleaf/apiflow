@@ -45,10 +45,13 @@ const generateRequestSignature = (params: {
   const strParams = getStrParams(Object.assign({}, parsedUrlInfo.queryParams, params.queryParams));
   const strBody = getStrJsonBody(params.body as Record<string, string>);
   const headersAsString = Object.fromEntries(
-    Object.entries(params.headers).map(([k, v]) => [k, String(v)])
+    Object.entries(params.headers)
+      .filter(([, v]) => v != null)
+      .map(([k, v]) => [k, String(v)])
   );
   const { strHeader, sortedHeaderKeys } = getStrHeader(headersAsString);
   const signContent = `${params.method.toLowerCase()}\n${url}\n${strParams}\n${strBody}\n${strHeader}\n${timestamp}\n${nonce}`;
+  console.log('客户端', signContent, strHeader)
   return {
     authorization: userInfo?.token,
     sign: sha256(signContent),

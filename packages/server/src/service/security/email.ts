@@ -2,17 +2,19 @@ import { Config, Provide } from '@midwayjs/core';
 import { GlobalConfig } from '../../types/types.js';
 import * as $Dm20151123 from '@alicloud/dm20151123';
 import * as $OpenApi from '@alicloud/openapi-client';
+import { createRequire } from 'node:module';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const Dm20151123Client = require('@alicloud/dm20151123').default;
+const require = createRequire(import.meta.url);
+const Dm20151123Client = require('@alicloud/dm20151123')
+  .default as typeof import('@alicloud/dm20151123').default;
 
 @Provide()
 export class EmailService {
   @Config('emailConfig')
     emailConfig: GlobalConfig['emailConfig'];
-  private client;
+  private client?: InstanceType<typeof Dm20151123Client>;
   //初始化阿里云邮件推送客户端
-  private getClient() {
+  private getClient(): InstanceType<typeof Dm20151123Client> {
     if (!this.client) {
       const config = new $OpenApi.Config({
         accessKeyId: this.emailConfig.accessKeyId,
@@ -56,8 +58,9 @@ export class EmailService {
     try {
       const client = this.getClient();
       await client.singleSendMail(singleSendMailRequest);
-    } catch (error) {
-      throw new Error(`邮件发送失败: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`邮件发送失败: ${message}`);
     }
   }
 }

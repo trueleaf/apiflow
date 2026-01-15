@@ -131,7 +131,6 @@ const handleSendCode = async () => {
       email: formData.email,
       type,
     });
-    message.success(t('验证码已发送，请查收邮件'));
     codeSent.value = true;
     countdown.value = 60;
     const timer = setInterval(() => {
