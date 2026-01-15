@@ -116,11 +116,6 @@ const routerConfig = {
       component: LoginPage,
     },
     {
-      path: "/forgot-password",
-      name: "ForgotPassword",
-      component: () => import("@/pages/login/components/ForgotPassword.vue"),
-    },
-    {
       path: "/header",
       name: "Header",
       component: () => import("@/pages/appWorkbench/header/Header.vue"),

@@ -736,6 +736,7 @@ export default {
   请输入原密码: 'Enter your current password',
   新密码: 'New Password',
   请再次输入新密码: 'Re-enter the new password',
+  两次输入的密码不一致: 'The two passwords do not match',
   重置: 'Reset',
   支持正则表达式: 'Supports regex, e.g. /pattern/flags or pattern',
   输入关键词筛选: 'Enter keywords to filter message content...',
