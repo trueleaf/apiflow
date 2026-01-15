@@ -19,6 +19,35 @@ type ChatRequestBody = {
 
 @Controller('/api/llm')
 export class LLMController {
+  // 验证请求体
+  private validateRequestBody(body: ChatRequestBody): { valid: boolean; error?: string } {
+    // 检查messages数组
+    if (!Array.isArray(body.messages) || body.messages.length === 0) {
+      return { valid: false, error: 'messages必须是非空数组' };
+    }
+    if (body.messages.length > 50) {
+      return { valid: false, error: 'messages数组长度不能超过50条' };
+    }
+    // 估算tokens总数（粗略估算：1个中文字约1.5 tokens，1个英文单词约1.3 tokens）
+    let totalChars = 0;
+    for (const msg of body.messages) {
+      if (!msg.content || typeof msg.content !== 'string') {
+        return { valid: false, error: 'message内容必须是字符串' };
+      }
+      totalChars += msg.content.length;
+    }
+    // 粗略估算：按每个字符1.5 tokens计算
+    const estimatedTokens = Math.ceil(totalChars * 1.5);
+    if (estimatedTokens > 10000) {
+      return { valid: false, error: `估算tokens总数(${estimatedTokens})超过限制(10000)，请减少消息内容` };
+    }
+    // 检查请求体大小（JSON字符串长度）
+    const bodySize = JSON.stringify(body).length;
+    if (bodySize > 1024 * 1024) {
+      return { valid: false, error: '请求体大小超过1MB限制' };
+    }
+    return { valid: true };
+  }
   @Inject()
   ctx: Context;
 
@@ -33,8 +62,16 @@ export class LLMController {
   @ReqSign()
   @Post('/chat')
   async chat(@Body() body: ChatRequestBody) {
+    // 验证请求体
+    const validation = this.validateRequestBody(body);
+    if (!validation.valid) {
+      return {
+        success: false,
+        code: 'INVALID_REQUEST',
+        message: validation.error,
+      };
+    }
     const { apiKey, baseUrl, model } = this.llmConfig;
-    console.log(this.llmConfig, process.env.DEEPSEEK_API_KEY)
     if (!apiKey || !baseUrl) {
       return {
         success: false,
@@ -59,11 +96,10 @@ export class LLMController {
         body: JSON.stringify(requestBody),
       });
       if (!response.ok) {
-        const errorText = await response.text();
         return {
           success: false,
           code: 'LLM_API_ERROR',
-          message: `LLM API请求失败: ${response.status} - ${errorText}`,
+          message: 'LLM服务暂时不可用，请稍后再试',
         };
       }
 
@@ -82,6 +118,17 @@ export class LLMController {
   @ReqSign()
   @Post('/chat/stream')
   async chatStream(@Body() body: ChatRequestBody) {
+    // 验证请求体
+    const validation = this.validateRequestBody(body);
+    if (!validation.valid) {
+      this.ctx.status = 400;
+      this.ctx.body = {
+        success: false,
+        code: 'INVALID_REQUEST',
+        message: validation.error,
+      };
+      return;
+    }
     const { apiKey, baseUrl, model } = this.llmConfig;
     if (!apiKey || !baseUrl) {
       this.ctx.status = 500;
@@ -109,12 +156,11 @@ export class LLMController {
         body: JSON.stringify(requestBody),
       });
       if (!response.ok) {
-        const errorText = await response.text();
-        this.ctx.status = response.status;
+        this.ctx.status = 500;
         this.ctx.body = {
           success: false,
           code: 'LLM_API_ERROR',
-          message: `LLM API请求失败: ${response.status} - ${errorText}`,
+          message: 'LLM服务暂时不可用，请稍后再试',
         };
         return;
       }

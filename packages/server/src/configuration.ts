@@ -19,6 +19,7 @@ import {
 } from './filter/error.filter.js';
 import { ResponseWrapperMiddleware } from './middleware/response.middleware.js';
 import { PermissionMiddleware } from './middleware/permission.middleware.js';
+import { LLMRateLimitMiddleware } from './middleware/llm-rate-limit.middleware.js';
 import { User } from './entity/security/user.js';
 import { UserLimitRecord } from './entity/security/user_limit_record.js';
 import { initClientMenus, initClientRoutes, initRoles, initServerRoutes, initUser } from './entity/init_entity.js';
@@ -204,14 +205,21 @@ export class ContainerLifeCycle {
           const signContent = `${method}\n${url}\n${strParams}\n${strBody}\n${strHeader}\n${timestamp}\n${nonce}`;
           const hashedContent = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(signContent));
           const strHashedContent = getHashedContent(hashedContent);
-          console.log('服务端', signContent);
           if (strHashedContent !== originSignContent) {
             return throwError(4002, '接口签名验证不通过');
           }
           if (Date.now() - Number(timestamp) > this.config.ttl) {
             return throwError(4002, '接口调用已过期');
           }
-          // console.log(1, signContent, strHashedContent)
+          // nonce去重防止重放攻击
+          const nonceKey = `sign:nonce:${nonce}`;
+          const nonceExists = await this.cache.get(nonceKey);
+          if (nonceExists) {
+            return throwError(4002, '重复的请求，请勿重复提交');
+          }
+          // 将nonce存入缓存，5分钟过期
+          await this.cache.set(nonceKey, true, 5 * 60 * 1000);
+          
           const result = await joinPoint.proceed(...joinPoint.args);
           return result;
         },
@@ -219,7 +227,7 @@ export class ContainerLifeCycle {
     });
   }
   async onReady() {
-    this.app.useMiddleware([ResponseWrapperMiddleware, PermissionMiddleware]);
+    this.app.useMiddleware([LLMRateLimitMiddleware, ResponseWrapperMiddleware, PermissionMiddleware]);
     this.app.useFilter([ValidateErrorFilter, AllServerErrorFilter]);
     await initUser(this.userModel);
     await initServerRoutes(this.serverRoutesModel)
