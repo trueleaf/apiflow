@@ -10,7 +10,7 @@ Recommended for most users:
 |----------|---------------------|
 | 🪟 **Windows** | [Apiflow-{{VERSION_NO_V}}-x64.exe](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/Apiflow-{{VERSION_NO_V}}-x64.exe) (Intel/AMD 64-bit) |
 | 🍎 **macOS** | [Apiflow-{{VERSION_NO_V}}-arm64.dmg](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/Apiflow-{{VERSION_NO_V}}-arm64.dmg) (Apple Silicon M1/M2/M3) |
-| 🐧 **Linux** | [ApiFlow-{{VERSION_NO_V}}-x64.AppImage](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/ApiFlow-{{VERSION_NO_V}}-x64.AppImage) (Intel/AMD 64-bit) |
+| 🐧 **Linux** | [ApiFlow-{{VERSION_NO_V}}-x86_64.AppImage](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/ApiFlow-{{VERSION_NO_V}}-x86_64.AppImage) (Intel/AMD 64-bit) |
 
 <details>
 <summary><b>📋 All Downloads (Click to expand and view all versions)</b></summary>
@@ -23,7 +23,7 @@ Recommended for most users:
 | 🍎 **macOS** | [Apiflow-{{VERSION_NO_V}}-x64.dmg](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/Apiflow-{{VERSION_NO_V}}-x64.dmg) | Intel Mac |
 | 🍎 **macOS** | [Apiflow-{{VERSION_NO_V}}-arm64.zip](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/Apiflow-{{VERSION_NO_V}}-arm64.zip) | Apple Silicon (Zip) |
 | 🍎 **macOS** | [Apiflow-{{VERSION_NO_V}}-x64.zip](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/Apiflow-{{VERSION_NO_V}}-x64.zip) | Intel Mac (Zip) |
-| 🐧 **Linux** | [ApiFlow-{{VERSION_NO_V}}-x64.AppImage](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/ApiFlow-{{VERSION_NO_V}}-x64.AppImage) | Intel/AMD 64-bit |
+| 🐧 **Linux** | [ApiFlow-{{VERSION_NO_V}}-x86_64.AppImage](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/ApiFlow-{{VERSION_NO_V}}-x86_64.AppImage) | Intel/AMD 64-bit |
 | 🐧 **Linux** | [ApiFlow-{{VERSION_NO_V}}-arm64.AppImage](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/ApiFlow-{{VERSION_NO_V}}-arm64.AppImage) | ARM 64-bit |
 
 </details>
@@ -42,7 +42,7 @@ Recommended for most users:
 |------|---------|
 | 🪟 **Windows** | [Apiflow-{{VERSION_NO_V}}-x64.exe](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/Apiflow-{{VERSION_NO_V}}-x64.exe) (Intel/AMD 64位) |
 | 🍎 **macOS** | [Apiflow-{{VERSION_NO_V}}-arm64.dmg](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/Apiflow-{{VERSION_NO_V}}-arm64.dmg) (Apple Silicon M1/M2/M3) |
-| 🐧 **Linux** | [ApiFlow-{{VERSION_NO_V}}-x64.AppImage](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/ApiFlow-{{VERSION_NO_V}}-x64.AppImage) (Intel/AMD 64位) |
+| 🐧 **Linux** | [ApiFlow-{{VERSION_NO_V}}-x86_64.AppImage](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/ApiFlow-{{VERSION_NO_V}}-x86_64.AppImage) (Intel/AMD 64位) |
 
 <details>
 <summary><b>📋 完整下载列表（点击展开查看所有版本）</b></summary>
@@ -55,7 +55,7 @@ Recommended for most users:
 | 🍎 **macOS** | [Apiflow-{{VERSION_NO_V}}-x64.dmg](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/Apiflow-{{VERSION_NO_V}}-x64.dmg) | Intel Mac |
 | 🍎 **macOS** | [Apiflow-{{VERSION_NO_V}}-arm64.zip](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/Apiflow-{{VERSION_NO_V}}-arm64.zip) | Apple Silicon (Zip) |
 | 🍎 **macOS** | [Apiflow-{{VERSION_NO_V}}-x64.zip](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/Apiflow-{{VERSION_NO_V}}-x64.zip) | Intel Mac (Zip) |
-| 🐧 **Linux** | [ApiFlow-{{VERSION_NO_V}}-x64.AppImage](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/ApiFlow-{{VERSION_NO_V}}-x64.AppImage) | Intel/AMD 64位 |
+| 🐧 **Linux** | [ApiFlow-{{VERSION_NO_V}}-x86_64.AppImage](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/ApiFlow-{{VERSION_NO_V}}-x86_64.AppImage) | Intel/AMD 64位 |
 | 🐧 **Linux** | [ApiFlow-{{VERSION_NO_V}}-arm64.AppImage](https://github.com/trueleaf/apiflow/releases/download/{{VERSION}}/ApiFlow-{{VERSION_NO_V}}-arm64.AppImage) | ARM 64位 |
 
 </details>
