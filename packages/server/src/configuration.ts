@@ -20,6 +20,7 @@ import {
 import { ResponseWrapperMiddleware } from './middleware/response.middleware.js';
 import { PermissionMiddleware } from './middleware/permission.middleware.js';
 import { LLMRateLimitMiddleware } from './middleware/llm-rate-limit.middleware.js';
+import { DomainWhitelistMiddleware } from './middleware/domain-whitelist.middleware.js';
 import { User } from './entity/security/user.js';
 import { UserLimitRecord } from './entity/security/user_limit_record.js';
 import { initClientMenus, initClientRoutes, initRoles, initServerRoutes, initUser } from './entity/init_entity.js';
@@ -227,7 +228,7 @@ export class ContainerLifeCycle {
     });
   }
   async onReady() {
-    this.app.useMiddleware([LLMRateLimitMiddleware, ResponseWrapperMiddleware, PermissionMiddleware]);
+    this.app.useMiddleware([DomainWhitelistMiddleware, LLMRateLimitMiddleware, ResponseWrapperMiddleware, PermissionMiddleware]);
     this.app.useFilter([ValidateErrorFilter, AllServerErrorFilter]);
     await initUser(this.userModel);
     await initServerRoutes(this.serverRoutesModel)

@@ -34,6 +34,7 @@
  * 4006 短信验证码调用过于频繁，封禁n小时
  * 4029 接口调用频繁
  * 4030 用户被临时禁用
+ * 10030 域名不在白名单中
  * 
  */
 export type ResponseWrapper<T = unknown> = {
@@ -77,6 +78,7 @@ export type ResponseWrapper<T = unknown> = {
     | 4029
     | 4030
     | 5000
+    | 10030
   msg: string;
   data?: T;
 };
