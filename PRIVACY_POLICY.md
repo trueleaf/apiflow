@@ -174,35 +174,98 @@ In addition to Cookies, we also use browser LocalStorage and IndexedDB storage f
 
 ---
 
-## 7. Third-Party Services
+## 7. Google Analytics Usage
 
-### 7.1 AI Services
+### 7.1 What We Collect
+
+When you enable analytics in the web version of Apiflow (online mode only), we use Google Analytics to collect anonymous usage data, including but not limited to:
+
+- **Page Views**: Pages you visit and time spent
+- **Application Events**: Feature usage (e.g., sending HTTP requests, creating projects, starting Mock servers)
+- **Technical Information**: Browser type, operating system, screen resolution
+- **User Journey**: Navigation paths and click patterns
+
+**Important Notes**:
+- All data collected is anonymous and cannot identify you personally
+- We do NOT collect any sensitive information such as API request content, response data, authentication tokens, or API endpoint URLs
+- We do NOT collect any project-specific data or content you create
+- Analytics is ONLY active when you explicitly enable it in settings
+
+### 7.2 How to Control Google Analytics
+
+**Opt-Out by Default**: Analytics is disabled by default for new users. You need to explicitly enable it in application settings.
+
+**Easy to Disable**: You can enable or disable analytics at any time through:
+1. Navigate to Settings → Common Settings → Application Configuration
+2. Toggle the "Help us improve product experience" switch
+3. Changes take effect immediately without restarting the application
+
+**Automatic Disabling**: Analytics is automatically disabled in the following scenarios:
+- Development mode
+- Offline mode
+- Desktop application (Electron version)
+- When you explicitly disable it in settings
+
+### 7.3 Data Processing
+
+- **Third-Party Service**: Google Analytics is operated by Google LLC, subject to [Google's Privacy Policy](https://policies.google.com/privacy)
+- **Data Retention**: Google Analytics data is retained according to Google's standard data retention policy
+- **Data Location**: Analytics data may be processed and stored on Google's servers worldwide
+- **No Cross-Site Tracking**: We only use Google Analytics within Apiflow and do not track your activities on other websites
+
+### 7.4 Purpose of Collection
+
+We use collected analytics data to:
+
+- Understand which features are most/least used
+- Identify and fix potential issues
+- Improve user interface and experience
+- Prioritize feature development
+- Monitor application performance and stability
+
+**We Never**:
+- Sell analytics data to third parties
+- Use analytics data for advertising purposes
+- Link analytics data to your personal identity
+- Collect content of your API projects or requests
+
+---
+
+## 8. Third-Party Services
+
+### 8.1 AI Services
 
 If you use Apiflow's AI Agent feature, you can configure your own Large Language Model (LLM) service. Your AI conversation data will be sent to the AI service provider you configure. We do not collect or store your AI conversation content unless you actively save it to your project.
 
 Please review the privacy policies of the AI service providers you use to understand how they handle your data.
 
-### 7.2 Import/Export Features
+### 8.2 Google Analytics
+
+As described in Section 7, we use Google Analytics to collect anonymous usage statistics (web version only, when explicitly enabled). Google Analytics is provided by Google LLC and subject to Google's privacy policies.
+
+### 8.3 Import/Export Features
 
 When you import data from other tools (such as Postman), we only process files you actively select and do not access other data on your device.
 
 ---
 
-## 8. Children's Privacy
+## 9. Children's Privacy
 
 Apiflow is not directed at children under 13 years of age. We do not knowingly collect personal information from children under 13. If we discover that we have collected personal information from a child, we will immediately delete such information.
 
 ---
 
-## 9. International Data Transfers
+## 10. International Data Transfers
 
 If you use Apiflow outside of China, your data may be transferred to servers within China. We will ensure compliance with applicable data protection laws.
+
+**Google Analytics**: If you enable Google Analytics, your usage data will be processed by Google's global infrastructure and may be transferred internationally. This is subject to Google's privacy policies and data processing terms.
 
 For self-hosted deployments, data is stored entirely on your own servers and does not involve cross-border transfers.
 
 ---
 
-## 10. Changes to Privacy Policy
+## 11. Changes to Privacy Policy
 
 We may update this Privacy Policy from time to time. The updated policy will be posted on this page with the "Last Updated" date revised.
 
@@ -214,7 +277,7 @@ If we make material changes to the Privacy Policy, we will notify you through:
 
 ---
 
-## 11. Contact Us
+## 12. Contact Us
 
 If you have any questions, comments, or requests regarding this Privacy Policy, please contact us through:
 
@@ -224,9 +287,9 @@ If you have any questions, comments, or requests regarding this Privacy Policy, 
 
 ---
 
-## 12. Region-Specific Privacy Rights
+## 13. Region-Specific Privacy Rights
 
-### 12.1 EU Users (GDPR)
+### 13.1 EU Users (GDPR)
 
 If you are located in the EU, under GDPR you have the following rights:
 
@@ -238,7 +301,9 @@ If you are located in the EU, under GDPR you have the following rights:
 - Right to Object: Object to data processing based on legitimate interests
 - Right to Withdraw Consent: Withdraw consent you previously gave
 
-### 12.2 California Users (CCPA/CPRA)
+**Note on Google Analytics**: If you enable Google Analytics, your data will be processed by Google. You can exercise your rights regarding Google Analytics data through Google's privacy controls or by disabling analytics in Apiflow settings.
+
+### 13.2 California Users (CCPA/CPRA)
 
 If you are a California resident, under CCPA/CPRA you have the following rights:
 
@@ -247,9 +312,11 @@ If you are a California resident, under CCPA/CPRA you have the following rights:
 - Right to Opt-Out: Opt out of the "sale" or "sharing" of personal information (we do not sell personal information)
 - Right to Non-Discrimination: Not be discriminated against for exercising privacy rights
 
+**Note on Google Analytics**: Using Google Analytics may constitute "sharing" personal information under CCPA. You can opt out by disabling analytics in application settings.
+
 ---
 
-## 13. Special Notes for Self-Hosted Deployments
+## 14. Special Notes for Self-Hosted Deployments
 
 If you choose to self-host Apiflow:
 
@@ -258,10 +325,11 @@ If you choose to self-host Apiflow:
 - Terms in this Privacy Policy regarding our servers do not apply
 - You must comply with data protection laws applicable to you
 - We do not access any data in your self-hosted instance
+- Google Analytics integration is not applicable to self-hosted deployments
 
 ---
 
-## 14. Data Minimization Principle
+## 15. Data Minimization Principle
 
 We follow the principle of data minimization:
 
@@ -269,6 +337,8 @@ We follow the principle of data minimization:
 - Retain data only for the required time
 - Use data only for specified purposes
 - Provide offline mode to maximize user privacy
+- Require explicit opt-in for analytics collection
+- Allow you to disable analytics at any time without affecting core functionality
 
 ---
 
