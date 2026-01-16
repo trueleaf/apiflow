@@ -16,6 +16,7 @@ export const useRuntime = defineStore('runtime', () => {
     avatar: '',
   });
   const language = ref<Language>(runtimeCache.getLanguage());
+  const analyticsEnabled = ref<boolean>(runtimeCache.getAnalyticsEnabled());
   const setNetworkMode = (mode: RuntimeNetworkMode): void => {
     networkMode.value = mode;
     runtimeCache.setNetworkMode(mode);
@@ -55,14 +56,21 @@ export const useRuntime = defineStore('runtime', () => {
     language.value = lang;
     runtimeCache.setLanguage(lang);
   };
+  // 设置 Analytics 启用状态
+  const setAnalyticsEnabled = (enabled: boolean): void => {
+    analyticsEnabled.value = enabled;
+    runtimeCache.setAnalyticsEnabled(enabled);
+  };
   return {
     networkMode,
     userInfo,
     language,
+    analyticsEnabled,
     setNetworkMode,
     updateUserInfo,
     initUserInfo,
     clearUserInfo,
     setLanguage,
+    setAnalyticsEnabled,
   }
 })

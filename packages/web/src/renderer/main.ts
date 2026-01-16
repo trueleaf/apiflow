@@ -14,6 +14,7 @@ import "@/assets/font/iconfont.css";
 import "@/assets/font/iconfont.js";
 import { i18n } from "./i18n";
 import { useRuntime } from "./store/runtime/runtimeStore.ts";
+import { loadAnalytics } from '@/utils/analytics';
 
 const pinia = createPinia();
 const app = createApp(App);
@@ -23,6 +24,9 @@ app.use(pinia);
 
 // 初始化用户信息
 runtimeStore.initUserInfo();
+
+// 初始化 Analytics（如果用户已同意）
+loadAnalytics();
 
 app.use(router);
 

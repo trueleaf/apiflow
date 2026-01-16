@@ -7,6 +7,7 @@ import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { simpleCreateHttpMockNodePrompt } from '@/store/ai/prompt/prompt'
 import { CreateHttpMockNodeOptions } from '@src/types/ai/tools.type'
 import type { Method } from 'got'
+import { trackEvent } from '@/utils/analytics';
 
 type LLMInferredHttpMockParams = {
   name?: string
@@ -336,6 +337,9 @@ export const httpMockNodeTools: AgentTool[] = [
       const mockData = { ...httpMockStore.httpMock, projectId }
       const result = await window.electronAPI.mock.startServer(JSON.parse(JSON.stringify(mockData)))
       const normalized = normalizeIpcResult(result)
+      if (normalized.ok) {
+        trackEvent('mock_server_started', { type: 'http', node_id: nodeId });
+      }
       return { code: normalized.ok ? 0 : 1, data: normalized.payload }
     },
   },
@@ -362,6 +366,9 @@ export const httpMockNodeTools: AgentTool[] = [
       }
       const result = await window.electronAPI.mock.stopServer(nodeId)
       const normalized = normalizeIpcResult(result)
+      if (normalized.ok) {
+        trackEvent('mock_server_stopped', { type: 'http', node_id: nodeId });
+      }
       return { code: normalized.ok ? 0 : 1, data: normalized.payload }
     },
   },

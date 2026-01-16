@@ -7,6 +7,7 @@ import { nanoid } from 'nanoid';
 import type { ApidocProjectInfo, ApidocProjectListInfo, CommonResponse, ApiNode } from '@src/types';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
+import { trackEvent } from '@/utils/analytics';
 
 export const useProjectManagerStore = defineStore('projectManager', () => {
   const runtimeStore = useRuntime();
@@ -51,6 +52,7 @@ export const useProjectManagerStore = defineStore('projectManager', () => {
         project.projectName = projectName;
         await projectCache.addProject(project);
         await getProjectList();
+        trackEvent('project_created', { project_name: projectName });
         return { projectId, projectName };
       }
       const params = {
@@ -98,6 +100,7 @@ export const useProjectManagerStore = defineStore('projectManager', () => {
         };
         await projectCache.deleteProject(projectId);
         await getProjectList();
+        trackEvent('project_deleted', { project_id: projectId });
         return backupData;
       }
       await request.delete('/api/project/delete_project', { data: { ids: [projectId] } });

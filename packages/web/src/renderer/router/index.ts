@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { useRuntime } from "@/store/runtime/runtimeStore.ts";
+import { trackPageView } from '@/utils/analytics';
 import { projectCache } from '@/cache/project/projectCache';
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { commonHeaderCache } from '@/cache/project/commonHeadersCache';
@@ -199,8 +200,9 @@ router.afterEach((to) => {
   localStorage.setItem("history/lastVisitePage", to.fullPath);
   const runtimeStore = useRuntime();
   if (runtimeStore.networkMode !== 'offline') {
-    NProgress.done(); // 页面顶部的加载条
+    NProgress.done();
   }
+  trackPageView(to.path, to.meta?.title as string);
 });
 
 export { routes, router };

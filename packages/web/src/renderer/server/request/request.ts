@@ -27,6 +27,7 @@ import preRequestWorker from '@/worker/httpNodePreRequest/httpNodePreRequest.ts?
 import { WebSocketNode } from '@src/types/websocketNode';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { isElectron } from '@/helper';
+import { trackEvent } from '@/utils/analytics';
 /*
 |--------------------------------------------------------------------------
 | 发送请求
@@ -494,6 +495,7 @@ export const sendRequest = async () => {
   const copiedApidoc = cloneDeep(toRaw(httpNodeStore.$state.httpNodeInfo));
   const preSendMethod = getMethod(copiedApidoc);
   const preSendUrl = await getUrl(copiedApidoc);
+  trackEvent('http_request_sent', { method: preSendMethod, node_id: copiedApidoc._id });
   const preSendBody = await getBody(copiedApidoc);
   const preSendHeaders = await getHeaders(copiedApidoc);
   const objUrlencoded = await convertPropertyToObject(copiedApidoc.item.requestBody.urlencoded);

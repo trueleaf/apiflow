@@ -59,6 +59,7 @@ import { useAppSettings } from '@/store/appSettings/appSettingsStore';
 import { IPC_EVENTS } from '@src/types/ipc'
 
 import { message } from '@/helper'
+import { trackEvent } from '@/utils/analytics';
 const emits = defineEmits(['jumpToRegister', 'jumpToResetPassword'])
 const { t } = useI18n()
 const runtimeStore = useRuntime()
@@ -97,6 +98,7 @@ const handleLogin = async () => {
           // 登录成功，更新用户信息到store
           runtimeStore.updateUserInfo(res.data);
           window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: res.data.id, loginName: res.data.loginName, role: res.data.role, token: res.data.token, avatar: res.data.avatar })
+          trackEvent('user_login', { method: 'account' });
           router.push('/home');
           // $store.dispatch('permission/getPermission')
         }
@@ -129,6 +131,7 @@ const handleQuickLogin = () => {
     runtimeStore.updateUserInfo(safeUserInfo)
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: safeUserInfo.id, loginName: safeUserInfo.loginName, role: safeUserInfo.role, token: safeUserInfo.token, avatar: safeUserInfo.avatar })
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, { loginName: safeUserInfo.loginName, password })
+    trackEvent('user_login', { method: 'quick_login' });
     message.success(t('登录成功'))
     router.push('/home')
   }).catch(() => {

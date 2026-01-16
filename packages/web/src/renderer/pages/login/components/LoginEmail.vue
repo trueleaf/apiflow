@@ -56,6 +56,7 @@ import { request } from '@/api/api';
 import { message } from '@/helper';
 import { router } from '@/router';
 import { useRuntime } from '@/store/runtime/runtimeStore';
+import { trackEvent } from '@/utils/analytics';
 import { PermissionUserInfo, CommonResponse } from '@src/types';
 import { IPC_EVENTS } from '@src/types/ipc';
 
@@ -165,6 +166,7 @@ const handleSubmit = async () => {
         token: res.data.token,
         avatar: res.data.avatar,
       });
+      trackEvent('user_register', { method: 'email' });
       message.success(t('注册成功'));
       router.push('/home');
     } else {
@@ -181,6 +183,7 @@ const handleSubmit = async () => {
         token: res.data.token,
         avatar: res.data.avatar,
       });
+      trackEvent('user_login', { method: 'email' });
       message.success(t('登录成功'));
       router.push('/home');
     }
@@ -207,6 +210,7 @@ const handleQuickLogin = async () => {
       avatar: safeUserInfo.avatar,
     })
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, { loginName: safeUserInfo.loginName, password })
+    trackEvent('user_login', { method: 'quick_login' });
     message.success(t('登录成功'))
     router.push('/home')
   } catch (error) {

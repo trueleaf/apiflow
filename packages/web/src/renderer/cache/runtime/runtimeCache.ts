@@ -109,5 +109,28 @@ class RuntimeCache {
       return false
     }
   }
+  // 获取 Analytics 启用状态（默认启用）
+  getAnalyticsEnabled(): boolean {
+    try {
+      const enabled = localStorage.getItem(cacheKey.runtime.analyticsEnabled)
+      if (enabled === null) {
+        return true
+      }
+      return enabled === 'true'
+    } catch (error) {
+      logger.error('获取 Analytics 状态失败', { error })
+      return true
+    }
+  }
+  // 设置 Analytics 启用状态
+  setAnalyticsEnabled(enabled: boolean): boolean {
+    try {
+      localStorage.setItem(cacheKey.runtime.analyticsEnabled, String(enabled))
+      return true
+    } catch (error) {
+      logger.error('设置 Analytics 状态失败', { error })
+      return false
+    }
+  }
 }
 export const runtimeCache = new RuntimeCache()

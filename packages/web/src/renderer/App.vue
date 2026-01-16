@@ -65,6 +65,7 @@ import { useLLMClientStore } from '@/store/ai/llmClientStore';
 import { storeToRefs } from 'pinia';
 import { useTheme } from '@/hooks/useTheme';
 import { isElectron } from '@/helper';
+import { trackEvent } from '@/utils/analytics';
 
 const router = useRouter();
 const dialogVisible = ref(false);
@@ -185,6 +186,7 @@ const handleHeaderTabContextAction = (action: AppWorkbenchHeaderTabContextAction
 }
 
 const handleLogout = () => {
+  trackEvent('user_logout');
   runtimeStore.clearUserInfo()
   hideUserMenu()
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: '', loginName: '', role: 'user', token: '', avatar: '' })

@@ -9,6 +9,7 @@ export const cacheKey = {
     networkMode: 'runtime/networkMode',
     userInfo: 'runtime/userInfo',
     language: 'runtime/language',
+    analyticsEnabled: 'runtime/analyticsEnabled',
   },
   appState: {
     aiDialog: {

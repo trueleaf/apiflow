@@ -84,6 +84,20 @@
               class="form-input"
             />
           </div>
+
+          <div class="form-item form-item-full">
+            <div class="form-label">
+              <BarChart3 :size="18" class="label-icon" />
+              {{ t('帮助改进产品') }}
+            </div>
+            <div class="analytics-switch-container">
+              <el-switch v-model="localAnalyticsEnabled" />
+              <div class="analytics-description">
+                <p class="description-text">{{ t('通过匿名数据收集帮助我们改进产品体验。我们仅收集应用使用情况，不会获取您的任何私密信息。') }}</p>
+                <p class="description-note">{{ t('仅在生产环境和在线模式下生效') }}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -101,10 +115,12 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
+import { useRuntime } from '@/store/runtime/runtimeStore'
+import { loadAnalytics, unloadAnalytics } from '@/utils/analytics'
 import { processImageUpload } from '@/utils/imageHelper'
 import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 import { useI18n } from 'vue-i18n'
-import { AppWindow, Palette, Globe } from 'lucide-vue-next'
+import { AppWindow, Palette, Globe, BarChart3 } from 'lucide-vue-next'
 import type { UploadFile } from 'element-plus'
 import type { AppTheme } from '@src/types'
 import { message } from '@/helper'
@@ -112,16 +128,19 @@ import { updateAxiosBaseURL } from '@/api/api'
 
 const { t } = useI18n()
 const appSettingsStore = useAppSettings()
+const runtimeStore = useRuntime()
 const isLogoHover = ref(false)
 const isLogoUploading = ref(false)
 const logoTrigger = ref()
 const localAppTitle = ref(appSettingsStore.appTitle)
 const localAppTheme = ref<AppTheme>(appSettingsStore.appTheme)
 const localServerUrl = ref(appSettingsStore.serverUrl)
+const localAnalyticsEnabled = ref(runtimeStore.analyticsEnabled)
 const hasChanges = computed(() => {
   return localAppTitle.value.trim() !== appSettingsStore.appTitle ||
     localAppTheme.value !== appSettingsStore.appTheme ||
-    localServerUrl.value.trim() !== appSettingsStore.serverUrl
+    localServerUrl.value.trim() !== appSettingsStore.serverUrl ||
+    localAnalyticsEnabled.value !== runtimeStore.analyticsEnabled
 })
 watch(() => appSettingsStore.appTitle, (newVal) => {
   localAppTitle.value = newVal
@@ -131,6 +150,9 @@ watch(() => appSettingsStore.appTheme, (newVal) => {
 })
 watch(() => appSettingsStore.serverUrl, (newVal) => {
   localServerUrl.value = newVal
+})
+watch(() => runtimeStore.analyticsEnabled, (newVal) => {
+  localAnalyticsEnabled.value = newVal
 })
 const triggerLogoUpload = () => {
   logoTrigger.value?.click()
@@ -174,6 +196,13 @@ const handleSave = () => {
   appSettingsStore.setAppTitle(trimmedTitle)
   appSettingsStore.setAppTheme(localAppTheme.value)
   appSettingsStore.setServerUrl(trimmedUrl)
+  const previousAnalyticsEnabled = runtimeStore.analyticsEnabled
+  runtimeStore.setAnalyticsEnabled(localAnalyticsEnabled.value)
+  if (localAnalyticsEnabled.value && !previousAnalyticsEnabled) {
+    loadAnalytics()
+  } else if (!localAnalyticsEnabled.value && previousAnalyticsEnabled) {
+    unloadAnalytics()
+  }
   updateAxiosBaseURL(trimmedUrl)
   message.success(t('保存成功'))
 }
@@ -339,6 +368,32 @@ const handleReset = async () => {
   justify-content: flex-end;
   gap: 12px;
   margin-top: 32px;
+}
+
+.analytics-switch-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+
+  .analytics-description {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .description-text {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .description-note {
+      margin: 0;
+      color: var(--text-tertiary);
+      font-size: 12px;
+    }
+  }
 }
 
 .upload-proxy {
