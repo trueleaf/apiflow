@@ -328,6 +328,11 @@ class UpdateManager {
         }
       }
     })
+
+    // 检测是否为应用商店版本
+    ipcMain.handle(UPDATE_IPC_EVENTS.isAppStore, async () => {
+      return Boolean(process.windowsStore || process.mas)
+    })
   }
 
   // 检查更新

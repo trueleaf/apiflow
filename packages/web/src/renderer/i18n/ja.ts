@@ -1219,7 +1219,7 @@ export default {
   '序号': 'Serial Number',
   '选项': 'Options',
   '选择备份文件': 'Select backup file',
-  '选择成员或组': 'Select members or groups',
+  '选择成员或组': 'Select members',
   '选择分享': 'Select Share',
   '选择过期时间': 'Select expiration time',
   '选择文件': 'Select File',

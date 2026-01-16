@@ -1,5 +1,6 @@
 {
   "name": "apiflow",
+  "version": "0.9.5",
   "private": true,
   "scripts": {
     "bootstrap": "npm --prefix packages/web ci && npm --prefix packages/server ci",

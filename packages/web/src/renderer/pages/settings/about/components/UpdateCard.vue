@@ -1,5 +1,6 @@
 <template>
-  <div class="update-card">
+  <!-- 商店版本不显示更新卡片 -->
+  <div v-if="!isAppStore" class="update-card">
     <div class="card-header">
       <h3>{{ t('软件更新') }}</h3>
     </div>
@@ -190,6 +191,7 @@ import { UPDATE_IPC_EVENTS } from '@src/types/ipc/update'
 import type { UpdateInfo, UpdateProgress, UpdateError, UpdateSettings, UpdateStatus, DownloadTask } from '@src/types/update'
 
 const { t } = useI18n()
+const isAppStore = ref(false)
 const status = ref<UpdateStatus>('idle')
 const updateInfo = ref<UpdateInfo | null>(null)
 const downloadProgress = reactive<UpdateProgress>({
@@ -385,6 +387,14 @@ const initIPCListeners = () => {
 
 // 组件挂载
 onMounted(async () => {
+  // 检测是否为商店版本
+  isAppStore.value = await window.electronAPI?.updateManager.isAppStore() || false
+  
+  // 商店版本不需要初始化更新相关功能
+  if (isAppStore.value) {
+    return
+  }
+  
   const cachedSettings = appStateCache.getUpdateSettings()
   Object.assign(settings, cachedSettings);
   // 同步配置到主进程，需要转换为普通对象

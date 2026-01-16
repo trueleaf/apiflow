@@ -2,6 +2,11 @@ import type { ResponseInfo, WindowState } from "@src/types/index.ts"
 import { BrowserWindow } from "electron";
 import vm from 'vm';
 
+// 检测是否为应用商店版本（Windows Store 或 Mac App Store）
+export const isAppStore = (): boolean => {
+  return Boolean(process.windowsStore || process.mas);
+}
+
 export const execCodeInContext = (code: string, variables: Record<string, any>): { code: number; data: any; msg: string } => {
   try {
     const sandbox = {

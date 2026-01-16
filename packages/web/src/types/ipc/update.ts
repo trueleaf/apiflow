@@ -17,6 +17,7 @@ export const UPDATE_IPC_EVENTS = {
   setUpdateSource: 'apiflow:update:set-update-source',
   syncSettings: 'apiflow:update:sync-settings',
   testConnection: 'apiflow:update:test-connection',
+  isAppStore: 'apiflow:update:is-app-store',
 
   // 主进程 -> 渲染进程
   checkingForUpdate: 'apiflow:update:checking-for-update',

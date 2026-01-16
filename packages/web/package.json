@@ -5,7 +5,7 @@
   "license": "MIT",
   "homepage": "https://github.com/trueleaf/apiflow",
   "private": true,
-  "version": "0.9.1",
+  "version": "0.9.5",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
@@ -185,17 +185,18 @@
       "requestedExecutionLevel": "asInvoker"
     },
     "appx": {
-      "applicationId": "TrueleafTeam.ApiFlow",
-      "identityName": "TrueleafTeam.ApiFlow",
-      "publisher": "CN=Trueleaf Team",
-      "publisherDisplayName": "Trueleaf Team",
+      "applicationId": "TrueLeaf.ApiFlow",
+      "identityName": "TrueLeaf.ApiFlow",
+      "publisher": "CN=21922134-321C-42D0-80D1-D57E1992206A",
+      "publisherDisplayName": "orange pig",
       "displayName": "ApiFlow",
       "backgroundColor": "#ffffff",
       "showNameOnTiles": true,
       "languages": [
         "zh-CN",
         "en-US"
-      ]
+      ],
+      "addAutoLaunchExtension": false
     },
     "nsis": {
       "oneClick": false,

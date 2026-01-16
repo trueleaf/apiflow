@@ -94,7 +94,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, computed, ComponentPublicInstance, reactive } from 'vue'
+import { ref, onMounted, onUnmounted, watch, computed, ComponentPublicInstance, reactive, nextTick } from 'vue'
 import draggable from 'vuedraggable'
  import { Language, WindowState } from '@src/types'
  import type { AppWorkbenchHeaderTab, AppWorkbenchHeaderTabContextActionPayload } from '@src/types/appWorkbench/appWorkbenchType'
@@ -134,12 +134,14 @@ const quickLoginTipText = computed(() => {
 const showQuickLoginTip = computed(() => {
   return networkMode.value === 'online' && Boolean(runtimeStore.userInfo.token) && Boolean(quickLoginCredential.value) && !quickLoginTipDismissed.value
 })
+const isAppStore = ref(false)
 const downloadState = reactive({
   state: 'idle' as DownloadState,
   percent: 0
 })
 const showDownloadProgress = computed(() => {
-  return (downloadState.state === 'downloading' || downloadState.state === 'paused') 
+  return !isAppStore.value 
+    && (downloadState.state === 'downloading' || downloadState.state === 'paused') 
     && downloadState.percent > 0 
     && downloadState.percent < 100
 })
@@ -629,6 +631,11 @@ const startSyncUserInfo = () => {
 }
 
 onMounted(async () => {
+  // 检测是否为商店版本
+  if (isElectronEnv.value) {
+    isAppStore.value = await window.electronAPI?.updateManager.isAppStore() || false
+  }
+  
   runtimeStore.initUserInfo()
   bindEvent()
   scrollToActiveTab()

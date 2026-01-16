@@ -269,6 +269,9 @@ const updateSetUpdateSource = (source: 'github' | 'custom', customUrl?: string) 
 const updateTestConnection = (url: string) => {
   return ipcRenderer.invoke(UPDATE_IPC_EVENTS.testConnection, url)
 }
+const updateIsAppStore = () => {
+  return ipcRenderer.invoke(UPDATE_IPC_EVENTS.isAppStore)
+}
 
 contextBridge.exposeInMainWorld('electronAPI', {
   ip: ip.address(),
@@ -347,5 +350,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     setAutoCheck: updateSetAutoCheck,
     setUpdateSource: updateSetUpdateSource,
     testConnection: updateTestConnection,
+    isAppStore: updateIsAppStore,
   },
 })

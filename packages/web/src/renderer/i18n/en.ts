@@ -1547,7 +1547,7 @@ export default {
   修改数据后可以保存: 'You can save after modifying data',
   选项: 'Options',
   选择备份文件: 'Select backup file',
-  选择成员或组: 'Select members or groups',
+  选择成员或组: 'Select members',
   选择过期时间: 'Select expiration time',
   选择需要挂载的节点: 'Select a node to mount',
   选中的缓存卡片类型: 'Selected cache card type',

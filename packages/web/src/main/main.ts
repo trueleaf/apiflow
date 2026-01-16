@@ -3,7 +3,7 @@ import path from 'path'
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import os from 'os';
-import { getWindowState } from './utils/index.ts';
+import { getWindowState, isAppStore } from './utils/index.ts';
 import { useIpcEvent } from './ipcMessage/index.ts';
 import { bindMainProcessGlobalShortCut } from './shortcut/index.ts';
 import { overrideBrowserWindow } from './override/index.ts';
@@ -203,19 +203,21 @@ if (!gotTheLock) {
     //重写默认逻辑
     overrideBrowserWindow(mainWindow, contentView, topBarView);
     
-    // 初始化UpdateManager（使用默认配置，实际配置会在渲染进程初始化时通过IPC更新）
-    const updateSettings = {
-      autoCheck: false,
-      source: 'github' as const,
-      customUrl: '',
-    }
-    updateManager.init(updateSettings)
+    // 初始化UpdateManager（商店版本由商店管理更新，跳过初始化）
+    if (!isAppStore()) {
+      const updateSettings = {
+        autoCheck: false,
+        source: 'github' as const,
+        customUrl: '',
+      }
+      updateManager.init(updateSettings)
 
-    // 如果启用了自动检查更新，延迟3秒后检查（等待应用完全启动）
-    if (updateSettings.autoCheck) {
-      setTimeout(() => {
-        updateManager.checkForUpdates()
-      }, 3000)
+      // 如果启用了自动检查更新，延迟3秒后检查（等待应用完全启动）
+      if (updateSettings.autoCheck) {
+        setTimeout(() => {
+          updateManager.checkForUpdates()
+        }, 3000)
+      }
     }
   }).catch((error) => {
     console.error('Error during app initialization:', error);
