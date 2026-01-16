@@ -1,4 +1,13 @@
 {
+  "产品展示_标题": "Product Showcase",
+  "产品展示_Agent_标题": "Intelligent Agents",
+  "产品展示_Agent_描述": "Automate workflows with AI-driven agents to boost efficiency.",
+  "产品展示_Mock_标题": "Smart Mock Server",
+  "产品展示_Mock_描述": "Simulate API responses instantly without backend implementation.",
+  "产品展示_SSE_标题": "Real-time Support",
+  "产品展示_SSE_描述": "Native support for SSE and WebSockets for real-time app debugging.",
+  "产品展示_Team_标题": "Team Collaboration",
+  "产品展示_Team_描述": "Efficient team collaboration and permission management.",
   "关于我们": "About",
   "关于我们_标题": "About Us",
   "关于我们_副标题": "With AI we are recreating a variety of medium-to-large productivity tools at low cost. We're experimenting with how solo builders can compete with teams—follow along if that excites you!",

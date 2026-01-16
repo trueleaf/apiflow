@@ -91,14 +91,14 @@ export default function PricingSection() {
   ];
 
   return (
-    <section id="pricing" className="py-16 sm:py-20 lg:py-24 bg-gray-50">
+    <section id="pricing" className="py-16 sm:py-20 lg:py-24 bg-background">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* 版块标题 */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+          <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
             Simple, Transparent Pricing
           </h2>
-          <p className="mx-auto mt-6 max-w-3xl text-lg text-gray-600">
+          <p className="mx-auto mt-6 max-w-3xl text-lg text-muted-foreground">
             Choose the plan that fits your needs. Start free and scale as you grow. 
             No hidden fees, no surprises.
           </p>
@@ -109,37 +109,37 @@ export default function PricingSection() {
           {plans.map((plan, index) => (
             <div
               key={index}
-              className={`relative rounded-2xl bg-white shadow-lg ring-1 ring-gray-200 ${
-                plan.popular ? 'ring-2 ring-blue-600 scale-105' : ''
+              className={`relative rounded-2xl bg-card shadow-lg ring-1 ring-border transition-all duration-200 ${
+                plan.popular ? 'ring-2 ring-primary scale-105 shadow-xl z-10' : 'hover:shadow-xl hover:-translate-y-1'
               }`}
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <div className="inline-flex items-center rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white">
-                    <Star className="mr-1 h-4 w-4" />
+                  <div className="inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm">
+                    <Star className="mr-1 h-4 w-4 fill-current" />
                     Most Popular
                   </div>
                 </div>
               )}
 
               <div className="p-8">
-                <h3 className="text-2xl font-bold text-gray-900">{plan.name}</h3>
-                <p className="mt-2 text-gray-600">{plan.description}</p>
+                <h3 className="text-2xl font-bold text-foreground">{plan.name}</h3>
+                <p className="mt-2 text-muted-foreground text-sm">{plan.description}</p>
                 
                 <div className="mt-6">
                   <div className="flex items-baseline">
-                    <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
+                    <span className="text-4xl font-bold text-foreground">{plan.price}</span>
                     {plan.period && (
-                      <span className="ml-2 text-gray-600">/{plan.period}</span>
+                      <span className="ml-2 text-muted-foreground text-sm">/{plan.period}</span>
                     )}
                   </div>
                 </div>
 
                 <button
-                  className={`mt-8 w-full rounded-lg px-6 py-3 text-base font-semibold transition-all duration-200 ${
+                  className={`mt-8 w-full rounded-lg px-6 py-3 text-base font-semibold transition-all duration-200 cursor-pointer ${
                     plan.popular
-                      ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:scale-105'
-                      : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                      ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:scale-[1.02]'
+                      : 'bg-muted text-foreground hover:bg-muted/80'
                   }`}
                 >
                   {plan.cta}
@@ -148,18 +148,18 @@ export default function PricingSection() {
                 <ul className="mt-8 space-y-3">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start">
-                      <Check className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">{feature}</span>
+                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <span className="text-muted-foreground text-sm">{feature}</span>
                     </li>
                   ))}
                 </ul>
 
                 {plan.limitations.length > 0 && (
-                  <div className="mt-6 pt-6 border-t border-gray-200">
-                    <p className="text-sm font-medium text-gray-500 mb-3">Limitations:</p>
+                  <div className="mt-6 pt-6 border-t border-border">
+                    <p className="text-sm font-medium text-muted-foreground mb-3">Limitations:</p>
                     <ul className="space-y-2">
                       {plan.limitations.map((limitation, limitIndex) => (
-                        <li key={limitIndex} className="text-sm text-gray-500">
+                        <li key={limitIndex} className="text-sm text-muted-foreground/80">
                           • {limitation}
                         </li>
                       ))}
@@ -172,12 +172,12 @@ export default function PricingSection() {
         </div>
 
         {/* 企业版功能 */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-16">
+        <div className="bg-card rounded-2xl shadow-lg border border-border p-8 mb-16">
           <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+            <h3 className="text-2xl font-bold text-foreground mb-4">
               Enterprise Features
             </h3>
-            <p className="text-gray-600 max-w-3xl mx-auto">
+            <p className="text-muted-foreground max-w-3xl mx-auto">
               Get advanced security, compliance, and support features designed for large organizations.
             </p>
           </div>
@@ -194,31 +194,31 @@ export default function PricingSection() {
               'Advanced Analytics'
             ].map((feature, index) => (
               <div key={index} className="flex items-center">
-                <Check className="h-5 w-5 text-green-600 mr-3" />
-                <span className="text-gray-700">{feature}</span>
+                <Check className="h-5 w-5 text-green-500 mr-3" />
+                <span className="text-foreground text-sm font-medium">{feature}</span>
               </div>
             ))}
           </div>
 
           <div className="text-center mt-8">
-            <button className="inline-flex items-center rounded-lg bg-purple-600 px-8 py-3 text-base font-semibold text-white shadow-lg hover:bg-purple-700 transition-all duration-200">
+            <button className="inline-flex items-center rounded-lg bg-foreground text-background px-8 py-3 text-base font-semibold shadow-lg hover:bg-foreground/90 transition-all duration-200">
               Contact Enterprise Sales
             </button>
           </div>
         </div>
 
         {/* 常见问题 */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">
+        <div className="bg-card rounded-2xl shadow-lg border border-border p-8">
+          <h3 className="text-2xl font-bold text-foreground text-center mb-8">
             Frequently Asked Questions
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {faqs.map((faq, index) => (
               <div key={index}>
-                <h4 className="text-lg font-semibold text-gray-900 mb-3">
+                <h4 className="text-lg font-semibold text-foreground mb-3">
                   {faq.question}
                 </h4>
-                <p className="text-gray-600">{faq.answer}</p>
+                <p className="text-muted-foreground">{faq.answer}</p>
               </div>
             ))}
           </div>
@@ -226,7 +226,7 @@ export default function PricingSection() {
 
         {/* 退款保证 */}
         <div className="text-center mt-12">
-          <div className="inline-flex items-center rounded-full bg-green-100 px-6 py-3 text-green-800">
+          <div className="inline-flex items-center rounded-full bg-green-500/10 px-6 py-3 text-green-600 ring-1 ring-inset ring-green-500/20">
             <Check className="mr-2 h-5 w-5" />
             <span className="font-medium">30-day money-back guarantee</span>
           </div>

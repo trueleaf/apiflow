@@ -1,28 +1,67 @@
 @import "tailwindcss";
 
 :root {
+  /* 基础色板 - 更加中性、高级的灰度 */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #09090b; /* 接近纯黑 */
+
+  /* 品牌色 - 更加现代的蓝色 (Intense Blue) */
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+
+  /* 辅助色 */
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a; /* 用于副标题、说明文字 */
+  
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #2563eb;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", SimSun, sans-serif;
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-sans: "Inter", "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", SimSun, sans-serif;
   --font-mono: var(--font-geist-mono);
+  
+  /* 添加更加细腻的阴影 */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-DEFAULT: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    
+    --primary: #3b82f6;
+    --primary-foreground: #ffffff;
+
+    --muted: #171717;
+    --muted-foreground: #a1a1aa;
+    
+    --border: #27272a;
+    --input: #27272a;
+    --ring: #1d4ed8;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", SimSun, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* 锚点链接的平滑滚动 */
@@ -36,28 +75,27 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background-color: var(--muted-foreground);
   border-radius: 4px;
+  opacity: 0.5;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background-color: var(--foreground);
 }
 
-/* 渐变背景 */
-.gradient-bg {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+/* 实用工具类 */
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1rem;
 }
 
-.gradient-text {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+@utility gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400;
 }
 
 /* 动画工具 */

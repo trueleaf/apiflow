@@ -41,18 +41,18 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-background border-t border-border">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
           {/* 品牌部分 */}
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">A</span>
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-lg">A</span>
               </div>
-              <span className="text-xl font-bold">Apiflow</span>
+              <span className="text-xl font-bold text-foreground">Apiflow</span>
             </div>
-            <p className="text-gray-400 mb-6 max-w-md">
+            <p className="text-muted-foreground mb-6 max-w-md">
               {t('开发者喜爱的现代化 API 文档与测试工具。轻松构建、测试和记录您的 API。')}
             </p>
             <div className="flex space-x-4">
@@ -62,7 +62,7 @@ export default function Footer() {
                   <Link
                     key={social.name}
                     href={social.href}
-                    className="text-gray-400 hover:text-white transition-colors duration-200"
+                    className="text-muted-foreground hover:text-primary transition-colors duration-200"
                     aria-label={social.name}
                   >
                     <Icon size={20} />
@@ -74,7 +74,7 @@ export default function Footer() {
 
           {/* 产品链接 */}
           <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">
               {t('产品')}
             </h3>
             <ul className="space-y-3">
@@ -82,7 +82,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors duration-200"
+                    className="text-muted-foreground hover:text-primary transition-colors duration-200 block"
                   >
                     {link.name}
                   </Link>
@@ -93,7 +93,7 @@ export default function Footer() {
 
           {/* 公司链接 */}
           <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">
               {t('公司')}
             </h3>
             <ul className="space-y-3">
@@ -101,7 +101,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors duration-200"
+                    className="text-muted-foreground hover:text-primary transition-colors duration-200 block"
                   >
                     {link.name}
                   </Link>
@@ -112,7 +112,7 @@ export default function Footer() {
 
           {/* 资源链接 */}
           <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">
               {t('资源')}
             </h3>
             <ul className="space-y-3">
@@ -120,7 +120,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors duration-200"
+                    className="text-muted-foreground hover:text-primary transition-colors duration-200 block"
                   >
                     {link.name}
                   </Link>
@@ -131,7 +131,7 @@ export default function Footer() {
 
           {/* 法律链接 */}
           <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">
               {t('法律')}
             </h3>
             <ul className="space-y-3">
@@ -139,7 +139,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors duration-200"
+                    className="text-muted-foreground hover:text-primary transition-colors duration-200 block"
                   >
                     {link.name}
                   </Link>
@@ -150,11 +150,12 @@ export default function Footer() {
         </div>
 
         {/* 底部部分 */}
-        <div className="mt-12 pt-8 border-t border-gray-800">
+        <div className="mt-12 pt-8 border-t border-border">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm">
+            <p className="text-muted-foreground text-sm">
+              &copy; {new Date().getFullYear()} Apiflow. {t('Rights Reserved')}
             </p>
-            <p className="text-gray-400 text-sm mt-4 md:mt-0">
+            <p className="text-muted-foreground text-sm mt-4 md:mt-0">
               {t('为全世界的开发者用 ❤️ 构建')}
             </p>
           </div>

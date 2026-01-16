@@ -1,12 +1,12 @@
 import HeroSection from "@/components/sections/HeroSection";
-import AboutUsSection from "@/components/sections/AboutUsSection";
+import ProductShowcase from "@/components/sections/ProductShowcase";
 import ComparisonSection from "@/components/sections/ComparisonSection";
 
 export default function Home() {
   return (
     <div className="min-h-screen">
       <HeroSection />
-      <AboutUsSection />
+      <ProductShowcase />
       <ComparisonSection />
     </div>
   );

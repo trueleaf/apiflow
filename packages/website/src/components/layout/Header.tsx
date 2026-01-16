@@ -30,7 +30,7 @@ export default function Header() {
   ];
 
   return (
-    <header className="fixed top-0 w-full bg-white/95 backdrop-blur-sm border-b border-gray-200 z-50">
+    <header className="fixed top-0 w-full bg-background/80 backdrop-blur-md border-b border-border z-50">
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center py-4">
           {/* 左侧 - Logo */}
@@ -43,7 +43,7 @@ export default function Header() {
                 height={32}
                 className="w-8 h-8"
               />
-              <span className="text-xl font-bold text-gray-900">Apiflow</span>
+              <span className="text-xl font-bold text-foreground">Apiflow</span>
             </Link>
           </div>
 
@@ -55,7 +55,7 @@ export default function Header() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="text-gray-600 hover:text-blue-600 transition-colors duration-200 font-medium"
+                  className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium text-sm"
                 >
                   {item.name}
                 </Link>

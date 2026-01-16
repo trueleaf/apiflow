@@ -14,27 +14,27 @@ export default function HeroSection() {
   ];
 
   return (
-    <section className="relative pt-20 pb-16 sm:pt-24 sm:pb-20 lg:pt-32 lg:pb-28">
-      {/* 背景渐变 */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50"></div>
+    <section className="relative pt-20 pb-16 sm:pt-24 sm:pb-20 lg:pt-32 lg:pb-28 overflow-hidden">
+      {/* 背景光效 */}
+      <div className="absolute inset-0 -z-10 h-full w-full bg-background [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)] opacity-20 dark:[background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#63e_100%)]"></div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* 左侧 - 内容 */}
           <div className="text-left">
             {/* 徽章 */}
-            <div className="inline-flex items-center rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800 mb-8">
+            <div className="inline-flex items-center rounded-full bg-blue-50/50 px-3 py-1 text-sm font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 mb-8 backdrop-blur-sm dark:bg-blue-900/20 dark:text-blue-400 dark:ring-blue-400/20">
               {t('🚀 新功能：高级 API 测试功能现已上线')}
             </div>
 
             {/* 主标题 */}
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
               <span>{t('Postman 和 Apifox 的')}{' '}</span>
               <span className="gradient-text">{t('免费开源替代品')}</span>
             </h1>
 
             {/* 副标题 */}
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-600 sm:text-xl">
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
               <span>{t('在 Vibe Coding 的支持下，个人开发者或小团队同样能够构建媲美企业级应用的产品，欢迎 Star，支持我们走得更远')}</span>
             </p>
 
@@ -44,7 +44,7 @@ export default function HeroSection() {
                 href="https://github.com/trueleaf/apiflow/releases"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center rounded-lg bg-blue-600 px-8 py-3 text-base font-semi text-white shadow-lg hover:bg-blue-700"
+                className="inline-flex items-center rounded-lg bg-primary px-8 py-3 text-base font-medium text-primary-foreground shadow-lg hover:bg-blue-700 transition-all duration-200 hover:shadow-blue-500/25"
               >
                 {t('下载客户端')}
               </Link>
