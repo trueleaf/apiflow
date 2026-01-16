@@ -2,15 +2,22 @@ import { test, expect } from '../../../../fixtures/electron.fixture';
 
 test.describe('QuickIcons', () => {
   test.describe('AI助理按钮', () => {
-    test('点击AI助理按钮弹出AI助理弹窗', async ({ contentPage, topBarPage }) => {
+    test('点击AI助理按钮弹出AI助理弹窗', async ({ contentPage, topBarPage, clearCache }) => {
+      // 清空缓存，确保首次打开时使用默认模式
+      await clearCache();
       const aiBtn = topBarPage.locator('[data-testid="header-ai-btn"]');
       await expect(aiBtn).toBeVisible();
       await aiBtn.click();
       // 等待AI助理弹窗出现
       const aiDialog = contentPage.locator('.ai-dialog');
       await expect(aiDialog).toBeVisible({ timeout: 5000 });
+      // 验证首次打开默认是 Agent 模式
+      const modeTrigger = aiDialog.locator('.ai-input-trigger');
+      await expect(modeTrigger).toContainText('Agent');
     });
-    test('多次点击AI助理按钮不会关闭弹窗', async ({ contentPage, topBarPage }) => {
+    test('多次点击AI助理按钮不会关闭弹窗', async ({ contentPage, topBarPage, clearCache }) => {
+      // 清空缓存，确保首次打开时使用默认模式
+      await clearCache();
       const aiBtn = topBarPage.locator('[data-testid="header-ai-btn"]');
       await aiBtn.click();
       const aiDialog = contentPage.locator('.ai-dialog');

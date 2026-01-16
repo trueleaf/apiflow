@@ -22,7 +22,7 @@ export const useAgentViewStore = defineStore('agentView', () => {
     currentView.value = view;
     appStateCache.setAiDialogView(view);
   };
-  const mode = ref<'agent' | 'ask'>('ask');
+  const mode = ref<'agent' | 'ask'>('agent');
   const inputMessage = ref('');
   // 流式请求状态
   const isStreaming = ref(false);
@@ -203,7 +203,7 @@ export const useAgentViewStore = defineStore('agentView', () => {
       mode.value = cachedMode;
       return;
     }
-    mode.value = 'ask';
+    mode.value = 'agent';
   };
   // 初始化视图（从缓存读取）
   const initView = (): void => {

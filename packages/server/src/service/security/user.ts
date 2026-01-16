@@ -504,7 +504,7 @@ export class UserService {
     user.loginName = loginName;
     user.password = hashPassword;
     user.salt = salt;
-    user.roleIds = ['5ee980553c63cd01a49952e4'];
+    user.roleIds = [USER_ROLE_ID];
     user.roleNames = ['普通用户'];
     await this.userModel.create(user);
     const loginTokenInfo = await this.loginByPassword({
