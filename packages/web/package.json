@@ -150,6 +150,9 @@
       "buildResources": "build",
       "output": "release"
     },
+    "asarUnpack": [
+      "node_modules/sharp/**/*"
+    ],
     "files": [
       "dist/**/*",
       "package.json"

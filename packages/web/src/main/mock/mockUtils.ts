@@ -1,7 +1,6 @@
 import { HttpMockNode, MockSSEEventData } from '@src/types/mockNode';
 import { globalLLMClient } from '../ai/agent';
 import { fakerZH_CN, fakerEN, fakerJA } from '@faker-js/faker';
-import sharp from 'sharp';
 import mime from 'mime-types';
 import fs from 'fs';
 import path from 'path';
@@ -601,6 +600,16 @@ export class MockUtils {
   |--------------------------------------------------------------------------
   */
 
+  // 动态加载 sharp 模块
+  private async loadSharp(): Promise<typeof import('sharp') | null> {
+    try {
+      const sharpModule = await import('sharp');
+      return sharpModule.default;
+    } catch (error) {
+      console.warn('Sharp 模块加载失败，将使用 SVG 降级方案:', error);
+      return null;
+    }
+  }
   // 生成图片方法
   // randomSizeKB: 目标大小（KB），用于增加无用内容以接近目标体积
   public async generateImage(width: number, height: number, formats: string[] = ['png'], randomSizeKB?: number): Promise<Buffer> {
@@ -617,10 +626,9 @@ export class MockUtils {
       ];
       const bgColor = colors[Math.floor(Math.random() * colors.length)];
       
-      // 使用 sharp 创建一个纯色背景图片
       const format = formats[0] || 'png';
       
-      // 创建 SVG 内容，因为 sharp 支持从 SVG 生成图片
+      // 创建 SVG 内容
       const svgContent = `
         <svg width="${safeWidth}" height="${safeHeight}" xmlns="http://www.w3.org/2000/svg">
           <rect width="100%" height="100%" fill="${bgColor}"/>
@@ -639,7 +647,7 @@ export class MockUtils {
         </svg>
       `;
       
-      // 若请求生成 SVG，直接返回 SVG Buffer（不经 sharp 转换），并按需填充注释以增大体积
+      // 若请求生成 SVG，直接返回 SVG Buffer，并按需填充注释以增大体积
       if (format.toLowerCase() === 'svg') {
         let resultSvg = svgContent;
         if (targetSizeBytes > 0) {
@@ -656,7 +664,14 @@ export class MockUtils {
         return Buffer.from(resultSvg);
       }
 
-      // 使用 sharp 将 SVG 转换为指定格式的图片
+      // 尝试使用 sharp 将 SVG 转换为指定格式的图片
+      const sharp = await this.loadSharp();
+      if (!sharp) {
+        // Sharp 不可用，降级返回 SVG
+        console.warn(`Sharp 不可用，无法生成 ${format} 格式图片，降级返回 SVG`);
+        return Buffer.from(svgContent);
+      }
+
       let sharpInstance = sharp(Buffer.from(svgContent));
 
       switch (format.toLowerCase()) {
@@ -683,7 +698,7 @@ export class MockUtils {
       return buffer;
     } catch (error) {
       console.error('图片生成失败:', error);
-      // 返回一个最小的 PNG 图片 Buffer
+      // 返回一个简单的 SVG 作为降级方案
       const fallbackSvg = `
         <svg width="200" height="150" xmlns="http://www.w3.org/2000/svg">
           <rect width="100%" height="100%" fill="#cccccc"/>
@@ -692,7 +707,7 @@ export class MockUtils {
           </text>
         </svg>
       `;
-      return await sharp(Buffer.from(fallbackSvg)).png().toBuffer();
+      return Buffer.from(fallbackSvg);
     }
   }
 
