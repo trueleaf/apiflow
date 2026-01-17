@@ -22,7 +22,7 @@ export default function Header() {
 
   const repositoryLinks = [
     {
-      name: 'GitHub',
+      name: t('GitHub'),
       href: 'https://github.com/trueleaf/apiflow',
       icon: '/github.svg',
       showStars: true
@@ -38,7 +38,7 @@ export default function Header() {
             <Link href="/" className="flex items-center space-x-2">
               <Image
                 src="/logo.png"
-                alt="Apiflow Logo"
+                alt={t('Apiflow Logo')}
                 width={32}
                 height={32}
                 className="w-8 h-8"
@@ -76,7 +76,7 @@ export default function Header() {
                   >
                     <Image 
                       src={repo.icon} 
-                      alt={`${repo.name} icon`}
+                      alt={`${repo.name} ${t('Icon')}`}
                       width={16} 
                       height={16} 
                       className="w-4 h-4" 
@@ -135,7 +135,7 @@ export default function Header() {
                   >
                     <Image 
                       src={repo.icon} 
-                      alt={`${repo.name} icon`}
+                      alt={`${repo.name} ${t('Icon')}`}
                       width={16} 
                       height={16} 
                       className="w-4 h-4" 

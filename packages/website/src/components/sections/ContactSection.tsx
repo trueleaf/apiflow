@@ -1,61 +1,64 @@
 import { Mail, MessageSquare, Phone, MapPin, Clock, Send } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function ContactSection() {
+  const t = useTranslations();
+
   const contactMethods = [
     {
       icon: Mail,
-      title: 'Email Support',
-      description: 'Reach out to the team',
+      title: t('联系_方式_邮件_标题'),
+      description: t('联系_方式_邮件_描述'),
       contact: 'support@apiflow.cn',
-      availability: '24/7 response within 4 hours'
+      availability: t('联系_方式_邮件_可用性')
     },
     {
       icon: MessageSquare,
-      title: 'Live Chat',
-      description: 'Ask questions and get quick help',
-      contact: 'Community channels',
-      availability: 'Mon-Fri, 9 AM - 6 PM PST'
+      title: t('联系_方式_聊天_标题'),
+      description: t('联系_方式_聊天_描述'),
+      contact: t('联系_方式_聊天_联系方式'),
+      availability: t('联系_方式_聊天_可用性')
     },
     {
       icon: Phone,
-      title: 'Phone Support',
-      description: 'Talk with the team',
+      title: t('联系_方式_电话_标题'),
+      description: t('联系_方式_电话_描述'),
       contact: '+1 (555) 123-4567',
-      availability: 'By request'
+      availability: t('联系_方式_电话_可用性')
     },
     {
       icon: MapPin,
-      title: 'Office',
-      description: 'Visit us in person',
+      title: t('联系_方式_办公室_标题'),
+      description: t('联系_方式_办公室_描述'),
       contact: '123 Tech Street, San Francisco, CA',
-      availability: 'By appointment only'
+      availability: t('联系_方式_办公室_可用性')
     }
   ];
 
   const faqs = [
     {
-      question: 'How do I get started with Apiflow?',
-      answer: 'Download Apiflow and start using it right away. No credit card, no trial—just free and open source.'
+      question: t('联系_FAQ_Q1'),
+      answer: t('联系_FAQ_A1')
     },
     {
-      question: 'Can I import my existing Postman collections?',
-      answer: 'Yes! We provide easy import tools to migrate your collections from Postman, Insomnia, and other popular API tools.'
+      question: t('联系_FAQ_Q2'),
+      answer: t('联系_FAQ_A2')
     },
     {
-      question: 'Do you offer on-premise deployment?',
-      answer: 'Yes. Apiflow supports self-hosting and local deployment, including Docker-based setups.'
+      question: t('联系_FAQ_Q3'),
+      answer: t('联系_FAQ_A3')
     },
     {
-      question: 'What integrations do you support?',
-      answer: 'We integrate with popular tools like GitHub, GitLab, Slack, Jira, and many more. Check our integrations page for the full list.'
+      question: t('联系_FAQ_Q4'),
+      answer: t('联系_FAQ_A4')
     },
     {
-      question: 'Is my data secure?',
-      answer: 'Absolutely. We use enterprise-grade security measures including encryption at rest and in transit, SOC 2 compliance, and regular security audits.'
+      question: t('联系_FAQ_Q5'),
+      answer: t('联系_FAQ_A5')
     },
     {
-      question: 'Is Apiflow really free forever?',
-      answer: 'Yes. Apiflow is open source, and all core features are free to use—forever.'
+      question: t('联系_FAQ_Q6'),
+      answer: t('联系_FAQ_A6')
     }
   ];
 
@@ -65,10 +68,10 @@ export default function ContactSection() {
         {/* 版块标题 */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
-            Get in Touch
+            {t('联系_标题')}
           </h2>
           <p className="mx-auto mt-6 max-w-3xl text-lg text-gray-600">
-            Have questions or need a hand getting started? We’re here to help.
+            {t('联系_副标题')}
           </p>
         </div>
 
@@ -76,90 +79,90 @@ export default function ContactSection() {
           {/* 联系表单 */}
           <div className="bg-white rounded-2xl shadow-lg p-8">
             <h3 className="text-2xl font-bold text-gray-900 mb-6">
-              Send us a message
+              {t('联系_表单_标题')}
             </h3>
             <form className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-                    First Name
+                    {t('联系_表单_名')}
                   </label>
                   <input
                     type="text"
                     id="firstName"
                     name="firstName"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-colors duration-200"
-                    placeholder="John"
+                    placeholder={t('联系_表单_名_占位')}
                   />
                 </div>
                 <div>
                   <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-                    Last Name
+                    {t('联系_表单_姓')}
                   </label>
                   <input
                     type="text"
                     id="lastName"
                     name="lastName"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-colors duration-200"
-                    placeholder="Doe"
+                    placeholder={t('联系_表单_姓_占位')}
                   />
                 </div>
               </div>
               
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
+                  {t('联系_表单_邮箱')}
                 </label>
                 <input
                   type="email"
                   id="email"
                   name="email"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-colors duration-200"
-                  placeholder="john@example.com"
+                  placeholder={t('联系_表单_邮箱_占位')}
                 />
               </div>
               
               <div>
                 <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
-                  Company (Optional)
+                  {t('联系_表单_公司')}
                 </label>
                 <input
                   type="text"
                   id="company"
                   name="company"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-colors duration-200"
-                  placeholder="Your Company"
+                  placeholder={t('联系_表单_公司_占位')}
                 />
               </div>
               
               <div>
                 <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                  Subject
+                  {t('联系_表单_主题')}
                 </label>
                 <select
                   id="subject"
                   name="subject"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-colors duration-200"
                 >
-                  <option value="">Select a topic</option>
-                  <option value="general">General Inquiry</option>
-                  <option value="support">Technical Support</option>
-                  <option value="sales">Sales Question</option>
-                  <option value="partnership">Partnership</option>
-                  <option value="feedback">Feedback</option>
+                  <option value="">{t('联系_主题_占位')}</option>
+                  <option value="general">{t('联系_主题_通用咨询')}</option>
+                  <option value="support">{t('联系_主题_技术支持')}</option>
+                  <option value="sales">{t('联系_主题_产品咨询')}</option>
+                  <option value="partnership">{t('联系_主题_合作')}</option>
+                  <option value="feedback">{t('联系_主题_反馈')}</option>
                 </select>
               </div>
               
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                  Message
+                  {t('联系_表单_消息')}
                 </label>
                 <textarea
                   id="message"
                   name="message"
                   rows={6}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-colors duration-200"
-                  placeholder="Tell us how we can help you..."
+                  placeholder={t('联系_表单_消息_占位')}
                 ></textarea>
               </div>
               
@@ -168,7 +171,7 @@ export default function ContactSection() {
                 className="w-full inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-blue-700 transition-all duration-200"
               >
                 <Send className="mr-2 h-5 w-5" />
-                Send Message
+                {t('联系_表单_提交')}
               </button>
             </form>
           </div>
@@ -178,7 +181,7 @@ export default function ContactSection() {
             {/* 联系方式 */}
             <div className="bg-white rounded-2xl shadow-lg p-8">
               <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                Other ways to reach us
+                {t('联系_其他方式_标题')}
               </h3>
               <div className="space-y-6">
                 {contactMethods.map((method, index) => {
@@ -205,13 +208,13 @@ export default function ContactSection() {
             {/* 快速开始CTA */}
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-center">
               <h3 className="text-2xl font-bold text-white mb-4">
-                Ready to Get Started?
+                {t('联系_CTA_标题')}
               </h3>
               <p className="text-blue-100 mb-6">
-                Don’t wait—start building better APIs today. Apiflow is open source and free forever.
+                {t('联系_CTA_描述')}
               </p>
               <button className="inline-flex items-center rounded-lg bg-white px-6 py-3 text-base font-semibold text-blue-600 shadow-lg hover:bg-gray-50 transition-all duration-200">
-                Get started free
+                {t('联系_CTA_按钮')}
               </button>
             </div>
           </div>
@@ -220,7 +223,7 @@ export default function ContactSection() {
         {/* FAQ版块 */}
         <div className="mt-20">
           <h3 className="text-2xl font-bold text-gray-900 text-center mb-12">
-            Frequently Asked Questions
+            {t('联系_FAQ_标题')}
           </h3>
           <div className="bg-white rounded-2xl shadow-lg p-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -240,7 +243,7 @@ export default function ContactSection() {
         <div className="mt-12 text-center">
           <div className="inline-flex items-center rounded-full bg-blue-100 px-6 py-3 text-blue-800">
             <Clock className="mr-2 h-5 w-5" />
-            <span className="font-medium">Support Hours: Monday - Friday, 9 AM - 6 PM PST</span>
+            <span className="font-medium">{t('联系_支持时间')}</span>
           </div>
         </div>
       </div>

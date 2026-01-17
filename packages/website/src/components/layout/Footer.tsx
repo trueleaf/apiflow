@@ -34,10 +34,10 @@ export default function Footer() {
   };
 
   const socialLinks = [
-    { name: 'GitHub', icon: GitBranch, href: '#github' },
-    { name: 'Twitter', icon: MessageCircle, href: '#twitter' },
-    { name: 'LinkedIn', icon: Users, href: '#linkedin' },
-    { name: 'Email', icon: Mail, href: 'mailto:contact@apiflow.cn' },
+    { id: 'github', name: t('GitHub'), icon: GitBranch, href: '#github' },
+    { id: 'twitter', name: t('Twitter'), icon: MessageCircle, href: '#twitter' },
+    { id: 'linkedin', name: t('LinkedIn'), icon: Users, href: '#linkedin' },
+    { id: 'email', name: t('Email'), icon: Mail, href: 'mailto:contact@apiflow.cn' },
   ];
 
   return (
@@ -60,7 +60,7 @@ export default function Footer() {
                 const Icon = social.icon;
                 return (
                   <Link
-                    key={social.name}
+                    key={social.id}
                     href={social.href}
                     className="text-muted-foreground hover:text-primary transition-colors duration-200"
                     aria-label={social.name}
