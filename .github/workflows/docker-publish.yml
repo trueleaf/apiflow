@@ -21,6 +21,9 @@ jobs:
           - service: web
             image: apiflow-web
             dockerfile: packages/web/Dockerfile
+          - service: website
+            image: apiflow-website
+            dockerfile: packages/website/Dockerfile
           - service: mongo
             image: apiflow-mongo
             dockerfile: deploy/mongo/Dockerfile
