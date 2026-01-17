@@ -130,15 +130,38 @@ curl http://localhost
 curl http://localhost/api/health 
 ```
 
-## 🚀 代码更新
+### 🚀 代码更新
 
 如果你是通过 Docker 运行 Apiflow，更新代码时无需在本地重新构建。
 
-只需拉取最新镜像并重启服务即可：
+**方式一：使用更新脚本（推荐）**
+
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.cn.yml pull
-docker compose -f docker-compose.yml -f docker-compose.cn.yml up -d
+# 添加执行权限（首次）
+chmod +x update.sh rollback.sh
+
+# 执行更新
+./update.sh
+
+# 使用中国镜像源
+./update.sh --cn
 ```
+
+**方式二：手动更新**
+
+```bash
+docker compose pull
+docker compose down
+docker compose up -d
+```
+
+**回滚到指定版本**
+
+```bash
+./rollback.sh v1.2.3
+```
+
+更多详情请参考 [README_DEPLOY.md](./README_DEPLOY.md)。
 
 ---
 

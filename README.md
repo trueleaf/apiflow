@@ -136,16 +136,38 @@ curl http://localhost
 curl http://localhost/api/health 
 ```
 
-### 🚀Code Update
+### 🚀 Code Update
 
 If you are running Apiflow with Docker, updating the code does not require rebuilding locally.
 
-Simply pull the latest images and restart the services:
+**Option 1: Using Update Script (Recommended)**
+
+```bash
+# Make scripts executable (first time only)
+chmod +x update.sh rollback.sh
+
+# Run update
+./update.sh
+
+# For China mirror
+./update.sh --cn
+```
+
+**Option 2: Manual Update**
 
 ```bash
 docker compose pull
+docker compose down
 docker compose up -d
 ```
+
+**Rollback to Previous Version**
+
+```bash
+./rollback.sh v1.2.3
+```
+
+For more details, see [README_DEPLOY.md](./README_DEPLOY.md).
 
 ---
 
