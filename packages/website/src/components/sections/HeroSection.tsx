@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { WifiOff, Users, Shield, Download, Gift, Globe } from 'lucide-react';
+import { WifiOff, Users, Shield, Download, Gift, Globe, ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function HeroSection() {
@@ -10,7 +10,7 @@ export default function HeroSection() {
     { icon: Shield, title: t('本地部署'), description: t('所有功能支持Docker本地部署') },
     { icon: Download, title: t('数据自由'), description: t('可随时导出数据到其他工具') },
     { icon: Gift, title: t('完全免费'), description: t('所有核心功能永久免费使用') },
-    { icon: Globe, title: t('协议支持'), description: t('支持HTTP、WebSocket、GraphQL等协议') },
+    { icon: Globe, title: t('协议支持'), description: t('支持HTTP、WebSocket等协议') },
   ];
 
   return (
@@ -22,11 +22,6 @@ export default function HeroSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* 左侧 - 内容 */}
           <div className="text-left">
-            {/* 徽章 */}
-            <div className="inline-flex items-center rounded-full bg-blue-50/50 px-3 py-1 text-sm font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 mb-8 backdrop-blur-sm dark:bg-blue-900/20 dark:text-blue-400 dark:ring-blue-400/20">
-              {t('🚀 新功能：高级 API 测试功能现已上线')}
-            </div>
-
             {/* 主标题 */}
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
               <span>{t('Postman 和 Apifox 的')}{' '}</span>
@@ -39,14 +34,22 @@ export default function HeroSection() {
             </p>
 
             {/* CTA按钮 */}
-            <div className="mt-10 flex flex-col sm:flex-row items-start gap-4">
+            <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <Link
                 href="https://github.com/trueleaf/apiflow/releases"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center rounded-lg bg-primary px-8 py-3 text-base font-medium text-primary-foreground shadow-lg hover:bg-blue-700 transition-all duration-200 hover:shadow-blue-500/25"
+                className="group w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-blue-500/20 hover:bg-blue-700 hover:scale-105 hover:shadow-blue-500/40 transition-all duration-200"
               >
                 {t('下载客户端')}
+              </Link>
+              <Link
+                href="https://app.apiflow.cn"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-background/50 backdrop-blur-sm px-8 py-3.5 text-base font-semibold text-foreground shadow-sm ring-1 ring-inset ring-border hover:bg-muted/80 transition-all duration-200"
+              >
+                {t('使用 Web 版')}
               </Link>
             </div>
           </div>

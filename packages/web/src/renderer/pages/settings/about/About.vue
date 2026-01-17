@@ -28,7 +28,7 @@
               <Github :size="16" />
               <span class="link-text">GitHub</span>
             </a>
-            <a class="link-item" role="button" tabindex="0" @click.prevent="openLink('https://apiflow.dev')">
+            <a class="link-item" role="button" tabindex="0" @click.prevent="openLink('https://apiflow.cn')">
               <Globe :size="16" />
               <span class="link-text">{{ t('官网') }}</span>
             </a>

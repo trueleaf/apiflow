@@ -68,7 +68,6 @@ export default function StructuredData() {
       "Real-time Collaboration", 
       "Advanced Mock Servers",
       "Automated Testing Workflows",
-      "GraphQL Support",
       "Enterprise Security"
     ]
   };
