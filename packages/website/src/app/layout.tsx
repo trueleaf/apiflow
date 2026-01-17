@@ -19,6 +19,10 @@ export const metadata: Metadata = {
     template: "%s | Apiflow"
   },
   description: "Postman 和 Apifox 的强大替代品，工作流程快 3 倍。",
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  },
 };
 
 export default function RootLayout({
