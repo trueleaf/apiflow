@@ -27,7 +27,7 @@ export const config: Config = {
     },
     //http请求相关
     httpRequest: {
-      url: isDev ? 'http://127.0.0.1:7001' : 'https://apiflow.cn',
+      url: isDev ? 'http://127.0.0.1:7001' : 'https://app.apiflow.cn',
       timeout: 20000,
       withCredentials: true,
     },
