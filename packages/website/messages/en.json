@@ -8,7 +8,7 @@
   "产品展示_Agent_描述": "AI-powered assistant that automatically creates API requests, manages variables, and executes workflows. Supports multiple LLM models for efficient API development.",
   "产品展示_Mock_标题": "Smart Mock Server",
   "产品展示_Mock_描述": "Simulate API responses instantly without backend implementation.",
-  "产品展示_SSE_标题": "SSE Streaming",
+  "产品展示_SSE_标题": "SSE Streaming Output",
   "产品展示_SSE_描述": "Native support for Server-Sent Events streaming data reception and parsing. Real-time data chunk capture, visualization, and easy debugging of streaming applications.",
   "产品展示_Team_标题": "Team Collaboration",
   "产品展示_Team_描述": "Efficient team collaboration and permission management.",

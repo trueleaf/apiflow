@@ -15,9 +15,9 @@ export default function Header() {
 
   const navigation = [
     { name: t('首页'), href: `/${locale}` },
-    { name: t('产品展示'), href: `/${locale}/product-showcase` },
-    { name: t('使用文档'), href: `/${locale}/usage-docs` },
-    { name: t('部署教程'), href: `/${locale}/deployment-guide` },
+    // { name: t('产品展示'), href: `/${locale}/product-showcase` },
+    // { name: t('使用文档'), href: `/${locale}/usage-docs` },
+    // { name: t('部署教程'), href: `/${locale}/deployment-guide` },
   ];
 
   const repositoryLinks = [

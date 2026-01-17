@@ -11,12 +11,14 @@ export default function ProductShowcase() {
       key: 'agent',
       icon: Bot,
       title: t('产品展示_Agent_标题'),
+      description: t('产品展示_Agent_描述'),
       image: `/${locale}/agent.gif`
     },
     {
       key: 'sse',
       icon: Zap,
       title: t('产品展示_SSE_标题'),
+      description: t('产品展示_SSE_描述'),
       image: `/${locale}/sse.gif`
     }
   ];
@@ -36,13 +38,18 @@ export default function ProductShowcase() {
             
             return (
               <div key={feature.key} className="flex flex-col items-center gap-8">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-primary/10 rounded-xl">
-                    <Icon className="w-8 h-8 text-primary" />
+                <div className="flex flex-col items-center gap-4 text-center">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-primary/10 rounded-xl">
+                      <Icon className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-foreground">
+                      {feature.title}
+                    </h3>
                   </div>
-                  <h3 className="text-2xl font-bold text-foreground">
-                    {feature.title}
-                  </h3>
+                  <p className="text-base text-muted-foreground max-w-3xl leading-relaxed">
+                    {feature.description}
+                  </p>
                 </div>
                 
                 <div className="w-full max-w-5xl">
