@@ -3,5 +3,7 @@ services:
     image: crpi-pg92ewko9k2kfyck.cn-hangzhou.personal.cr.aliyuncs.com/apiflow_docker/apiflow-mongo:6
   server:
     image: crpi-pg92ewko9k2kfyck.cn-hangzhou.personal.cr.aliyuncs.com/apiflow_docker/apiflow-server:latest
+  website:
+    image: crpi-pg92ewko9k2kfyck.cn-hangzhou.personal.cr.aliyuncs.com/apiflow_docker/apiflow-website:latest
   web:
     image: crpi-pg92ewko9k2kfyck.cn-hangzhou.personal.cr.aliyuncs.com/apiflow_docker/apiflow-web:latest

@@ -7,6 +7,7 @@ function parseArgs(argv) {
     user: process.env.DOCKERHUB_USER || "",
     serverImage: "apiflow-server",
     webImage: "apiflow-web",
+    websiteImage: "apiflow-website",
     platforms: "linux/amd64,linux/arm64",
     useNpmMirror: false,
     pushMongo: false,
@@ -28,6 +29,10 @@ function parseArgs(argv) {
         break;
       case "--web-image":
         args.webImage = argv[i + 1] || args.webImage;
+        i += 1;
+        break;
+      case "--website-image":
+        args.websiteImage = argv[i + 1] || args.websiteImage;
         i += 1;
         break;
       case "--platforms":
@@ -69,6 +74,7 @@ Options:
   -u, --user <name>           Docker Hub username (or env DOCKERHUB_USER)
   --server-image <name>       Server image name (default: apiflow-server)       
   --web-image <name>          Web image name (default: apiflow-web)
+  --website-image <name>      Website image name (default: apiflow-website)
   --platforms <list>          Platforms (default: linux/amd64,linux/arm64)      
   --use-npm-mirror            Use npm mirror during build
   --push-mongo                Mirror mongo image to the same registry
@@ -162,12 +168,15 @@ function main() {
   const repoRoot = path.resolve(__dirname, "..");
   const serverPackageJson = path.join(repoRoot, "packages/server/package.json");
   const webPackageJson = path.join(repoRoot, "packages/web/package.json");
+  const websitePackageJson = path.join(repoRoot, "packages/website/package.json");
   const serverDockerfile = path.join(repoRoot, "packages/server/Dockerfile");
   const webDockerfile = path.join(repoRoot, "packages/web/Dockerfile");
+  const websiteDockerfile = path.join(repoRoot, "packages/website/Dockerfile");
 
   const serverVersion = readJson(serverPackageJson).version;
   const webVersion = readJson(webPackageJson).version;
-  if (!serverVersion || !webVersion) {
+  const websiteVersion = readJson(websitePackageJson).version;
+  if (!serverVersion || !webVersion || !websiteVersion) {
     throw new Error("Missing version in package.json.");
   }
 
@@ -198,6 +207,17 @@ function main() {
     dockerfile: webDockerfile,
     image: args.webImage,
     version: webVersion,
+    repoRoot,
+    dockerHubUser: args.user,
+    platforms: args.platforms,
+    useNpmMirror: args.useNpmMirror,
+    gitSha,
+  });
+
+  buildAndPush({
+    dockerfile: websiteDockerfile,
+    image: args.websiteImage,
+    version: websiteVersion,
     repoRoot,
     dockerHubUser: args.user,
     platforms: args.platforms,

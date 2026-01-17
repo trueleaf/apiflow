@@ -132,8 +132,8 @@ export default (): MidwayConfig => {
       model: process.env.DEEPSEEK_MODEL || 'deepseek-chat',
     },
     llmDomainWhitelist: process.env.NODE_ENV === 'production'
-      ? ['apiflow.cn', 'www.apiflow.cn']
-      : ['apiflow.cn', 'www.apiflow.cn', 'localhost', '127.0.0.1'],
+      ? ['apiflow.cn', 'www.apiflow.cn', 'app.apiflow.cn']
+      : ['apiflow.cn', 'www.apiflow.cn', 'app.apiflow.cn', 'localhost', '127.0.0.1'],
     permission: {
       isFree: false,
       whiteList: [

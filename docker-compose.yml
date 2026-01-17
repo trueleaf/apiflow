@@ -32,11 +32,20 @@ services:
     volumes:
       - server_logs:/app/logs
 
+  website:
+    image: xiaoxiaoshu/apiflow-website:latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: "0.0.0.0"
+
   web:
     image: xiaoxiaoshu/apiflow-web:latest
     restart: unless-stopped
     depends_on:
       - server
+      - website
     ports:
       - "80:80"
 
