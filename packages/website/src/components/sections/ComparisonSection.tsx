@@ -103,25 +103,28 @@ export default function ComparisonSection() {
             </p>
           </div>
 
-          <div className="overflow-x-auto">
+
+
+          {/* 桌面端表格视图 */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full table-fixed">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-4 text-left text-base font-semibold text-gray-900">
+                  <th className="w-2/5 px-6 py-4 text-left text-base font-semibold text-gray-900">
                     {t('功能')}
                   </th>
-                  <th className="px-6 py-4 text-center text-base font-semibold text-blue-600">
+                  <th className="w-[15%] px-6 py-4 text-center text-base font-semibold text-blue-600">
                     Apiflow
                   </th>
-                  <th className="px-6 py-4 text-center text-base font-semibold text-gray-600">
+                  <th className="w-[15%] px-6 py-4 text-center text-base font-semibold text-gray-600">
                     Postman
                   </th>
                   {shouldShowHoppscotch && (
-                    <th className="px-6 py-4 text-center text-base font-semibold text-gray-600">
+                    <th className="w-[15%] px-6 py-4 text-center text-base font-semibold text-gray-600">
                       Hoppscotch
                     </th>
                   )}
-                  <th className="px-6 py-4 text-center text-base font-semibold text-gray-600">
+                  <th className="w-[15%] px-6 py-4 text-center text-base font-semibold text-gray-600">
                     Apifox
                   </th>
                 </tr>
@@ -167,6 +170,54 @@ export default function ComparisonSection() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* 移动端卡片视图 */}
+          <div className="md:hidden">
+            {features.map((category, categoryIndex) => (
+              <div key={`mobile-category-${categoryIndex}`} className="border-b border-gray-200 last:border-b-0">
+                <div className="bg-gray-50 px-4 py-3">
+                  <h4 className="text-sm font-semibold text-gray-700">{category.category}</h4>
+                </div>
+                <div className="divide-y divide-gray-200">
+                  {category.items.map((item, itemIndex) => (
+                    <div key={`mobile-${categoryIndex}-${itemIndex}`} className="p-4">
+                      <div className="text-sm font-medium text-gray-900 mb-3">
+                        {item.feature}
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="flex items-center justify-between bg-blue-50 rounded-lg px-3 py-2">
+                          <span className="text-xs font-semibold text-blue-600">Apiflow</span>
+                          <div className="flex items-center justify-center">
+                            {renderFeatureValue(item.apiflow)}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+                          <span className="text-xs font-semibold text-gray-600">Postman</span>
+                          <div className="flex items-center justify-center">
+                            {renderFeatureValue(item.postman)}
+                          </div>
+                        </div>
+                        {shouldShowHoppscotch && (
+                          <div className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+                            <span className="text-xs font-semibold text-gray-600">Hoppscotch</span>
+                            <div className="flex items-center justify-center">
+                              {renderFeatureValue(item.hoppscotch)}
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+                          <span className="text-xs font-semibold text-gray-600">Apifox</span>
+                          <div className="flex items-center justify-center">
+                            {renderFeatureValue(item.apifox)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="px-6 py-6 bg-blue-50 text-center">

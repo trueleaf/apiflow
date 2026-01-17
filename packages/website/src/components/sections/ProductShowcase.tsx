@@ -1,10 +1,17 @@
+'use client';
+
 import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
 import { Bot, Zap } from 'lucide-react';
+import { useState } from 'react';
+import Lightbox from 'yet-another-react-lightbox';
+import 'yet-another-react-lightbox/styles.css';
 
 export default function ProductShowcase() {
   const t = useTranslations();
   const locale = useLocale();
+  const [open, setOpen] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const features = [
     {
@@ -33,7 +40,7 @@ export default function ProductShowcase() {
         </div>
 
         <div className="space-y-24">
-          {features.map((feature) => {
+          {features.map((feature, index) => {
             const Icon = feature.icon;
             
             return (
@@ -53,7 +60,13 @@ export default function ProductShowcase() {
                 </div>
                 
                 <div className="w-full max-w-5xl">
-                  <div className="relative rounded-xl overflow-hidden shadow-2xl border border-border/50 bg-card group hover:shadow-primary/10 transition-shadow duration-500">
+                  <div 
+                    className="relative rounded-xl overflow-hidden shadow-2xl border border-border/50 bg-card group hover:shadow-primary/10 transition-shadow duration-500 cursor-pointer"
+                    onClick={() => {
+                      setCurrentIndex(index);
+                      setOpen(true);
+                    }}
+                  >
                     <div className="aspect-[16/10] relative">
                         <Image
                           src={feature.image}
@@ -69,6 +82,16 @@ export default function ProductShowcase() {
             );
           })}
         </div>
+
+        <Lightbox
+          open={open}
+          close={() => setOpen(false)}
+          index={currentIndex}
+          slides={features.map((feature) => ({
+            src: feature.image,
+            alt: feature.title,
+          }))}
+        />
       </div>
     </section>
   );
