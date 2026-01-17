@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/private/', '/admin/'],
     },
-    sitemap: 'https://apiflow.com/sitemap.xml',
+    sitemap: 'https://apiflow.cn/sitemap.xml',
   }
 }

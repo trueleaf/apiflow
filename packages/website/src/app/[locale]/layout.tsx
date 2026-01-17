@@ -6,7 +6,7 @@ import StructuredData from "@/components/seo/StructuredData";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Metadata' });
-  const baseUrl = 'https://apiflow.com';
+  const baseUrl = 'https://apiflow.cn';
  
   return {
     title: t('title'),

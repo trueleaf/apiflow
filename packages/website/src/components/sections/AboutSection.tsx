@@ -1,52 +1,55 @@
 import { Target, Users, Lightbulb, Award } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function AboutSection() {
+  const t = useTranslations();
+
   const values = [
     {
       icon: Target,
-      title: 'Developer-First',
-      description: 'Every feature is designed with developers in mind. We understand your workflow because we are developers too.'
+      title: t('关于区块_价值观_开发者优先_标题'),
+      description: t('关于区块_价值观_开发者优先_描述')
     },
     {
       icon: Users,
-      title: 'Community Driven',
-      description: 'Our roadmap is shaped by user feedback. We build what developers actually need, not what we think they need.'
+      title: t('关于区块_价值观_社区驱动_标题'),
+      description: t('关于区块_价值观_社区驱动_描述')
     },
     {
       icon: Lightbulb,
-      title: 'Innovation',
-      description: 'We constantly push the boundaries of what\'s possible in API development and testing tools.'
+      title: t('关于区块_价值观_创新_标题'),
+      description: t('关于区块_价值观_创新_描述')
     },
     {
       icon: Award,
-      title: 'Excellence',
-      description: 'We strive for perfection in every detail, from user experience to performance and reliability.'
+      title: t('关于区块_价值观_卓越_标题'),
+      description: t('关于区块_价值观_卓越_描述')
     }
   ];
 
   const team = [
     {
-      name: 'Alex Johnson',
-      role: 'CEO & Co-founder',
-      bio: 'Former lead engineer at major tech companies. Passionate about developer tools and API architecture.',
+      name: t('关于区块_团队_成员1_姓名'),
+      role: t('关于区块_团队_成员1_角色'),
+      bio: t('关于区块_团队_成员1_简介'),
       image: '/api/placeholder/150/150'
     },
     {
-      name: 'Sarah Chen',
-      role: 'CTO & Co-founder',
-      bio: 'Full-stack developer with 10+ years experience. Expert in distributed systems and API design.',
+      name: t('关于区块_团队_成员2_姓名'),
+      role: t('关于区块_团队_成员2_角色'),
+      bio: t('关于区块_团队_成员2_简介'),
       image: '/api/placeholder/150/150'
     },
     {
-      name: 'Michael Rodriguez',
-      role: 'Head of Product',
-      bio: 'Product manager with deep understanding of developer workflows and enterprise needs.',
+      name: t('关于区块_团队_成员3_姓名'),
+      role: t('关于区块_团队_成员3_角色'),
+      bio: t('关于区块_团队_成员3_简介'),
       image: '/api/placeholder/150/150'
     },
     {
-      name: 'Emily Davis',
-      role: 'Lead Designer',
-      bio: 'UX/UI designer focused on creating intuitive interfaces for complex technical tools.',
+      name: t('关于区块_团队_成员4_姓名'),
+      role: t('关于区块_团队_成员4_角色'),
+      bio: t('关于区块_团队_成员4_简介'),
       image: '/api/placeholder/150/150'
     }
   ];
@@ -54,23 +57,23 @@ export default function AboutSection() {
   const milestones = [
     {
       year: '2022',
-      title: 'Company Founded',
-      description: 'Started with a vision to simplify API development for everyone'
+      title: t('关于区块_历程_2022_标题'),
+      description: t('关于区块_历程_2022_描述')
     },
     {
       year: '2023',
-      title: 'First 1,000 Users',
-      description: 'Reached our first milestone with positive feedback from the community'
+      title: t('关于区块_历程_2023_标题'),
+      description: t('关于区块_历程_2023_描述')
     },
     {
       year: '2024',
-      title: 'Series A Funding',
-      description: 'Raised $10M to accelerate product development and team growth'
+      title: t('关于区块_历程_2024_标题'),
+      description: t('关于区块_历程_2024_描述')
     },
     {
       year: '2024',
-      title: '10,000+ Developers',
-      description: 'Growing community of developers using Apiflow daily'
+      title: t('关于区块_历程_2024b_标题'),
+      description: t('关于区块_历程_2024b_描述')
     }
   ];
 
@@ -80,11 +83,10 @@ export default function AboutSection() {
         {/* 版块标题 */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
-            About Apiflow
+            {t('关于区块_标题')}
           </h2>
           <p className="mx-auto mt-6 max-w-3xl text-lg text-gray-600">
-            We're on a mission to make API development faster, easier, and more enjoyable 
-            for developers around the world.
+            {t('关于区块_简介')}
           </p>
         </div>
 
@@ -92,12 +94,10 @@ export default function AboutSection() {
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 lg:p-12 mb-16">
           <div className="text-center">
             <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-6">
-              Our Mission
+              {t('关于区块_使命_标题')}
             </h3>
             <p className="text-lg text-gray-700 max-w-4xl mx-auto leading-relaxed">
-              To empower developers with the most intuitive, powerful, and collaborative API development 
-              platform. We believe that great APIs are the foundation of great software, and we're here 
-              to make building them a joy, not a chore.
+              {t('关于区块_使命_正文')}
             </p>
           </div>
         </div>
@@ -105,7 +105,7 @@ export default function AboutSection() {
         {/* 价值观 */}
         <div className="mb-20">
           <h3 className="text-2xl font-bold text-gray-900 text-center mb-12">
-            Our Values
+            {t('关于区块_价值观_标题')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => {
@@ -126,7 +126,7 @@ export default function AboutSection() {
         {/* 发展历程 */}
         <div className="mb-20">
           <h3 className="text-2xl font-bold text-gray-900 text-center mb-12">
-            Our Journey
+            {t('关于区块_历程_标题')}
           </h3>
           <div className="relative">
             {/* 时间线 */}
@@ -155,7 +155,7 @@ export default function AboutSection() {
         {/* 团队 */}
         <div>
           <h3 className="text-2xl font-bold text-gray-900 text-center mb-12">
-            Meet Our Team
+            {t('关于区块_团队_标题')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {team.map((member, index) => (
@@ -177,14 +177,13 @@ export default function AboutSection() {
         <div className="mt-20 text-center">
           <div className="bg-gray-900 rounded-2xl p-8 lg:p-12">
             <h3 className="text-2xl lg:text-3xl font-bold text-white mb-4">
-              Join Our Growing Team
+              {t('关于区块_CTA_标题')}
             </h3>
             <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-              We're always looking for talented individuals who share our passion for 
-              developer tools and want to make a difference.
+              {t('关于区块_CTA_描述')}
             </p>
             <button className="inline-flex items-center rounded-lg bg-blue-600 px-8 py-3 text-base font-semibold text-white shadow-lg hover:bg-blue-700 transition-all duration-200">
-              View Open Positions
+              {t('关于区块_CTA_按钮')}
             </button>
           </div>
         </div>

@@ -33,8 +33,8 @@ export default function ComparisonSection() {
     {
       category: t('其他协议支持'),
       items: [
-        { feature: 'Websocket', apiflow: true, postman: true, hoppscotch: true, apifox: true },
-        { feature: 'Scoket.IO', apiflow: false, postman: true, hoppscotch: true, apifox: true },
+        { feature: 'WebSocket', apiflow: true, postman: true, hoppscotch: true, apifox: true },
+        { feature: 'Socket.IO', apiflow: false, postman: true, hoppscotch: true, apifox: true },
         { feature: 'gRPC', apiflow: false, postman: true, hoppscotch: false, apifox: true },
         { feature: 'MQTT', apiflow: false, postman: false, hoppscotch: false, apifox: true },
       ],
@@ -43,7 +43,7 @@ export default function ComparisonSection() {
       category: t('历史记录'),
       items: [
         { feature: t('发送请求历史记录'), apiflow: true, postman: true, hoppscotch: true, apifox: true },
-        { feature: t('单个节点历史记录'), apiflow: true, postman: t('limit(付费版)'), hoppscotch: '??', apifox: '??' },
+        { feature: t('单个节点历史记录'), apiflow: true, postman: t('limit(付费版)'), hoppscotch: '—', apifox: '—' },
         { feature: t('回收站'), apiflow: true, postman: true, hoppscotch: false, apifox: true },
       ],
     },

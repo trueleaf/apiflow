@@ -122,7 +122,7 @@ export default function Header() {
               {/* 移动端仓库链接 */}
               <div className="pt-4 border-t border-gray-200">
                 <div className="px-3 py-2 text-sm font-medium text-gray-500">
-                  Open Source
+                  {t('开源项目')}
                 </div>
                 {repositoryLinks.map((repo) => (
                   <Link

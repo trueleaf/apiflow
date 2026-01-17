@@ -3,9 +3,9 @@ export default function StructuredData() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "Apiflow",
-    "description": "The modern API documentation and testing tool that developers love. Build, test, and document your APIs with ease.",
-    "url": "https://apiflow.com",
-    "logo": "https://apiflow.com/logo.png",
+    "description": "An open-source API documentation and testing tool developers love.",
+    "url": "https://apiflow.cn",
+    "logo": "https://apiflow.cn/logo.png",
     "foundingDate": "2022",
     "founders": [
       {
@@ -21,7 +21,7 @@ export default function StructuredData() {
       "@type": "ContactPoint",
       "telephone": "+1-555-123-4567",
       "contactType": "customer service",
-      "email": "support@apiflow.com",
+      "email": "support@apiflow.cn",
       "availableLanguage": "English"
     },
     "sameAs": [
@@ -35,25 +35,17 @@ export default function StructuredData() {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "Apiflow",
-    "description": "Modern API documentation and testing tool. A powerful alternative to Postman and Apifox for developers.",
-    "url": "https://apiflow.com",
+    "description": "A modern, open-source API documentation and testing tool—an alternative to Postman and Apifox.",
+    "url": "https://apiflow.cn",
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Web, Windows, macOS, Linux",
     "offers": [
       {
         "@type": "Offer",
-        "name": "Free Plan",
+        "name": "Free (Open Source)",
         "price": "0",
         "priceCurrency": "USD",
-        "description": "Perfect for individual developers and small projects"
-      },
-      {
-        "@type": "Offer",
-        "name": "Pro Plan",
-        "price": "29",
-        "priceCurrency": "USD",
-        "billingIncrement": "P1M",
-        "description": "Ideal for growing teams and professional projects"
+        "description": "Free forever. Self-host or use the web app."
       }
     ],
     "aggregateRating": {
@@ -68,7 +60,7 @@ export default function StructuredData() {
       "Real-time Collaboration", 
       "Advanced Mock Servers",
       "Automated Testing Workflows",
-      "Enterprise Security"
+      "Security & self-hosting"
     ]
   };
 
@@ -76,11 +68,11 @@ export default function StructuredData() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "Apiflow",
-    "url": "https://apiflow.com",
+    "url": "https://apiflow.cn",
     "description": "The modern API documentation and testing tool that developers love.",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://apiflow.com/search?q={search_term_string}",
+      "target": "https://apiflow.cn/search?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   };
@@ -94,7 +86,7 @@ export default function StructuredData() {
         "name": "How does Apiflow compare to Postman?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Apiflow offers 3x faster API testing workflows, better real-time collaboration, and enterprise-ready features at a more affordable price point compared to Postman."
+          "text": "Apiflow is open source and free forever, with API testing, documentation, and collaboration built in."
         }
       },
       {
@@ -107,10 +99,10 @@ export default function StructuredData() {
       },
       {
         "@type": "Question",
-        "name": "Is there a free plan available?",
+        "name": "Is Apiflow really free?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes, we offer a generous free plan that includes up to 5 API collections, basic testing & documentation, and community support."
+          "text": "Yes. Apiflow is open source, and all core features are free to use—forever."
         }
       }
     ]

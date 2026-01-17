@@ -1,6 +1,6 @@
 import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
-import { Bot, Database, Zap, Users } from 'lucide-react';
+import { Bot, Zap } from 'lucide-react';
 
 export default function ProductShowcase() {
   const t = useTranslations();
@@ -33,7 +33,7 @@ export default function ProductShowcase() {
         </div>
 
         <div className="space-y-24">
-          {features.map((feature, index) => {
+          {features.map((feature) => {
             const Icon = feature.icon;
             
             return (

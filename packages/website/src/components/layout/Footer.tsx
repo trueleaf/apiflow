@@ -37,7 +37,7 @@ export default function Footer() {
     { name: 'GitHub', icon: GitBranch, href: '#github' },
     { name: 'Twitter', icon: MessageCircle, href: '#twitter' },
     { name: 'LinkedIn', icon: Users, href: '#linkedin' },
-    { name: 'Email', icon: Mail, href: 'mailto:contact@apiflow.com' },
+    { name: 'Email', icon: Mail, href: 'mailto:contact@apiflow.cn' },
   ];
 
   return (

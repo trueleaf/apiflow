@@ -5,23 +5,23 @@ export default function ContactSection() {
     {
       icon: Mail,
       title: 'Email Support',
-      description: 'Get help from our support team',
-      contact: 'support@apiflow.com',
+      description: 'Reach out to the team',
+      contact: 'support@apiflow.cn',
       availability: '24/7 response within 4 hours'
     },
     {
       icon: MessageSquare,
       title: 'Live Chat',
-      description: 'Chat with us in real-time',
-      contact: 'Available in app',
+      description: 'Ask questions and get quick help',
+      contact: 'Community channels',
       availability: 'Mon-Fri, 9 AM - 6 PM PST'
     },
     {
       icon: Phone,
       title: 'Phone Support',
-      description: 'Speak directly with our team',
+      description: 'Talk with the team',
       contact: '+1 (555) 123-4567',
-      availability: 'Enterprise customers only'
+      availability: 'By request'
     },
     {
       icon: MapPin,
@@ -35,7 +35,7 @@ export default function ContactSection() {
   const faqs = [
     {
       question: 'How do I get started with Apiflow?',
-      answer: 'Simply sign up for a free account and you can start using Apiflow immediately. No credit card required for the free plan.'
+      answer: 'Download Apiflow and start using it right away. No credit card, no trial—just free and open source.'
     },
     {
       question: 'Can I import my existing Postman collections?',
@@ -43,7 +43,7 @@ export default function ContactSection() {
     },
     {
       question: 'Do you offer on-premise deployment?',
-      answer: 'Yes, we offer on-premise and private cloud deployment options for Enterprise customers with specific security requirements.'
+      answer: 'Yes. Apiflow supports self-hosting and local deployment, including Docker-based setups.'
     },
     {
       question: 'What integrations do you support?',
@@ -54,8 +54,8 @@ export default function ContactSection() {
       answer: 'Absolutely. We use enterprise-grade security measures including encryption at rest and in transit, SOC 2 compliance, and regular security audits.'
     },
     {
-      question: 'Can I cancel my subscription anytime?',
-      answer: 'Yes, you can cancel your subscription at any time. There are no long-term contracts or cancellation fees.'
+      question: 'Is Apiflow really free forever?',
+      answer: 'Yes. Apiflow is open source, and all core features are free to use—forever.'
     }
   ];
 
@@ -68,8 +68,7 @@ export default function ContactSection() {
             Get in Touch
           </h2>
           <p className="mx-auto mt-6 max-w-3xl text-lg text-gray-600">
-            Have questions? Need help getting started? Our team is here to support you 
-            every step of the way.
+            Have questions or need a hand getting started? We’re here to help.
           </p>
         </div>
 
@@ -209,10 +208,10 @@ export default function ContactSection() {
                 Ready to Get Started?
               </h3>
               <p className="text-blue-100 mb-6">
-                Don't wait! Start building better APIs today with our free plan.
+                Don’t wait—start building better APIs today. Apiflow is open source and free forever.
               </p>
               <button className="inline-flex items-center rounded-lg bg-white px-6 py-3 text-base font-semibold text-blue-600 shadow-lg hover:bg-gray-50 transition-all duration-200">
-                Start Free Trial
+                Get started free
               </button>
             </div>
           </div>

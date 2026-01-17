@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next'
 // 定义所有有效的基础路由
 const routes = ['', '/deployment-guide', '/product-showcase', '/usage-docs'];
 const locales = ['zh', 'en'];
-const baseUrl = 'https://apiflow.com';
+const baseUrl = 'https://apiflow.cn';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const sitemapList: MetadataRoute.Sitemap = [];

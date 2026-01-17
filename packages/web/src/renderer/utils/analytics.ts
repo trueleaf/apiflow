@@ -5,7 +5,7 @@ declare global {
   }
 }
 
-const MEASUREMENT_ID = 'G-7GB2601HMR';
+const MEASUREMENT_ID = 'G-TNRXB0EX9H';
 
 // 检查是否满足加载条件：生产环境 + 在线模式 + 用户同意
 const shouldLoadAnalytics = (): boolean => {

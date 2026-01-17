@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { WifiOff, Users, Shield, Download, Gift, Globe, ArrowRight } from 'lucide-react';
+import { WifiOff, Users, Shield, Download, Gift, Globe } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function HeroSection() {
