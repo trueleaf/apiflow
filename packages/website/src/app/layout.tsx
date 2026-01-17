@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://apiflow.com'),
   title: {
     default: "Apiflow - 开源的API 文档、调试、Mock、测试平台。",
     template: "%s | Apiflow"

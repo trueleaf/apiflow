@@ -1,4 +1,8 @@
 {
+  "Metadata": {
+    "title": "Apiflow - Open Source API Documentation, Debugging, Mock, and Testing Platform",
+    "description": "Modern API documentation and testing tool. A powerful open-source alternative to Postman and Apifox."
+  },
   "产品展示_标题": "Product Showcase",
   "产品展示_Agent_标题": "Intelligent Agents",
   "产品展示_Agent_描述": "Automate workflows with AI-driven agents to boost efficiency.",

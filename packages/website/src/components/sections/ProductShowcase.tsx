@@ -5,32 +5,19 @@ import { Bot, Database, Zap, Users } from 'lucide-react';
 export default function ProductShowcase() {
   const t = useTranslations();
   const locale = useLocale();
-  const isZh = locale.startsWith('zh');
-  const langKey = isZh ? 'zh' : 'en';
-
-  const images: Record<string, Record<string, string>> = {
-    zh: {
-      agent: '/en/agent.gif',
-      sse: '/zh/sse_zh.gif'
-    },
-    en: {
-      agent: '/en/agent.gif',
-      sse: '/en/sse.gif'
-    }
-  };
 
   const features = [
     {
       key: 'agent',
       icon: Bot,
       title: t('产品展示_Agent_标题'),
-      image: images[langKey].agent
+      image: `/${locale}/agent.gif`
     },
     {
       key: 'sse',
       icon: Zap,
       title: t('产品展示_SSE_标题'),
-      image: images[langKey].sse
+      image: `/${locale}/sse.gif`
     }
   ];
 

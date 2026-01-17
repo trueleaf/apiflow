@@ -22,6 +22,9 @@ export default function LanguageSwitcher() {
     // 从路径名中移除当前语言环境
     const pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/';
     
+    // 设置 Cookie 以持久化用户的语言选择
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
+    
     // 导航到新的语言环境
     router.push(`/${newLocale}${pathWithoutLocale}`);
     setIsOpen(false);

@@ -7,8 +7,8 @@ export default createMiddleware({
   // 当没有语言环境匹配时使用
   defaultLocale: 'zh',
 
-  // 始终使用语言环境前缀
-  localePrefix: 'always'
+  // 自动检测用户浏览器语言设置
+  localeDetection: true
 });
 
 export const config = {

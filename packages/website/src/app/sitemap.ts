@@ -1,44 +1,23 @@
 import { MetadataRoute } from 'next'
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://apiflow.com'
+// 定义所有有效的基础路由
+const routes = ['', '/deployment-guide', '/product-showcase', '/usage-docs'];
+const locales = ['zh', 'en'];
+const baseUrl = 'https://apiflow.com';
 
-  return [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/#features`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/#demo`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/#pricing`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/#about`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/#contact`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-  ]
+export default function sitemap(): MetadataRoute.Sitemap {
+  const sitemapList: MetadataRoute.Sitemap = [];
+
+  routes.forEach(route => {
+    locales.forEach(locale => {
+      sitemapList.push({
+        url: `${baseUrl}/${locale}${route}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: route === '' ? 1 : 0.8,
+      });
+    });
+  });
+
+  return sitemapList;
 }

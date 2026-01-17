@@ -1,4 +1,8 @@
 {
+  "Metadata": {
+    "title": "Apiflow - 开源的API 文档、调试、Mock、测试平台",
+    "description": "现代化 API 文档与测试工具。Postman 和 Apifox 的强大开源替代品。"
+  },
   "产品展示_标题": "产品功能展示",
   "产品展示_Agent_标题": "智能 Agent",
   "产品展示_Agent_描述": "通过 AI 驱动的 Agent 自动化工作流，提升开发效率。",
