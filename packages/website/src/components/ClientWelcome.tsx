@@ -27,7 +27,7 @@ ${t('github')}：https://github.com/trueleaf/apiflow
 
 ${t('gitee')}：https://gitee.com/wildsell/apiflow
 
-${t('lastUpdate')}：${__APP_BUILD_TIME__}
+${t('lastUpdate')}：${process.env.APP_BUILD_TIME}
       `);
     }
   }, [t]);

@@ -12,14 +12,9 @@ const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  webpack: (config) => {
-    config.plugins.push(
-      new config.webpack.DefinePlugin({
-        __APP_VERSION__: JSON.stringify(pkg.version),
-        __APP_BUILD_TIME__: JSON.stringify(dayjs().tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss')),
-      })
-    );
-    return config;
+  env: {
+    APP_VERSION: pkg.version,
+    APP_BUILD_TIME: dayjs().tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss'),
   },
 };
 
