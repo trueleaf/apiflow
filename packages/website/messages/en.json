@@ -311,5 +311,11 @@
   "审计功能": "Audit Features",
   "Rights Reserved": "All rights reserved.",
   "切换语言": "Switch language",
-  "加载中_Apiflow": "Loading Apiflow…"
+  "加载中_Apiflow": "Loading Apiflow…",
+  "Console": {
+    "website": "Website",
+    "github": "GitHub",
+    "gitee": "Gitee",
+    "lastUpdate": "Last Update"
+  }
 }

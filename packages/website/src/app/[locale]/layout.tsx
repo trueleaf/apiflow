@@ -2,6 +2,7 @@ import {NextIntlClientProvider} from 'next-intl';
 import {getMessages, getTranslations} from 'next-intl/server';
 import Header from "@/components/layout/Header";
 import StructuredData from "@/components/seo/StructuredData";
+import { ClientWelcome } from '@/components/ClientWelcome';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -45,6 +46,7 @@ export default async function LocaleLayout({
     <html lang={locale}>
       <body>
         <NextIntlClientProvider messages={messages}>
+          <ClientWelcome />
           <StructuredData />
           <Header />
           <main className="min-h-screen">

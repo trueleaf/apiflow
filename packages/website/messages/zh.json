@@ -313,5 +313,11 @@
   "审计功能": "审计功能",
   "Rights Reserved": "保留所有权利。",
   "切换语言": "切换语言",
-  "加载中_Apiflow": "正在加载 Apiflow…"
+  "加载中_Apiflow": "正在加载 Apiflow…",
+  "Console": {
+    "website": "官网地址",
+    "github": "GitHub地址",
+    "gitee": "Gitee地址",
+    "lastUpdate": "最近一次更新"
+  }
 }
