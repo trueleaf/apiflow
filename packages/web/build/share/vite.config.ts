@@ -5,6 +5,9 @@ import path, { resolve } from 'path'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
+import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -13,6 +16,15 @@ export default defineConfig({
   root: __dirname, // 设置根目录为当前目录
   plugins: [
     vue(),
+    AutoImport({
+      resolvers: [ElementPlusResolver()],
+      imports: ['vue', 'pinia'],
+      dts: '../../src/types/auto-imports-share.d.ts',
+    }),
+    Components({
+      resolvers: [ElementPlusResolver()],
+      dts: '../../src/types/components-share.d.ts',
+    }),
     viteSingleFile(), // 启用单文件输出
   ],
   resolve: {
@@ -30,6 +42,16 @@ export default defineConfig({
     __COMMAND__: JSON.stringify('serve'),
     'import.meta.env.VITE_USE_FOR_HTML': JSON.stringify('true')
   },
+  worker: {
+    // 禁用 worker 构建
+    format: 'es',
+    rollupOptions: {
+      external: [/monaco-editor/, /mockjs/]
+    }
+  },
+  optimizeDeps: {
+    exclude: ['monaco-editor', 'mockjs', '@faker-js/faker']
+  },
   build: {
     target: 'esnext', // 支持顶层 await
     // 指定自定义入口
@@ -41,7 +63,12 @@ export default defineConfig({
         // 禁用代码分割，将所有内容打包到一个文件中
         manualChunks: undefined,
         inlineDynamicImports: true,
-      }
+      },
+      external: [
+        /monaco-editor/,
+        /mockjs/,
+        /@faker-js\/faker/,
+      ]
     },
     // 内联所有资源
     cssCodeSplit: false,
@@ -56,13 +83,5 @@ export default defineConfig({
     host: 'localhost',
     port: 3001
   },
-  optimizeDeps: {
-    include: [
-      `monaco-editor/esm/vs/language/json/json.worker`,
-      `monaco-editor/esm/vs/language/html/html.worker`,
-      `monaco-editor/esm/vs/editor/editor.worker`
-    ]
-  },
-
 })
 

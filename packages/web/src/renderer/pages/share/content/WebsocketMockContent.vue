@@ -86,13 +86,13 @@
 import { ref, computed, onMounted, defineAsyncComponent } from 'vue';
 import { storeToRefs } from 'pinia'
 import { ArrowDown } from '@element-plus/icons-vue';
-import { formatDate } from '@/helper'
+import { formatDate } from '../helper'
 import { useShareStore } from '../store';
-import { appStateCache } from '@/cache/appState/appStateCache.ts';
+import { getShareCollapseState, updateShareBlockCollapseState } from '../cache/shareCache';
 import type { WebSocketMockNode } from '@src/types/mockNode';
 import { useI18n } from 'vue-i18n';
 
-const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'));
+const SJsonEditor = defineAsyncComponent(() => import('../common/SCodeViewer.vue'));
 
 const { t } = useI18n();
 const shareStore = useShareStore();
@@ -106,7 +106,7 @@ const expandedBlocks = ref({
 
 onMounted(() => {
   if (mockInfo.value?._id) {
-    const cache = appStateCache.getShareCollapseState(mockInfo.value._id);
+    const cache = getShareCollapseState(mockInfo.value._id);
     if (cache) {
       expandedBlocks.value = { ...expandedBlocks.value, ...cache };
     }
@@ -116,7 +116,7 @@ onMounted(() => {
 const toggleBlock = (block: 'condition' | 'response') => {
   expandedBlocks.value[block] = !expandedBlocks.value[block];
   if (mockInfo.value?._id) {
-    appStateCache.updateShareBlockCollapseState(mockInfo.value._id, block, expandedBlocks.value[block]);
+    updateShareBlockCollapseState(mockInfo.value._id, block, expandedBlocks.value[block]);
   }
 }
 </script>

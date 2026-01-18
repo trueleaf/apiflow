@@ -24,15 +24,16 @@
 <script lang="ts" setup>
 import { computed, defineAsyncComponent } from 'vue';
 import { useShareStore } from '../store';
-import { useRoute } from 'vue-router';
 
 const HttpContent = defineAsyncComponent(() => import('./HttpContent.vue'));
 const WebsocketContent = defineAsyncComponent(() => import('./WebsocketContent.vue'));
 const HttpMockContent = defineAsyncComponent(() => import('./HttpMockContent.vue'));
 const WebsocketMockContent = defineAsyncComponent(() => import('./WebsocketMockContent.vue'));
 
-const route = useRoute();
-const shareId = route.query?.share_id as string || 'local_share';
+const shareId = (() => {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('share_id') || 'local_share';
+})();
 const shareStore = useShareStore();
 const tabs = computed(() => shareStore.tabs[shareId]);
 

@@ -3,8 +3,8 @@ import { ref } from 'vue';
 import { HttpNode, ApidocVariable, ApidocBanner } from '@src/types';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { SharedProjectInfo } from '@src/types/index.ts';
-import { getObjectVariable } from '@/helper';
-import { projectWorkbenchCache } from '@/cache/projectWorkbench/projectWorkbenchCache.ts';
+import { getObjectVariable } from '../helper';
+import { setProjectWorkbenchTabs } from '../cache/shareCache';
 
 /*
 |--------------------------------------------------------------------------
@@ -54,12 +54,12 @@ const addTab = (payload: ApidocTab): void => {
   }
   const matchedTab = tabs.value[projectId].find((val) => val._id === _id) as ApidocTab;
   matchedTab.selected = true;
-  projectWorkbenchCache.setProjectWorkbenchTabs(tabs.value);
+  setProjectWorkbenchTabs(tabs.value);
 };
 // 更新全部tab
 const updateAllTabs = (payload: { tabs: ApidocTab[]; shareId: string }): void => {
   tabs.value[payload.shareId] = payload.tabs;
-  projectWorkbenchCache.setProjectWorkbenchTabs(tabs.value);
+  setProjectWorkbenchTabs(tabs.value);
 };
 // 固定tab
 const fixedTab = (payload: { _id: string; shareId: string }): void => {
@@ -68,7 +68,7 @@ const fixedTab = (payload: { _id: string; shareId: string }): void => {
   if (matchedTab) {
     matchedTab.fixed = true;
   }
-  projectWorkbenchCache.setProjectWorkbenchTabs(tabs.value);
+  setProjectWorkbenchTabs(tabs.value);
 };
 // 根据索引删除tab
 const deleteTabByIndex = (payload: { deleteIndex: number; shareId: string }): void => {
@@ -83,7 +83,7 @@ const selectTabById = (payload: { id: string; shareId: string }): void => {
   tabs.value[shareId].forEach((tab) => {
     tab.selected = tab._id === id;
   });
-  projectWorkbenchCache.setProjectWorkbenchTabs(tabs.value);
+  setProjectWorkbenchTabs(tabs.value);
 };
 // 修改tab属性
 const changeTabInfoById = (payload: { id: string; field: keyof ApidocTab; value: any; shareId: string }): void => {
@@ -92,7 +92,7 @@ const changeTabInfoById = (payload: { id: string; field: keyof ApidocTab; value:
   const editData = currentTabs?.find((tab) => tab._id === id);
   if (!editData) return;
   (editData as any)[field] = value;
-  projectWorkbenchCache.setProjectWorkbenchTabs(tabs.value);
+  setProjectWorkbenchTabs(tabs.value);
 };
 // 强制删除所有tab
 const forceDeleteAllTab = (shareId: string): void => {
@@ -101,7 +101,7 @@ const forceDeleteAllTab = (shareId: string): void => {
     const deleteIndex = tabs.value[shareId].findIndex((tab) => tab._id === id);
     tabs.value[shareId].splice(deleteIndex, 1);
   });
-  projectWorkbenchCache.setProjectWorkbenchTabs(tabs.value);
+  setProjectWorkbenchTabs(tabs.value);
 };
 // 根据id批量删除tab
 const deleteTabByIds = (payload: { ids: string[]; shareId: string; force?: boolean }): void => {
@@ -120,7 +120,7 @@ const deleteTabByIds = (payload: { ids: string[]; shareId: string; force?: boole
       })
       tabs.value[shareId][selectTabIndex].selected = true;
     }
-    projectWorkbenchCache.setProjectWorkbenchTabs(tabs.value);
+    setProjectWorkbenchTabs(tabs.value);
   };
   if (!tabs.value[shareId]) {
     return;

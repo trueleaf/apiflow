@@ -200,16 +200,16 @@
 import { ref, computed, watchEffect, defineAsyncComponent, onMounted } from 'vue';
 import { storeToRefs } from 'pinia'
 import { ArrowDown } from '@element-plus/icons-vue';
-import { formatDate, getCompiledTemplate } from '@/helper'
+import { formatDate, getCompiledTemplate } from '../helper'
 import { useShareStore } from '../store';
-import { appStateCache } from '@/cache/appState/appStateCache.ts';
+import { getShareCollapseState, updateShareBlockCollapseState } from '../cache/shareCache';
 import type { ApidocProperty } from '@src/types';
 import type { HttpNode } from '@src/types';
 import { useI18n } from 'vue-i18n';
 import { defaultRequestMethods } from '../common';
 
-const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'));
-const SParamsView = defineAsyncComponent(() => import('@/components/apidoc/paramsView/ClParamsView.vue'));
+const SJsonEditor = defineAsyncComponent(() => import('../common/SCodeViewer.vue'));
+const SParamsView = defineAsyncComponent(() => import('./SParamsView.vue'));
 
 const { t } = useI18n();
 const shareStore = useShareStore();
@@ -227,7 +227,7 @@ const expandedBlocks = ref({
 
 onMounted(() => {
   if (apidocInfo.value?._id) {
-    const cache = appStateCache.getShareCollapseState(apidocInfo.value._id);
+    const cache = getShareCollapseState(apidocInfo.value._id);
     if (cache) {
       expandedBlocks.value = { ...expandedBlocks.value, ...cache };
     }
@@ -286,7 +286,7 @@ const formattedBodyJson = computed(() => {
 const toggleBlock = (block: 'query' | 'headers' | 'body' | 'response') => {
   expandedBlocks.value[block] = !expandedBlocks.value[block];
   if (apidocInfo.value?._id) {
-    appStateCache.updateShareBlockCollapseState(apidocInfo.value._id, block, expandedBlocks.value[block]);
+    updateShareBlockCollapseState(apidocInfo.value._id, block, expandedBlocks.value[block]);
   }
 }
 

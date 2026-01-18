@@ -95,16 +95,16 @@ import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.m
 import { Radio } from 'lucide-vue-next'
 import { useShareStore } from '../store/index'
 import { defaultRequestMethods } from '../common'
-import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n'
 /*
 |--------------------------------------------------------------------------
 | 变量定义
 |--------------------------------------------------------------------------
 */
-const route = useRoute();
+const props = defineProps<{
+  shareId: string
+}>()
 const shareStore = useShareStore();
-const shareId = route.query?.share_id as string || 'local_share';
 const docTree: Ref<TreeNodeOptions['store'] | null | TreeNodeOptions> = ref(null);
 const { t } = useI18n()
 
@@ -113,7 +113,7 @@ const showMoreNodeInfo = ref(false); //banner是否显示更多内容
 const searchValue = ref('');
 const requestMethods = ref(defaultRequestMethods);
 const { banner: bannerData } = storeToRefs(shareStore);
-const activeNode = computed(() => shareStore.tabs[shareId]?.find((v: ApidocTab) => v.selected));
+const activeNode = computed(() => shareStore.tabs[props.shareId]?.find((v: ApidocTab) => v.selected));
 const projectName = computed(() => shareStore.project.projectName);
 const defaultExpandedKeys = computed(() => activeNode.value ? [activeNode.value._id] : []);
 /*
@@ -127,7 +127,7 @@ const handleClickNode = (_: MouseEvent, data: ApidocBanner) => {
   if (data.type === 'http') {
     shareStore.addTab({
       _id: data._id,
-      projectId: shareId,
+      projectId: props.shareId,
       tabType: 'http',
       label: data.name,
       saved: true,
@@ -141,7 +141,7 @@ const handleClickNode = (_: MouseEvent, data: ApidocBanner) => {
   } else if (data.type === 'websocket') {
     shareStore.addTab({
       _id: data._id,
-      projectId: shareId,
+      projectId: props.shareId,
       tabType: 'websocket',
       label: data.name,
       saved: true,
@@ -155,7 +155,7 @@ const handleClickNode = (_: MouseEvent, data: ApidocBanner) => {
   } else if (data.type === 'httpMock') {
     shareStore.addTab({
       _id: data._id,
-      projectId: shareId,
+      projectId: props.shareId,
       tabType: 'httpMock',
       label: data.name,
       saved: true,
@@ -169,7 +169,7 @@ const handleClickNode = (_: MouseEvent, data: ApidocBanner) => {
   } else if (data.type === 'websocketMock') {
     shareStore.addTab({
       _id: data._id,
-      projectId: shareId,
+      projectId: props.shareId,
       tabType: 'websocketMock',
       label: data.name,
       saved: true,
@@ -189,7 +189,7 @@ const handleDbclickNode = (data: ApidocBanner) => {
   }
   shareStore.fixedTab({
     _id: data._id,
-    shareId: shareId,
+    shareId: props.shareId,
   })
 }
 //过滤节点

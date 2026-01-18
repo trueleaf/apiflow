@@ -141,14 +141,14 @@
 import { ref, computed, watchEffect, defineAsyncComponent, onMounted } from 'vue';
 import { storeToRefs } from 'pinia'
 import { ArrowDown } from '@element-plus/icons-vue';
-import { formatDate, getCompiledTemplate } from '@/helper'
+import { formatDate, getCompiledTemplate } from '../helper'
 import { useShareStore } from '../store';
-import { appStateCache } from '@/cache/appState/appStateCache.ts';
+import { getShareCollapseState, updateShareBlockCollapseState } from '../cache/shareCache';
 import type { ApidocProperty } from '@src/types';
 import type { WebSocketNode } from '@src/types/websocketNode';
 import { useI18n } from 'vue-i18n';
 
-const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'));
+const SJsonEditor = defineAsyncComponent(() => import('../common/SCodeViewer.vue'));
 
 const { t } = useI18n();
 const shareStore = useShareStore();
@@ -164,7 +164,7 @@ const expandedBlocks = ref({
 
 onMounted(() => {
   if (websocketInfo.value?._id) {
-    const cache = appStateCache.getShareCollapseState(websocketInfo.value._id);
+    const cache = getShareCollapseState(websocketInfo.value._id);
     if (cache) {
       expandedBlocks.value = { ...expandedBlocks.value, ...cache };
     }
@@ -204,7 +204,7 @@ const sortedMessageBlocks = computed(() => {
 const toggleBlock = (block: 'query' | 'headers' | 'messages') => {
   expandedBlocks.value[block] = !expandedBlocks.value[block];
   if (websocketInfo.value?._id) {
-    appStateCache.updateShareBlockCollapseState(websocketInfo.value._id, block, expandedBlocks.value[block]);
+    updateShareBlockCollapseState(websocketInfo.value._id, block, expandedBlocks.value[block]);
   }
 }
 

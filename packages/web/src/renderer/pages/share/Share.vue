@@ -1,7 +1,7 @@
 <template>
   <div v-if="hasPermission || isForHtml" class="doc-share">
     <div class="doc-share-container">
-      <SBanner class="doc-share-banner"></SBanner>
+      <SBanner class="doc-share-banner" :share-id="shareId"></SBanner>
       <div class="doc-share-main">
         <SNav></SNav>
         <SContent></SContent>
@@ -50,35 +50,35 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { request } from '@/api/api'
+import { request } from './api/shareApi'
 import { FormInstance } from 'element-plus'
 import { Loading, } from '@element-plus/icons-vue'
 import { ApidocBanner, HttpNode, ApidocVariable, CommonResponse } from '@src/types'
 import { ApidocTab } from '@src/types/apidoc/tabs'
-import { projectCache } from '@/cache/project/projectCache'
-import { projectWorkbenchCache } from '@/cache/projectWorkbench/projectWorkbenchCache'
-import { router } from '@/router'
+import { getProjectSharePassword, setProjectSharePassword, clearProjectSharePassword, getProjectWorkbenchTabs } from './cache/shareCache'
 import SBanner from './banner/Banner.vue'
 import SNav from './projectNav/ProjectNav.vue'
 import SContent from './content/Content.vue'
 import {  LocalShareData, SharedProjectInfo } from '@src/types/index.ts'
-import { convertNodesToBannerNodes } from '@/helper'
-import { getCountdown } from '@/helper'
+import { convertNodesToBannerNodes, getCountdown } from './helper'
 import { useShareStore } from './store'
 // @ts-ignore
 import localShareDataTest from './testData'
 import { useI18n } from 'vue-i18n'
-import { useAppSettings } from '@/store/appSettings/appSettingsStore'
+import { useShareAppSettings } from './store/appSettingsStore'
 /*
 |--------------------------------------------------------------------------
 | 变量定义
 |--------------------------------------------------------------------------
 */
 const { t } = useI18n()
-const appSettingsStore = useAppSettings()
+const appSettingsStore = useShareAppSettings()
 
 const isForHtml = ref(import.meta.env.VITE_USE_FOR_HTML === 'true');
-const shareId = router.currentRoute.value.query?.share_id as string || 'local_share';
+const shareId = (() => {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('share_id') || 'local_share';
+})();
 const hasPermission = ref(false);
 const loading = ref(false); //获取分享信息loading
 const expireCountdown = ref('')
@@ -128,7 +128,7 @@ const initShareData = () => {
   } else {
     getSharedProjectInfo();
   }
-  const tabs = projectWorkbenchCache.getProjectWorkbenchTabs();
+  const tabs = getProjectWorkbenchTabs();
   if (tabs[shareId]) {
     shareStore.updateAllTabs({
       tabs: tabs[shareId],
@@ -148,7 +148,7 @@ const getSharedProjectInfo = async () => {
     expireCountdown.value = getCountdown(res.data.expire ?? 0);
     if (res.data.needPassword) {
       // 检查是否有缓存的密码
-      const cachedPassword = projectCache.getProjectSharePassword(shareId);
+      const cachedPassword = getProjectSharePassword(shareId);
       if (cachedPassword) {
         // 自动使用缓存的密码进行验证
         await verifyPassword(cachedPassword);
@@ -162,7 +162,7 @@ const getSharedProjectInfo = async () => {
   } catch (error) {
     console.error(error)
     // 发生异常时清空密码缓存
-    projectCache.clearProjectSharePassword(shareId);
+    clearProjectSharePassword(shareId);
   } finally {
     loading.value = false;
   }
@@ -173,7 +173,7 @@ const getDocDetail = async (docId: string) => {
     const params = {
       docId,
       shareId: shareId,
-      password: projectCache.getProjectSharePassword(shareId),
+      password: getProjectSharePassword(shareId),
     }
     const res = await request.get<CommonResponse<HttpNode>, CommonResponse<HttpNode>>('/api/project/share_doc_detail', { params });
     shareStore.setActiveDocInfo(res.data);
@@ -193,12 +193,12 @@ const verifyPassword = async (password: string) => {
     })
     shareStore.replaceVaribles(response.data.variables);
     shareStore.setBanner(response.data.banner);
-    projectCache.setProjectSharePassword(shareId, password);
+    setProjectSharePassword(shareId, password);
     hasPermission.value = true;
   } catch (error) {
     console.error('缓存密码验证失败:', error);
     // 缓存密码验证失败，清空缓存
-    projectCache.clearProjectSharePassword(shareId);
+    clearProjectSharePassword(shareId);
     hasPermission.value = false;
   } finally {
     passwordLoading.value = false;

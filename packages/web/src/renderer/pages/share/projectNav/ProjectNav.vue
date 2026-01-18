@@ -49,14 +49,10 @@ import {
 import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { useShareStore } from '../store';
-import { eventEmitter } from '@/helper';
+import { eventEmitter } from '../helper';
 import SContextmenu from '@/components/common/contextmenu/ClContextmenu.vue'
 import SContextmenuItem from '@/components/common/contextmenu/ClContextmenuItem.vue'
 import { defaultRequestMethods } from '../common';
-import { useRoute } from 'vue-router';
-// import { findNodeById, findParentById } from '@/helper';
-;
-// import { ApidocBanner } from '@src/types';
 import { useI18n } from 'vue-i18n';
 
 /*
@@ -64,16 +60,18 @@ import { useI18n } from 'vue-i18n';
 | 变量定义
 |--------------------------------------------------------------------------
 */
-const route = useRoute();
 const { t } = useI18n()
 
+const shareId = (() => {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('share_id') || 'local_share';
+})();
 const showContextmenu = ref(false); //是否显示contextmenu
 const contextmenuLeft = ref(0); //鼠标右键x值
 const contextmenuTop = ref(0); //鼠标右键y值
 const currentOperationNode = ref<ApidocTab | null>(null); //当前被操作的节点信息
 const tabListWrap = ref<ComponentPublicInstance | null>(null)
 const shareStore = useShareStore();
-const shareId = route.query?.share_id as string || 'local_share';
 const tabs = computed({
   get: () => shareStore.tabs[shareId] || [],
   set: (val) => shareStore.updateAllTabs({ shareId, tabs: val })
