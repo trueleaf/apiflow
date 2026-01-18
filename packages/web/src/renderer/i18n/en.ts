@@ -680,6 +680,7 @@ export default {
   否: 'No',
   暂无请求头: 'No request headers',
   暂无请求体参数: 'No body parameters',
+  暂无Body数据: 'No body data',
   响应: 'Response',
   暂无响应数据: 'No response data',
   分钟: 'Minutes',

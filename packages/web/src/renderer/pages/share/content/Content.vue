@@ -122,9 +122,10 @@
             </div>
             <div class="api-doc-block-content" v-show="expandedBlocks.body">
               <template v-if="bodyType === 'json'">
-                <div class="editor-border">
+                <div v-if="formattedBodyJson" class="editor-border">
                   <SJsonEditor :modelValue="formattedBodyJson" auto-height min-height="30px" read-only />
                 </div>
+                <div v-else class="api-doc-empty">{{ $t('暂无Body数据') }}</div>
               </template>
               <template v-else-if="bodyType === 'formdata'">
                 <div class="api-doc-table">

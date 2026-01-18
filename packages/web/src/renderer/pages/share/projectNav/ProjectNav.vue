@@ -326,7 +326,7 @@ onUnmounted(() => {
         font-size: 16px;
 
         &:hover {
-          background: var(--bg-gray-300);
+          background: var(--project-nav-close-hover-bg);
         }
       }
     }

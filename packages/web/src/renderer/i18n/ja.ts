@@ -627,6 +627,7 @@ export default {
   '预期结果': 'Expected result',
   '暂无 Query 参数': 'No Query params',
   '暂无请求体参数': 'No Body Parameters',
+  '暂无Body数据': 'No Body Data',
   '暂无请求头': 'No Request Headers',
   '暂无权限': 'No permission',
   '暂无搜索结果': 'No results',
