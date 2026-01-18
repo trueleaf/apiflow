@@ -122,7 +122,12 @@ test.describe('QuickIcons', () => {
         await expect(networkText).toContainText(offlineTextPattern);
       }
     });
-    test('网络模式切换后Tab列表按模式过滤', async ({ topBarPage, createProject }) => {
+    test('网络模式切换后Tab列表按模式过滤', async ({ topBarPage, contentPage, createProject, clearCache }) => {
+      // 等待页面稳定后再清空缓存
+      await contentPage.waitForLoadState('domcontentloaded');
+      await contentPage.waitForTimeout(500);
+      // 清空缓存确保从干净状态开始
+      await clearCache();
       // 创建一个离线模式的项目
       const networkBtn = topBarPage.locator('[data-testid="header-network-toggle"]');
       const networkText = networkBtn.locator('.icon-text');

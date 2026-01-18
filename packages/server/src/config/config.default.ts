@@ -131,9 +131,6 @@ export default (): MidwayConfig => {
       baseUrl: process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com/chat/completions',
       model: process.env.DEEPSEEK_MODEL || 'deepseek-chat',
     },
-    llmDomainWhitelist: process.env.NODE_ENV === 'production'
-      ? ['apiflow.cn', 'www.apiflow.cn', 'app.apiflow.cn']
-      : ['apiflow.cn', 'www.apiflow.cn', 'app.apiflow.cn', 'localhost', '127.0.0.1'],
     permission: {
       isFree: false,
       whiteList: [
