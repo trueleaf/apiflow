@@ -5,6 +5,7 @@
 # 选项:
 #   --no-backup    跳过版本备份
 #   --no-prune     跳过镜像清理
+#   --no-git       跳过 git pull
 #   --cn           使用中国镜像源
 
 set -e
@@ -18,6 +19,7 @@ COLOR_RESET='\033[0m'
 BACKUP_VERSION=true
 PRUNE_IMAGES=true
 USE_CN_COMPOSE=false
+SKIP_GIT_PULL=false
 
 print_step() {
     echo -e "${COLOR_BLUE}==>${COLOR_RESET} $1"
@@ -45,6 +47,10 @@ while [[ $# -gt 0 ]]; do
             PRUNE_IMAGES=false
             shift
             ;;
+        --no-git)
+            SKIP_GIT_PULL=true
+            shift
+            ;;
         --cn)
             USE_CN_COMPOSE=true
             shift
@@ -55,6 +61,7 @@ while [[ $# -gt 0 ]]; do
             echo "选项:"
             echo "  --no-backup    跳过版本备份"
             echo "  --no-prune     跳过镜像清理"
+            echo "  --no-git       跳过 git pull"
             echo "  --cn           使用 docker-compose.cn.yml"
             echo "  --help, -h     显示帮助信息"
             exit 0
@@ -83,27 +90,57 @@ echo ""
 print_step "🚀 开始更新 Apiflow..."
 echo ""
 
-if [ "$BACKUP_VERSION" = true ]; then
-    print_step "📝 备份当前版本信息..."
-    docker compose -f $COMPOSE_FILE config --images > current_versions_$(date +%Y%m%d_%H%M%S).txt || true
-    print_success "版本信息已备份"
-    echo ""
+if [ "$SKIP_GIT_PULL" = false ]; then
+    if [ -d ".git" ]; then
+        print_step "📦 更新代码仓库..."
+        if git pull; then
+            print_success "代码已更新到最新版本"
+        else
+            print_warning "Git pull 失败（可能无更新或有冲突）"
+        fi
+        echo ""
+    else
+        print_warning "未检测到 .git 目录，跳过代码更新"
+        echo ""
+    fi
 fi
 
-print_step "📥 拉取最新镜像..."
-if docker compose -f $COMPOSE_FILE pull; then
-    print_success "镜像拉取完成"
-else
-    print_error "镜像拉取失败"
-    exit 1
+if [ "$BACKUP_VERSION" = true ]; then
+    print_step "📝 备份当前镜像信息..."
+    BACKUP_FILE="current_versions_$(date +%Y%m%d_%H%M%S).txt"
+    docker compose -f $COMPOSE_FILE config --images > "$BACKUP_FILE" 2>/dev/null || true
+    
+    # 备份当前运行镜像的 digest
+    docker compose -f $COMPOSE_FILE images --format "table {{.Service}}\t{{.Repository}}:{{.Tag}}\t{{.ID}}" > "${BACKUP_FILE}.digests" 2>/dev/null || true
+    
+    print_success "版本信息已备份到 $BACKUP_FILE"
+    echo ""
 fi
-echo ""
 
 print_step "⏹️  停止当前服务..."
 if docker compose -f $COMPOSE_FILE down; then
     print_success "服务已停止"
 else
     print_warning "停止服务时出现警告（可能服务未运行）"
+fi
+echo ""
+
+print_step "📥 拉取最新镜像..."
+PULL_OUTPUT=$(mktemp)
+if docker compose -f $COMPOSE_FILE pull 2>&1 | tee "$PULL_OUTPUT"; then
+    # 检查是否有镜像被更新
+    if grep -q "Downloaded newer image" "$PULL_OUTPUT" || grep -q "Pulled" "$PULL_OUTPUT"; then
+        print_success "检测到新镜像，拉取完成"
+    elif grep -q "Image is up to date" "$PULL_OUTPUT" || grep -q "up to date" "$PULL_OUTPUT"; then
+        print_warning "所有镜像已是最新版本，无需更新"
+    else
+        print_success "镜像拉取完成"
+    fi
+    rm -f "$PULL_OUTPUT"
+else
+    print_error "镜像拉取失败"
+    rm -f "$PULL_OUTPUT"
+    exit 1
 fi
 echo ""
 
