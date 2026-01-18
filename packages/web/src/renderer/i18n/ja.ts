@@ -5,8 +5,8 @@
 */
 export default {
   项目列表: 'プロジェクト',
-  GitHub地址: 'GitHub URL',
-  Gitee地址: 'Gitee URL',
+  GitHub地址: 'GitHub',
+  Gitee地址: 'Gitee',
   最近一次更新: '最終更新',
   // Mock関連
   '配置与响应': '設定とレスポンス',
@@ -819,7 +819,7 @@ export default {
   '关键字': 'Keyword',
   '关于': 'About',
   '官网': 'Website',
-  '官网地址': 'Website URL',
+  '官网地址': 'Website',
   '管理项目的在线分享链接，方便外部人员访问': 'プロジェクトのオンライン共有リンクを管理し、外部のメンバーがアクセスしやすくします',
   '管理已删除的项目，可以恢复到项目列表': '削除したプロジェクトを管理し、プロジェクト一覧に復元できます',
   '过滤历史记录': 'Filter history',

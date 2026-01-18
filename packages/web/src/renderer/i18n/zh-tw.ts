@@ -5,8 +5,8 @@
 */
 export default {
   项目列表: '專案列表',
-  GitHub地址: 'GitHub URL',
-  Gitee地址: 'Gitee URL',
+  GitHub地址: 'GitHub',
+  Gitee地址: 'Gitee',
   最近一次更新: '最後更新',
   // Mock相關文案
   '配置与响应': '設定與回應',

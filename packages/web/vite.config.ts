@@ -3,7 +3,12 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import path from 'path'
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
 import { resolve } from 'path';
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
 import pkg from './package.json'
 import AutoImport from 'unplugin-auto-import/rolldown'
 import Components from 'unplugin-vue-components/rolldown'
@@ -61,7 +66,7 @@ export default defineConfig(async ({ mode, command }) => {
     },
     define: {
       __APP_VERSION__: JSON.stringify(pkg.version),
-      __APP_BUILD_TIME__: JSON.stringify(dayjs().format('YYYY-MM-DD HH:mm:ss')),
+      __APP_BUILD_TIME__: JSON.stringify(dayjs().tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss')),
       __COMMAND__: JSON.stringify(command),
     },
     optimizeDeps: {

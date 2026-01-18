@@ -4,6 +4,11 @@ import vue from '@vitejs/plugin-vue'
 // import { visualizer } from 'rollup-plugin-visualizer'
 import path, { resolve } from 'path'
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 export default defineConfig({
   root: __dirname, // 设置根目录为当前目录
@@ -28,7 +33,7 @@ export default defineConfig({
   },
   define: {
     // 注入构建时间和环境变量标记是否为HTML模式
-    __APP_BUILD_TIME__: JSON.stringify(dayjs().format('YYYY-MM-DD HH:mm:ss')),
+    __APP_BUILD_TIME__: JSON.stringify(dayjs().tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss')),
     'import.meta.env.VITE_USE_FOR_HTML': JSON.stringify('true')
   },
   build: {
