@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-// import { viteSingleFile } from 'vite-plugin-singlefile'
-// import { visualizer } from 'rollup-plugin-visualizer'
+import { viteSingleFile } from 'vite-plugin-singlefile'
 import path, { resolve } from 'path'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -14,14 +13,7 @@ export default defineConfig({
   root: __dirname, // 设置根目录为当前目录
   plugins: [
     vue(),
-    // viteSingleFile(), // 启用单文件输出
-    // visualizer({
-    //   filename: 'dist/bundle-analysis.html', // 输出分析报告的路径
-    //   open: true, // 构建完成后自动打开分析报告
-    //   gzipSize: true, // 显示 gzip 压缩后的大小
-    //   brotliSize: true, // 显示 brotli 压缩后的大小
-    //   template: 'treemap' // 使用矩形树图模板
-    // })
+    viteSingleFile(), // 启用单文件输出
   ],
   resolve: {
     alias: {
@@ -33,7 +25,9 @@ export default defineConfig({
   },
   define: {
     // 注入构建时间和环境变量标记是否为HTML模式
+    __APP_VERSION__: JSON.stringify('0.9.6'),
     __APP_BUILD_TIME__: JSON.stringify(dayjs().tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss')),
+    __COMMAND__: JSON.stringify('serve'),
     'import.meta.env.VITE_USE_FOR_HTML': JSON.stringify('true')
   },
   build: {
@@ -42,6 +36,11 @@ export default defineConfig({
     rollupOptions: {
       input: {
         share: resolve(__dirname, 'index.html') // 使用绝对路径
+      },
+      output: {
+        // 禁用代码分割，将所有内容打包到一个文件中
+        manualChunks: undefined,
+        inlineDynamicImports: true,
       }
     },
     // 内联所有资源

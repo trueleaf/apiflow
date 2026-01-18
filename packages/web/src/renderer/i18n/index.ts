@@ -1,7 +1,7 @@
 import { createI18n } from 'vue-i18n';
 import type { Language } from '@src/types';
-import { runtimeCache } from '@/cache/runtime/runtimeCache';
 import { francAll } from 'franc-min';
+import { cacheKey } from '@/cache/cacheKey';
 
 // 导入语言资源
 import zhCn from './zh-cn';
@@ -17,9 +17,40 @@ const messages = {
   'ja': ja,
 };
 
-// 获取初始语言
+// 检测系统语言
+const detectSystemLanguage = (): Language => {
+  try {
+    const systemLang = navigator.language.toLowerCase();
+    if (systemLang.includes('zh-cn') || systemLang.includes('zh_cn')) {
+      return 'zh-cn';
+    }
+    if (systemLang.includes('zh-tw') || systemLang.includes('zh_tw') || systemLang.includes('zh-hk')) {
+      return 'zh-tw';
+    }
+    if (systemLang.includes('ja')) {
+      return 'ja';
+    }
+    return 'en';
+  } catch (error) {
+    console.error('检测系统语言失败', error);
+    return 'en';
+  }
+};
+
+// 获取初始语言（直接读取 localStorage，避免循环依赖）
 const getInitialLanguage = (): Language => {
-  return runtimeCache.getLanguage();
+  try {
+    const language = localStorage.getItem(cacheKey.runtime.language);
+    if (language === 'zh-cn' || language === 'zh-tw' || language === 'en' || language === 'ja') {
+      return language;
+    }
+    const detectedLanguage = detectSystemLanguage();
+    localStorage.setItem(cacheKey.runtime.language, detectedLanguage);
+    return detectedLanguage;
+  } catch (error) {
+    console.error('获取语言配置失败', error);
+    return 'zh-cn';
+  }
 };
 
 // 创建 i18n 实例
@@ -36,7 +67,11 @@ export const i18n = createI18n({
 // 切换语言的辅助函数
 export const changeLanguage = (language: Language) => {
   i18n.global.locale.value = language;
-  runtimeCache.setLanguage(language);
+  try {
+    localStorage.setItem(cacheKey.runtime.language, language);
+  } catch (error) {
+    console.error('设置语言配置失败', error);
+  }
 };
 
 // 使用指定语言翻译文本（不改变界面语言）

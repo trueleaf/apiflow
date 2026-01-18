@@ -2,7 +2,7 @@
 export * from './cache';
 export * from './request';
 export * from './tabs';
-import type { HttpNode } from '../httpNode/httpNode';
+import type { ApiNode } from '../httpNode/httpNode';
 import type { ApidocVariable } from '../httpNode/types';
 // 本地分享数据类型
 export type LocalShareData = {
@@ -10,7 +10,7 @@ export type LocalShareData = {
     projectName: string;
     projectId: string;
   };
-  nodes: HttpNode[];
+  nodes: ApiNode[];
   variables: ApidocVariable[];
 }
 // 分享项目信息类型

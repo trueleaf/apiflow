@@ -57,6 +57,26 @@
                 <div v-show="showMoreNodeInfo" class="node-bottom">{{ scope.data.url }}</div>
               </div>
             </template>
+            <!-- httpMock渲染 -->
+            <template v-if="scope.data.type === 'httpMock'">
+              <span class="mock-icon">
+                <span>mock</span>
+              </span>
+              <div class="node-label-wrap">
+                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="searchValue"></SEmphasize>
+                <SEmphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.url"
+                  :value="scope.data.url" :keyword="searchValue"></SEmphasize>
+              </div>
+            </template>
+            <!-- websocketMock渲染 -->
+            <template v-if="scope.data.type === 'websocketMock'">
+              <Radio class="ws-mock-icon" :size="14" />
+              <div class="node-label-wrap">
+                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="searchValue"></SEmphasize>
+                <SEmphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.path"
+                  :value="scope.data.path" :keyword="searchValue"></SEmphasize>
+              </div>
+            </template>
           </div>
         </template>
       </el-tree>
@@ -72,6 +92,7 @@ import type { ApidocTab } from '@src/types/apidoc/tabs'
 import SResizeX from '@/components/common/resize/ClResizeX.vue'
 import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
 import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
+import { Radio } from 'lucide-vue-next'
 import { useShareStore } from '../store/index'
 import { defaultRequestMethods } from '../common'
 import { useRoute } from 'vue-router';
@@ -131,6 +152,34 @@ const handleClickNode = (_: MouseEvent, data: ApidocBanner) => {
         color: ""
       },
     })
+  } else if (data.type === 'httpMock') {
+    shareStore.addTab({
+      _id: data._id,
+      projectId: shareId,
+      tabType: 'httpMock',
+      label: data.name,
+      saved: true,
+      fixed: false,
+      selected: true,
+      head: {
+        icon: 'MOCK',
+        color: ''
+      },
+    })
+  } else if (data.type === 'websocketMock') {
+    shareStore.addTab({
+      _id: data._id,
+      projectId: shareId,
+      tabType: 'websocketMock',
+      label: data.name,
+      saved: true,
+      fixed: false,
+      selected: true,
+      head: {
+        icon: 'websocketMock',
+        color: ''
+      },
+    })
   }
 }
 //双击节点固定这个节点
@@ -150,11 +199,16 @@ const filterNode = (value: string, data: Record<string, unknown>): boolean => {
     return true;
   }
   const bannerData = data as ApidocBanner;
-  const matchedUrl = bannerData.type === 'http' 
-    ? bannerData.url?.toLowerCase().includes(value.toLowerCase())
-    : bannerData.type === 'websocket'
-      ? bannerData.url.path?.toLowerCase().includes(value.toLowerCase())
-      : false;
+  let matchedUrl = false;
+  if (bannerData.type === 'http') {
+    matchedUrl = bannerData.url?.toLowerCase().includes(value.toLowerCase());
+  } else if (bannerData.type === 'websocket') {
+    matchedUrl = bannerData.url.path?.toLowerCase().includes(value.toLowerCase());
+  } else if (bannerData.type === 'httpMock') {
+    matchedUrl = bannerData.url?.toLowerCase().includes(value.toLowerCase());
+  } else if (bannerData.type === 'websocketMock') {
+    matchedUrl = bannerData.path?.toLowerCase().includes(value.toLowerCase());
+  }
   const matchedDocName = bannerData.name.toLowerCase().includes(value.toLowerCase());
   showMoreNodeInfo.value = true;
   return !!matchedUrl || !!matchedDocName;
@@ -217,6 +271,22 @@ watch(searchValue, (newValue) => {
       width: 16px;
       height: 16px;
       margin-right: 5px;
+    }
+
+    .mock-icon {
+      display: flex;
+      flex-direction: column;
+      font-size: 10px;
+      border-radius: 50%;
+      margin-right: 5px;
+      color: var(--blue);
+      flex-shrink: 0;
+    }
+
+    .ws-mock-icon {
+      margin-right: 5px;
+      color: var(--purple);
+      flex-shrink: 0;
     }
 
     .node-label-wrap {

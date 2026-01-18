@@ -864,7 +864,6 @@ const beforeCloseCode = `<template>
 
 <script setup>
 import { ref } from 'vue'
-import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm.ts';
 const visible = ref(false)
 const handleBeforeClose = (done: () => void) => {
   ClConfirm({

@@ -14,7 +14,6 @@ import { webSocketHistoryCache } from '@/cache/websocketNode/websocketHistoryCac
 import HomePage from "@/pages/home/Home.vue";
 import AdminPage from "@/pages/admin/Admin.vue";
 import ProjectWorkbenchPage from "@/pages/projectWorkbench/ProjectWorkbench.vue";
-import SharePage from "@/pages/share/Share.vue";
 import SettingsPage from "@/pages/settings/Settings.vue";
 import NotFoundPage from "@/pages/appWorkbench/404/404.vue";
 import LoginPage from "@/pages/login/Login.vue";
@@ -75,7 +74,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/share",
     name: "Share",
-    component: SharePage,
+    component: () => import("@/pages/share/Share.vue"),
   },
   {
     path: "/settings",
@@ -139,7 +138,7 @@ const routerConfig = {
     {
       path: "/share",
       name: "Share",
-      component: SharePage,
+      component: () => import("@/pages/share/Share.vue"),
     },
     {
       path: "/settings",

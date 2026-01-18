@@ -123,7 +123,7 @@
             <div class="api-doc-block-content" v-show="expandedBlocks.body">
               <template v-if="bodyType === 'json'">
                 <div class="editor-border">
-                  <SJsonEditor :modelValue="apidocInfo.item.requestBody.rawJson" auto-height min-height="30px" read-only />
+                  <SJsonEditor :modelValue="formattedBodyJson" auto-height min-height="30px" read-only />
                 </div>
               </template>
               <template v-else-if="bodyType === 'formdata'">
@@ -165,7 +165,7 @@
                     :name="String(index)">
                     <template v-if="getResponseLanguage(item.value.dataType) === 'json'">
                       <div class="editor-border">
-                        <SJsonEditor :modelValue="item.value.strJson" read-only auto-height min-height="30px" :config="{ language: 'json' }" />
+                        <SJsonEditor :modelValue="formatJsonString(item.value.strJson)" read-only auto-height min-height="30px" :config="{ language: 'json' }" />
                       </div>
                     </template>
                     <template v-else-if="getResponseLanguage(item.value.dataType) === 'xml'">
@@ -199,7 +199,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watchEffect, defineAsyncComponent } from 'vue';
+import { ref, computed, watchEffect, defineAsyncComponent, onMounted } from 'vue';
 import { storeToRefs } from 'pinia'
 import { ArrowDown } from '@element-plus/icons-vue';
 import { formatDate } from '@/helper'
@@ -305,6 +305,23 @@ const getResponseLanguage = (dataType: string) => {
 const getMethodColor = (method: string) => {
   return defaultRequestMethods.find(item => item.value === method)?.iconColor;
 }
+//尝试格式化 JSON 字符串，如果失败则返回原值
+const formatJsonString = (jsonStr: string) => {
+  if (!jsonStr) return jsonStr;
+  try {
+    const parsed = JSON.parse(jsonStr);
+    return JSON.stringify(parsed, null, 2);
+  } catch {
+    return jsonStr;
+  }
+}
+//格式化后的 Body JSON 内容
+const formattedBodyJson = computed(() => {
+  if (bodyType.value === 'json' && apidocInfo.value?.item.requestBody.rawJson) {
+    return formatJsonString(apidocInfo.value.item.requestBody.rawJson);
+  }
+  return apidocInfo.value?.item.requestBody.rawJson || '';
+});
 
 </script>
 
