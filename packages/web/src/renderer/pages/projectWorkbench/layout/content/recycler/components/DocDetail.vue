@@ -1,8 +1,5 @@
 <template>
   <SLoading :loading="loading" class="doc-detail">
-    <el-icon :size="18" class="close" @click="handleClose">
-      <Close />
-    </el-icon>
     <div class="params-view">
       <!-- 基本信息 -->
       <SFieldset v-if="apidocInfo" :title="t('基本信息')">
@@ -66,11 +63,11 @@
 
         <!-- 通用信息 -->
         <div class="base-info">
-          <SLableValue :label="t('维护人员') + '：'" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto"
+          <SLableValue v-if="!isOffline()" :label="t('维护人员') + '：'" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto"
             class="w-50">
             <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
           </SLableValue>
-          <SLableValue :label="t('创建人员') + '：'" :title="apidocInfo.info.creator" label-width="auto"
+          <SLableValue v-if="!isOffline()" :label="t('创建人员') + '：'" :title="apidocInfo.info.creator" label-width="auto"
             class="w-50">
             <span class="text-ellipsis">{{ apidocInfo.info.creator }}</span>
           </SLableValue>
@@ -242,7 +239,7 @@
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted, computed, defineAsyncComponent } from 'vue'
-import { Close } from '@element-plus/icons-vue'
+// import { Close } from '@element-plus/icons-vue'
 import type { ApiNode, HttpNode, WebSocketNode, HttpMockNode, WebSocketMockNode, CommonResponse } from '@src/types';
 import { router } from '@/router/index'
 import { request } from '@/api/api'
@@ -394,9 +391,9 @@ const hasHeaders = computed(() => {
 */
 
 //关闭弹窗
-const handleClose = () => {
-  emits('close');
-}
+// const handleClose = () => {
+//   emits('close');
+// }
 const getLanguageFromMime = (mimeType: string): string => {
   const mimeToLanguage: Record<string, string> = {
     'text/plain': 'plaintext',
@@ -413,15 +410,12 @@ const getLanguageFromMime = (mimeType: string): string => {
 
 <style lang='scss' scoped>
 .doc-detail {
-  width: 800px;
-  overflow: hidden;
+  width: 100%;
   position: relative;
 
   .params-view {
-    max-height: 65vh;
-    overflow-y: auto;
     padding: 0 10px;
-    margin-top: 30px;
+    margin-top: 10px;
 
     .copy-json {
       cursor: pointer;
@@ -429,24 +423,6 @@ const getLanguageFromMime = (mimeType: string): string => {
       &:hover {
         color: #f7f7fa;
       }
-    }
-  }
-
-  .close {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    right: 5px;
-    top: 5px;
-    font-size: 18px;
-    width: 22px;
-    height: 22px;
-    color: var(--el-color-danger);
-    cursor: pointer;
-    border-radius: 50%;
-    &:hover {
-      background: #dee2e6;
     }
   }
 

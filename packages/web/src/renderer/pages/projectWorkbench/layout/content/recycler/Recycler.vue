@@ -65,13 +65,7 @@
                 <div class="op-area mr-4">
                   <el-button link type="primary" text :loading="loading2" @click="handleRestore(docInfo)">{{ t('恢复') }}</el-button>
                   <el-divider direction="vertical"></el-divider>
-                  <el-popover :visible="docInfo._visible" placement="right" width="auto" transition="none" trigger="click">
-                    <doc-detail v-if="docInfo._visible" :id="docInfo._id"
-                      @close="docInfo._visible = false;"></doc-detail>
-                    <template #reference>
-                      <el-button link type="primary" text @click.stop="handleShowDetail(docInfo)">{{ t('详情') }}</el-button>
-                    </template>
-                  </el-popover>
+                  <el-button link type="primary" text @click.stop="handleShowDetail(docInfo)">{{ t('详情') }}</el-button>
                 </div>
                 <div class="operator mr-1">{{ docInfo.deletePerson }}</div>
                 <div class="mr-2">{{ t('删除了') }}</div>
@@ -117,6 +111,9 @@
         </div>
       </div>
     </SLoading>
+    <el-drawer v-model="drawerVisible" :title="t('详情')" size="800px" destroy-on-close append-to-body>
+      <doc-detail v-if="drawerVisible" :id="currentDetailId" @close="drawerVisible = false"></doc-detail>
+    </el-drawer>
   </div>
 </template>
 
@@ -164,7 +161,6 @@ type DeleteInfo = {
   type: ApidocType, //文档类型
   protocol?: 'ws' | 'wss', //websocket协议类型
   updatedAt: string, //更新时间
-  _visible?: boolean,
 };
 type SearchInfo = {
   projectId: string, //项目id
@@ -197,7 +193,6 @@ const convertNodeToDeleteInfo = (node: ApiNode): DeleteInfo => {
     deletePerson: node.info.deletePerson || '',
     deletePersonId: '',
     updatedAt: node.updatedAt,
-    _visible: false,
   };
   switch (node.info.type) {
     case 'http':
@@ -351,12 +346,12 @@ onMounted(() => {
   if (!isStandalone.value) {
     getOperatorEnum();
   }
-  document.documentElement.addEventListener('click', closeAllDetailPopovers);
+  // document.documentElement.addEventListener('click', closeAllDetailPopovers);
   eventEmitter.on('apidoc/deleteDocs', getData);
 });
 
 onUnmounted(() => {
-  document.documentElement.removeEventListener('click', closeAllDetailPopovers);
+  // document.documentElement.removeEventListener('click', closeAllDetailPopovers);
 });
 /*
 |--------------------------------------------------------------------------
@@ -469,16 +464,13 @@ const handleRestore = (docInfo: DeleteInfo) => {
     restoreDocDirectly(docInfo)
   }
 }
-//关闭所有详情popover
-const closeAllDetailPopovers = () => {
-  deletedList.value.forEach((item) => {
-    item._visible = false;
-  });
-}
+const drawerVisible = ref(false);
+const currentDetailId = ref('');
+
 //查看详情
 const handleShowDetail = (docInfo: DeleteInfo) => {
-  closeAllDetailPopovers();
-  docInfo._visible = true;
+  currentDetailId.value = docInfo._id;
+  drawerVisible.value = true;
 };
 
 </script>
