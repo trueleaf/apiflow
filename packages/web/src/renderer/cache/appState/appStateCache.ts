@@ -2,7 +2,7 @@ import type { WebsocketActiveTabType } from '@src/types/websocketNode';
 import type { MockNodeActiveTabType } from '@src/types/mockNode';
 import type { AdvancedSearchConditions } from '@src/types/advancedSearch';
 import type { UpdateSettings, UpdateSource } from '@src/types/update';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 import { cacheKey } from '../cacheKey';
 type ProjectManagerSearchState = {
   keyword: string;

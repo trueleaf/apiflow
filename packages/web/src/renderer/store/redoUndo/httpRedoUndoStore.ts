@@ -9,7 +9,7 @@ import type { HttpNodeBodyRawType } from "@src/types/httpNode/types";
 import { useHttpNode } from "@/store/httpNode/httpNodeStore";
 import { cloneDeep } from "lodash-es";
 import { httpRedoUndoCache } from "@/cache/redoUndo/httpRedoUndoCache";
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 
 // 自定义响应类型用于撤销重做操作
 type RedoUndoResponse = {

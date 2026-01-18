@@ -1,7 +1,7 @@
 import type { RuntimeNetworkMode } from '@src/types/runtime'
 import type { PermissionUserInfo } from '@src/types/project'
 import type { Language } from '@src/types/common'
-import { logger } from '@/helper'
+import { logger } from '@/helper/logger'
 import { cacheKey } from '../cacheKey'
 class RuntimeCache {
   getNetworkMode(): RuntimeNetworkMode {

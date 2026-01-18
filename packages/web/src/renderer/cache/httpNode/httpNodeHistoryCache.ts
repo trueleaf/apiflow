@@ -3,7 +3,7 @@ import { HttpHistory } from '@src/types/history/httpHistory';
 import { HttpNode } from '@src/types/httpNode/httpNode';
 import { config } from '@src/config/config';
 import { nanoid } from 'nanoid/non-secure';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 type HttpHistoryCacheData = {
   _id: string; // 历史记录唯一ID作为主键
   nodeId: string; // 节点ID，用于索引

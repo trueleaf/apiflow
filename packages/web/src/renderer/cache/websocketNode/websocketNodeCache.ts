@@ -1,5 +1,5 @@
 import { WebSocketNode, WebsocketConfig } from '@src/types/websocketNode';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 import { cacheKey } from '../cacheKey';
 class WebSocketNodeCache {
   constructor() {

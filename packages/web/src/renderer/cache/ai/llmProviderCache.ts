@@ -1,5 +1,5 @@
 import type { LLMProviderSetting } from '@src/types/ai/agent.type';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 import { cacheKey } from '../cacheKey';
 class LLMProviderCache {
   // 获取 LLM Provider 配置

@@ -5,7 +5,8 @@ import { defineStore } from "pinia"
 import { DeepPartial } from "@src/types/index.ts"
 import { apiNodesCache } from "@/cache/nodes/nodesCache";
 import { nodeVariableCache } from "@/cache/variable/nodeVariableCache";
-import { logger, generateEmptyHttpNode, generateHttpNode, inferContentTypeFromBody, findNodeById, findParentById, generateEmptyProperty, generateEmptyHttpMockNode, generateEmptyWebsocketNode, generateEmptyWebSocketMockNode } from '@/helper';
+import { logger } from '@/helper/logger';
+import { generateEmptyHttpNode, generateHttpNode, inferContentTypeFromBody, findNodeById, findParentById, generateEmptyProperty, generateEmptyHttpMockNode, generateEmptyWebsocketNode, generateEmptyWebSocketMockNode } from '@/helper';
 import { useHttpNode } from "../httpNode/httpNodeStore";
 import { useProjectManagerStore } from "../projectManager/projectManagerStore";
 import { useBanner } from "../projectWorkbench/bannerStore";

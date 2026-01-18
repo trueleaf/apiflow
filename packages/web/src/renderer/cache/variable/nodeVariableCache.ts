@@ -2,7 +2,7 @@ import type { ApidocVariable, CommonResponse } from '@src/types';
 import { nanoid } from "nanoid";
 import { openDB, type IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 export class NodeVariableCache {
   private db: IDBPDatabase | null = null;
   private storeName = config.cacheConfig.variablesCache.storeName;

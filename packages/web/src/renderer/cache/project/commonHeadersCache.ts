@@ -1,7 +1,7 @@
 import type { ApidocProperty } from '@src/types';
 import { openDB, type IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 import { cacheKey } from '../cacheKey';
 export class CommonHeaderCache {
   private db: IDBPDatabase | null = null;

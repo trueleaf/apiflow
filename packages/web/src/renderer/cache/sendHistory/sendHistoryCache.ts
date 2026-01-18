@@ -1,6 +1,6 @@
 import { openDB, IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 import { nanoid } from 'nanoid/non-secure';
 import type { SendHistoryItem, SendHistoryCacheData, AddSendHistoryParams } from '@src/types/history/sendHistory';
 

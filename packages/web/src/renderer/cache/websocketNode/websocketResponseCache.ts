@@ -2,7 +2,7 @@ import { openDB, IDBPDatabase } from 'idb';
 import { WebsocketResponse } from '@src/types/websocketNode';
 import { config } from '@src/config/config';
 import { nanoid } from 'nanoid/non-secure';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 type WebsocketResponseCacheData = {
   id: string; // 数据唯一ID作为主键
   nodeId: string; // 节点ID

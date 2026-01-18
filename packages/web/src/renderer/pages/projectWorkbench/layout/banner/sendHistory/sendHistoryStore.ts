@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache';
 import type { SendHistoryItem } from '@src/types/history/sendHistory';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 
 export const useSendHistory = defineStore('sendHistory', () => {

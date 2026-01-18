@@ -1,5 +1,5 @@
 import type { HttpNodeBodyMode } from '@src/types'
-import { logger } from '@/helper'
+import { logger } from '@/helper/logger'
 import { cacheKey } from '../cacheKey'
 class BodyModeOrderCache {
   private readonly DEFAULT_ORDER: HttpNodeBodyMode[] = ['json', 'formdata', 'urlencoded', 'raw', 'binary', 'none']

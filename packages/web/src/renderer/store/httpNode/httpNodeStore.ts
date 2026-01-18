@@ -28,7 +28,7 @@ import { useVariable } from "../projectWorkbench/variablesStore.ts"
 import { apiNodesCache } from "@/cache/nodes/nodesCache";
 import { useRuntime } from '../runtime/runtimeStore';
 import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 import { useHttpNodeConfig } from './httpNodeConfigStore';
 
 

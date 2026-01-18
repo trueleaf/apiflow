@@ -2,7 +2,8 @@ import type { ApidocType, ApiNode } from "@src/types";
 import { nanoid } from "nanoid";
 import { openDB, type IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
-import { logger, convertNodesToBannerNodes } from '@/helper';
+import { logger } from '@/helper/logger';
+import { convertNodesToBannerNodes } from '@/helper';
 import { projectCache } from '@/cache/project/projectCache';
 export class ApiNodesCache {
   private bannerCache = new Map<

@@ -3,7 +3,7 @@ import { WebSocketHistory, WebSocketHistoryCacheData } from '@src/types/history/
 import { WebSocketNode } from '@src/types/websocketNode';
 import { config } from '@src/config/config';
 import { nanoid } from 'nanoid/non-secure';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 class WebSocketHistoryCache {
   private dbName = config.cacheConfig.websocketHistoryCache.dbName;
   private storeName = config.cacheConfig.websocketHistoryCache.storeName;

@@ -1,5 +1,6 @@
 import type { HttpNodeConfig } from '@src/types/httpNode/httpNode';
-import { logger, generateDefaultHttpNodeConfig } from '@/helper';
+import { logger } from '@/helper/logger'
+import { generateDefaultHttpNodeConfig } from '@/helper';
 import { cacheKey } from '../cacheKey';
 class HttpNodeConfigCache {
   constructor() {

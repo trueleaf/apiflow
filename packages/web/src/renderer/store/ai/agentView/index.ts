@@ -5,7 +5,7 @@ import type { AgentViewMessage, AskMessage, TextResponseMessage, LoadingMessage,
 import { agentViewCache } from '@/cache/ai/agentViewCache';
 import { appStateCache } from '@/cache/appState/appStateCache';
 import { nanoid } from 'nanoid/non-secure';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 import { i18n } from '@/i18n';
 import { useLLMClientStore } from '../llmClientStore';
 

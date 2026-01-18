@@ -2,7 +2,7 @@ import type { ApidocProjectInfo } from '@src/types';
 import { cacheKey } from '../cacheKey';
 import { openDB, type IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 export class ProjectCache {
   private db: IDBPDatabase | null = null;
   private storeName = config.cacheConfig.projectCache.storeName;

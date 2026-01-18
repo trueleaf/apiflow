@@ -10,7 +10,7 @@ import { httpNodeCache } from "@/cache/httpNode/httpNodeCache.ts";
 import { projectWorkbenchCache } from "@/cache/projectWorkbench/projectWorkbenchCache.ts";
 import { request } from '@/api/api';
 import { useBanner } from "./bannerStore";
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 
 type EditNavPayload<K extends keyof ProjectNavItem> = {
   id: string,

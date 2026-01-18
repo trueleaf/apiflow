@@ -1,6 +1,6 @@
 import type { ProjectNavItem } from '@src/types/projectWorkbench/nav';
 import type { ApidocTab } from '@src/types/apidoc/tabs';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 import { cacheKey } from '../cacheKey';
 type ProjectWorkbenchPinOperation = {
   name: string;

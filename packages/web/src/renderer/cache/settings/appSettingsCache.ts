@@ -1,6 +1,6 @@
 import type { AppTheme } from '@src/types';
 import { config } from '@src/config/config';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 import { cacheKey } from '../cacheKey';
 class AppSettingsCache {
   constructor() {

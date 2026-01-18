@@ -1,6 +1,6 @@
 // App Workbench 缓存管理
 import type { AppWorkbenchHeaderTab } from '@src/types/appWorkbench/appWorkbenchType';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 import { cacheKey } from '../cacheKey';
 class AppWorkbenchCache {
   // 设置header tabs

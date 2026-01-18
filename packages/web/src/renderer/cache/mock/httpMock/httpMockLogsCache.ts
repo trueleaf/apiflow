@@ -1,7 +1,7 @@
 import { IDBPDatabase, openDB } from 'idb';
 import { MockLog } from '@src/types/mockNode';
 import { config } from '@src/config/config';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 class HttpMockLogsCache {
   private storeName = config.cacheConfig.mockNodeLogsCache.storeName;
   private maxLogsPerNode = config.cacheConfig.mockNodeLogsCache.maxLogsPerNode;

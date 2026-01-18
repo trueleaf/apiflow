@@ -1,7 +1,7 @@
 import { openDB, IDBPDatabase } from 'idb';
 import { config } from "@src/config/config";
 import { ChunkWithTimestampe, ResponseInfo } from "@src/types";
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 type BodyRecord = { type: string; data: unknown };
 export class HttpResponseCache {
   private httpResponseCacheDb: IDBPDatabase | null = null;

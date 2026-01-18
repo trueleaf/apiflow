@@ -1,7 +1,7 @@
 import { openDB, IDBPDatabase } from 'idb';
 import { AgentViewMessage } from '@src/types/ai';
 import { config } from '@src/config/config';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 import { cacheKey } from '../cacheKey';
 type SessionInfo = {
   sessionId: string;

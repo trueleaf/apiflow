@@ -1,5 +1,5 @@
 import { HttpMockNode } from '@src/types/mockNode';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 import { cacheKey } from '../../cacheKey';
 class HttpMockNodeCache {
   // 缓存httpMock节点信息

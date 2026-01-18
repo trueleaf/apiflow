@@ -17,7 +17,7 @@ import { useCookies } from "../projectWorkbench/cookiesStore.ts";
 import { i18n } from "@/i18n";
 import { webSocketHistoryCache } from "@/cache/websocketNode/websocketHistoryCache";
 import { useRuntime } from '@/store/runtime/runtimeStore';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 import axios, { Canceler } from 'axios';
 import { request as axiosInstance } from '@/api/api';
 import { CommonResponse } from '@src/types';

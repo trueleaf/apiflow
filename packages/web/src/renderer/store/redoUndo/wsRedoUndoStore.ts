@@ -8,7 +8,7 @@ import type { WebSocketNode } from "@src/types/websocketNode";
 import { useWebSocket } from "@/store/websocketNode/websocketNodeStore";
 import { cloneDeep } from "lodash-es";
 import { wsRedoUndoCache } from "@/cache/redoUndo/wsRedoUndoCache";
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 
 // 自定义响应类型用于撤销重做操作
 type RedoUndoResponse = {

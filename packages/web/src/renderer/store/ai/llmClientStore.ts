@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { ChatRequestBody, OpenAiResponseBody, LLMProviderSetting, ChatStreamCallbacks } from '@src/types/ai/agent.type';
-import { generateDeepSeekProvider, isElectron, logger } from '@/helper';
+import { logger } from '@/helper/logger';
+import { generateDeepSeekProvider, isElectron } from '@/helper';
 import { llmProviderCache } from '@/cache/ai/llmProviderCache';
 import { config } from '@src/config/config';
 import { request, requestStream } from '@/api/api';

@@ -11,7 +11,7 @@ import { useProjectNav } from "../projectWorkbench/projectNavStore.ts";
 import { router } from "@/router/index.ts";
 import { useBanner } from "../projectWorkbench/bannerStore.ts";
 import { useRuntime } from '@/store/runtime/runtimeStore';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 import axios, { Canceler } from 'axios';
 import { request as axiosInstance } from '@/api/api';
 import { CommonResponse } from '@src/types';

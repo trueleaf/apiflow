@@ -1,6 +1,6 @@
 import { HttpNode } from '@src/types';
 import type { ApidocCookie } from '@src/types/projectWorkbench/cookies';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 import { cacheKey } from '../cacheKey';
 class HttpNodeCache {
   // 缓存HTTP节点信息

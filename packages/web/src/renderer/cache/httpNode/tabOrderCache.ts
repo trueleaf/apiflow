@@ -1,5 +1,5 @@
 import type { HttpNodeTabName } from '@src/types'
-import { logger } from '@/helper'
+import { logger } from '@/helper/logger'
 import { cacheKey } from '../cacheKey'
 
 class TabOrderCache {

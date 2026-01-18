@@ -1,7 +1,7 @@
 import { openDB, IDBPDatabase } from 'idb';
 import type { ApidocVariable } from '@src/types';
 import { config } from '@src/config/config';
-import { logger } from '@/helper';
+import { logger } from '@/helper/logger';
 type MockVariableCacheDBSchema = {
   mockVariables: {
     key: string;
