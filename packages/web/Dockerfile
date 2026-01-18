@@ -11,7 +11,7 @@ COPY packages/web/tsconfig*.json packages/web/vite.config.ts ./packages/web/
 RUN if [ "$USE_NPM_MIRROR" = "true" ]; then npm config set registry https://registry.npmmirror.com; fi
 
 WORKDIR /app/packages/web
-RUN npm ci --include=optional
+RUN npm ci --include=optional --legacy-peer-deps
 
 COPY packages/web/ ./
 RUN npm run build:web
