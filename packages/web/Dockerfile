@@ -7,6 +7,7 @@ ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 WORKDIR /app
 
 COPY packages/web/package.json packages/web/package-lock.json ./packages/web/
+COPY packages/web/tsconfig*.json packages/web/vite.config.ts ./packages/web/
 RUN if [ "$USE_NPM_MIRROR" = "true" ]; then npm config set registry https://registry.npmmirror.com; fi
 
 WORKDIR /app/packages/web

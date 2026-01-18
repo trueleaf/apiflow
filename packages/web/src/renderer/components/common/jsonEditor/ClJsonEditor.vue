@@ -7,11 +7,8 @@ import { ref, Ref, onMounted, onBeforeUnmount, onActivated, watch, computed } fr
 import beautify from 'js-beautify'
 import * as monaco from 'monaco-editor';
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
-import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution'
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker&inline'
-import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker&inline'
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker&inline'
-import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker&inline'
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker&inline'
 
 /*
@@ -210,14 +207,8 @@ onMounted(() => {
       if (label === 'json') {
         return new jsonWorker()
       }
-      if (label === 'css' || label === 'scss' || label === 'less') {
-        return new cssWorker()
-      }
       if (label === 'html' || label === 'handlebars' || label === 'razor') {
         return new htmlWorker()
-      }
-      if (['typescript', 'javascript'].includes(label)) {
-        return new tsWorker()
       }
       return new EditorWorker()
     },
