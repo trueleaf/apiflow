@@ -13,9 +13,13 @@
       <HttpMockContent v-else-if="currentTabType === 'httpMock'" />
       <!-- WebSocket Mock节点 -->
       <WebsocketMockContent v-else-if="currentTabType === 'websocketMock'" />
-      <!-- 文件夹或未知类型 -->
+      <!-- 文件夹类型 -->
+      <div v-else-if="currentTabType === 'folder'" class="empty-tabs">
+        <el-empty :description="t('这是一个文件夹')" />
+      </div>
+      <!-- 未知类型 -->
       <div v-else class="empty-tabs">
-        <h2>{{ $t('暂不支持此类型节点的预览') }}</h2>
+        <h2>{{ t('暂不支持此类型节点的预览') }}</h2>
       </div>
     </div>
   </div>
@@ -23,8 +27,10 @@
 
 <script lang="ts" setup>
 import { computed, defineAsyncComponent } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useShareStore } from '../store';
 
+const { t } = useI18n();
 const HttpContent = defineAsyncComponent(() => import('./HttpContent.vue'));
 const WebsocketContent = defineAsyncComponent(() => import('./WebsocketContent.vue'));
 const HttpMockContent = defineAsyncComponent(() => import('./HttpMockContent.vue'));

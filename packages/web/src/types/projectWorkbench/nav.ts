@@ -13,6 +13,7 @@ export type ProjectNavItemType =
   'websocket' |
   'httpMock' |
   'websocketMock' |
+  'folder' |
   'prefix'
 
 export type ProjectNavItem = {

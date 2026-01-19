@@ -53,7 +53,7 @@ import { storeToRefs } from 'pinia'
 import { request } from './api/shareApi'
 import { FormInstance } from 'element-plus'
 import { Loading, } from '@element-plus/icons-vue'
-import { ApidocBanner, HttpNode, ApidocVariable, CommonResponse } from '@src/types'
+import { ApidocBanner, ApiNode, ApidocVariable, CommonResponse } from '@src/types'
 import { ApidocTab } from '@src/types/apidoc/tabs'
 import { getProjectSharePassword, setProjectSharePassword, clearProjectSharePassword, getProjectWorkbenchTabs } from './cache/shareCache'
 import SBanner from './banner/Banner.vue'
@@ -117,7 +117,7 @@ const initShareData = () => {
         }
         // 设置文档
         if (Array.isArray(shareData.nodes)) {
-          shareStore.setDocs(shareData.nodes as HttpNode[]);
+          shareStore.setDocs(shareData.nodes);
         }
         shareStore.setBanner(convertNodesToBannerNodes(shareData.nodes));
         hasPermission.value = true;
@@ -175,7 +175,7 @@ const getDocDetail = async (docId: string) => {
       shareId: shareId,
       password: getProjectSharePassword(shareId),
     }
-    const res = await request.get<CommonResponse<HttpNode>, CommonResponse<HttpNode>>('/api/project/share_doc_detail', { params });
+    const res = await request.get<CommonResponse<ApiNode>, CommonResponse<ApiNode>>('/api/project/share_doc_detail', { params });
     shareStore.setActiveDocInfo(res.data);
   } catch (error) {
     console.error(error)
@@ -224,7 +224,7 @@ watch([() => tabs.value[shareId], () => hasPermission.value],
     const selectedTab = sharedTabs.find((tab: ApidocTab) => tab.selected);
     if (selectedTab && isForHtml.value) {
       // 查找对应文档
-      const doc = docs.value.find((doc: HttpNode) => doc._id === selectedTab._id);
+      const doc = docs.value.find((doc: ApiNode) => doc._id === selectedTab._id);
       if (doc) {
         shareStore.setActiveDocInfo(doc);
       }

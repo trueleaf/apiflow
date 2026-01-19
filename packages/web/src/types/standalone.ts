@@ -1,6 +1,8 @@
 import type { ApidocProjectInfo } from "./project";
-import type { HttpNode } from "./httpNode/httpNode";
+import type { HttpNode, FolderNode } from "./httpNode/httpNode";
 import type { ApidocProperty } from "./httpNode/types";
+import type { WebSocketNode } from "./websocketNode";
+import type { HttpMockNode, WebSocketMockNode } from "./mockNode";
 
 export type Standalone = {
   /**
@@ -15,20 +17,16 @@ export type Standalone = {
    * 全局公共请求头列表
    */
   commonHeaders: ApidocProperty<'string'>[];
-};export type StandaloneExportHtmlParams = {
+};
+
+type ExportNode = HttpNode | WebSocketNode | HttpMockNode | WebSocketMockNode | FolderNode;
+
+export type StandaloneExportHtmlParams = {
   projectInfo: {
     projectName: string;
     projectId: string;
   };
-  nodes: {
-    _id: string;
-    pid: string;
-    projectId: string;
-    sort: number;
-    info: HttpNode['info'];
-    item: HttpNode['item'];
-    isEnabled: boolean;
-  }[];
+  nodes: ExportNode[];
   variables: {
     name: string;
     value: string;

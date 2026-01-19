@@ -13,6 +13,7 @@ export type ApidocTabType =
   'websocket' |
   'httpMock' |
   'websocketMock' |
+  'folder' |
   'prefix'
 export type ApidocTab = {
   /**

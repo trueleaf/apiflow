@@ -6,11 +6,15 @@ import type { Paragraph as ParagraphType, Table as TableType } from "docx";
 import { dfsForest, arrayToTree } from "../../utils/index";
 import { fileURLToPath } from "url";
 import JSZip from "jszip";
-import { dialog, BrowserWindow, WebContentsView } from "electron";
+import { dialog, BrowserWindow, WebContentsView, app } from "electron";
 import { ExportStatus } from "@src/types/index.ts";
 import { CommonResponse } from "@src/types/project";
 import { createHash } from "crypto";
 import dayjs from "dayjs";
+import type { HttpNode, FolderNode } from "@src/types/httpNode/httpNode";
+import type { WebSocketNode } from "@src/types/websocketNode";
+import type { HttpMockNode, WebSocketMockNode } from "@src/types/mockNode";
+import type { ApidocProperty } from "@src/types/httpNode/types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -99,9 +103,13 @@ export const exportHtml = async (
   exportHtmlParams: StandaloneExportHtmlParams
 ) => {
   try {
-    const htmlPath = path.join(__dirname, "../public/share.html");
+    const htmlPath = app.isPackaged
+      ? path.join(process.resourcesPath, 'public/share.html')
+      : path.join(__dirname, '../../public/share.html');
+    console.log(htmlPath, "htmlPath");
     let strParams = JSON.stringify(exportHtmlParams);
     strParams = strParams.replace(/<\/script>/gi, "\\u003c/script>");
+    
     let htmlContent = await fs.readFile(htmlPath, "utf-8");
     htmlContent = htmlContent.replace(
       /<title>[^<]*<\/title>/,
@@ -153,508 +161,46 @@ export const exportWord = async (
         },
       ],
     };
-    const nestDocs = arrayToTree(nodes) as any;
-    dfsForest(nestDocs, (data: any, level: number) => {
-      let headingLevel: any = HeadingLevel.HEADING_1;
-      switch (level) {
-        case 1:
-          headingLevel = HeadingLevel.HEADING_1;
+    const components: DocxComponents = {
+      Document,
+      TextRun,
+      ShadingType,
+      TabStopType,
+      Packer,
+      Table,
+      Paragraph,
+      TableRow,
+      TableCell,
+      VerticalAlign,
+      WidthType,
+      HeadingLevel,
+      AlignmentType,
+    };
+    const nestDocs = arrayToTree(nodes);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    dfsForest(nestDocs as any, (item: any, level: number) => {
+      const data = item as HttpNode | WebSocketNode | HttpMockNode | WebSocketMockNode | FolderNode;
+      let content: (ParagraphType | TableType)[] = [];
+      switch (data.info.type) {
+        case 'folder':
+          content = generateFolderNodeContent(data as FolderNode, level, components);
           break;
-        case 2:
-          headingLevel = HeadingLevel.HEADING_2;
+        case 'http':
+          content = generateHttpNodeContent(data as HttpNode, components);
+          break;
+        case 'websocket':
+          content = generateWebSocketNodeContent(data as WebSocketNode, components);
+          break;
+        case 'httpMock':
+          content = generateHttpMockNodeContent(data as HttpMockNode, components);
+          break;
+        case 'websocketMock':
+          content = generateWebSocketMockNodeContent(data as WebSocketMockNode, components);
           break;
         default:
-          headingLevel = HeadingLevel.HEADING_2;
           break;
       }
-      if (data.info.type === 'folder') {
-        //文件夹
-        const title = new Paragraph({
-          text: `${data.info.name}`,
-          heading: headingLevel,
-          spacing: {
-            before: 400,
-          },
-        });
-        document.sections[0].children.push(title); //标题
-      } else {
-        const docName = new Paragraph({
-          heading: HeadingLevel.HEADING_3,
-          children: [
-            new TextRun({
-              text: `${data.info.name}`,
-              size: 26,
-            }),
-          ],
-          spacing: {
-            before: 250,
-            after: 30,
-          },
-        });
-        const requestMethod = (data.item as any).method;
-        const methodText = new TextRun({
-          text: `${requestMethod}`,
-          color:
-            requestMethod === "GET"
-              ? "28a745"
-              : requestMethod === "POST"
-                ? "ffc107"
-                : requestMethod === "PUT"
-                  ? "#ff4400"
-                  : requestMethod === "DELETE"
-                    ? "f56c6c"
-                    : "444444",
-        });
-        const method = new Paragraph({
-          //请求方法
-          children: [new TextRun({ text: "请求方法：" }), methodText],
-        });
-        const url = new Paragraph({
-          //请求方法
-          text: `请求地址：${(data.item as any).url.prefix + (data.item as any).url.path}`,
-        });
-        const contentType = new Paragraph({
-          //contentType
-          text: `参数类型：${(data.item as any).contentType}`,
-        });
-        //=====================================queryParams====================================//
-        const queryParamsOfDoc = (data.item as any).queryParams
-          .filter((v: any) => v.key)
-          .map((v: any) => {
-            return new TableRow({
-              children: [
-                new TableCell({
-                  children: [new Paragraph(v.key)],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph(v.value)],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph(v.required ? "必填" : "非必填")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph(v.description)],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-              ],
-            });
-          });
-
-        //=====================================pathParams====================================//
-        const pathParamsOfDoc = (data.item as any).queryParams
-          .filter((v: any) => v.key)
-          .map((v: any) => {
-            return new TableRow({
-              children: [
-                new TableCell({
-                  children: [new Paragraph(v.key)],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph(v.value)],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph(v.required ? "必填" : "非必填")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph(v.description)],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-              ],
-            });
-          });
-        const tableOfPathParams = new Table({
-          width: {
-            size: 9638,
-            type: WidthType.DXA,
-          },
-          rows: [
-            new TableRow({
-              tableHeader: true,
-              children: [
-                new TableCell({
-                  children: [new Paragraph("参数名称")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph("参数值")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph("是否必填")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph("备注")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-              ],
-            }),
-            ...pathParamsOfDoc,
-          ],
-        });
-        //=====================================json类型bodyParams====================================//
-        const jsonParamsOfDoc: ParagraphType[] = [];
-        jsonParamsOfDoc.push(
-          new Paragraph({
-            shading: {
-              type: ShadingType.SOLID,
-              color: "f3f3f3",
-            },
-            children: [
-              new TextRun({
-                text: (data.item as any).requestBody.rawJson,
-              }),
-            ],
-          })
-        );
-        //=====================================formData类型bodyParams====================================//
-        const formDataParamsOfDoc = (data.item as any).requestBody.formdata
-          .filter((v: any) => v.key)
-          .map((v: any) => {
-            return new TableRow({
-              children: [
-                new TableCell({
-                  children: [new Paragraph(v.key)],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph(v.value)],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph(v.required ? "必填" : "非必填")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph(v.description)],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-              ],
-            });
-          });
-        const tableOfFormDataParams = new Table({
-          width: {
-            size: 9638,
-            type: WidthType.DXA,
-          },
-          rows: [
-            new TableRow({
-              tableHeader: true,
-              children: [
-                new TableCell({
-                  children: [new Paragraph("参数名称")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph("参数值")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph("是否必填")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph("备注")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-              ],
-            }),
-            ...formDataParamsOfDoc,
-          ],
-        });
-        //=====================================urlencoded类型bodyParams====================================//
-        const urlencodedParamsOfDoc = (data.item as any).requestBody.urlencoded
-          .filter((v: any) => v.key)
-          .map((v: any) => {
-            return new TableRow({
-              children: [
-                new TableCell({
-                  children: [new Paragraph(v.key)],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph(v.value)],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph(v.required ? "必填" : "非必填")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph(v.description)],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-              ],
-            });
-          });
-        const tableOfUrlencoedParams = new Table({
-          width: {
-            size: 9638,
-            type: WidthType.DXA,
-          },
-          rows: [
-            new TableRow({
-              tableHeader: true,
-              children: [
-                new TableCell({
-                  children: [new Paragraph("参数名称")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph("参数值")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph("是否必填")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph("备注")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-              ],
-            }),
-            ...urlencodedParamsOfDoc,
-          ],
-        });
-        //=====================================请求头====================================//
-        const headerParamsOfDoc = (data.item as any).headers
-          .filter((v: any) => v.key)
-          .map((v: any) => {
-            return new TableRow({
-              children: [
-                new TableCell({
-                  children: [new Paragraph(v.key)],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph(v.value)],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph(v.required ? "必填" : "非必填")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph(v.description)],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-              ],
-            });
-          });
-        const tableOfHeaderParams = new Table({
-          width: {
-            size: 9638,
-            type: WidthType.DXA,
-          },
-          rows: [
-            new TableRow({
-              tableHeader: true,
-              children: [
-                new TableCell({
-                  children: [new Paragraph("参数名称")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph("参数值")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph("是否必填")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph("备注")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-              ],
-            }),
-            ...headerParamsOfDoc,
-          ],
-        });
-
-        //=========================================================================//
-        document.sections[0].children.push(docName);
-        document.sections[0].children.push(method);
-        document.sections[0].children.push(url);
-        if (contentType) {
-          document.sections[0].children.push(contentType);
-        }
-        document.sections[0].children.push(
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "请求参数",
-                bold: true,
-              }),
-            ],
-            spacing: {
-              before: 250,
-            },
-          })
-        );
-        const tableOfQueryParams = new Table({
-          width: {
-            size: 9638,
-            type: WidthType.DXA,
-          },
-          rows: [
-            new TableRow({
-              tableHeader: true,
-              children: [
-                new TableCell({
-                  children: [new Paragraph("参数名称")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph("参数值")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph("是否必填")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-                new TableCell({
-                  children: [new Paragraph("备注")],
-                  verticalAlign: VerticalAlign.CENTER,
-                }),
-              ],
-            }),
-            ...queryParamsOfDoc,
-          ],
-        });
-        if (queryParamsOfDoc.length > 0) {
-          document.sections[0].children.push(
-            new Paragraph({
-              text: "Query参数",
-              spacing: { before: 150, after: 30 },
-              tabStops: [
-                {
-                  type: TabStopType.CENTER,
-                  position: 2268,
-                },
-              ],
-            })
-          );
-          document.sections[0].children.push(tableOfQueryParams);
-        }
-        if (pathParamsOfDoc.length > 0) {
-          document.sections[0].children.push(
-            new Paragraph({
-              text: "Path参数",
-              spacing: { before: 150, after: 30 },
-            })
-          );
-          document.sections[0].children.push(tableOfPathParams);
-        }
-        if ((data.item as any).contentType === "application/json") {
-          document.sections[0].children.push(
-            new Paragraph({
-              text: "Body参数(JSON)",
-              spacing: { before: 150, after: 30 },
-            })
-          );
-          document.sections[0].children.push(...jsonParamsOfDoc);
-        } else if ((data.item as any).contentType === "multipart/form-data") {
-          document.sections[0].children.push(
-            new Paragraph({
-              text: "Body参数(multipart/*)",
-              spacing: { before: 150, after: 30 },
-            })
-          );
-          document.sections[0].children.push(tableOfFormDataParams);
-        } else if (
-          (data.item as any).contentType === "application/x-www-form-urlencoded"
-        ) {
-          document.sections[0].children.push(
-            new Paragraph({
-              text: "Body参数(x-www-form-urlencoded)",
-              spacing: { before: 150, after: 30 },
-            })
-          );
-          document.sections[0].children.push(tableOfUrlencoedParams);
-        } else if ((data.item as any).contentType) {
-          document.sections[0].children.push(
-            new Paragraph({
-              text: `Body参数(${(data.item as any).contentType})`,
-              spacing: { before: 150, after: 30 },
-            })
-          );
-          document.sections[0].children.push(
-            new Paragraph({ text: (data.item as any).requestBody.raw.data })
-          );
-        }
-        if (headerParamsOfDoc.length > 0) {
-          document.sections[0].children.push(
-            new Paragraph({
-              text: "请求头",
-              spacing: { before: 150, after: 30 },
-            })
-          );
-          document.sections[0].children.push(tableOfHeaderParams);
-        }
-        //=====================================返回参数====================================//
-        document.sections[0].children.push(
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "返回参数",
-                bold: true,
-              }),
-            ],
-            spacing: {
-              before: 250,
-            },
-          })
-        );
-        (data.item as any).responseParams.forEach((res: any) => {
-          document.sections[0].children.push(
-            new Paragraph({
-              text: `名称：${res.title}`,
-              spacing: {
-                before: 200,
-              },
-            })
-          );
-          document.sections[0].children.push(
-            new Paragraph({
-              text: `状态码：${res.statusCode}`,
-            })
-          );
-          document.sections[0].children.push(
-            new Paragraph({
-              text: `参数类型：${res.value.dataType}`,
-            })
-          );
-          if (res.value.dataType === "application/json") {
-            const jsonDoc = [];
-            jsonDoc.push(
-              new Paragraph({
-                shading: {
-                  type: ShadingType.SOLID,
-                  color: "f3f3f3",
-                },
-                children: [
-                  new TextRun({
-                    text: res.value.strJson,
-                  }),
-                ],
-              })
-            );
-            document.sections[0].children.push(...jsonDoc);
-          } else {
-            document.sections[0].children.push(
-              new Paragraph({ text: res.value.text })
-            );
-          }
-        });
-      }
+      document.sections[0].children.push(...content);
     });
     const doc = new Document(document);
     const buffer = await Packer.toBuffer(doc);
@@ -880,4 +426,681 @@ export const resetExport = (): void => {
   } catch (error) {
     console.error('重置导出状态失败:', error);
   }
+};
+
+// ============================================================================
+// Word 导出辅助函数
+// ============================================================================
+
+type DocxComponents = {
+  Document: typeof docx.Document;
+  TextRun: typeof docx.TextRun;
+  ShadingType: typeof docx.ShadingType;
+  TabStopType: typeof docx.TabStopType;
+  Packer: typeof docx.Packer;
+  Table: typeof docx.Table;
+  Paragraph: typeof docx.Paragraph;
+  TableRow: typeof docx.TableRow;
+  TableCell: typeof docx.TableCell;
+  VerticalAlign: typeof docx.VerticalAlign;
+  WidthType: typeof docx.WidthType;
+  HeadingLevel: typeof docx.HeadingLevel;
+  AlignmentType: typeof docx.AlignmentType;
+};
+
+//创建参数表格（通用函数）
+const createParamsTable = (params: ApidocProperty[], components: DocxComponents): TableType => {
+  const { Table, TableRow, TableCell, Paragraph, VerticalAlign, WidthType } = components;
+  const paramsRows = params
+    .filter((v) => v.key)
+    .map((v) => {
+      return new TableRow({
+        children: [
+          new TableCell({
+            children: [new Paragraph(v.key)],
+            verticalAlign: VerticalAlign.CENTER,
+          }),
+          new TableCell({
+            children: [new Paragraph(v.value)],
+            verticalAlign: VerticalAlign.CENTER,
+          }),
+          new TableCell({
+            children: [new Paragraph(v.required ? "必填" : "非必填")],
+            verticalAlign: VerticalAlign.CENTER,
+          }),
+          new TableCell({
+            children: [new Paragraph(v.description)],
+            verticalAlign: VerticalAlign.CENTER,
+          }),
+        ],
+      });
+    });
+
+  return new Table({
+    width: {
+      size: 9638,
+      type: WidthType.DXA,
+    },
+    rows: [
+      new TableRow({
+        tableHeader: true,
+        children: [
+          new TableCell({
+            children: [new Paragraph("参数名称")],
+            verticalAlign: VerticalAlign.CENTER,
+          }),
+          new TableCell({
+            children: [new Paragraph("参数值")],
+            verticalAlign: VerticalAlign.CENTER,
+          }),
+          new TableCell({
+            children: [new Paragraph("是否必填")],
+            verticalAlign: VerticalAlign.CENTER,
+          }),
+          new TableCell({
+            children: [new Paragraph("备注")],
+            verticalAlign: VerticalAlign.CENTER,
+          }),
+        ],
+      }),
+      ...paramsRows,
+    ],
+  });
+};
+
+//创建代码块段落
+const createCodeBlock = (code: string, components: DocxComponents): ParagraphType => {
+  const { Paragraph, TextRun, ShadingType } = components;
+  return new Paragraph({
+    shading: {
+      type: ShadingType.SOLID,
+      color: "f3f3f3",
+    },
+    children: [
+      new TextRun({
+        text: code,
+        font: "Consolas",
+      }),
+    ],
+  });
+};
+
+//生成 Folder 节点内容
+const generateFolderNodeContent = (
+  data: FolderNode,
+  level: number,
+  components: DocxComponents
+): (ParagraphType | TableType)[] => {
+  const { Paragraph, HeadingLevel } = components;
+  const result: (ParagraphType | TableType)[] = [];
+  let headingLevel: typeof HeadingLevel.HEADING_1 | typeof HeadingLevel.HEADING_2 = HeadingLevel.HEADING_1;
+  switch (level) {
+    case 1:
+      headingLevel = HeadingLevel.HEADING_1;
+      break;
+    case 2:
+      headingLevel = HeadingLevel.HEADING_2;
+      break;
+    default:
+      headingLevel = HeadingLevel.HEADING_2;
+      break;
+  }
+  const title = new Paragraph({
+    text: `${data.info.name}`,
+    heading: headingLevel,
+    spacing: {
+      before: 400,
+    },
+  });
+  result.push(title);
+  if (data.commonHeaders && Array.isArray(data.commonHeaders) && data.commonHeaders.length > 0) {
+    result.push(
+      new Paragraph({
+        text: "公共请求头",
+        spacing: { before: 150, after: 30 },
+      })
+    );
+    result.push(createParamsTable(data.commonHeaders, components));
+  }
+  return result;
+};
+
+//生成 HTTP 节点内容
+const generateHttpNodeContent = (
+  data: HttpNode,
+  components: DocxComponents
+): (ParagraphType | TableType)[] => {
+  const { Paragraph, TextRun, HeadingLevel, TabStopType } = components;
+  const result: (ParagraphType | TableType)[] = [];
+  const docName = new Paragraph({
+    heading: HeadingLevel.HEADING_3,
+    children: [
+      new TextRun({
+        text: `${data.info.name}`,
+        size: 26,
+      }),
+    ],
+    spacing: {
+      before: 250,
+      after: 30,
+    },
+  });
+  const requestMethod = data.item.method;
+  const methodText = new TextRun({
+    text: `${requestMethod}`,
+    color:
+      requestMethod === "GET"
+        ? "28a745"
+        : requestMethod === "POST"
+          ? "ffc107"
+          : requestMethod === "PUT"
+            ? "#ff4400"
+            : requestMethod === "DELETE"
+              ? "f56c6c"
+              : "444444",
+  });
+  const method = new Paragraph({
+    children: [new TextRun({ text: "请求方法：" }), methodText],
+  });
+  const url = new Paragraph({
+    text: `请求地址：${data.item.url.prefix + data.item.url.path}`,
+  });
+  const contentType = new Paragraph({
+    text: `参数类型：${data.item.contentType}`,
+  });
+  result.push(docName);
+  result.push(method);
+  result.push(url);
+  if (contentType) {
+    result.push(contentType);
+  }
+  result.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "请求参数",
+          bold: true,
+        }),
+      ],
+      spacing: {
+        before: 250,
+      },
+    })
+  );
+  const queryParamsOfDoc = data.item.queryParams.filter((v) => v.key);
+  if (queryParamsOfDoc.length > 0) {
+    result.push(
+      new Paragraph({
+        text: "Query参数",
+        spacing: { before: 150, after: 30 },
+        tabStops: [
+          {
+            type: TabStopType.CENTER,
+            position: 2268,
+          },
+        ],
+      })
+    );
+    result.push(createParamsTable(queryParamsOfDoc, components));
+  }
+  const pathParamsOfDoc = data.item.paths.filter((v) => v.key);
+  if (pathParamsOfDoc.length > 0) {
+    result.push(
+      new Paragraph({
+        text: "Path参数",
+        spacing: { before: 150, after: 30 },
+      })
+    );
+    result.push(createParamsTable(pathParamsOfDoc, components));
+  }
+  if (data.item.contentType === "application/json") {
+    result.push(
+      new Paragraph({
+        text: "Body参数(JSON)",
+        spacing: { before: 150, after: 30 },
+      })
+    );
+    result.push(createCodeBlock(data.item.requestBody.rawJson, components));
+  } else if (data.item.contentType === "multipart/form-data") {
+    const formDataParams = data.item.requestBody.formdata.filter((v) => v.key);
+    if (formDataParams.length > 0) {
+      result.push(
+        new Paragraph({
+          text: "Body参数(multipart/*)",
+          spacing: { before: 150, after: 30 },
+        })
+      );
+      result.push(createParamsTable(formDataParams, components));
+    }
+  } else if (data.item.contentType === "application/x-www-form-urlencoded") {
+    const urlencodedParams = data.item.requestBody.urlencoded.filter((v) => v.key);
+    if (urlencodedParams.length > 0) {
+      result.push(
+        new Paragraph({
+          text: "Body参数(x-www-form-urlencoded)",
+          spacing: { before: 150, after: 30 },
+        })
+      );
+      result.push(createParamsTable(urlencodedParams, components));
+    }
+  } else if (data.item.contentType) {
+    result.push(
+      new Paragraph({
+        text: `Body参数(${data.item.contentType})`,
+        spacing: { before: 150, after: 30 },
+      })
+    );
+    result.push(new Paragraph({ text: data.item.requestBody.raw.data }));
+  }
+  const headerParams = data.item.headers.filter((v) => v.key);
+  if (headerParams.length > 0) {
+    result.push(
+      new Paragraph({
+        text: "请求头",
+        spacing: { before: 150, after: 30 },
+      })
+    );
+    result.push(createParamsTable(headerParams, components));
+  }
+  result.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "返回参数",
+          bold: true,
+        }),
+      ],
+      spacing: {
+        before: 250,
+      },
+    })
+  );
+  data.item.responseParams.forEach((res) => {
+    result.push(
+      new Paragraph({
+        text: `名称：${res.title}`,
+        spacing: {
+          before: 200,
+        },
+      })
+    );
+    result.push(
+      new Paragraph({
+        text: `状态码：${res.statusCode}`,
+      })
+    );
+    result.push(
+      new Paragraph({
+        text: `参数类型：${res.value.dataType}`,
+      })
+    );
+    if (res.value.dataType === "application/json") {
+      result.push(createCodeBlock(res.value.strJson, components));
+    } else {
+      result.push(new Paragraph({ text: res.value.text }));
+    }
+  });
+  return result;
+};
+
+//生成 WebSocket 节点内容
+const generateWebSocketNodeContent = (
+  data: WebSocketNode,
+  components: DocxComponents
+): (ParagraphType | TableType)[] => {
+  const { Paragraph, TextRun, HeadingLevel } = components;
+  const result: (ParagraphType | TableType)[] = [];
+  const docName = new Paragraph({
+    heading: HeadingLevel.HEADING_3,
+    children: [
+      new TextRun({
+        text: `${data.info.name}`,
+        size: 26,
+      }),
+    ],
+    spacing: {
+      before: 250,
+      after: 30,
+    },
+  });
+  const protocol = new Paragraph({
+    children: [
+      new TextRun({ text: "协议类型：" }),
+      new TextRun({
+        text: data.item.protocol.toUpperCase(),
+        color: "0070c0",
+      }),
+    ],
+  });
+  const url = new Paragraph({
+    text: `连接地址：${data.item.url.prefix + data.item.url.path}`,
+  });
+  result.push(docName);
+  result.push(
+    new Paragraph({
+      text: "节点类型：WebSocket",
+      spacing: {
+        after: 200,
+      },
+    })
+  );
+  result.push(protocol);
+  result.push(url);
+  result.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "连接参数",
+          bold: true,
+        }),
+      ],
+      spacing: {
+        before: 250,
+      },
+    })
+  );
+  const queryParams = data.item.queryParams.filter((v) => v.key);
+  if (queryParams.length > 0) {
+    result.push(
+      new Paragraph({
+        text: "请求参数",
+        spacing: { before: 150, after: 30 },
+      })
+    );
+    result.push(createParamsTable(queryParams, components));
+  }
+  const headerParams = data.item.headers.filter((v) => v.key);
+  if (headerParams.length > 0) {
+    result.push(
+      new Paragraph({
+        text: "请求头",
+        spacing: { before: 150, after: 30 },
+      })
+    );
+    result.push(createParamsTable(headerParams, components));
+  }
+  result.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "连接配置",
+          bold: true,
+        }),
+      ],
+      spacing: {
+        before: 250,
+      },
+    })
+  );
+  result.push(
+    new Paragraph({
+      text: `自动发送：${data.config.autoSend ? "是" : "否"}`,
+    })
+  );
+  if (data.config.autoSend) {
+    result.push(
+      new Paragraph({
+        text: `发送间隔：${data.config.autoSendInterval}ms`,
+      })
+    );
+    result.push(
+      new Paragraph({
+        text: `消息类型：${data.config.autoSendMessageType}`,
+      })
+    );
+  }
+  result.push(
+    new Paragraph({
+      text: `自动重连：${data.config.autoReconnect ? "是" : "否"}`,
+    })
+  );
+  return result;
+};
+
+//生成 HttpMock 节点内容
+const generateHttpMockNodeContent = (
+  data: HttpMockNode,
+  components: DocxComponents
+): (ParagraphType | TableType)[] => {
+  const { Paragraph, TextRun, HeadingLevel } = components;
+  const result: (ParagraphType | TableType)[] = [];
+  const docName = new Paragraph({
+    heading: HeadingLevel.HEADING_3,
+    children: [
+      new TextRun({
+        text: `${data.info.name}`,
+        size: 26,
+      }),
+    ],
+    spacing: {
+      before: 250,
+      after: 30,
+    },
+  });
+  result.push(docName);
+  result.push(
+    new Paragraph({
+      text: "节点类型：HTTP Mock",
+      spacing: {
+        after: 200,
+      },
+    })
+  );
+  result.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "匹配条件",
+          bold: true,
+        }),
+      ],
+      spacing: {
+        before: 250,
+      },
+    })
+  );
+  result.push(
+    new Paragraph({
+      text: `请求方法：${data.requestCondition.method.join(", ")}`,
+    })
+  );
+  result.push(
+    new Paragraph({
+      text: `匹配路径：${data.requestCondition.url}`,
+    })
+  );
+  result.push(
+    new Paragraph({
+      text: `监听端口：${data.requestCondition.port}`,
+    })
+  );
+  result.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "Mock 配置",
+          bold: true,
+        }),
+      ],
+      spacing: {
+        before: 250,
+      },
+    })
+  );
+  result.push(
+    new Paragraph({
+      text: `延迟时间：${data.config.delay}ms`,
+    })
+  );
+  result.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "响应配置",
+          bold: true,
+        }),
+      ],
+      spacing: {
+        before: 250,
+      },
+    })
+  );
+  data.response.forEach((res, index) => {
+    result.push(
+      new Paragraph({
+        text: `响应 ${index + 1}：${res.name}${res.isDefault ? " (默认)" : ""}`,
+        spacing: {
+          before: 200,
+        },
+      })
+    );
+    if (res.conditions.scriptCode) {
+      result.push(
+        new Paragraph({
+          text: "条件脚本：",
+          spacing: {
+            before: 100,
+          },
+        })
+      );
+      result.push(createCodeBlock(res.conditions.scriptCode, components));
+    }
+    result.push(
+      new Paragraph({
+        text: `状态码：${res.statusCode}`,
+      })
+    );
+    const enabledHeaders = [
+      ...res.headers.defaultHeaders.filter(h => res.headers.enabled && h.key),
+      ...res.headers.customHeaders.filter(h => h.key)
+    ];
+    if (enabledHeaders.length > 0) {
+      result.push(
+        new Paragraph({
+          text: "响应头：",
+        })
+      );
+      result.push(createParamsTable(enabledHeaders, components));
+    }
+    result.push(
+      new Paragraph({
+        text: `数据类型：${res.dataType}`,
+      })
+    );
+    if (res.dataType === "json" && res.jsonConfig.mode === "fixed") {
+      result.push(
+        new Paragraph({
+          text: "响应数据：",
+        })
+      );
+      result.push(createCodeBlock(res.jsonConfig.fixedData, components));
+    } else if (res.dataType === "text" && res.textConfig.mode === "fixed") {
+      result.push(
+        new Paragraph({
+          text: "响应数据：",
+        })
+      );
+      result.push(createCodeBlock(res.textConfig.fixedData, components));
+    }
+  });
+  return result;
+};
+
+//生成 WebSocketMock 节点内容
+const generateWebSocketMockNodeContent = (
+  data: WebSocketMockNode,
+  components: DocxComponents
+): (ParagraphType | TableType)[] => {
+  const { Paragraph, TextRun, HeadingLevel } = components;
+  const result: (ParagraphType | TableType)[] = [];
+  const docName = new Paragraph({
+    heading: HeadingLevel.HEADING_3,
+    children: [
+      new TextRun({
+        text: `${data.info.name}`,
+        size: 26,
+      }),
+    ],
+    spacing: {
+      before: 250,
+      after: 30,
+    },
+  });
+  result.push(docName);
+  result.push(
+    new Paragraph({
+      text: "节点类型：WebSocket Mock",
+      spacing: {
+        after: 200,
+      },
+    })
+  );
+  result.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "匹配条件",
+          bold: true,
+        }),
+      ],
+      spacing: {
+        before: 250,
+      },
+    })
+  );
+  result.push(
+    new Paragraph({
+      text: `匹配路径：${data.requestCondition.path}`,
+    })
+  );
+  result.push(
+    new Paragraph({
+      text: `监听端口：${data.requestCondition.port}`,
+    })
+  );
+  result.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "Mock 配置",
+          bold: true,
+        }),
+      ],
+      spacing: {
+        before: 250,
+      },
+    })
+  );
+  result.push(
+    new Paragraph({
+      text: `延迟时间：${data.config.delay}ms`,
+    })
+  );
+  result.push(
+    new Paragraph({
+      text: `回显模式：${data.config.echoMode ? "开启" : "关闭"}`,
+    })
+  );
+  result.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "响应配置",
+          bold: true,
+        }),
+      ],
+      spacing: {
+        before: 250,
+      },
+    })
+  );
+  if (data.response.content) {
+    result.push(
+      new Paragraph({
+        text: "响应内容：",
+      })
+    );
+    result.push(createCodeBlock(data.response.content, components));
+  }
+  return result;
 };

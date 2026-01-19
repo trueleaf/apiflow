@@ -94,7 +94,7 @@ import 'element-plus/es/components/message/style/css';
 import { ref, Ref, computed } from 'vue'
 import { message } from '@/helper'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
-import { ApidocBanner, HttpNode, WebSocketNode } from '@src/types';
+import { ApidocBanner, HttpNode } from '@src/types';
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
 import { requestMethods } from '@/data/data'
@@ -151,23 +151,17 @@ const handleExportAsHTML = async () => {
       return selectedIds.includes(doc._id);
     });
     loading.value = true;
+
     const exportHtmlParams: StandaloneExportHtmlParams = {
       projectInfo: {
         projectName: projectWorkbenchStore.projectName,
         projectId: projectWorkbenchStore.projectId,
       },
-      nodes: selectedDocs.map((val) => ({
-        _id: val._id,
-        pid: val.pid,
-        projectId: projectWorkbenchStore.projectId,
-        sort: val.sort,
-        info: val.info,
-        item: (val as HttpNode).item || (val as WebSocketNode).item,
-        isEnabled: true,
-      })),
+      nodes: selectedDocs,
       variables: variableStore.variables,
     };
     const cpExportHtmlParams = JSON.parse(JSON.stringify(exportHtmlParams));
+    
     (window.electronAPI?.exportHtml(cpExportHtmlParams) as Promise<string>)
       .then((htmlContent: string) => {
         downloadStringAsText(htmlContent, `${projectWorkbenchStore.projectName}.html`, 'text/html');
@@ -266,28 +260,22 @@ const handleExportAsWord = async () => {
       }
       return selectedIds.includes(doc._id);
     });
+    
     loading.value = true;
     const exportHtmlParams: StandaloneExportHtmlParams = {
       projectInfo: {
         projectName: projectWorkbenchStore.projectName,
         projectId: projectWorkbenchStore.projectId,
       },
-      nodes: selectedDocs.map((val) => ({
-        _id: val._id,
-        pid: val.pid,
-        projectId: projectWorkbenchStore.projectId,
-
-        sort: val.sort,
-        info: val.info,
-        item: (val as HttpNode).item || (val as WebSocketNode).item,
-        isEnabled: true,
-      })),
+      nodes: selectedDocs,
       variables: variableStore.variables,
     };
+    console.log(selectedDocs);
+
     const cpExportHtmlParams = JSON.parse(JSON.stringify(exportHtmlParams));
     (window.electronAPI?.exportWord(cpExportHtmlParams) as Promise<Uint8Array>)
       .then((buffer: Uint8Array) => {
-        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        const blob = new Blob([buffer as unknown as BlobPart], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
         const blobUrl = URL.createObjectURL(blob);
         const downloadElement = document.createElement('a');
         downloadElement.href = blobUrl;
@@ -335,11 +323,12 @@ const handleExportAsOpenAPI = async () => {
       return true;
     }
     return selectedIds.includes(doc._id);
-  }) as HttpNode[];
+  });
   const converter = new OpenAPIConverter();
+  const httpDocs = selectedDocs.filter(doc => doc.info.type === 'http');
   const openApiSpec = converter.convertToOpenAPI(
     projectWorkbenchStore.projectName,
-    selectedDocs
+    httpDocs as HttpNode[]
   );
   downloadStringAsText(
     JSON.stringify(openApiSpec, null, 2),

@@ -186,6 +186,7 @@ export default {
   请填写正确手机号: 'Please enter a valid phone number',
   请再次输入密码: 'Confirm Password',
   // Share content component related
+  '这是一个文件夹': 'This is a folder',
   '暂不支持此类型节点的预览': 'Preview not supported for this node type',
   '消息示例': 'Message Examples',
   '暂无消息示例': 'No message examples',
