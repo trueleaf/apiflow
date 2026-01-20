@@ -44,8 +44,9 @@
         <button
           class="ai-new-chat-btn"
           type="button"
-          @click="agentViewStore.handleCreateConversation()"
+          @click="agentViewStore.clearConversation()"
           :title="t('新建对话')"
+          :disabled="agentViewStore.workingStatus === 'working'"
         >
           <Plus :size="20" />
         </button>
@@ -98,7 +99,8 @@ const inputWrapperRef = ref<HTMLElement | null>(null)
 const isModeMenuVisible = ref(false)
 const isProjectEditPage = computed(() => route.path.includes('/workbench'))
 const projectName = computed(() => projectWorkbench.projectName)
-const isSendDisabled = computed(() => !agentViewStore.isAiConfigValid || !agentViewStore.inputMessage)
+const trimmedInput = computed(() => agentViewStore.inputMessage.trim())
+const isSendDisabled = computed(() => !agentViewStore.isAiConfigValid || !trimmedInput.value)
 
 const inputPlaceholder = computed(() => {
   const shortcutKey = isMacOS ? 'Shift+Return' : 'Shift+Enter'
@@ -136,26 +138,27 @@ const closeMenus = () => {
 }
 const handleStop = async () => {
   if (agentViewStore.mode === 'agent') {
-    await agentViewStore.stopCurrentAgentExecution()
     agentStore.stopAgent()
+    agentViewStore.stopCurrentAgentExecution()
+    agentViewStore.setWorkingStatus('finish')
     return
   }
   await agentViewStore.stopCurrentConversation()
 }
 const handleSend = async () => {
   if (agentViewStore.mode === 'agent') {
-    const message = agentViewStore.inputMessage
-    agentViewStore.inputMessage = ''
-    agentViewStore.lastAskPrompt = message
-    const askMessage = agentViewStore.createAskMessage(message, 'agent')
-    await agentViewStore.addCurrentMessage(askMessage)
-    agentViewStore.setWorkingStatus('working')
-    const result = await agentStore.runAgent({ prompt: message })
-    agentViewStore.setWorkingStatus('finish')
-    if (result.code !== 0 && result.code !== -2) {
-      const errorMessage = agentViewStore.createErrorMessage(result.msg, message, 'agent')
-      agentViewStore.addCurrentMessage(errorMessage)
+    const message = trimmedInput.value
+    if (!message) {
+      return
     }
+    agentViewStore.inputMessage = ''
+    agentViewStore.addMessage('agent', agentViewStore.createQuestionMessage(message))
+    agentViewStore.setWorkingStatus('working')
+    await agentStore.runAgent({ prompt: message })
+    agentViewStore.setWorkingStatus('finish')
+    return
+  }
+  if (!trimmedInput.value) {
     return
   }
   await agentViewStore.sendAskFromInput()
@@ -258,89 +261,91 @@ defineExpose({
   position: relative;
 }
 .ai-input-trigger {
-  height: 28px;
-  padding: 0 10px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 6px;
+  padding: 3px 10px;
   border: 1px solid var(--ai-button-border);
+  border-radius: 6px;
   background: var(--ai-button-bg);
-  color: var(--gray-600);
-  border-radius: 3px;
-  font-size: 12px;
+  color: var(--ai-text-secondary);
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  font-size: 12px;
+  transition: all 0.2s;
 }
 .ai-input-trigger:hover {
-  background: var(--ai-input-hover-bg);
+  background: var(--ai-button-hover-bg);
+  color: var(--ai-text-primary);
 }
 .ai-dropdown {
   position: absolute;
-  bottom: 30px;
+  bottom: 100%;
   left: 0;
-  min-width: 132px;
-  padding: 6px;
+  margin-bottom: 8px;
   background: var(--ai-dropdown-bg);
-  border-radius: 2px;
   border: 1px solid var(--ai-dropdown-border);
-  box-shadow: 0 12px 24px var(--ai-dropdown-shadow);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  z-index: 3;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px var(--ai-dropdown-shadow);
+  padding: 6px;
+  min-width: 120px;
+  z-index: 10;
 }
 .ai-dropdown-item {
-  height: 30px;
-  padding: 0 10px;
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 8px;
-  background: transparent;
+  padding: 6px 8px;
   border: none;
-  border-radius: 2px;
-  color: var(--ai-text-primary);
-  font-size: 12px;
+  background: transparent;
   cursor: pointer;
-  transition: background-color 0.2s;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--ai-text-primary);
+  transition: background 0.2s;
+}
+.ai-dropdown-item:hover {
+  background: var(--ai-action-hover-bg);
 }
 .ai-dropdown-icon {
-  width: 16px;
-  height: 16px;
+  width: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  color: var(--theme-color);
 }
-.ai-dropdown-item:hover {
-  background: var(--ai-dropdown-item-hover);
-}
-.ai-dropdown-item[disabled] {
-  cursor: not-allowed;
-  opacity: 0.5;
+.ai-dropdown-label {
+  flex: 1;
+  text-align: left;
 }
 .ai-send-btn,
 .ai-stop-btn {
-  width: 22px;
-  height: 22px;
-  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  display: flex;
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 4px;
-  background: var(--ai-button-bg);
-  color: var(--theme-color);
+  border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: all 0.2s;
+  color: #fff;
 }
-.ai-send-btn:disabled,
-.ai-stop-btn:disabled {
-  background: var(--ai-button-bg);
-  color: var(--ai-text-secondary);
+.ai-send-btn {
+  background: var(--theme-color);
+}
+.ai-send-btn:hover:not(:disabled) {
+  background: var(--theme-color);
+  opacity: 0.9;
+}
+.ai-send-btn:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
-  opacity: 0.7;
 }
-.ai-send-btn:not(:disabled):hover,
-.ai-stop-btn:not(:disabled):hover {
-  background: var(--gray-200);
+.ai-stop-btn {
+  background: var(--el-color-danger);
+}
+.ai-stop-btn:hover {
+  opacity: 0.9;
 }
 </style>

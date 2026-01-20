@@ -1,444 +1,267 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-import type { ChatRequestBody, LLMessage } from '@src/types/ai/agent.type';
-import type { AgentViewMessage, AskMessage, TextResponseMessage, LoadingMessage, ErrorMessage, AgentExecutionMessage } from '@src/types/ai';
-import { agentViewCache } from '@/cache/ai/agentViewCache';
-import { appStateCache } from '@/cache/appState/appStateCache';
+import { computed, ref } from 'vue';
 import { nanoid } from 'nanoid/non-secure';
-import { logger } from '@/helper/logger';
 import { i18n } from '@/i18n';
-import { useLLMClientStore } from '../llmClientStore';
+import { appStateCache } from '@/cache/appState/appStateCache';
+import { useLLMClientStore } from '@/store/ai/llmClientStore';
+import { clearConversationCache, getConversationCache, setConversationCache } from '@/cache/ai/agentViewCache';
+import type { ChatRequestBody, LLMessage, OpenAiStreamChunk } from '@src/types/ai/agent.type';
+import type { ConversationMessage, ConversationMode } from '@src/types/ai';
 
 export const useAgentViewStore = defineStore('agentView', () => {
   const llmClientStore = useLLMClientStore();
-  const currentMessageList = ref<AgentViewMessage[]>([]);
-  const currentSessionId = ref('');
-  const isLoadingSessionData = ref(false);
-  const workingStatus = ref<'working' | 'finish'>('finish');
   const agentViewDialogVisible = ref(false);
-  // 视图状态
-  const currentView = ref<'chat' | 'history' | 'agent' | 'config'>('agent');
-  const setCurrentView = (view: 'chat' | 'history' | 'agent' | 'config'): void => {
-    currentView.value = view;
-    appStateCache.setAiDialogView(view);
-  };
-  const mode = ref<'agent' | 'ask'>('agent');
+  const view = ref<'chat' | 'config'>('chat');
+  const mode = ref<ConversationMode>('agent');
   const inputMessage = ref('');
-  // 流式请求状态
+  const workingStatus = ref<'working' | 'finish'>('finish');
   const isStreaming = ref(false);
   const currentStreamRequestId = ref<string | null>(null);
   const streamingMessageId = ref<string | null>(null);
   const loadingMessageId = ref<string | null>(null);
   const isFirstChunk = ref(false);
   const lastAskPrompt = ref('');
+  let askStreamBuffer = '';
   const cancelCurrentStream = ref<(() => Promise<void>) | null>(null);
-  // 计算属性：AI 配置是否有效
-  const isAiConfigValid = computed(() => {
-    return llmClientStore.isAvailable();
-  });
-  /*
-  |--------------------------------------------------------------------------
-  | 消息增删改查
-  |--------------------------------------------------------------------------
-  */
-  // 添加消息
-  const addCurrentMessage = async (message: AgentViewMessage): Promise<boolean> => {
-    try {
-      currentMessageList.value.push(message);
-      if (message.type !== 'loading') {
-        await agentViewCache.addMessage(message);
-      }
-      return true;
-    } catch (error) {
-      logger.error('添加消息失败', { error });
-      return false;
+  const agentMessages = ref<ConversationMessage[]>([]);
+  const askMessages = ref<ConversationMessage[]>([]);
+  let persistTimer: ReturnType<typeof setTimeout> | null = null;
+  const isAiConfigValid = computed(() => llmClientStore.isAvailable());
+  // 初始化对话缓存
+  const initConversationCache = (): void => {
+    const cached = getConversationCache();
+    if (cached) {
+      agentMessages.value = cached.agentMessages;
+      askMessages.value = cached.askMessages;
+      return;
     }
+    agentMessages.value = [];
+    askMessages.value = [];
   };
-  // 根据ID更新消息，同时更新缓存
-  const updateCurrentMessageById = async (messageId: string, updates: Partial<AgentViewMessage>): Promise<boolean> => {
-    try {
-      const index = currentMessageList.value.findIndex(msg => msg.id === messageId);
-      if (index === -1) {
-        return false;
-      }
-      const { id: _ignoreId, sessionId: _ignoreSessionId, ...safeUpdates } = updates;
-      const nextMessage = { ...currentMessageList.value[index], ...safeUpdates } as AgentViewMessage;
-      currentMessageList.value[index] = nextMessage;
-      if (nextMessage.type !== 'loading') {
-        await agentViewCache.updateMessage(nextMessage);
-      }
-      return true;
-    } catch (error) {
-      logger.error('更新消息失败', { error });
-      return false;
+  // 安排对话缓存落盘
+  const schedulePersist = (): void => {
+    if (persistTimer) {
+      clearTimeout(persistTimer);
+      persistTimer = null;
     }
-  };
-  // 根据ID更新消息（仅更新视图）
-  const updateMessageById = (messageId: string, updates: Partial<AgentViewMessage>): void => {
-    const index = currentMessageList.value.findIndex(msg => msg.id === messageId);
-    if (index !== -1) {
-      currentMessageList.value[index] = { ...currentMessageList.value[index], ...updates } as AgentViewMessage;
-    }
-  };
-  // 根据ID删除消息
-  const deleteCurrentMessageById = (messageId: string): void => {
-    const index = currentMessageList.value.findIndex(msg => msg.id === messageId);
-    if (index !== -1) {
-      currentMessageList.value.splice(index, 1);
-    }
-  };
-  // 清空消息列表
-  const clearCurrentMessageList = (): void => {
-    currentMessageList.value = [];
-  };
-  // 根据ID获取消息
-  const getMessageById = (messageId: string): AgentViewMessage | null => {
-    return currentMessageList.value.find(msg => msg.id === messageId) || null;
-  };
-  // 获取最近的消息
-  const getLatestMessages = (count: number): AgentViewMessage[] => {
-    const filteredMessages = currentMessageList.value.filter(msg => msg.type !== 'loading');
-    return filteredMessages.slice(-count);
-  };
-  /*
-  |--------------------------------------------------------------------------
-  | 会话相关内容
-  |--------------------------------------------------------------------------
-  */
-  // 加载指定会话
-  const loadSession = async (sessionId: string): Promise<void> => {
-    try {
-      isLoadingSessionData.value = true;
-      const messages = await agentViewCache.getMessagesBySessionId(sessionId);
-      currentMessageList.value = messages;
-      setCurrentSessionId(sessionId);
-    } catch (error) {
-      logger.error('加载会话失败', { error });
-    } finally {
-      isLoadingSessionData.value = false;
-    }
-  };
-  // 设置当前会话ID
-  const setCurrentSessionId = (sessionId: string): void => {
-    currentSessionId.value = sessionId;
-    agentViewCache.setLastSessionId(sessionId);
-  };
-  // 创建新会话
-  const createNewSession = (): string => {
-    const newSessionId = nanoid();
-    setCurrentSessionId(newSessionId);
-    clearCurrentMessageList();
-    return newSessionId;
-  };
-  // 清空所有会话
-  const clearAllSessions = async (): Promise<boolean> => {
-    try {
-      await agentViewCache.clearAllMessages();
-      clearCurrentMessageList();
-      createNewSession();
-      return true;
-    } catch (error) {
-      logger.error('清空所有会话失败', { error });
-      return false;
-    }
-  };
-  /*
-  |--------------------------------------------------------------------------
-  | 其他
-  |--------------------------------------------------------------------------
-  */
-  // 初始化Store并加载会话数据
-  const loadSessionData = async (): Promise<void> => {
-    const lastSessionId = agentViewCache.getLastSessionId();
-    if (lastSessionId) {
-      await loadSession(lastSessionId);
-      if (currentMessageList.value.length === 0) {
-        createNewSession();
-      }
-    } else {
-      createNewSession();
-    }
+    persistTimer = setTimeout(() => {
+      setConversationCache(agentMessages.value, askMessages.value);
+      persistTimer = null;
+    }, 400);
   };
   // 设置工作状态
   const setWorkingStatus = (status: 'working' | 'finish'): void => {
     workingStatus.value = status;
   };
-  // 显示AgentView弹窗
+  // 显示弹窗
   const showAgentViewDialog = (): void => {
     agentViewDialogVisible.value = true;
   };
-  // 隐藏AgentView弹窗
+  // 隐藏弹窗
   const hideAgentViewDialog = (): void => {
     agentViewDialogVisible.value = false;
   };
-  /*
-  |--------------------------------------------------------------------------
-  | 视图切换
-  |--------------------------------------------------------------------------
-  */
-  // 切换到聊天视图
-  const switchToChat = (): void => {
-    setCurrentView('chat');
+  // 打开设置视图
+  const openConfig = (): void => {
+    view.value = 'config';
   };
-  // 切换到历史视图
-  const switchToHistory = (): void => {
-    setCurrentView('history');
-  };
-  // 切换到配置视图
-  const switchToConfig = (): void => {
-    setCurrentView('config');
+  // 返回对话视图
+  const backToChat = (): void => {
+    view.value = 'chat';
   };
   // 设置模式
-  const setMode = (newMode: 'agent' | 'ask'): void => {
+  const setMode = (newMode: ConversationMode): void => {
     mode.value = newMode;
     appStateCache.setAiDialogMode(newMode);
-    if (currentView.value === 'chat' || currentView.value === 'agent') {
-      setCurrentView(newMode === 'agent' ? 'agent' : 'chat');
-    }
   };
-  // 初始化模式（从缓存读取）
+  // 初始化模式
   const initMode = (): void => {
     const cachedMode = appStateCache.getAiDialogMode();
-    if (cachedMode === 'agent' || cachedMode === 'ask') {
-      mode.value = cachedMode;
+    mode.value = cachedMode === 'agent' || cachedMode === 'ask' ? cachedMode : 'agent';
+  };
+  // 添加消息
+  const addMessage = (targetMode: ConversationMode, message: ConversationMessage): void => {
+    if (targetMode === 'agent') {
+      agentMessages.value.push(message);
+    } else {
+      askMessages.value.push(message);
+    }
+    schedulePersist();
+  };
+  // 更新消息
+  const updateMessage = (targetMode: ConversationMode, messageId: string, updates: Partial<ConversationMessage>): void => {
+    const list = targetMode === 'agent' ? agentMessages.value : askMessages.value;
+    const index = list.findIndex(item => item.id === messageId);
+    if (index < 0) {
       return;
     }
-    mode.value = 'agent';
+    list[index] = { ...list[index], ...updates } as ConversationMessage;
+    schedulePersist();
   };
-  // 初始化视图（从缓存读取）
-  const initView = (): void => {
-    const cachedView = appStateCache.getAiDialogView();
-    const modeView = mode.value === 'agent' ? 'agent' : 'chat';
-    if (cachedView === 'history' || cachedView === 'config') {
-      currentView.value = cachedView;
+  // 替换消息
+  const replaceMessage = (targetMode: ConversationMode, messageId: string, nextMessage: ConversationMessage): void => {
+    const list = targetMode === 'agent' ? agentMessages.value : askMessages.value;
+    const index = list.findIndex(item => item.id === messageId);
+    if (index < 0) {
       return;
     }
-    if (cachedView === 'chat' || cachedView === 'agent') {
-      if (cachedView === modeView) {
-        currentView.value = cachedView;
-      } else {
-        setCurrentView(modeView);
-      }
+    list[index] = nextMessage;
+    schedulePersist();
+  };
+  // 删除消息
+  const deleteMessage = (targetMode: ConversationMode, messageId: string): void => {
+    const list = targetMode === 'agent' ? agentMessages.value : askMessages.value;
+    const index = list.findIndex(item => item.id === messageId);
+    if (index < 0) {
       return;
     }
-    setCurrentView(modeView);
+    list.splice(index, 1);
+    schedulePersist();
   };
-  /*
-  |--------------------------------------------------------------------------
-  | 流式处理
-  |--------------------------------------------------------------------------
-  */
-  // 根据错误信息判断错误类型
-  const detectErrorType = (errorMsg: string): 'network' | 'api' | 'unknown' => {
-    const networkKeywords = ['fetch', 'network', 'ECONNREFUSED', 'timeout', 'ETIMEDOUT', 'ENOTFOUND', 'connection', 'socket', 'net::'];
-    const lowerError = errorMsg.toLowerCase();
-    if (networkKeywords.some(keyword => lowerError.includes(keyword.toLowerCase()))) {
-      return 'network';
+  // 清空对话
+  const clearConversation = async (): Promise<void> => {
+    await stopCurrentConversation();
+    if (persistTimer) {
+      clearTimeout(persistTimer);
+      persistTimer = null;
     }
-    if (lowerError.includes('api') || lowerError.includes('401') || lowerError.includes('403') || lowerError.includes('429')) {
-      return 'api';
-    }
-    return 'unknown';
+    agentMessages.value = [];
+    askMessages.value = [];
+    clearConversationCache();
   };
-  // 构建 OpenAI 请求体
-  const buildOpenAIRequestBody = (userMessage: string): ChatRequestBody => {
+  // 生成问题消息
+  const createQuestionMessage = (content: string): ConversationMessage => {
+    return { id: nanoid(), kind: 'question', content, createdAt: Date.now() };
+  };
+  // 生成加载消息
+  const createLoadingMessage = (): ConversationMessage => {
+    return { id: nanoid(), kind: 'loading', content: '', createdAt: Date.now() };
+  };
+  // 生成响应消息
+  const createResponseMessage = (content: string): ConversationMessage => {
+    return { id: nanoid(), kind: 'response', content, createdAt: Date.now() };
+  };
+  // 生成错误消息
+  const createErrorMessage = (content: string): ConversationMessage => {
+    return { id: nanoid(), kind: 'error', content, createdAt: Date.now() };
+  };
+  // 构建 Ask 请求体
+  const buildAskRequestBody = (userMessage: string): ChatRequestBody => {
     const messages: LLMessage[] = [];
-    const recentMessages = getLatestMessages(10);
-    
-    // 只保留最近1轮对话（最后一个用户消息和它之前的第一个助手响应）
-    let lastUserMessage: LLMessage | null = null;
-    let lastAssistantMessage: LLMessage | null = null;
-    
-    // 从后往前找最后一个用户消息
-    for (let i = recentMessages.length - 1; i >= 0; i--) {
-      const msg = recentMessages[i];
-      if (!msg.canBeContext) continue;
-      
-      if (msg.type === 'ask') {
-        lastUserMessage = { role: 'user', content: msg.content };
-        // 继续找这个用户消息之前的助手响应
-        for (let j = i - 1; j >= 0; j--) {
-          const prevMsg = recentMessages[j];
-          if (!prevMsg.canBeContext) continue;
-          if (prevMsg.type === 'textResponse') {
-            lastAssistantMessage = { role: 'assistant', content: prevMsg.content };
+    const recent = askMessages.value.slice(-10);
+    let lastQuestion: LLMessage | null = null;
+    let lastResponse: LLMessage | null = null;
+    for (let i = recent.length - 1; i >= 0; i -= 1) {
+      const msg = recent[i];
+      if (msg.kind === 'question') {
+        lastQuestion = { role: 'user', content: msg.content };
+        for (let j = i - 1; j >= 0; j -= 1) {
+          const prev = recent[j];
+          if (prev.kind === 'response') {
+            lastResponse = { role: 'assistant', content: prev.content };
             break;
           }
         }
         break;
       }
     }
-    
-    // 构建消息数组：先加上一轮历史（如果有），再加当前消息
-    if (lastAssistantMessage) {
-      messages.push(lastAssistantMessage);
+    if (lastResponse) {
+      messages.push(lastResponse);
     }
-    if (lastUserMessage) {
-      messages.push(lastUserMessage);
+    if (lastQuestion) {
+      messages.push(lastQuestion);
     }
-    
-    // 添加当前用户消息
-    messages.push({
-      role: 'user',
-      content: userMessage
-    });
-    
-    return {
-      messages,
-      max_tokens: 4096,
-      temperature: 0.7
-    };
+    messages.push({ role: 'user', content: userMessage });
+    return { messages, max_tokens: 4096, temperature: 0.7 };
   };
-  // 重置流式状态
+  // 重置流状态
   const resetStreamState = (): void => {
     isStreaming.value = false;
     currentStreamRequestId.value = null;
     streamingMessageId.value = null;
     isFirstChunk.value = false;
+    askStreamBuffer = '';
     cancelCurrentStream.value = null;
   };
-  // 停止当前对话
+  // 停止 Ask 流式对话
   const stopCurrentConversation = async (): Promise<void> => {
     if (cancelCurrentStream.value) {
       await cancelCurrentStream.value();
       cancelCurrentStream.value = null;
     }
     if (loadingMessageId.value) {
-      deleteCurrentMessageById(loadingMessageId.value);
+      deleteMessage('ask', loadingMessageId.value);
       loadingMessageId.value = null;
     }
     resetStreamState();
     setWorkingStatus('finish');
   };
-  const stopCurrentAgentExecution = async (): Promise<void> => {
-    const agentLoadingIds = currentMessageList.value.filter(msg => msg.type === 'loading' && msg.mode === 'agent').map(msg => msg.id);
-    agentLoadingIds.forEach(id => deleteCurrentMessageById(id));
-    const runningAgentExecutionMessages = currentMessageList.value.filter((msg): msg is AgentExecutionMessage => msg.type === 'agentExecution' && msg.mode === 'agent' && (msg.status === 'running' || msg.status === 'pending'));
-    for (const msg of runningAgentExecutionMessages) {
-      const nextToolCalls = msg.toolCalls.map(tc => (tc.status === 'running' || tc.status === 'pending' || tc.status === 'waiting-confirm') ? { ...tc, status: 'cancelled' as const } : tc);
-      await updateCurrentMessageById(msg.id, { status: 'aborted', isStreaming: false, toolCalls: nextToolCalls });
-    }
-    setWorkingStatus('finish');
-  };
-  // 发送 Ask 消息（从输入框读取）
-  const sendAskFromInput = async (): Promise<void> => {
-    if (mode.value !== 'ask') return;
-    if (!isAiConfigValid.value) return;
-    if (isStreaming.value) return;
-    const message = inputMessage.value;
-    inputMessage.value = '';
-    lastAskPrompt.value = message;
-    const askMessage = createAskMessage(message, 'ask');
-    const loadingMessage = createLoadingMessage();
-    const requestId = nanoid();
-    await addCurrentMessage(askMessage);
-    await addCurrentMessage(loadingMessage);
-    isStreaming.value = true;
-    currentStreamRequestId.value = requestId;
-    loadingMessageId.value = loadingMessage.id;
-    isFirstChunk.value = true;
-    streamingMessageId.value = null;
-    setWorkingStatus('working');
-    const requestBody = buildOpenAIRequestBody(message);
-    if (!llmClientStore.isAvailable()) {
-      if (loadingMessageId.value) {
-        deleteCurrentMessageById(loadingMessageId.value);
-        loadingMessageId.value = null;
+  // 停止 Agent 执行展示
+  const stopCurrentAgentExecution = (): void => {
+    const cancelNotice = i18n.global.t('已取消本次操作（内容可能不完整）。');
+    for (let i = agentMessages.value.length - 1; i >= 0; i -= 1) {
+      const msg = agentMessages.value[i];
+      if (msg.kind === 'tool-call' && msg.status === 'loading') {
+        agentMessages.value[i] = {
+          ...msg,
+          status: 'error',
+          toolCall: { ...msg.toolCall, error: i18n.global.t('已取消本次操作。') },
+        };
       }
-      const errorMessage = createErrorMessage(i18n.global.t('AI功能不可用'), message, 'ask');
-      void addCurrentMessage(errorMessage);
-      resetStreamState();
-      setWorkingStatus('finish');
+    }
+    for (let i = agentMessages.value.length - 1; i >= 0; i -= 1) {
+      const msg = agentMessages.value[i];
+      if (msg.kind !== 'thinking') {
+        continue;
+      }
+      const nextContent = msg.content.includes(cancelNotice)
+        ? msg.content
+        : (msg.content.trim() ? `${msg.content}\n\n${cancelNotice}` : cancelNotice);
+      agentMessages.value[i] = { ...msg, kind: 'response', content: nextContent };
+      schedulePersist();
       return;
     }
-    try {
-      const textDecoder = new TextDecoder('utf-8');
-      const streamController = llmClientStore.chatStream(
-        requestBody,
-        {
-          onData: (chunk: Uint8Array) => {
-            const chunkStr = textDecoder.decode(chunk, { stream: true });
-            handleStreamData(requestId, chunkStr);
-          },
-          onEnd: () => {
-            handleStreamEnd(requestId);
-          },
-          onError: (err: Error | string) => {
-            const errorMsg = err instanceof Error ? err.message : String(err);
-            handleStreamError(requestId, errorMsg);
-          }
-        }
-      );
-      cancelCurrentStream.value = async () => {
-        streamController?.abort();
-      };
-    } catch (error) {
-      if (loadingMessageId.value) {
-        deleteCurrentMessageById(loadingMessageId.value);
-        loadingMessageId.value = null;
-      }
-      const errorDetail = error instanceof Error ? error.message : i18n.global.t('未知错误');
-      const errorMessage = createErrorMessage(errorDetail, message, 'ask');
-      void addCurrentMessage(errorMessage);
-      resetStreamState();
-      setWorkingStatus('finish');
-    }
-  };
-  // 发送 Ask 消息（指定 prompt）
-  const sendAskPrompt = async (prompt: string): Promise<void> => {
-    inputMessage.value = prompt;
-    await sendAskFromInput();
+    addMessage('agent', createResponseMessage(cancelNotice));
   };
   // 处理流数据
   const handleStreamData = (requestId: string, chunk: string): void => {
-    if (currentStreamRequestId.value !== requestId) return;
-    const lines = chunk.split('\n');
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed) continue;
-      if (!trimmed.startsWith('data: ')) {
-        if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
-          try {
-            const parsed: { code?: number; msg?: string } = JSON.parse(trimmed);
-            if (parsed.code && parsed.msg) {
-              handleStreamError(requestId, parsed.msg);
-              return;
-            }
-          } catch {
-            // 忽略无效JSON
-          }
-        }
+    if (currentStreamRequestId.value !== requestId) {
+      return;
+    }
+    const combined = `${askStreamBuffer}${chunk}`;
+    const lines = combined.split('\n');
+    askStreamBuffer = lines.pop() ?? '';
+    for (const rawLine of lines) {
+      const trimmed = rawLine.trim();
+      if (!trimmed || trimmed === 'data: [DONE]') {
         continue;
       }
-      const data = trimmed.substring(6).trim();
-      if (data === '[DONE]') continue;
+      if (!trimmed.startsWith('data:')) {
+        continue;
+      }
+      const data = trimmed.replace(/^data:\s*/, '');
       try {
-        const parsed = JSON.parse(data);
+        const parsed = JSON.parse(data) as OpenAiStreamChunk;
         const content = parsed.choices?.[0]?.delta?.content;
-        if (content) {
-          if (isFirstChunk.value && loadingMessageId.value) {
-            deleteCurrentMessageById(loadingMessageId.value);
-            const timestamp = new Date().toISOString();
-            const responseMessageId = nanoid();
-            const responseMessage: TextResponseMessage = {
-              id: responseMessageId,
-              type: 'textResponse',
-              content,
-              timestamp,
-              sessionId: currentSessionId.value,
-              mode: 'ask',
-              canBeContext: true
-            };
-            addCurrentMessage(responseMessage);
-            streamingMessageId.value = responseMessageId;
-            loadingMessageId.value = null;
-            isFirstChunk.value = false;
-          } else if (streamingMessageId.value) {
-            const message = getMessageById(streamingMessageId.value);
-            if (message && message.type === 'textResponse') {
-              const nextContent = `${message.content}${content}`;
-              void updateCurrentMessageById(message.id, { content: nextContent });
-            }
+        if (!content) {
+          continue;
+        }
+        if (isFirstChunk.value && loadingMessageId.value) {
+          deleteMessage('ask', loadingMessageId.value);
+          const responseId = nanoid();
+          const response: ConversationMessage = { id: responseId, kind: 'response', content, createdAt: Date.now() };
+          addMessage('ask', response);
+          streamingMessageId.value = responseId;
+          loadingMessageId.value = null;
+          isFirstChunk.value = false;
+          continue;
+        }
+        if (streamingMessageId.value) {
+          const list = askMessages.value;
+          const index = list.findIndex(item => item.id === streamingMessageId.value);
+          const current = index >= 0 ? list[index] : null;
+          if (current && current.kind === 'response') {
+            updateMessage('ask', current.id, { content: `${current.content}${content}` });
           }
         }
       } catch {
@@ -448,9 +271,11 @@ export const useAgentViewStore = defineStore('agentView', () => {
   };
   // 处理流结束
   const handleStreamEnd = (requestId: string): void => {
-    if (currentStreamRequestId.value !== requestId) return;
+    if (currentStreamRequestId.value !== requestId) {
+      return;
+    }
     if (loadingMessageId.value) {
-      deleteCurrentMessageById(loadingMessageId.value);
+      deleteMessage('ask', loadingMessageId.value);
       loadingMessageId.value = null;
     }
     resetStreamState();
@@ -458,145 +283,110 @@ export const useAgentViewStore = defineStore('agentView', () => {
   };
   // 处理流错误
   const handleStreamError = (requestId: string, error: string): void => {
-    if (currentStreamRequestId.value !== requestId) return;
+    if (currentStreamRequestId.value !== requestId) {
+      return;
+    }
     if (loadingMessageId.value) {
-      deleteCurrentMessageById(loadingMessageId.value);
+      deleteMessage('ask', loadingMessageId.value);
       loadingMessageId.value = null;
     }
-    const timestamp = new Date().toISOString();
-    const errorMessageId = nanoid();
-    const errorMessage: ErrorMessage = {
-      id: errorMessageId,
-      type: 'error',
-      errorType: detectErrorType(error),
-      content: error,
-      errorDetail: error,
-      originalPrompt: lastAskPrompt.value,
-      timestamp,
-      sessionId: currentSessionId.value,
-      mode: 'ask',
-      canBeContext: false
-    };
-    addCurrentMessage(errorMessage);
+    addMessage('ask', createErrorMessage(error));
     resetStreamState();
     setWorkingStatus('finish');
   };
-  // 创建用户消息
-  const createAskMessage = (message: string, messageMode: 'agent' | 'ask'): AskMessage => {
-    return {
-      id: nanoid(),
-      type: 'ask',
-      content: message,
-      timestamp: new Date().toISOString(),
-      sessionId: currentSessionId.value,
-      mode: messageMode,
-      canBeContext: true
-    };
-  };
-  // 创建加载消息
-  const createLoadingMessage = (): LoadingMessage => {
-    return {
-      id: nanoid(),
-      type: 'loading',
-      content: '',
-      timestamp: new Date().toISOString(),
-      sessionId: currentSessionId.value,
-      mode: 'ask',
-      canBeContext: false
-    };
-  };
-  // 创建错误消息
-  const createErrorMessage = (error: string, originalPrompt: string, messageMode: 'agent' | 'ask'): ErrorMessage => {
-    return {
-      id: nanoid(),
-      type: 'error',
-      errorType: detectErrorType(error),
-      content: error,
-      errorDetail: error,
-      originalPrompt,
-      timestamp: new Date().toISOString(),
-      sessionId: currentSessionId.value,
-      mode: messageMode,
-      canBeContext: false
-    };
-  };
-  // 创建新对话
-  const handleCreateConversation = async (): Promise<void> => {
-    await stopCurrentConversation();
-    if (currentMessageList.value.length > 0) {
-      createNewSession();
+  // 发送 Ask 消息（从输入框读取）
+  const sendAskFromInput = async (): Promise<void> => {
+    if (mode.value !== 'ask') {
+      return;
     }
-    const nextView = mode.value === 'agent' ? 'agent' : mode.value === 'ask' ? 'chat' : 'agent';
-    setCurrentView(nextView);
+    if (!isAiConfigValid.value) {
+      return;
+    }
+    if (isStreaming.value) {
+      return;
+    }
+    const message = inputMessage.value;
+    inputMessage.value = '';
+    lastAskPrompt.value = message;
+    const question = createQuestionMessage(message);
+    const loading = createLoadingMessage();
+    const requestId = nanoid();
+    addMessage('ask', question);
+    addMessage('ask', loading);
+    isStreaming.value = true;
+    currentStreamRequestId.value = requestId;
+    loadingMessageId.value = loading.id;
+    isFirstChunk.value = true;
+    streamingMessageId.value = null;
+    setWorkingStatus('working');
+    const requestBody = buildAskRequestBody(message);
+    if (!llmClientStore.isAvailable()) {
+      if (loadingMessageId.value) {
+        deleteMessage('ask', loadingMessageId.value);
+        loadingMessageId.value = null;
+      }
+      addMessage('ask', createErrorMessage(i18n.global.t('AI功能不可用')));
+      resetStreamState();
+      setWorkingStatus('finish');
+      return;
+    }
+    const textDecoder = new TextDecoder('utf-8');
+    const streamController = llmClientStore.chatStream(
+      requestBody,
+      {
+        onData: (chunk: Uint8Array) => {
+          const chunkStr = textDecoder.decode(chunk, { stream: true });
+          handleStreamData(requestId, chunkStr);
+        },
+        onEnd: () => {
+          handleStreamData(requestId, textDecoder.decode());
+          handleStreamEnd(requestId);
+        },
+        onError: (err: Error | string) => {
+          const errorMsg = err instanceof Error ? err.message : String(err);
+          handleStreamError(requestId, errorMsg);
+        },
+      }
+    );
+    cancelCurrentStream.value = async () => {
+      streamController?.abort();
+    };
   };
-  // 从历史返回聊天
-  const handleBackToChat = (): void => {
-    const firstMessage = currentMessageList.value[0];
-    const sessionMode = firstMessage?.mode || mode.value;
-    mode.value = sessionMode;
-    const nextView = sessionMode === 'ask' ? 'chat' : sessionMode === 'agent' ? 'agent' : 'agent';
-    setCurrentView(nextView);
+  // 发送 Ask 消息（指定 prompt）
+  const sendAskPrompt = async (prompt: string): Promise<void> => {
+    inputMessage.value = prompt;
+    await sendAskFromInput();
   };
-  // 选择历史会话
-  const handleSelectSession = async (sessionId: string, sessionMode: 'agent' | 'ask'): Promise<void> => {
-    await loadSession(sessionId);
-    mode.value = sessionMode;
-    const nextView = sessionMode === 'ask' ? 'chat' : sessionMode === 'agent' ? 'agent' : 'agent';
-    setCurrentView(nextView);
-  };
+  initMode();
+  initConversationCache();
   return {
-    currentMessageList,
-    currentSessionId,
-    isLoadingSessionData,
-    workingStatus,
     agentViewDialogVisible,
-    currentView,
+    view,
     mode,
     inputMessage,
+    workingStatus,
     isStreaming,
-    currentStreamRequestId,
-    streamingMessageId,
-    loadingMessageId,
-    isFirstChunk,
     lastAskPrompt,
-    cancelCurrentStream,
+    agentMessages,
+    askMessages,
     isAiConfigValid,
-    addCurrentMessage,
-    updateCurrentMessageById,
-    updateMessageById,
-    clearCurrentMessageList,
-    deleteCurrentMessageById,
-    loadSession,
-    setCurrentSessionId,
-    createNewSession,
-    clearAllSessions,
-    getMessageById,
-    getLatestMessages,
-    loadSessionData,
     setWorkingStatus,
     showAgentViewDialog,
     hideAgentViewDialog,
-    switchToChat,
-    switchToHistory,
-    switchToConfig,
+    openConfig,
+    backToChat,
     setMode,
-    initMode,
-    initView,
-    detectErrorType,
-    buildOpenAIRequestBody,
-    resetStreamState,
+    clearConversation,
+    addMessage,
+    updateMessage,
+    replaceMessage,
+    deleteMessage,
+    createQuestionMessage,
+    createResponseMessage,
+    createErrorMessage,
     stopCurrentConversation,
     stopCurrentAgentExecution,
     sendAskFromInput,
     sendAskPrompt,
-    handleStreamData,
-    handleStreamEnd,
-    handleStreamError,
-    createAskMessage,
-    createLoadingMessage,
-    createErrorMessage,
-    handleCreateConversation,
-    handleBackToChat,
-    handleSelectSession,
   };
 });

@@ -7,7 +7,8 @@
           class="ai-dialog-action"
           type="button"
           @mousedown.stop
-          @click="agentViewStore.handleCreateConversation()"
+          @click="agentViewStore.clearConversation()"
+          :disabled="agentViewStore.workingStatus === 'working'"
           :title="t('新建对话')"
           :aria-label="t('新建对话')"
         >
@@ -17,17 +18,7 @@
           class="ai-dialog-action"
           type="button"
           @mousedown.stop
-          @click="agentViewStore.switchToHistory()"
-          :title="t('历史记录')"
-          :aria-label="t('历史记录')"
-        >
-          <History :size="16" />
-        </button>
-        <button
-          class="ai-dialog-action"
-          type="button"
-          @mousedown.stop
-          @click="agentViewStore.switchToConfig()"
+          @click="agentViewStore.openConfig()"
           :title="t('设置')"
           :aria-label="t('设置')"
         >
@@ -51,7 +42,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { Plus, History, Settings, X } from 'lucide-vue-next'
+import { Plus, Settings, X } from 'lucide-vue-next'
 import { useAgentViewStore } from '@/store/ai/agentView'
 
 const { t } = useI18n()

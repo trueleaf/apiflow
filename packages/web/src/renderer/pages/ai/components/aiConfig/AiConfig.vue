@@ -1,7 +1,7 @@
 <template>
   <div class="ai-config-view">
     <div class="ai-config-header">
-      <button class="ai-back-btn" type="button" @click="agentViewStore.handleBackToChat()">
+      <button class="ai-back-btn" type="button" @click="agentViewStore.backToChat()">
         <ArrowLeft :size="16" />
         <span>{{ t('返回') }}</span>
       </button>

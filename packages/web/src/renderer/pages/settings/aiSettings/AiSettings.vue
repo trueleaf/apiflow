@@ -36,7 +36,7 @@ import ProviderConfigPanel from './ConfigPanel.vue'
 import DebugPanel from './DebugPanel.vue'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { message } from '@/helper'
-import type { ChatRequestBody } from '@src/types/ai/agent.type'
+import type { ChatRequestBody, OpenAiStreamChunk } from '@src/types/ai/agent.type'
 
 const { t } = useI18n()
 const llmClientStore = useLLMClientStore()
@@ -50,6 +50,7 @@ const responseTime = ref<number | null>(null)
 const useMarkdown = ref(false)
 const requestBody = ref<ChatRequestBody | null>(null)
 let cancelStreamFn: { abort: () => void } | null = null
+let streamBuffer = ''
 // 判断配置是否有效
 const isConfigValid = computed(() => {
   return llmClientStore.isAvailable()
@@ -97,6 +98,7 @@ const handleStreamSend = () => {
   responseContent.value = ''
   reasoningContent.value = ''
   responseTime.value = null
+  streamBuffer = ''
   const body: ChatRequestBody = {
     messages: [{ role: 'user', content: t('你的模型') }],
     max_tokens: 1000,
@@ -104,38 +106,48 @@ const handleStreamSend = () => {
   requestBody.value = body
   const startTime = Date.now()
   const decoder = new TextDecoder()
+  const parseSseChunk = (chunkText: string) => {
+    const combined = `${streamBuffer}${chunkText}`
+    const lines = combined.split('\n')
+    streamBuffer = lines.pop() ?? ''
+    for (const rawLine of lines) {
+      const trimmed = rawLine.trim()
+      if (!trimmed || trimmed === 'data: [DONE]') {
+        continue
+      }
+      if (!trimmed.startsWith('data:')) {
+        continue
+      }
+      const data = trimmed.replace(/^data:\s*/, '')
+      try {
+        const parsed = JSON.parse(data) as OpenAiStreamChunk
+        const delta = parsed.choices?.[0]?.delta
+        const reasoning = delta?.reasoning_content
+        const content = delta?.content
+        if (reasoning) {
+          reasoningContent.value += reasoning
+        }
+        if (content) {
+          responseContent.value += content
+        }
+      } catch {
+        // 忽略解析错误
+      }
+    }
+  }
   cancelStreamFn = llmClientStore.chatStream(
     body,
     {
       onData: (chunk: Uint8Array) => {
         const text = decoder.decode(chunk, { stream: true })
-        const lines = text.split('\n').filter(line => line.trim() !== '')
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6)
-            if (data === '[DONE]') continue
-            try {
-              const parsed = JSON.parse(data)
-              const content = parsed.choices?.[0]?.delta?.content
-              const reasoning = parsed.choices?.[0]?.delta?.reasoning_content
-              if (reasoning) {
-                reasoningContent.value += reasoning
-              }
-              if (content) {
-                responseContent.value += content
-              }
-            } catch {
-              // 忽略解析错误
-            }
-          }
-        }
+        parseSseChunk(text)
       },
       onEnd: () => {
+        parseSseChunk(decoder.decode())
         responseTime.value = Date.now() - startTime
         isLoading.value = false
         isStreaming.value = false
         cancelStreamFn = null
-        console.log('stream end')
         if (!responseContent.value) {
           responseContent.value = t('无响应内容')
         }
@@ -157,6 +169,7 @@ const handleCancel = () => {
     cancelStreamFn.abort()
     cancelStreamFn = null
   }
+  streamBuffer = ''
   isLoading.value = false
   isStreaming.value = false
 }
@@ -166,6 +179,7 @@ onUnmounted(() => {
     cancelStreamFn.abort()
     cancelStreamFn = null
   }
+  streamBuffer = ''
 })
 </script>
 

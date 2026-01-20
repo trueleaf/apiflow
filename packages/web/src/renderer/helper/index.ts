@@ -141,38 +141,25 @@ export const generateDeepSeekProvider = (): LLMProviderSetting => ({
   extraBody: '',
 })
 // 生成 Agent 执行消息
-export const generateAgentExecutionMessage = (sessionId: string): import('@src/types/ai').AgentExecutionMessage => ({
+export const generateAgentExecutionMessage = (_sessionId: string): import('@src/types/ai').ConversationMessage => ({
   id: nanoid(),
-  type: 'agentExecution',
-  sessionId,
-  timestamp: new Date().toISOString(),
-  status: 'running',
-  toolCalls: [],
-  mode: 'agent',
-  isStreaming: true,
-  canBeContext: true
+  kind: 'thinking',
+  content: '',
+  createdAt: Date.now(),
 })
 // 生成完成消息
-export const generateCompletionMessage = (sessionId: string, content: string): import('@src/types/ai').TextResponseMessage => ({
+export const generateCompletionMessage = (_sessionId: string, content: string): import('@src/types/ai').ConversationMessage => ({
   id: nanoid(),
-  type: 'textResponse',
+  kind: 'response',
   content: content || '任务已完成',
-  timestamp: new Date().toISOString(),
-  sessionId,
-  mode: 'agent',
-  canBeContext: true
+  createdAt: Date.now(),
 })
 // 生成信息消息
-export const generateInfoMessage = (sessionId: string, content: string, mode: 'agent' | 'ask', totalTokens?: number, toolNames?: string[]): import('@src/types/ai').InfoMessage => ({
+export const generateInfoMessage = (_sessionId: string, content: string, _mode: 'agent' | 'ask', _totalTokens?: number, _toolNames?: string[]): import('@src/types/ai').ConversationMessage => ({
   id: nanoid(),
-  type: 'info',
+  kind: 'info',
   content,
-  timestamp: new Date().toISOString(),
-  sessionId,
-  mode,
-  canBeContext: false,
-  totalTokens,
-  toolNames
+  createdAt: Date.now(),
 })
 /*
 |--------------------------------------------------------------------------

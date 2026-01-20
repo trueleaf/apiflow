@@ -22,17 +22,9 @@
       <AiHeader @close="handleClose" />
     </template>
     <div class="ai-dialog-body">
-      <AiHistory v-if="agentViewStore.currentView === 'history'" />
-      <AiAsk
-        v-if="agentViewStore.currentView === 'chat'"
-      />
-      <AiAgent
-        v-if="agentViewStore.currentView === 'agent'"
-      />
-      <AiConfig v-if="agentViewStore.currentView === 'config'" />
-      <AiFooter
-        v-if="agentViewStore.currentView === 'chat' || agentViewStore.currentView === 'agent'"
-      />
+      <AiConfig v-if="agentViewStore.view === 'config'" />
+      <AiChat v-else />
+      <AiFooter v-if="agentViewStore.view === 'chat'" />
     </div>
   </ClDrag>
 </template>
@@ -42,25 +34,18 @@ import { ref, onMounted } from 'vue'
 import { config } from '@src/config/config'
 import { appStateCache } from '@/cache/appState/appStateCache'
 import { useAgentViewStore } from '@/store/ai/agentView'
-import AiHistory from './components/aiHistory/AiHistory.vue'
 import ClDrag from '@/components/ui/cleanDesign/clDrag/ClDrag.vue'
 import AiHeader from './components/aiHeader/AiHeader.vue'
-import AiAsk from './components/aiAsk/AiAsk.vue'
-import AiAgent from './components/aiAgent/AiAgent.vue'
-import AiConfig from './components/aiConfig/AiConfig.vue'
 import AiFooter from './components/aiFooter/AiFooter.vue'
+import AiConfig from './components/aiConfig/AiConfig.vue'
+import AiChat from './components/aiChat/AiChat.vue'
 
 const agentViewStore = useAgentViewStore()
 const defaultDialogPosition = { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' } as const
 const position = ref<{ x: number | null, y: number | null }>({ x: null, y: null })
-const dialogWidth = ref(config.renderConfig.aiDialog.defaultWidth)        
-const dialogHeight = ref(config.renderConfig.aiDialog.defaultHeight)      
+const dialogWidth = ref(config.renderConfig.aiDialog.defaultWidth)
+const dialogHeight = ref(config.renderConfig.aiDialog.defaultHeight)
 
-/*
-|--------------------------------------------------------------------------
-| 拖拽相关
-|--------------------------------------------------------------------------
-*/
 // 拖拽结束
 const handleDragEnd = (pos: { x: number, y: number }) => {
   position.value = { x: pos.x, y: pos.y }
@@ -122,11 +107,6 @@ const clampPositionToBounds = (pos: { x: number, y: number }, width: number, hei
     y: Math.max(0, Math.min(pos.y, maxY))
   }
 }
-/*
-|--------------------------------------------------------------------------
-| 其他操作
-|--------------------------------------------------------------------------
-*/
 // 关闭对话框
 const handleClose = () => {
   agentViewStore.hideAgentViewDialog()
@@ -140,8 +120,6 @@ const initDialogState = () => {
   if (cachedRect.height !== null) {
     dialogHeight.value = cachedRect.height
   }
-  agentViewStore.initMode()
-  agentViewStore.initView()
   if (cachedRect.x !== null && cachedRect.y !== null) {
     const cachedPosition = { x: cachedRect.x, y: cachedRect.y }
     const clampedPosition = clampPositionToBounds(cachedPosition, dialogWidth.value, dialogHeight.value)
@@ -159,9 +137,7 @@ const initDialogState = () => {
 
 onMounted(() => {
   initDialogState()
-  agentViewStore.loadSessionData()
 })
-
 </script>
 
 <style scoped>
