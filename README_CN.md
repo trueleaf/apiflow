@@ -1,6 +1,6 @@
 <div align="center">
 
-![logo](https://images.gitee.com/uploads/images/2021/0331/214909_4f34bc9b_1230427.png)
+![logo](./docs/logo.jpg)
 
 # Apiflow
 
