@@ -78,7 +78,7 @@
               </div>
             </template>
             <template v-else>
-              <Folder :size="16" class="folder-icon" />
+              <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
               <div class="node-label-wrap">
                 <SEmphasize class="node-top" :title="scope.data.info.name" :value="scope.data.info.name" />
               </div>
@@ -164,7 +164,7 @@ import AiImport from './components/AiImport.vue'
 import FormatSelector from './components/FormatSelector.vue'
 import { ref, computed, type Ref } from 'vue'
 import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
-import { FileUp, Link, ClipboardCopy, Folder, FileQuestion, Sparkles } from 'lucide-vue-next'
+import { FileUp, Link, ClipboardCopy, FileQuestion, Sparkles } from 'lucide-vue-next'
 import type { ApidocBanner, HttpNode, FolderNode } from '@src/types'
 import type { OpenAPIV3, OpenAPIV2 } from 'openapi-types'
 import { router } from '@/router/index'
@@ -532,7 +532,7 @@ const handleSubmit = async () => {
     align-items: center;
     width: 100%;
     overflow: hidden;
-    height: 30px;
+    min-height: 30px;
 
     &>img {
       width: 16px;
@@ -542,12 +542,13 @@ const handleSubmit = async () => {
     .file-icon {
       font-size: 14px;
       margin-right: 5px;
-      font-weight: 500;
     }
 
     .folder-icon {
       color: var(--yellow);
       flex: 0 0 auto;
+      width: 16px;
+      height: 16px;
       margin-right: 5px;
     }
 
@@ -563,6 +564,14 @@ const handleSubmit = async () => {
         text-overflow: ellipsis;
         white-space: nowrap;
       }
+
+      .node-bottom {
+        color: var(--text-tertiary);
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
   }
 
@@ -573,7 +582,7 @@ const handleSubmit = async () => {
   }
 
   :deep(.el-tree-node__content) {
-    height: 30px;
+    height: auto;
     display: flex;
     align-items: center;
   }
@@ -583,6 +592,11 @@ const handleSubmit = async () => {
     padding-top: 0;
     padding-bottom: 0;
     margin-top: -1px;
+  }
+
+  :deep(.el-collapse-transition-enter-active),
+  :deep(.el-collapse-transition-leave-active) {
+    transition: none !important;
   }
 
   .format-support-hint {

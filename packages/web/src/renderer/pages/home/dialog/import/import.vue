@@ -823,7 +823,7 @@ onMounted(async () => {
                 align-items: center;
                 width: 100%;
                 overflow: hidden;
-                height: 30px;
+                min-height: 30px;
                 .file-icon {
                   font-size: 14px;
                   margin-right: 5px;
@@ -873,10 +873,17 @@ onMounted(async () => {
                     text-overflow: ellipsis;
                     white-space: nowrap;
                   }
+                  .node-bottom {
+                    color: var(--text-tertiary);
+                    width: 100%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                  }
                 }
               }
               :deep(.el-tree-node__content) {
-                height: 30px;
+                height: auto;
                 display: flex;
                 align-items: center;
               }
@@ -885,6 +892,10 @@ onMounted(async () => {
                 padding-top: 0;
                 padding-bottom: 0;
                 margin-top: -1px;
+              }
+              :deep(.el-collapse-transition-enter-active),
+              :deep(.el-collapse-transition-leave-active) {
+                transition: none !important;
               }
             }
           }
