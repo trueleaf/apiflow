@@ -10,8 +10,8 @@ import { resolve } from 'path';
 dayjs.extend(utc)
 dayjs.extend(timezone)
 import pkg from './package.json'
-import AutoImport from 'unplugin-auto-import/vite'
-import Components from 'unplugin-vue-components/vite'
+import AutoImport from 'unplugin-auto-import/rolldown'
+import Components from 'unplugin-vue-components/rolldown'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineConfig(async ({ mode, command }) => {
