@@ -509,8 +509,26 @@ const createParamsTable = (params: ApidocProperty[], components: DocxComponents)
 };
 
 //创建代码块段落
+//尝试格式化JSON字符串
+const formatJsonIfPossible = (str: string): string => {
+  if (!str || typeof str !== 'string') {
+    return str;
+  }
+  const trimmed = str.trim();
+  if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      return JSON.stringify(parsed, null, 2);
+    } catch {
+      return str;
+    }
+  }
+  return str;
+};
+
 const createCodeBlock = (code: string, components: DocxComponents): ParagraphType => {
   const { Paragraph, TextRun, ShadingType } = components;
+  const formattedCode = formatJsonIfPossible(code);
   return new Paragraph({
     shading: {
       type: ShadingType.SOLID,
@@ -518,7 +536,7 @@ const createCodeBlock = (code: string, components: DocxComponents): ParagraphTyp
     },
     children: [
       new TextRun({
-        text: code,
+        text: formattedCode,
         font: "Consolas",
       }),
     ],

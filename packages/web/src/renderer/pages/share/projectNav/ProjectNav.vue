@@ -17,7 +17,7 @@
                 </template>
               </template>
               <span class="item-text" :class="{ unfixed: !element.fixed }">{{ element.label }}</span>
-              <span class="operaion">
+              <span class="operation">
                 <el-icon class="close" :size="15" @click.stop="handleCloseCurrentTab(element)">
                   <IconClose />
                 </el-icon>
@@ -225,8 +225,8 @@ onUnmounted(() => {
 <style lang='scss' scoped>
 .nav {
   width: 100%;
-  height: 40px;
-  background: var(--nav-bg);
+  height: var(--apiflow-doc-nav-height);
+  background: var(--project-nav-bg);
   display: flex;
 
   // tab包裹框
@@ -240,16 +240,22 @@ onUnmounted(() => {
   }
 
   .tab-list {
-    width: auto;
-    max-width: calc(100% - 40px);
-    line-height: 40px;
+    flex: 1;
+    min-width: 0;
+    max-width: calc(100% - var(--apiflow-doc-nav-height));
+    line-height: var(--apiflow-doc-nav-height);
     display: flex;
-    height: 40px;
-    color: var(--nav-text);
+    height: var(--apiflow-doc-nav-height);
+    color: var(--project-nav-text);
     white-space: nowrap;
     transition: left .1s;
     overflow-x: auto;
     overflow-y: hidden;
+
+    .drag-wrap {
+      flex: 1;
+      min-width: 0;
+    }
 
     &:hover {
       &::-webkit-scrollbar {
@@ -276,8 +282,8 @@ onUnmounted(() => {
       width: 200px;
       cursor: default;
       padding: 0 10px;
-      border-right: 1px solid var(--gray-400);
-      background: var(--bg-gray-150);
+      border-right: 1px solid var(--project-nav-border);
+      background: var(--project-nav-item-bg);
 
       .item-text {
         display: inline-block;
@@ -292,15 +298,15 @@ onUnmounted(() => {
       }
 
       &:hover {
-        background: var(--nav-hover);
+        background: var(--project-nav-item-hover-bg);
       }
 
       &.active {
-        background: var(--nav-active);
+        background: var(--project-nav-item-active-bg);
       }
     }
 
-    .operaion {
+    .operation {
       position: absolute;
       right: 0;
       width: 25px;
@@ -335,7 +341,7 @@ onUnmounted(() => {
     bottom: 0;
   }
   .ip-address {
-    border-left: 1px solid var(--gray-400);
+    border-left: 1px solid var(--project-nav-border);
   }
 }
 </style>

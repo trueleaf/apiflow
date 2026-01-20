@@ -11,7 +11,7 @@
     "dev": "vite --host",
     "web": "cross-env BUILD_TARGET=web vite --host",
     "share": "vite --host --config build/share/vite.config.ts",
-    "build:share": "vite build --config build/share/vite.config.ts",
+    "build:share": "vite build --config build/share/vite.config.ts && node scripts/move-share-html.mjs",
     "build:web": "cross-env BUILD_TARGET=web vite build",
     "preview": "vite preview",
     "build:font": "node build/share/script/build-font.mjs",

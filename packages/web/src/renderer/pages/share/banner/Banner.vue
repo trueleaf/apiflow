@@ -34,25 +34,25 @@
                   class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
               </template>
               <div class="node-label-wrap">
-                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="searchValue"></SEmphasize>
+                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="searchValue" :background="true"></SEmphasize>
                 <SEmphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.url"
-                  :value="scope.data.url" :keyword="searchValue"></SEmphasize>
+                  :value="scope.data.url" :keyword="searchValue" :background="true"></SEmphasize>
               </div>
             </template>
             <!-- websocket接口渲染 -->
             <template v-if="scope.data.type === 'websocket'">
               <span class="file-icon">{{ scope.data.protocol }}</span>
               <div class="node-label-wrap">
-                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="searchValue"></SEmphasize>
+                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="searchValue" :background="true"></SEmphasize>
                 <SEmphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.url.path"
-                  :value="scope.data.url.path" :keyword="searchValue"></SEmphasize>
+                  :value="scope.data.url.path" :keyword="searchValue" :background="true"></SEmphasize>
               </div>
             </template>
             <!-- 文件夹渲染 -->
             <template v-if="scope.data.type === 'folder'">
               <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
               <div class="node-label-wrap">
-                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="searchValue">
+                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="searchValue" :background="true">
                 </SEmphasize>
                 <div v-show="showMoreNodeInfo" class="node-bottom">{{ scope.data.url }}</div>
               </div>
@@ -63,18 +63,18 @@
                 <span>mock</span>
               </span>
               <div class="node-label-wrap">
-                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="searchValue"></SEmphasize>
+                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="searchValue" :background="true"></SEmphasize>
                 <SEmphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.url"
-                  :value="scope.data.url" :keyword="searchValue"></SEmphasize>
+                  :value="scope.data.url" :keyword="searchValue" :background="true"></SEmphasize>
               </div>
             </template>
             <!-- websocketMock渲染 -->
             <template v-if="scope.data.type === 'websocketMock'">
               <Radio class="ws-mock-icon" :size="14" />
               <div class="node-label-wrap">
-                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="searchValue"></SEmphasize>
+                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="searchValue" :background="true"></SEmphasize>
                 <SEmphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.path"
-                  :value="scope.data.path" :keyword="searchValue"></SEmphasize>
+                  :value="scope.data.path" :keyword="searchValue" :background="true"></SEmphasize>
               </div>
             </template>
           </div>
@@ -340,10 +340,10 @@ watch(searchValue, (newValue) => {
 
   // 节点展示更多信息
   .show-more {
-    .el-tree-node__content {
+    :deep(.el-tree-node__content) {
       align-items: flex-start;
 
-      &>.el-tree-node__expand-icon {
+      & > .el-tree-node__expand-icon {
         padding-top: 4px;
       }
     }
@@ -357,13 +357,14 @@ watch(searchValue, (newValue) => {
     }
   }
 
-  .el-tree-node__content {
+  :deep(.el-tree-node__content) {
     height: auto;
+    min-height: 30px;
     display: flex;
     align-items: center;
   }
 
-  .el-tree-node__content>.el-tree-node__expand-icon {
+  :deep(.el-tree-node__content > .el-tree-node__expand-icon) {
     transition: none; //去除所有动画
     padding-top: 0;
     padding-bottom: 0;
