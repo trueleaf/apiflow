@@ -907,7 +907,6 @@ export default {
   '连接成功': 'Connection Successful',
   '连接异常': 'Connection error',
   '联网模式': 'Internet',
-  '联网模式提示': 'You are currently in Internet mode; some features may be unstable and internet-mode data cannot be synchronized with offline mode for now. Stay tuned!',
   '临时重定向': 'Temporary Redirect',
   '临时重定向(保持方法)': 'Temporary Redirect (Keep Method)',
   '浏览器环境不支持启用Mock服务': 'Mock service is not supported in the browser.',
@@ -1772,6 +1771,9 @@ export default {
     '取消': 'キャンセル',
     '确定': '確認',
     '不再提示': '今後表示しない',
+    '快捷登录': 'クイックログイン',
+    '快速登录': 'クイックログイン',
+    '快速登录账号密码提示': 'アカウントとパスワードを大切に保管してください：アカウント {loginName}、パスワード {password}',
   },
 }
 

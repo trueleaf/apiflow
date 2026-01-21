@@ -29,6 +29,7 @@ import {
   RegisterByEmailDto,
   LoginByEmailDto,
   BindEmailDto,
+  UnbindEmailDto,
   ResetPasswordByEmailDto,
 } from '../../types/dto/security/user.dto.js';
 import { UserService } from '../../service/security/user.js';
@@ -244,6 +245,15 @@ export class UserController {
   async bindEmail(@Body() params: BindEmailDto) {
     await this.userService.bindEmail(params);
     return { message: '邮箱绑定成功' };
+  }
+  /**
+   * 解绑邮箱
+   */
+  @ReqSign()
+  @Put('/security/unbind_email')
+  async unbindEmail(@Body() params: UnbindEmailDto) {
+    await this.userService.unbindEmail(params);
+    return { message: '邮箱解绑成功' };
   }
   /**
    * 通过邮箱重置密码

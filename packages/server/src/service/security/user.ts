@@ -37,6 +37,7 @@ import {
   RegisterByEmailDto,
   LoginByEmailDto,
   BindEmailDto,
+  UnbindEmailDto,
   ResetPasswordByEmailDto,
   SendEmailCodeDto,
 } from '../../types/dto/security/user.dto.js';
@@ -727,17 +728,44 @@ export class UserService {
   }
   //绑定邮箱
   async bindEmail(params: BindEmailDto) {
-    const { email, code } = params;
+    const { email, code, oldCode } = params;
     const { tokenInfo } = this.ctx;
     if (!tokenInfo || !tokenInfo.id) {
       throwError(4100, '请先登录');
     }
+    const currentUser = await this.userModel.findById(tokenInfo.id);
+    if (!currentUser) {
+      throwError(4100, '用户不存在');
+    }
+    if (currentUser.email && !oldCode) {
+      throwError(2014, '修改邮箱需要验证旧邮箱');
+    }
+    if (currentUser.email && oldCode) {
+      await this.verifyCodeService.verifyCode(currentUser.email, oldCode, 'bind');
+    }
     const existEmail = await this.userModel.findOne({ email });
-    if (existEmail) {
+    if (existEmail && existEmail._id.toString() !== tokenInfo.id) {
       throwError(2011, '该邮箱已被其他用户绑定');
     }
     await this.verifyCodeService.verifyCode(email, code, 'bind');
     await this.userModel.findByIdAndUpdate(tokenInfo.id, { email });
+  }
+  //解绑邮箱
+  async unbindEmail(params: UnbindEmailDto) {
+    const { code } = params;
+    const { tokenInfo } = this.ctx;
+    if (!tokenInfo || !tokenInfo.id) {
+      throwError(4100, '请先登录');
+    }
+    const currentUser = await this.userModel.findById(tokenInfo.id);
+    if (!currentUser) {
+      throwError(4100, '用户不存在');
+    }
+    if (!currentUser.email) {
+      throwError(2015, '您尚未绑定邮箱');
+    }
+    await this.verifyCodeService.verifyCode(currentUser.email, code, 'bind');
+    await this.userModel.findByIdAndUpdate(tokenInfo.id, { $unset: { email: '' } });
   }
   //通过邮箱重置密码
   async resetPasswordByEmail(params: ResetPasswordByEmailDto) {

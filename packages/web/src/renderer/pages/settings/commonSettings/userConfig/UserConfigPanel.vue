@@ -82,15 +82,38 @@
               <span v-else class="field-value">{{ lastLoginTimeDisplay }}</span>
             </div>
           </div>
+
+          <div class="form-item full-row">
+            <div class="form-label">
+              <Mail :size="18" class="label-icon" />
+              {{ t('绑定邮箱') }}
+            </div>
+            <div class="readonly-field">
+              <span v-if="userInfo.email" class="field-value">{{ userInfo.email }}</span>
+              <span v-else class="field-disabled">{{ t('未绑定邮箱') }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
     <div class="panel-actions">
+      <el-button v-if="!userInfo.email" type="primary" @click="handleBindEmail">
+        {{ t('绑定邮箱') }}
+      </el-button>
+      <el-button v-else type="primary" @click="handleChangeEmail">
+        {{ t('修改邮箱') }}
+      </el-button>
+      <el-button v-if="userInfo.email" @click="handleUnbindEmail">
+        {{ t('解绑邮箱') }}
+      </el-button>
       <el-button type="warning" @click="handleResetAvatar">
         {{ t('重置头像') }}
       </el-button>
     </div>
   </section>
+
+  <BindEmailDialog v-model="bindDialogVisible" @success="handleBindSuccess" />
+  <ChangeEmailDialog v-model="changeDialogVisible" :current-email="userInfo.email || ''" @success="handleChangeSuccess" />
 </template>
 
 <script setup lang="ts">
@@ -98,12 +121,16 @@ import { ref, computed, onMounted } from 'vue'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { processImageUpload } from '@/utils/imageHelper'
 import { useI18n } from 'vue-i18n'
-import { User, Users, Calendar, Clock } from 'lucide-vue-next'
+import { User, Users, Calendar, Clock, Mail } from 'lucide-vue-next'
 import defaultAvatarImg from '@/assets/imgs/logo.png'
 import type { UploadFile } from 'element-plus'
 import type { PermissionUserInfo } from '@src/types/project'
 import { message } from '@/helper'
 import { runtimeCache } from '@/cache/runtime/runtimeCache'
+import { request } from '@/api/api'
+import { ElMessageBox } from 'element-plus'
+import BindEmailDialog from './BindEmailDialog.vue'
+import ChangeEmailDialog from './ChangeEmailDialog.vue'
 
 const { t } = useI18n()
 const runtimeStore = useRuntime()
@@ -132,6 +159,8 @@ const userInfo = ref<PermissionUserInfo>(getCachedUserInfo())
 const isAvatarHover = ref(false)
 const isAvatarUploading = ref(false)
 const avatarTrigger = ref()
+const bindDialogVisible = ref(false)
+const changeDialogVisible = ref(false)
 
 
 const displayAvatar = computed(() => {
@@ -196,7 +225,64 @@ const handleResetAvatar = () => {
   runtimeCache.updateUserInfo({ avatar: '' })
   runtimeStore.updateUserInfo({ avatar: '' })
   refreshUserInfoFromCache()
-  message.success(t('保存成功'))
+}
+
+//打开绑定邮箱对话框
+const handleBindEmail = () => {
+  bindDialogVisible.value = true
+}
+//打开修改邮箱对话框
+const handleChangeEmail = () => {
+  changeDialogVisible.value = true
+}
+//绑定成功回调
+const handleBindSuccess = (email: string) => {
+  runtimeCache.updateUserInfo({ email })
+  runtimeStore.updateUserInfo({ email })
+  refreshUserInfoFromCache()
+}
+//修改成功回调
+const handleChangeSuccess = (email: string) => {
+  runtimeCache.updateUserInfo({ email })
+  runtimeStore.updateUserInfo({ email })
+  refreshUserInfoFromCache()
+}
+//解绑邮箱
+const handleUnbindEmail = async () => {
+  try {
+    await ElMessageBox.confirm(
+      t('解绑邮箱后将无法通过邮箱登录和重置密码，确定要解绑吗？'),
+      t('解绑邮箱'),
+      {
+        confirmButtonText: t('确定'),
+        cancelButtonText: t('取消'),
+        type: 'warning',
+      }
+    )
+    await request.post('/api/security/send_email_code', {
+      email: userInfo.value.email,
+      type: 'bind',
+    })
+    message.success(t('验证码已发送，请查收邮件'))
+    const { value } = await ElMessageBox.prompt(
+      t('请输入邮箱验证码以确认解绑'),
+      t('解绑邮箱'),
+      {
+        confirmButtonText: t('确定'),
+        cancelButtonText: t('取消'),
+        inputPlaceholder: t('请输入验证码'),
+        inputPattern: /^\d{6}$/,
+        inputErrorMessage: t('请输入6位数字验证码'),
+      }
+    )
+    await request.put('/api/security/unbind_email', { code: value })
+    runtimeCache.updateUserInfo({ email: undefined })
+    runtimeStore.updateUserInfo({ email: undefined })
+    refreshUserInfoFromCache()
+    message.success(t('邮箱解绑成功'))
+  } catch (error) {
+    //取消或失败
+  }
 }
 
 onMounted(() => {

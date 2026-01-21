@@ -3,7 +3,7 @@
     <!-- 浏览器环境：单视图架构，内嵌 Header -->
     <BrowserHeader v-if="!isElectronEnv" ref="browserHeaderRef" @create-project="handleBrowserCreateProject" />
     <div class="app-main">
-      <NetworkModeBanner />
+      <QuickLoginBanner />
       <div class="app-content">
         <router-view></router-view>
       </div>
@@ -48,7 +48,7 @@ import { Language } from '@src/types';
 import LanguageMenu from '@/components/common/language/Language.vue';
 import UserMenu from '@/components/common/userMenu/UserMenu.vue'
 import HeaderTabContextmenu from '@/components/common/headerTabContextmenu/HeaderTabContextmenu.vue'
-import NetworkModeBanner from '@/components/common/networkMode/NetworkModeBanner.vue';
+import QuickLoginBanner from '@/components/common/quickLogin/QuickLoginBanner.vue';
 import BrowserHeader from '@/components/common/browserHeader/BrowserHeader.vue';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import { useRuntime } from './store/runtime/runtimeStore.ts';

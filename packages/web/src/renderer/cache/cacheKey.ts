@@ -52,7 +52,6 @@ export const cacheKey = {
       mockJsonRandomSizeHint: 'appState/hint/mockJsonRandomSizeHint',
       mockTextRandomSizeHint: 'appState/hint/mockTextRandomSizeHint',
       hideJsonBodyTip: 'appState/hint/hideJsonBodyTip',
-      networkModeBannerHidden: 'appState/hint/networkModeBannerHidden',
     },
     banner: {
       viewMode: 'appState/banner/viewMode',

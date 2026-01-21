@@ -240,7 +240,26 @@ const deletedList: Ref<DeleteInfo[]> = ref([]); //已删除数据列表
 const getData = async () => {
   if (isStandalone.value) {
     const nodes = await apiNodesCache.getDeletedNodesList(projectId);
-    deletedList.value = nodes.map((node) => convertNodeToDeleteInfo(node as ApiNode));
+    const list = nodes.map((node) => convertNodeToDeleteInfo(node as ApiNode));
+    const docName = formInfo.value.docName.trim().toLowerCase();
+    const url = formInfo.value.url.trim().toLowerCase();
+    const { startTime, endTime } = formInfo.value;
+    deletedList.value = list.filter((item) => {
+      const updatedAtTime = Number(item.updatedAt) || dayjs(item.updatedAt).valueOf();
+      if (startTime !== null && updatedAtTime < startTime) {
+        return false;
+      }
+      if (endTime !== null && updatedAtTime > endTime) {
+        return false;
+      }
+      if (docName && !item.name.toLowerCase().includes(docName)) {
+        return false;
+      }
+      if (url && !item.path.toLowerCase().includes(url)) {
+        return false;
+      }
+      return true;
+    });
     return;
   }
   loading.value = true;

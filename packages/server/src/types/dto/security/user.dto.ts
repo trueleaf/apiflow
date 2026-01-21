@@ -279,6 +279,22 @@ export class BindEmailDto {
    */
   @Rule(RuleType.string().length(6).required())
     code: string;
+  /**
+   * 旧邮箱验证码（修改邮箱时需要）
+   */
+  @Rule(RuleType.string().length(6).optional())
+    oldCode?: string;
+}
+
+/**
+ * 解绑邮箱
+ */
+export class UnbindEmailDto {
+  /**
+   * 验证码
+   */
+  @Rule(RuleType.string().length(6).required())
+    code: string;
 }
 
 /**

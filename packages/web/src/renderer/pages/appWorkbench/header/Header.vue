@@ -30,13 +30,6 @@
     <button class="add-tab-btn" :title="t('新建项目')" data-testid="header-add-project-btn" @click="handleAddProject">+</button>
     
     <div class="right">
-      <div v-if="showQuickLoginTip" class="quick-login-tip" data-testid="header-quick-login-tip">
-        <KeyRound class="quick-login-icon" :size="14" />
-        <span class="quick-login-text" :title="quickLoginTipText">{{ quickLoginTipText }}</span>
-        <button class="quick-login-close-btn" :title="t('关闭')" data-testid="header-quick-login-close-btn" @click.stop="dismissQuickLoginTip">
-          <X :size="14" />
-        </button>
-      </div>
       <div class="navigation-control">
         <button v-if="showDownloadProgress" class="icon-btn icon-btn-with-text download-progress-btn" :title="t('查看下载进度')" data-testid="header-download-progress-btn" @click="jumpToDownloadPage">
           <Download :size="14" />
@@ -100,7 +93,7 @@ import draggable from 'vuedraggable'
  import type { AppWorkbenchHeaderTab, AppWorkbenchHeaderTabContextActionPayload } from '@src/types/appWorkbench/appWorkbenchType'
  import type { RuntimeNetworkMode } from '@src/types/runtime'
  import { useI18n } from 'vue-i18n'
- import { Folder, Settings, Bot, User, Shield, RefreshCw, ArrowLeft, ArrowRight, Languages, Wifi, WifiOff, Home, Download, KeyRound, X } from 'lucide-vue-next'
+ import { Folder, Settings, Bot, User, Shield, RefreshCw, ArrowLeft, ArrowRight, Languages, Wifi, WifiOff, Home, Download } from 'lucide-vue-next'
  import { IPC_EVENTS } from '@src/types/ipc'
  import { UPDATE_IPC_EVENTS } from '@src/types/ipc/update'
  import type { DownloadProgress, DownloadState } from '@src/types/update'       
@@ -109,8 +102,6 @@ import draggable from 'vuedraggable'
  import { useTheme } from '@/hooks/useTheme'
  import { useRuntime } from '@/store/runtime/runtimeStore'
 import type { PermissionUserInfo } from '@src/types/project'
-import type { QuickLoginCredential } from '@src/types/security/quickLogin'
-import { clearQuickLoginCredential, clearQuickLoginTipDismissed, getQuickLoginCredential, getQuickLoginTipDismissed, setQuickLoginCredential, setQuickLoginTipDismissed } from '@/cache/runtime/quickLoginSession'
 
 const appSettingsStore = useAppSettings()
 const tabs = ref<AppWorkbenchHeaderTab[]>([])
@@ -122,18 +113,6 @@ const language = ref<Language>('zh-cn')
 const networkMode = ref<RuntimeNetworkMode>('offline')
 const skipNextNetworkModeWatch = ref(false)
 const runtimeStore = useRuntime()
-const quickLoginCredential = ref<QuickLoginCredential | null>(getQuickLoginCredential())
-const quickLoginTipDismissed = ref(getQuickLoginTipDismissed())
-const quickLoginTipText = computed(() => {
-  if (!quickLoginCredential.value) return ''
-  return t('快速登录账号密码提示', {
-    loginName: quickLoginCredential.value.loginName,
-    password: quickLoginCredential.value.password,
-  })
-})
-const showQuickLoginTip = computed(() => {
-  return networkMode.value === 'online' && Boolean(runtimeStore.userInfo.token) && Boolean(quickLoginCredential.value) && !quickLoginTipDismissed.value
-})
 const isAppStore = ref(false)
 const downloadState = reactive({
   state: 'idle' as DownloadState,
@@ -151,10 +130,6 @@ const downloadPercent = computed(() => {
 const showAdminMenu = computed(() => {
   return networkMode.value === 'online' && runtimeStore.userInfo.role === 'admin' && Boolean(runtimeStore.userInfo.id)
 })
-const dismissQuickLoginTip = () => {
-  quickLoginTipDismissed.value = true
-  setQuickLoginTipDismissed(true)
-}
 const filteredTabs = computed(() => {
   return tabs.value.filter(tab => tab.network === networkMode.value)      
 })
@@ -581,12 +556,6 @@ const bindEvent = () => {
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, (payload: Partial<PermissionUserInfo>) => {
     runtimeStore.updateUserInfo(payload)
   })
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, (credential: QuickLoginCredential) => {
-    setQuickLoginCredential(credential)
-    setQuickLoginTipDismissed(false)
-    quickLoginCredential.value = credential
-    quickLoginTipDismissed.value = false
-  })
 
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.headerTabContextAction, (payload: AppWorkbenchHeaderTabContextActionPayload) => {
     handleHeaderTabContextAction(payload)
@@ -673,13 +642,6 @@ watch(() => networkMode.value, (mode, prevMode) => {
     activeTabId.value = ''
     syncActiveTabToContentView()
   }
-})
-watch(() => runtimeStore.userInfo.token, (token) => {
-  if (token) return
-  clearQuickLoginCredential()
-  clearQuickLoginTipDismissed()
-  quickLoginCredential.value = null
-  quickLoginTipDismissed.value = false
 })
 </script>
 
@@ -951,54 +913,7 @@ body {
   height: 100%;
   display: flex;
   align-items: center;
-  // width: 400px;
   margin-left: auto;
-}
-
-.quick-login-tip {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 8px;
-  max-width: 520px;
-  height: 28px;
-  border-radius: var(--border-radius-base);
-  background: var(--gray-100);
-  border: 1px solid var(--gray-200);
-  margin-right: 8px;
-  -webkit-app-region: no-drag;
-}
-
-.quick-login-icon {
-  flex-shrink: 0;
-  color: var(--gray-700);
-}
-
-.quick-login-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 12px;
-  color: var(--gray-800);
-}
-
-.quick-login-close-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border: none;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-  flex-shrink: 0;
-  color: var(--gray-700);
-  border-radius: var(--border-radius-base);
-}
-
-.quick-login-close-btn:hover {
-  background: var(--gray-200);
 }
 
 .navigation-control {
