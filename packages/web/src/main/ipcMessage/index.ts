@@ -18,7 +18,7 @@ import type { PermissionUserInfo } from '@src/types/project';
 import type { QuickLoginCredential } from '@src/types/security/quickLogin';
 import type { AppWorkbenchHeaderTabContextActionPayload, AppWorkbenchHeaderTabContextmenuData } from '@src/types/appWorkbench/appWorkbenchType';
 
-import { mockManager, websocketMockManager } from '../main.ts';
+import { contentViewInstance, mockManager, websocketMockManager } from '../main.ts';
 import { MockUtils } from '../mock/mockUtils.ts';
 import { HttpMockNode, WebSocketMockNode } from '@src/types/mockNode';
 import { mainRuntime } from '../runtime/mainRuntime.ts';
@@ -458,7 +458,9 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, payload)
   })
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, (_, payload: QuickLoginCredential) => {
-    topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, payload)
+    if (contentViewInstance && !contentViewInstance.webContents.isDestroyed()) {
+      contentViewInstance.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, payload)
+    }
   })
 
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.headerTabContextAction, (_, payload: AppWorkbenchHeaderTabContextActionPayload) => {

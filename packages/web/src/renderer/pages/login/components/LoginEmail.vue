@@ -58,6 +58,7 @@ import { router } from '@/router';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { trackEvent } from '@/utils/analytics';
 import { PermissionUserInfo, CommonResponse } from '@src/types';
+import { setQuickLoginCredential } from '@/cache/runtime/quickLoginSession';
 import { IPC_EVENTS } from '@src/types/ipc';
 
 const props = defineProps<{
@@ -202,6 +203,7 @@ const handleQuickLogin = async () => {
     const res = await request.post<CommonResponse<QuickLoginUserInfo>, CommonResponse<QuickLoginUserInfo>>('/api/security/login_guest', {})
     const { password, ...safeUserInfo } = res.data
     runtimeStore.updateUserInfo(safeUserInfo)
+    setQuickLoginCredential({ loginName: safeUserInfo.loginName, password })
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, {
       id: safeUserInfo.id,
       loginName: safeUserInfo.loginName,

@@ -51,6 +51,7 @@ import { router } from '@/router';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { useAppSettings } from '@/store/appSettings/appSettingsStore';    
 import { IPC_EVENTS } from '@src/types/ipc'
+import { setQuickLoginCredential } from '@/cache/runtime/quickLoginSession';
 
 import { message } from '@/helper'
 import { trackEvent } from '@/utils/analytics';
@@ -123,6 +124,7 @@ const handleQuickLogin = () => {
   request.post<CommonResponse<QuickLoginUserInfo>, CommonResponse<QuickLoginUserInfo>>('/api/security/login_guest', {}).then((res) => {
     const { password, ...safeUserInfo } = res.data
     runtimeStore.updateUserInfo(safeUserInfo)
+    setQuickLoginCredential({ loginName: safeUserInfo.loginName, password })
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: safeUserInfo.id, loginName: safeUserInfo.loginName, role: safeUserInfo.role, token: safeUserInfo.token, avatar: safeUserInfo.avatar })
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, { loginName: safeUserInfo.loginName, password })
     trackEvent('user_login', { method: 'quick_login' });

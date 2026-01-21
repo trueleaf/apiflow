@@ -15,14 +15,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 import { KeyRound, X } from 'lucide-vue-next';
-import { getQuickLoginCredential, getQuickLoginTipDismissed, setQuickLoginTipDismissed } from '@/cache/runtime/quickLoginSession';
+import { getQuickLoginCredential, getQuickLoginTipDismissed, setQuickLoginTipDismissed, clearQuickLoginCredential, clearQuickLoginTipDismissed } from '@/cache/runtime/quickLoginSession';
 import type { QuickLoginCredential } from '@src/types/security/quickLogin';
 import { IPC_EVENTS } from '@src/types/ipc';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 
 const { t } = useI18n();
+const route = useRoute();
+const runtimeStore = useRuntime();
 const quickLoginCredential = ref<QuickLoginCredential | null>(getQuickLoginCredential());
 const quickLoginTipDismissed = ref(getQuickLoginTipDismissed());
 const tipText = computed(() => {
@@ -39,6 +43,31 @@ const handleClose = () => {
   quickLoginTipDismissed.value = true;
   setQuickLoginTipDismissed(true);
 };
+//清除快速登录凭证和提示状态
+const clearQuickLoginData = () => {
+  quickLoginCredential.value = null;
+  quickLoginTipDismissed.value = true;
+  clearQuickLoginCredential();
+  clearQuickLoginTipDismissed();
+};
+//监听路由变化，跳转到登录页时清除快速登录信息
+watch(
+  () => route.path,
+  (newPath) => {
+    if (newPath === '/login') {
+      clearQuickLoginData();
+    }
+  }
+);
+//监听网络模式变化，切换到离线模式时清除快速登录信息
+watch(
+  () => runtimeStore.networkMode,
+  (newMode) => {
+    if (newMode === 'offline') {
+      clearQuickLoginData();
+    }
+  }
+);
 window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, (credential: QuickLoginCredential) => {
   quickLoginCredential.value = credential;
   quickLoginTipDismissed.value = false;
