@@ -5,6 +5,7 @@
   "scripts": {
     "bootstrap": "npm --prefix packages/web ci && npm --prefix packages/server ci",
     "i": "npm run bootstrap",
+    "install": "npm run bootstrap",
     "web:dev": "npm --prefix packages/web run dev",
     "web:web": "npm --prefix packages/web run web",
     "web:share": "npm --prefix packages/web run share",

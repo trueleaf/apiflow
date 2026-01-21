@@ -191,8 +191,6 @@ cd apiflow
 
 ```bash
 npm install
-# or
-npm run bootstrap
 ```
 
 This will install dependencies for both `packages/web` and `packages/server`.
