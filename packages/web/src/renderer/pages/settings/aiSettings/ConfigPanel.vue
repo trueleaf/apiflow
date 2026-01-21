@@ -215,6 +215,10 @@ const handleProviderChange = (type: LLMProviderType) => {
 const handleSave = () => {
   if (isSaving.value) return
   isSaving.value = true
+  // 存在自定义API Key后，需要将"使用免费API"开关改为关闭
+  if (localApiKey.value.trim() !== '') {
+    llmClientStore.setUseFreeLLM(false)
+  }
   const validHeaders = localCustomHeaders.value.filter(h => h.key.trim() !== '')
   llmClientStore.updateLLMConfig({
     provider: providerType.value,

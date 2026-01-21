@@ -63,6 +63,10 @@ export type Config = {
        * 最大迭代次数
        */
       maxIterations: number,
+      /**
+       * 单次调用最大工具数量（业界推荐值：20-30）
+       */
+      maxToolsPerCall: number,
     },
     /**
      * http请求相关

@@ -128,6 +128,21 @@ export const useAgentStore = defineStore('agent', () => {
       if (selectedTools.length === 0) {
         return { tools: openaiTools, totalTokens, toolNames, fallbackReason: translateWithLocale('工具不存在', targetLocale) };
       }
+      // 限制工具数量，避免context过长影响性能
+      const maxTools = config.renderConfig.agentConfig.maxToolsPerCall;
+      if (selectedTools.length > maxTools) {
+        // 定义高优先级工具（搜索、获取详情等基础操作）
+        const priorityToolNames = [
+          'searchNodes', 'getChildNodes', 'getHttpNodeDetail', 'getWebsocketNodeDetail',
+          'getHttpMockNodeDetail', 'getWebsocketMockNodeDetail', 'getVariables',
+          'navigateToProject', 'getCurrentProjectInfo', 'getProjectList'
+        ];
+        // 先保留高优先级工具，再按原顺序补充到最大数量
+        const priorityTools = selectedTools.filter(t => priorityToolNames.includes(t.function.name));
+        const otherTools = selectedTools.filter(t => !priorityToolNames.includes(t.function.name));
+        const limitedTools = [...priorityTools, ...otherTools].slice(0, maxTools);
+        return { tools: limitedTools, totalTokens, toolNames: limitedTools.map(t => t.function.name) };
+      }
       return { tools: selectedTools, totalTokens, toolNames };
     } catch (err) {
       if (err instanceof Error && err.message === 'AGENT_ABORTED') {

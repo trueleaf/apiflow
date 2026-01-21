@@ -24,6 +24,7 @@ export const config: Config = {
     //Agent相关配置
     agentConfig: {
       maxIterations: 100,
+      maxToolsPerCall: 25, // 业界推荐值：单次LLM调用工具数量控制在20-30个以内
     },
     //http请求相关
     httpRequest: {

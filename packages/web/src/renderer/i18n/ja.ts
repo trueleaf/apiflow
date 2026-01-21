@@ -1351,6 +1351,7 @@ export default {
   '昨天': 'Yesterday',
   'Agent模式可以自动执行工具调用': 'Agent mode can automatically take actions for you',
   'Agent执行': 'Agent execution',
+  '已启用所有基础工具': 'すべての基本ツールを有効化（{count} 件、合計88件）',
   'AI 功能不可用，请先配置 API Key': 'AI feature unavailable, please configure API Key first',
   'AI 设置': 'AI Settings',
   'AI 识别失败': 'AI Recognition Failed',

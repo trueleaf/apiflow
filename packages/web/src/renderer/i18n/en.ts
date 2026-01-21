@@ -1712,7 +1712,7 @@ export default {
   '已取消本次操作（内容可能不完整）。': 'This operation was cancelled (content may be incomplete).',
   '正在分析需求并选择工具...': 'Analyzing request and selecting tools...',
   '正在分析问题...': 'Analyzing...',
-  '已启用所有基础工具': 'Enabled all base tools ({count})',
+  '已启用所有基础工具': 'Enabled all base tools ({count} of 88 total)',
   '失败原因': 'Reason',
   '工具选择结果为空': 'Tool selection result is empty',
   '工具参数解析失败': 'Failed to parse tool arguments: {error}',
