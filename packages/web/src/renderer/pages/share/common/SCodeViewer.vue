@@ -10,31 +10,10 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import beautify from 'js-beautify'
-import 'prismjs/themes/prism.css'
 
-let Prism: typeof import('prismjs').default | null = null
-let prismLoaded = false
-
-const loadPrism = async () => {
-  if (prismLoaded) return
-  
-  const prismModule = await import('prismjs')
-  Prism = prismModule.default
-  
-  if (typeof window !== 'undefined') {
-    (window as unknown as Record<string, unknown>).Prism = Prism
-  }
-  
-  await Promise.all([
-    import('prismjs/components/prism-json'),
-    import('prismjs/components/prism-markup'),
-    import('prismjs/components/prism-javascript'),
-    import('prismjs/components/prism-typescript'),
-    import('prismjs/components/prism-css'),
-  ])
-  
-  prismLoaded = true
-}
+const Prism = (window as Record<string, unknown>).Prism as {
+  highlightElement: (element: HTMLElement) => void
+} | undefined
 
 const props = defineProps({
   // 代码内容
@@ -133,17 +112,13 @@ const viewerStyle = computed(() => {
   }
 })
 
-const highlightCode = async () => {
-  if (!prismLoaded) {
-    await loadPrism()
-  }
+const highlightCode = () => {
   if (codeElement.value && Prism) {
     Prism.highlightElement(codeElement.value)
   }
 }
 
 onMounted(async () => {
-  await loadPrism()
   await nextTick()
   highlightCode()
 })
