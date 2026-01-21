@@ -184,10 +184,24 @@ cd apiflow
 2. **安装依赖**
 
 ```bash
-npm install --registry=https://registry.npmmirror.com
+npm install
 ```
 
 此命令会分别安装 `packages/web` 和 `packages/server` 的依赖。
+
+**国内用户加速安装**
+
+如果你在国内环境下遇到依赖安装缓慢的问题，可以启用国内镜像源：
+
+编辑项目根目录的 `.npmrc` 文件，取消以下三行的注释（删除行首的 `#` 符号）：
+
+```properties
+ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
+ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/
+registry=https://registry.npmmirror.com
+```
+
+然后重新运行 `npm install`。
 
 3. **配置环境变量**
 
