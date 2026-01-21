@@ -184,9 +184,7 @@ cd apiflow
 2. **安装依赖**
 
 ```bash
-npm install
-# 或者
-npm run bootstrap
+npm install --registry=https://registry.npmmirror.com
 ```
 
 此命令会分别安装 `packages/web` 和 `packages/server` 的依赖。

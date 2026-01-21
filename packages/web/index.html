@@ -20,9 +20,361 @@
     </script>
     <script src="/js/beauty.min.js" type="module"></script>
     <title>apiflow</title>
+    <style>
+      /* 骨架屏样式 */
+      :root {
+        --skeleton-bg: #f8f9fa;
+        --skeleton-sidebar-bg: #ffffff;
+        --skeleton-sidebar-border: #e5e7eb;
+        --skeleton-block-base: #f0f2f5;
+        --skeleton-block-highlight: #e6e8eb;
+        --skeleton-primary: #409eff;
+      }
+      
+      :root[data-theme="dark"] {
+        --skeleton-bg: #1e1e1e;
+        --skeleton-sidebar-bg: #252526;
+        --skeleton-sidebar-border: #3e3e3e;
+        --skeleton-block-base: #2d2d2d;
+        --skeleton-block-highlight: #3e3e3e;
+        --skeleton-primary: #4a9eff;
+      }
+
+      #app-skeleton {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--skeleton-bg);
+        transition: opacity 0.3s ease;
+        z-index: 9999;
+      }
+
+      .skeleton-container {
+        display: flex;
+        height: 100vh;
+        width: 100%;
+      }
+
+      /* 侧边栏骨架 */
+      .skeleton-sidebar {
+        width: 280px;
+        background: var(--skeleton-sidebar-bg);
+        border-right: 1px solid var(--skeleton-sidebar-border);
+        padding: 24px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        flex-shrink: 0;
+      }
+
+      /* 主内容区骨架 */
+      .skeleton-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: var(--skeleton-bg);
+        padding: 24px 32px;
+        gap: 24px;
+        overflow: hidden;
+      }
+
+      /* 骨架块基础样式 */
+      .skeleton-block {
+        background: linear-gradient(
+          90deg, 
+          var(--skeleton-block-base) 25%, 
+          var(--skeleton-block-highlight) 37%, 
+          var(--skeleton-block-base) 63%
+        );
+        background-size: 400% 100%;
+        animation: skeleton-loading 1.4s ease infinite;
+        border-radius: 6px;
+      }
+
+      @keyframes skeleton-loading {
+        0% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0 50%;
+        }
+      }
+
+      /* Logo 区域 */
+      .skeleton-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-bottom: 8px;
+        padding-left: 8px;
+      }
+
+      .skeleton-logo-icon {
+        width: 32px;
+        height: 32px;
+        background: var(--skeleton-primary);
+        border-radius: 8px;
+        opacity: 0.9;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      /* 给 Logo 增加一点微光 */
+      .skeleton-logo-icon::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        animation: logo-shimmer 3s infinite;
+      }
+
+      @keyframes logo-shimmer {
+        0% { left: -100%; }
+        20% { left: 100%; }
+        100% { left: 100%; }
+      }
+
+      .skeleton-logo-text {
+        height: 20px;
+        width: 120px;
+      }
+
+      /* 侧边栏项目 */
+      .skeleton-nav-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .skeleton-sidebar-item {
+        height: 36px;
+        border-radius: 6px;
+      }
+
+      .skeleton-sidebar-btn {
+        height: 44px;
+        margin-bottom: 12px;
+        border-radius: 6px;
+        opacity: 0.8;
+      }
+
+      /* 顶部 Tab */
+      .skeleton-header-tabs {
+        display: flex;
+        gap: 24px;
+        border-bottom: 1px solid var(--skeleton-sidebar-border);
+        padding-bottom: 1px;
+      }
+
+      .skeleton-tab {
+        height: 32px;
+        width: 100px;
+        position: relative;
+        background: transparent;
+      }
+      
+      .skeleton-tab::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 100%;
+        height: 20px;
+        background: var(--skeleton-block-base);
+        border-radius: 4px;
+      }
+
+      .skeleton-tab.active::after {
+        background: var(--skeleton-primary);
+        opacity: 0.1;
+        height: 32px;
+        bottom: 0;
+      }
+      
+      .skeleton-tab.active::before {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: var(--skeleton-primary);
+        z-index: 1;
+      }
+
+      /* GRID 布局 */
+      .skeleton-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+        margin-top: 12px;
+      }
+
+      .skeleton-project-card {
+        height: 160px;
+        background: var(--skeleton-sidebar-bg);
+        border: 1px solid var(--skeleton-sidebar-border);
+        border-radius: 8px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .skeleton-card-header {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      
+      .skeleton-card-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+      }
+
+      .skeleton-card-title {
+        height: 20px;
+        flex: 1;
+      }
+
+      .skeleton-card-desc {
+        height: 14px;
+        width: 80%;
+      }
+      
+      .skeleton-card-meta {
+        margin-top: auto; /* 推到底部 */
+        display: flex;
+        justify-content: space-between;
+      }
+      
+      .skeleton-chip {
+        height: 16px;
+        width: 60px;
+        border-radius: 10px;
+      }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <!-- 骨架屏 -->
+      <div id="app-skeleton">
+        <div class="skeleton-container">
+          <!-- 侧边栏骨架 -->
+          <div class="skeleton-sidebar">
+            <div class="skeleton-logo">
+              <div class="skeleton-logo-icon"></div>
+              <div class="skeleton-block skeleton-logo-text"></div>
+            </div>
+            
+            <div class="skeleton-nav-group">
+                <div class="skeleton-block skeleton-sidebar-btn"></div>
+                <div class="skeleton-block skeleton-sidebar-item"></div>
+                <div class="skeleton-block skeleton-sidebar-item"></div>
+                <div class="skeleton-block skeleton-sidebar-item"></div>
+                <div class="skeleton-block skeleton-sidebar-item"></div>
+            </div>
+          </div>
+
+          <!-- 主内容区骨架 -->
+          <div class="skeleton-main">
+            <!-- 顶部 Tab 栏 -->
+            <div class="skeleton-header-tabs">
+              <div class="skeleton-tab active"></div>
+              <div class="skeleton-tab"></div>
+            </div>
+
+            <!-- Grid 项目列表 -->
+            <div class="skeleton-grid">
+              <!-- 卡片 1 -->
+              <div class="skeleton-project-card">
+                <div class="skeleton-card-header">
+                   <div class="skeleton-block skeleton-card-icon"></div>
+                   <div class="skeleton-block skeleton-card-title"></div>
+                </div>
+                <div class="skeleton-block skeleton-card-desc"></div>
+                <div class="skeleton-card-meta">
+                   <div class="skeleton-block skeleton-chip"></div>
+                   <div class="skeleton-block skeleton-chip"></div>
+                </div>
+              </div>
+
+               <!-- 卡片 2 -->
+               <div class="skeleton-project-card">
+                <div class="skeleton-card-header">
+                   <div class="skeleton-block skeleton-card-icon"></div>
+                   <div class="skeleton-block skeleton-card-title"></div>
+                </div>
+                <div class="skeleton-block skeleton-card-desc"></div>
+                <div class="skeleton-card-meta">
+                   <div class="skeleton-block skeleton-chip"></div>
+                   <div class="skeleton-block skeleton-chip"></div>
+                </div>
+              </div>
+
+               <!-- 卡片 3 -->
+               <div class="skeleton-project-card">
+                <div class="skeleton-card-header">
+                   <div class="skeleton-block skeleton-card-icon"></div>
+                   <div class="skeleton-block skeleton-card-title"></div>
+                </div>
+                <div class="skeleton-block skeleton-card-desc"></div>
+                <div class="skeleton-card-meta">
+                   <div class="skeleton-block skeleton-chip"></div>
+                   <div class="skeleton-block skeleton-chip"></div>
+                </div>
+              </div>
+
+               <!-- 卡片 4 -->
+               <div class="skeleton-project-card">
+                <div class="skeleton-card-header">
+                   <div class="skeleton-block skeleton-card-icon"></div>
+                   <div class="skeleton-block skeleton-card-title"></div>
+                </div>
+                <div class="skeleton-block skeleton-card-desc"></div>
+                <div class="skeleton-card-meta">
+                   <div class="skeleton-block skeleton-chip"></div>
+                   <div class="skeleton-block skeleton-chip"></div>
+                </div>
+              </div>
+
+               <!-- 卡片 5 -->
+               <div class="skeleton-project-card">
+                <div class="skeleton-card-header">
+                   <div class="skeleton-block skeleton-card-icon"></div>
+                   <div class="skeleton-block skeleton-card-title"></div>
+                </div>
+                <div class="skeleton-block skeleton-card-desc"></div>
+                <div class="skeleton-card-meta">
+                   <div class="skeleton-block skeleton-chip"></div>
+                   <div class="skeleton-block skeleton-chip"></div>
+                </div>
+              </div>
+
+               <!-- 卡片 6 -->
+               <div class="skeleton-project-card">
+                <div class="skeleton-card-header">
+                   <div class="skeleton-block skeleton-card-icon"></div>
+                   <div class="skeleton-block skeleton-card-title"></div>
+                </div>
+                <div class="skeleton-block skeleton-card-desc"></div>
+                <div class="skeleton-card-meta">
+                   <div class="skeleton-block skeleton-chip"></div>
+                   <div class="skeleton-block skeleton-chip"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/renderer/main.ts"></script>
   </body>
 </html>
