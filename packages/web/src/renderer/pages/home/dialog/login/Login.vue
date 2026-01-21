@@ -154,7 +154,6 @@ const handleLogin = async () => {
               avatar: res.data.avatar,
             }
           )
-          message.success(t('登录成功'))
           emit('success', res.data)
           handleClose()
         }

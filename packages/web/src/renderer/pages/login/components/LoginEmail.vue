@@ -33,17 +33,17 @@
         </el-button>
       </div>
     </el-form-item>
+    <el-form-item v-if="mode === 'login'" class="mb-1">
+      <el-button :loading="quickLoginLoading" type="primary" class="w-100" data-testid="login-quick-login-btn" @click="handleQuickLogin">{{ t('一键创建账号并登录') }}</el-button>
+    </el-form-item>
     <el-form-item class="mb-1">
-      <el-button :loading="loading" type="primary" native-type="submit" class="w-100">
+      <el-button :loading="loading" :type="mode === 'register' ? 'primary' : undefined" native-type="submit" class="w-100">
         {{ mode === 'register' ? t('注册') : t('登录') }}
       </el-button>
     </el-form-item>
     <div v-if="mode === 'register' && codeSent" class="code-sent-tip">
       <span>{{ t('验证码已发送，请注意查收邮件') }}</span>
     </div>
-    <el-form-item v-if="mode === 'login'" class="mb-1">
-      <el-button :loading="quickLoginLoading" class="w-100" data-testid="login-quick-login-btn" @click="handleQuickLogin">{{ t('快速登录') }}</el-button>
-    </el-form-item>
   </el-form>
 </template>
 
@@ -185,7 +185,6 @@ const handleSubmit = async () => {
         avatar: res.data.avatar,
       });
       trackEvent('user_login', { method: 'email' });
-      message.success(t('登录成功'));
       router.push('/home');
     }
   } catch (error) {
@@ -213,7 +212,6 @@ const handleQuickLogin = async () => {
     })
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, { loginName: safeUserInfo.loginName, password })
     trackEvent('user_login', { method: 'quick_login' });
-    message.success(t('登录成功'))
     router.push('/home')
   } catch (error) {
     message.error(t('登录失败'))

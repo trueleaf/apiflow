@@ -16,11 +16,10 @@
       </div>
     </el-form-item>
     <el-form-item class="mb-1">
-      <el-button :loading="loading" type="primary" native-type="submit"
-        class="w-100" data-testid="login-submit-btn">{{ t("登录") }}</el-button>
+      <el-button :loading="quickLoginLoading" type="primary" class="w-100" data-testid="login-quick-login-btn" @click="handleQuickLogin">{{ t('一键创建账号并登录') }}</el-button>
     </el-form-item>
     <el-form-item class="mb-1">
-      <el-button :loading="quickLoginLoading" class="w-100" data-testid="login-quick-login-btn" @click="handleQuickLogin">{{ t('快速登录') }}</el-button>
+      <el-button :loading="loading" native-type="submit" class="w-100" data-testid="login-submit-btn">{{ t("登录") }}</el-button>
     </el-form-item>
     <div class="mt-2 d-flex j-around">
       <a href="https://github.com/trueleaf/apiflow" target="_blank" class="d-flex flex-column j-center a-center">
@@ -52,6 +51,7 @@ import { useRuntime } from '@/store/runtime/runtimeStore';
 import { useAppSettings } from '@/store/appSettings/appSettingsStore';    
 import { IPC_EVENTS } from '@src/types/ipc'
 import { setQuickLoginCredential } from '@/cache/runtime/quickLoginSession';
+import { clearNotificationDismissed } from '@/cache/runtime/notificationSession';
 
 import { message } from '@/helper'
 import { trackEvent } from '@/utils/analytics';
@@ -94,6 +94,10 @@ const handleLogin = async () => {
           runtimeStore.updateUserInfo(res.data);
           window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: res.data.id, loginName: res.data.loginName, role: res.data.role, token: res.data.token, avatar: res.data.avatar })
           trackEvent('user_login', { method: 'account' });
+          //检查是否需要显示邮箱绑定通知
+          if (!res.data.email) {
+            clearNotificationDismissed('bind-email');
+          }
           router.push('/home');
           // $store.dispatch('permission/getPermission')
         }
@@ -128,7 +132,10 @@ const handleQuickLogin = () => {
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: safeUserInfo.id, loginName: safeUserInfo.loginName, role: safeUserInfo.role, token: safeUserInfo.token, avatar: safeUserInfo.avatar })
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, { loginName: safeUserInfo.loginName, password })
     trackEvent('user_login', { method: 'quick_login' });
-    message.success(t('登录成功'))
+    //快速登录账号默认没有邮箱，确保显示邮箱绑定提示
+    if (!safeUserInfo.email) {
+      clearNotificationDismissed('bind-email');
+    }
     router.push('/home')
   }).catch(() => {
     message.error(t('登录失败'))
