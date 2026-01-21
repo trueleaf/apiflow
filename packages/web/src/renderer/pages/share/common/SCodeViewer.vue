@@ -9,14 +9,32 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
-import Prism from 'prismjs'
-import 'prismjs/themes/prism.css'
-import 'prismjs/components/prism-json'
-import 'prismjs/components/prism-markup'
-import 'prismjs/components/prism-javascript'
-import 'prismjs/components/prism-typescript'
-import 'prismjs/components/prism-css'
 import beautify from 'js-beautify'
+
+let Prism: typeof import('prismjs').default | null = null
+let prismLoaded = false
+
+const loadPrism = async () => {
+  if (prismLoaded) return
+  
+  const prismModule = await import('prismjs')
+  Prism = prismModule.default
+  
+  if (typeof window !== 'undefined') {
+    (window as unknown as Record<string, unknown>).Prism = Prism
+  }
+  
+  await Promise.all([
+    import('prismjs/themes/prism.css'),
+    import('prismjs/components/prism-json'),
+    import('prismjs/components/prism-markup'),
+    import('prismjs/components/prism-javascript'),
+    import('prismjs/components/prism-typescript'),
+    import('prismjs/components/prism-css'),
+  ])
+  
+  prismLoaded = true
+}
 
 const props = defineProps({
   // 代码内容
@@ -115,16 +133,19 @@ const viewerStyle = computed(() => {
   }
 })
 
-const highlightCode = () => {
-  if (codeElement.value) {
+const highlightCode = async () => {
+  if (!prismLoaded) {
+    await loadPrism()
+  }
+  if (codeElement.value && Prism) {
     Prism.highlightElement(codeElement.value)
   }
 }
 
-onMounted(() => {
-  nextTick(() => {
-    highlightCode()
-  })
+onMounted(async () => {
+  await loadPrism()
+  await nextTick()
+  highlightCode()
 })
 
 watch([() => props.modelValue, () => props.config?.language], () => {
