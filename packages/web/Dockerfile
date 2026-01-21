@@ -13,6 +13,19 @@ RUN if [ "$USE_NPM_MIRROR" = "true" ]; then npm config set registry https://regi
 WORKDIR /app/packages/web
 RUN npm ci --include=optional --legacy-peer-deps
 
+# 根据目标平台强制安装 rolldown 绑定
+# Docker buildx 会为每个平台单独构建，TARGETARCH 会自动设置
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+      echo "安装 Linux x64 rolldown 绑定..." && \
+      npm install --force @rolldown/binding-linux-x64-gnu; \
+    elif [ "$TARGETARCH" = "arm64" ]; then \
+      echo "安装 Linux ARM64 rolldown 绑定..." && \
+      npm install --force @rolldown/binding-linux-arm64-gnu; \
+    else \
+      echo "警告: 未知架构 $TARGETARCH"; \
+    fi
+
 COPY packages/web/ ./
 RUN npm run build:web
 
