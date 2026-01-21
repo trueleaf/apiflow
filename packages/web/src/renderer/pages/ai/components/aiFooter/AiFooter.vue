@@ -14,61 +14,63 @@
         @keydown="handleKeydown"
         @focus="handleInputFocus"
       ></textarea>
-      <div class="ai-input-controls">
-        <div class="ai-input-trigger-group">
-          <button
-            class="ai-input-trigger"
-            type="button"
-            @click="handleToggleModeMenu"
-          >
-            <span>{{ modeLabelMap[agentViewStore.mode] }}</span>
-            <ChevronDown :size="14" />
-          </button>
-          <div v-if="isModeMenuVisible" class="ai-dropdown">
+      <div class="ai-footer-actions">
+        <div class="ai-input-controls">
+          <div class="ai-input-trigger-group">
             <button
-              v-for="item in modeOptions"
-              :key="item"
+              class="ai-input-trigger"
               type="button"
-              class="ai-dropdown-item"
-              @click="handleSelectMode(item)"
+              @click="handleToggleModeMenu"
             >
-              <span class="ai-dropdown-icon">
-                <Check v-if="agentViewStore.mode === item" :size="14" />
-              </span>
-              <span class="ai-dropdown-label">{{ modeLabelMap[item] }}</span>
+              <span>{{ modeLabelMap[agentViewStore.mode] }}</span>
+              <ChevronDown :size="14" />
             </button>
+            <div v-if="isModeMenuVisible" class="ai-dropdown">
+              <button
+                v-for="item in modeOptions"
+                :key="item"
+                type="button"
+                class="ai-dropdown-item"
+                @click="handleSelectMode(item)"
+              >
+                <span class="ai-dropdown-icon">
+                  <Check v-if="agentViewStore.mode === item" :size="14" />
+                </span>
+                <span class="ai-dropdown-label">{{ modeLabelMap[item] }}</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="ai-input-toolbar">
-        <button
-          class="ai-new-chat-btn"
-          type="button"
-          @click="agentViewStore.clearConversation()"
-          :title="t('新建对话')"
-          :disabled="agentViewStore.workingStatus === 'working'"
-        >
-          <Plus :size="20" />
-        </button>
-        <button
-          v-if="agentViewStore.workingStatus === 'working'"
-          class="ai-stop-btn"
-          type="button"
-          @click="handleStop"
-          :title="t('停止')"
-        >
-          <StopCircle :size="16" />
-        </button>
-        <button
-          v-else
-          class="ai-send-btn"
-          type="button"
-          @click="handleSend"
-          :title="t('发送')"
-          :disabled="isSendDisabled"
-        >
-          <Send :size="16" />
-        </button>
+        <div class="ai-input-toolbar">
+          <button
+            class="ai-new-chat-btn"
+            type="button"
+            @click="agentViewStore.clearConversation()"
+            :title="t('新建对话')"
+            :disabled="agentViewStore.workingStatus === 'working'"
+          >
+            <Plus :size="20" />
+          </button>
+          <button
+            v-if="agentViewStore.workingStatus === 'working'"
+            class="ai-stop-btn"
+            type="button"
+            @click="handleStop"
+            :title="t('停止')"
+          >
+            <StopCircle :size="16" />
+          </button>
+          <button
+            v-else
+            class="ai-send-btn"
+            type="button"
+            @click="handleSend"
+            :title="t('发送')"
+            :disabled="isSendDisabled"
+          >
+            <Send :size="16" />
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -180,21 +182,33 @@ defineExpose({
 .ai-input-wrapper {
   position: relative;
   border-top: 1px solid var(--ai-input-border);
+  background: var(--ai-input-bg);
 }
 .ai-input {
   width: 100%;
-  min-height: 72px;
+  min-height: 48px;
   max-height: 200px;
-  padding: 10px 12px;
-  padding-bottom: 56px;
+  padding: 12px;
   border: none;
   color: var(--ai-text-primary);
-  font-size: 13px;
+  font-size: 14px;
   font-family: inherit;
   line-height: 1.5;
   resize: none;
-  background: var(--ai-input-bg);
-  transition: border-color 0.2s, background-color 0.2s;
+  background: transparent;
+  transition: none;
+  overflow-y: auto;
+}
+.ai-input:hover::-webkit-scrollbar {
+  display: block;
+}
+.ai-input::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+  display: none;
+}
+.ai-input::-webkit-scrollbar-thumb {
+  background: var(--gray-500);
 }
 .ai-input::placeholder {
   color: var(--ai-text-secondary);
@@ -202,30 +216,30 @@ defineExpose({
 .ai-input:focus {
   outline: none;
 }
+.ai-footer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+}
 .ai-input-controls {
-  position: absolute;
-  left: 16px;
-  bottom: 10px;
   display: flex;
   align-items: center;
 }
 .ai-input-toolbar {
-  position: absolute;
-  right: 16px;
-  bottom: 16px;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 .ai-new-chat-btn {
-  width: 22px;
-  height: 22px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 4px;
-  background: var(--ai-button-bg);
+  border-radius: 6px;
+  background: transparent;
   color: var(--gray-600);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
@@ -264,17 +278,18 @@ defineExpose({
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 10px;
-  border: 1px solid var(--ai-button-border);
-  border-radius: 6px;
-  background: var(--ai-button-bg);
+  padding: 4px 10px;
+  border: none;
+  border-radius: 12px;
+  background: var(--gray-100);
   color: var(--ai-text-secondary);
   cursor: pointer;
   font-size: 12px;
+  font-weight: 500;
   transition: all 0.2s;
 }
 .ai-input-trigger:hover {
-  background: var(--ai-button-hover-bg);
+  background: var(--gray-200);
   color: var(--ai-text-primary);
 }
 .ai-dropdown {
@@ -337,8 +352,10 @@ defineExpose({
 .ai-send-btn:hover:not(:disabled) {
   background: var(--theme-color);
   opacity: 0.9;
+  transform: translateY(-1px);
 }
 .ai-send-btn:disabled {
+  background: var(--theme-color);
   opacity: 0.4;
   cursor: not-allowed;
 }

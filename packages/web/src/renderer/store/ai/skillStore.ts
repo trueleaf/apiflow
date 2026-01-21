@@ -1,5 +1,5 @@
 import { cloneDeep, assign, merge } from "lodash-es"
-import { HttpNode, ApidocProperty, ApidocProjectInfo, HttpNodeRequestMethod, HttpNodeContentType, HttpNodeBodyMode, FolderNode, ApidocBannerOfHttpNode, ApidocBannerOfFolderNode, ApidocBanner, ApidocVariable, HttpMockNode, ApidocBannerOfHttpMockNode, WebSocketNode, ApidocBannerOfWebsocketNode, WebSocketMockNode, ApidocBannerOfWebSocketMockNode } from '@src/types'
+import { HttpNode, ApidocProperty, ApidocProjectInfo, HttpNodeRequestMethod, HttpNodeContentType, HttpNodeBodyMode, FolderNode, ApidocBannerOfHttpNode, ApidocBannerOfFolderNode, ApidocBanner, ApidocVariable, HttpMockNode, ApidocBannerOfHttpMockNode, WebSocketNode, ApidocBannerOfWebsocketNode, WebSocketMockNode, ApidocBannerOfWebSocketMockNode, CommonResponse } from '@src/types'
 import { CreateHttpNodeOptions, CreateHttpMockNodeOptions, CreateWebsocketNodeOptions, CreateWebsocketMockNodeOptions } from '@src/types/ai/tools.type'
 import { defineStore } from "pinia"
 import { DeepPartial } from "@src/types/index.ts"
@@ -30,20 +30,25 @@ export const useSkill = defineStore('skill', () => {
     const runtimeStore = useRuntime();
     if (runtimeStore.networkMode !== 'offline') {
       try {
-        const createdBanner = await request.post('/api/project/new_doc', {
+        const createdBannerRes = await request.post<CommonResponse<ApidocBanner>, CommonResponse<ApidocBanner>>('/api/project/new_doc', {
           name: options.name,
           type: 'http',
           pid: options.pid || '',
           projectId: options.projectId,
-        }) as unknown as { _id?: string };
-        const createdId = createdBanner._id;
+        });
+        const createdId = createdBannerRes.data?._id;
         if (!createdId) {
           logger.error('创建http节点失败', { projectId: options.projectId });
           return null;
         }
-        const serverNode = await request.get<HttpNode, HttpNode>('/api/project/doc_detail', {
+        const serverNodeRes = await request.get<CommonResponse<HttpNode>, CommonResponse<HttpNode>>('/api/project/doc_detail', {
           params: { projectId: options.projectId, _id: createdId },
         });
+        const serverNode = serverNodeRes.data;
+        if (!serverNode) {
+          logger.error('创建http节点失败', { projectId: options.projectId, nodeId: createdId });
+          return null;
+        }
         const updatedNode = cloneDeep(serverNode);
         updatedNode.projectId = options.projectId;
         updatedNode.pid = options.pid || '';
@@ -292,20 +297,25 @@ export const useSkill = defineStore('skill', () => {
     const runtimeStore = useRuntime();
     if (runtimeStore.networkMode !== 'offline') {
       try {
-        const createdBanner = await request.post('/api/project/new_doc', {
+        const createdBannerRes = await request.post<CommonResponse<ApidocBanner>, CommonResponse<ApidocBanner>>('/api/project/new_doc', {
           name: options.name,
           type: 'httpMock',
           pid: options.pid || '',
           projectId: options.projectId,
-        }) as unknown as { _id?: string };
-        const createdId = createdBanner._id;
+        });
+        const createdId = createdBannerRes.data?._id;
         if (!createdId) {
           logger.error('创建httpMock节点失败', { projectId: options.projectId });
           return null;
         }
-        const serverNode = await request.get<HttpMockNode, HttpMockNode>('/api/project/doc_detail', {
+        const serverNodeRes = await request.get<CommonResponse<HttpMockNode>, CommonResponse<HttpMockNode>>('/api/project/doc_detail', {
           params: { projectId: options.projectId, _id: createdId },
         });
+        const serverNode = serverNodeRes.data;
+        if (!serverNode) {
+          logger.error('创建httpMock节点失败', { projectId: options.projectId, nodeId: createdId });
+          return null;
+        }
         const updatedNode = cloneDeep(serverNode);
         updatedNode.projectId = options.projectId;
         updatedNode.pid = options.pid || '';
@@ -431,20 +441,25 @@ export const useSkill = defineStore('skill', () => {
     const runtimeStore = useRuntime();
     if (runtimeStore.networkMode !== 'offline') {
       try {
-        const createdBanner = await request.post('/api/project/new_doc', {
+        const createdBannerRes = await request.post<CommonResponse<ApidocBanner>, CommonResponse<ApidocBanner>>('/api/project/new_doc', {
           name: options.name,
           type: 'websocket',
           pid: options.pid || '',
           projectId: options.projectId,
-        }) as unknown as { _id?: string };
-        const createdId = createdBanner._id;
+        });
+        const createdId = createdBannerRes.data?._id;
         if (!createdId) {
           logger.error('创建websocket节点失败', { projectId: options.projectId });
           return null;
         }
-        const serverNode = await request.get<WebSocketNode, WebSocketNode>('/api/project/doc_detail', {
+        const serverNodeRes = await request.get<CommonResponse<WebSocketNode>, CommonResponse<WebSocketNode>>('/api/project/doc_detail', {
           params: { projectId: options.projectId, _id: createdId },
         });
+        const serverNode = serverNodeRes.data;
+        if (!serverNode) {
+          logger.error('创建websocket节点失败', { projectId: options.projectId, nodeId: createdId });
+          return null;
+        }
         const updatedNode = cloneDeep(serverNode);
         updatedNode.projectId = options.projectId;
         updatedNode.pid = options.pid || '';
@@ -587,20 +602,25 @@ export const useSkill = defineStore('skill', () => {
     const runtimeStore = useRuntime();
     if (runtimeStore.networkMode !== 'offline') {
       try {
-        const createdBanner = await request.post('/api/project/new_doc', {
+        const createdBannerRes = await request.post<CommonResponse<ApidocBanner>, CommonResponse<ApidocBanner>>('/api/project/new_doc', {
           name: options.name,
           type: 'websocketMock',
           pid: options.pid || '',
           projectId: options.projectId,
-        }) as unknown as { _id?: string };
-        const createdId = createdBanner._id;
+        });
+        const createdId = createdBannerRes.data?._id;
         if (!createdId) {
           logger.error('创建websocketMock节点失败', { projectId: options.projectId });
           return null;
         }
-        const serverNode = await request.get<WebSocketMockNode, WebSocketMockNode>('/api/project/doc_detail', {
+        const serverNodeRes = await request.get<CommonResponse<WebSocketMockNode>, CommonResponse<WebSocketMockNode>>('/api/project/doc_detail', {
           params: { projectId: options.projectId, _id: createdId },
         });
+        const serverNode = serverNodeRes.data;
+        if (!serverNode) {
+          logger.error('创建websocketMock节点失败', { projectId: options.projectId, nodeId: createdId });
+          return null;
+        }
         const updatedNode = cloneDeep(serverNode);
         updatedNode.projectId = options.projectId;
         updatedNode.pid = options.pid || '';

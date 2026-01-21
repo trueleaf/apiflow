@@ -218,6 +218,15 @@ watch(() => agentViewStore.agentMessages, (messages) => {
   background: #ffffff;
   overflow-y: auto;
   scrollbar-gutter: stable;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--gray-500);
+  }
 }
 .ai-empty-state {
   height: 100%;

@@ -885,6 +885,20 @@ onUnmounted(() => {
   .tree-wrap {
     height: calc(100vh - var(--apiflow-banner-tool-height) - 63px);
     overflow-y: auto;
+
+    &:hover::-webkit-scrollbar {
+      display: block;
+    }
+
+    &::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+      display: none;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--gray-500);
+    }
   }
 
   //拖拽指示器样式

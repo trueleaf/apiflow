@@ -10,6 +10,7 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import beautify from 'js-beautify'
+import 'prismjs/themes/prism.css'
 
 let Prism: typeof import('prismjs').default | null = null
 let prismLoaded = false
@@ -25,7 +26,6 @@ const loadPrism = async () => {
   }
   
   await Promise.all([
-    import('prismjs/themes/prism.css'),
     import('prismjs/components/prism-json'),
     import('prismjs/components/prism-markup'),
     import('prismjs/components/prism-javascript'),
