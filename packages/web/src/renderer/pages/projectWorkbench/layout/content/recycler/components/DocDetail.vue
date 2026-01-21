@@ -1,252 +1,226 @@
 <template>
   <SLoading :loading="loading" class="doc-detail">
-    <div class="params-view">
-      <!-- 基本信息 -->
-      <SFieldset v-if="apidocInfo" :title="t('基本信息')">
-        <!-- HTTP 类型 -->
-        <template v-if="apidocInfo.info.type === 'http'">
-          <SLableValue :label="t('请求方式') + '：'" class="w-50">
-            <template v-for="(req) in validRequestMethods">
-              <span v-if="httpItem?.method?.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="label"
-                :style="{ color: req.iconColor }">{{ req.name.toUpperCase() }}</span>
-            </template>
-          </SLableValue>
-          <SLableValue :label="t('接口名称') + '：'" class="w-50">
-            <div>{{ apidocInfo.info.name }}</div>
-          </SLableValue>
-          <SLableValue :label="t('请求地址') + '：'" class="w-50 mt-2">
-            <span class="text-ellipsis">{{ httpItem?.url?.prefix }}{{ httpItem?.url?.path }}</span>
-          </SLableValue>
-        </template>
-        <!-- 文件夹类型 -->
-        <template v-else-if="apidocInfo.info.type === 'folder'">
-          <SLableValue :label="t('目录名称') + '：'" class="w-50">
-            <div>{{ apidocInfo.info.name }}</div>
-          </SLableValue>
-        </template>
-        <!-- WebSocket 类型 -->
-        <template v-else-if="apidocInfo.info.type === 'websocket'">
-          <SLableValue :label="t('协议类型') + '：'" class="w-50">
-            <span>{{ wsItem?.protocol?.toUpperCase() }}</span>
-          </SLableValue>
-          <SLableValue :label="t('接口名称') + '：'" class="w-50">
-            <div>{{ apidocInfo.info.name }}</div>
-          </SLableValue>
-          <SLableValue :label="t('请求地址') + '：'" class="w-50 mt-2">
-            <span class="text-ellipsis">{{ wsItem?.url?.prefix }}{{ wsItem?.url?.path }}</span>
-          </SLableValue>
-        </template>
-        <!-- HTTP Mock 类型 -->
-        <template v-else-if="apidocInfo.info.type === 'httpMock'">
-          <SLableValue :label="t('接口名称') + '：'" class="w-50">
-            <div>{{ apidocInfo.info.name }}</div>
-          </SLableValue>
-          <SLableValue :label="t('Mock地址') + '：'" class="w-50 mt-2">
-            <span class="text-ellipsis">{{ httpMockItem?.requestCondition?.url }}</span>
-          </SLableValue>
-          <SLableValue :label="t('端口') + '：'" class="w-50 mt-2">
-            <span>{{ httpMockItem?.requestCondition?.port }}</span>
-          </SLableValue>
-        </template>
-        <!-- WebSocket Mock 类型 -->
-        <template v-else-if="apidocInfo.info.type === 'websocketMock'">
-          <SLableValue :label="t('接口名称') + '：'" class="w-50">
-            <div>{{ apidocInfo.info.name }}</div>
-          </SLableValue>
-          <SLableValue :label="t('Mock路径') + '：'" class="w-50 mt-2">
-            <span class="text-ellipsis">{{ wsMockItem?.requestCondition?.path }}</span>
-          </SLableValue>
-          <SLableValue :label="t('端口') + '：'" class="w-50 mt-2">
-            <span>{{ wsMockItem?.requestCondition?.port }}</span>
-          </SLableValue>
+    <div class="header-section">
+      <el-descriptions :column="2" border size="small" class="mb-4">
+        <el-descriptions-item :label="t('名称')">{{ apidocInfo?.info.name }}</el-descriptions-item>
+        <el-descriptions-item :label="t('类型')">
+          <el-tag size="small">{{ apidocInfo?.info.type.toUpperCase() }}</el-tag>
+        </el-descriptions-item>
+
+        <!-- HTTP Info -->
+        <template v-if="apidocInfo?.info.type === 'http'">
+          <el-descriptions-item :label="t('请求方式')">
+            <span :style="{ color: methodColor, fontWeight: 'bold' }">
+              {{ httpItem?.method?.toUpperCase() }}
+            </span>
+          </el-descriptions-item>
+          <el-descriptions-item :label="t('URL')">
+            <span class="text-ellipsis" :title="httpItem?.url?.path">{{ httpItem?.url?.prefix }}{{ httpItem?.url?.path
+              }}</span>
+          </el-descriptions-item>
         </template>
 
-        <!-- 通用信息 -->
-        <div class="base-info">
-          <SLableValue v-if="!isOffline()" :label="t('维护人员') + '：'" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto"
-            class="w-50">
-            <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
-          </SLableValue>
-          <SLableValue v-if="!isOffline()" :label="t('创建人员') + '：'" :title="apidocInfo.info.creator" label-width="auto"
-            class="w-50">
-            <span class="text-ellipsis">{{ apidocInfo.info.creator }}</span>
-          </SLableValue>
-          <SLableValue :label="t('更新日期') + '：'" :title="formatDate(apidocInfo.updatedAt)" label-width="auto" class="w-50">
-            <span class="text-ellipsis">{{ formatDate(apidocInfo.updatedAt) }}</span>
-          </SLableValue>
-          <SLableValue :label="t('创建日期') + '：'" :title="formatDate(apidocInfo.createdAt)" label-width="auto" class="w-50">
-            <span class="text-ellipsis">{{ formatDate(apidocInfo.createdAt) }}</span>
-          </SLableValue>
-        </div>
-      </SFieldset>
-      <!-- HTTP 请求参数 -->
-      <SFieldset v-if="apidocInfo?.info?.type === 'http'" :title="t('请求参数')" class="mb-5">
-        <template v-if="hasQueryParams">
-          <div class="title">{{ t("Query参数") }}</div>
-          <table class="params-table mb-3">
-            <thead>
-              <tr>
-                <th>{{ t('参数名') }}</th>
-                <th>{{ t('参数值') }}</th>
-                <th>{{ t('类型') }}</th>
-                <th>{{ t('必填') }}</th>
-                <th>{{ t('描述') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="param in httpItem?.queryParams?.filter(p => p.select && p.key)" :key="param._id">
-                <td>{{ param.key }}</td>
-                <td>{{ param.value }}</td>
-                <td>{{ param.type }}</td>
-                <td><span :class="['required-badge', param.required ? 'required' : 'optional']">{{ param.required ? t('是') : t('否') }}</span></td>
-                <td>{{ param.description || '-' }}</td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- WebSocket Info -->
+        <template v-else-if="apidocInfo?.info.type === 'websocket'">
+          <el-descriptions-item :label="t('协议类型')">
+            <span>{{ wsItem?.protocol?.toUpperCase() }}</span>
+          </el-descriptions-item>
+          <el-descriptions-item :label="t('URL')">
+            <span class="text-ellipsis">{{ wsItem?.url?.prefix }}{{ wsItem?.url?.path }}</span>
+          </el-descriptions-item>
         </template>
-        <template v-if="hasPathsParams">
-          <div class="title">{{ t("Path参数") }}</div>
-          <table class="params-table mb-3">
-            <thead>
-              <tr>
-                <th>{{ t('参数名') }}</th>
-                <th>{{ t('参数值') }}</th>
-                <th>{{ t('类型') }}</th>
-                <th>{{ t('必填') }}</th>
-                <th>{{ t('描述') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="param in httpItem?.paths?.filter(p => p.key)" :key="param._id">
-                <td>{{ param.key }}</td>
-                <td>{{ param.value }}</td>
-                <td>{{ param.type }}</td>
-                <td><span :class="['required-badge', param.required ? 'required' : 'optional']">{{ param.required ? t('是') : t('否') }}</span></td>
-                <td>{{ param.description || '-' }}</td>
-              </tr>
-            </tbody>
-          </table>
+
+        <!-- Mock Info -->
+        <template v-else-if="apidocInfo?.info.type === 'httpMock'">
+          <el-descriptions-item :label="t('Mock地址')">
+            <span class="text-ellipsis">{{ httpMockItem?.requestCondition?.url }}</span>
+          </el-descriptions-item>
+          <el-descriptions-item :label="t('端口')">{{ httpMockItem?.requestCondition?.port }}</el-descriptions-item>
         </template>
-        <template v-if="hasJsonBodyParams">
-          <div class="title">{{ t("Body参数") }}(application/json)</div>
-          <SJsonEditor :value="httpItem?.requestBody?.rawJson" read-only></SJsonEditor>
+        <template v-else-if="apidocInfo?.info.type === 'websocketMock'">
+          <el-descriptions-item :label="t('Mock路径')">
+            <span class="text-ellipsis">{{ wsMockItem?.requestCondition?.path }}</span>
+          </el-descriptions-item>
+          <el-descriptions-item :label="t('端口')">{{ wsMockItem?.requestCondition?.port }}</el-descriptions-item>
         </template>
-        <template v-if="hasFormDataParams">
-          <div class="title">{{ t("Body参数") }}(multipart/formdata)</div>
-          <table class="params-table">
-            <thead>
-              <tr>
-                <th>{{ t('参数名') }}</th>
-                <th>{{ t('参数值') }}</th>
-                <th>{{ t('类型') }}</th>
-                <th>{{ t('必填') }}</th>
-                <th>{{ t('描述') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="param in httpItem?.requestBody?.formdata?.filter(p => p.select && p.key)" :key="param._id">
-                <td>{{ param.key }}</td>
-                <td>{{ param.value }}</td>
-                <td>{{ param.type }}</td>
-                <td><span :class="['required-badge', param.required ? 'required' : 'optional']">{{ param.required ? t('是') : t('否') }}</span></td>
-                <td>{{ param.description || '-' }}</td>
-              </tr>
-            </tbody>
-          </table>
+
+        <!-- Common Info -->
+        <template v-if="!isOffline()">
+          <el-descriptions-item :label="t('维护人员')">{{ apidocInfo?.info.maintainer || apidocInfo?.info.creator }}
+          </el-descriptions-item>
+          <el-descriptions-item :label="t('创建人员')">{{ apidocInfo?.info.creator }}</el-descriptions-item>
         </template>
-        <template v-if="hasUrlEncodedParams">
-          <div class="title">{{ t("Body参数") }}(x-www-form-urlencoded)</div>
-          <table class="params-table">
-            <thead>
-              <tr>
-                <th>{{ t('参数名') }}</th>
-                <th>{{ t('参数值') }}</th>
-                <th>{{ t('类型') }}</th>
-                <th>{{ t('必填') }}</th>
-                <th>{{ t('描述') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="param in httpItem?.requestBody?.urlencoded?.filter(p => p.select && p.key)" :key="param._id">
-                <td>{{ param.key }}</td>
-                <td>{{ param.value }}</td>
-                <td>{{ param.type }}</td>
-                <td><span :class="['required-badge', param.required ? 'required' : 'optional']">{{ param.required ? t('是') : t('否') }}</span></td>
-                <td>{{ param.description || '-' }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </template>
-        <template v-if="hasRawParams">
-          <div class="title">{{ t("Body参数") }}({{ httpItem?.requestBody?.raw?.dataType }})</div>
-          <pre class="pre">{{ httpItem?.requestBody?.raw?.data }}</pre>
-        </template>
-        <div
-          v-if="!hasQueryParams && !hasPathsParams && !hasJsonBodyParams && !hasFormDataParams && !hasUrlEncodedParams && !hasRawParams">
-          {{ t("暂无数据") }}</div>
-      </SFieldset>
-      <!-- HTTP 返回参数 -->
-      <SFieldset v-if="apidocInfo?.info?.type === 'http'" :title="t('返回参数')">
-        <div v-for="(item, index) in httpItem?.responseParams" :key="index" class="title">
-          <div class="mb-2">
-            <span>{{ t("名称") }}：</span>
-            <span>{{ item.title }}</span>
-            <el-divider direction="vertical"></el-divider>
-            <span>{{ t("状态码") }}：</span>
-            <span>{{ item.statusCode }}</span>
-            <el-divider direction="vertical"></el-divider>
-            <span>{{ t("返回格式") }}：</span>
-            <span>{{ item.value.dataType }}</span>
+        <el-descriptions-item :label="t('更新时间')">{{ formatDate(apidocInfo?.updatedAt) }}</el-descriptions-item>
+        <el-descriptions-item :label="t('创建时间')">{{ formatDate(apidocInfo?.createdAt) }}</el-descriptions-item>
+      </el-descriptions>
+    </div>
+
+    <!-- HTTP Detailed Content -->
+    <div v-if="apidocInfo?.info.type === 'http'" class="content-section">
+      <el-tabs v-model="activeTab" class="detail-tabs">
+        <!-- Request Tab -->
+        <el-tab-pane :label="t('请求定义')" name="request">
+          <!-- Params Section -->
+          <div class="req-section mb-4">
+            <div class="section-title mb-2">Params</div>
+            <div v-if="hasQueryParams" class="mb-3">
+              <div class="sub-title">{{ t('Query参数') }}</div>
+              <el-table :data="httpItem?.queryParams?.filter(p => p.select && p.key)" border size="small"
+                style="width: 100%">
+                <el-table-column prop="key" :label="t('参数名')" show-overflow-tooltip min-width="120" />
+                <el-table-column prop="value" :label="t('参数值')" show-overflow-tooltip min-width="120" />
+                <el-table-column prop="type" :label="t('类型')" width="100" />
+                <el-table-column :label="t('必填')" width="80">
+                  <template #default="{ row }">
+                    <el-tag :type="row.required ? 'danger' : 'info'" size="small" effect="plain">
+                      {{ row.required ? t('是') : t('否') }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="description" :label="t('描述')" show-overflow-tooltip min-width="150" />
+              </el-table>
+            </div>
+
+            <div v-if="hasPathsParams" class="mb-3">
+              <div class="sub-title">{{ t('Path参数') }}</div>
+              <el-table :data="httpItem?.paths?.filter(p => p.key)" border size="small" style="width: 100%">
+                <el-table-column prop="key" :label="t('参数名')" show-overflow-tooltip min-width="120" />
+                <el-table-column prop="value" :label="t('参数值')" show-overflow-tooltip min-width="120" />
+                <el-table-column prop="type" :label="t('类型')" width="100" />
+                <el-table-column :label="t('必填')" width="80">
+                  <template #default="{ row }">
+                    <el-tag :type="row.required ? 'danger' : 'info'" size="small" effect="plain">
+                      {{ row.required ? t('是') : t('否') }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="description" :label="t('描述')" show-overflow-tooltip min-width="150" />
+              </el-table>
+            </div>
+
+            <div v-if="!hasQueryParams && !hasPathsParams" class="empty-text">
+              {{ t('暂无参数数据') }}
+            </div>
           </div>
-          <SJsonEditor v-if="item.value.dataType === 'application/json'" :model-value="item.value.strJson" read-only></SJsonEditor>
-          <div
-            v-if="item.value.dataType === 'application/xml' || item.value.dataType === 'text/plain' || item.value.dataType === 'text/html'"
-            class="h-150px">
-            <SJsonEditor :model-value="item.value.strJson" :config="{ language: getLanguageFromMime(item.value.dataType) }" read-only></SJsonEditor>
+
+          <el-divider border-style="dashed" />
+
+          <!-- Body Section -->
+          <div class="req-section mb-4">
+            <div class="section-title mb-2">Body</div>
+            <template v-if="hasJsonBodyParams">
+              <div class="sub-title">application/json</div>
+              <SJsonEditor :value="httpItem?.requestBody?.rawJson" read-only height="300px"></SJsonEditor>
+            </template>
+
+            <template v-else-if="hasFormDataParams">
+              <div class="sub-title">multipart/form-data</div>
+              <el-table :data="httpItem?.requestBody?.formdata?.filter(p => p.select && p.key)" border size="small">
+                <el-table-column prop="key" :label="t('参数名')" show-overflow-tooltip min-width="120" />
+                <el-table-column prop="value" :label="t('参数值')" show-overflow-tooltip min-width="120" />
+                <el-table-column prop="type" :label="t('类型')" width="100" />
+                <el-table-column :label="t('必填')" width="80">
+                  <template #default="{ row }">
+                    <el-tag :type="row.required ? 'danger' : 'info'" size="small" effect="plain">
+                      {{ row.required ? t('是') : t('否') }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="description" :label="t('描述')" show-overflow-tooltip min-width="150" />
+              </el-table>
+            </template>
+
+            <template v-else-if="hasUrlEncodedParams">
+              <div class="sub-title">x-www-form-urlencoded</div>
+              <el-table :data="httpItem?.requestBody?.urlencoded?.filter(p => p.select && p.key)" border size="small">
+                <el-table-column prop="key" :label="t('参数名')" show-overflow-tooltip min-width="120" />
+                <el-table-column prop="value" :label="t('参数值')" show-overflow-tooltip min-width="120" />
+                <el-table-column prop="type" :label="t('类型')" width="100" />
+                <el-table-column :label="t('必填')" width="80">
+                  <template #default="{ row }">
+                    <el-tag :type="row.required ? 'danger' : 'info'" size="small" effect="plain">
+                      {{ row.required ? t('是') : t('否') }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="description" :label="t('描述')" show-overflow-tooltip min-width="150" />
+              </el-table>
+            </template>
+
+            <template v-else-if="hasRawParams">
+              <div class="sub-title">{{ httpItem?.requestBody?.raw?.dataType }}</div>
+              <pre class="raw-content">{{ httpItem?.requestBody?.raw?.data }}</pre>
+            </template>
+
+            <div v-else class="empty-text">
+              {{ t('暂无Body数据') }}
+            </div>
           </div>
-        </div>
-        <div v-if="!httpItem?.responseParams?.length">{{ t("暂无数据") }}</div>
-      </SFieldset>
-      <!-- HTTP 请求头 -->
-      <SFieldset v-if="apidocInfo?.info?.type === 'http'" :title="t('请求头')">
-        <template v-if="hasHeaders">
-          <table class="params-table mb-3">
-            <thead>
-              <tr>
-                <th>{{ t('参数名') }}</th>
-                <th>{{ t('参数值') }}</th>
-                <th>{{ t('类型') }}</th>
-                <th>{{ t('必填') }}</th>
-                <th>{{ t('描述') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="param in httpItem?.headers?.filter(p => p.select && p.key)" :key="param._id">
-                <td>{{ param.key }}</td>
-                <td>{{ param.value }}</td>
-                <td>{{ param.type }}</td>
-                <td><span :class="['required-badge', param.required ? 'required' : 'optional']">{{ param.required ? t('是') : t('否') }}</span></td>
-                <td>{{ param.description || '-' }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </template>
-        <div v-else>{{ t("暂无数据") }}</div>
-      </SFieldset>
+
+          <el-divider border-style="dashed" />
+
+          <!-- Headers Section -->
+          <div class="req-section mb-4">
+            <div class="section-title mb-2">Header</div>
+            <el-table v-if="hasHeaders" :data="httpItem?.headers?.filter(p => p.select && p.key)" border size="small">
+              <el-table-column prop="key" :label="t('参数名')" show-overflow-tooltip min-width="120" />
+              <el-table-column prop="value" :label="t('参数值')" show-overflow-tooltip min-width="120" />
+              <el-table-column :label="t('必填')" width="80">
+                <template #default="{ row }">
+                  <el-tag :type="row.required ? 'danger' : 'info'" size="small" effect="plain">
+                    {{ row.required ? t('是') : t('否') }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column prop="description" :label="t('描述')" show-overflow-tooltip min-width="150" />
+            </el-table>
+            <div v-else class="empty-text">
+              {{ t('暂无Header数据') }}
+            </div>
+          </div>
+        </el-tab-pane>
+
+        <!-- Response Tab -->
+        <el-tab-pane :label="t('响应定义')" name="response">
+          <div v-if="httpItem?.responseParams?.length">
+            <el-collapse v-model="activeResponseNames">
+              <el-collapse-item v-for="(item, index) in httpItem?.responseParams" :key="index" :name="index">
+                <template #title>
+                  <div class="response-title">
+                    <span class="fw-bold mr-2">{{ item.title }}</span>
+                    <el-tag size="small" type="success" class="mr-2">{{ item.statusCode }}</el-tag>
+                    <el-tag size="small" type="info">{{ item.value.dataType }}</el-tag>
+                  </div>
+                </template>
+
+                <div class="response-content mt-2">
+                  <SJsonEditor v-if="item.value.dataType === 'application/json'" :model-value="item.value.strJson"
+                    read-only height="200px"></SJsonEditor>
+                  <div
+                    v-else-if="['application/xml', 'text/plain', 'text/html', 'application/javascript', 'text/javascript'].includes(item.value.dataType)">
+                    <SJsonEditor :model-value="item.value.strJson"
+                      :config="{ language: getLanguageFromMime(item.value.dataType) }" read-only
+                      height="200px"></SJsonEditor>
+                  </div>
+                  <pre v-else class="raw-content">{{ item.value.strJson }}</pre>
+                </div>
+              </el-collapse-item>
+            </el-collapse>
+          </div>
+          <el-empty v-else :description="t('暂无响应数据')" :image-size="60" />
+        </el-tab-pane>
+      </el-tabs>
     </div>
   </SLoading>
 </template>
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted, computed, defineAsyncComponent } from 'vue'
-// import { Close } from '@element-plus/icons-vue'
 import type { ApiNode, HttpNode, WebSocketNode, HttpMockNode, WebSocketMockNode, CommonResponse } from '@src/types';
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
 import SLoading from '@/components/common/loading/ClLoading.vue'
-import SLableValue from '@/components/common/labelValue/ClLabelValue.vue'
-import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import { formatDate } from '@/helper'
 import { requestMethods as validRequestMethods } from '@/data/data'
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
@@ -263,6 +237,10 @@ const props = defineProps({
 });
 
 const runtimeStore = useRuntime()
+const { t } = useI18n()
+const activeTab = ref('request')
+const activeResponseNames = ref([0])
+
 /*
 |--------------------------------------------------------------------------
 | 获取文档详情
@@ -270,7 +248,6 @@ const runtimeStore = useRuntime()
 */
 const docDetail: Ref<ApiNode | null> = ref(null);
 const projectId = router.currentRoute.value.query.id as string;
-const { t } = useI18n()
 
 const loading = ref(false);
 const isOffline = () => runtimeStore.networkMode === 'offline';
@@ -386,9 +363,14 @@ const hasHeaders = computed(() => {
 
 /*
 |--------------------------------------------------------------------------
-| 其他操作
+| 辅助函数
 |--------------------------------------------------------------------------
 */
+const methodColor = computed(() => {
+  const method = httpItem.value?.method?.toLowerCase();
+  const found = validRequestMethods.find(req => req.value.toLowerCase() === method);
+  return found?.iconColor || 'var(--el-text-color-regular)';
+});
 
 //关闭弹窗
 // const handleClose = () => {
@@ -412,62 +394,60 @@ const getLanguageFromMime = (mimeType: string): string => {
 .doc-detail {
   width: 100%;
   position: relative;
-
-  .params-view {
-    padding: 0 10px;
-    margin-top: 10px;
-
-    .copy-json {
-      cursor: pointer;
-
-      &:hover {
-        color: #f7f7fa;
-      }
-    }
+  
+  :deep(.el-descriptions__label) {
+    font-weight: 600;
   }
+}
 
-  .params-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-
-    th,
-    td {
-      padding: 8px 12px;
-      text-align: left;
-      border: 1px solid var(--el-border-color-lighter);
+.sub-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--el-text-color-primary);
+  margin-bottom: 8px;
+  margin-top: 8px;
+    &:first-child {
+      margin-top: 0;
     }
+}
 
-    th {
-      background-color: var(--el-fill-color-light);
-      font-weight: 500;
-      color: var(--el-text-color-primary);
-    }
+.raw-content {
+  background-color: var(--el-fill-color-light);
+  padding: 10px;
+  border-radius: 4px;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 300px;
+  overflow-y: auto;
+  font-family: monospace;
+}
 
-    td {
-      color: var(--el-text-color-regular);
-      word-break: break-all;
-    }
+.detail-tabs {
+  margin-top: 10px;
+}
 
-    tbody tr:hover {
-      background-color: var(--el-fill-color-lighter);
-    }
-
-    .required-badge {
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 12px;
-
-      &.required {
-        background-color: var(--el-color-danger-light-9);
-        color: var(--el-color-danger);
-      }
-
-      &.optional {
-        background-color: var(--el-fill-color);
-        color: var(--el-text-color-secondary);
-      }
-    }
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+  display: flex;
+  align-items: center;
+  
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 14px;
+    background-color: var(--el-color-primary);
+    margin-right: 8px;
+    border-radius: 2px;
   }
+}
+
+.empty-text {
+  color: var(--el-text-color-placeholder);
+  font-size: 13px;
+  padding: 8px 12px;
 }
 </style>
