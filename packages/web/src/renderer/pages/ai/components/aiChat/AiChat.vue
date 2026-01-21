@@ -71,14 +71,6 @@
                   </button>
                 </div>
 
-                <VueMarkdownRender
-                  v-if="message.status === 'loading' && message.llmOutput"
-                  class="ai-tool-llm-output"
-                  :source="message.llmOutput"
-                  :options="markdownOptions"
-                  :plugins="[customTagsPlugin]"
-                />
-
                 <div v-if="!collapsedMessages.has(message.id) && message.status === 'error' && message.toolCall?.error" class="ai-tool-details">
                   <div v-if="message.llmOutput" class="ai-tool-section">
                     <div class="ai-tool-section-label">{{ t('LLM 输出') }}:</div>
@@ -662,93 +654,6 @@ watch(() => agentViewStore.agentMessages, (messages) => {
 }
 .ai-tool-toggle:hover {
   color: #24292f;
-}
-.ai-tool-llm-output {
-  margin-top: 8px;
-  padding: 10px;
-  background: #fff8e1;
-  border: 1px solid #ffe082;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #24292f;
-  line-height: 1.55;
-  white-space: normal;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-}
-.ai-tool-llm-output :deep(> :first-child) {
-  margin-top: 0;
-}
-.ai-tool-llm-output :deep(> :last-child) {
-  margin-bottom: 0;
-}
-.ai-tool-llm-output :deep(p) {
-  margin: 6px 0;
-}
-.ai-tool-llm-output :deep(h1),
-.ai-tool-llm-output :deep(h2),
-.ai-tool-llm-output :deep(h3),
-.ai-tool-llm-output :deep(h4),
-.ai-tool-llm-output :deep(h5),
-.ai-tool-llm-output :deep(h6) {
-  margin: 10px 0 6px;
-  line-height: 1.35;
-}
-.ai-tool-llm-output :deep(ul),
-.ai-tool-llm-output :deep(ol) {
-  margin: 6px 0;
-  padding-left: 18px;
-}
-.ai-tool-llm-output :deep(li) {
-  margin: 2px 0;
-}
-.ai-tool-llm-output :deep(blockquote) {
-  margin: 8px 0;
-  padding: 4px 10px;
-  border-left: 3px solid #d0d7de;
-  color: #636c76;
-}
-.ai-tool-llm-output :deep(pre) {
-  margin: 8px 0;
-  padding: 8px 10px;
-  border: 1px solid #e6eaef;
-  border-radius: 6px;
-  background: #f6f8fa;
-  overflow: auto;
-}
-.ai-tool-llm-output :deep(code) {
-  padding: 0 4px;
-  border-radius: 4px;
-  background: #fff;
-  font-size: 0.95em;
-}
-.ai-tool-llm-output :deep(pre code) {
-  padding: 0;
-  background: transparent;
-}
-.ai-tool-llm-output :deep(hr) {
-  margin: 10px 0;
-  border: 0;
-  border-top: 1px solid #e6eaef;
-}
-.ai-tool-llm-output :deep(table) {
-  margin: 8px 0;
-  border-collapse: collapse;
-}
-.ai-tool-llm-output :deep(th),
-.ai-tool-llm-output :deep(td) {
-  padding: 4px 8px;
-  border: 1px solid #e6eaef;
-}
-.ai-tool-llm-output :deep(th) {
-  background: #f6f8fa;
-  font-weight: 600;
-}
-.ai-tool-llm-output :deep(strong) {
-  font-weight: 600;
-}
-.ai-tool-llm-output :deep(em) {
-  font-style: italic;
 }
 .ai-tool-details {
   margin-top: 8px;
