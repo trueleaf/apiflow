@@ -179,16 +179,9 @@ docker compose up -d
 ```bash
 git clone https://gitee.com/wildsell/apiflow.git
 cd apiflow
-```
-
-2. **安装依赖**
-
-```bash
+#安装依赖
 npm install
 ```
-
-此命令会分别安装 `packages/web` 和 `packages/server` 的依赖。
-
 **国内用户加速安装**
 
 如果你在国内环境下遇到依赖安装缓慢的问题，可以启用国内镜像源：
@@ -203,11 +196,7 @@ registry=https://registry.npmmirror.com
 
 然后重新运行 `npm install`。
 
-3. **配置环境变量**
-
-根据需要在 `packages/server/src/config/` 目录下创建或编辑配置文件。
-
-4. **启动开发服务器**
+2. **启动开发服务器**
 
 ```bash
 npm run dev

@@ -185,21 +185,10 @@ For more details, see [README_DEPLOY.md](./README_DEPLOY.md).
 ```bash
 git clone https://github.com/trueleaf/apiflow.git
 cd apiflow
-```
-
-2. **Install dependencies**
-
-```bash
 npm install
 ```
 
-This will install dependencies for both `packages/web` and `packages/server`.
-
-3. **Configure environment variables**
-
-Create or edit configuration files in `packages/server/src/config/` as needed.
-
-4. **Start development servers**
+2. **Start development servers**
 
 ```bash
 npm run dev
