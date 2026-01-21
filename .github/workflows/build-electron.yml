@@ -479,6 +479,10 @@ jobs:
         run: npm install --no-save @rolldown/binding-darwin-arm64
         working-directory: packages/web
 
+      - name: 强制安装 dmg-license (macOS 构建必需)
+        run: npm install --no-save dmg-license
+        working-directory: packages/web
+
       - name: 修改 package.json 版本号
         run: |
           VERSION="${{ needs.test-web.outputs.version }}"
