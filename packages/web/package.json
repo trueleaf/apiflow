@@ -129,6 +129,9 @@
     "chokidar": "^4.0.1",
     "cross-env": "^10.1.0",
     "esbuild": "^0.25.8",
+    "electron": "^32.3.3",
+    "electron-builder": "^26.4.0",
+    "electron-updater": "^6.7.3",
     "eslint": "^9.8.0",
     "fast-glob": "^3.3.3",
     "koa-body": "^7.0.0",
@@ -302,9 +305,6 @@
     }
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.9.5",
-    "electron": "^32.3.3",
-    "electron-builder": "^26.4.0",
-    "electron-updater": "^6.7.3"
+    "@rollup/rollup-linux-x64-gnu": "4.9.5"
   }
 }
