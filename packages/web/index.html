@@ -1,684 +1,691 @@
 <!doctype html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/icon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script>
-      (function() {
-        try {
-          const theme = localStorage.getItem('settings/app/theme') || 'light';
-          if (theme === 'dark') {
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/icon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    (function () {
+      try {
+        const theme = localStorage.getItem('settings/app/theme') || 'light';
+        if (theme === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else if (theme === 'auto') {
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.setAttribute('data-theme', 'dark');
-          } else if (theme === 'auto') {
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              document.documentElement.setAttribute('data-theme', 'dark');
-            }
           }
-        } catch (e) {}
-      })();
-    </script>
-    <script src="/js/beauty.min.js" type="module"></script>
-    <title>apiflow</title>
-    <style>
-      /* 骨架屏样式 */
-      :root {
-        --skeleton-bg: #f8f9fa;
-        --skeleton-sidebar-bg: #ffffff;
-        --skeleton-sidebar-border: #e5e7eb;
-        --skeleton-block-base: #f0f2f5;
-        --skeleton-block-highlight: #e6e8eb;
-        --skeleton-primary: #409eff;
-      }
-      
-      :root[data-theme="dark"] {
-        --skeleton-bg: #1e1e1e;
-        --skeleton-sidebar-bg: #252526;
-        --skeleton-sidebar-border: #3e3e3e;
-        --skeleton-block-base: #2d2d2d;
-        --skeleton-block-highlight: #3e3e3e;
-        --skeleton-primary: #4a9eff;
-      }
-
-      #app-skeleton {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: var(--skeleton-bg);
-        transition: opacity 0.3s ease;
-        z-index: 9999;
-      }
-
-      .skeleton-container {
-        display: flex;
-        height: 100vh;
-        width: 100%;
-      }
-
-      /* 侧边栏骨架 */
-      .skeleton-sidebar {
-        width: 280px;
-        background: var(--skeleton-sidebar-bg);
-        border-right: 1px solid var(--skeleton-sidebar-border);
-        padding: 24px 16px;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        flex-shrink: 0;
-      }
-
-      /* 主内容区骨架 */
-      .skeleton-main {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        background: var(--skeleton-bg);
-        padding: 24px 20px;
-        gap: 24px;
-        overflow: hidden;
-      }
-      
-      /* Grid Layout (Home) */
-       .skeleton-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 16px;
-      }
-      .skeleton-block {
-        background: linear-gradient(
-          90deg, 
-          var(--skeleton-block-base) 25%, 
-          var(--skeleton-block-highlight) 37%, 
-          var(--skeleton-block-base) 63%
-        );
-        background-size: 400% 100%;
-        animation: skeleton-loading 1.4s ease infinite;
-        border-radius: 6px;
-      }
-
-      @keyframes skeleton-loading {
-        0% {
-          background-position: 100% 50%;
         }
-        100% {
-          background-position: 0 50%;
-        }
+      } catch (e) { }
+    })();
+  </script>
+  <script src="/js/beauty.min.js" type="module"></script>
+  <title>apiflow</title>
+  <style>
+    /* 骨架屏样式 */
+    :root {
+      --skeleton-bg: #f8f9fa;
+      --skeleton-sidebar-bg: #ffffff;
+      --skeleton-sidebar-border: #e5e7eb;
+      --skeleton-block-base: #f0f2f5;
+      --skeleton-block-highlight: #e6e8eb;
+      --skeleton-primary: #409eff;
+    }
+
+    :root[data-theme="dark"] {
+      --skeleton-bg: #1e1e1e;
+      --skeleton-sidebar-bg: #252526;
+      --skeleton-sidebar-border: #3e3e3e;
+      --skeleton-block-base: #2d2d2d;
+      --skeleton-block-highlight: #3e3e3e;
+      --skeleton-primary: #4a9eff;
+    }
+
+    #app-skeleton {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--skeleton-bg);
+      transition: opacity 0.3s ease;
+      z-index: 9999;
+    }
+
+    .skeleton-container {
+      display: flex;
+      height: 100vh;
+      width: 100%;
+    }
+
+    /* 侧边栏骨架 */
+    .skeleton-sidebar {
+      width: 280px;
+      background: var(--skeleton-sidebar-bg);
+      border-right: 1px solid var(--skeleton-sidebar-border);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex-shrink: 0;
+    }
+
+    /* 主内容区骨架 */
+    .skeleton-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--skeleton-bg);
+      padding: 24px 20px;
+      gap: 24px;
+      overflow: hidden;
+    }
+
+    /* Grid Layout (Home) */
+    .skeleton-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .skeleton-block {
+      background: linear-gradient(90deg,
+          var(--skeleton-block-base) 25%,
+          var(--skeleton-block-highlight) 37%,
+          var(--skeleton-block-base) 63%);
+      background-size: 400% 100%;
+      animation: skeleton-loading 1.4s ease infinite;
+      border-radius: 6px;
+    }
+
+    @keyframes skeleton-loading {
+      0% {
+        background-position: 100% 50%;
       }
 
-      /* Logo 区域 */
-      .skeleton-logo {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding-bottom: 8px;
-        padding-left: 8px;
+      100% {
+        background-position: 0 50%;
       }
+    }
 
-      .skeleton-logo-icon {
-        width: 32px;
-        height: 32px;
-        background: var(--skeleton-primary);
-        border-radius: 8px;
-        opacity: 0.9;
-        position: relative;
-        overflow: hidden;
-      }
-      
-      /* 给 Logo 增加一点微光 */
-      .skeleton-logo-icon::after {
-        content: '';
-        position: absolute;
-        top: 0;
+    /* Logo 区域 */
+    .skeleton-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 8px;
+      padding-left: 8px;
+    }
+
+    .skeleton-logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--skeleton-primary);
+      border-radius: 8px;
+      opacity: 0.9;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 给 Logo 增加一点微光 */
+    .skeleton-logo-icon::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      animation: logo-shimmer 3s infinite;
+    }
+
+    @keyframes logo-shimmer {
+      0% {
         left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-        animation: logo-shimmer 3s infinite;
       }
 
-      @keyframes logo-shimmer {
-        0% { left: -100%; }
-        20% { left: 100%; }
-        100% { left: 100%; }
+      20% {
+        left: 100%;
       }
 
-      .skeleton-logo-text {
-        height: 20px;
-        width: 120px;
+      100% {
+        left: 100%;
       }
+    }
 
-      /* 侧边栏项目 */
-      .skeleton-nav-group {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-top: 12px;
-      }
+    .skeleton-logo-text {
+      height: 20px;
+      width: 120px;
+    }
 
-      .skeleton-sidebar-item {
-        height: 36px;
-        border-radius: 6px;
-      }
+    /* 侧边栏项目 */
+    .skeleton-nav-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 12px;
+    }
 
-      .skeleton-sidebar-btn {
-        height: 44px;
-        margin-bottom: 12px;
-        border-radius: 6px;
-        opacity: 0.8;
-      }
+    .skeleton-sidebar-item {
+      height: 36px;
+      border-radius: 6px;
+    }
 
-      /* 顶部 Tab */
-      .skeleton-header-tabs {
-        display: flex;
-        gap: 24px;
-        border-bottom: 1px solid var(--skeleton-sidebar-border);
-        padding-bottom: 1px;
-      }
+    .skeleton-sidebar-btn {
+      height: 44px;
+      margin-bottom: 12px;
+      border-radius: 6px;
+      opacity: 0.8;
+    }
 
-      .skeleton-tab {
-        height: 32px;
-        width: 100px;
-        position: relative;
-        background: transparent;
-      }
-      
-      .skeleton-tab::after {
-        content: '';
-        position: absolute;
-        bottom: -1px;
-        left: 0;
-        width: 100%;
-        height: 20px;
-        background: var(--skeleton-block-base);
-        border-radius: 4px;
-      }
+    /* 顶部 Tab */
+    .skeleton-header-tabs {
+      display: flex;
+      gap: 24px;
+      border-bottom: 1px solid var(--skeleton-sidebar-border);
+      padding-bottom: 1px;
+    }
 
-      .skeleton-tab.active::after {
-        background: var(--skeleton-primary);
-        opacity: 0.1;
-        height: 32px;
-        bottom: 0;
-      }
-      
-      .skeleton-tab.active::before {
-        content: '';
-        position: absolute;
-        bottom: -1px;
-        left: 0;
-        width: 100%;
-        height: 2px;
-        background: var(--skeleton-primary);
-        z-index: 1;
-      }
+    .skeleton-tab {
+      height: 32px;
+      width: 100px;
+      position: relative;
+      background: transparent;
+    }
 
-      /* Home Search Bar */
-      .skeleton-home-search {
-        display: flex;
-        gap: 12px;
-        margin-bottom: 24px;
-        align-items: center;
-      }
+    .skeleton-tab::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 20px;
+      background: var(--skeleton-block-base);
+      border-radius: 4px;
+    }
 
-      .skeleton-search-input {
-        width: 300px;
-        height: 36px;
-        border-radius: 4px;
-      }
+    .skeleton-tab.active::after {
+      background: var(--skeleton-primary);
+      opacity: 0.1;
+      height: 32px;
+      bottom: 0;
+    }
 
-      .skeleton-button {
-        width: 100px;
-        height: 36px;
-        border-radius: 4px;
-      }
+    .skeleton-tab.active::before {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--skeleton-primary);
+      z-index: 1;
+    }
 
-      /* GRID 布局 */
-      .skeleton-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 20px;
-      }
-      
-      /* Workbench 布局 */
-      .skeleton-workbench-wrapper {
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-        width: 100vw;
-        overflow: hidden;
-      }
+    /* Home Search Bar */
+    .skeleton-home-search {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      align-items: center;
+    }
 
-      .skeleton-workbench-banner {
-        height: 50px;
-        border-bottom: 1px solid var(--skeleton-sidebar-border);
-        display: flex;
-        align-items: center;
-        padding: 0 16px;
-        gap: 16px;
-        background: var(--skeleton-sidebar-bg);
-        flex-shrink: 0;
-      }
+    .skeleton-search-input {
+      width: 300px;
+      height: 36px;
+      border-radius: 4px;
+    }
 
-      .skeleton-workbench-body {
-        display: flex;
-        flex: 1;
-        overflow: hidden;
-      }
+    .skeleton-button {
+      width: 100px;
+      height: 36px;
+      border-radius: 4px;
+    }
 
-      .skeleton-inner-sidebar {
-        width: 260px;
-        border-right: 1px solid var(--skeleton-sidebar-border);
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        background: var(--skeleton-bg);
-      }
+    /* GRID 布局 */
+    .skeleton-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
 
-      .skeleton-editor-panel {
-        flex: 1;
-        padding: 16px 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        background: var(--skeleton-sidebar-bg);
-      }
+    /* Workbench 布局 */
+    .skeleton-workbench-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
 
-      .skeleton-tree-item {
-        height: 32px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding-left: 8px;
-      }
-      
-      .skeleton-tree-arrow {
-        width: 12px;
-        height: 12px;
-        border-radius: 2px;
-      }
+    .skeleton-workbench-banner {
+      height: 50px;
+      border-bottom: 1px solid var(--skeleton-sidebar-border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 16px;
+      background: var(--skeleton-sidebar-bg);
+      flex-shrink: 0;
+    }
 
-      .skeleton-input-url {
-        height: 40px;
-        width: 100%;
-        border-radius: 4px;
-        display: flex; 
-        gap: -1px;
-      }
-      
-      .skeleton-method-select {
-         width: 80px;
-         height: 100%;
-         border-right: 1px solid #fff;
-      }
+    .skeleton-workbench-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
 
-      .skeleton-url-input {
-         flex: 1;
-         height: 100%;
-      }
-      
-      .skeleton-params-section {
-        margin-top: 12px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
+    .skeleton-inner-sidebar {
+      width: 260px;
+      border-right: 1px solid var(--skeleton-sidebar-border);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: var(--skeleton-bg);
+    }
 
-      /* 模式切换控制 */
-      .skeleton-mode-home .skeleton-workbench-only {
-        display: none !important;
-      }
+    .skeleton-editor-panel {
+      flex: 1;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: var(--skeleton-sidebar-bg);
+    }
 
-      .skeleton-mode-workbench .skeleton-home-only {
-        display: none !important;
-      }
+    .skeleton-tree-item {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-left: 8px;
+    }
 
-      /* 项目卡片优化 */
-      .skeleton-project-card {
-        height: 180px; /* 增加高度以容纳更多信息 */
-        background: var(--skeleton-sidebar-bg);
-        border: 1px solid var(--skeleton-sidebar-border);
-        border-radius: 8px;
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        position: relative;
-      }
+    .skeleton-tree-arrow {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+    }
 
-      .skeleton-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-      }
-      
-      .skeleton-card-title {
-        height: 20px;
-        width: 60%;
-      }
-      
-      .skeleton-card-actions {
-        display: flex;
-        gap: 8px;
-      }
+    .skeleton-input-url {
+      height: 40px;
+      width: 100%;
+      border-radius: 4px;
+      display: flex;
+      gap: -1px;
+    }
 
-      .skeleton-icon-sm {
-        width: 16px;
-        height: 16px;
-        border-radius: 4px;
-      }
+    .skeleton-method-select {
+      width: 80px;
+      height: 100%;
+      border-right: 1px solid #fff;
+    }
 
-      .skeleton-info-row {
-        display: flex;
-        justify-content: flex-end; /* 右对齐 */
-        gap: 8px;
-        align-items: center;
-      }
+    .skeleton-url-input {
+      flex: 1;
+      height: 100%;
+    }
 
-      .skeleton-label {
-        width: 40px;
-        height: 14px;
-      }
-      
-      .skeleton-value {
-        width: 80px;
-        height: 14px;
-      }
-      
-      .skeleton-card-bottom {
-        margin-top: auto;
-        padding-top: 12px;
-        border-top: 1px solid var(--skeleton-sidebar-border);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
+    .skeleton-params-section {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
 
-      .skeleton-btn-enter {
-        width: 60px;
-        height: 28px;
-        border-radius: 4px;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="app"></div>
-    <!-- 骨架屏 - 移出 #app 避免被 Vue 挂载瞬间覆盖 -->
-    <div id="app-skeleton" class="skeleton-mode-home">
-      <div class="skeleton-container">
-          
-          <!-- Workbench 模式下的 Banner (顶部全宽) -->
-          <div class="skeleton-workbench-banner skeleton-workbench-only">
-             <div class="skeleton-block skeleton-icon-sm"></div> <!-- Back Icon -->
-             <div class="skeleton-block skeleton-line short" style="width: 150px"></div> <!-- Breadcrumb -->
+    /* 模式切换控制 */
+    .skeleton-mode-home .skeleton-workbench-only {
+      display: none !important;
+    }
+
+    .skeleton-mode-workbench .skeleton-home-only {
+      display: none !important;
+    }
+
+    /* 项目卡片优化 */
+    .skeleton-project-card {
+      height: 180px;
+      /* 增加高度以容纳更多信息 */
+      background: var(--skeleton-sidebar-bg);
+      border: 1px solid var(--skeleton-sidebar-border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    .skeleton-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .skeleton-card-title {
+      height: 20px;
+      width: 60%;
+    }
+
+    .skeleton-card-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .skeleton-icon-sm {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+    }
+
+    .skeleton-info-row {
+      display: flex;
+      justify-content: flex-end;
+      /* 右对齐 */
+      gap: 8px;
+      align-items: center;
+    }
+
+    .skeleton-label {
+      width: 40px;
+      height: 14px;
+    }
+
+    .skeleton-value {
+      width: 80px;
+      height: 14px;
+    }
+
+    .skeleton-card-bottom {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--skeleton-sidebar-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .skeleton-btn-enter {
+      width: 60px;
+      height: 28px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app"></div>
+  <!-- 骨架屏 - 移出 #app 避免被 Vue 挂载瞬间覆盖 -->
+  <div id="app-skeleton" class="skeleton-mode-home">
+    <div class="skeleton-container">
+      <div class="skeleton-workbench-body">
+        <!-- 侧边栏 (仅 Workbench 模式有, Home模式其实没有侧边栏) -->
+        <div class="skeleton-inner-sidebar skeleton-workbench-only">
+          <div class="skeleton-block skeleton-line medium" style="margin-bottom: 12px"></div>
+          <div class="skeleton-tree-item">
+            <div class="skeleton-block skeleton-tree-arrow"></div>
+            <div class="skeleton-block skeleton-icon-sm"></div>
+            <div class="skeleton-block skeleton-line medium"></div>
           </div>
-
-          <div class="skeleton-workbench-body">
-            <!-- 侧边栏 (仅 Workbench 模式有, Home模式其实没有侧边栏) -->
-            <div class="skeleton-inner-sidebar skeleton-workbench-only">
-               <div class="skeleton-block skeleton-line medium" style="margin-bottom: 12px"></div>
-               <div class="skeleton-tree-item">
-                  <div class="skeleton-block skeleton-tree-arrow"></div>
-                  <div class="skeleton-block skeleton-icon-sm"></div>
-                  <div class="skeleton-block skeleton-line medium"></div>
-               </div>
-               <div class="skeleton-tree-item" style="padding-left: 20px">
-                  <div class="skeleton-block skeleton-line short"></div>
-               </div>
-               <div class="skeleton-tree-item" style="padding-left: 20px">
-                  <div class="skeleton-block skeleton-line short"></div>
-               </div>
-               <div class="skeleton-tree-item">
-                  <div class="skeleton-block skeleton-tree-arrow"></div>
-                  <div class="skeleton-block skeleton-icon-sm"></div>
-                  <div class="skeleton-block skeleton-line medium"></div>
-               </div>
-               <div class="skeleton-tree-item" style="padding-left: 20px">
-                  <div class="skeleton-block skeleton-line short"></div>
-               </div>
-            </div>
-
-            <!-- 主内容区骨架 -->
-            <div class="skeleton-main">
-              <!-- ########## Home 模式内容 ########## -->
-              
-              <!-- 顶部 Logo/Banner (Home 模式) -->
-              <div class="skeleton-logo skeleton-home-only" style="margin-bottom: 24px">
-                <div class="skeleton-logo-icon"></div>
-                <div class="skeleton-block skeleton-logo-text"></div>
-              </div>
-
-              <!-- 顶部 Tabs (Home 模式) -->
-              <div class="skeleton-header-tabs skeleton-home-only" style="margin-bottom: 24px">
-                <div class="skeleton-tab active"></div>
-                <div class="skeleton-tab"></div>
-              </div>
-
-              <!-- 搜索栏 (Home 模式) -->
-              <div class="skeleton-home-search skeleton-home-only">
-                 <div class="skeleton-block skeleton-search-input"></div>
-                 <div class="skeleton-block skeleton-button"></div>
-              </div>
-
-              <!-- Grid 项目列表 (Home 模式) -->
-              <div class="skeleton-grid skeleton-home-only">
-                <!-- 卡片 1-6 重复 -->
-                <div class="skeleton-project-card">
-                  <div class="skeleton-card-header">
-                     <div class="skeleton-block skeleton-card-title"></div>
-                     <div class="skeleton-card-actions">
-                        <div class="skeleton-block skeleton-icon-sm"></div>
-                        <div class="skeleton-block skeleton-icon-sm"></div>
-                     </div>
-                  </div>
-                  <div class="skeleton-info-row">
-                     <div class="skeleton-block skeleton-label"></div>
-                     <div class="skeleton-block skeleton-value"></div>
-                  </div>
-                  <div class="skeleton-info-row">
-                     <div class="skeleton-block skeleton-label"></div>
-                     <div class="skeleton-block skeleton-value"></div>
-                  </div>
-                  <div class="skeleton-card-bottom">
-                     <div class="skeleton-block skeleton-value"></div>
-                     <div class="skeleton-block skeleton-btn-enter"></div>
-                  </div>
-                </div>
-
-                <div class="skeleton-project-card">
-                  <div class="skeleton-card-header">
-                     <div class="skeleton-block skeleton-card-title"></div>
-                     <div class="skeleton-card-actions">
-                        <div class="skeleton-block skeleton-icon-sm"></div>
-                        <div class="skeleton-block skeleton-icon-sm"></div>
-                     </div>
-                  </div>
-                  <div class="skeleton-info-row">
-                     <div class="skeleton-block skeleton-label"></div>
-                     <div class="skeleton-block skeleton-value"></div>
-                  </div>
-                  <div class="skeleton-info-row">
-                     <div class="skeleton-block skeleton-label"></div>
-                     <div class="skeleton-block skeleton-value"></div>
-                  </div>
-                  <div class="skeleton-card-bottom">
-                     <div class="skeleton-block skeleton-value"></div>
-                     <div class="skeleton-block skeleton-btn-enter"></div>
-                  </div>
-                </div>
-
-                <div class="skeleton-project-card">
-                  <div class="skeleton-card-header">
-                     <div class="skeleton-block skeleton-card-title"></div>
-                     <div class="skeleton-card-actions">
-                        <div class="skeleton-block skeleton-icon-sm"></div>
-                        <div class="skeleton-block skeleton-icon-sm"></div>
-                     </div>
-                  </div>
-                  <div class="skeleton-info-row">
-                     <div class="skeleton-block skeleton-label"></div>
-                     <div class="skeleton-block skeleton-value"></div>
-                  </div>
-                  <div class="skeleton-info-row">
-                     <div class="skeleton-block skeleton-label"></div>
-                     <div class="skeleton-block skeleton-value"></div>
-                  </div>
-                  <div class="skeleton-card-bottom">
-                     <div class="skeleton-block skeleton-value"></div>
-                     <div class="skeleton-block skeleton-btn-enter"></div>
-                  </div>
-                </div>
-                
-                 <div class="skeleton-project-card">
-                  <div class="skeleton-card-header">
-                     <div class="skeleton-block skeleton-card-title"></div>
-                     <div class="skeleton-card-actions">
-                        <div class="skeleton-block skeleton-icon-sm"></div>
-                        <div class="skeleton-block skeleton-icon-sm"></div>
-                     </div>
-                  </div>
-                  <div class="skeleton-info-row">
-                     <div class="skeleton-block skeleton-label"></div>
-                     <div class="skeleton-block skeleton-value"></div>
-                  </div>
-                  <div class="skeleton-info-row">
-                     <div class="skeleton-block skeleton-label"></div>
-                     <div class="skeleton-block skeleton-value"></div>
-                  </div>
-                  <div class="skeleton-card-bottom">
-                     <div class="skeleton-block skeleton-value"></div>
-                     <div class="skeleton-block skeleton-btn-enter"></div>
-                  </div>
-                </div>
-                
-                 <div class="skeleton-project-card">
-                  <div class="skeleton-card-header">
-                     <div class="skeleton-block skeleton-card-title"></div>
-                     <div class="skeleton-card-actions">
-                        <div class="skeleton-block skeleton-icon-sm"></div>
-                        <div class="skeleton-block skeleton-icon-sm"></div>
-                     </div>
-                  </div>
-                  <div class="skeleton-info-row">
-                     <div class="skeleton-block skeleton-label"></div>
-                     <div class="skeleton-block skeleton-value"></div>
-                  </div>
-                  <div class="skeleton-info-row">
-                     <div class="skeleton-block skeleton-label"></div>
-                     <div class="skeleton-block skeleton-value"></div>
-                  </div>
-                  <div class="skeleton-card-bottom">
-                     <div class="skeleton-block skeleton-value"></div>
-                     <div class="skeleton-block skeleton-btn-enter"></div>
-                  </div>
-                </div>
-                
-                 <div class="skeleton-project-card">
-                  <div class="skeleton-card-header">
-                     <div class="skeleton-block skeleton-card-title"></div>
-                     <div class="skeleton-card-actions">
-                        <div class="skeleton-block skeleton-icon-sm"></div>
-                        <div class="skeleton-block skeleton-icon-sm"></div>
-                     </div>
-                  </div>
-                  <div class="skeleton-info-row">
-                     <div class="skeleton-block skeleton-label"></div>
-                     <div class="skeleton-block skeleton-value"></div>
-                  </div>
-                  <div class="skeleton-info-row">
-                     <div class="skeleton-block skeleton-label"></div>
-                     <div class="skeleton-block skeleton-value"></div>
-                  </div>
-                  <div class="skeleton-card-bottom">
-                     <div class="skeleton-block skeleton-value"></div>
-                     <div class="skeleton-block skeleton-btn-enter"></div>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- ########## Workbench 模式内容 ########## -->
-               
-               <!-- 接口编辑器 -->
-               <div class="skeleton-editor-panel skeleton-workbench-only">
-                 <div class="skeleton-header-tabs" style="border-bottom: none">
-                    <div class="skeleton-tab active" style="width: 120px"></div>
-                    <div class="skeleton-tab" style="width: 120px"></div>
-                 </div>
-                 
-                 <div class="skeleton-block skeleton-input-url">
-                    <div class="skeleton-method-select"></div>
-                    <div class="skeleton-url-input"></div>
-                 </div>
-                 
-                 <div class="skeleton-header-tabs" style="margin-top: 16px; border-bottom: 1px solid var(--skeleton-sidebar-border);">
-                    <div class="skeleton-tab active" style="width: 80px"></div>
-                    <div class="skeleton-tab" style="width: 80px"></div>
-                    <div class="skeleton-tab" style="width: 80px"></div>
-                 </div>
-
-                 <div class="skeleton-params-section">
-                    <div class="skeleton-block skeleton-line" style="width: 30%;"></div>
-                    <div class="skeleton-block skeleton-card small" style="height: 48px"></div>
-                    <div class="skeleton-block skeleton-card small" style="height: 48px"></div>
-                 </div>
-               </div>
-
-            </div>
+          <div class="skeleton-tree-item" style="padding-left: 20px">
+            <div class="skeleton-block skeleton-line short"></div>
+          </div>
+          <div class="skeleton-tree-item" style="padding-left: 20px">
+            <div class="skeleton-block skeleton-line short"></div>
+          </div>
+          <div class="skeleton-tree-item">
+            <div class="skeleton-block skeleton-tree-arrow"></div>
+            <div class="skeleton-block skeleton-icon-sm"></div>
+            <div class="skeleton-block skeleton-line medium"></div>
+          </div>
+          <div class="skeleton-tree-item" style="padding-left: 20px">
+            <div class="skeleton-block skeleton-line short"></div>
           </div>
         </div>
+
+        <!-- 主内容区骨架 -->
+        <div class="skeleton-main">
+          <!-- ########## Home 模式内容 ########## -->
+
+          <!-- 顶部 Logo/Banner (Home 模式) -->
+          <div class="skeleton-logo skeleton-home-only" style="margin-bottom: 24px">
+            <div class="skeleton-logo-icon"></div>
+            <div class="skeleton-block skeleton-logo-text"></div>
+          </div>
+
+          <!-- 顶部 Tabs (Home 模式) -->
+          <div class="skeleton-header-tabs skeleton-home-only" style="margin-bottom: 24px">
+            <div class="skeleton-tab active"></div>
+            <div class="skeleton-tab"></div>
+          </div>
+
+          <!-- 搜索栏 (Home 模式) -->
+          <div class="skeleton-home-search skeleton-home-only">
+            <div class="skeleton-block skeleton-search-input"></div>
+            <div class="skeleton-block skeleton-button"></div>
+          </div>
+
+          <!-- Grid 项目列表 (Home 模式) -->
+          <div class="skeleton-grid skeleton-home-only">
+            <!-- 卡片 1-6 重复 -->
+            <div class="skeleton-project-card">
+              <div class="skeleton-card-header">
+                <div class="skeleton-block skeleton-card-title"></div>
+                <div class="skeleton-card-actions">
+                  <div class="skeleton-block skeleton-icon-sm"></div>
+                  <div class="skeleton-block skeleton-icon-sm"></div>
+                </div>
+              </div>
+              <div class="skeleton-info-row">
+                <div class="skeleton-block skeleton-label"></div>
+                <div class="skeleton-block skeleton-value"></div>
+              </div>
+              <div class="skeleton-info-row">
+                <div class="skeleton-block skeleton-label"></div>
+                <div class="skeleton-block skeleton-value"></div>
+              </div>
+              <div class="skeleton-card-bottom">
+                <div class="skeleton-block skeleton-value"></div>
+                <div class="skeleton-block skeleton-btn-enter"></div>
+              </div>
+            </div>
+
+            <div class="skeleton-project-card">
+              <div class="skeleton-card-header">
+                <div class="skeleton-block skeleton-card-title"></div>
+                <div class="skeleton-card-actions">
+                  <div class="skeleton-block skeleton-icon-sm"></div>
+                  <div class="skeleton-block skeleton-icon-sm"></div>
+                </div>
+              </div>
+              <div class="skeleton-info-row">
+                <div class="skeleton-block skeleton-label"></div>
+                <div class="skeleton-block skeleton-value"></div>
+              </div>
+              <div class="skeleton-info-row">
+                <div class="skeleton-block skeleton-label"></div>
+                <div class="skeleton-block skeleton-value"></div>
+              </div>
+              <div class="skeleton-card-bottom">
+                <div class="skeleton-block skeleton-value"></div>
+                <div class="skeleton-block skeleton-btn-enter"></div>
+              </div>
+            </div>
+
+            <div class="skeleton-project-card">
+              <div class="skeleton-card-header">
+                <div class="skeleton-block skeleton-card-title"></div>
+                <div class="skeleton-card-actions">
+                  <div class="skeleton-block skeleton-icon-sm"></div>
+                  <div class="skeleton-block skeleton-icon-sm"></div>
+                </div>
+              </div>
+              <div class="skeleton-info-row">
+                <div class="skeleton-block skeleton-label"></div>
+                <div class="skeleton-block skeleton-value"></div>
+              </div>
+              <div class="skeleton-info-row">
+                <div class="skeleton-block skeleton-label"></div>
+                <div class="skeleton-block skeleton-value"></div>
+              </div>
+              <div class="skeleton-card-bottom">
+                <div class="skeleton-block skeleton-value"></div>
+                <div class="skeleton-block skeleton-btn-enter"></div>
+              </div>
+            </div>
+
+            <div class="skeleton-project-card">
+              <div class="skeleton-card-header">
+                <div class="skeleton-block skeleton-card-title"></div>
+                <div class="skeleton-card-actions">
+                  <div class="skeleton-block skeleton-icon-sm"></div>
+                  <div class="skeleton-block skeleton-icon-sm"></div>
+                </div>
+              </div>
+              <div class="skeleton-info-row">
+                <div class="skeleton-block skeleton-label"></div>
+                <div class="skeleton-block skeleton-value"></div>
+              </div>
+              <div class="skeleton-info-row">
+                <div class="skeleton-block skeleton-label"></div>
+                <div class="skeleton-block skeleton-value"></div>
+              </div>
+              <div class="skeleton-card-bottom">
+                <div class="skeleton-block skeleton-value"></div>
+                <div class="skeleton-block skeleton-btn-enter"></div>
+              </div>
+            </div>
+
+            <div class="skeleton-project-card">
+              <div class="skeleton-card-header">
+                <div class="skeleton-block skeleton-card-title"></div>
+                <div class="skeleton-card-actions">
+                  <div class="skeleton-block skeleton-icon-sm"></div>
+                  <div class="skeleton-block skeleton-icon-sm"></div>
+                </div>
+              </div>
+              <div class="skeleton-info-row">
+                <div class="skeleton-block skeleton-label"></div>
+                <div class="skeleton-block skeleton-value"></div>
+              </div>
+              <div class="skeleton-info-row">
+                <div class="skeleton-block skeleton-label"></div>
+                <div class="skeleton-block skeleton-value"></div>
+              </div>
+              <div class="skeleton-card-bottom">
+                <div class="skeleton-block skeleton-value"></div>
+                <div class="skeleton-block skeleton-btn-enter"></div>
+              </div>
+            </div>
+
+            <div class="skeleton-project-card">
+              <div class="skeleton-card-header">
+                <div class="skeleton-block skeleton-card-title"></div>
+                <div class="skeleton-card-actions">
+                  <div class="skeleton-block skeleton-icon-sm"></div>
+                  <div class="skeleton-block skeleton-icon-sm"></div>
+                </div>
+              </div>
+              <div class="skeleton-info-row">
+                <div class="skeleton-block skeleton-label"></div>
+                <div class="skeleton-block skeleton-value"></div>
+              </div>
+              <div class="skeleton-info-row">
+                <div class="skeleton-block skeleton-label"></div>
+                <div class="skeleton-block skeleton-value"></div>
+              </div>
+              <div class="skeleton-card-bottom">
+                <div class="skeleton-block skeleton-value"></div>
+                <div class="skeleton-block skeleton-btn-enter"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ########## Workbench 模式内容 ########## -->
+
+          <!-- 接口编辑器 -->
+          <div class="skeleton-editor-panel skeleton-workbench-only">
+            <div class="skeleton-header-tabs" style="border-bottom: none">
+              <div class="skeleton-tab active" style="width: 120px"></div>
+              <div class="skeleton-tab" style="width: 120px"></div>
+            </div>
+
+            <div class="skeleton-block skeleton-input-url">
+              <div class="skeleton-method-select"></div>
+              <div class="skeleton-url-input"></div>
+            </div>
+
+            <div class="skeleton-header-tabs"
+              style="margin-top: 16px; border-bottom: 1px solid var(--skeleton-sidebar-border);">
+              <div class="skeleton-tab active" style="width: 80px"></div>
+              <div class="skeleton-tab" style="width: 80px"></div>
+              <div class="skeleton-tab" style="width: 80px"></div>
+            </div>
+
+            <div class="skeleton-params-section">
+              <div class="skeleton-block skeleton-line" style="width: 30%;"></div>
+              <div class="skeleton-block skeleton-card small" style="height: 48px"></div>
+              <div class="skeleton-block skeleton-card small" style="height: 48px"></div>
+            </div>
+          </div>
+
+        </div>
       </div>
-      <script>
-        (function() {
-          try {
-            // 简单路由检测
-            var hash = window.location.hash;
-            var isWorkbench = hash && hash.indexOf('workbench') !== -1;
-            
-            if (!isWorkbench) {
-              var lastVisit = localStorage.getItem('history/lastVisitePage');
-              if (lastVisit && lastVisit.indexOf('workbench') !== -1) {
-                isWorkbench = true;
-              }
-            }
-            
-            var skeleton = document.getElementById('app-skeleton');
-            if (isWorkbench && skeleton) {
-                skeleton.className = 'skeleton-mode-workbench';
-            }
-            
-            // 监听 Vue 挂载
-            // 一旦 #app 中有子节点（Vue App 挂载），淡出并移除骨架屏
-            var observer = new MutationObserver(function(mutations) {
-                if (document.getElementById('app').childElementCount > 0) {
-                    if (skeleton) {
-                        skeleton.style.opacity = '0';
-                        skeleton.style.pointerEvents = 'none'; // 避免遮挡交互
-                        setTimeout(function(){
-                            if(skeleton.parentNode) {
-                                skeleton.parentNode.removeChild(skeleton);
-                            }
-                        }, 300); // 必须与 CSS transition 时长一致
-                    }
-                    observer.disconnect();
-                }
-            });
-            
-            var appContainer = document.getElementById('app');
-            if(appContainer) {
-                observer.observe(appContainer, { childList: true });
-            }
-          } catch(e) {
-            console.error('Skeleton script failed', e);
-            // Fallback: 2秒后强制移除，防止遮挡
-            setTimeout(function() {
-                var s = document.getElementById('app-skeleton');
-                if(s) s.remove();
-            }, 2000);
+    </div>
+  </div>
+  <script>
+    (function () {
+      try {
+        // 简单路由检测
+        var hash = window.location.hash;
+        var isWorkbench = hash && hash.indexOf('workbench') !== -1;
+
+        if (!isWorkbench) {
+          var lastVisit = localStorage.getItem('history/lastVisitePage');
+          if (lastVisit && lastVisit.indexOf('workbench') !== -1) {
+            isWorkbench = true;
           }
-        })();
-      </script>
-    <script type="module" src="/src/renderer/main.ts"></script>
-  </body>
+        }
+
+        var skeleton = document.getElementById('app-skeleton');
+        if (isWorkbench && skeleton) {
+          skeleton.className = 'skeleton-mode-workbench';
+        }
+
+        // 监听 Vue 挂载
+        // 一旦 #app 中有子节点（Vue App 挂载），淡出并移除骨架屏
+        var observer = new MutationObserver(function (mutations) {
+          if (document.getElementById('app').childElementCount > 0) {
+            if (skeleton) {
+              skeleton.style.opacity = '0';
+              skeleton.style.pointerEvents = 'none'; // 避免遮挡交互
+              setTimeout(function () {
+                if (skeleton.parentNode) {
+                  skeleton.parentNode.removeChild(skeleton);
+                }
+              }, 300); // 必须与 CSS transition 时长一致
+            }
+            observer.disconnect();
+          }
+        });
+
+        var appContainer = document.getElementById('app');
+        if (appContainer) {
+          observer.observe(appContainer, { childList: true });
+        }
+      } catch (e) {
+        console.error('Skeleton script failed', e);
+        // Fallback: 2秒后强制移除，防止遮挡
+        setTimeout(function () {
+          var s = document.getElementById('app-skeleton');
+          if (s) s.remove();
+        }, 2000);
+      }
+    })();
+  </script>
+  <script type="module" src="/src/renderer/main.ts"></script>
+</body>
+
 </html>

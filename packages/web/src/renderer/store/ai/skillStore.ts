@@ -17,6 +17,7 @@ import { useRuntime } from "../runtime/runtimeStore";
 import { router } from "@/router";
 import { IPC_EVENTS } from "@src/types/ipc";
 import { nanoid } from "nanoid";
+import { request } from "@/api/api";
 
 export const useSkill = defineStore('skill', () => {
   /*
@@ -26,6 +27,125 @@ export const useSkill = defineStore('skill', () => {
   */
   //创建httpNode
   const createHttpNode = async (options: CreateHttpNodeOptions): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      try {
+        const createdBanner = await request.post('/api/project/new_doc', {
+          name: options.name,
+          type: 'http',
+          pid: options.pid || '',
+          projectId: options.projectId,
+        }) as unknown as { _id?: string };
+        const createdId = createdBanner._id;
+        if (!createdId) {
+          logger.error('创建http节点失败', { projectId: options.projectId });
+          return null;
+        }
+        const serverNode = await request.get<HttpNode, HttpNode>('/api/project/doc_detail', {
+          params: { projectId: options.projectId, _id: createdId },
+        });
+        const updatedNode = cloneDeep(serverNode);
+        updatedNode.projectId = options.projectId;
+        updatedNode.pid = options.pid || '';
+        updatedNode.info.name = options.name;
+        updatedNode.info.description = options.description || '';
+        if (options.version !== undefined) {
+          updatedNode.info.version = options.version;
+        }
+        if (options.creator !== undefined) {
+          updatedNode.info.creator = options.creator;
+        }
+        if (options.maintainer !== undefined) {
+          updatedNode.info.maintainer = options.maintainer;
+        }
+        if (options.item) {
+          const { item } = options;
+          if (item.method !== undefined) {
+            updatedNode.item.method = item.method;
+          }
+          if (item.url) {
+            if (item.url.path !== undefined) {
+              updatedNode.item.url.path = item.url.path;
+            }
+            if (item.url.prefix !== undefined) {
+              updatedNode.item.url.prefix = item.url.prefix;
+            }
+          }
+          if (item.paths !== undefined) {
+            updatedNode.item.paths = item.paths;
+          }
+          if (item.queryParams !== undefined) {
+            updatedNode.item.queryParams = item.queryParams;
+          }
+          if (item.headers !== undefined) {
+            updatedNode.item.headers = item.headers;
+          }
+          if (item.responseParams !== undefined) {
+            updatedNode.item.responseParams = item.responseParams;
+          }
+          if (item.requestBody) {
+            const { requestBody } = item;
+            if (requestBody.mode !== undefined) {
+              updatedNode.item.requestBody.mode = requestBody.mode;
+            }
+            if (requestBody.rawJson !== undefined) {
+              updatedNode.item.requestBody.rawJson = requestBody.rawJson;
+            }
+            if (requestBody.formdata !== undefined) {
+              updatedNode.item.requestBody.formdata = requestBody.formdata;
+            }
+            if (requestBody.urlencoded !== undefined) {
+              updatedNode.item.requestBody.urlencoded = requestBody.urlencoded;
+            }
+            if (requestBody.raw !== undefined) {
+              updatedNode.item.requestBody.raw = { ...updatedNode.item.requestBody.raw, ...requestBody.raw };
+            }
+            if (requestBody.binary !== undefined) {
+              updatedNode.item.requestBody.binary = { ...updatedNode.item.requestBody.binary, ...requestBody.binary };
+            }
+          }
+          if (item.contentType !== undefined) {
+            updatedNode.item.contentType = item.contentType;
+          } else {
+            updatedNode.item.contentType = inferContentTypeFromBody(updatedNode.item.requestBody);
+          }
+        }
+        if (options.preRequest !== undefined) {
+          updatedNode.preRequest = options.preRequest;
+        }
+        if (options.afterRequest !== undefined) {
+          updatedNode.afterRequest = options.afterRequest;
+        }
+        await request.post('/api/project/fill_doc', {
+          _id: updatedNode._id,
+          projectId: options.projectId,
+          info: updatedNode.info,
+          item: updatedNode.item,
+          preRequest: updatedNode.preRequest,
+          afterRequest: updatedNode.afterRequest,
+        });
+        const currentProjectId = router.currentRoute.value.query.id as string;
+        if (currentProjectId === options.projectId) {
+          const bannerStore = useBanner();
+          await bannerStore.getDocBanner({ projectId: options.projectId });
+          const projectNavStore = useProjectNav();
+          projectNavStore.addNav({
+            _id: updatedNode._id,
+            projectId: options.projectId,
+            tabType: 'http',
+            label: updatedNode.info.name,
+            saved: true,
+            fixed: true,
+            selected: true,
+            head: { icon: updatedNode.item.method, color: '' },
+          });
+        }
+        return updatedNode;
+      } catch (error) {
+        logger.error('创建http节点失败', { error, projectId: options.projectId });
+        return null;
+      }
+    }
     const node = generateEmptyHttpNode(nanoid());
     node.projectId = options.projectId;
     node.pid = options.pid || '';
@@ -169,6 +289,76 @@ export const useSkill = defineStore('skill', () => {
   }
   //创建httpMockNode
   const createHttpMockNode = async (options: CreateHttpMockNodeOptions): Promise<HttpMockNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      try {
+        const createdBanner = await request.post('/api/project/new_doc', {
+          name: options.name,
+          type: 'httpMock',
+          pid: options.pid || '',
+          projectId: options.projectId,
+        }) as unknown as { _id?: string };
+        const createdId = createdBanner._id;
+        if (!createdId) {
+          logger.error('创建httpMock节点失败', { projectId: options.projectId });
+          return null;
+        }
+        const serverNode = await request.get<HttpMockNode, HttpMockNode>('/api/project/doc_detail', {
+          params: { projectId: options.projectId, _id: createdId },
+        });
+        const updatedNode = cloneDeep(serverNode);
+        updatedNode.projectId = options.projectId;
+        updatedNode.pid = options.pid || '';
+        updatedNode.info.name = options.name;
+        updatedNode.info.description = options.description || '';
+        if (options.method !== undefined) {
+          updatedNode.requestCondition.method = options.method;
+        }
+        if (options.url !== undefined) {
+          updatedNode.requestCondition.url = options.url;
+        }
+        if (options.port !== undefined) {
+          updatedNode.requestCondition.port = options.port;
+        }
+        if (options.delay !== undefined) {
+          updatedNode.config.delay = options.delay;
+        }
+        await request.post('/api/project/fill_doc', {
+          _id: updatedNode._id,
+          projectId: options.projectId,
+          info: {
+            type: 'httpMock' as const,
+            name: updatedNode.info.name,
+            description: updatedNode.info.description,
+          },
+          httpMockItem: {
+            requestCondition: updatedNode.requestCondition,
+            config: updatedNode.config,
+            response: updatedNode.response,
+          },
+        });
+        const currentProjectId = router.currentRoute.value.query.id as string;
+        if (currentProjectId === options.projectId) {
+          const bannerStore = useBanner();
+          await bannerStore.getDocBanner({ projectId: options.projectId });
+          const projectNavStore = useProjectNav();
+          projectNavStore.addNav({
+            _id: updatedNode._id,
+            projectId: options.projectId,
+            tabType: 'httpMock',
+            label: updatedNode.info.name,
+            saved: true,
+            fixed: true,
+            selected: true,
+            head: { icon: 'httpMock', color: '' },
+          });
+        }
+        return updatedNode;
+      } catch (error) {
+        logger.error('创建httpMock节点失败', { error, projectId: options.projectId });
+        return null;
+      }
+    }
     const node = generateEmptyHttpMockNode(nanoid());
     node.projectId = options.projectId;
     node.pid = options.pid || '';
@@ -238,6 +428,82 @@ export const useSkill = defineStore('skill', () => {
   }
   //创建websocketNode
   const createWebsocketNode = async (options: CreateWebsocketNodeOptions): Promise<WebSocketNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      try {
+        const createdBanner = await request.post('/api/project/new_doc', {
+          name: options.name,
+          type: 'websocket',
+          pid: options.pid || '',
+          projectId: options.projectId,
+        }) as unknown as { _id?: string };
+        const createdId = createdBanner._id;
+        if (!createdId) {
+          logger.error('创建websocket节点失败', { projectId: options.projectId });
+          return null;
+        }
+        const serverNode = await request.get<WebSocketNode, WebSocketNode>('/api/project/doc_detail', {
+          params: { projectId: options.projectId, _id: createdId },
+        });
+        const updatedNode = cloneDeep(serverNode);
+        updatedNode.projectId = options.projectId;
+        updatedNode.pid = options.pid || '';
+        updatedNode.info.name = options.name;
+        updatedNode.info.description = options.description || '';
+        if (options.protocol !== undefined) {
+          updatedNode.item.protocol = options.protocol;
+        }
+        if (options.url) {
+          if (options.url.path !== undefined) {
+            updatedNode.item.url.path = options.url.path;
+          }
+          if (options.url.prefix !== undefined) {
+            updatedNode.item.url.prefix = options.url.prefix;
+          }
+        }
+        if (options.queryParams !== undefined) {
+          updatedNode.item.queryParams = options.queryParams;
+        }
+        if (options.headers !== undefined) {
+          updatedNode.item.headers = options.headers;
+        }
+        await request.post('/api/project/fill_doc', {
+          _id: updatedNode._id,
+          projectId: options.projectId,
+          info: {
+            type: 'websocket' as const,
+            name: updatedNode.info.name,
+            description: updatedNode.info.description,
+          },
+          websocketItem: {
+            item: updatedNode.item,
+            config: updatedNode.config,
+            preRequest: updatedNode.preRequest,
+            afterRequest: updatedNode.afterRequest,
+          },
+        });
+        const currentProjectId = router.currentRoute.value.query.id as string;
+        if (currentProjectId === options.projectId) {
+          const bannerStore = useBanner();
+          await bannerStore.getDocBanner({ projectId: options.projectId });
+          const projectNavStore = useProjectNav();
+          projectNavStore.addNav({
+            _id: updatedNode._id,
+            projectId: options.projectId,
+            tabType: 'websocket',
+            label: updatedNode.info.name,
+            saved: true,
+            fixed: true,
+            selected: true,
+            head: { icon: 'websocket', color: '' },
+          });
+        }
+        return updatedNode;
+      } catch (error) {
+        logger.error('创建websocket节点失败', { error, projectId: options.projectId });
+        return null;
+      }
+    }
     const node = generateEmptyWebsocketNode(nanoid());
     node.projectId = options.projectId;
     node.pid = options.pid || '';
@@ -318,6 +584,79 @@ export const useSkill = defineStore('skill', () => {
   }
   //创建websocketMockNode
   const createWebsocketMockNode = async (options: CreateWebsocketMockNodeOptions): Promise<WebSocketMockNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      try {
+        const createdBanner = await request.post('/api/project/new_doc', {
+          name: options.name,
+          type: 'websocketMock',
+          pid: options.pid || '',
+          projectId: options.projectId,
+        }) as unknown as { _id?: string };
+        const createdId = createdBanner._id;
+        if (!createdId) {
+          logger.error('创建websocketMock节点失败', { projectId: options.projectId });
+          return null;
+        }
+        const serverNode = await request.get<WebSocketMockNode, WebSocketMockNode>('/api/project/doc_detail', {
+          params: { projectId: options.projectId, _id: createdId },
+        });
+        const updatedNode = cloneDeep(serverNode);
+        updatedNode.projectId = options.projectId;
+        updatedNode.pid = options.pid || '';
+        updatedNode.info.name = options.name;
+        updatedNode.info.description = options.description || '';
+        if (options.path !== undefined) {
+          updatedNode.requestCondition.path = options.path;
+        }
+        if (options.port !== undefined) {
+          updatedNode.requestCondition.port = options.port;
+        }
+        if (options.delay !== undefined) {
+          updatedNode.config.delay = options.delay;
+        }
+        if (options.echoMode !== undefined) {
+          updatedNode.config.echoMode = options.echoMode;
+        }
+        if (options.responseContent !== undefined) {
+          updatedNode.response.content = options.responseContent;
+        }
+        await request.post('/api/project/fill_doc', {
+          _id: updatedNode._id,
+          projectId: options.projectId,
+          info: {
+            type: 'websocketMock' as const,
+            name: updatedNode.info.name,
+            description: updatedNode.info.description,
+          },
+          websocketMockItem: {
+            requestCondition: updatedNode.requestCondition,
+            config: updatedNode.config,
+            response: updatedNode.response,
+          },
+        });
+        const currentProjectId = router.currentRoute.value.query.id as string;
+        if (currentProjectId === options.projectId) {
+          const bannerStore = useBanner();
+          await bannerStore.getDocBanner({ projectId: options.projectId });
+          const projectNavStore = useProjectNav();
+          projectNavStore.addNav({
+            _id: updatedNode._id,
+            projectId: options.projectId,
+            tabType: 'websocketMock',
+            label: updatedNode.info.name,
+            saved: true,
+            fixed: true,
+            selected: true,
+            head: { icon: 'websocketMock', color: '' },
+          });
+        }
+        return updatedNode;
+      } catch (error) {
+        logger.error('创建websocketMock节点失败', { error, projectId: options.projectId });
+        return null;
+      }
+    }
     const node = generateEmptyWebSocketMockNode(nanoid());
     node.projectId = options.projectId;
     node.pid = options.pid || '';
@@ -388,10 +727,34 @@ export const useSkill = defineStore('skill', () => {
     return node;
   }
   //删除httpNode
-  const deleteHttpNodes = async (nodeIds: string[]): Promise<boolean> => {
+  const deleteHttpNodes = async (nodeIds: string[]): Promise<boolean> => {      
+    const runtimeStore = useRuntime();
     if (nodeIds.length === 0) {
       logger.warn('删除节点失败，参数为空');
       return false;
+    }
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        logger.warn('删除节点失败，缺少projectId');
+        return false;
+      }
+      try {
+        await request.delete('/api/project/doc', { data: { projectId, ids: nodeIds } });
+        const httpNodeStore = useHttpNode();
+        if (nodeIds.includes(httpNodeStore.httpNodeInfo._id)) {
+          httpNodeStore.changeHttpNodeInfo(generateHttpNode());
+          httpNodeStore.changeOriginHttpNodeInfo();
+        }
+        const bannerStore = useBanner();
+        const projectNavStore = useProjectNav();
+        await bannerStore.getDocBanner({ projectId });
+        projectNavStore.deleteNavByIds({ projectId, ids: nodeIds, force: true });
+        return true;
+      } catch (error) {
+        logger.error('删除节点失败', { error, nodeIds });
+        return false;
+      }
     }
     const success = await apiNodesCache.deleteNodes(nodeIds);
     if (!success) {
@@ -456,6 +819,68 @@ export const useSkill = defineStore('skill', () => {
     version?: string;
     includeDeleted?: boolean;
   }): Promise<HttpNode[]> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      try {
+        const tree = await request.get<ApidocBanner[], ApidocBanner[]>('/api/project/doc_tree_node', { params: { projectId: options.projectId } });
+        const flat: ApidocBanner[] = [];
+        const stack: ApidocBanner[] = [...tree];
+        while (stack.length > 0) {
+          const item = stack.pop();
+          if (!item) {
+            continue;
+          }
+          flat.push(item);
+          if (Array.isArray(item.children) && item.children.length > 0) {
+            stack.push(...item.children);
+          }
+        }
+        const lowerKeyword = options.keyword ? options.keyword.toLowerCase() : '';
+        const candidates = flat.filter((node) => {
+          if (node.type !== 'http') return false;
+          if (options.name && !node.name.toLowerCase().includes(options.name.toLowerCase())) return false;
+          if (options.method && (node as ApidocBannerOfHttpNode).method !== options.method) return false;
+          if (options.maintainer && !node.maintainer.toLowerCase().includes(options.maintainer.toLowerCase())) return false;
+          const urlStr = typeof (node as ApidocBannerOfHttpNode).url === 'string' ? (node as ApidocBannerOfHttpNode).url : '';
+          if (options.urlPath && !urlStr.toLowerCase().includes(options.urlPath.toLowerCase())) return false;
+          if (options.keyword) {
+            const matchName = node.name.toLowerCase().includes(lowerKeyword);
+            const matchUrl = urlStr.toLowerCase().includes(lowerKeyword);
+            if (!matchName && !matchUrl) return false;
+          }
+          return true;
+        });
+        const result: HttpNode[] = [];
+        for (const candidate of candidates) {
+          try {
+            const httpNode = await request.get<HttpNode, HttpNode>('/api/project/doc_detail', { params: { projectId: options.projectId, _id: candidate._id } });
+            if (options.includeDeleted) {
+              continue;
+            }
+            if (options.keyword) {
+              const kw = lowerKeyword;
+              const matchName = httpNode.info.name.toLowerCase().includes(kw);
+              const matchDesc = httpNode.info.description.toLowerCase().includes(kw);
+              const matchPath = httpNode.item.url.path.toLowerCase().includes(kw);
+              if (!matchName && !matchDesc && !matchPath) continue;
+            }
+            if (options.description && !httpNode.info.description.toLowerCase().includes(options.description.toLowerCase())) continue;
+            if (options.urlPrefix && !httpNode.item.url.prefix.toLowerCase().includes(options.urlPrefix.toLowerCase())) continue;
+            if (options.contentType && httpNode.item.contentType !== options.contentType) continue;
+            if (options.bodyMode && httpNode.item.requestBody.mode !== options.bodyMode) continue;
+            if (options.creator && !httpNode.info.creator.toLowerCase().includes(options.creator.toLowerCase())) continue;
+            if (options.version && httpNode.info.version !== options.version) continue;
+            result.push(httpNode);
+          } catch (error) {
+            logger.error('获取节点详情失败', { error, nodeId: candidate._id });
+          }
+        }
+        return result;
+      } catch (error) {
+        logger.error('搜索节点失败', { error, projectId: options.projectId });
+        return [];
+      }
+    }
     const allNodes = await apiNodesCache.getNodesByProjectId(options.projectId);
     return allNodes.filter(node => {
       if (node.info.type !== 'http') return false;
@@ -503,10 +928,73 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID获取HttpNode信息
   const getHttpNodeById = async (nodeId: string): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      try {
+        const node = await request.get<HttpNode, HttpNode>('/api/project/doc_detail', {
+          params: { projectId, _id: nodeId },
+        });
+        return node;
+      } catch (error) {
+        logger.error('根据ID获取节点失败', { error, nodeId });
+        return null;
+      }
+    }
     return await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
   }
   //根据节点ID部分更新HttpNode
   const patchHttpNodeInfoById = async (nodeId: string, updates: DeepPartial<HttpNode>): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = merge(cloneDeep(existingNode), updates) as HttpNode;
+      if (updates.info?.name) {
+        await request.put('/api/project/change_doc_info', { _id: nodeId, projectId, name: updates.info.name });
+      }
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        merge(httpNodeStore.httpNodeInfo, updates);
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      const bannerStore = useBanner();
+      const projectNavStore = useProjectNav();
+      if (updates.info?.name) {
+        bannerStore.changeBannerInfoById({ id: nodeId, field: 'name', value: updates.info.name });
+        projectNavStore.changeNavInfoById({ id: nodeId, field: 'label', value: updates.info.name });
+      }
+      if (updates.item?.method) {
+        bannerStore.changeHttpBannerInfoById({ id: nodeId, field: 'method', value: updates.item.method });
+        projectNavStore.changeNavInfoById({
+          id: nodeId,
+          field: 'head',
+          value: { icon: updates.item.method, color: '' },
+        });
+      }
+      if (updates.item?.url?.path) {
+        bannerStore.changeHttpBannerInfoById({ id: nodeId, field: 'url', value: updates.item.url.path });
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -536,6 +1024,34 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID添加query参数
   const addQueryParamByNodeId = async (nodeId: string, param: ApidocProperty<'string'>): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      updatedNode.item.queryParams.push(param);
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        httpNodeStore.httpNodeInfo.item.queryParams.push(param);
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -558,6 +1074,42 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID和参数ID更新query参数
   const updateQueryParamByNodeId = async (nodeId: string, paramId: string, updates: Partial<ApidocProperty<'string'>>): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      const paramIndex = updatedNode.item.queryParams.findIndex(p => p._id === paramId);
+      if (paramIndex === -1) {
+        logger.warn('参数不存在', { nodeId, paramId });
+        return null;
+      }
+      assign(updatedNode.item.queryParams[paramIndex], updates);
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        const localIndex = httpNodeStore.httpNodeInfo.item.queryParams.findIndex(p => p._id === paramId);
+        if (localIndex !== -1) {
+          assign(httpNodeStore.httpNodeInfo.item.queryParams[localIndex], updates);
+        }
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -588,6 +1140,42 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID和参数ID删除query参数
   const deleteQueryParamByNodeId = async (nodeId: string, paramId: string): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      const paramIndex = updatedNode.item.queryParams.findIndex(p => p._id === paramId);
+      if (paramIndex === -1) {
+        logger.warn('参数不存在', { nodeId, paramId });
+        return null;
+      }
+      updatedNode.item.queryParams.splice(paramIndex, 1);
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        const localIndex = httpNodeStore.httpNodeInfo.item.queryParams.findIndex(p => p._id === paramId);
+        if (localIndex !== -1) {
+          httpNodeStore.httpNodeInfo.item.queryParams.splice(localIndex, 1);
+        }
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -618,6 +1206,34 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID批量设置query参数（替换所有）
   const setQueryParamsByNodeId = async (nodeId: string, params: ApidocProperty<'string'>[]): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      updatedNode.item.queryParams = params;
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        httpNodeStore.httpNodeInfo.item.queryParams = params;
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -640,6 +1256,34 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID添加path参数
   const addPathParamByNodeId = async (nodeId: string, param: ApidocProperty<'string'>): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      updatedNode.item.paths.push(param);
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        httpNodeStore.httpNodeInfo.item.paths.push(param);
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -662,6 +1306,42 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID和参数ID更新path参数
   const updatePathParamByNodeId = async (nodeId: string, paramId: string, updates: Partial<ApidocProperty<'string'>>): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      const paramIndex = updatedNode.item.paths.findIndex(p => p._id === paramId);
+      if (paramIndex === -1) {
+        logger.warn('参数不存在', { nodeId, paramId });
+        return null;
+      }
+      assign(updatedNode.item.paths[paramIndex], updates);
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        const localIndex = httpNodeStore.httpNodeInfo.item.paths.findIndex(p => p._id === paramId);
+        if (localIndex !== -1) {
+          assign(httpNodeStore.httpNodeInfo.item.paths[localIndex], updates);
+        }
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -692,6 +1372,42 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID和参数ID删除path参数
   const deletePathParamByNodeId = async (nodeId: string, paramId: string): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      const paramIndex = updatedNode.item.paths.findIndex(p => p._id === paramId);
+      if (paramIndex === -1) {
+        logger.warn('参数不存在', { nodeId, paramId });
+        return null;
+      }
+      updatedNode.item.paths.splice(paramIndex, 1);
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        const localIndex = httpNodeStore.httpNodeInfo.item.paths.findIndex(p => p._id === paramId);
+        if (localIndex !== -1) {
+          httpNodeStore.httpNodeInfo.item.paths.splice(localIndex, 1);
+        }
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -722,6 +1438,34 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID批量设置path参数（替换所有）
   const setPathParamsByNodeId = async (nodeId: string, params: ApidocProperty<'string'>[]): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      updatedNode.item.paths = params;
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        httpNodeStore.httpNodeInfo.item.paths = params;
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -744,6 +1488,34 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID添加header
   const addHeaderByNodeId = async (nodeId: string, header: ApidocProperty<'string'>): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      updatedNode.item.headers.push(header);
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        httpNodeStore.httpNodeInfo.item.headers.push(header);
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -766,6 +1538,42 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID和headerID更新header
   const updateHeaderByNodeId = async (nodeId: string, headerId: string, updates: Partial<ApidocProperty<'string'>>): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      const headerIndex = updatedNode.item.headers.findIndex(h => h._id === headerId);
+      if (headerIndex === -1) {
+        logger.warn('header不存在', { nodeId, headerId });
+        return null;
+      }
+      assign(updatedNode.item.headers[headerIndex], updates);
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        const localIndex = httpNodeStore.httpNodeInfo.item.headers.findIndex(h => h._id === headerId);
+        if (localIndex !== -1) {
+          assign(httpNodeStore.httpNodeInfo.item.headers[localIndex], updates);
+        }
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -796,6 +1604,42 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID和headerID删除header
   const deleteHeaderByNodeId = async (nodeId: string, headerId: string): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      const headerIndex = updatedNode.item.headers.findIndex(h => h._id === headerId);
+      if (headerIndex === -1) {
+        logger.warn('header不存在', { nodeId, headerId });
+        return null;
+      }
+      updatedNode.item.headers.splice(headerIndex, 1);
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        const localIndex = httpNodeStore.httpNodeInfo.item.headers.findIndex(h => h._id === headerId);
+        if (localIndex !== -1) {
+          httpNodeStore.httpNodeInfo.item.headers.splice(localIndex, 1);
+        }
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -826,6 +1670,34 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID批量设置header（替换所有）
   const setHeadersByNodeId = async (nodeId: string, headers: ApidocProperty<'string'>[]): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      updatedNode.item.headers = headers;
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        httpNodeStore.httpNodeInfo.item.headers = headers;
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -848,6 +1720,34 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID添加formdata参数
   const addFormdataByNodeId = async (nodeId: string, param: ApidocProperty<'string' | 'file'>): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      updatedNode.item.requestBody.formdata.push(param);
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        httpNodeStore.httpNodeInfo.item.requestBody.formdata.push(param);
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -870,6 +1770,42 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID和参数ID更新formdata参数
   const updateFormdataByNodeId = async (nodeId: string, paramId: string, updates: Partial<ApidocProperty<'string' | 'file'>>): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      const paramIndex = updatedNode.item.requestBody.formdata.findIndex(p => p._id === paramId);
+      if (paramIndex === -1) {
+        logger.warn('参数不存在', { nodeId, paramId });
+        return null;
+      }
+      assign(updatedNode.item.requestBody.formdata[paramIndex], updates);
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        const localIndex = httpNodeStore.httpNodeInfo.item.requestBody.formdata.findIndex(p => p._id === paramId);
+        if (localIndex !== -1) {
+          assign(httpNodeStore.httpNodeInfo.item.requestBody.formdata[localIndex], updates);
+        }
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -900,6 +1836,42 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID和参数ID删除formdata参数
   const deleteFormdataByNodeId = async (nodeId: string, paramId: string): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      const paramIndex = updatedNode.item.requestBody.formdata.findIndex(p => p._id === paramId);
+      if (paramIndex === -1) {
+        logger.warn('参数不存在', { nodeId, paramId });
+        return null;
+      }
+      updatedNode.item.requestBody.formdata.splice(paramIndex, 1);
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        const localIndex = httpNodeStore.httpNodeInfo.item.requestBody.formdata.findIndex(p => p._id === paramId);
+        if (localIndex !== -1) {
+          httpNodeStore.httpNodeInfo.item.requestBody.formdata.splice(localIndex, 1);
+        }
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -930,6 +1902,34 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID批量设置formdata参数（替换所有）
   const setFormdataByNodeId = async (nodeId: string, params: ApidocProperty<'string' | 'file'>[]): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      updatedNode.item.requestBody.formdata = params;
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        httpNodeStore.httpNodeInfo.item.requestBody.formdata = params;
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -952,6 +1952,34 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID添加urlencoded参数
   const addUrlencodedByNodeId = async (nodeId: string, param: ApidocProperty<'string'>): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      updatedNode.item.requestBody.urlencoded.push(param);
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        httpNodeStore.httpNodeInfo.item.requestBody.urlencoded.push(param);
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -974,6 +2002,42 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID和参数ID更新urlencoded参数
   const updateUrlencodedByNodeId = async (nodeId: string, paramId: string, updates: Partial<ApidocProperty<'string'>>): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      const paramIndex = updatedNode.item.requestBody.urlencoded.findIndex(p => p._id === paramId);
+      if (paramIndex === -1) {
+        logger.warn('参数不存在', { nodeId, paramId });
+        return null;
+      }
+      assign(updatedNode.item.requestBody.urlencoded[paramIndex], updates);
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        const localIndex = httpNodeStore.httpNodeInfo.item.requestBody.urlencoded.findIndex(p => p._id === paramId);
+        if (localIndex !== -1) {
+          assign(httpNodeStore.httpNodeInfo.item.requestBody.urlencoded[localIndex], updates);
+        }
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -1004,6 +2068,42 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID和参数ID删除urlencoded参数
   const deleteUrlencodedByNodeId = async (nodeId: string, paramId: string): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      const paramIndex = updatedNode.item.requestBody.urlencoded.findIndex(p => p._id === paramId);
+      if (paramIndex === -1) {
+        logger.warn('参数不存在', { nodeId, paramId });
+        return null;
+      }
+      updatedNode.item.requestBody.urlencoded.splice(paramIndex, 1);
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        const localIndex = httpNodeStore.httpNodeInfo.item.requestBody.urlencoded.findIndex(p => p._id === paramId);
+        if (localIndex !== -1) {
+          httpNodeStore.httpNodeInfo.item.requestBody.urlencoded.splice(localIndex, 1);
+        }
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -1034,6 +2134,34 @@ export const useSkill = defineStore('skill', () => {
   }
   //根据节点ID批量设置urlencoded参数（替换所有）
   const setUrlencodedByNodeId = async (nodeId: string, params: ApidocProperty<'string'>[]): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingNode = await getHttpNodeById(nodeId);
+      if (!existingNode) {
+        logger.warn('节点不存在', { nodeId });
+        return null;
+      }
+      const updatedNode = cloneDeep(existingNode);
+      updatedNode.item.requestBody.urlencoded = params;
+      await request.post('/api/project/fill_doc', {
+        _id: nodeId,
+        projectId,
+        info: updatedNode.info,
+        item: updatedNode.item,
+        preRequest: updatedNode.preRequest,
+        afterRequest: updatedNode.afterRequest,
+      });
+      const httpNodeStore = useHttpNode();
+      if (httpNodeStore.httpNodeInfo._id === nodeId) {
+        httpNodeStore.httpNodeInfo.item.requestBody.urlencoded = params;
+        httpNodeStore.changeOriginHttpNodeInfo();
+      }
+      return updatedNode;
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -1056,6 +2184,30 @@ export const useSkill = defineStore('skill', () => {
   }
   //移动httpNode到新的父节点
   const moveHttpNode = async (nodeId: string, newPid: string): Promise<HttpNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      try {
+        await request.put('/api/project/change_doc_pos', { _id: nodeId, pid: newPid, sort: Date.now(), projectId });
+        const node = await request.get<HttpNode, HttpNode>('/api/project/doc_detail', { params: { projectId, _id: nodeId } });
+        const bannerStore = useBanner();
+        await bannerStore.getDocBanner({ projectId });
+        const httpNodeStore = useHttpNode();
+        if (httpNodeStore.httpNodeInfo._id === nodeId) {
+          httpNodeStore.httpNodeInfo.pid = node.pid;
+          httpNodeStore.httpNodeInfo.sort = node.sort;
+          httpNodeStore.httpNodeInfo.updatedAt = node.updatedAt;
+          httpNodeStore.changeOriginHttpNodeInfo();
+        }
+        return node;
+      } catch (error) {
+        logger.error('移动节点失败', { error, nodeId, newPid });
+        return null;
+      }
+    }
     const existingNode = await apiNodesCache.getNodeById(nodeId) as HttpNode | null;
     if (!existingNode) {
       logger.warn('节点不存在', { nodeId });
@@ -1244,6 +2396,29 @@ export const useSkill = defineStore('skill', () => {
   }
   //创建文件夹节点
   const createFolderNode = async (options: { projectId: string; name: string; pid?: string }): Promise<FolderNode | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      try {
+        const createdBanner = await request.post<ApidocBanner, ApidocBanner>('/api/project/new_doc', {
+          projectId: options.projectId,
+          pid: options.pid || '',
+          type: 'folder',
+          name: options.name,
+        });
+        const serverNode = await request.get<FolderNode, FolderNode>('/api/project/doc_detail', {
+          params: { projectId: options.projectId, _id: createdBanner._id },
+        });
+        const currentProjectId = router.currentRoute.value.query.id as string;
+        if (currentProjectId === options.projectId) {
+          const bannerStore = useBanner();
+          await bannerStore.getDocBanner({ projectId: options.projectId });
+        }
+        return serverNode;
+      } catch (error) {
+        logger.error('新增文件夹节点失败', { projectId: options.projectId, error });
+        return null;
+      }
+    }
     const now = new Date().toISOString();
     const folderNode: FolderNode = {
       _id: nanoid(),
@@ -1310,12 +2485,73 @@ export const useSkill = defineStore('skill', () => {
     return { success, failed };
   }
   //获取项目下所有文件夹列表
-  const getFolderList = async (projectId: string): Promise<FolderNode[]> => {
-    const allNodes = await apiNodesCache.getNodesByProjectId(projectId);
+  const getFolderList = async (projectId: string): Promise<FolderNode[]> => {   
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      try {
+        const tree = await request.get<ApidocBanner[], ApidocBanner[]>('/api/project/doc_tree_folder_node', { params: { projectId } });
+        const flat: ApidocBanner[] = [];
+        const stack: ApidocBanner[] = [...tree];
+        while (stack.length > 0) {
+          const item = stack.pop();
+          if (!item) {
+            continue;
+          }
+          flat.push(item);
+          if (Array.isArray(item.children) && item.children.length > 0) {
+            stack.push(...item.children);
+          }
+        }
+        return flat.map((node) => {
+          const updatedAt = node.updatedAt || new Date().toISOString();
+          return {
+            _id: node._id,
+            pid: node.pid || '',
+            projectId,
+            sort: node.sort,
+            info: {
+              name: node.name,
+              type: 'folder',
+              description: '',
+              version: '',
+              creator: '',
+              deletePerson: '',
+              maintainer: node.maintainer || '',
+            },
+            commonHeaders: [],
+            createdAt: updatedAt,
+            updatedAt,
+            isDeleted: false,
+          };
+        });
+      } catch (error) {
+        logger.error('获取文件夹列表失败', { error, projectId });
+        return [];
+      }
+    }
+    const allNodes = await apiNodesCache.getNodesByProjectId(projectId);        
     return allNodes.filter(node => node.info.type === 'folder') as FolderNode[];
   }
   //重命名文件夹
   const renameFolder = async (folderId: string, newName: string): Promise<boolean> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return false;
+      }
+      try {
+        await request.put('/api/project/change_doc_info', { _id: folderId, projectId, name: newName });
+        const bannerStore = useBanner();
+        const projectNavStore = useProjectNav();
+        bannerStore.changeBannerInfoById({ id: folderId, field: 'name', value: newName });
+        projectNavStore.changeNavInfoById({ id: folderId, field: 'label', value: newName });
+        return true;
+      } catch (error) {
+        logger.error('重命名文件夹失败', { error, folderId });
+        return false;
+      }
+    }
     const node = await apiNodesCache.getNodeById(folderId);
     if (!node || node.info.type !== 'folder') {
       logger.warn('文件夹不存在或类型不匹配', { folderId });
@@ -1346,7 +2582,73 @@ export const useSkill = defineStore('skill', () => {
   }
   //获取文件夹及其所有子节点内容，用于生成命名建议
   const getFolderChildrenForRename = async (folderId: string, projectId: string) => {
-    const allNodes = await apiNodesCache.getNodesByProjectId(projectId);
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      try {
+        const tree = await request.get<ApidocBanner[], ApidocBanner[]>('/api/project/doc_tree_node', { params: { projectId } });
+        const flat: ApidocBanner[] = [];
+        const stack: ApidocBanner[] = [...tree];
+        while (stack.length > 0) {
+          const item = stack.pop();
+          if (!item) {
+            continue;
+          }
+          flat.push(item);
+          if (Array.isArray(item.children) && item.children.length > 0) {
+            stack.push(...item.children);
+          }
+        }
+        const targetFolder = flat.find((n) => n._id === folderId && n.type === 'folder');
+        if (!targetFolder) {
+          return null;
+        }
+        const collectDescendants = (parentId: string) => {
+          const children = flat.filter((n) => (n.pid || '') === parentId);
+          const descendants = [...children];
+          for (const child of children) {
+            if (child.type === 'folder') {
+              descendants.push(...collectDescendants(child._id));
+            }
+          }
+          return descendants;
+        };
+        const descendants = collectDescendants(folderId);
+        const childFolders = descendants.filter((n) => n.type === 'folder');
+        const otherNodes = descendants.filter((n) => n.type !== 'folder');
+        return {
+          folder: {
+            _id: targetFolder._id,
+            name: targetFolder.name,
+            description: '',
+          },
+          childFolders: childFolders.map((f) => ({
+            _id: f._id,
+            pid: f.pid || '',
+            name: f.name,
+            type: f.type,
+            description: '',
+          })),
+          childNodes: otherNodes.map((n) => {
+            const base = {
+              _id: n._id,
+              pid: n.pid || '',
+              name: n.name,
+              type: n.type,
+              description: '',
+            };
+            if (n.type === 'http') {
+              const httpNode = n as ApidocBannerOfHttpNode;
+              return { ...base, method: httpNode.method, url: typeof httpNode.url === 'string' ? httpNode.url : '' };
+            }
+            return base;
+          }),
+        };
+      } catch (error) {
+        logger.error('获取文件夹子节点失败', { error, folderId, projectId });
+        return null;
+      }
+    }
+    const allNodes = await apiNodesCache.getNodesByProjectId(projectId);        
     const targetFolder = allNodes.find(n => n._id === folderId && n.info.type === 'folder') as FolderNode | undefined;
     if (!targetFolder) {
       return null;
@@ -1401,6 +2703,15 @@ export const useSkill = defineStore('skill', () => {
   */
   // 获取项目的所有变量
   const getVariablesByProjectId = async (projectId: string): Promise<ApidocVariable[]> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      try {
+        return await request.get<ApidocVariable[], ApidocVariable[]>('/api/project/project_variable_enum', { params: { projectId } });
+      } catch (error) {
+        logger.error('获取变量列表失败', { error, projectId });
+        return [];
+      }
+    }
     const result = await nodeVariableCache.getVariableByProjectId(projectId);
     if (result.code === 0) {
       return result.data;
@@ -1409,6 +2720,20 @@ export const useSkill = defineStore('skill', () => {
   }
   // 根据ID获取单个变量
   const getVariableById = async (variableId: string): Promise<ApidocVariable | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      try {
+        const variables = await request.get<ApidocVariable[], ApidocVariable[]>('/api/project/project_variable_enum', { params: { projectId } });
+        return variables.find(v => v._id === variableId) || null;
+      } catch (error) {
+        logger.error('获取变量失败', { error, variableId });
+        return null;
+      }
+    }
     const result = await nodeVariableCache.getVariableById(variableId);
     if (result.code === 0) {
       return result.data;
@@ -1417,6 +2742,18 @@ export const useSkill = defineStore('skill', () => {
   }
   // 创建变量
   const createVariable = async (variable: Omit<ApidocVariable, '_id'>): Promise<ApidocVariable | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      try {
+        await request.post('/api/project/project_variable', variable);
+        const variables = await getVariablesByProjectId(variable.projectId);
+        const created = variables.find(v => v.name === variable.name);
+        return created || null;
+      } catch (error) {
+        logger.error('创建变量失败', { error, projectId: variable.projectId });
+        return null;
+      }
+    }
     const result = await nodeVariableCache.addVariable(variable);
     if (result.code === 0) {
       return result.data;
@@ -1425,6 +2762,32 @@ export const useSkill = defineStore('skill', () => {
   }
   // 更新变量
   const updateVariableById = async (variableId: string, updates: Partial<ApidocVariable>): Promise<ApidocVariable | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existing = await getVariableById(variableId);
+      if (!existing) {
+        return null;
+      }
+      const merged = merge(cloneDeep(existing), updates) as ApidocVariable;
+      try {
+        await request.put('/api/project/project_variable', {
+          projectId,
+          _id: variableId,
+          name: merged.name,
+          type: merged.type,
+          value: merged.value,
+          fileValue: merged.fileValue,
+        });
+        return await getVariableById(variableId);
+      } catch (error) {
+        logger.error('更新变量失败', { error, variableId });
+        return null;
+      }
+    }
     const result = await nodeVariableCache.updateVariableById(variableId, updates);
     if (result.code === 0) {
       return result.data;
@@ -1433,11 +2796,31 @@ export const useSkill = defineStore('skill', () => {
   }
   // 删除变量
   const deleteVariableByIds = async (ids: string[]): Promise<boolean> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return false;
+      }
+      try {
+        await request.delete('/api/project/project_variable', { data: { projectId, ids } });
+        return true;
+      } catch (error) {
+        logger.error('删除变量失败', { error, ids });
+        return false;
+      }
+    }
     const result = await nodeVariableCache.deleteVariableByIds(ids);
     return result.code === 0;
   }
   // 按名称搜索变量
   const searchVariablesByName = async (projectId: string, keyword: string): Promise<ApidocVariable[]> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const variables = await getVariablesByProjectId(projectId);
+      const lowerKeyword = keyword.toLowerCase();
+      return variables.filter(v => v.name.toLowerCase().includes(lowerKeyword));
+    }
     const result = await nodeVariableCache.getVariableByProjectId(projectId);
     if (result.code === 0) {
       const lowerKeyword = keyword.toLowerCase();
@@ -1457,7 +2840,28 @@ export const useSkill = defineStore('skill', () => {
     const runtimeStore = useRuntime();
     const isOffline = runtimeStore.networkMode === 'offline';
     const projectId = router.currentRoute.value.query.id as string;
-    const folderNodes = (await apiNodesCache.getNodesByProjectId(projectId)).filter((node) => node.info.type === 'folder');
+    if (!projectId) {
+      return { ok: false, data: { global: { ok: false }, folder: { total: 0, cleared: 0, failedFolderIds: [] } } };
+    }
+    let folderNodes: { _id: string }[] = [];
+    if (isOffline) {
+      folderNodes = (await apiNodesCache.getNodesByProjectId(projectId)).filter((node) => node.info.type === 'folder');
+    } else {
+      const tree = await request.get<ApidocBanner[], ApidocBanner[]>('/api/project/doc_tree_folder_node', { params: { projectId } });
+      const flat: ApidocBanner[] = [];
+      const stack: ApidocBanner[] = [...tree];
+      while (stack.length > 0) {
+        const item = stack.pop();
+        if (!item) {
+          continue;
+        }
+        flat.push(item);
+        if (Array.isArray(item.children) && item.children.length > 0) {
+          stack.push(...item.children);
+        }
+      }
+      folderNodes = flat;
+    }
     const failedFolderIds: string[] = [];
     let clearedFolderCount = 0;
 
@@ -1521,16 +2925,58 @@ export const useSkill = defineStore('skill', () => {
   */
   // 获取全局公共请求头列表
   const getGlobalCommonHeaders = async (): Promise<ApidocProperty<'string'>[]> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return [];
+      }
+      try {
+        return await request.get<ApidocProperty<'string'>[], ApidocProperty<'string'>[]>('/api/project/global_common_headers', { params: { projectId } });
+      } catch (error) {
+        logger.error('获取全局公共请求头失败', { error, projectId });
+        return [];
+      }
+    }
     const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
     return await commonHeaderCache.getCommonHeaders();
   }
   // 根据ID获取单个全局公共请求头
   const getGlobalCommonHeaderById = async (headerId: string): Promise<ApidocProperty<'string'> | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const headers = await getGlobalCommonHeaders();
+      return headers.find(h => h._id === headerId) || null;
+    }
     const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
     return await commonHeaderCache.getCommonHeaderById(headerId);
   }
   // 创建全局公共请求头
-  const createGlobalCommonHeader = async (header: { key: string; value: string; description?: string }): Promise<ApidocProperty<'string'> | null> => {
+  const createGlobalCommonHeader = async (header: { key: string; value: string; description?: string }): Promise<ApidocProperty<'string'> | null> => {   
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const newHeader: ApidocProperty<'string'> = {
+        _id: nanoid(),
+        key: header.key,
+        value: header.value,
+        type: 'string',
+        required: false,
+        description: header.description || '',
+        select: true,
+      };
+      try {
+        const existing = await getGlobalCommonHeaders();
+        await request.put('/api/project/replace_global_common_headers', { projectId, commonHeaders: [...existing, newHeader] });
+        return newHeader;
+      } catch (error) {
+        logger.error('创建全局公共请求头失败', { error, projectId });
+        return null;
+      }
+    }
     const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
     const newHeader: ApidocProperty<'string'> = {
       _id: nanoid(),
@@ -1546,23 +2992,94 @@ export const useSkill = defineStore('skill', () => {
   }
   // 更新全局公共请求头
   const updateGlobalCommonHeader = async (headerId: string, updates: Partial<{ key: string; value: string; description: string; select: boolean }>): Promise<boolean> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return false;
+      }
+      try {
+        const existing = await getGlobalCommonHeaders();
+        const idx = existing.findIndex(h => h._id === headerId);
+        if (idx === -1) {
+          return false;
+        }
+        existing[idx] = { ...existing[idx], ...updates };
+        await request.put('/api/project/replace_global_common_headers', { projectId, commonHeaders: existing });
+        return true;
+      } catch (error) {
+        logger.error('更新全局公共请求头失败', { error, headerId });
+        return false;
+      }
+    }
     const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
-    return await commonHeaderCache.updateCommonHeader(headerId, updates);
+    return await commonHeaderCache.updateCommonHeader(headerId, updates);       
   }
   // 删除全局公共请求头
   const deleteGlobalCommonHeaders = async (headerIds: string[]): Promise<boolean> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return false;
+      }
+      try {
+        const existing = await getGlobalCommonHeaders();
+        const idSet = new Set(headerIds);
+        const updated = existing.filter(h => !idSet.has(h._id));
+        await request.put('/api/project/replace_global_common_headers', { projectId, commonHeaders: updated });
+        return true;
+      } catch (error) {
+        logger.error('删除全局公共请求头失败', { error, headerIds });
+        return false;
+      }
+    }
     const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
     return await commonHeaderCache.deleteCommonHeaders(headerIds);
   }
   // 按 key 搜索全局公共请求头
   const searchGlobalCommonHeaders = async (keyword: string): Promise<ApidocProperty<'string'>[]> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const headers = await getGlobalCommonHeaders();
+      const lowerKeyword = keyword.toLowerCase();
+      return headers.filter(h => h.key.toLowerCase().includes(lowerKeyword));
+    }
     const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
     const headers = await commonHeaderCache.getCommonHeaders();
     const lowerKeyword = keyword.toLowerCase();
-    return headers.filter(h => h.key.toLowerCase().includes(lowerKeyword));
+    return headers.filter(h => h.key.toLowerCase().includes(lowerKeyword));     
   }
   // 获取文件夹的公共请求头列表
   const getFolderCommonHeaders = async (folderId: string): Promise<ApidocProperty<'string'>[] | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      try {
+        type TreeNode = { _id: string; pid?: string; commonHeaders: ApidocProperty<'string'>[]; children?: TreeNode[] };
+        const tree = await request.get<TreeNode[], TreeNode[]>('/api/project/common_headers', { params: { projectId } });
+        const stack: TreeNode[] = [...tree];
+        while (stack.length > 0) {
+          const item = stack.pop();
+          if (!item) {
+            continue;
+          }
+          if (item._id === folderId) {
+            return item.commonHeaders || [];
+          }
+          if (Array.isArray(item.children) && item.children.length > 0) {
+            stack.push(...item.children);
+          }
+        }
+        return null;
+      } catch (error) {
+        logger.error('获取文件夹公共请求头失败', { error, folderId });
+        return null;
+      }
+    }
     const node = await apiNodesCache.getNodeById(folderId);
     if (!node || node.info.type !== 'folder') {
       return null;
@@ -1572,6 +3089,33 @@ export const useSkill = defineStore('skill', () => {
   }
   // 为文件夹添加公共请求头
   const addFolderCommonHeader = async (folderId: string, header: { key: string; value: string; description?: string }): Promise<ApidocProperty<'string'> | null> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return null;
+      }
+      const existingHeaders = await getFolderCommonHeaders(folderId);
+      if (!existingHeaders) {
+        return null;
+      }
+      const newHeader: ApidocProperty<'string'> = {
+        _id: nanoid(),
+        key: header.key,
+        value: header.value,
+        type: 'string',
+        required: false,
+        description: header.description || '',
+        select: true,
+      };
+      try {
+        await request.put('/api/project/common_header', { projectId, id: folderId, commonHeaders: [...existingHeaders, newHeader] });
+        return newHeader;
+      } catch (error) {
+        logger.error('新增文件夹公共请求头失败', { error, folderId });
+        return null;
+      }
+    }
     const node = await apiNodesCache.getNodeById(folderId);
     if (!node || node.info.type !== 'folder') {
       return null;
@@ -1593,6 +3137,29 @@ export const useSkill = defineStore('skill', () => {
   }
   // 更新文件夹的公共请求头
   const updateFolderCommonHeader = async (folderId: string, headerId: string, updates: Partial<{ key: string; value: string; description: string; select: boolean }>): Promise<boolean> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return false;
+      }
+      const existingHeaders = await getFolderCommonHeaders(folderId);
+      if (!existingHeaders) {
+        return false;
+      }
+      const headerIndex = existingHeaders.findIndex(h => h._id === headerId);
+      if (headerIndex === -1) {
+        return false;
+      }
+      existingHeaders[headerIndex] = { ...existingHeaders[headerIndex], ...updates };
+      try {
+        await request.put('/api/project/common_header', { projectId, id: folderId, commonHeaders: existingHeaders });
+        return true;
+      } catch (error) {
+        logger.error('更新文件夹公共请求头失败', { error, folderId, headerId });
+        return false;
+      }
+    }
     const node = await apiNodesCache.getNodeById(folderId);
     if (!node || node.info.type !== 'folder') {
       return false;
@@ -1608,6 +3175,26 @@ export const useSkill = defineStore('skill', () => {
   }
   // 删除文件夹的公共请求头
   const deleteFolderCommonHeaders = async (folderId: string, headerIds: string[]): Promise<boolean> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return false;
+      }
+      const existingHeaders = await getFolderCommonHeaders(folderId);
+      if (!existingHeaders) {
+        return false;
+      }
+      const headerIdsSet = new Set(headerIds);
+      const updatedHeaders = existingHeaders.filter(h => !headerIdsSet.has(h._id));
+      try {
+        await request.put('/api/project/common_header', { projectId, id: folderId, commonHeaders: updatedHeaders });
+        return true;
+      } catch (error) {
+        logger.error('删除文件夹公共请求头失败', { error, folderId });
+        return false;
+      }
+    }
     const node = await apiNodesCache.getNodeById(folderId);
     if (!node || node.info.type !== 'folder') {
       return false;
@@ -1620,6 +3207,20 @@ export const useSkill = defineStore('skill', () => {
   }
   // 设置文件夹的全部公共请求头（覆盖式更新）
   const setFolderCommonHeaders = async (folderId: string, headers: ApidocProperty<'string'>[]): Promise<boolean> => {
+    const runtimeStore = useRuntime();
+    if (runtimeStore.networkMode !== 'offline') {
+      const projectId = router.currentRoute.value.query.id as string;
+      if (!projectId) {
+        return false;
+      }
+      try {
+        await request.put('/api/project/common_header', { projectId, id: folderId, commonHeaders: headers });
+        return true;
+      } catch (error) {
+        logger.error('设置文件夹公共请求头失败', { error, folderId });
+        return false;
+      }
+    }
     const node = await apiNodesCache.getNodeById(folderId);
     if (!node || node.info.type !== 'folder') {
       return false;

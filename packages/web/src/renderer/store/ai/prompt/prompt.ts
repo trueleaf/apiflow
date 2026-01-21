@@ -49,7 +49,7 @@ export const agentSystemPrompt = `You are the ApiFlow intelligent agent. Your go
 	- Disconnect: disconnectWebsocketByNodeId.
 
 [WebSocket Mock (websocketMock node, corresponding to websocketMockNode tool)]
-- Note: WebSocket Mock is only supported in offline mode. If user requests operation but current mode is not confirmed, first ask user if in offline mode.
+- Note: WebSocket Mock is supported in both online and offline modes. Starting/stopping mock service usually requires Electron/desktop environment.
 - Modify basic information (name/path/port/delay/echoMode/responseContent): use updateWebsocketMockNodeBasic (first getWebsocketMockNodeDetail if necessary).
 - Save current WebSocket Mock: use saveCurrentWebsocketMockNode (depends on current Tab selection state).
 - Start/Stop and Status:

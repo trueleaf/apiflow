@@ -5,6 +5,8 @@ import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { apiNodesCache } from '@/cache/nodes/nodesCache'
 import { findNodeById, findParentById, findSiblingById, flatTree, forEachForest, uniqueByKey } from '@/helper'
 import { router } from '@/router/index'
+import { request } from '@/api/api'
+import { useRuntime } from '@/store/runtime/runtimeStore'
 import { nanoid } from 'nanoid'
 import { HttpNode, FolderNode, HttpMockNode } from '@src/types'
 import { WebSocketNode } from '@src/types/websocketNode'
@@ -228,7 +230,7 @@ export const nodeOperationTools: AgentTool[] = [
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
-      const targetFolderId = (args.targetFolderId as string) || ''
+      const targetFolderId = (args.targetFolderId as string) || ''       
       const nodes = args.nodes as ApidocBannerWithProjectId[]
       const bannerStore = useBanner()
       const projectNavStore = useProjectNav()
@@ -236,8 +238,57 @@ export const nodeOperationTools: AgentTool[] = [
       if (targetFolderId) {
         const targetFolder = findNodeById(bannerStore.banner, targetFolderId, { idKey: '_id' }) as ApidocBanner | null
         if (!targetFolder || targetFolder.type !== 'folder') {
-          return { code: 1, data: { error: '目标必须是文件夹' } }
+          return { code: 1, data: { error: '目标必须是文件夹' } }        
         }
+      }
+      const runtimeStore = useRuntime()
+      if (runtimeStore.networkMode !== 'offline') {
+        if (!currentProjectId) {
+          return { code: 1, data: { error: '未找到当前项目ID' } }
+        }
+        if (!nodes || nodes.length === 0) {
+          return { code: 1, data: { error: '未找到要粘贴的节点' } }
+        }
+        const fromProjectId = nodes[0]?.projectId || currentProjectId
+        const sourceIdsSet = new Set<string>()
+        nodes.forEach((node) => {
+          sourceIdsSet.add(node._id)
+          if (node.type === 'folder') {
+            forEachForest(node.children, (item) => {
+              sourceIdsSet.add(item._id)
+            })
+          }
+        })
+        const sourceIds = Array.from(sourceIdsSet)
+        const idMap = await request.post<{ newId: string; oldId: string; newPid: string }[], { newId: string; oldId: string; newPid: string }[]>('/api/project/paste_docs', {
+          projectId: currentProjectId,
+          fromProjectId,
+          mountedId: targetFolderId,
+          docs: sourceIds.map(_id => ({ _id })),
+        })
+        if (cutNodesData.length > 0) {
+          const deleteIdsSet = new Set<string>()
+          cutNodesData.forEach((node) => {
+            deleteIdsSet.add(node._id)
+            if (node.type === 'folder') {
+              forEachForest(node.children, (item) => {
+                deleteIdsSet.add(item._id)
+              })
+            }
+          })
+          const deleteIds = Array.from(deleteIdsSet)
+          await request.delete('/api/project/doc', { data: { projectId: fromProjectId, ids: deleteIds } })
+          const delNodeIds: string[] = []
+          forEachForest(cutNodesData, (node) => {
+            if (node.type !== 'folder') {
+              delNodeIds.push(node._id)
+            }
+          })
+          projectNavStore.deleteNavByIds({ projectId: fromProjectId, ids: delNodeIds, force: true })
+          cutNodesData = []
+        }
+        await bannerStore.getDocBanner({ projectId: currentProjectId })
+        return { code: 0, data: { pastedCount: nodes.length, idMap } }
       }
       const copyPasteNodes: ApidocBanner[] = JSON.parse(JSON.stringify(nodes))
       const flatNodes: ApidocBanner[] = []
@@ -358,6 +409,29 @@ export const nodeOperationTools: AgentTool[] = [
     execute: async (args: Record<string, unknown>) => {
       const nodeId = args.nodeId as string
       const bannerStore = useBanner()
+      const runtimeStore = useRuntime()
+      if (runtimeStore.networkMode !== 'offline') {
+        const projectId = router.currentRoute.value.query.id as string
+        if (!projectId) {
+          return { code: 1, data: { error: '未找到当前项目ID' } }
+        }
+        const currentNode = findNodeById(bannerStore.banner, nodeId, { idKey: '_id' }) as ApidocBanner | null
+        if (!currentNode) {
+          return { code: 1, data: { error: '在Banner中未找到节点' } }
+        }
+        const nextSibling = findSiblingById<ApidocBanner>(bannerStore.banner, nodeId, 'next', { idKey: '_id' })
+        const newSort = nextSibling ? (currentNode.sort + nextSibling.sort) / 2 : Date.now()
+        try {
+          const copied = await request.post<ApidocBanner, ApidocBanner>('/api/project/copy_doc', { projectId, _id: nodeId })
+          const pData = findParentById(bannerStore.banner, nodeId, { idKey: '_id' })
+          await request.put('/api/project/change_doc_pos', { projectId, _id: copied._id, pid: pData ? pData._id : '', sort: newSort })
+          await request.put('/api/project/change_doc_info', { projectId, _id: copied._id, name: `${currentNode.name}_副本` })
+          await bannerStore.getDocBanner({ projectId })
+          return { code: 0, data: { newNodeId: copied._id } }
+        } catch {
+          return { code: 1, data: { error: '创建副本失败' } }
+        }
+      }
       const originalDoc = await apiNodesCache.getNodeById(nodeId)
       if (!originalDoc) {
         return { code: 1, data: { error: '节点不存在' } }
@@ -435,6 +509,29 @@ export const nodeOperationTools: AgentTool[] = [
       if (!validation.valid) {
         return { code: 1, data: { error: validation.reason } }
       }
+      const runtimeStore = useRuntime()
+      if (runtimeStore.networkMode !== 'offline') {
+        const projectId = router.currentRoute.value.query.id as string
+        if (!projectId) {
+          return { code: 1, data: { error: '未找到当前项目ID' } }
+        }
+        let newPid = ''
+        let newSort = 0
+        if (dropType === 'inner') {
+          newPid = targetNode._id
+          newSort = Date.now()
+        } else {
+          newPid = targetNode.pid || ''
+          const previousSibling = dropType === 'before' ? findSiblingById<ApidocBanner>(bannerStore.banner, targetNodeId, 'previous', { idKey: '_id' }) : targetNode
+          const nextSibling = dropType === 'before' ? targetNode : findSiblingById<ApidocBanner>(bannerStore.banner, targetNodeId, 'next', { idKey: '_id' })
+          const previousSiblingSort = previousSibling ? previousSibling.sort : 0
+          const nextSiblingSort = nextSibling ? nextSibling.sort : Date.now()
+          newSort = (nextSiblingSort + previousSiblingSort) / 2
+        }
+        await request.put('/api/project/change_doc_pos', { projectId, _id: sourceNodeId, pid: newPid, sort: newSort })
+        await bannerStore.getDocBanner({ projectId })
+        return { code: 0, data: { nodeId: sourceNodeId, newPid, newSort } }
+      }
       const dragDoc = await apiNodesCache.getNodeById(sourceNodeId)
       if (!dragDoc) {
         return { code: 1, data: { error: '源节点数据不存在' } }
@@ -488,6 +585,30 @@ export const nodeOperationTools: AgentTool[] = [
       const nodeId = args.nodeId as string
       const newPid = (args.newPid as string) || ''
       const bannerStore = useBanner()
+      const runtimeStore = useRuntime()
+      if (runtimeStore.networkMode !== 'offline') {
+        const projectId = router.currentRoute.value.query.id as string
+        if (!projectId) {
+          return { code: 1, data: { error: '未找到当前项目ID' } }
+        }
+        if (newPid) {
+          const targetFolder = findNodeById(bannerStore.banner, newPid, { idKey: '_id' }) as ApidocBanner | null
+          if (!targetFolder) {
+            return { code: 1, data: { error: '目标文件夹不存在' } }
+          }
+          if (targetFolder.type !== 'folder') {
+            return { code: 1, data: { error: '目标必须是文件夹' } }
+          }
+        }
+        const node = findNodeById(bannerStore.banner, nodeId, { idKey: '_id' }) as ApidocBanner | null
+        if (!node) {
+          return { code: 1, data: { error: '节点不存在' } }
+        }
+        const oldPid = node.pid
+        await request.put('/api/project/change_doc_pos', { projectId, _id: nodeId, pid: newPid, sort: Date.now() })
+        await bannerStore.getDocBanner({ projectId })
+        return { code: 0, data: { nodeId, oldPid, newPid } }
+      }
       const existingNode = await apiNodesCache.getNodeById(nodeId)
       if (!existingNode) {
         return { code: 1, data: { error: '节点不存在' } }
@@ -558,6 +679,17 @@ export const nodeOperationTools: AgentTool[] = [
       }
       const bannerStore = useBanner()
       const projectNavStore = useProjectNav()
+      const runtimeStore = useRuntime()
+      if (runtimeStore.networkMode !== 'offline') {
+        const projectId = router.currentRoute.value.query.id as string
+        if (!projectId) {
+          return { code: 1, data: { error: '未找到当前项目ID' } }
+        }
+        await request.put('/api/project/change_doc_info', { projectId, _id: nodeId, name: newName })
+        bannerStore.changeBannerInfoById({ id: nodeId, field: 'name', value: newName })
+        projectNavStore.changeNavInfoById({ id: nodeId, field: 'label', value: newName })
+        return { code: 0, data: { nodeId, newName } }
+      }
       await apiNodesCache.updateNodeName(nodeId, newName)
       bannerStore.changeBannerInfoById({
         id: nodeId,
@@ -614,6 +746,19 @@ export const nodeOperationTools: AgentTool[] = [
           })
         }
       })
+      const runtimeStore = useRuntime()
+      if (runtimeStore.networkMode !== 'offline') {
+        await request.delete('/api/project/doc', { data: { projectId, ids: deleteIds } })
+        await bannerStore.getDocBanner({ projectId })
+        const delNodeIds: string[] = []
+        forEachForest(selectNodes, (node) => {
+          if (node.type !== 'folder') {
+            delNodeIds.push(node._id)
+          }
+        })
+        projectNavStore.deleteNavByIds({ projectId, ids: delNodeIds, force: true })
+        return { code: 0, data: { deletedCount: deleteIds.length, deletedIds: deleteIds } }
+      }
       await apiNodesCache.deleteNodes(deleteIds)
       selectNodes.forEach((node) => {
         const deletePid = node.pid
@@ -711,6 +856,13 @@ export const nodeOperationTools: AgentTool[] = [
       if (allIds.length === 0) {
         return { code: 0, data: { message: '项目已为空，无需删除', deletedCount: 0 } }
       }
+      const runtimeStore = useRuntime()
+      if (runtimeStore.networkMode !== 'offline') {
+        await request.delete('/api/project/doc', { data: { projectId, ids: allIds } })
+        await bannerStore.getDocBanner({ projectId })
+        projectNavStore.deleteNavByIds({ projectId, ids: nonFolderIds, force: true })
+        return { code: 0, data: { deletedCount: allIds.length, deletedIds: allIds } }
+      }
       await apiNodesCache.deleteNodes(allIds)
       bannerStore.banner = []
       projectNavStore.deleteNavByIds({
@@ -748,6 +900,16 @@ export const nodeOperationTools: AgentTool[] = [
       if (!node) {
         return { code: 1, data: { error: '未找到要修改排序的节点' } }
       }
+      const runtimeStore = useRuntime()
+      if (runtimeStore.networkMode !== 'offline') {
+        const projectId = router.currentRoute.value.query.id as string
+        if (!projectId) {
+          return { code: 1, data: { error: '未找到当前项目ID' } }
+        }
+        await request.put('/api/project/change_doc_pos', { projectId, _id: nodeId, pid: node.pid || '', sort })
+        node.sort = sort
+        return { code: 0, data: { nodeId, sort } }
+      }
       await apiNodesCache.updateNodeById(nodeId, { sort })
       node.sort = sort
       return { code: 0, data: { nodeId, sort } }
@@ -782,16 +944,31 @@ export const nodeOperationTools: AgentTool[] = [
         return { code: 1, data: { error: '节点列表不能为空' } }
       }
       const bannerStore = useBanner()
-      const results: { nodeId: string; sort: number; success: boolean }[] = []
+      const results: { nodeId: string; sort: number; success: boolean }[] = []  
+      const runtimeStore = useRuntime()
+      const isOnline = runtimeStore.networkMode !== 'offline'
+      const projectId = isOnline ? router.currentRoute.value.query.id as string : ''
+      if (isOnline && !projectId) {
+        return { code: 1, data: { error: '未找到当前项目ID' } }
+      }
       for (const item of nodes) {
         const node = findNodeById(bannerStore.banner, item.nodeId, { idKey: '_id' }) as ApidocBanner | null
         if (!node) {
           results.push({ nodeId: item.nodeId, sort: item.sort, success: false })
           continue
         }
-        await apiNodesCache.updateNodeById(item.nodeId, { sort: item.sort })
+        if (isOnline) {
+          await request.put('/api/project/change_doc_pos', { projectId, _id: item.nodeId, pid: node.pid || '', sort: item.sort })
+          node.sort = item.sort
+          results.push({ nodeId: item.nodeId, sort: item.sort, success: true })
+          continue
+        }
+        await apiNodesCache.updateNodeById(item.nodeId, { sort: item.sort })    
         node.sort = item.sort
-        results.push({ nodeId: item.nodeId, sort: item.sort, success: true })
+        results.push({ nodeId: item.nodeId, sort: item.sort, success: true })   
+      }
+      if (isOnline) {
+        await bannerStore.getDocBanner({ projectId })
       }
       const successCount = results.filter(r => r.success).length
       const failCount = results.filter(r => !r.success).length
@@ -846,9 +1023,74 @@ export const nodeOperationTools: AgentTool[] = [
       if (!projectId) {
         return { code: 1, data: { error: '未找到当前项目ID' } }
       }
-      const allNodes = await apiNodesCache.getNodesByProjectId(projectId)
+      const runtimeStore = useRuntime()
+      if (runtimeStore.networkMode !== 'offline') {
+        const bannerStore = useBanner()
+        const allNodes: { _id: string; type: ApidocType; name: string; pid: string; maintainer: string; url?: string; method?: string; protocol?: string; port?: number; deleted?: boolean }[] = []
+        forEachForest(bannerStore.banner, (node) => {
+          const base = { _id: node._id, type: node.type, name: node.name, pid: node.pid, maintainer: node.maintainer }
+          if (node.type === 'http') {
+            allNodes.push({ ...base, method: String(node.method), url: String(node.url) })
+            return
+          }
+          if (node.type === 'websocket') {
+            const url = typeof node.url === 'string' ? node.url : (node.url?.path || '')
+            allNodes.push({ ...base, protocol: String(node.protocol), url })
+            return
+          }
+          if (node.type === 'httpMock') {
+            allNodes.push({ ...base, method: String(node.method), url: String(node.url), port: node.port })
+            return
+          }
+          if (node.type === 'websocketMock') {
+            allNodes.push({ ...base, url: String((node as { path?: string }).path || ''), port: (node as { port?: number }).port, deleted: false })
+            return
+          }
+          allNodes.push(base)
+        })
+        let merged = allNodes
+        if (includeDeleted) {
+          const deleted = await request.post<{ rows: { _id: string; pid: string; name: string; type: ApidocType; path: string; method: string; protocol?: 'ws' | 'wss'; updatedAt: string; deletePerson: string; isFolder: boolean }[]; total: number }, { rows: { _id: string; pid: string; name: string; type: ApidocType; path: string; method: string; protocol?: 'ws' | 'wss'; updatedAt: string; deletePerson: string; isFolder: boolean }[]; total: number }>('/api/docs/docs_deleted_list', {
+            projectId,
+            pageNum: 1,
+            pageSize: limit <= 0 ? 100 : Math.min(limit, 100),
+            url: keyword || '',
+            docName: keyword || '',
+            operators: [],
+            startTime: null,
+            endTime: null,
+          })
+          const deletedNodes = deleted.rows.map((n) => ({
+            _id: n._id,
+            type: n.type,
+            name: n.name,
+            pid: n.pid,
+            maintainer: '',
+            url: n.path,
+            method: n.method,
+            protocol: n.protocol,
+            deleted: true,
+          }))
+          merged = [...merged, ...deletedNodes]
+        }
+        const filtered = merged.filter((node) => {
+          if (nodeType && node.type !== nodeType) return false
+          if (name && !node.name.toLowerCase().includes(name.toLowerCase())) return false
+          if (maintainer && !node.maintainer.toLowerCase().includes(maintainer.toLowerCase())) return false
+          if (keyword) {
+            const kw = keyword.toLowerCase()
+            const matchName = node.name.toLowerCase().includes(kw)
+            const matchUrl = (node.url || '').toLowerCase().includes(kw)
+            if (!matchName && !matchUrl) return false
+          }
+          return true
+        })
+        const limited = limit <= 0 ? filtered : filtered.slice(0, limit)
+        return { code: 0, data: { count: limited.length, total: filtered.length, nodes: limited } }
+      }
+      const allNodes = await apiNodesCache.getNodesByProjectId(projectId)       
       const filteredNodes = allNodes.filter(node => {
-        if (!includeDeleted && (node as HttpNode).isDeleted) return false
+        if (!includeDeleted && (node as HttpNode).isDeleted) return false       
         if (nodeType && node.info.type !== nodeType) return false
         if (name && !node.info.name.toLowerCase().includes(name.toLowerCase())) return false
         if (maintainer && !node.info.maintainer.toLowerCase().includes(maintainer.toLowerCase())) return false

@@ -1,7 +1,6 @@
 import { AgentTool } from '@src/types/ai'
 import { useWebSocketMockNode } from '@/store/websocketMockNode/websocketMockNodeStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
-import { useRuntime } from '@/store/runtime/runtimeStore'
 import { useSkill } from '@/store/ai/skillStore'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { simpleCreateWebsocketMockNodePrompt } from '@/store/ai/prompt/prompt'
@@ -63,7 +62,7 @@ const normalizeIpcResult = (result: unknown): { ok: boolean; payload: unknown } 
 export const websocketMockNodeTools: AgentTool[] = [
   {
     name: 'simpleCreateWebsocketMockNode',
-    description: 'Create a WebSocket Mock server node from natural language description (Smart Mode - Recommended, Offline Only). Automatically infers path, port, echo mode, and response content from user input. WebSocket Mock simulates WebSocket server endpoints for offline development and testing. IMPORTANT: Only works in offline mode. Example: "Create a chat WebSocket mock on port 3002 with echo mode" will auto-generate appropriate configuration.',
+    description: 'Create a WebSocket Mock server node from natural language description (Smart Mode - Recommended). Automatically infers path, port, echo mode, and response content from user input. WebSocket Mock simulates WebSocket server endpoints for development and testing. Example: "Create a chat WebSocket mock on port 3002 with echo mode" will auto-generate appropriate configuration.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
@@ -85,10 +84,6 @@ export const websocketMockNodeTools: AgentTool[] = [
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
-      const runtimeStore = useRuntime()
-      if (runtimeStore.networkMode !== 'offline') {
-        return { code: 1, data: { error: 'WebSocket Mock node is not supported in online mode' } }
-      }
       const skillStore = useSkill()
       const llmClientStore = useLLMClientStore()
       const projectId = args.projectId as string
@@ -114,7 +109,7 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'createWebsocketMockNode',
-    description: 'Create a WebSocket Mock server node with precise control over all parameters (Precise Mode, Offline Only). Use this when you need explicit control over path, port, echo mode, and response content. IMPORTANT: Only works in offline mode. Mock servers simulate WebSocket endpoints locally for offline development. For simpler creation from natural language, prefer simpleCreateWebsocketMockNode instead.',
+    description: 'Create a WebSocket Mock server node with precise control over all parameters (Precise Mode). Use this when you need explicit control over path, port, echo mode, and response content. For simpler creation from natural language, prefer simpleCreateWebsocketMockNode instead.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
@@ -160,10 +155,6 @@ export const websocketMockNodeTools: AgentTool[] = [
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
-      const runtimeStore = useRuntime()
-      if (runtimeStore.networkMode !== 'offline') {
-        return { code: 1, data: { error: 'WebSocket Mock node is not supported in online mode' } }
-      }
       const skillStore = useSkill()
       const projectId = args.projectId as string
       const name = args.name as string
@@ -196,7 +187,7 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'getWebsocketMockNodeDetail',
-    description: 'Retrieve complete configuration of a WebSocket Mock server node (Offline Only). Loads the mock data into the editor store for inspection or modification. IMPORTANT: Only works in offline mode. Use this to view the current state of a mock WebSocket endpoint.',
+    description: 'Retrieve complete configuration of a WebSocket Mock server node. Loads the mock data into the editor store for inspection or modification. Use this to view the current state of a mock WebSocket endpoint.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
@@ -208,10 +199,6 @@ export const websocketMockNodeTools: AgentTool[] = [
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
-      const runtimeStore = useRuntime()
-      if (runtimeStore.networkMode !== 'offline') {
-        return { code: 1, data: { error: 'WebSocket Mock node is not supported in online mode' } }
-      }
       const websocketMockStore = useWebSocketMockNode()
       const projectId = args.projectId
       const nodeId = args.nodeId
@@ -224,7 +211,7 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'updateWebsocketMockNodeBasic',
-    description: 'Modify basic configuration of a WebSocket Mock server node including name, path, port, delay, echo mode, and response content (Offline Only). Automatically loads the node if not currently in the editor. IMPORTANT: Only works in offline mode. Use this for updating mock endpoint settings.',
+    description: 'Modify basic configuration of a WebSocket Mock server node including name, path, port, delay, echo mode, and response content. Automatically loads the node if not currently in the editor. Use this for updating mock endpoint settings.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
@@ -242,10 +229,6 @@ export const websocketMockNodeTools: AgentTool[] = [
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
-      const runtimeStore = useRuntime()
-      if (runtimeStore.networkMode !== 'offline') {
-        return { code: 1, data: { error: 'WebSocket Mock node is not supported in online mode' } }
-      }
       const websocketMockStore = useWebSocketMockNode()
       const projectId = args.projectId
       const nodeId = args.nodeId
@@ -284,7 +267,7 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'saveCurrentWebsocketMockNode',
-    description: 'Save changes to the currently selected WebSocket Mock server node in the editor (Offline Only). Relies on the active tab state to determine which mock to save. IMPORTANT: Only works in offline mode. Use this after making modifications to persist the configuration.',
+    description: 'Save changes to the currently selected WebSocket Mock server node in the editor. Relies on the active tab state to determine which mock to save. Use this after making modifications to persist the configuration.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
@@ -293,10 +276,6 @@ export const websocketMockNodeTools: AgentTool[] = [
     },
     needConfirm: false,
     execute: async () => {
-      const runtimeStore = useRuntime()
-      if (runtimeStore.networkMode !== 'offline') {
-        return { code: 1, data: { error: 'WebSocket Mock node is not supported in online mode' } }
-      }
       const projectNavStore = useProjectNav()
       if (!projectNavStore.currentSelectNav) {
         return { code: 1, data: { error: 'No Tab currently selected' } }
@@ -308,7 +287,7 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'startWebsocketMockServerByNodeId',
-    description: 'Start the WebSocket Mock service for a specific mock node (Offline Only, Electron environment). Launches a local WebSocket server that accepts connections and responds according to configured rules. IMPORTANT: Only works in offline mode and Electron/desktop environment. Use this when the user wants to activate a mock WebSocket endpoint for testing.',
+    description: 'Start the WebSocket Mock service for a specific mock node (Electron environment). Launches a local WebSocket server that accepts connections and responds according to configured rules. Only available in Electron/desktop environment. Use this when the user wants to activate a mock WebSocket endpoint for testing.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
@@ -320,10 +299,6 @@ export const websocketMockNodeTools: AgentTool[] = [
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
-      const runtimeStore = useRuntime()
-      if (runtimeStore.networkMode !== 'offline') {
-        return { code: 1, data: { error: 'WebSocket Mock node is not supported in online mode' } }
-      }
       if (!window.electronAPI?.websocketMock?.startServer) {
         return { code: 1, data: { error: 'Current environment does not support starting WebSocket Mock service' } }
       }
