@@ -303,7 +303,6 @@
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.9.5",
-    "@rolldown/binding-linux-x64-gnu": "^0.18.0",
     "electron": "^32.3.3",
     "electron-builder": "^26.4.0",
     "electron-updater": "^6.7.3"
