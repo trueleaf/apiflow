@@ -323,6 +323,10 @@ jobs:
         run: npm ci
         working-directory: packages/server
 
+      - name: 强制安装 rolldown Linux 绑定
+        run: npm install --no-save @rolldown/binding-linux-x64-gnu
+        working-directory: packages/web
+
       - name: 修改 package.json 版本号
         run: |
           VERSION="${{ needs.test-web.outputs.version }}"
@@ -470,6 +474,12 @@ jobs:
       - name: 安装依赖 (server)
         run: npm ci
         working-directory: packages/server
+
+      - name: 强制安装 rolldown macOS 绑定
+        run: |
+          npm install --no-save @rolldown/binding-darwin-x64
+          npm install --no-save @rolldown/binding-darwin-arm64
+        working-directory: packages/web
 
       - name: 修改 package.json 版本号
         run: |
