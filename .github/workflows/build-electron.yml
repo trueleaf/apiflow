@@ -109,6 +109,10 @@ jobs:
       - name: 安装依赖 (server)
         run: npm ci
         working-directory: packages/server
+
+      - name: 强制安装 rolldown Linux 绑定
+        run: npm install --no-save @rolldown/binding-linux-x64-gnu
+        working-directory: packages/web
         
       - name: 安装 Linux 依赖
         run: |
