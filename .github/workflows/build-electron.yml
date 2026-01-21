@@ -475,10 +475,11 @@ jobs:
         run: npm ci
         working-directory: packages/server
 
-      - name: 强制安装 rolldown macOS 绑定（ARM64 和 x64）
+      - name: 强制安装 rolldown macOS 绑定（仅当前架构）
         run: |
+          # macos-latest 是 ARM64，只需要安装 ARM64 绑定
+          # Vite 构建只需要当前平台的绑定，electron-builder 会自己处理多架构打包
           npm install --no-save @rolldown/binding-darwin-arm64
-          npm install --no-save @rolldown/binding-darwin-x64
         working-directory: packages/web
 
       - name: 强制安装 dmg-license (macOS 构建必需)
