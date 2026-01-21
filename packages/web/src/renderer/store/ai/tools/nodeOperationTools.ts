@@ -1,5 +1,5 @@
 import { AgentTool } from '@src/types/ai'
-import { ApidocBanner, ApidocType } from '@src/types'
+import { ApidocBanner, ApidocType, CommonResponse, ResponseTable } from '@src/types'
 import { useBanner } from '@/store/projectWorkbench/bannerStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { apiNodesCache } from '@/cache/nodes/nodesCache'
@@ -260,12 +260,13 @@ export const nodeOperationTools: AgentTool[] = [
           }
         })
         const sourceIds = Array.from(sourceIdsSet)
-        const idMap = await request.post<{ newId: string; oldId: string; newPid: string }[], { newId: string; oldId: string; newPid: string }[]>('/api/project/paste_docs', {
+        const idMapRes = await request.post<CommonResponse<{ newId: string; oldId: string; newPid: string }[]>, CommonResponse<{ newId: string; oldId: string; newPid: string }[]>>('/api/project/paste_docs', {
           projectId: currentProjectId,
           fromProjectId,
           mountedId: targetFolderId,
           docs: sourceIds.map(_id => ({ _id })),
         })
+        const idMap = idMapRes.data || []
         if (cutNodesData.length > 0) {
           const deleteIdsSet = new Set<string>()
           cutNodesData.forEach((node) => {
@@ -422,7 +423,11 @@ export const nodeOperationTools: AgentTool[] = [
         const nextSibling = findSiblingById<ApidocBanner>(bannerStore.banner, nodeId, 'next', { idKey: '_id' })
         const newSort = nextSibling ? (currentNode.sort + nextSibling.sort) / 2 : Date.now()
         try {
-          const copied = await request.post<ApidocBanner, ApidocBanner>('/api/project/copy_doc', { projectId, _id: nodeId })
+          const copiedRes = await request.post<CommonResponse<ApidocBanner>, CommonResponse<ApidocBanner>>('/api/project/copy_doc', { projectId, _id: nodeId })
+          const copied = copiedRes.data
+          if (!copied?._id) {
+            return { code: 1, data: { error: '创建副本失败' } }
+          }
           const pData = findParentById(bannerStore.banner, nodeId, { idKey: '_id' })
           await request.put('/api/project/change_doc_pos', { projectId, _id: copied._id, pid: pData ? pData._id : '', sort: newSort })
           await request.put('/api/project/change_doc_info', { projectId, _id: copied._id, name: `${currentNode.name}_副本` })
@@ -1050,7 +1055,7 @@ export const nodeOperationTools: AgentTool[] = [
         })
         let merged = allNodes
         if (includeDeleted) {
-          const deleted = await request.post<{ rows: { _id: string; pid: string; name: string; type: ApidocType; path: string; method: string; protocol?: 'ws' | 'wss'; updatedAt: string; deletePerson: string; isFolder: boolean }[]; total: number }, { rows: { _id: string; pid: string; name: string; type: ApidocType; path: string; method: string; protocol?: 'ws' | 'wss'; updatedAt: string; deletePerson: string; isFolder: boolean }[]; total: number }>('/api/docs/docs_deleted_list', {
+          const deleted = await request.post<ResponseTable<{ _id: string; pid: string; name: string; type: ApidocType; path: string; method: string; protocol?: 'ws' | 'wss'; updatedAt: string; deletePerson: string; isFolder: boolean }[]>, ResponseTable<{ _id: string; pid: string; name: string; type: ApidocType; path: string; method: string; protocol?: 'ws' | 'wss'; updatedAt: string; deletePerson: string; isFolder: boolean }[]>>('/api/docs/docs_deleted_list', {
             projectId,
             pageNum: 1,
             pageSize: limit <= 0 ? 100 : Math.min(limit, 100),
@@ -1060,7 +1065,7 @@ export const nodeOperationTools: AgentTool[] = [
             startTime: null,
             endTime: null,
           })
-          const deletedNodes = deleted.rows.map((n) => ({
+          const deletedNodes = deleted.data.rows.map((n) => ({
             _id: n._id,
             type: n.type,
             name: n.name,

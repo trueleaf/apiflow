@@ -8,7 +8,7 @@ import { router } from '@/router'
 import { i18n } from '@/i18n'
 import { useSkill } from '@/store/ai/skillStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
-import { ApidocType } from '@src/types'
+import { ApidocType, CommonResponse, ResponseTable } from '@src/types'
 
 export const commonTools: AgentTool[] = [
   // 获取当前打开的所有Tab列表
@@ -245,7 +245,7 @@ export const commonTools: AgentTool[] = [
       }
       const runtimeStore = useRuntime()
       if (runtimeStore.networkMode !== 'offline') {
-        const deleted = await request.post<{ rows: { _id: string; name: string; type: ApidocType; updatedAt: string }[]; total: number }, { rows: { _id: string; name: string; type: ApidocType; updatedAt: string }[]; total: number }>('/api/docs/docs_deleted_list', {
+        const deleted = await request.post<ResponseTable<{ _id: string; name: string; type: ApidocType; updatedAt: string }[]>, ResponseTable<{ _id: string; name: string; type: ApidocType; updatedAt: string }[]>>('/api/docs/docs_deleted_list', {
           projectId,
           pageNum: 1,
           pageSize: 100,
@@ -255,7 +255,7 @@ export const commonTools: AgentTool[] = [
           docName: '',
           operators: [],
         })
-        return { code: 0, data: deleted.rows }
+        return { code: 0, data: deleted.data.rows }
       }
       const deletedNodes = await apiNodesCache.getDeletedNodesList(projectId)
       const nodeList = deletedNodes.map(node => ({
@@ -293,8 +293,9 @@ export const commonTools: AgentTool[] = [
       }
       const runtimeStore = useRuntime()
       if (runtimeStore.networkMode !== 'offline') {
-        const restoredIds = await request.put<string[], string[]>('/api/docs/docs_restore', { _id: nodeId, projectId })
-        if (!restoredIds || restoredIds.length === 0) {
+        const restoredIdsRes = await request.put<CommonResponse<string[]>, CommonResponse<string[]>>('/api/docs/docs_restore', { _id: nodeId, projectId })
+        const restoredIds = restoredIdsRes.data || []
+        if (restoredIds.length === 0) {
           return { code: 1, data: { message: i18n.global.t('恢复节点失败') } }
         }
         bannerStore.getDocBanner({ projectId })

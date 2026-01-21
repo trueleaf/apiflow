@@ -842,7 +842,8 @@ export const useSkill = defineStore('skill', () => {
     const runtimeStore = useRuntime();
     if (runtimeStore.networkMode !== 'offline') {
       try {
-        const tree = await request.get<ApidocBanner[], ApidocBanner[]>('/api/project/doc_tree_node', { params: { projectId: options.projectId } });
+        const treeRes = await request.get<CommonResponse<ApidocBanner[]>, CommonResponse<ApidocBanner[]>>('/api/project/doc_tree_node', { params: { projectId: options.projectId } });
+        const tree = treeRes.data || [];
         const flat: ApidocBanner[] = [];
         const stack: ApidocBanner[] = [...tree];
         while (stack.length > 0) {
@@ -873,7 +874,11 @@ export const useSkill = defineStore('skill', () => {
         const result: HttpNode[] = [];
         for (const candidate of candidates) {
           try {
-            const httpNode = await request.get<HttpNode, HttpNode>('/api/project/doc_detail', { params: { projectId: options.projectId, _id: candidate._id } });
+            const httpNodeRes = await request.get<CommonResponse<HttpNode>, CommonResponse<HttpNode>>('/api/project/doc_detail', { params: { projectId: options.projectId, _id: candidate._id } });
+            const httpNode = httpNodeRes.data;
+            if (!httpNode) {
+              continue;
+            }
             if (options.includeDeleted) {
               continue;
             }
@@ -955,10 +960,10 @@ export const useSkill = defineStore('skill', () => {
         return null;
       }
       try {
-        const node = await request.get<HttpNode, HttpNode>('/api/project/doc_detail', {
+        const nodeRes = await request.get<CommonResponse<HttpNode>, CommonResponse<HttpNode>>('/api/project/doc_detail', {
           params: { projectId, _id: nodeId },
         });
-        return node;
+        return nodeRes.data || null;
       } catch (error) {
         logger.error('根据ID获取节点失败', { error, nodeId });
         return null;
@@ -2212,7 +2217,11 @@ export const useSkill = defineStore('skill', () => {
       }
       try {
         await request.put('/api/project/change_doc_pos', { _id: nodeId, pid: newPid, sort: Date.now(), projectId });
-        const node = await request.get<HttpNode, HttpNode>('/api/project/doc_detail', { params: { projectId, _id: nodeId } });
+        const nodeRes = await request.get<CommonResponse<HttpNode>, CommonResponse<HttpNode>>('/api/project/doc_detail', { params: { projectId, _id: nodeId } });
+        const node = nodeRes.data;
+        if (!node) {
+          return null;
+        }
         const bannerStore = useBanner();
         await bannerStore.getDocBanner({ projectId });
         const httpNodeStore = useHttpNode();
@@ -2419,15 +2428,25 @@ export const useSkill = defineStore('skill', () => {
     const runtimeStore = useRuntime();
     if (runtimeStore.networkMode !== 'offline') {
       try {
-        const createdBanner = await request.post<ApidocBanner, ApidocBanner>('/api/project/new_doc', {
+        const createdBannerRes = await request.post<CommonResponse<ApidocBanner>, CommonResponse<ApidocBanner>>('/api/project/new_doc', {
           projectId: options.projectId,
           pid: options.pid || '',
           type: 'folder',
           name: options.name,
         });
-        const serverNode = await request.get<FolderNode, FolderNode>('/api/project/doc_detail', {
-          params: { projectId: options.projectId, _id: createdBanner._id },
+        const createdId = createdBannerRes.data?._id;
+        if (!createdId) {
+          logger.error('新增文件夹节点失败', { projectId: options.projectId });
+          return null;
+        }
+        const serverNodeRes = await request.get<CommonResponse<FolderNode>, CommonResponse<FolderNode>>('/api/project/doc_detail', {
+          params: { projectId: options.projectId, _id: createdId },
         });
+        const serverNode = serverNodeRes.data;
+        if (!serverNode) {
+          logger.error('新增文件夹节点失败', { projectId: options.projectId, folderId: createdId });
+          return null;
+        }
         const currentProjectId = router.currentRoute.value.query.id as string;
         if (currentProjectId === options.projectId) {
           const bannerStore = useBanner();
@@ -2505,11 +2524,12 @@ export const useSkill = defineStore('skill', () => {
     return { success, failed };
   }
   //获取项目下所有文件夹列表
-  const getFolderList = async (projectId: string): Promise<FolderNode[]> => {   
+  const getFolderList = async (projectId: string): Promise<FolderNode[]> => {
     const runtimeStore = useRuntime();
     if (runtimeStore.networkMode !== 'offline') {
       try {
-        const tree = await request.get<ApidocBanner[], ApidocBanner[]>('/api/project/doc_tree_folder_node', { params: { projectId } });
+        const treeRes = await request.get<CommonResponse<ApidocBanner[]>, CommonResponse<ApidocBanner[]>>('/api/project/doc_tree_folder_node', { params: { projectId } });
+        const tree = treeRes.data || [];
         const flat: ApidocBanner[] = [];
         const stack: ApidocBanner[] = [...tree];
         while (stack.length > 0) {
@@ -2605,7 +2625,8 @@ export const useSkill = defineStore('skill', () => {
     const runtimeStore = useRuntime();
     if (runtimeStore.networkMode !== 'offline') {
       try {
-        const tree = await request.get<ApidocBanner[], ApidocBanner[]>('/api/project/doc_tree_node', { params: { projectId } });
+        const treeRes = await request.get<CommonResponse<ApidocBanner[]>, CommonResponse<ApidocBanner[]>>('/api/project/doc_tree_node', { params: { projectId } });
+        const tree = treeRes.data || [];
         const flat: ApidocBanner[] = [];
         const stack: ApidocBanner[] = [...tree];
         while (stack.length > 0) {
@@ -2726,7 +2747,8 @@ export const useSkill = defineStore('skill', () => {
     const runtimeStore = useRuntime();
     if (runtimeStore.networkMode !== 'offline') {
       try {
-        return await request.get<ApidocVariable[], ApidocVariable[]>('/api/project/project_variable_enum', { params: { projectId } });
+        const res = await request.get<CommonResponse<ApidocVariable[]>, CommonResponse<ApidocVariable[]>>('/api/project/project_variable_enum', { params: { projectId } });
+        return res.data || [];
       } catch (error) {
         logger.error('获取变量列表失败', { error, projectId });
         return [];
@@ -2747,7 +2769,8 @@ export const useSkill = defineStore('skill', () => {
         return null;
       }
       try {
-        const variables = await request.get<ApidocVariable[], ApidocVariable[]>('/api/project/project_variable_enum', { params: { projectId } });
+        const variablesRes = await request.get<CommonResponse<ApidocVariable[]>, CommonResponse<ApidocVariable[]>>('/api/project/project_variable_enum', { params: { projectId } });
+        const variables = variablesRes.data || [];
         return variables.find(v => v._id === variableId) || null;
       } catch (error) {
         logger.error('获取变量失败', { error, variableId });
@@ -2867,7 +2890,8 @@ export const useSkill = defineStore('skill', () => {
     if (isOffline) {
       folderNodes = (await apiNodesCache.getNodesByProjectId(projectId)).filter((node) => node.info.type === 'folder');
     } else {
-      const tree = await request.get<ApidocBanner[], ApidocBanner[]>('/api/project/doc_tree_folder_node', { params: { projectId } });
+      const treeRes = await request.get<CommonResponse<ApidocBanner[]>, CommonResponse<ApidocBanner[]>>('/api/project/doc_tree_folder_node', { params: { projectId } });
+      const tree = treeRes.data || [];
       const flat: ApidocBanner[] = [];
       const stack: ApidocBanner[] = [...tree];
       while (stack.length > 0) {
@@ -2952,7 +2976,8 @@ export const useSkill = defineStore('skill', () => {
         return [];
       }
       try {
-        return await request.get<ApidocProperty<'string'>[], ApidocProperty<'string'>[]>('/api/project/global_common_headers', { params: { projectId } });
+        const res = await request.get<CommonResponse<ApidocProperty<'string'>[]>, CommonResponse<ApidocProperty<'string'>[]>>('/api/project/global_common_headers', { params: { projectId } });
+        return res.data || [];
       } catch (error) {
         logger.error('获取全局公共请求头失败', { error, projectId });
         return [];
@@ -3080,7 +3105,8 @@ export const useSkill = defineStore('skill', () => {
       }
       try {
         type TreeNode = { _id: string; pid?: string; commonHeaders: ApidocProperty<'string'>[]; children?: TreeNode[] };
-        const tree = await request.get<TreeNode[], TreeNode[]>('/api/project/common_headers', { params: { projectId } });
+        const treeRes = await request.get<CommonResponse<TreeNode[]>, CommonResponse<TreeNode[]>>('/api/project/common_headers', { params: { projectId } });
+        const tree = treeRes.data || [];
         const stack: TreeNode[] = [...tree];
         while (stack.length > 0) {
           const item = stack.pop();
