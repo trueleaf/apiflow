@@ -23,10 +23,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onUnmounted } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
-import { KeyRound, Mail, X } from 'lucide-vue-next';
+import { KeyRound, X } from 'lucide-vue-next';
 import { getQuickLoginCredential, clearQuickLoginCredential, clearQuickLoginTipDismissed } from '@/cache/runtime/quickLoginSession';
 import { isNotificationDismissed, setNotificationDismissed, clearNotificationDismissed } from '@/cache/runtime/notificationSession';
 import type { QuickLoginCredential } from '@src/types/security/quickLogin';
@@ -40,8 +40,6 @@ const route = useRoute();
 const runtimeStore = useRuntime();
 const bindEmailDialogVisible = ref(false);
 const quickLoginCredential = ref<QuickLoginCredential | null>(getQuickLoginCredential());
-const bindEmailNotificationDelayTimer = ref<number | null>(null);
-const shouldShowBindEmailNotification = ref(false);
 const quickLoginDismissed = ref(isNotificationDismissed('quick-login'));
 //构建快速登录通知（合并邮箱绑定提示）
 const quickLoginNotification = computed<BannerNotification | null>(() => {
@@ -68,39 +66,9 @@ const quickLoginNotification = computed<BannerNotification | null>(() => {
     } : undefined,
   };
 });
-//判断是否为首次登录
-const isFirstLogin = computed(() => {
-  const user = runtimeStore.userInfo;
-  if (!user?.registerTime || !user?.lastLoginTime) return false;
-  const registerDate = new Date(user.registerTime);
-  const lastLoginDate = new Date(user.lastLoginTime);
-  const timeDiffMs = Math.abs(lastLoginDate.getTime() - registerDate.getTime());
-  const timeDiffMinutes = timeDiffMs / (1000 * 60);
-  return timeDiffMinutes < 1;
-});
-//构建邮箱绑定通知
-const bindEmailNotification = computed<BannerNotification | null>(() => {
-  const user = runtimeStore.userInfo;
-  if (!user || user.email) return null;
-  const notificationId = 'bind-email';
-  if (isNotificationDismissed(notificationId)) return null;
-  if (!shouldShowBindEmailNotification.value) return null;
-  return {
-    id: notificationId,
-    type: 'bind-email',
-    message: t('账号未绑定邮箱提示'),
-    icon: Mail,
-    actionText: t('立即绑定'),
-    onAction: () => {
-      bindEmailDialogVisible.value = true;
-    },
-    closeable: true,
-    variant: 'info',
-  };
-});
-//当前显示的通知（优先级：快速登录 > 邮箱绑定）
+//当前显示的通知
 const currentNotification = computed<BannerNotification | null>(() => {
-  return quickLoginNotification.value || bindEmailNotification.value;
+  return quickLoginNotification.value;
 });
 //处理操作按钮点击
 const handleAction = () => {
@@ -128,7 +96,6 @@ const handleBindEmailSuccess = (email: string) => {
   if (runtimeStore.userInfo) {
     runtimeStore.updateUserInfo({ ...runtimeStore.userInfo, email });
   }
-  clearNotificationDismissed('bind-email');
   bindEmailDialogVisible.value = false;
 };
 //清除快速登录数据
@@ -139,67 +106,23 @@ const clearQuickLoginData = () => {
   clearNotificationDismissed('quick-login');
   quickLoginDismissed.value = false;
 };
-//清除邮箱绑定通知延迟定时器
-const clearBindEmailNotificationTimer = () => {
-  if (bindEmailNotificationDelayTimer.value !== null) {
-    clearTimeout(bindEmailNotificationDelayTimer.value);
-    bindEmailNotificationDelayTimer.value = null;
-  }
-};
-//检查并显示邮箱绑定通知
-const checkAndShowBindEmailNotification = () => {
-  const user = runtimeStore.userInfo;
-  if (!user || user.email) {
-    shouldShowBindEmailNotification.value = false;
-    return;
-  }
-  const notificationId = 'bind-email';
-  if (isNotificationDismissed(notificationId)) {
-    shouldShowBindEmailNotification.value = false;
-    return;
-  }
-  clearBindEmailNotificationTimer();
-  if (isFirstLogin.value) {
-    shouldShowBindEmailNotification.value = true;
-  } else {
-    bindEmailNotificationDelayTimer.value = window.setTimeout(() => {
-      shouldShowBindEmailNotification.value = true;
-      bindEmailNotificationDelayTimer.value = null;
-    }, 5000);
-  }
-};
-//监听用户信息变化，触发邮箱绑定通知检查
-watch(
-  () => runtimeStore.userInfo,
-  (newUser) => {
-    if (newUser && !newUser.email) {
-      checkAndShowBindEmailNotification();
-    } else {
-      shouldShowBindEmailNotification.value = false;
-      clearBindEmailNotificationTimer();
-    }
-  },
-  { immediate: true }
-);
-//监听路由变化，跳转到登录页时清除所有通知和定时器
+
+
+//监听路由变化，跳转到登录页时清除快速登录数据
 watch(
   () => route.path,
   (newPath) => {
     if (newPath === '/login') {
       clearQuickLoginData();
-      clearBindEmailNotificationTimer();
-      shouldShowBindEmailNotification.value = false;
     }
   }
 );
-//监听网络模式变化，切换到离线模式时清除所有通知和定时器
+//监听网络模式变化，切换到离线模式时清除快速登录数据
 watch(
   () => runtimeStore.networkMode,
   (newMode) => {
     if (newMode === 'offline') {
       clearQuickLoginData();
-      clearBindEmailNotificationTimer();
-      shouldShowBindEmailNotification.value = false;
     }
   }
 );
@@ -208,10 +131,6 @@ window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.quickLo
   quickLoginCredential.value = credential;
   clearNotificationDismissed('quick-login');
   quickLoginDismissed.value = false;
-});
-//组件卸载时清除定时器
-onUnmounted(() => {
-  clearBindEmailNotificationTimer();
 });
 </script>
 
