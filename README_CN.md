@@ -130,7 +130,7 @@ curl http://localhost
 curl http://localhost/api/health 
 ```
 
-### 🚀 代码更新
+### 代码更新
 
 如果你是通过 Docker 运行 Apiflow，更新代码时无需在本地重新构建。
 
@@ -141,18 +141,15 @@ curl http://localhost/api/health
 chmod +x update.sh rollback.sh
 
 # 执行更新
-./update.sh
-
-# 使用中国镜像源
 ./update.sh --cn
 ```
 
 **方式二：手动更新**
 
 ```bash
-docker compose pull
-docker compose down
-docker compose up -d
+docker compose -f docker-compose.yml -f docker-compose.cn.yml down
+docker compose -f docker-compose.yml -f docker-compose.cn.yml pull
+docker compose -f docker-compose.yml -f docker-compose.cn.yml up -d
 ```
 
 **回滚到指定版本**
@@ -161,9 +158,39 @@ docker compose up -d
 ./rollback.sh v1.2.3
 ```
 
-更多详情请参考 [README_DEPLOY.md](./README_DEPLOY.md)。
-
 ---
+
+## 阿里云部署(2026-01-22更新)
+### 环境要求
+- 2核心2G内存
+
+```bash
+#添加Docker软件包源
+sudo wget -O /etc/yum.repos.d/docker-ce.repo http://mirrors.cloud.aliyuncs.com/docker-ce/linux/centos/docker-ce.repo
+sudo sed -i 's|https://mirrors.aliyun.com|http://mirrors.cloud.aliyuncs.com|g' /etc/yum.repos.d/docker-ce.repo
+#Alibaba Cloud Linux3专用的dnf源兼容插件
+sudo dnf -y install dnf-plugin-releasever-adapter --repo alinux3-plus
+#安装Docker社区版本，容器运行时containerd.io，以及Docker构建和Compose插件
+sudo dnf -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+#启动Docker
+sudo systemctl start docker
+#设置Docker守护进程在系统启动时自动启动
+sudo systemctl enable docker
+
+yum install -y git
+git clone https://gitee.com/wildsell/apiflow.git
+cd apiflow
+cat > .env << 'EOF'
+MONGO_ROOT_USERNAME=admin
+MONGO_ROOT_PASSWORD=9sf9313jm8dpqbabcdefghijk
+MONGO_DATABASE=apiflow
+EOF
+
+docker compose -f docker-compose.yml -f docker-compose.cn.yml pull
+docker compose -f docker-compose.yml -f docker-compose.cn.yml up -d
+```
+
 
 ## 💻本地开发
 

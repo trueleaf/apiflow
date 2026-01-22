@@ -148,9 +148,6 @@ chmod +x update.sh rollback.sh
 
 # Run update
 ./update.sh
-
-# For China mirror
-./update.sh --cn
 ```
 
 **Option 2: Manual Update**
@@ -166,8 +163,6 @@ docker compose up -d
 ```bash
 ./rollback.sh v1.2.3
 ```
-
-For more details, see [README_DEPLOY.md](./README_DEPLOY.md).
 
 ---
 
