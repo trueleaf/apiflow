@@ -1,5 +1,6 @@
 <template>
   <div class="login-container d-flex a-center j-center">
+    <LoginSkeleton v-if="skeletonVisible" />
     <div class="login-box d-flex">
       <div ref="left" tabindex="-1" class="left hidden-md-and-down">
       </div>
@@ -41,18 +42,53 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { config as globalConfig } from '@src/config/config'
 import LoginAccount from './components/LoginAccount.vue';
 import LoginEmail from './components/LoginEmail.vue';
 import ServerConfig from './components/ServerConfig.vue';
 import ForgotPassword from './components/ForgotPassword.vue';
+import LoginSkeleton from './components/LoginSkeleton.vue';
 
 const { t } = useI18n();
 const config = ref(globalConfig);
 const activeName = ref('loginAccount');
 const showForgotPassword = ref(false);
+const skeletonVisible = ref(true);
+const skeletonMountedAt = performance.now();
+let fallbackTimer: number | undefined;
+let releaseTimer: number | undefined;
+const clearTimers = () => {
+  if (fallbackTimer) {
+    window.clearTimeout(fallbackTimer);
+    fallbackTimer = undefined;
+  }
+  if (releaseTimer) {
+    window.clearTimeout(releaseTimer);
+    releaseTimer = undefined;
+  }
+}
+const hideSkeleton = () => {
+  clearTimers();
+  const elapsed = performance.now() - skeletonMountedAt;
+  const delay = Math.max(0, 320 - elapsed);
+  releaseTimer = window.setTimeout(() => {
+    skeletonVisible.value = false;
+    clearTimers();
+  }, delay);
+}
+onMounted(() => {
+  fallbackTimer = window.setTimeout(hideSkeleton, 1200);
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(hideSkeleton).catch(hideSkeleton);
+  } else {
+    hideSkeleton();
+  }
+})
+onBeforeUnmount(() => {
+  clearTimers();
+})
 //显示忘记密码界面
 const handleForgotPassword = () => {
   showForgotPassword.value = true;
@@ -74,6 +110,8 @@ const handleResetSuccess = () => {
   width: 100%;
   height: 100%;
   background: var(--gray-200);
+  position: relative;
+  overflow: hidden;
 
   .login-box {
     height: 550px;

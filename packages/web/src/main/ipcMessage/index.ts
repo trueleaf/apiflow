@@ -498,9 +498,17 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     }
     return { code: 0, msg: 'success' };
   })
-  //清空electron-store缓存
+  //清空electron-store缓存并重启应用以加载本地页面
   ipcMain.handle(IPC_EVENTS.apiflow.rendererToMain.clearElectronStore, () => {
+    const hadOnlineUrl = !!appStore.getOnlineUrl();
     appStore.clearStore();
+    if (hadOnlineUrl) {
+      setTimeout(() => {
+        app.relaunch();
+        app.exit();
+      }, 1500);
+    }
+    return hadOnlineUrl;
   })
 
   // 选择导出路径

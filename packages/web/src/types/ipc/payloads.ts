@@ -282,7 +282,7 @@ export interface IPCEventMap {
 
   [IPC_EVENTS.apiflow.rendererToMain.clearElectronStore]: {
     request: void;
-    response: void;
+    response: boolean;
   };
 
   // ==================== WINDOW ====================

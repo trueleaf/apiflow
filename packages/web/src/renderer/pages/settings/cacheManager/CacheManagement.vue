@@ -329,13 +329,18 @@ const handleClearAllCache = async () => {
       indexedDBWorkerRef.value.postMessage({ type: 'clearAll' })
       await new Promise(resolve => setTimeout(resolve, 500))
     }
+    let willRestart = false
     if (isElectron()) {
-      await window.electronAPI?.ipcManager.invoke(IPC_EVENTS.apiflow.rendererToMain.clearElectronStore)
+      willRestart = await window.electronAPI?.ipcManager.invoke(IPC_EVENTS.apiflow.rendererToMain.clearElectronStore) ?? false
     }
-    message.success(t('清空缓存成功，即将刷新页面'))
-    setTimeout(() => {
-      window.location.reload()
-    }, 1000)
+    if (willRestart) {
+      message.success(t('清空缓存成功，即将重启应用'))
+    } else {
+      message.success(t('清空缓存成功，即将刷新页面'))
+      setTimeout(() => {
+        window.location.reload()
+      }, 1000)
+    }
   } catch (error) {
     message.error(t('清空缓存失败'))
   } finally {
