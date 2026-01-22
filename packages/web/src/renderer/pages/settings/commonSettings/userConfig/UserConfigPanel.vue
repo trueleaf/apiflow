@@ -97,6 +97,9 @@
       </div>
     </div>
     <div class="panel-actions">
+      <el-button v-if="!isLocalMode" type="primary" @click="handleChangePassword">
+        {{ t('修改密码') }}
+      </el-button>
       <el-button v-if="!userInfo.email" type="primary" @click="handleBindEmail">
         {{ t('绑定邮箱') }}
       </el-button>
@@ -112,6 +115,7 @@
     </div>
   </section>
 
+  <ChangePasswordDialog v-model="changePasswordDialogVisible" @success="handleChangePasswordSuccess" />
   <BindEmailDialog v-model="bindDialogVisible" @success="handleBindSuccess" />
   <ChangeEmailDialog v-model="changeDialogVisible" :current-email="userInfo.email || ''" @success="handleChangeSuccess" />
 </template>
@@ -129,6 +133,7 @@ import { message } from '@/helper'
 import { runtimeCache } from '@/cache/runtime/runtimeCache'
 import { request } from '@/api/api'
 import { ElMessageBox } from 'element-plus'
+import ChangePasswordDialog from './ChangePasswordDialog.vue'
 import BindEmailDialog from './BindEmailDialog.vue'
 import ChangeEmailDialog from './ChangeEmailDialog.vue'
 
@@ -161,6 +166,7 @@ const isAvatarUploading = ref(false)
 const avatarTrigger = ref()
 const bindDialogVisible = ref(false)
 const changeDialogVisible = ref(false)
+const changePasswordDialogVisible = ref(false)
 
 
 const displayAvatar = computed(() => {
@@ -226,7 +232,14 @@ const handleResetAvatar = () => {
   runtimeStore.updateUserInfo({ avatar: '' })
   refreshUserInfoFromCache()
 }
-
+//打开修改密码对话框
+const handleChangePassword = () => {
+  changePasswordDialogVisible.value = true
+}
+//修改密码成功回调
+const handleChangePasswordSuccess = () => {
+  message.success(t('密码修改成功'))
+}
 //打开绑定邮箱对话框
 const handleBindEmail = () => {
   bindDialogVisible.value = true
