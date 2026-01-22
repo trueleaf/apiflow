@@ -165,13 +165,8 @@ docker compose -f docker-compose.yml -f docker-compose.cn.yml up -d
 ### 购买服务器
 ![阿里云购买](./docs/aliyun/aliyun_buy.gif)
 
-### 部署步骤
-![阿里云部署](./docs/aliyun/aliyun_linux.gif)
-
-### 环境要求
-- 2核心2G内存
-
-直接在服务器运行以下命令,完成后浏览器通过ip直接访问
+### linux部署
+直接在服务器运行以下命令,完成后浏览器通过ip直接访问。注意：mongodb密码需要你自行修改
 ```bash
 #添加Docker软件包源
 sudo wget -O /etc/yum.repos.d/docker-ce.repo http://mirrors.cloud.aliyuncs.com/docker-ce/linux/centos/docker-ce.repo
@@ -199,6 +194,12 @@ docker compose -f docker-compose.yml -f docker-compose.cn.yml pull
 docker compose -f docker-compose.yml -f docker-compose.cn.yml up -d
 curl -i localhost
 ```
+![阿里云部署](./docs/aliyun/aliyun_linux.gif)
+
+### 环境要求
+- 2核心2G内存
+
+
 
 
 
