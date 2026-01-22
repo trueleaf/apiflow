@@ -145,7 +145,7 @@ fi
 echo ""
 
 print_step "▶️  启动新服务..."
-if docker compose -f $COMPOSE_FILE up -d; then
+if docker compose -f $COMPOSE_FILE up -d --force-recreate; then
     print_success "服务已启动"
 else
     print_error "服务启动失败"
