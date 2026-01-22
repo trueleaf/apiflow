@@ -46,6 +46,8 @@ services:
     depends_on:
       - server
       - website
+    environment:
+      - DEPLOYMENT_TYPE=${DEPLOYMENT_TYPE:-user}
     ports:
       - "80:80"
 

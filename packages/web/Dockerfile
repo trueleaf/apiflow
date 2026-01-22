@@ -31,5 +31,17 @@ RUN npm run build:web
 
 FROM nginx:1.27-alpine AS runtime
 COPY --from=build /app/packages/web/dist/web/ /usr/share/nginx/html/
-COPY packages/web/nginx.conf /etc/nginx/conf.d/default.conf
+COPY packages/web/nginx.conf /etc/nginx/templates/nginx.official.conf
+COPY packages/web/nginx.user.conf /etc/nginx/templates/nginx.user.conf
+
+RUN echo '#!/bin/sh' > /docker-entrypoint.sh && \
+    echo 'if [ "$DEPLOYMENT_TYPE" = "official" ]; then' >> /docker-entrypoint.sh && \
+    echo '  cp /etc/nginx/templates/nginx.official.conf /etc/nginx/conf.d/default.conf' >> /docker-entrypoint.sh && \
+    echo 'else' >> /docker-entrypoint.sh && \
+    echo '  cp /etc/nginx/templates/nginx.user.conf /etc/nginx/conf.d/default.conf' >> /docker-entrypoint.sh && \
+    echo 'fi' >> /docker-entrypoint.sh && \
+    echo 'exec nginx -g "daemon off;"' >> /docker-entrypoint.sh && \
+    chmod +x /docker-entrypoint.sh
+
 EXPOSE 80
+CMD ["/docker-entrypoint.sh"]
