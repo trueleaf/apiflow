@@ -11,15 +11,19 @@ const store = new Store<StoreSchema>({
   },
 });
 
-// 获取在线URL配置
+//获取在线URL配置
 export const getOnlineUrl = (): string => {
   return store.get('onlineUrl', '');
 }
-// 设置在线URL配置
+//设置在线URL配置
 export const setOnlineUrl = (url: string): void => {
   store.set('onlineUrl', url);
 }
-// 清除在线URL配置
+//清除在线URL配置
 export const clearOnlineUrl = (): void => {
   store.delete('onlineUrl');
+}
+//清空所有electron-store缓存
+export const clearStore = (): void => {
+  store.clear();
 }

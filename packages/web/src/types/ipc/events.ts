@@ -134,6 +134,8 @@ export const IPC_EVENTS = {
       setOnlineUrl: 'apiflow:renderer:to:main:set-online-url',
       /** 获取当前在线URL配置 */
       getOnlineUrl: 'apiflow:renderer:to:main:get-online-url',
+      /** 清空electron-store缓存 */
+      clearElectronStore: 'apiflow:renderer:to:main:clear-electron-store',
     },
   },
 

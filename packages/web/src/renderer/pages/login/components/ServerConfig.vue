@@ -29,7 +29,7 @@
         </div>
         <el-input
           v-model="localOnlineUrl"
-          :placeholder="t('请输入在线页面地址')"
+          placeholder="https://app.apiflow.cn"
           clearable
           class="form-input"
           :disabled="isCheckingUrl"

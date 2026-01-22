@@ -2,6 +2,13 @@
   <div class="cache-management">
     <div class="page-title">
       <h2>{{ t('本地数据管理') }}</h2>
+      <el-button 
+        type="danger" 
+        :loading="clearingAllCache"
+        @click="handleClearAllCache"
+      >
+        {{ t('清空所有缓存') }}
+      </el-button>
     </div>
     <div class="statistics">
       <!-- localStorage 本地数据卡片 -->
@@ -119,7 +126,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/apidoc/cache'
-import { formatUnit } from '@/helper'
+import { formatUnit, isElectron } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
 import { appStateCache } from '@/cache/appState/appStateCache.ts'
 import { appSettingsCache } from '@/cache/settings/appSettingsCache'
@@ -128,6 +135,8 @@ import IndexedDBDetail from './components/IndexedDBDetail.vue'
 import DataBackup from './components/DataBackup.vue'
 import DataRestore from './components/DataRestore.vue'
 import { message } from '@/helper'
+import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2'
+import { IPC_EVENTS } from '@src/types/ipc'
 
 const { t } = useI18n()
 
@@ -138,6 +147,7 @@ const { t } = useI18n()
 */
 const indexedDBLoading = ref(false)
 const localStorageLoading = ref(false)
+const clearingAllCache = ref(false)
 const indexedDBWorkerRef = ref<Worker | null>(null)
 const selectedCacheType = ref<'localStorage' | 'indexedDB' | 'backup' | 'restore'>(appStateCache.getSelectedCacheType())
 const cacheInfo = ref<CacheInfo>({
@@ -299,7 +309,39 @@ const getIndexedDB = async () => {
   })
   indexedDBLoading.value = true;
 }
-
+//清空所有缓存
+const handleClearAllCache = async () => {
+  try {
+    await ClConfirm({
+      content: t('确认清空所有缓存吗？此操作将清空localStorage、sessionStorage、IndexedDB和应用配置中的所有缓存数据，不可恢复！'),
+      type: 'warning',
+      confirmButtonText: t('确定'),
+      cancelButtonText: t('取消'),
+    })
+  } catch {
+    return
+  }
+  clearingAllCache.value = true
+  try {
+    localStorage.clear()
+    sessionStorage.clear()
+    if (indexedDBWorkerRef.value) {
+      indexedDBWorkerRef.value.postMessage({ type: 'clearAll' })
+      await new Promise(resolve => setTimeout(resolve, 500))
+    }
+    if (isElectron()) {
+      await window.electronAPI?.ipcManager.invoke(IPC_EVENTS.apiflow.rendererToMain.clearElectronStore)
+    }
+    message.success(t('清空缓存成功，即将刷新页面'))
+    setTimeout(() => {
+      window.location.reload()
+    }, 1000)
+  } catch (error) {
+    message.error(t('清空缓存失败'))
+  } finally {
+    clearingAllCache.value = false
+  }
+}
 // 处理本地数据类型选择
 const handleSelectCacheType = (type: 'localStorage' | 'indexedDB' | 'backup' | 'restore'): void => {
   selectedCacheType.value = type
@@ -378,6 +420,9 @@ onUnmounted(() => {
   
   .page-title {
     margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
     h2 {
       margin: 0;

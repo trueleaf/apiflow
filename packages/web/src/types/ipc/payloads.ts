@@ -270,6 +270,21 @@ export interface IPCEventMap {
     response: Blob | null;
   };
 
+  [IPC_EVENTS.apiflow.rendererToMain.setOnlineUrl]: {
+    request: string;
+    response: void;
+  };
+
+  [IPC_EVENTS.apiflow.rendererToMain.getOnlineUrl]: {
+    request: void;
+    response: string;
+  };
+
+  [IPC_EVENTS.apiflow.rendererToMain.clearElectronStore]: {
+    request: void;
+    response: void;
+  };
+
   // ==================== WINDOW ====================
 
   [IPC_EVENTS.window.rendererToMain.minimize]: {

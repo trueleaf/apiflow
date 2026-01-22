@@ -478,11 +478,11 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   | 在线URL配置
   |---------------------------------------------------------------------------
   */
-  // 获取当前在线URL配置
+  //获取当前在线URL配置
   ipcMain.handle(IPC_EVENTS.apiflow.rendererToMain.getOnlineUrl, () => {
     return appStore.getOnlineUrl();
   })
-  // 设置在线URL并刷新contentView
+  //设置在线URL并刷新contentView
   ipcMain.handle(IPC_EVENTS.apiflow.rendererToMain.setOnlineUrl, async (_: IpcMainInvokeEvent, url: string) => {
     appStore.setOnlineUrl(url);
     // 刷新应用以加载新URL
@@ -497,6 +497,10 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
       }
     }
     return { code: 0, msg: 'success' };
+  })
+  //清空electron-store缓存
+  ipcMain.handle(IPC_EVENTS.apiflow.rendererToMain.clearElectronStore, () => {
+    appStore.clearStore();
   })
 
   // 选择导出路径
