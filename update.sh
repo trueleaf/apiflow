@@ -86,6 +86,11 @@ if [ ! -f "docker-compose.yml" ]; then
     exit 1
 fi
 
+# 加载 .env 文件中的环境变量
+if [ -f ".env" ]; then
+    export $(grep -v '^#' .env | grep -v '^$' | xargs)
+fi
+
 echo ""
 print_step "🚀 开始更新 Apiflow..."
 echo ""
