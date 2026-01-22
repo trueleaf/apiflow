@@ -6,6 +6,7 @@ import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'url';
 import { exportHtml, exportWord, setMainWindow, setContentView, startExport, receiveRendererData, finishRendererData, getExportStatus, resetExport, selectExportPath } from './export/export.ts';
+import * as appStore from '../store/appStore.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -471,6 +472,33 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   ipcMain.on(IPC_EVENTS.apiflow.rendererToMain.refreshContentView, () => {
     contentView.webContents.reloadIgnoringCache()
   })
+
+  /*
+  |---------------------------------------------------------------------------
+  | 在线URL配置
+  |---------------------------------------------------------------------------
+  */
+  // 获取当前在线URL配置
+  ipcMain.handle(IPC_EVENTS.apiflow.rendererToMain.getOnlineUrl, () => {
+    return appStore.getOnlineUrl();
+  })
+  // 设置在线URL并刷新contentView
+  ipcMain.handle(IPC_EVENTS.apiflow.rendererToMain.setOnlineUrl, async (_: IpcMainInvokeEvent, url: string) => {
+    appStore.setOnlineUrl(url);
+    // 刷新应用以加载新URL
+    if (app.isPackaged) {
+      app.relaunch();
+      app.exit();
+    } else {
+      if (url) {
+        contentView.webContents.loadURL(url);
+      } else {
+        contentView.webContents.loadURL('http://localhost:4000');
+      }
+    }
+    return { code: 0, msg: 'success' };
+  })
+
   // 选择导出路径
   ipcMain.handle(IPC_EVENTS.export.rendererToMain.selectPath, async () => {     
     try {

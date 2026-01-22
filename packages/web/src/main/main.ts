@@ -12,6 +12,7 @@ import { HttpMockManager } from './mock/httpMock/httpMockManager.ts';
 import { WebSocketMockManager } from './mock/websocketMock/websocketMockManager.ts';
 import { updateManager } from './update/updateManager.ts';
 import { mainConfig } from '@src/config/mainConfig';
+import { getOnlineUrl } from './store/appStore.ts';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -85,10 +86,22 @@ const createWindow = () => {
   // 加载内容 - 根据构建命令决定加载方式
   if (__COMMAND__ === 'build') {
     topBarView.webContents.loadURL('app://header.html');
-    contentView.webContents.loadURL('app://index.html');
+    // 检查是否配置了在线URL
+    const onlineUrl = getOnlineUrl();
+    if (onlineUrl) {
+      contentView.webContents.loadURL(onlineUrl);
+    } else {
+      contentView.webContents.loadURL('app://index.html');
+    }
   } else {
     topBarView.webContents.loadURL('http://localhost:4000/header.html');
-    contentView.webContents.loadURL('http://localhost:4000');
+    // 开发环境也支持在线URL加载
+    const onlineUrl = getOnlineUrl();
+    if (onlineUrl) {
+      contentView.webContents.loadURL(onlineUrl);
+    } else {
+      contentView.webContents.loadURL('http://localhost:4000');
+    }
     topBarView.webContents.on('did-finish-load', () => {
       // topBarView.webContents.openDevTools({ mode: 'detach' })
     })

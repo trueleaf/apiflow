@@ -130,6 +130,10 @@ export const IPC_EVENTS = {
       readFileAsBlob: 'apiflow:renderer:to:main:read-file-as-blob',
       /** 设置窗口图标 */
       setWindowIcon: 'apiflow:renderer:to:main:set-window-icon',
+      /** 设置在线URL并刷新 */
+      setOnlineUrl: 'apiflow:renderer:to:main:set-online-url',
+      /** 获取当前在线URL配置 */
+      getOnlineUrl: 'apiflow:renderer:to:main:get-online-url',
     },
   },
 

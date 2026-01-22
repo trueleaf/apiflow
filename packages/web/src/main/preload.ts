@@ -120,15 +120,17 @@ const afHttpRequest = async (options: {
   };
 }
 
-const sendToMain = (channel: string, ...args: any[]) => {
+const sendToMain = <T = unknown>(channel: string, ...args: T[]) => {
   ipcRenderer.send(channel, ...args)
 }
-const onMain = (channel: string, callback: (...args: any[]) => void) => {
-  ipcRenderer.on(channel, (_event, ...args) => callback(...args))
+const onMain = <T = unknown>(channel: string, callback: (payload: T) => void) => {
+  ipcRenderer.on(channel, (_event, ...args) => callback(args[0] as T))
 }
-
-const removeListener = (channel: string, callback?: (...args: any[]) => void) => {
-  callback ? ipcRenderer.removeListener(channel, callback) : ipcRenderer.removeAllListeners(channel);
+const invokeMain = <T = unknown, R = unknown>(channel: string, ...args: T[]): Promise<R> => {
+  return ipcRenderer.invoke(channel, ...args)
+}
+const removeListener = <T = unknown>(channel: string, callback?: (payload: T) => void) => {
+  callback ? ipcRenderer.removeListener(channel, callback as (...args: unknown[]) => void) : ipcRenderer.removeAllListeners(channel);
 }
 
 // WebSocket相关方法
@@ -300,6 +302,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     sendToMain,
     onMain,
     removeListener,
+    invoke: invokeMain,
   },
   websocket: {
     connect: websocketConnect,

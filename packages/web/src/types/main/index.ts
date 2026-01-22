@@ -64,9 +64,10 @@ export type ElectronAPI = {
     getFilePath: (file: File) => string;
   };
   ipcManager: {
-    sendToMain: (channel: string, ...args: any[]) => void;
-    onMain: (channel: string, callback: (...args: any[]) => void) => void;
-    removeListener: (channel: string, callback?: (...args: any[]) => void) => void;
+    sendToMain: <T = unknown>(channel: string, ...args: T[]) => void;
+    onMain: <T = unknown>(channel: string, callback: (payload: T) => void) => void;
+    removeListener: <T = unknown>(channel: string, callback?: (payload: T) => void) => void;
+    invoke: <T = unknown, R = unknown>(channel: string, ...args: T[]) => Promise<R>;
   };
   websocket: {
     connect: (params: WebsocketConnectParams) => Promise<CommonResponse<{ connectionId?: string }>>;
