@@ -3,7 +3,7 @@ import { ipcMain, app } from 'electron'
 import type { UpdateInfo } from 'electron-updater'
 import { UPDATE_IPC_EVENTS } from '@src/types/ipc/update'
 import type { UpdateSettings, DownloadState, DownloadProgress } from '@src/types/update'
-import { contentViewInstance } from '../main'
+import { safeContentViewInstanceSend } from '../utils/safeIpcSend'
 import { DownloadManager } from './downloadManager'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -346,9 +346,7 @@ class UpdateManager {
 
   // 向渲染进程发送消息
   private sendToRenderer(event: string, data: unknown) {
-    if (contentViewInstance && !contentViewInstance.webContents.isDestroyed()) {
-      contentViewInstance.webContents.send(event, data)
-    }
+    safeContentViewInstanceSend(event, data)
   }
 
   // 清理资源

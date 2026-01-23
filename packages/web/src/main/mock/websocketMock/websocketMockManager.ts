@@ -1,6 +1,6 @@
 import { WebSocketMockNode, WebSocketMockLog, WebSocketMockStatusChangedPayload } from '@src/types/mockNode';
 import { CommonResponse } from '@src/types/project';
-import { contentViewInstance } from '../../main';
+import { safeContentViewInstanceSend } from '../../utils/safeIpcSend.ts';
 import detect from 'detect-port';
 import { WebSocketServer, WebSocket } from 'ws';
 import http from 'http';
@@ -54,15 +54,11 @@ export class WebSocketMockManager {
     const logsToSend = [...this.logBuffer];
     this.logBuffer = [];
     this.sendTimer = null;
-    if (contentViewInstance && contentViewInstance.webContents) {
-      contentViewInstance.webContents.send(IPC_EVENTS.websocketMock.mainToRenderer.logsBatch, logsToSend);
-    }
+    safeContentViewInstanceSend(IPC_EVENTS.websocketMock.mainToRenderer.logsBatch, logsToSend);
   }
   // 推送Mock状态变更到渲染进程
   private pushMockStatusChanged(payload: WebSocketMockStatusChangedPayload): void {
-    if (contentViewInstance && contentViewInstance.webContents) {
-      contentViewInstance.webContents.send(IPC_EVENTS.websocketMock.mainToRenderer.statusChanged, payload);
-    }
+    safeContentViewInstanceSend(IPC_EVENTS.websocketMock.mainToRenderer.statusChanged, payload);
   }
   // 检测端口是否冲突
   private async checkPortConflict(port: number, nodeId: string, projectId: string): Promise<boolean> {

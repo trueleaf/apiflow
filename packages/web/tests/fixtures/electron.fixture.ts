@@ -82,7 +82,7 @@ export const test = base.extend<ElectronFixtures>({
     await contentPage.waitForLoadState('domcontentloaded');
     await use(contentPage);
   },
-  // 清空所有缓存（localStorage、sessionStorage、IndexedDB）并重置到首页
+  // 重置应用（localStorage、sessionStorage、IndexedDB）并重置到首页
   clearCache: async ({ contentPage, topBarPage }, use) => {
     const clear = async () => {
       // 清除所有存储

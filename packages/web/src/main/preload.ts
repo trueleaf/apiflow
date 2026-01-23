@@ -275,6 +275,17 @@ const updateIsAppStore = () => {
   return ipcRenderer.invoke(UPDATE_IPC_EVENTS.isAppStore)
 }
 
+// ContentView 生命周期相关方法
+const contentViewRetry = () => {
+  ipcRenderer.send(IPC_EVENTS.contentViewLifecycle.rendererToMain.retry)
+}
+const contentViewFallback = () => {
+  ipcRenderer.send(IPC_EVENTS.contentViewLifecycle.rendererToMain.fallback)
+}
+const contentViewGetLoadState = () => {
+  return ipcRenderer.invoke(IPC_EVENTS.contentViewLifecycle.rendererToMain.getLoadState)
+}
+
 contextBridge.exposeInMainWorld('electronAPI', {
   ip: ip.address(),
   sendRequest: gotRequest,
@@ -355,4 +366,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     testConnection: updateTestConnection,
     isAppStore: updateIsAppStore,
   },
+  contentViewRetry,
+  contentViewFallback,
+  contentViewGetLoadState,
 })

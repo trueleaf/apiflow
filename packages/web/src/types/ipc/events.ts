@@ -262,6 +262,21 @@ export const IPC_EVENTS = {
   },
 
   /**
+   * ContentView 生命周期事件
+   */
+  contentViewLifecycle: {
+    /** 渲染进程 -> 主进程 */
+    rendererToMain: {
+      /** 手动重试加载 */
+      retry: 'content-view-lifecycle:renderer:to:main:retry',
+      /** 降级到本地版本 */
+      fallback: 'content-view-lifecycle:renderer:to:main:fallback',
+      /** 获取加载状态 */
+      getLoadState: 'content-view-lifecycle:renderer:to:main:get-load-state',
+    },
+  },
+
+  /**
    * 数据导出事件
    */
   export: {

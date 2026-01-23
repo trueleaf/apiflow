@@ -120,11 +120,25 @@ export type ElectronAPI = {
     setAutoCheck: (autoCheck: boolean) => Promise<CommonResponse>;
     setUpdateSource: (source: 'github' | 'custom', customUrl?: string) => Promise<CommonResponse>;
     testConnection: (url: string) => Promise<CommonResponse>;
+    isAppStore: () => Promise<boolean>;
   };
   projectScan: {
     selectFolder: () => Promise<CommonResponse<{ folderPath: string; folderName: string; canceled?: boolean }>>;
     readFiles: (folderPath: string) => Promise<CommonResponse<{ files: { relativePath: string; content: string }[]; totalFiles: number }>>;
   };
+  // ContentView 生命周期管理
+  contentViewRetry: () => void;
+  contentViewFallback: () => void;
+  contentViewGetLoadState: () => Promise<{
+    state: 'idle' | 'loading' | 'loaded' | 'failed';
+    failureInfo: {
+      errorCode: number;
+      errorDescription: string;
+      validatedURL: string;
+      timestamp: number;
+    } | null;
+    currentUrl: string;
+  }>;
 }
 
 // ============================================================================

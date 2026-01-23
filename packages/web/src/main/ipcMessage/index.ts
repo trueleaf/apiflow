@@ -19,7 +19,8 @@ import type { PermissionUserInfo } from '@src/types/project';
 import type { QuickLoginCredential } from '@src/types/security/quickLogin';
 import type { AppWorkbenchHeaderTabContextActionPayload, AppWorkbenchHeaderTabContextmenuData } from '@src/types/appWorkbench/appWorkbenchType';
 
-import { contentViewInstance, mockManager, websocketMockManager } from '../main.ts';
+import { mockManager, websocketMockManager } from '../main.ts';
+import { safeContentViewInstanceSend } from '../utils/safeIpcSend.ts';
 import { MockUtils } from '../mock/mockUtils.ts';
 import { HttpMockNode, WebSocketMockNode } from '@src/types/mockNode';
 import { mainRuntime } from '../runtime/mainRuntime.ts';
@@ -27,6 +28,83 @@ import { IPCProjectData, WindowState } from '@src/types/index.ts';
 
 // 导入 IPC 事件常量
 import { IPC_EVENTS } from '@src/types/ipc';
+
+// 握手状态管理器
+const createHandshakeManager = (contentView: WebContentsView, topBarView: WebContentsView) => {
+  let topBarReady = false;
+  let contentViewReady = false;
+  let handshakeCompleted = false;
+  let handshakeTimeoutTimer: ReturnType<typeof setTimeout> | null = null;
+  const HANDSHAKE_TIMEOUT = 30000; // 30秒超时
+  // 尝试完成握手
+  const tryCompleteHandshake = () => {
+    if (handshakeCompleted) return;
+    if (topBarReady && contentViewReady) {
+      handshakeCompleted = true;
+      clearHandshakeTimeout();
+      contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.topBarIsReady);
+      topBarView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.contentIsReady);
+    }
+  };
+  // 启动握手超时计时器
+  const startHandshakeTimeout = () => {
+    clearHandshakeTimeout();
+    handshakeTimeoutTimer = setTimeout(() => {
+      if (!handshakeCompleted) {
+        // 超时后允许 topBar 独立工作
+        if (topBarReady && !contentViewReady) {
+          console.warn('[Handshake] ContentView not ready after timeout, topBar will work independently');
+        }
+        if (contentViewReady && !topBarReady) {
+          console.warn('[Handshake] TopBar not ready after timeout, contentView will work independently');
+        }
+      }
+    }, HANDSHAKE_TIMEOUT);
+  };
+  // 清除握手超时计时器
+  const clearHandshakeTimeout = () => {
+    if (handshakeTimeoutTimer) {
+      clearTimeout(handshakeTimeoutTimer);
+      handshakeTimeoutTimer = null;
+    }
+  };
+  // 重置握手状态（用于刷新场景）
+  const resetHandshake = () => {
+    topBarReady = false;
+    contentViewReady = false;
+    handshakeCompleted = false;
+    clearHandshakeTimeout();
+  };
+  // 设置 topBar 就绪
+  const setTopBarReady = () => {
+    topBarReady = true;
+    if (!handshakeTimeoutTimer && !handshakeCompleted) {
+      startHandshakeTimeout();
+    }
+    tryCompleteHandshake();
+  };
+  // 设置 contentView 就绪
+  const setContentViewReady = () => {
+    contentViewReady = true;
+    if (!handshakeTimeoutTimer && !handshakeCompleted) {
+      startHandshakeTimeout();
+    }
+    tryCompleteHandshake();
+  };
+  // 获取握手状态
+  const getHandshakeState = () => ({
+    topBarReady,
+    contentViewReady,
+    handshakeCompleted,
+  });
+  return {
+    setTopBarReady,
+    setContentViewReady,
+    resetHandshake,
+    getHandshakeState,
+    clearHandshakeTimeout,
+  };
+};
 
 export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsView, contentView: WebContentsView) => {
   // 设置窗口引用到导出模块
@@ -36,29 +114,21 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   setImportMainWindow(mainWindow);
   setImportContentView(contentView);
 
+  // 创建握手管理器
+  const handshakeManager = createHandshakeManager(contentView, topBarView);
+
   /*
   |--------------------------------------------------------------------------   
   | 握手机制相关事件
   |--------------------------------------------------------------------------   
   */
-  let topBarReady = false;
-  let contentViewReady = false;
-  // 尝试完成握手
-  const tryCompleteHandshake = () => {
-    if (topBarReady && contentViewReady) {
-      contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.topBarIsReady);
-      topBarView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.contentIsReady);
-    }
-  };
   // topBarView 就绪通知
   ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.topBarReady, () => {
-    topBarReady = true;
-    tryCompleteHandshake();
+    handshakeManager.setTopBarReady();
   });
   // contentView 就绪通知
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.contentReady, () => {
-    contentViewReady = true;
-    tryCompleteHandshake();
+    handshakeManager.setContentViewReady();
   });
 
   /*
@@ -459,9 +529,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, payload)
   })
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, (_, payload: QuickLoginCredential) => {
-    if (contentViewInstance && !contentViewInstance.webContents.isDestroyed()) {
-      contentViewInstance.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, payload)
-    }
+    safeContentViewInstanceSend(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, payload)
   })
 
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.headerTabContextAction, (_, payload: AppWorkbenchHeaderTabContextActionPayload) => {
@@ -470,6 +538,11 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
 
   // 刷新contentView
   ipcMain.on(IPC_EVENTS.apiflow.rendererToMain.refreshContentView, () => {
+    // 重置生命周期状态
+    const { resetLoadState } = require('../lifecycle/contentViewLifecycle.ts');
+    resetLoadState();
+    // 重置握手状态
+    handshakeManager.resetHandshake();
     contentView.webContents.reloadIgnoringCache()
   })
 
@@ -498,15 +571,13 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     }
     return { code: 0, msg: 'success' };
   })
-  //清空electron-store缓存并重启应用以加载本地页面
+  //重置应用：清空electron-store缓存并立即重启应用
   ipcMain.handle(IPC_EVENTS.apiflow.rendererToMain.clearElectronStore, () => {
     const hadOnlineUrl = !!appStore.getOnlineUrl();
     appStore.clearStore();
     if (hadOnlineUrl) {
-      setTimeout(() => {
-        app.relaunch();
-        app.exit();
-      }, 1500);
+      app.relaunch();
+      app.exit();
     }
     return hadOnlineUrl;
   })
@@ -616,6 +687,28 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
 
   /*
   |---------------------------------------------------------------------------
+  | ContentView 生命周期管理
+  |---------------------------------------------------------------------------
+  */
+  ipcMain.on(IPC_EVENTS.contentViewLifecycle.rendererToMain.retry, () => {
+    const { manualRetry } = require('../lifecycle/contentViewLifecycle.ts');
+    manualRetry();
+  });
+  ipcMain.on(IPC_EVENTS.contentViewLifecycle.rendererToMain.fallback, () => {
+    const { fallbackToLocal } = require('../lifecycle/contentViewLifecycle.ts');
+    fallbackToLocal();
+  });
+  ipcMain.handle(IPC_EVENTS.contentViewLifecycle.rendererToMain.getLoadState, () => {
+    const { getLoadState, getFailureInfo, getCurrentUrl } = require('../lifecycle/contentViewLifecycle.ts');
+    return {
+      state: getLoadState(),
+      failureInfo: getFailureInfo(),
+      currentUrl: getCurrentUrl(),
+    };
+  });
+
+  /*
+  |---------------------------------------------------------------------------
   | 代码执行
   |---------------------------------------------------------------------------
   */
@@ -637,7 +730,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
 
   // 返回包含路由器和广播方法的对象
   return {
-    broadcastWindowState
+    broadcastWindowState,
+    handshakeManager,
   };
 }
-

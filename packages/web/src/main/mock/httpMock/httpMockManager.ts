@@ -2,7 +2,7 @@ import { HttpMockNode, MockInstance, MockLog, MockStatusChangedPayload } from '@
 import { CommonResponse } from '@src/types/project';
 import { MockUtils, ConsoleLogCollector } from '../mockUtils';
 import { matchPath, getPatternPriority, sleep } from '../../utils';
-import { contentViewInstance } from '../../main';
+import { safeContentViewInstanceSend } from '../../utils/safeIpcSend.ts';
 import detect from 'detect-port';
 import http from 'http';
 import Koa from 'koa';
@@ -37,9 +37,7 @@ export class HttpMockManager {
     const logsToSend = [...this.httpLogBuffer];
     this.httpLogBuffer = [];
     this.sendTimer = null;
-    if (contentViewInstance && contentViewInstance.webContents) {
-      contentViewInstance.webContents.send(IPC_EVENTS.mock.mainToRenderer.logsBatch, logsToSend);
-    }
+    safeContentViewInstanceSend(IPC_EVENTS.mock.mainToRenderer.logsBatch, logsToSend);
   }
 
   /*
@@ -860,9 +858,7 @@ export class HttpMockManager {
   }
   //推送Mock状态变更到渲染进程
   private pushMockStatusChanged(payload: MockStatusChangedPayload): void {
-    if (contentViewInstance && contentViewInstance.webContents) {
-      contentViewInstance.webContents.send(IPC_EVENTS.mock.mainToRenderer.statusChanged, payload);
-    }
+    safeContentViewInstanceSend(IPC_EVENTS.mock.mainToRenderer.statusChanged, payload);
   }
   // 获取所有 HTTP Mock 状态
   public getAllHttpMockStates(projectId: string): MockStatusChangedPayload[] {

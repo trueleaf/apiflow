@@ -13,6 +13,18 @@ import { WebSocketMockManager } from './mock/websocketMock/websocketMockManager.
 import { updateManager } from './update/updateManager.ts';
 import { mainConfig } from '@src/config/mainConfig';
 import { getOnlineUrl } from './store/appStore.ts';
+import {
+  initContentViewLifecycle,
+  loadUrl as lifecycleLoadUrl,
+  onLoadSuccess,
+  onLoadFailure,
+  destroyContentViewLifecycle,
+} from './lifecycle/contentViewLifecycle.ts';
+import {
+  initSafeIpcSend,
+  flushContentViewMessageQueue,
+  destroySafeIpcSend,
+} from './utils/safeIpcSend.ts';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -71,6 +83,9 @@ const createWindow = () => {
   mainWindow.contentView.addChildView(topBarView);
   mainWindow.contentView.addChildView(contentView);
 
+  // 初始化安全 IPC 发送模块
+  initSafeIpcSend(contentView, topBarView);
+
   // 设置顶部栏位置和大小
   const windowBounds = mainWindow.getContentBounds();
   topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: mainConfig.topbarViewHeight })
@@ -83,24 +98,46 @@ const createWindow = () => {
     height: windowBounds.height - mainConfig.topbarViewHeight
   })
 
+  // 确定本地降级URL和目标加载URL
+  const localFallbackUrl = __COMMAND__ === 'build' ? 'app://index.html' : 'http://localhost:4000';
+  const onlineUrl = getOnlineUrl();
+  const targetUrl = onlineUrl || localFallbackUrl;
+
+  // 初始化 contentView 生命周期管理（仅在使用在线URL时启用保护机制）
+  if (onlineUrl) {
+    initContentViewLifecycle(contentView, localFallbackUrl, {
+      loadTimeout: 30000,
+      maxRetries: 2,
+      retryDelay: 2000,
+    });
+    onLoadSuccess(() => {
+      // 加载成功后刷新消息队列
+      const flushedCount = flushContentViewMessageQueue();
+      if (flushedCount > 0) {
+        console.log(`[SafeIpcSend] Flushed ${flushedCount} queued messages after page load`);
+      }
+    });
+    onLoadFailure((info) => {
+      console.error(`[ContentView] Load failed: ${info.errorDescription} (code: ${info.errorCode})`);
+    });
+  }
+
   // 加载内容 - 根据构建命令决定加载方式
   if (__COMMAND__ === 'build') {
     topBarView.webContents.loadURL('app://header.html');
-    // 检查是否配置了在线URL
-    const onlineUrl = getOnlineUrl();
+    // 使用生命周期管理器加载（如果启用）或直接加载
     if (onlineUrl) {
-      contentView.webContents.loadURL(onlineUrl);
+      lifecycleLoadUrl(targetUrl);
     } else {
-      contentView.webContents.loadURL('app://index.html');
+      contentView.webContents.loadURL(targetUrl);
     }
   } else {
     topBarView.webContents.loadURL('http://localhost:4000/header.html');
-    // 开发环境也支持在线URL加载
-    const onlineUrl = getOnlineUrl();
+    // 开发环境：使用生命周期管理器加载（如果启用）或直接加载
     if (onlineUrl) {
-      contentView.webContents.loadURL(onlineUrl);
+      lifecycleLoadUrl(targetUrl);
     } else {
-      contentView.webContents.loadURL('http://localhost:4000');
+      contentView.webContents.loadURL(targetUrl);
     }
     topBarView.webContents.on('did-finish-load', () => {
       // topBarView.webContents.openDevTools({ mode: 'detach' })
@@ -239,6 +276,10 @@ if (!gotTheLock) {
 
 // 应用退出前清理
 app.on('before-quit', () => {
+  // 清理 contentView 生命周期管理器
+  destroyContentViewLifecycle();
+  // 清理安全 IPC 发送模块
+  destroySafeIpcSend();
   // 清理临时文件目录
   const tempDir = path.join(os.tmpdir(), 'apiflow-temp');
   try {

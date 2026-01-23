@@ -37,7 +37,7 @@ export default defineConfig({
   },
   define: {
     // 注入构建时间和环境变量标记是否为HTML模式
-    __APP_VERSION__: JSON.stringify('0.9.6'),
+    __APP_VERSION__: JSON.stringify('0.9.8'),
     __APP_BUILD_TIME__: JSON.stringify(dayjs().tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss')),
     __COMMAND__: JSON.stringify('serve'),
     'import.meta.env.VITE_USE_FOR_HTML': JSON.stringify('true')

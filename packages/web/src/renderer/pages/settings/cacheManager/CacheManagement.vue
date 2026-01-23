@@ -7,7 +7,7 @@
         :loading="clearingAllCache"
         @click="handleClearAllCache"
       >
-        {{ t('清空所有缓存') }}
+        {{ t('重置应用') }}
       </el-button>
     </div>
     <div class="statistics">
@@ -309,11 +309,11 @@ const getIndexedDB = async () => {
   })
   indexedDBLoading.value = true;
 }
-//清空所有缓存
+//重置应用
 const handleClearAllCache = async () => {
   try {
     await ClConfirm({
-      content: t('确认清空所有缓存吗？此操作将清空localStorage、sessionStorage、IndexedDB和应用配置中的所有缓存数据，不可恢复！'),
+      content: t('确认重置应用吗？此操作将清空localStorage、sessionStorage、IndexedDB和应用配置中的所有缓存数据，不可恢复！'),
       type: 'warning',
       confirmButtonText: t('确定'),
       cancelButtonText: t('取消'),
