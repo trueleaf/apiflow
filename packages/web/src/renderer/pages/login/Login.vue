@@ -18,7 +18,7 @@
         </el-tabs>
         <h3 v-else class="text-center forgot-password-title">{{ t('重置密码') }}</h3>
         <div v-show="activeName === 'loginAccount' && !showForgotPassword">
-          <LoginAccount />
+          <LoginAccount @jump-to-reset-password="handleForgotPassword" />
         </div>
         <div v-show="activeName === 'registerEmail' && !showForgotPassword">
           <LoginEmail mode="register" />
@@ -28,9 +28,6 @@
         </div>
         <div v-if="showForgotPassword">
           <ForgotPassword @success="handleResetSuccess" />
-        </div>
-        <div v-if="activeName === 'loginAccount' && !showForgotPassword" class="text-center mt-3">     
-          <el-button type="text" @click="handleForgotPassword">{{ t('忘记密码？') }}</el-button>
         </div>
         <div v-if="showForgotPassword" class="text-center mt-3">     
           <el-button type="text" @click="handleBackToLogin">{{ t('返回登录') }}</el-button>

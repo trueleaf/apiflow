@@ -4,9 +4,10 @@
       <el-input v-model="userInfo.loginName" :prefix-icon="User" name="loginName" type="text"
         :placeholder="`${t('请输入用户名或邮箱')}...`" data-testid="login-username-input"></el-input>
     </el-form-item>
-    <el-form-item prop="password">
+    <el-form-item prop="password" class="password-form-item">
       <el-input v-model="userInfo.password" :prefix-icon="Lock" name="password" type="password"
         :placeholder="`${t('请输入密码')}...`" show-password data-testid="login-password-input"></el-input>
+      <a class="forgot-password-link" @click="handleJumpToResetPassword">{{ t('忘记密码？') }}</a>
     </el-form-item>
     <el-form-item v-if="isShowCapture" prop="captcha">
       <div class="captcha">
@@ -34,6 +35,10 @@
         </svg>
         <div class="mt-1">{{ t('码云') }}</div>
       </a>
+      <a href="https://apiflow.cn" target="_blank" class="d-flex flex-column j-center a-center">
+        <img :src="logoImg" class="svg-icon" :title="t('跳转官网')" />
+        <div class="mt-1">{{ t('官网') }}</div>
+      </a>
     </div>
   </el-form>
 </template>
@@ -52,7 +57,7 @@ import { useAppSettings } from '@/store/appSettings/appSettingsStore';
 import { IPC_EVENTS } from '@src/types/ipc'
 import { setQuickLoginCredential } from '@/cache/runtime/quickLoginSession';
 import { clearNotificationDismissed } from '@/cache/runtime/notificationSession';
-
+import logoImg from '@/assets/imgs/logo.png'
 import { message } from '@/helper'
 import { trackEvent } from '@/utils/analytics';
 const emits = defineEmits(['jumpToRegister', 'jumpToResetPassword'])
@@ -143,14 +148,10 @@ const handleQuickLogin = () => {
     quickLoginLoading.value = false
   })
 }
-// //用户注册
-// const handleJumpToRegister = () => {
-//   emits('jumpToRegister');
-// }
-// //重置密码
-// const handleJumpToResetPassword = () => {
-//   emits('jumpToResetPassword');
-// }
+//重置密码
+const handleJumpToResetPassword = () => {
+  emits('jumpToResetPassword');
+}
 // //体验用户登录
 // const handleGuesttLogin = () => {
 //   loading.value = true;
@@ -175,15 +176,30 @@ const handleQuickLogin = () => {
     cursor: pointer;
   }
 
-  .forget-pwd-wrap {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 10px;
+  .password-form-item {
+    :deep(.el-form-item__content) {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-    .el-button {
-      margin: 0;
-      padding: 0;
-      min-height: 20px;
+    :deep(.el-input) {
+      flex: 1;
+    }
+  }
+
+  .forgot-password-link {
+    font-size: 12px;
+    color: var(--el-color-primary);
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: color 0.3s;
+    flex-shrink: 0;
+
+    &:hover {
+      color: var(--el-color-primary-light-3);
+      text-decoration: underline;
     }
   }
 }
