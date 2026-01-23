@@ -294,6 +294,7 @@ const toggleNetworkMode = () => {
   const newMode = networkMode.value === 'online' ? 'offline' : 'online'
   networkMode.value = newMode
   runtimeStore.setNetworkMode(newMode)
+  window.location.reload()
 }
 const handleAddProject = () => {
   emit('createProject')

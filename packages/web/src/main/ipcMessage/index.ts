@@ -403,6 +403,15 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, mode)
   })
 
+  // 网络模式切换后重新加载页面
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.reloadAfterNetworkModeChange, () => {
+    const { resetLoadState } = require('../lifecycle/contentViewLifecycle.ts');
+    resetLoadState();
+    handshakeManager.resetHandshake();
+    contentView.webContents.reload()
+    topBarView.webContents.reload()
+  })
+
   /*
   |---------------------------------------------------------------------------
   | contentView → topBarView 通信（使用新的路由器）

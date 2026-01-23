@@ -65,6 +65,11 @@ export interface IPCEventMap {
     response: void;
   };
 
+  [IPC_EVENTS.apiflow.topBarToContent.reloadAfterNetworkModeChange]: {
+    request: void;
+    response: void;
+  };
+
   [IPC_EVENTS.apiflow.topBarToContent.showLanguageMenu]: {
     request: { position: any; currentLanguage: string };
     response: void;

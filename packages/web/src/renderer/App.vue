@@ -418,9 +418,10 @@ const initBrowserEnv = async () => {
 // 初始化 Electron Header 通信（仅 Electron 环境）
 const initAppHeader = () => {
   if (!isElectronEnv) return
-  // 等待 topBar 就绪后再初始化和绑定事件
+  // 立即注册事件监听器，不依赖握手状态
+  initAppHeaderEvent();
+  // 等待 topBar 就绪后再发送初始化数据
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.topBarIsReady, async () => {
-    initAppHeaderEvent();
     await router.isReady();
     await initAppHeaderTabs();
     // 主动推送应用设置给 topBarView，确保刷新后 topBarView 能获取最新设置

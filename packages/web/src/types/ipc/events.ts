@@ -35,6 +35,8 @@ export const IPC_EVENTS = {
       languageChanged: 'apiflow:topbar:to:content:language-changed',
       /** 网络模式已变更 */
       networkModeChanged: 'apiflow:topbar:to:content:network-mode-changed',
+      /** 网络模式切换后重新加载页面 */
+      reloadAfterNetworkModeChange: 'apiflow:topbar:to:content:reload-after-network-mode-change',
       /** 显示语言菜单 */
       showLanguageMenu: 'apiflow:topbar:to:content:show-language-menu',
       /** 隐藏语言菜单 */
