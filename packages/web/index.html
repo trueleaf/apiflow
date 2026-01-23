@@ -343,6 +343,131 @@
       display: none !important;
     }
 
+    .skeleton-mode-login .skeleton-home-only,
+    .skeleton-mode-login .skeleton-workbench-only {
+      display: none !important;
+    }
+
+    .skeleton-mode-home .skeleton-login-only,
+    .skeleton-mode-workbench .skeleton-login-only {
+      display: none !important;
+    }
+
+    /* 登录页面骨架屏 */
+    .skeleton-login-container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--skeleton-bg);
+    }
+
+    .skeleton-login-box {
+      width: 960px;
+      height: 550px;
+      background: var(--skeleton-sidebar-bg);
+      border-radius: 8px;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+      display: flex;
+    }
+
+    .skeleton-login-left {
+      flex: 0 0 50%;
+      background: linear-gradient(135deg, var(--skeleton-primary) 0%, rgba(64, 158, 255, 0.7) 100%);
+      border-radius: 8px 0 0 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .skeleton-login-left::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.5;
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.8;
+      }
+    }
+
+    .skeleton-login-right {
+      flex: 1;
+      padding: 40px 50px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .skeleton-login-title {
+      height: 32px;
+      width: 200px;
+      margin: 0 auto 24px;
+    }
+
+    .skeleton-login-tabs {
+      display: flex;
+      gap: 24px;
+      border-bottom: 2px solid var(--skeleton-sidebar-border);
+      padding-bottom: 12px;
+      margin-bottom: 32px;
+    }
+
+    .skeleton-login-tab {
+      height: 24px;
+      width: 80px;
+      position: relative;
+    }
+
+    .skeleton-login-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -14px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--skeleton-primary);
+    }
+
+    .skeleton-login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .skeleton-login-input {
+      height: 40px;
+      width: 100%;
+      border-radius: 4px;
+    }
+
+    .skeleton-login-button {
+      height: 40px;
+      width: 100%;
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+
+    .skeleton-login-footer {
+      height: 20px;
+      width: 120px;
+      margin: 0 auto;
+      margin-top: auto;
+    }
+
     /* 项目卡片优化 */
     .skeleton-project-card {
       height: 180px;
@@ -419,6 +544,27 @@
   <div id="app"></div>
   <!-- 骨架屏 - 移出 #app 避免被 Vue 挂载瞬间覆盖 -->
   <div id="app-skeleton" class="skeleton-mode-home">
+    <!-- 登录页面骨架屏 -->
+    <div class="skeleton-login-container skeleton-login-only">
+      <div class="skeleton-login-box">
+        <div class="skeleton-login-left"></div>
+        <div class="skeleton-login-right">
+          <div class="skeleton-block skeleton-login-title"></div>
+          <div class="skeleton-login-tabs">
+            <div class="skeleton-block skeleton-login-tab active"></div>
+            <div class="skeleton-block skeleton-login-tab"></div>
+            <div class="skeleton-block skeleton-login-tab"></div>
+          </div>
+          <div class="skeleton-login-form">
+            <div class="skeleton-block skeleton-login-input"></div>
+            <div class="skeleton-block skeleton-login-input"></div>
+            <div class="skeleton-block skeleton-login-button"></div>
+          </div>
+          <div class="skeleton-block skeleton-login-footer"></div>
+        </div>
+      </div>
+    </div>
+
     <div class="skeleton-container">
       <div class="skeleton-workbench-body">
         <!-- 侧边栏 (仅 Workbench 模式有, Home模式其实没有侧边栏) -->
@@ -640,9 +786,10 @@
       try {
         // 简单路由检测
         var hash = window.location.hash;
+        var isLogin = hash && hash.indexOf('login') !== -1;
         var isWorkbench = hash && hash.indexOf('workbench') !== -1;
 
-        if (!isWorkbench) {
+        if (!isWorkbench && !isLogin) {
           var lastVisit = localStorage.getItem('history/lastVisitePage');
           if (lastVisit && lastVisit.indexOf('workbench') !== -1) {
             isWorkbench = true;
@@ -650,8 +797,12 @@
         }
 
         var skeleton = document.getElementById('app-skeleton');
-        if (isWorkbench && skeleton) {
-          skeleton.className = 'skeleton-mode-workbench';
+        if (skeleton) {
+          if (isLogin) {
+            skeleton.className = 'skeleton-mode-login';
+          } else if (isWorkbench) {
+            skeleton.className = 'skeleton-mode-workbench';
+          }
         }
 
         // 监听 Vue 挂载
