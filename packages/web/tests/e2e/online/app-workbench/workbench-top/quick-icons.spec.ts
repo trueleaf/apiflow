@@ -164,6 +164,81 @@ test.describe('QuickIcons', () => {
       await expect(offlineTab).toBeVisible();
     });
   });
+
+  test.describe('用户菜单', () => {
+    test('点击用户头像显示用户菜单', async ({ topBarPage, contentPage, clearCache, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
+      const userMenuBtn = topBarPage.locator('[data-testid="header-user-menu-btn"]');
+      await expect(userMenuBtn).toBeVisible();
+      await userMenuBtn.click();
+      // 等待用户菜单出现
+      const userMenu = contentPage.locator('[data-test-id="user-menu"]');
+      await expect(userMenu).toBeVisible({ timeout: 5000 });
+    });
+    test('用户菜单包含退出登录选项', async ({ topBarPage, contentPage, clearCache, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
+      const userMenuBtn = topBarPage.locator('[data-testid="header-user-menu-btn"]');
+      await userMenuBtn.click();
+      const userMenu = contentPage.locator('[data-test-id="user-menu"]');
+      await expect(userMenu).toBeVisible({ timeout: 5000 });
+      // 验证退出登录按钮存在
+      const logoutBtn = contentPage.locator('[data-test-id="user-menu-logout-btn"]');
+      await expect(logoutBtn).toBeVisible();
+      await expect(logoutBtn).toContainText(/退出登录|Logout/);
+    });
+    test('点击退出登录清除用户信息并跳转登录页', async ({ topBarPage, contentPage, clearCache, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
+      // 验证用户头像存在（登录状态）
+      const userMenuBtn = topBarPage.locator('[data-testid="header-user-menu-btn"]');
+      await expect(userMenuBtn).toBeVisible();
+      // 打开用户菜单
+      await userMenuBtn.click();
+      const userMenu = contentPage.locator('[data-test-id="user-menu"]');
+      await expect(userMenu).toBeVisible({ timeout: 5000 });
+      // 点击退出登录
+      const logoutBtn = contentPage.locator('[data-test-id="user-menu-logout-btn"]');
+      await logoutBtn.click();
+      // 等待跳转到登录页
+      await contentPage.waitForURL(/.*?#?\/login/, { timeout: 5000 });
+      // 验证登录页面元素存在
+      const loginTabs = contentPage.locator('[data-testid="login-tabs"]');
+      await expect(loginTabs).toBeVisible({ timeout: 5000 });
+      // 验证用户头像消失（退出登录后）
+      await expect(userMenuBtn).toBeHidden();
+    });
+    test('点击内容区域关闭用户菜单', async ({ topBarPage, contentPage, clearCache, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
+      const userMenuBtn = topBarPage.locator('[data-testid="header-user-menu-btn"]');
+      await userMenuBtn.click();
+      const userMenu = contentPage.locator('[data-test-id="user-menu"]');
+      await expect(userMenu).toBeVisible({ timeout: 5000 });
+      // 点击遮罩层关闭菜单
+      const overlay = contentPage.locator('[data-test-id="user-menu-overlay"]');
+      await overlay.click();
+      await expect(userMenu).toBeHidden({ timeout: 3000 });
+    });
+    test('退出登录后topBar更新用户状态', async ({ topBarPage, contentPage, clearCache, loginAccount }) => {
+      await clearCache();
+      await loginAccount();
+      // 记录登录时的用户头像
+      const userMenuBtn = topBarPage.locator('[data-testid="header-user-menu-btn"]');
+      await expect(userMenuBtn).toBeVisible();
+      // 退出登录
+      await userMenuBtn.click();
+      const logoutBtn = contentPage.locator('[data-test-id="user-menu-logout-btn"]');
+      await logoutBtn.click();
+      await contentPage.waitForURL(/.*?#?\/login/, { timeout: 5000 });
+      // 验证用户头像不可见
+      await expect(userMenuBtn).toBeHidden();
+      // 验证网络模式按钮仍然可见（退出后其他按钮正常）
+      const networkBtn = topBarPage.locator('[data-testid="header-network-toggle"]');
+      await expect(networkBtn).toBeVisible();
+    });
+  });
 });
 
 

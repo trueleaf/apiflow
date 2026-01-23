@@ -737,4 +737,119 @@ test.describe('Navigation', () => {
   });
 });
 
+test.describe('项目同步', () => {
+  test('删除项目后topBar移除对应Tab', async ({ topBarPage, contentPage, createProject, loginAccount, clearCache }) => {
+    await clearCache();
+    await loginAccount();
+    // 创建两个项目
+    const projectAName = await createProject(`删除测试A-${Date.now()}`);
+    const projectBName = await createProject(`删除测试B-${Date.now()}`);
+    // 验证两个Tab都存在
+    const projectATab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectAName });
+    const projectBTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectBName });
+    await expect(projectATab).toBeVisible();
+    await expect(projectBTab).toBeVisible();
+    // 切换到项目A
+    await projectATab.click();
+    await contentPage.waitForTimeout(300);
+    await expect(projectATab).toHaveClass(/active/);
+    // 在contentView中删除项目A（通过导航到首页，找到项目卡片删除）
+    const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+    await homeBtn.click();
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    // 等待项目列表加载
+    await expect(contentPage.locator('[data-testid="home-project-card-0"]')).toBeVisible({ timeout: 5000 });
+    // 找到项目A的卡片
+    const projectACard = contentPage.locator('.project-list').filter({ hasText: projectAName });
+    await expect(projectACard).toBeVisible({ timeout: 5000 });
+    // 点击删除按钮
+    const deleteBtn = projectACard.locator('[data-testid="home-project-delete-btn"]');
+    await deleteBtn.click();
+    await contentPage.waitForTimeout(300);
+    // 确认删除
+    const confirmDialog = contentPage.locator('.el-message-box');
+    await expect(confirmDialog).toBeVisible({ timeout: 3000 });
+    const confirmBtn = confirmDialog.locator('.el-button--primary');
+    await confirmBtn.click();
+    await contentPage.waitForTimeout(1000);
+    // 验证topBar中项目A的Tab已被移除
+    await expect(projectATab).toBeHidden({ timeout: 5000 });
+    // 验证项目B的Tab仍然存在
+    await expect(projectBTab).toBeVisible();
+  });
+
+  test('重命名项目后topBar更新Tab标题', async ({ topBarPage, contentPage, createProject, loginAccount, clearCache }) => {
+    await clearCache();
+    await loginAccount();
+    const originalName = `重命名测试-${Date.now()}`;
+    await createProject(originalName);
+    // 验证原始名称的Tab存在
+    const projectTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: originalName });
+    await expect(projectTab).toBeVisible();
+    // 导航到首页
+    const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+    await homeBtn.click();
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    // 等待项目列表加载
+    await expect(contentPage.locator('[data-testid="home-project-card-0"]')).toBeVisible({ timeout: 5000 });
+    // 找到项目卡片
+    const projectCard = contentPage.locator('.project-list').filter({ hasText: originalName });
+    await expect(projectCard).toBeVisible({ timeout: 5000 });
+    // 点击重命名按钮
+    const renameBtn = projectCard.locator('[data-testid="home-project-rename-btn"]');
+    await renameBtn.click();
+    await contentPage.waitForTimeout(300);
+    // 在弹窗中输入新名称
+    const renameDialog = contentPage.locator('.el-dialog').filter({ hasText: /重命名项目|Rename Project/ });
+    await expect(renameDialog).toBeVisible({ timeout: 3000 });
+    const newName = `重命名后-${Date.now()}`;
+    const nameInput = renameDialog.locator('input').first();
+    await nameInput.fill('');
+    await nameInput.fill(newName);
+    // 确认重命名
+    const confirmBtn = renameDialog.locator('.el-button--primary').last();
+    await confirmBtn.click();
+    await contentPage.waitForTimeout(1000);
+    // 验证topBar中Tab标题已更新
+    const updatedTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: newName });
+    await expect(updatedTab).toBeVisible({ timeout: 5000 });
+    // 验证旧名称的Tab不存在
+    const oldTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: originalName });
+    await expect(oldTab).toBeHidden();
+  });
+
+  test('项目删除后切换到其他Tab', async ({ topBarPage, contentPage, createProject, loginAccount, clearCache }) => {
+    await clearCache();
+    await loginAccount();
+    // 创建两个项目
+    const projectAName = await createProject(`切换测试A-${Date.now()}`);
+    const projectBName = await createProject(`切换测试B-${Date.now()}`);
+    // 切换到项目A并删除
+    const projectATab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectAName });
+    await projectATab.click();
+    await contentPage.waitForTimeout(300);
+    // 导航到首页删除项目A
+    const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+    await homeBtn.click();
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    const projectACard = contentPage.locator('.project-list').filter({ hasText: projectAName });
+    await expect(projectACard).toBeVisible({ timeout: 5000 });
+    const deleteBtn = projectACard.locator('[data-testid="home-project-delete-btn"]');
+    await deleteBtn.click();
+    await contentPage.waitForTimeout(300);
+    const confirmDialog = contentPage.locator('.el-message-box');
+    const confirmBtn = confirmDialog.locator('.el-button--primary');
+    await confirmBtn.click();
+    await contentPage.waitForTimeout(1000);
+    // 验证项目A的Tab已删除
+    await expect(projectATab).toBeHidden({ timeout: 5000 });
+    // 验证当前高亮Tab不是已删除的项目
+    const activeTab = topBarPage.locator('[data-test-id^="header-tab-item-"].active');
+    await expect(activeTab).not.toContainText(projectAName);
+  });
+});
+
 
