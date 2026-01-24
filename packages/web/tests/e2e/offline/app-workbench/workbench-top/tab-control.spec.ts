@@ -21,7 +21,8 @@ test.describe('Navigation', () => {
     await expect(settingsTabIcon).toHaveClass(/tab-icon/);
   });
 
-  test('新建项目会新增tab并自动高亮', async ({ topBarPage, createProject }) => {
+  test('新建项目会新增tab并自动高亮', async ({ topBarPage, createProject, clearCache }) => {
+    await clearCache();
     // 记录初始Tab数量
     const initialTabCount = await topBarPage.locator('[data-test-id^="header-tab-item-"]').count();
     const uniqueProjectName = await createProject(`新建项目-${Date.now()}`);

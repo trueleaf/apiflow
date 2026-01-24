@@ -115,6 +115,15 @@ export const test = base.extend<ElectronFixtures>({
         localStorage.clear();
         sessionStorage.clear();
       });
+      await contentPage.evaluate(() => {
+        window.electronAPI?.ipcManager.sendToMain('apiflow:content:to:topbar:init-tabs', {
+          tabs: [],
+          activeTabId: '',
+          language: 'zh-cn',
+          networkMode: 'offline'
+        });
+      });
+      await expect(topBarPage.locator('[data-test-id^="header-tab-item-"]')).toHaveCount(0);
       // 点击首页按钮
       const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
       await homeBtn.click();
@@ -123,16 +132,6 @@ export const test = base.extend<ElectronFixtures>({
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
       await contentPage.waitForTimeout(500);
-      // await contentPage.evaluate(() => {
-      //   window.electronAPI?.ipcManager.sendToMain('apiflow:content:to:topbar:init-tabs', {
-      //     tabs: [],
-      //     activeTabId: '',
-      //     language: 'zh-cn',
-      //     networkMode: 'offline',
-      //   });
-      // });
-      // const tabs = topBarPage.locator('[data-test-id^="header-tab-item-"]');
-      // await expect(tabs).toHaveCount(0, { timeout: 5000 });
     };
     await use(clear);
   },

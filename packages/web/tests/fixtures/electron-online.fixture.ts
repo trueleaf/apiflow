@@ -91,6 +91,15 @@ export const test = base.extend<ElectronFixtures>({
           indexedDB.deleteDatabase(dbName);
         });
       });
+      await contentPage.evaluate(() => {
+        window.electronAPI?.ipcManager.sendToMain('apiflow:content:to:topbar:init-tabs', {
+          tabs: [],
+          activeTabId: '',
+          language: 'zh-cn',
+          networkMode: 'online'
+        });
+      });
+      await expect(topBarPage.locator('[data-test-id^="header-tab-item-"]')).toHaveCount(0);
       const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
       await homeBtn.click();
       await contentPage.waitForTimeout(300);
