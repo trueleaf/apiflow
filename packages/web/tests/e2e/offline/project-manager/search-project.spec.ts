@@ -143,9 +143,6 @@ test.describe('SearchProject', () => {
     await contentPage.waitForTimeout(500);
     // 添加一个HTTP节点
     await createNode(contentPage, { nodeType: 'http', name: '未命名接口' });
-    await addApiDialog.locator('.el-button--primary').last().click();
-    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
-    await contentPage.waitForTimeout(500);
     // 返回首页
     const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();

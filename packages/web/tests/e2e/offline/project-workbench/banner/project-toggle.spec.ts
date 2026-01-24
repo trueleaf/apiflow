@@ -84,8 +84,10 @@ test.describe('ProjectToggle', () => {
     const itemTitle = firstItem.locator('.item-title');
     await expect(itemTitle).toBeVisible({ timeout: 5000 });
     // 验证项目项包含创建者名称
-    const itemContent = firstItem.locator('.item-content');
-    await expect(itemContent).toBeVisible({ timeout: 5000 });
+    const itemOwner = firstItem.locator('.item-owner');
+    await expect(itemOwner).toBeVisible({ timeout: 5000 });
+    const ownerText = await itemOwner.textContent();
+    expect(ownerText?.trim().length).toBeGreaterThan(0);
   });
 
   // 测试用例6: 点击外部区域关闭项目面板
