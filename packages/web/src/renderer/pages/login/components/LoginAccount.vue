@@ -39,6 +39,12 @@
         <img :src="logoImg" class="svg-icon" :title="t('跳转官网')" />
         <div class="mt-1">{{ t('官网') }}</div>
       </a>
+      <a href="https://apps.microsoft.com/detail/9nj8z5l685nj" target="_blank" class="d-flex flex-column j-center a-center">
+        <svg class="svg-icon microsoft-icon" aria-hidden="true" :title="t('跳转微软商城')">
+          <use xlink:href="#iconwindows"></use>
+        </svg>
+        <div class="mt-1">{{ t('微软商城') }}</div>
+      </a>
     </div>
   </el-form>
 </template>
@@ -174,6 +180,15 @@ const handleJumpToResetPassword = () => {
     width: 35px;
     height: 35px;
     cursor: pointer;
+  }
+
+  .microsoft-icon {
+    fill: #00A4EF;
+    transition: fill 0.3s;
+
+    &:hover {
+      fill: #0078D4;
+    }
   }
 
   .password-form-item {

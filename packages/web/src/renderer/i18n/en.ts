@@ -192,6 +192,8 @@ export default {
   跳转github: 'GitHub',
   跳转码云: 'Gitee',
   跳转官网: 'Website',
+  跳转微软商城: 'Microsoft Store',
+  微软商城: 'Microsoft Store',
   跳转文档: 'Documentation',
   完整文档: 'Documentation',
   客户端下载: 'Download Client',

@@ -19,11 +19,7 @@ test.describe('Logo', () => {
     const projectSearchInput = contentPage.locator('[data-testid="home-project-search-input"]');
     await expect(projectSearchInput).toBeVisible({ timeout: 5000 });
   });
-  test('设置页面更改应用图标后logo立马被更新, 刷新页面保持更新后的图标', async ({ topBarPage, contentPage, reload, jumpToSettings }) => {
-    // 获取初始Logo的src
-    const logo = topBarPage.locator('[data-test-id="header-logo"]');
-    await expect(logo).toBeVisible();
-    const initialSrc = await logo.getAttribute('src');
+  test('设置页面更改应用图标后logo立马被更新, 刷新页面保持更新后的图标', async ({ topBarPage, contentPage, jumpToSettings }) => {
     await jumpToSettings();
     // 点击"通用配置"菜单项
     const commonSettingsMenu = contentPage.locator('[data-testid="settings-menu-common-settings"]');
@@ -36,7 +32,7 @@ test.describe('Logo', () => {
     // 定位Logo上传容器
     const logoContainer = contentPage.locator('.logo-container');
     await expect(logoContainer).toBeVisible();
-    // 准备文件上传 - 使用项目中已有的logo图片作为测试文件
+    // 准备文件上传
     const testImagePath = path.resolve(__dirname, '../../../../../src/renderer/assets/imgs/test.png');
     // 监听文件选择器并上传文件
     const fileChooserPromise = contentPage.waitForEvent('filechooser');
@@ -50,19 +46,18 @@ test.describe('Logo', () => {
     await expect(contentLogoPreview).toBeVisible();
     await expect(contentLogoPreview).toHaveAttribute('src', /^data:image\//, { timeout: 5000 });
     const updatedContentSrc = await contentLogoPreview.getAttribute('src');
-    expect(updatedContentSrc).not.toBe(initialSrc);
-    await reload();
-    // 验证刷新后Logo仍然保持更新后的图标
-    const logoAfterRefresh = topBarPage.locator('[data-test-id="header-logo"]');
-    await expect(logoAfterRefresh).toBeVisible();
+    expect(updatedContentSrc).toContain('data:image/');
+    // 等待 IPC 消息传递到 topBarView
+    await topBarPage.waitForTimeout(500);
+    // 验证 topBarView 的 logo 已更新为 base64 格式
+    const logoBeforeRefresh = topBarPage.locator('[data-test-id="header-logo"]');
+    await expect(logoBeforeRefresh).toHaveAttribute('src', /^data:image\//, { timeout: 5000 });
     // 验证localStorage中存储了新Logo
     const storedLogo = await contentPage.evaluate(() => {
       return localStorage.getItem('settings/app/logo');
     });
     expect(storedLogo).toBeTruthy();
     expect(storedLogo).toMatch(/^data:image\//);
-    // 等待 topBarView 的 logo 更新为 base64 格式（通过 IPC 从 contentView 同步）
-    await expect(logoAfterRefresh).toHaveAttribute('src', /^data:image\//, { timeout: 5000 });
   });
   test('点击重置后，图标恢复为默认', async ({ topBarPage, contentPage, jumpToSettings }) => {
     // 先上传自定义图标

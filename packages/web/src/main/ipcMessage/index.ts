@@ -35,6 +35,7 @@ const createHandshakeManager = (contentView: WebContentsView, topBarView: WebCon
   let contentViewReady = false;
   let handshakeCompleted = false;
   let handshakeTimeoutTimer: ReturnType<typeof setTimeout> | null = null;
+  let cachedTabsData: { tabs: any[], activeTabId: string, language: string, networkMode: string } | null = null;
   const HANDSHAKE_TIMEOUT = 30000; // 30秒超时
   // 尝试完成握手
   const tryCompleteHandshake = () => {
@@ -81,6 +82,10 @@ const createHandshakeManager = (contentView: WebContentsView, topBarView: WebCon
     if (!handshakeTimeoutTimer && !handshakeCompleted) {
       startHandshakeTimeout();
     }
+    // 如果有缓存的 tabs 数据，立即发送给 topBarView
+    if (cachedTabsData && !topBarView.webContents.isDestroyed()) {
+      topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.initTabsData, cachedTabsData);
+    }
     tryCompleteHandshake();
   };
   // 设置 contentView 就绪
@@ -97,12 +102,17 @@ const createHandshakeManager = (contentView: WebContentsView, topBarView: WebCon
     contentViewReady,
     handshakeCompleted,
   });
+  // 缓存 tabs 数据
+  const setCachedTabsData = (data: { tabs: any[], activeTabId: string, language: string, networkMode: string }) => {
+    cachedTabsData = data;
+  };
   return {
     setTopBarReady,
     setContentViewReady,
     resetHandshake,
     getHandshakeState,
     clearHandshakeTimeout,
+    setCachedTabsData,
   };
 };
 
@@ -138,6 +148,8 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   */
   // App.vue 发送初始化 tabs 数据给 header.vue
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.initTabs, (_, data: { tabs: any[], activeTabId: string, language: string, networkMode: string }) => {
+    // 缓存 tabs 数据，用于刷新后恢复
+    handshakeManager.setCachedTabsData(data);
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.initTabsData, data);
   });
 
@@ -480,6 +492,8 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
       app.relaunch();
       app.exit();
     } else {
+      // 刷新前重置握手管理器状态
+      handshakeManager.resetHandshake();
       topBarView.webContents.reloadIgnoringCache();
       contentView.webContents.reloadIgnoringCache();
     }
