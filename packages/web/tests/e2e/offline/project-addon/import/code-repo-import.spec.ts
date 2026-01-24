@@ -64,32 +64,44 @@ test.describe('CodeRepoImport', () => {
     const repoSource = contentPage.locator('.source-item').filter({ hasText: /代码仓库|Repository/ });
     await expect(repoSource).toContainText(/提取|Extract|API/);
   });
-  // 测试用例4: 切换不同导入方式
-  test('从代码仓库导入切换到其他导入方式', async ({ contentPage, clearCache, createProject }) => {
+  // 测试用例4: 在导入页面切换不同导入方式
+  test('在导入页面切换不同导入方式', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
+    test.setTimeout(60000);
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     await contentPage.waitForTimeout(300);
-    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
+    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档|Import/ });
     await expect(importItem).toBeVisible({ timeout: 5000 });
     await importItem.click();
     await contentPage.waitForTimeout(500);
-    // 点击代码仓库识别选项
-    const repoSource = contentPage.locator('.source-item').filter({ hasText: /代码仓库识别|Repository/ });
-    await repoSource.click();
-    await contentPage.waitForTimeout(300);
-    // 验证选项被选中
-    await expect(repoSource).toHaveClass(/active/);
+    await expect(contentPage.locator('.doc-import')).toBeVisible({ timeout: 5000 });
+
+    // 切换到AI智能识别
+    const aiSource = contentPage.locator('.source-item').filter({ hasText: /AI智能识别|AI/ }).first();
+    await aiSource.click();
+    await expect(aiSource).toHaveClass(/active/);
+
     // 切换到URL导入
-    const urlSource = contentPage.locator('.source-item').filter({ hasText: /URL导入|URL/ });
+    const urlSource = contentPage.locator('.source-item').filter({ hasText: /URL导入|URL/ }).first();
     await urlSource.click();
-    await contentPage.waitForTimeout(300);
-    // 验证URL导入选项被选中
     await expect(urlSource).toHaveClass(/active/);
-    await expect(repoSource).not.toHaveClass(/active/);
+    await expect(aiSource).not.toHaveClass(/active/);
+
+    // 切换到粘贴内容
+    const pasteSource = contentPage.locator('.source-item').filter({ hasText: /粘贴内容|Paste/ }).first();
+    await pasteSource.click();
+    await expect(pasteSource).toHaveClass(/active/);
+    await expect(urlSource).not.toHaveClass(/active/);
+
+    // 切回本地文件
+    const fileSource = contentPage.locator('.source-item').filter({ hasText: /本地文件|Local File/ }).first();
+    await fileSource.click();
+    await expect(fileSource).toHaveClass(/active/);
+    await expect(pasteSource).not.toHaveClass(/active/);
   });
   // 测试用例5: 验证所有五种导入方式选项都存在 (现在只有4种)
   test.skip('验证所有五种导入方式选项都存在', async ({ contentPage, clearCache, createProject }) => {

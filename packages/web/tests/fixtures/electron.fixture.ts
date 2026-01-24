@@ -168,55 +168,46 @@ export const test = base.extend<ElectronFixtures>({
         if (nodeType === 'folder') {
           const newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
           await newFolderItem.click();
-        } else if (nodeType === 'http') {
-          const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
-          await newInterfaceItem.click();
-        } else if (nodeType === 'websocket') {
-          const newWebsocketItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建WebSocket/ });
-          await newWebsocketItem.click();
-        } else if (nodeType === 'httpMock') {
-          const newMockItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建Mock/ });
-          await newMockItem.click();
-        } else if (nodeType === 'websocketMock') {
-          const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
-          await newInterfaceItem.click();
+        } else {
+          const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ }).first();
+          const newInterfaceItemVisible = await newInterfaceItem.isVisible({ timeout: 500 }).catch(() => false);
+          if (newInterfaceItemVisible) {
+            await newInterfaceItem.click();
+          } else {
+            const newWebsocketItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建WebSocket/ }).first();
+            const newWebsocketItemVisible = await newWebsocketItem.isVisible({ timeout: 500 }).catch(() => false);
+            if (newWebsocketItemVisible) {
+              await newWebsocketItem.click();
+            } else {
+              const newMockItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建Mock/ }).first();
+              await newMockItem.click();
+            }
+          }
         }
       } else {
-        if (nodeType === 'http') {
-          const addFileBtn = page.getByTestId('banner-add-http-btn');
-          await addFileBtn.click();
-        } else if (nodeType === 'folder') {
+        if (nodeType === 'folder') {
           const treeWrap = page.locator('.tree-wrap');
           await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
           const contextMenu = page.locator('.s-contextmenu');
           await expect(contextMenu).toBeVisible({ timeout: 5000 });
           const newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
           await newFolderItem.click();
-        } else if (nodeType === 'websocket') {
-          const addWebsocketBtn = page.getByTestId('banner-add-websocket-btn');
-          await addWebsocketBtn.click();
-        } else if (nodeType === 'httpMock') {
-          const addMockBtn = page.getByTestId('banner-add-mock-btn');
-          await addMockBtn.click();
-        } else if (nodeType === 'websocketMock') {
-          const treeWrap = page.locator('.tree-wrap');
-          await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
-          const contextMenu = page.locator('.s-contextmenu');
-          await expect(contextMenu).toBeVisible({ timeout: 5000 });
-          const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
-          await newInterfaceItem.click();
+        } else {
+          const addFileBtn = page.getByTestId('banner-add-http-btn');
+          await addFileBtn.click();
         }
       }
-      const dialogPattern = nodeType === 'folder' ? /新建文件夹|新增文件夹/ : nodeType === 'http' ? /新建接口|新增接口/ : nodeType === 'websocket' ? /新建WebSocket|新增WebSocket/ : nodeType === 'websocketMock' ? /新建接口|新增接口/ : /新建Mock|新增Mock/;
+      const dialogPattern = nodeType === 'folder' ? /新建文件夹|新增文件夹/ : /新建接口|新增接口|Create/;
       const dialog = page.locator('.el-dialog').filter({ hasText: dialogPattern });
       await expect(dialog).toBeVisible({ timeout: 5000 });
       const nameInput = dialog.locator('input').first();
       await nameInput.fill(nodeName);
-      if (nodeType === 'websocketMock') {
-        const wsMockTypeRadio = dialog.locator('.el-radio').filter({ hasText: /WebSocket Mock/ }).first();
-        const wsMockTypeRadioVisible = await wsMockTypeRadio.isVisible({ timeout: 500 }).catch(() => false);
-        if (wsMockTypeRadioVisible) {
-          await wsMockTypeRadio.click();
+      if (nodeType !== 'folder') {
+        const radioText = nodeType === 'http' ? /^HTTP$/ : nodeType === 'websocket' ? /^WebSocket$/ : nodeType === 'httpMock' ? /HTTP Mock/ : /WebSocket Mock/;
+        const typeRadio = dialog.locator('.el-radio').filter({ hasText: radioText }).first();
+        const typeRadioVisible = await typeRadio.isVisible({ timeout: 500 }).catch(() => false);
+        if (typeRadioVisible) {
+          await typeRadio.click();
           await page.waitForTimeout(200);
         }
       }
@@ -224,8 +215,9 @@ export const test = base.extend<ElectronFixtures>({
       await confirmBtn.click();
       await expect(dialog).toBeHidden({ timeout: 5000 });
       await page.waitForTimeout(500);
-      const createdNode = page.locator('.custom-tree-node').filter({ hasText: new RegExp(`^${nodeName}`) }).first();
-      await expect(createdNode).toBeVisible({ timeout: 5000 });
+      const escapedNodeName = nodeName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const createdNode = page.locator('.custom-tree-node').filter({ hasText: new RegExp(escapedNodeName) }).first();
+      await expect(createdNode).toBeVisible({ timeout: 10000 });
       const nodeId = await createdNode.getAttribute('data-test-node-id');
       if (!nodeId) {
         throw new Error(`创建节点失败：无法获取 nodeId`);

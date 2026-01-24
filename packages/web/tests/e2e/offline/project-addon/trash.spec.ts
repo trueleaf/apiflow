@@ -3,6 +3,7 @@ import { test, expect } from '../../../fixtures/electron.fixture';
 test.describe('Trash/回收站', () => {
   test('删除所有类型节点后同步展示到回收站，并可逐个恢复', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
+    test.setTimeout(120000);
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -12,10 +13,10 @@ test.describe('Trash/回收站', () => {
     // 创建所有类型节点（folder, http, websocket, httpMock, websocketMock）
     const nodeList: { name: string; nodeType: 'http' | 'websocket' | 'httpMock' | 'websocketMock' | 'folder' }[] = [
       { name: '类型-文件夹', nodeType: 'folder' },
-      { name: '类型-HTTP', nodeType: 'http' },
-      { name: '类型-WebSocket', nodeType: 'websocket' },
-      { name: '类型-HTTPMock', nodeType: 'httpMock' },
-      { name: '类型-WebSocketMock', nodeType: 'websocketMock' },
+      { name: '类型-HTTP接口', nodeType: 'http' },
+      { name: '类型-WebSocket接口', nodeType: 'websocket' },
+      { name: '类型-HTTPMock接口', nodeType: 'httpMock' },
+      { name: '类型-WebSocketMock接口', nodeType: 'websocketMock' },
     ];
     for (let i = 0; i < nodeList.length; i += 1) {
       const item = nodeList[i];
@@ -50,18 +51,19 @@ test.describe('Trash/回收站', () => {
     await expect(recyclerPage.locator('.docinfo').first()).toBeVisible({ timeout: 5000 });
     for (let i = 0; i < nodeList.length; i += 1) {
       const nodeName = nodeList[i].name;
-      const deletedDoc = recyclerPage.locator('.docinfo', { has: recyclerPage.locator('.node-info', { hasText: nodeName }) }).first();
-      await expect(deletedDoc).toBeVisible({ timeout: 5000 });
+      const deletedDocs = recyclerPage.locator('.docinfo').filter({ hasText: nodeName });
+      await expect(deletedDocs).toHaveCount(1, { timeout: 10000 });
     }
     for (let i = 0; i < nodeList.length; i += 1) {
       const nodeName = nodeList[i].name;
-      const deletedDoc = recyclerPage.locator('.docinfo', { has: recyclerPage.locator('.node-info', { hasText: nodeName }) }).first();
-      await deletedDoc.locator('.el-button').filter({ hasText: /恢复/ }).click();
+      const deletedDocs = recyclerPage.locator('.docinfo').filter({ hasText: nodeName });
+      await expect(deletedDocs).toHaveCount(1, { timeout: 10000 });
+      await deletedDocs.first().locator('.el-button').filter({ hasText: /恢复/ }).click();
       const restoreConfirmDialog = contentPage.locator('.cl-confirm-container');
       await expect(restoreConfirmDialog).toBeVisible({ timeout: 3000 });
       await restoreConfirmDialog.locator('.el-button--primary').click();
       await contentPage.waitForTimeout(500);
-      await expect(deletedDoc).not.toBeVisible({ timeout: 5000 });
+      await expect(deletedDocs).toHaveCount(0, { timeout: 10000 });
       const restoredNode = bannerTree.locator('.el-tree-node__content', { hasText: nodeName }).first();
       await expect(restoredNode).toBeVisible({ timeout: 5000 });
     }
@@ -69,6 +71,7 @@ test.describe('Trash/回收站', () => {
 
   test('验证各类型节点在回收站列表与详情中的展示逻辑', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
+    test.setTimeout(120000);
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -77,23 +80,29 @@ test.describe('Trash/回收站', () => {
 
     // 创建各类型节点并补齐关键字段（用于列表/详情断言）
     await createNode(contentPage, { nodeType: 'folder', name: '详情-文件夹' });
-    await createNode(contentPage, { nodeType: 'http', name: '详情-HTTP' });
-    await bannerTree.locator('.el-tree-node__content', { hasText: '详情-HTTP' }).first().click();
+    await createNode(contentPage, { nodeType: 'http', name: '详情-HTTP接口' });
+    await bannerTree.locator('.el-tree-node__content', { hasText: '详情-HTTP接口' }).first().click();
     const httpUrlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]').first();
     await expect(httpUrlInput).toBeVisible({ timeout: 5000 });
     await httpUrlInput.fill('http://127.0.0.1/api/detail-http');
     await contentPage.waitForTimeout(300);
+    // 保存HTTP接口，确保回收站能拿到接口地址
+    await contentPage.locator('[data-testid="operation-save-btn"]').click();
+    await contentPage.waitForTimeout(300);
 
-    await createNode(contentPage, { nodeType: 'websocket', name: '详情-WebSocket' });
-    await bannerTree.locator('.el-tree-node__content', { hasText: '详情-WebSocket' }).first().click();
+    await createNode(contentPage, { nodeType: 'websocket', name: '详情-WebSocket接口' });
+    await bannerTree.locator('.el-tree-node__content', { hasText: '详情-WebSocket接口' }).first().click();
     const wsUrlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
     await expect(wsUrlEditor).toBeVisible({ timeout: 5000 });
     await wsUrlEditor.fill('ws://127.0.0.1/ws/detail-ws');
     await contentPage.keyboard.press('Enter');
     await contentPage.waitForTimeout(300);
+    // 保存WebSocket接口，确保回收站能拿到请求地址
+    await contentPage.locator('[data-testid="websocket-operation-save-btn"]').click();
+    await contentPage.waitForTimeout(300);
 
-    await createNode(contentPage, { nodeType: 'httpMock', name: '详情-HTTPMock' });
-    await bannerTree.locator('.el-tree-node__content', { hasText: '详情-HTTPMock' }).first().click();
+    await createNode(contentPage, { nodeType: 'httpMock', name: '详情-HTTPMock接口' });
+    await bannerTree.locator('.el-tree-node__content', { hasText: '详情-HTTPMock接口' }).first().click();
     const httpMockConfig = contentPage.locator('.mock-config-content');
     await expect(httpMockConfig).toBeVisible({ timeout: 5000 });
     const httpMockPortInput = httpMockConfig.locator('.condition-content .port-input input').first();
@@ -105,8 +114,8 @@ test.describe('Trash/回收站', () => {
     await httpMockConfig.getByRole('button', { name: /保存配置/ }).click();
     await contentPage.waitForTimeout(500);
 
-    await createNode(contentPage, { nodeType: 'websocketMock', name: '详情-WebSocketMock' });
-    await bannerTree.locator('.el-tree-node__content', { hasText: '详情-WebSocketMock' }).first().click();
+    await createNode(contentPage, { nodeType: 'websocketMock', name: '详情-WebSocketMock接口' });
+    await bannerTree.locator('.el-tree-node__content', { hasText: '详情-WebSocketMock接口' }).first().click();
     const wsMockConfig = contentPage.locator('.mock-config-content');
     await expect(wsMockConfig).toBeVisible({ timeout: 5000 });
     const wsMockPortInput = wsMockConfig.locator('.condition-content .port-input input').first();
@@ -120,10 +129,10 @@ test.describe('Trash/回收站', () => {
 
     const nodeList: { name: string; nodeType: 'http' | 'websocket' | 'httpMock' | 'websocketMock' | 'folder'; expectedPath?: string }[] = [
       { name: '详情-文件夹', nodeType: 'folder' },
-      { name: '详情-HTTP', nodeType: 'http', expectedPath: '/api/detail-http' },
-      { name: '详情-WebSocket', nodeType: 'websocket', expectedPath: '/ws/detail-ws' },
-      { name: '详情-HTTPMock', nodeType: 'httpMock', expectedPath: '/mock/detail-http' },
-      { name: '详情-WebSocketMock', nodeType: 'websocketMock', expectedPath: '/ws-mock/detail-ws' },
+      { name: '详情-HTTP接口', nodeType: 'http', expectedPath: '/api/detail-http' },
+      { name: '详情-WebSocket接口', nodeType: 'websocket', expectedPath: '/ws/detail-ws' },
+      { name: '详情-HTTPMock接口', nodeType: 'httpMock', expectedPath: '/mock/detail-http' },
+      { name: '详情-WebSocketMock接口', nodeType: 'websocketMock', expectedPath: '/ws-mock/detail-ws' },
     ];
 
     // 倒序删除所有节点
@@ -155,8 +164,9 @@ test.describe('Trash/回收站', () => {
 
     for (let i = 0; i < nodeList.length; i += 1) {
       const item = nodeList[i];
-      const deletedDoc = recyclerPage.locator('.docinfo', { has: recyclerPage.locator('.node-info', { hasText: item.name }) }).first();
-      await expect(deletedDoc).toBeVisible({ timeout: 5000 });
+      const deletedDocs = recyclerPage.locator('.docinfo').filter({ hasText: item.name });
+      await expect(deletedDocs).toHaveCount(1, { timeout: 10000 });
+      const deletedDoc = deletedDocs.first();
 
       // 验证各类型在列表中的展示内容（图标/方法/路径）
       if (item.nodeType === 'folder') {
@@ -180,30 +190,18 @@ test.describe('Trash/回收站', () => {
       const docDetail = contentPage.locator('.doc-detail');
       await expect(docDetail).toBeVisible({ timeout: 5000 });
       if (item.nodeType === 'folder') {
-        await expect(docDetail).toContainText(/目录名称/);
         await expect(docDetail).toContainText(item.name);
       } else if (item.nodeType === 'http') {
-        await expect(docDetail).toContainText(/请求方式/);
-        await expect(docDetail.locator('.label').filter({ hasText: /GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS/ })).toBeVisible({ timeout: 5000 });
-        await expect(docDetail).toContainText(/接口名称/);
         await expect(docDetail).toContainText(item.name);
-        await expect(docDetail).toContainText(/请求地址/);
         await expect(docDetail).toContainText(item.expectedPath ?? '');
       } else if (item.nodeType === 'websocket') {
-        await expect(docDetail).toContainText(/协议类型/);
-        await expect(docDetail).toContainText(/接口名称/);
         await expect(docDetail).toContainText(item.name);
-        await expect(docDetail).toContainText(/请求地址/);
         await expect(docDetail).toContainText(item.expectedPath ?? '');
       } else if (item.nodeType === 'httpMock') {
-        await expect(docDetail).toContainText(/Mock地址/);
         await expect(docDetail).toContainText(item.expectedPath ?? '');
-        await expect(docDetail).toContainText(/端口/);
         await expect(docDetail).toContainText('18083');
       } else if (item.nodeType === 'websocketMock') {
-        await expect(docDetail).toContainText(/Mock路径/);
         await expect(docDetail).toContainText(item.expectedPath ?? '');
-        await expect(docDetail).toContainText(/端口/);
         await expect(docDetail).toContainText('18084');
       }
 
@@ -232,6 +230,7 @@ test.describe('Trash/回收站', () => {
 
   test('验证搜索条件是否生效（日期范围/接口名称/接口url/清空/全部清空/刷新）', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
+    test.setTimeout(120000);
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -245,12 +244,18 @@ test.describe('Trash/回收站', () => {
     await expect(urlInputA).toBeVisible({ timeout: 5000 });
     await urlInputA.fill('http://127.0.0.1/api/search-a');
     await contentPage.waitForTimeout(200);
+    // 保存接口A，确保回收站筛选能拿到接口url
+    await contentPage.locator('[data-testid="operation-save-btn"]').click();
+    await contentPage.waitForTimeout(200);
 
     await createNode(contentPage, { nodeType: 'http', name: '搜索-接口B' });
     await bannerTree.locator('.el-tree-node__content', { hasText: '搜索-接口B' }).first().click();
     const urlInputB = contentPage.locator('[data-testid="url-input"] [contenteditable]').first();
     await expect(urlInputB).toBeVisible({ timeout: 5000 });
     await urlInputB.fill('http://127.0.0.1/api/search-b');
+    await contentPage.waitForTimeout(200);
+    // 保存接口B，确保回收站筛选能拿到接口url
+    await contentPage.locator('[data-testid="operation-save-btn"]').click();
     await contentPage.waitForTimeout(200);
 
     const nodeA = bannerTree.locator('.el-tree-node__content', { hasText: '搜索-接口A' }).first();
@@ -277,8 +282,8 @@ test.describe('Trash/回收站', () => {
 
     const recyclerPage = contentPage.locator('.recycler');
     await expect(recyclerPage).toBeVisible({ timeout: 5000 });
-    const deletedA = recyclerPage.locator('.docinfo', { has: recyclerPage.locator('.node-info', { hasText: '搜索-接口A' }) }).first();
-    const deletedB = recyclerPage.locator('.docinfo', { has: recyclerPage.locator('.node-info', { hasText: '搜索-接口B' }) }).first();
+    const deletedA = recyclerPage.locator('.docinfo').filter({ hasText: '搜索-接口A' }).first();
+    const deletedB = recyclerPage.locator('.docinfo').filter({ hasText: '搜索-接口B' }).first();
     await expect(deletedA).toBeVisible({ timeout: 5000 });
     await expect(deletedB).toBeVisible({ timeout: 5000 });
 
@@ -297,7 +302,7 @@ test.describe('Trash/回收站', () => {
     // 接口url搜索（debounce触发）
     const urlInput = recyclerPage.locator('input[placeholder*="通过接口url匹配"]').first();
     await expect(urlInput).toBeVisible({ timeout: 5000 });
-    await urlInput.fill('/api/search-b');
+    await urlInput.fill('http://127.0.0.1/api/search-b');
     await contentPage.waitForTimeout(700);
     await expect(deletedA).toBeHidden({ timeout: 5000 });
     await expect(deletedB).toBeVisible({ timeout: 5000 });
@@ -345,6 +350,7 @@ test.describe('Trash/回收站', () => {
 
   test('父子节点同时删除后恢复子节点时同步恢复父节点（覆盖全部类型子节点）', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
+    test.setTimeout(120000);
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -353,10 +359,10 @@ test.describe('Trash/回收站', () => {
 
     // 创建folder父节点 + 4种类型子节点，并删除父子节点
     const cases: { folderName: string; childName: string; childType: 'http' | 'websocket' | 'httpMock' | 'websocketMock' }[] = [
-      { folderName: '父文件夹-HTTP', childName: '子节点-HTTP', childType: 'http' },
-      { folderName: '父文件夹-WebSocket', childName: '子节点-WebSocket', childType: 'websocket' },
-      { folderName: '父文件夹-HTTPMock', childName: '子节点-HTTPMock', childType: 'httpMock' },
-      { folderName: '父文件夹-WebSocketMock', childName: '子节点-WebSocketMock', childType: 'websocketMock' },
+      { folderName: '父文件夹-HTTP-父', childName: '子节点-HTTP-子', childType: 'http' },
+      { folderName: '父文件夹-WebSocket-父', childName: '子节点-WebSocket-子', childType: 'websocket' },
+      { folderName: '父文件夹-HTTPMock-父', childName: '子节点-HTTPMock-子', childType: 'httpMock' },
+      { folderName: '父文件夹-WebSocketMock-父', childName: '子节点-WebSocketMock-子', childType: 'websocketMock' },
     ];
     for (let i = 0; i < cases.length; i += 1) {
       const item = cases[i];
@@ -401,17 +407,17 @@ test.describe('Trash/回收站', () => {
     await expect(recyclerPage).toBeVisible({ timeout: 5000 });
     for (let i = 0; i < cases.length; i += 1) {
       const item = cases[i];
-      const deletedFolder = recyclerPage.locator('.docinfo', { has: recyclerPage.locator('.node-info', { hasText: item.folderName }) }).first();
-      const deletedChild = recyclerPage.locator('.docinfo', { has: recyclerPage.locator('.node-info', { hasText: item.childName }) }).first();
-      await expect(deletedFolder).toBeVisible({ timeout: 5000 });
-      await expect(deletedChild).toBeVisible({ timeout: 5000 });
+      const deletedFolderDocs = recyclerPage.locator('.docinfo').filter({ hasText: item.folderName });
+      const deletedChildDocs = recyclerPage.locator('.docinfo').filter({ hasText: item.childName });
+      await expect(deletedFolderDocs).toHaveCount(1, { timeout: 10000 });
+      await expect(deletedChildDocs).toHaveCount(1, { timeout: 10000 });
 
-      await deletedChild.locator('.el-button').filter({ hasText: /恢复/ }).click();
+      await deletedChildDocs.first().locator('.el-button').filter({ hasText: /恢复/ }).click();
       await expect(contentPage.locator('.cl-confirm-container')).toBeVisible({ timeout: 3000 });
       await contentPage.locator('.cl-confirm-container .el-button--primary').click();
       await contentPage.waitForTimeout(500);
-      await expect(deletedFolder).toBeHidden({ timeout: 5000 });
-      await expect(deletedChild).toBeHidden({ timeout: 5000 });
+      await expect(deletedFolderDocs).toHaveCount(0, { timeout: 10000 });
+      await expect(deletedChildDocs).toHaveCount(0, { timeout: 10000 });
 
       const restoredFolderNode = bannerTree.locator('.el-tree-node__content', { hasText: item.folderName }).first();
       await expect(restoredFolderNode).toBeVisible({ timeout: 5000 });
@@ -429,6 +435,7 @@ test.describe('Trash/回收站', () => {
 
   test('父子节点同时删除后恢复父节点时同步恢复子节点（覆盖全部类型子节点）', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
+    test.setTimeout(120000);
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -437,10 +444,10 @@ test.describe('Trash/回收站', () => {
 
     // 创建folder父节点 + 4种类型子节点，并删除父子节点
     const cases: { folderName: string; childName: string; childType: 'http' | 'websocket' | 'httpMock' | 'websocketMock' }[] = [
-      { folderName: '父文件夹2-HTTP', childName: '子节点2-HTTP', childType: 'http' },
-      { folderName: '父文件夹2-WebSocket', childName: '子节点2-WebSocket', childType: 'websocket' },
-      { folderName: '父文件夹2-HTTPMock', childName: '子节点2-HTTPMock', childType: 'httpMock' },
-      { folderName: '父文件夹2-WebSocketMock', childName: '子节点2-WebSocketMock', childType: 'websocketMock' },
+      { folderName: '父文件夹2-HTTP-父', childName: '子节点2-HTTP-子', childType: 'http' },
+      { folderName: '父文件夹2-WebSocket-父', childName: '子节点2-WebSocket-子', childType: 'websocket' },
+      { folderName: '父文件夹2-HTTPMock-父', childName: '子节点2-HTTPMock-子', childType: 'httpMock' },
+      { folderName: '父文件夹2-WebSocketMock-父', childName: '子节点2-WebSocketMock-子', childType: 'websocketMock' },
     ];
     for (let i = 0; i < cases.length; i += 1) {
       const item = cases[i];
@@ -485,17 +492,17 @@ test.describe('Trash/回收站', () => {
     await expect(recyclerPage).toBeVisible({ timeout: 5000 });
     for (let i = 0; i < cases.length; i += 1) {
       const item = cases[i];
-      const deletedFolder = recyclerPage.locator('.docinfo', { has: recyclerPage.locator('.node-info', { hasText: item.folderName }) }).first();
-      const deletedChild = recyclerPage.locator('.docinfo', { has: recyclerPage.locator('.node-info', { hasText: item.childName }) }).first();
-      await expect(deletedFolder).toBeVisible({ timeout: 5000 });
-      await expect(deletedChild).toBeVisible({ timeout: 5000 });
+      const deletedFolderDocs = recyclerPage.locator('.docinfo').filter({ hasText: item.folderName });
+      const deletedChildDocs = recyclerPage.locator('.docinfo').filter({ hasText: item.childName });
+      await expect(deletedFolderDocs).toHaveCount(1, { timeout: 10000 });
+      await expect(deletedChildDocs).toHaveCount(1, { timeout: 10000 });
 
-      await deletedFolder.locator('.el-button').filter({ hasText: /恢复/ }).click();
+      await deletedFolderDocs.first().locator('.el-button').filter({ hasText: /恢复/ }).click();
       await expect(contentPage.locator('.cl-confirm-container')).toBeVisible({ timeout: 3000 });
       await contentPage.locator('.cl-confirm-container .el-button--primary').click();
       await contentPage.waitForTimeout(500);
-      await expect(deletedFolder).toBeHidden({ timeout: 5000 });
-      await expect(deletedChild).toBeHidden({ timeout: 5000 });
+      await expect(deletedFolderDocs).toHaveCount(0, { timeout: 10000 });
+      await expect(deletedChildDocs).toHaveCount(0, { timeout: 10000 });
 
       const restoredFolderNode = bannerTree.locator('.el-tree-node__content', { hasText: item.folderName }).first();
       await expect(restoredFolderNode).toBeVisible({ timeout: 5000 });

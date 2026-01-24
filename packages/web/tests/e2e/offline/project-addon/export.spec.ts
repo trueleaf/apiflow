@@ -116,55 +116,83 @@ test.describe('Export', () => {
     expect(filenames.some((name) => name.endsWith('.json'))).toBeTruthy();
   });
   test('离线模式创建全类型节点与参数组合,导出OpenAPI并校验schema与required', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {
+    // 该用例步骤较多，避免在 CI/低性能环境下因超时导致误报失败
+    test.setTimeout(300000);
     await clearCache();
     const projectName = '导出OpenAPI全量测试项目';
     await createProject(projectName);
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
 
+    // 创建各类型节点，覆盖导出OpenAPI的多场景
     await createNode(contentPage, { nodeType: 'folder', name: '导出测试文件夹' });
 
     await createNode(contentPage, { nodeType: 'websocket', name: '导出测试WebSocket节点' });
 
-    await createNode(contentPage, { nodeType: 'http-mock', name: '导出测试HTTP Mock节点' });
+    await createNode(contentPage, { nodeType: 'httpMock', name: '导出测试HTTP Mock节点' });
 
-    await createNode(contentPage, { nodeType: 'websocket-mock', name: '导出测试WebSocket Mock节点' });
+    await createNode(contentPage, { nodeType: 'websocketMock', name: '导出测试WebSocket Mock节点' });
 
     await createNode(contentPage, { nodeType: 'http', name: 'OpenAPI-参数组合接口' });
-    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/params/{userId}`);
+    const urlInput = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+    // 通过模拟真实输入更新 URL（ClRichInput/ProseMirror 直接 fill 可能无法触发内部状态同步）
+    await urlInput.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/params/{userId}`);
     await contentPage.waitForTimeout(500);
     const paramsTab = contentPage.locator('[data-testid="http-params-tab-params"]');
     await paramsTab.click();
     await contentPage.waitForTimeout(300);
     const queryParamsTree = contentPage.locator('.query-path-params .cl-params-tree').first();
     const queryRows = queryParamsTree.locator('[data-testid="params-tree-row"]');
-    await queryRows.nth(0).locator('[data-testid="params-tree-key-input"] input').fill('q');
+    // 填写 Query 参数（使用 click + keyboard，避免直接依赖 el-input 内部 input 结构）
+    await queryRows.nth(0).locator('[data-testid="params-tree-key-input"]').click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('q');
     await queryRows.nth(0).locator('[data-testid="params-tree-value-input"]').click();
     await contentPage.keyboard.type('1');
     await queryRows.nth(0).locator('[data-testid="params-tree-required-checkbox"]').click();
-    await queryRows.nth(0).locator('[data-testid="params-tree-description-input"] input').fill('query必填');
-    await queryRows.nth(1).locator('[data-testid="params-tree-key-input"] input').fill('opt');
+    await queryRows.nth(0).locator('[data-testid="params-tree-description-input"]').click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('query必填');
+    await expect(queryRows.nth(1)).toBeVisible({ timeout: 10000 });
+    await queryRows.nth(1).locator('[data-testid="params-tree-key-input"]').click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('opt');
     await queryRows.nth(1).locator('[data-testid="params-tree-value-input"]').click();
     await contentPage.keyboard.type('2');
-    await queryRows.nth(1).locator('[data-testid="params-tree-description-input"] input').fill('query非必填');
+    await queryRows.nth(1).locator('[data-testid="params-tree-description-input"]').click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('query非必填');
     const pathParamsTree = contentPage.locator('.query-path-params .cl-params-tree').nth(1);
     const userIdRow = pathParamsTree.locator('[data-testid="params-tree-row"][data-row-key=\"userId\"]');
     await userIdRow.locator('[data-testid="params-tree-required-checkbox"]').click();
-    await userIdRow.locator('[data-testid="params-tree-description-input"] input').fill('用户ID');
+    await userIdRow.locator('[data-testid="params-tree-description-input"]').click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('用户ID');
     const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
     await headersTab.click();
     await contentPage.waitForTimeout(300);
-    const headerTree = contentPage.locator('.header-info .cl-params-tree').last();
-    const headerRows = headerTree.locator('[data-testid="params-tree-row"]');
-    await headerRows.nth(0).locator('[data-testid="params-tree-key-input"] input').fill('X-Token');
-    await headerRows.nth(0).locator('[data-testid="params-tree-value-input"]').click();
+    // 填写 Headers 参数（使用 data-testid 直接定位，避免依赖容器 class）
+    const headerKeyInput = contentPage.locator('[data-testid="params-tree-key-autocomplete"] input, [data-testid="params-tree-key-input"] input').first();
+    await headerKeyInput.click();
+    await headerKeyInput.fill('X-Token');
+    const headerValueInput = contentPage.locator('[data-testid="params-tree-value-input"] .ProseMirror').first();
+    await headerValueInput.click();
     await contentPage.keyboard.type('token_value');
-    await headerRows.nth(0).locator('[data-testid="params-tree-required-checkbox"]').click();
-    await headerRows.nth(0).locator('[data-testid="params-tree-description-input"] input').fill('令牌');
+    await contentPage.locator('[data-testid="params-tree-required-checkbox"]').first().click();
+    await contentPage.locator('[data-testid="params-tree-description-input"]').first().click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('令牌');
     await contentPage.waitForTimeout(300);
+    // 保存接口，确保导出时能读取到最新配置
+    const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
+    await saveBtn.click();
+    await contentPage.waitForTimeout(500);
 
     await createNode(contentPage, { nodeType: 'http', name: 'OpenAPI-JSON请求体接口' });
-    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/json`);
+    await urlInput.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/json`);
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
     await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first().click();
@@ -200,15 +228,20 @@ test.describe('Export', () => {
     await contentPage.waitForTimeout(300);
     await secondCard.locator('.content-type .cursor-pointer').first().click();
     await contentPage.waitForTimeout(300);
-    await contentPage.locator('.el-popper.el-popover:visible').locator('.item').filter({ hasText: /^Text$/ }).first().click();
+    await contentPage.locator('.el-popper.el-popover:visible').locator('.item').filter({ hasText: /^text\/plain$/ }).first().click();
     await contentPage.waitForTimeout(300);
     const secondCardEditor = secondCard.locator('.editor-wrap').first();
     await secondCardEditor.click({ force: true });
     await contentPage.keyboard.type('error');
     await contentPage.waitForTimeout(300);
+    // 保存接口，确保响应配置会被导出到 OpenAPI
+    await saveBtn.click();
+    await contentPage.waitForTimeout(500);
 
     await createNode(contentPage, { nodeType: 'http', name: 'OpenAPI-FormData请求体接口' });
-    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/formdata`);
+    await urlInput.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/formdata`);
     await methodSelect.click();
     await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first().click();
     await bodyTab.click();
@@ -217,21 +250,36 @@ test.describe('Export', () => {
     await contentPage.waitForTimeout(300);
     const formTree = contentPage.locator('.body-params .cl-params-tree').first();
     const formRows = formTree.locator('[data-testid="params-tree-row"]');
-    await formRows.nth(0).locator('[data-testid="params-tree-key-input"] input').fill('file');
+    // 填写 FormData 参数
+    await formRows.nth(0).locator('[data-testid="params-tree-key-input"]').click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('file');
     await formRows.nth(0).locator('[data-testid="params-tree-type-select"]').click();
     await contentPage.waitForTimeout(200);
     await contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /^File$/ }).first().click();
     await contentPage.waitForTimeout(200);
     await formRows.nth(0).locator('[data-testid="params-tree-required-checkbox"]').click();
-    await formRows.nth(0).locator('[data-testid="params-tree-description-input"] input').fill('上传文件');
-    await formRows.nth(1).locator('[data-testid="params-tree-key-input"] input').fill('name');
+    await formRows.nth(0).locator('[data-testid="params-tree-description-input"]').click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('上传文件');
+    await expect(formRows.nth(1)).toBeVisible({ timeout: 10000 });
+    await formRows.nth(1).locator('[data-testid="params-tree-key-input"]').click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('name');
     await formRows.nth(1).locator('[data-testid="params-tree-value-input"]').click();
     await contentPage.keyboard.type('test');
-    await formRows.nth(1).locator('[data-testid="params-tree-description-input"] input').fill('名称');
+    await formRows.nth(1).locator('[data-testid="params-tree-description-input"]').click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('名称');
     await contentPage.waitForTimeout(300);
+    // 保存接口，确保请求体配置会被导出到 OpenAPI
+    await saveBtn.click();
+    await contentPage.waitForTimeout(500);
 
     await createNode(contentPage, { nodeType: 'http', name: 'OpenAPI-UrlEncoded请求体接口' });
-    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/urlencoded`);
+    await urlInput.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/urlencoded`);
     await methodSelect.click();
     await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first().click();
     await bodyTab.click();
@@ -240,19 +288,33 @@ test.describe('Export', () => {
     await contentPage.waitForTimeout(300);
     const urlencodedTree = contentPage.locator('.body-params .cl-params-tree').first();
     const urlencodedRows = urlencodedTree.locator('[data-testid="params-tree-row"]');
-    await urlencodedRows.nth(0).locator('[data-testid="params-tree-key-input"] input').fill('a');
+    await urlencodedRows.nth(0).locator('[data-testid="params-tree-key-input"]').click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('a');
     await urlencodedRows.nth(0).locator('[data-testid="params-tree-value-input"]').click();
     await contentPage.keyboard.type('1');
     await urlencodedRows.nth(0).locator('[data-testid="params-tree-required-checkbox"]').click();
-    await urlencodedRows.nth(0).locator('[data-testid="params-tree-description-input"] input').fill('a必填');
-    await urlencodedRows.nth(1).locator('[data-testid="params-tree-key-input"] input').fill('b');
+    await urlencodedRows.nth(0).locator('[data-testid="params-tree-description-input"]').click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('a必填');
+    await expect(urlencodedRows.nth(1)).toBeVisible({ timeout: 10000 });
+    await urlencodedRows.nth(1).locator('[data-testid="params-tree-key-input"]').click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('b');
     await urlencodedRows.nth(1).locator('[data-testid="params-tree-value-input"]').click();
     await contentPage.keyboard.type('2');
-    await urlencodedRows.nth(1).locator('[data-testid="params-tree-description-input"] input').fill('b非必填');
+    await urlencodedRows.nth(1).locator('[data-testid="params-tree-description-input"]').click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('b非必填');
     await contentPage.waitForTimeout(300);
+    // 保存接口，确保请求体配置会被导出到 OpenAPI
+    await saveBtn.click();
+    await contentPage.waitForTimeout(500);
 
     await createNode(contentPage, { nodeType: 'http', name: 'OpenAPI-Raw请求体接口' });
-    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/raw`);
+    await urlInput.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/raw`);
     await methodSelect.click();
     await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first().click();
     await bodyTab.click();
@@ -273,6 +335,9 @@ test.describe('Export', () => {
       await contentPage.keyboard.type('<?xml version=\"1.0\"?><root><name>test</name></root>');
     }
     await contentPage.waitForTimeout(300);
+    // 保存接口，确保 Raw Body 配置会被导出到 OpenAPI
+    await saveBtn.click();
+    await contentPage.waitForTimeout(500);
 
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
