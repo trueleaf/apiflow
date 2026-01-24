@@ -48,11 +48,15 @@ export const test = base.extend<ElectronFixtures>({
   // Electron 应用实例 fixture
   electronApp: async ({}, use) => {
     const mainPath = path.resolve(__dirname, '../../dist/main/main.mjs');       
+    const launchEnv: NodeJS.ProcessEnv = {
+      ...process.env,
+      NODE_ENV: 'test',
+    };
+    delete launchEnv.ELECTRON_RUN_AS_NODE;
     const app = await electron.launch({
       args: [mainPath],
       env: {
-        ...process.env,
-        NODE_ENV: 'test',
+        ...launchEnv,
       },
     });
     // 等待应用完全启动并加载所有窗口
@@ -107,6 +111,10 @@ export const test = base.extend<ElectronFixtures>({
           indexedDB.deleteDatabase(dbName);
         });
       });
+      await topBarPage.evaluate(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+      });
       // 点击首页按钮
       const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
       await homeBtn.click();
@@ -115,6 +123,16 @@ export const test = base.extend<ElectronFixtures>({
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
       await contentPage.waitForTimeout(500);
+      // await contentPage.evaluate(() => {
+      //   window.electronAPI?.ipcManager.sendToMain('apiflow:content:to:topbar:init-tabs', {
+      //     tabs: [],
+      //     activeTabId: '',
+      //     language: 'zh-cn',
+      //     networkMode: 'offline',
+      //   });
+      // });
+      // const tabs = topBarPage.locator('[data-test-id^="header-tab-item-"]');
+      // await expect(tabs).toHaveCount(0, { timeout: 5000 });
     };
     await use(clear);
   },

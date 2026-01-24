@@ -11,9 +11,9 @@ test.describe('HandshakeMechanism', () => {
     const aiDialog = contentPage.locator('.ai-dialog');
     await expect(aiDialog).toBeVisible({ timeout: 5000 });
     // 关闭弹窗
-    const closeBtn = aiDialog.locator('.el-dialog__close');
+    const closeBtn = aiDialog.locator('.ai-dialog-close');
     await closeBtn.click();
-    await contentPage.waitForTimeout(300);
+    await expect(aiDialog).toBeHidden({ timeout: 5000 });
     // 验证语言菜单功能（测试showLanguageMenu事件）
     const languageBtn = topBarPage.locator('[data-testid="header-language-btn"]');
     await languageBtn.click();
@@ -31,8 +31,8 @@ test.describe('HandshakeMechanism', () => {
     await expect(settingsTab).toBeVisible();
     // 验证页面已跳转（这证明IPC通讯正常）
     await expect(contentPage).toHaveURL(/.*#\/settings/, { timeout: 5000 });
-    const settingsMenu = contentPage.locator('[data-testid="settings-menu"]');
-    await expect(settingsMenu).toBeVisible({ timeout: 5000 });
+    const settingsMenuItem = contentPage.locator('[data-testid="settings-menu-common-settings"]');
+    await expect(settingsMenuItem).toBeVisible({ timeout: 5000 });
   });
 
   test('网络模式切换后事件监听器仍然正常', async ({ topBarPage, contentPage, clearCache }) => {
@@ -60,9 +60,9 @@ test.describe('HandshakeMechanism', () => {
     const aiDialog = contentPage.locator('.ai-dialog');
     await expect(aiDialog).toBeVisible({ timeout: 5000 });
     // 关闭弹窗
-    const closeBtn = aiDialog.locator('.el-dialog__close');
+    const closeBtn = aiDialog.locator('.ai-dialog-close');
     await closeBtn.click();
-    await contentPage.waitForTimeout(300);
+    await expect(aiDialog).toBeHidden({ timeout: 5000 });
     // 验证设置按钮仍然可用
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     await settingsBtn.click();
@@ -105,9 +105,9 @@ test.describe('HandshakeMechanism', () => {
     await languageOverlay.click();
     await contentPage.waitForTimeout(300);
     // 关闭AI弹窗
-    const closeBtn = aiDialog.locator('.el-dialog__close');
+    const closeBtn = aiDialog.locator('.ai-dialog-close');
     await closeBtn.click();
-    await contentPage.waitForTimeout(300);
+    await expect(aiDialog).toBeHidden({ timeout: 5000 });
     // 点击设置按钮
     await settingsBtn.click();
     await contentPage.waitForTimeout(500);
@@ -137,18 +137,33 @@ test.describe('HandshakeMechanism', () => {
     await clearCache();
     // 创建两个项目
     const projectAName = await createProject(`切换A-${Date.now()}`);
+    await expect(contentPage).toHaveURL(/.*#\/workbench.*\bid=[^&]+/, { timeout: 5000 });
+    const projectAUrl = contentPage.url();
+    const projectAIdMatch = /[?&]id=([^&]+)/.exec(projectAUrl);
+    const projectAId = projectAIdMatch?.[1];
+    expect(projectAId).toBeTruthy();
     const projectBName = await createProject(`切换B-${Date.now()}`);
+    await expect(contentPage).toHaveURL(/.*#\/workbench.*\bid=[^&]+/, { timeout: 5000 });
+    const projectBUrl = contentPage.url();
+    const projectBIdMatch = /[?&]id=([^&]+)/.exec(projectBUrl);
+    const projectBId = projectBIdMatch?.[1];
+    expect(projectBId).toBeTruthy();
+    expect(projectBId).not.toBe(projectAId);
+    const projectAIdEscaped = projectAId?.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const projectBIdEscaped = projectBId?.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    expect(projectAIdEscaped).toBeTruthy();
+    expect(projectBIdEscaped).toBeTruthy();
     // 点击项目A的Tab
     const projectATab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectAName });
     await projectATab.click();
     await contentPage.waitForTimeout(500);
     // 验证contentView收到切换通知并加载项目A
-    await expect(contentPage).toHaveURL(new RegExp(`.*workbench.*id=${projectAName.match(/\d+$/)?.[0]}`), { timeout: 5000 });
+    await expect(contentPage).toHaveURL(new RegExp(`.*workbench.*id=${projectAIdEscaped}`), { timeout: 5000 });
     // 点击项目B的Tab
     const projectBTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectBName });
     await projectBTab.click();
     await contentPage.waitForTimeout(500);
     // 验证contentView切换到项目B
-    await expect(contentPage).toHaveURL(new RegExp(`.*workbench.*id=${projectBName.match(/\d+$/)?.[0]}`), { timeout: 5000 });
+    await expect(contentPage).toHaveURL(new RegExp(`.*workbench.*id=${projectBIdEscaped}`), { timeout: 5000 });
   });
 });
