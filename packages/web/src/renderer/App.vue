@@ -9,12 +9,13 @@
       </div>
     </div>
     <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
+    <ChangePasswordDialog v-model="changePasswordDialogVisible" @success="handleChangePasswordSuccess" />
     <Ai v-show="agentViewDialogVisible" />
     <!-- Electron 环境：语言菜单由 IPC 控制显示 -->
     <LanguageMenu v-if="isElectronEnv" :visible="languageMenuVisible" :position="languageMenuPosition"
       :current-language="runtimeStore.language" @language-select="handleLanguageSelect" @close="hideLanguageMenu" />
     <UserMenu v-if="isElectronEnv" :visible="userMenuVisible" :position="userMenuPosition" @logout="handleLogout"
-      @close="hideUserMenu" />
+      @change-password="handleChangePassword" @close="hideUserMenu" />
     <HeaderTabContextmenu
       v-if="isElectronEnv"
       :visible="headerTabContextmenuVisible"
@@ -39,6 +40,7 @@ import { changeLanguage } from './i18n';
 import { useRouter } from 'vue-router';
 import AddProjectDialog from '@/pages/home/dialog/addProject/AddProject.vue';
 import Ai from '@/pages/ai/Ai.vue';
+import ChangePasswordDialog from '@/pages/settings/commonSettings/userConfig/ChangePasswordDialog.vue';
 import { projectCache } from '@/cache/project/projectCache';
 import { request } from '@/api/api';
 import { ElMessageBox, ElMessage } from 'element-plus';
@@ -85,6 +87,7 @@ const languageMenuVisible = ref(false)
 const languageMenuPosition = ref({ x: 0, y: 0, width: 0, height: 0 })
 const userMenuVisible = ref(false)
 const userMenuPosition = ref<AnchorRect>({ x: 0, y: 0, width: 0, height: 0 })
+const changePasswordDialogVisible = ref(false)
 const headerTabContextmenuVisible = ref(false)
 const headerTabContextmenuPosition = ref<AnchorRect>({ x: 0, y: 0, width: 0, height: 0 })
 const headerTabContextmenuTabId = ref('')
@@ -192,7 +195,13 @@ const handleLogout = () => {
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: '', loginName: '', role: 'user', token: '', avatar: '' })
   router.push('/login')
 }
-
+const handleChangePassword = () => {
+  changePasswordDialogVisible.value = true
+  hideUserMenu()
+}
+const handleChangePasswordSuccess = () => {
+  ElMessage.success(t('密码修改成功'))
+}
 const handleLanguageSelect = (language: Language) => {
   runtimeStore.setLanguage(language);
   changeLanguage(language)

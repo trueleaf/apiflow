@@ -125,7 +125,6 @@ const handleSubmit = async () => {
       oldPassword: formData.oldPassword,
       newPassword: formData.newPassword,
     })
-    message.success(t('密码修改成功'))
     emit('success')
     handleClose()
   } catch (error) {

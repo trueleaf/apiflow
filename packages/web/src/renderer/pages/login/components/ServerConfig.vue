@@ -168,7 +168,6 @@ const handleSaveOnlineUrl = async () => {
       return
     }
     await window.electronAPI?.ipcManager.invoke(IPC_EVENTS.apiflow.rendererToMain.setOnlineUrl, trimmedUrl)
-    message.success(t('配置已保存，即将刷新应用'))
   } catch {
     message.error(t('保存失败'))
   } finally {

@@ -9,6 +9,18 @@
   >
     <div
       class="user-menu-item"
+      data-test-id="user-menu-change-password-btn"
+      role="menuitem"
+      tabindex="0"
+      @click="handleChangePassword"
+      @keydown.enter="handleChangePassword"
+      @keydown.space.prevent="handleChangePassword"
+    >
+      <KeyRound class="user-menu-icon" :size="14" />
+      <span class="user-menu-text">{{ t('修改密码') }}</span>
+    </div>
+    <div
+      class="user-menu-item"
       data-test-id="user-menu-logout-btn"
       role="menuitem"
       tabindex="0"
@@ -32,7 +44,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { LogOut } from 'lucide-vue-next'
+import { LogOut, KeyRound } from 'lucide-vue-next'
 import type { AnchorRect } from '@src/types/common'
 
 const props = withDefaults(defineProps<{
@@ -46,6 +58,7 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{
   (e: 'close'): void
   (e: 'logout'): void
+  (e: 'change-password'): void
 }>()
 
 const { t } = useI18n()
@@ -60,6 +73,10 @@ const menuStyle = computed(() => {
   }
 })
 
+const handleChangePassword = () => {
+  emit('change-password')
+  emit('close')
+}
 const handleLogout = () => {
   emit('logout')
   emit('close')
