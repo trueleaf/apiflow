@@ -79,7 +79,14 @@ export class OpenAPIConverter {
     };
     apiDocs.forEach(doc => {
       try {
-        const path = doc.item.url.path;
+        let path = doc.item.url.path;
+        if (path.startsWith('http://') || path.startsWith('https://')) {
+          path = path.replace(/^https?:\/\/[^/]+/, '');
+        }
+        path = path.split('?')[0].split('#')[0];
+        if (!path.startsWith('/')) {
+          path = '/' + path;
+        }
         const method = doc.item.method.toLowerCase();
         if (!openApiSpec.paths[path]) {
           openApiSpec.paths[path] = {};

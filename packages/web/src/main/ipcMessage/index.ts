@@ -35,7 +35,7 @@ const createHandshakeManager = (contentView: WebContentsView, topBarView: WebCon
   let contentViewReady = false;
   let handshakeCompleted = false;
   let handshakeTimeoutTimer: ReturnType<typeof setTimeout> | null = null;
-  let cachedTabsData: { tabs: any[], activeTabId: string, language: string, networkMode: string } | null = null;
+  let cachedTabsData: { tabs: any[], activeTabId: string, language: string, networkMode: RuntimeNetworkMode } | null = null;
   const HANDSHAKE_TIMEOUT = 30000; // 30秒超时
   // 尝试完成握手
   const tryCompleteHandshake = () => {
@@ -103,8 +103,12 @@ const createHandshakeManager = (contentView: WebContentsView, topBarView: WebCon
     handshakeCompleted,
   });
   // 缓存 tabs 数据
-  const setCachedTabsData = (data: { tabs: any[], activeTabId: string, language: string, networkMode: string }) => {
+  const setCachedTabsData = (data: { tabs: any[], activeTabId: string, language: string, networkMode: RuntimeNetworkMode }) => {
     cachedTabsData = data;
+  };
+  const updateCachedTabsNetworkMode = (networkMode: RuntimeNetworkMode) => {
+    if (!cachedTabsData) return;
+    cachedTabsData = { ...cachedTabsData, networkMode };
   };
   return {
     setTopBarReady,
@@ -113,6 +117,7 @@ const createHandshakeManager = (contentView: WebContentsView, topBarView: WebCon
     getHandshakeState,
     clearHandshakeTimeout,
     setCachedTabsData,
+    updateCachedTabsNetworkMode,
   };
 };
 
@@ -147,7 +152,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |--------------------------------------------------------------------------
   */
   // App.vue 发送初始化 tabs 数据给 header.vue
-  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.initTabs, (_, data: { tabs: any[], activeTabId: string, language: string, networkMode: string }) => {
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.initTabs, (_, data: { tabs: any[], activeTabId: string, language: string, networkMode: RuntimeNetworkMode }) => {
     // 缓存 tabs 数据，用于刷新后恢复
     handshakeManager.setCachedTabsData(data);
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.initTabsData, data);
@@ -411,6 +416,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   })
 
   ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, (_, mode: RuntimeNetworkMode) => {
+    handshakeManager.updateCachedTabsNetworkMode(mode);
     contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, mode)
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, mode)
   })

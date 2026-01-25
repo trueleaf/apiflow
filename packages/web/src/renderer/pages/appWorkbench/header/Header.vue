@@ -410,6 +410,10 @@ const jumpToSettings = () => {
 }
 const toggleNetworkMode = () => {
   const newMode = networkMode.value === 'online' ? 'offline' : 'online'
+  if (runtimeStore.networkMode !== newMode) {
+    runtimeStore.setNetworkMode(newMode)
+  }
+  networkMode.value = newMode
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, newMode)
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.reloadAfterNetworkModeChange)
 }
