@@ -1,17 +1,22 @@
 FROM node:20-bookworm-slim AS build
 
 ARG USE_NPM_MIRROR=false
+ARG TARGETARCH
 
 WORKDIR /app
-
-# 安装构建工具用于编译 native 依赖
-RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
 COPY packages/website/package.json packages/website/package-lock.json ./packages/website/
 RUN if [ "$USE_NPM_MIRROR" = "true" ]; then npm config set registry https://registry.npmmirror.com; fi
 
 WORKDIR /app/packages/website
 RUN npm ci --include=optional
+
+# 根据目标架构安装对应的 @parcel/watcher 原生绑定（多架构构建时 npm ci 只装宿主机的）
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+      npm install --no-save @parcel/watcher-linux-x64-glibc; \
+    elif [ "$TARGETARCH" = "arm64" ]; then \
+      npm install --no-save @parcel/watcher-linux-arm64-glibc; \
+    fi
 
 COPY packages/website/ ./
 
