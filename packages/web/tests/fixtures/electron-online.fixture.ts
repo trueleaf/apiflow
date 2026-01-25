@@ -225,7 +225,7 @@ export const test = base.extend<ElectronFixtures>({
       const serverUrlInput = contentPage.getByPlaceholder(/请输入接口调用地址|Please enter.*address/i);
       await expect(serverUrlInput).toBeVisible({ timeout: 5000 });
       await serverUrlInput.fill(serverUrl);
-      const saveBtn = contentPage.getByRole('button', { name: /保存|Save/i });
+      const saveBtn = contentPage.getByRole('button', { name: /^(保存|Save)$/i });
       const saveBtnEnabled = await saveBtn.isEnabled();
       if (saveBtnEnabled) {
         await saveBtn.click();

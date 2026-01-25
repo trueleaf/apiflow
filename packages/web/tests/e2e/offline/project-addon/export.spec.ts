@@ -150,7 +150,6 @@ test.describe('Export', () => {
     await contentPage.keyboard.type('q');
     await queryRows.nth(0).locator('[data-testid="params-tree-value-input"]').click();
     await contentPage.keyboard.type('1');
-    await queryRows.nth(0).locator('[data-testid="params-tree-required-checkbox"]').click();
     await queryRows.nth(0).locator('[data-testid="params-tree-description-input"]').click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('query必填');
@@ -160,12 +159,13 @@ test.describe('Export', () => {
     await contentPage.keyboard.type('opt');
     await queryRows.nth(1).locator('[data-testid="params-tree-value-input"]').click();
     await contentPage.keyboard.type('2');
+    // 参数默认必填，点击一次切换为非必填
+    await queryRows.nth(1).locator('[data-testid="params-tree-required-checkbox"]').click();
     await queryRows.nth(1).locator('[data-testid="params-tree-description-input"]').click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('query非必填');
     const pathParamsTree = contentPage.locator('.query-path-params .cl-params-tree').nth(1);
     const userIdRow = pathParamsTree.locator('[data-testid="params-tree-row"][data-row-key=\"userId\"]');
-    await userIdRow.locator('[data-testid="params-tree-required-checkbox"]').click();
     await userIdRow.locator('[data-testid="params-tree-description-input"]').click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('用户ID');
@@ -179,7 +179,6 @@ test.describe('Export', () => {
     const headerValueInput = contentPage.locator('[data-testid="params-tree-value-input"] .ProseMirror').first();
     await headerValueInput.click();
     await contentPage.keyboard.type('token_value');
-    await contentPage.locator('[data-testid="params-tree-required-checkbox"]').first().click();
     await contentPage.locator('[data-testid="params-tree-description-input"]').first().click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('令牌');
@@ -258,7 +257,6 @@ test.describe('Export', () => {
     await contentPage.waitForTimeout(200);
     await contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /^File$/ }).first().click();
     await contentPage.waitForTimeout(200);
-    await formRows.nth(0).locator('[data-testid="params-tree-required-checkbox"]').click();
     await formRows.nth(0).locator('[data-testid="params-tree-description-input"]').click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('上传文件');
@@ -268,6 +266,8 @@ test.describe('Export', () => {
     await contentPage.keyboard.type('name');
     await formRows.nth(1).locator('[data-testid="params-tree-value-input"]').click();
     await contentPage.keyboard.type('test');
+    // 参数默认必填，点击一次切换为非必填
+    await formRows.nth(1).locator('[data-testid="params-tree-required-checkbox"]').click();
     await formRows.nth(1).locator('[data-testid="params-tree-description-input"]').click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('名称');
@@ -293,7 +293,6 @@ test.describe('Export', () => {
     await contentPage.keyboard.type('a');
     await urlencodedRows.nth(0).locator('[data-testid="params-tree-value-input"]').click();
     await contentPage.keyboard.type('1');
-    await urlencodedRows.nth(0).locator('[data-testid="params-tree-required-checkbox"]').click();
     await urlencodedRows.nth(0).locator('[data-testid="params-tree-description-input"]').click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('a必填');
@@ -303,6 +302,8 @@ test.describe('Export', () => {
     await contentPage.keyboard.type('b');
     await urlencodedRows.nth(1).locator('[data-testid="params-tree-value-input"]').click();
     await contentPage.keyboard.type('2');
+    // 参数默认必填，点击一次切换为非必填
+    await urlencodedRows.nth(1).locator('[data-testid="params-tree-required-checkbox"]').click();
     await urlencodedRows.nth(1).locator('[data-testid="params-tree-description-input"]').click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('b非必填');

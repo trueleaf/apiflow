@@ -15,7 +15,7 @@ test.describe('WebSocketCustomHeaders', () => {
     // 在自定义请求头的key输入框中输入"auth"
     const headersPanel = contentPage.locator('.ws-headers');
     await expect(headersPanel).toBeVisible({ timeout: 5000 });
-    const headerKeyInput = headersPanel.locator('[data-testid="params-tree-key-autocomplete"] input').first();
+    const headerKeyInput = headersPanel.locator('[data-testid="params-tree-key-autocomplete"] input, [data-testid="params-tree-key-input"] input').first();
     await headerKeyInput.click();
     await headerKeyInput.fill('auth');
     await contentPage.waitForTimeout(500);
@@ -37,7 +37,7 @@ test.describe('WebSocketCustomHeaders', () => {
     // 获取初始行数
     const headersPanel = contentPage.locator('.ws-headers');
     await expect(headersPanel).toBeVisible({ timeout: 5000 });
-    const headerKeyInputs = headersPanel.locator('[data-testid="params-tree-key-autocomplete"] input');
+    const headerKeyInputs = headersPanel.locator('[data-testid="params-tree-key-autocomplete"] input, [data-testid="params-tree-key-input"] input');
     const initialRowCount = await headerKeyInputs.count();
     // 在第一行请求头的key输入框中输入参数名
     const headerKeyInput = headerKeyInputs.first();
@@ -65,7 +65,7 @@ test.describe('WebSocketCustomHeaders', () => {
     // 添加请求头
     const headersPanel = contentPage.locator('.ws-headers');
     await expect(headersPanel).toBeVisible({ timeout: 5000 });
-    const headerKeyInput = headersPanel.locator('[data-testid="params-tree-key-autocomplete"] input').first();
+    const headerKeyInput = headersPanel.locator('[data-testid="params-tree-key-autocomplete"] input, [data-testid="params-tree-key-input"] input').first();
     await headerKeyInput.click();
     await headerKeyInput.fill('X-Test-Header');
     await contentPage.waitForTimeout(200);
@@ -118,7 +118,7 @@ test.describe('WebSocketCustomHeaders', () => {
     await contentPage.waitForTimeout(300);
     // 添加请求头使用变量
     const headersPanel = contentPage.locator('.ws-headers');
-    const headerKeyInput = headersPanel.locator('[data-testid="params-tree-key-autocomplete"] input').first();
+    const headerKeyInput = headersPanel.locator('[data-testid="params-tree-key-autocomplete"] input, [data-testid="params-tree-key-input"] input').first();
     await headerKeyInput.click();
     await headerKeyInput.fill('Authorization');
     await contentPage.waitForTimeout(200);
@@ -144,7 +144,7 @@ test.describe('WebSocketCustomHeaders', () => {
     await headersTab.click();
     await contentPage.waitForTimeout(300);
     // 点击隐藏默认请求头
-    const hideLink = contentPage.locator('.ws-headers').locator('span').filter({ hasText: /点击隐藏/ });
+    const hideLink = contentPage.locator('.ws-headers').locator('span').filter({ hasText: /点击隐藏/ }).first();
     if (await hideLink.isVisible()) {
       await hideLink.click();
       await contentPage.waitForTimeout(300);

@@ -21,7 +21,7 @@ test.describe('WebSocketMessageType', () => {
     const typeSelector = messageBlock.locator('.type-selector');
     await typeSelector.click();
     await contentPage.waitForTimeout(300);
-    const jsonOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /^JSON$/ }).first();
+    const jsonOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /^JSON$/ }).first();
     await jsonOption.click();
     await contentPage.waitForTimeout(300);
     // 验证类型选择器显示JSON
@@ -48,7 +48,7 @@ test.describe('WebSocketMessageType', () => {
     const typeSelector = messageBlock.locator('.type-selector');
     await typeSelector.click();
     await contentPage.waitForTimeout(300);
-    const xmlOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /^XML$/ }).first();
+    const xmlOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /^XML$/ }).first();
     await xmlOption.click();
     await contentPage.waitForTimeout(300);
     // 验证类型选择器显示XML
@@ -75,7 +75,7 @@ test.describe('WebSocketMessageType', () => {
     const typeSelector = messageBlock.locator('.type-selector');
     await typeSelector.click();
     await contentPage.waitForTimeout(300);
-    const htmlOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /^HTML$/ }).first();
+    const htmlOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /^HTML$/ }).first();
     await htmlOption.click();
     await contentPage.waitForTimeout(300);
     // 验证类型选择器显示HTML
@@ -102,7 +102,7 @@ test.describe('WebSocketMessageType', () => {
     const typeSelector = messageBlock.locator('.type-selector');
     await typeSelector.click();
     await contentPage.waitForTimeout(300);
-    const textOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /文本/ }).first();
+    const textOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /文本/ }).first();
     await textOption.click();
     await contentPage.waitForTimeout(300);
     // 验证类型选择器显示文本
@@ -129,7 +129,7 @@ test.describe('WebSocketMessageType', () => {
     const typeSelector = messageBlock.locator('.type-selector');
     await typeSelector.click();
     await contentPage.waitForTimeout(300);
-    const base64Option = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /Base64/ }).first();
+    const base64Option = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /Base64/ }).first();
     await base64Option.click();
     await contentPage.waitForTimeout(300);
     // 验证类型选择器显示二进制(Base64)
@@ -156,7 +156,7 @@ test.describe('WebSocketMessageType', () => {
     const typeSelector = messageBlock.locator('.type-selector');
     await typeSelector.click();
     await contentPage.waitForTimeout(300);
-    const hexOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /Hex/ }).first();
+    const hexOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /Hex/ }).first();
     await hexOption.click();
     await contentPage.waitForTimeout(300);
     // 验证类型选择器显示二进制(Hex)
@@ -183,7 +183,7 @@ test.describe('WebSocketMessageType', () => {
     const typeSelector = messageBlock.locator('.type-selector');
     await typeSelector.click();
     await contentPage.waitForTimeout(300);
-    const jsonOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /^JSON$/ }).first();
+    const jsonOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /^JSON$/ }).first();
     await jsonOption.click();
     await contentPage.waitForTimeout(300);
     // 验证格式化按钮可见

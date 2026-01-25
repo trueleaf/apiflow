@@ -26,10 +26,11 @@ test.describe('AfResponseApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
-    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+    const monacoEditor = contentPage.locator('#pane-afterRequest .s-monaco-editor, .s-monaco-editor:visible').first();
+    await expect(monacoEditor).toBeVisible({ timeout: 5000 });
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('console.log("statusCode:", af.response.statusCode)');
+    await contentPage.keyboard.type('if (af.response.statusCode !== 200) { throw new Error(`statusCode异常: ${af.response.statusCode}`) }');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -63,10 +64,11 @@ test.describe('AfResponseApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
-    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+    const monacoEditor = contentPage.locator('#pane-afterRequest .s-monaco-editor, .s-monaco-editor:visible').first();
+    await expect(monacoEditor).toBeVisible({ timeout: 5000 });
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('console.log("headers:", JSON.stringify(af.response.headers))');
+    await contentPage.keyboard.type('const ct = af.response.headers?.[\"content-type\"]; if (!ct) { throw new Error(\"缺少content-type响应头\") }');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -76,9 +78,8 @@ test.describe('AfResponseApi', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
-    // 验证响应头信息存在
-    const responseBody = responseArea.locator('.s-json-editor').first();
-    await expect(responseBody).toContainText('content-type', { timeout: 10000 });
+    // 验证脚本未执行报错
+    await expect(responseArea.getByTestId('response-error')).toBeHidden({ timeout: 10000 });
   });
   // 测试用例3: 使用af.response.cookies获取响应Cookie
   test('使用af.response.cookies获取响应Cookie', async ({ contentPage, clearCache, createProject }) => {
@@ -103,10 +104,11 @@ test.describe('AfResponseApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
-    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+    const monacoEditor = contentPage.locator('#pane-afterRequest .s-monaco-editor, .s-monaco-editor:visible').first();
+    await expect(monacoEditor).toBeVisible({ timeout: 5000 });
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('console.log("cookies:", JSON.stringify(af.response.cookies))');
+    await contentPage.keyboard.type('const cookies = af.response.cookies; const hasCookie = Array.isArray(cookies) ? cookies.length > 0 : Object.keys(cookies || {}).length > 0; if (!hasCookie) { throw new Error(\"响应Cookie为空\") }');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -140,10 +142,11 @@ test.describe('AfResponseApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
-    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+    const monacoEditor = contentPage.locator('#pane-afterRequest .s-monaco-editor, .s-monaco-editor:visible').first();
+    await expect(monacoEditor).toBeVisible({ timeout: 5000 });
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('console.log("body:", JSON.stringify(af.response.body))');
+    await contentPage.keyboard.type('if (!af.response.body) { throw new Error(\"响应体为空\") }');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -180,10 +183,11 @@ test.describe('AfResponseApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
-    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+    const monacoEditor = contentPage.locator('#pane-afterRequest .s-monaco-editor, .s-monaco-editor:visible').first();
+    await expect(monacoEditor).toBeVisible({ timeout: 5000 });
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('console.log("rt:", af.response.rt, "ms")');
+    await contentPage.keyboard.type('if (typeof af.response.rt !== \"number\" || af.response.rt <= 0) { throw new Error(`rt异常: ${af.response.rt}`) }');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -217,10 +221,11 @@ test.describe('AfResponseApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
-    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+    const monacoEditor = contentPage.locator('#pane-afterRequest .s-monaco-editor, .s-monaco-editor:visible').first();
+    await expect(monacoEditor).toBeVisible({ timeout: 5000 });
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('console.log("size:", af.response.size, "bytes")');
+    await contentPage.keyboard.type('if (typeof af.response.size !== \"number\" || af.response.size <= 0) { throw new Error(`size异常: ${af.response.size}`) }');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -254,10 +259,11 @@ test.describe('AfResponseApi', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在后置脚本中输入代码
-    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+    const monacoEditor = contentPage.locator('#pane-afterRequest .s-monaco-editor, .s-monaco-editor:visible').first();
+    await expect(monacoEditor).toBeVisible({ timeout: 5000 });
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('console.log("ip:", af.response.ip)');
+    await contentPage.keyboard.type('if (!af.response.ip) { throw new Error(\"远端IP为空\") }');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');

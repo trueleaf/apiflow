@@ -15,6 +15,7 @@ test.describe('WebSocketAfterScriptEditorFeatures', () => {
     // 在编辑器中输入包含关键字、函数、变量等的JavaScript代码
     const afterScriptPane = contentPage.locator('#pane-afterScript');
     const monacoEditor = afterScriptPane.locator('.s-monaco-editor');
+    await expect(monacoEditor).toBeVisible({ timeout: 5000 });
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('const message = "hello world";\nfunction test() {\n  return 123;\n}\n// comment');
@@ -42,6 +43,7 @@ test.describe('WebSocketAfterScriptEditorFeatures', () => {
     // 在编辑器中输入af.触发代码补全
     const afterScriptPane = contentPage.locator('#pane-afterScript');
     const monacoEditor = afterScriptPane.locator('.s-monaco-editor');
+    await expect(monacoEditor).toBeVisible({ timeout: 5000 });
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('af.');
@@ -64,6 +66,7 @@ test.describe('WebSocketAfterScriptEditorFeatures', () => {
     // 在编辑器中输入格式不规范的JavaScript代码
     const afterScriptPane = contentPage.locator('#pane-afterScript');
     const monacoEditor = afterScriptPane.locator('.s-monaco-editor');
+    await expect(monacoEditor).toBeVisible({ timeout: 5000 });
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     // 输入格式混乱的代码

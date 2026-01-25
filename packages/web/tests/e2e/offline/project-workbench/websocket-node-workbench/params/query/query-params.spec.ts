@@ -15,7 +15,7 @@ test.describe('WebSocketQueryParams', () => {
     // 获取初始行数
     const queryParamsPanel = contentPage.locator('.ws-query-params');
     await expect(queryParamsPanel).toBeVisible({ timeout: 5000 });
-    const queryKeyInputs = queryParamsPanel.locator('[data-testid="params-tree-key-autocomplete"] input');
+    const queryKeyInputs = queryParamsPanel.locator('[data-testid="params-tree-key-autocomplete"] input, [data-testid="params-tree-key-input"] input');
     const initialRowCount = await queryKeyInputs.count();
     // 在第一行Query参数的key输入框中输入参数名
     const queryKeyInput = queryKeyInputs.first();
@@ -48,7 +48,7 @@ test.describe('WebSocketQueryParams', () => {
     await contentPage.waitForTimeout(300);
     // 添加Query参数: key="token", value="abc123"
     const queryParamsPanel = contentPage.locator('.ws-query-params');
-    const queryKeyInput = queryParamsPanel.locator('[data-testid="params-tree-key-autocomplete"] input').first();
+    const queryKeyInput = queryParamsPanel.locator('[data-testid="params-tree-key-autocomplete"] input, [data-testid="params-tree-key-input"] input').first();
     await queryKeyInput.click();
     await queryKeyInput.fill('token');
     await contentPage.waitForTimeout(200);
@@ -100,7 +100,7 @@ test.describe('WebSocketQueryParams', () => {
     await contentPage.waitForTimeout(300);
     // 添加Query参数使用变量
     const queryParamsPanel = contentPage.locator('.ws-query-params');
-    const queryKeyInput = queryParamsPanel.locator('[data-testid="params-tree-key-autocomplete"] input').first();
+    const queryKeyInput = queryParamsPanel.locator('[data-testid="params-tree-key-autocomplete"] input, [data-testid="params-tree-key-input"] input').first();
     await queryKeyInput.click();
     await queryKeyInput.fill('token');
     await contentPage.waitForTimeout(200);
@@ -131,7 +131,7 @@ test.describe('WebSocketQueryParams', () => {
     await contentPage.waitForTimeout(300);
     // 添加Query参数
     const queryParamsPanel = contentPage.locator('.ws-query-params');
-    const queryKeyInput = queryParamsPanel.locator('[data-testid="params-tree-key-autocomplete"] input').first();
+    const queryKeyInput = queryParamsPanel.locator('[data-testid="params-tree-key-autocomplete"] input, [data-testid="params-tree-key-input"] input').first();
     await queryKeyInput.click();
     await queryKeyInput.fill('disabled_param');
     await contentPage.waitForTimeout(200);
@@ -168,7 +168,7 @@ test.describe('WebSocketQueryParams', () => {
     await contentPage.waitForTimeout(300);
     // 添加第一个Query参数
     const queryParamsPanel = contentPage.locator('.ws-query-params');
-    const queryKeyInputs = queryParamsPanel.locator('[data-testid="params-tree-key-autocomplete"] input');
+    const queryKeyInputs = queryParamsPanel.locator('[data-testid="params-tree-key-autocomplete"] input, [data-testid="params-tree-key-input"] input');
     const queryKeyInput1 = queryKeyInputs.first();
     await queryKeyInput1.click();
     await queryKeyInput1.fill('param1');
