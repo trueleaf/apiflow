@@ -8,6 +8,7 @@
           class="action-item"
           :class="{ disabled: !canUndo }"
           :title="t('撤销') + ' (Ctrl+Z)'"
+          data-testid="ws-params-undo-btn"
           @click="handleUndo"
         >
           <el-icon size="16"><RefreshLeft /></el-icon>
@@ -17,6 +18,7 @@
           class="action-item"
           :class="{ disabled: !canRedo }"
           :title="t('重做') + ' (Ctrl+Y)'"
+          data-testid="ws-params-redo-btn"
           @click="handleRedo"
         >
           <el-icon size="16"><RefreshRight /></el-icon>
@@ -25,6 +27,7 @@
         <div
           class="action-item history-action"
           :title="t('历史记录')"
+          data-testid="ws-params-history-btn"
           @click="handleToggleHistory"
           ref="historyButtonRef"
         >

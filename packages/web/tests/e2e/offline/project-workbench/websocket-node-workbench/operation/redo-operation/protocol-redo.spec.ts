@@ -1,0 +1,56 @@
+import { test, expect } from '../../../../../../fixtures/electron.fixture';
+
+test.describe('WebSocketProtocolRedo', () => {
+  // 撤销协议变更后点击重做按钮恢复
+  test('撤销协议变更后点击重做按钮恢复', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'websocket', name: '协议重做按钮测试' });
+    const protocolSelect = contentPage.locator('.ws-operation .protocol-select .el-select');
+    // 切换为WSS
+    await protocolSelect.click();
+    const wssOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'WSS' });
+    await wssOption.click();
+    await contentPage.waitForTimeout(300);
+    // 验证协议为WSS
+    await expect(protocolSelect).toContainText('WSS');
+    // 撤销
+    const undoBtn = contentPage.locator('[data-testid="ws-params-undo-btn"]');
+    await undoBtn.click();
+    await contentPage.waitForTimeout(300);
+    // 验证协议恢复为WS
+    await expect(protocolSelect).not.toContainText('WSS');
+    // 点击重做按钮
+    const redoBtn = contentPage.locator('[data-testid="ws-params-redo-btn"]');
+    await redoBtn.click();
+    await contentPage.waitForTimeout(300);
+    // 验证协议恢复为WSS
+    await expect(protocolSelect).toContainText('WSS');
+  });
+  // 使用快捷键重做协议变更
+  test('使用快捷键重做协议变更', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'websocket', name: '协议快捷键重做测试' });
+    const protocolSelect = contentPage.locator('.ws-operation .protocol-select .el-select');
+    // 切换为WSS
+    await protocolSelect.click();
+    const wssOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'WSS' });
+    await wssOption.click();
+    await contentPage.waitForTimeout(300);
+    // 撤销
+    await contentPage.keyboard.press('Control+z');
+    await contentPage.waitForTimeout(300);
+    // 验证协议恢复为WS
+    await expect(protocolSelect).not.toContainText('WSS');
+    // 使用Ctrl+Y重做
+    await contentPage.keyboard.press('Control+y');
+    await contentPage.waitForTimeout(300);
+    // 验证协议恢复为WSS
+    await expect(protocolSelect).toContainText('WSS');
+  });
+});
