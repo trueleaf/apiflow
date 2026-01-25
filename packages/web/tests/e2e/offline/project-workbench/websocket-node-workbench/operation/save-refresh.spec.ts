@@ -19,9 +19,14 @@ test.describe('WebSocketSaveRefresh', () => {
     await expect(saveBtn).toBeVisible({ timeout: 5000 });
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
-    // 验证保存成功（通过检查是否有成功提示或按钮状态）
-    const successMessage = contentPage.locator('.el-message--success');
-    await expect(successMessage).toBeVisible({ timeout: 5000 });
+    // 通过历史记录验证保存成功
+    const historyBtn = contentPage.locator('[data-testid="ws-params-history-btn"]');
+    await historyBtn.click();
+    await contentPage.waitForTimeout(300);
+    const historyDropdown = contentPage.locator('.ws-params .history-dropdown');
+    await expect(historyDropdown).toBeVisible({ timeout: 5000 });
+    const historyItems = historyDropdown.locator('.history-item');
+    await expect(historyItems.first()).toBeVisible({ timeout: 5000 });
   });
   // 点击刷新按钮,数据重新加载
   test('点击刷新按钮数据重新加载', async ({ contentPage, clearCache, createProject, createNode }) => {

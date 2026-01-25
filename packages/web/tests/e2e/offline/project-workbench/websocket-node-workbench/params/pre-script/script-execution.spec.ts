@@ -21,7 +21,7 @@ test.describe('WebSocketPreScriptExecution', () => {
     await preScriptTab.click();
     await contentPage.waitForTimeout(500);
     // 在前置脚本编辑器中输入有语法错误的代码
-    const editor = contentPage.locator('.s-monaco-editor');
+    const editor = contentPage.locator('#pane-preScript .s-monaco-editor');
     await expect(editor).toBeVisible({ timeout: 5000 });
     await editor.click();
     await contentPage.waitForTimeout(300);
@@ -33,7 +33,7 @@ test.describe('WebSocketPreScriptExecution', () => {
     await connectBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域显示错误信息
-    const wsView = contentPage.locator('.websocket-view, .websocket-response');
+    const wsView = contentPage.locator('.websocket-view');
     await expect(wsView).toBeVisible({ timeout: 10000 });
     // 检查是否有错误相关的消息
     const errorMessage = wsView.locator('[class*="error"], [class*="fail"]').first();
@@ -59,7 +59,7 @@ test.describe('WebSocketPreScriptExecution', () => {
     await preScriptTab.click();
     await contentPage.waitForTimeout(500);
     // 在前置脚本编辑器中输入会导致运行时错误的代码
-    const editor = contentPage.locator('.s-monaco-editor');
+    const editor = contentPage.locator('#pane-preScript .s-monaco-editor');
     await expect(editor).toBeVisible({ timeout: 5000 });
     await editor.click();
     await contentPage.waitForTimeout(300);
@@ -71,7 +71,7 @@ test.describe('WebSocketPreScriptExecution', () => {
     await connectBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域存在
-    const wsView = contentPage.locator('.websocket-view, .websocket-response');
+    const wsView = contentPage.locator('.websocket-view');
     await expect(wsView).toBeVisible({ timeout: 10000 });
   });
   // 前置脚本正常执行后,WebSocket连接继续进行
@@ -92,7 +92,7 @@ test.describe('WebSocketPreScriptExecution', () => {
     await preScriptTab.click();
     await contentPage.waitForTimeout(500);
     // 在前置脚本编辑器中输入正常代码
-    const editor = contentPage.locator('.s-monaco-editor');
+    const editor = contentPage.locator('#pane-preScript .s-monaco-editor');
     await expect(editor).toBeVisible({ timeout: 5000 });
     await editor.click();
     await contentPage.waitForTimeout(300);

@@ -21,11 +21,11 @@ test.describe('WebSocketMessageType', () => {
     const typeSelector = messageBlock.locator('.type-selector');
     await typeSelector.click();
     await contentPage.waitForTimeout(300);
-    const jsonOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^JSON$/ });
+    const jsonOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /^JSON$/ }).first();
     await jsonOption.click();
     await contentPage.waitForTimeout(300);
     // 验证类型选择器显示JSON
-    const selectedType = typeSelector.locator('.el-select__selected-item');
+    const selectedType = typeSelector.locator('.el-select__selected-item:not(.is-hidden)').first();
     await expect(selectedType).toContainText('JSON');
   });
   // 切换消息类型为XML,编辑器语言切换为XML
@@ -48,11 +48,11 @@ test.describe('WebSocketMessageType', () => {
     const typeSelector = messageBlock.locator('.type-selector');
     await typeSelector.click();
     await contentPage.waitForTimeout(300);
-    const xmlOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^XML$/ });
+    const xmlOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /^XML$/ }).first();
     await xmlOption.click();
     await contentPage.waitForTimeout(300);
     // 验证类型选择器显示XML
-    const selectedType = typeSelector.locator('.el-select__selected-item');
+    const selectedType = typeSelector.locator('.el-select__selected-item:not(.is-hidden)').first();
     await expect(selectedType).toContainText('XML');
   });
   // 切换消息类型为HTML,编辑器语言切换为HTML
@@ -75,11 +75,11 @@ test.describe('WebSocketMessageType', () => {
     const typeSelector = messageBlock.locator('.type-selector');
     await typeSelector.click();
     await contentPage.waitForTimeout(300);
-    const htmlOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^HTML$/ });
+    const htmlOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /^HTML$/ }).first();
     await htmlOption.click();
     await contentPage.waitForTimeout(300);
     // 验证类型选择器显示HTML
-    const selectedType = typeSelector.locator('.el-select__selected-item');
+    const selectedType = typeSelector.locator('.el-select__selected-item:not(.is-hidden)').first();
     await expect(selectedType).toContainText('HTML');
   });
   // 切换消息类型为文本,编辑器语言切换为纯文本
@@ -102,11 +102,11 @@ test.describe('WebSocketMessageType', () => {
     const typeSelector = messageBlock.locator('.type-selector');
     await typeSelector.click();
     await contentPage.waitForTimeout(300);
-    const textOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /文本/ });
+    const textOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /文本/ }).first();
     await textOption.click();
     await contentPage.waitForTimeout(300);
     // 验证类型选择器显示文本
-    const selectedType = typeSelector.locator('.el-select__selected-item');
+    const selectedType = typeSelector.locator('.el-select__selected-item:not(.is-hidden)').first();
     await expect(selectedType).toContainText(/文本/);
   });
   // 切换消息类型为二进制(Base64),编辑器支持Base64输入
@@ -129,11 +129,11 @@ test.describe('WebSocketMessageType', () => {
     const typeSelector = messageBlock.locator('.type-selector');
     await typeSelector.click();
     await contentPage.waitForTimeout(300);
-    const base64Option = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /Base64/ });
+    const base64Option = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /Base64/ }).first();
     await base64Option.click();
     await contentPage.waitForTimeout(300);
     // 验证类型选择器显示二进制(Base64)
-    const selectedType = typeSelector.locator('.el-select__selected-item');
+    const selectedType = typeSelector.locator('.el-select__selected-item:not(.is-hidden)').first();
     await expect(selectedType).toContainText(/Base64/);
   });
   // 切换消息类型为二进制(Hex),编辑器支持Hex输入
@@ -156,11 +156,11 @@ test.describe('WebSocketMessageType', () => {
     const typeSelector = messageBlock.locator('.type-selector');
     await typeSelector.click();
     await contentPage.waitForTimeout(300);
-    const hexOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /Hex/ });
+    const hexOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /Hex/ }).first();
     await hexOption.click();
     await contentPage.waitForTimeout(300);
     // 验证类型选择器显示二进制(Hex)
-    const selectedType = typeSelector.locator('.el-select__selected-item');
+    const selectedType = typeSelector.locator('.el-select__selected-item:not(.is-hidden)').first();
     await expect(selectedType).toContainText(/Hex/);
   });
   // JSON类型消息块显示格式化按钮
@@ -183,7 +183,7 @@ test.describe('WebSocketMessageType', () => {
     const typeSelector = messageBlock.locator('.type-selector');
     await typeSelector.click();
     await contentPage.waitForTimeout(300);
-    const jsonOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^JSON$/ });
+    const jsonOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /^JSON$/ }).first();
     await jsonOption.click();
     await contentPage.waitForTimeout(300);
     // 验证格式化按钮可见

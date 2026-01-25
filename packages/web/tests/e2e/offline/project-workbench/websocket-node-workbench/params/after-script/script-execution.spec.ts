@@ -21,7 +21,7 @@ test.describe('WebSocketAfterScriptExecution', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(500);
     // 在后置脚本编辑器中输入有语法错误的代码
-    const editor = contentPage.locator('.s-monaco-editor').first();
+    const editor = contentPage.locator('#pane-afterScript .s-monaco-editor');
     await expect(editor).toBeVisible({ timeout: 5000 });
     await editor.click();
     await contentPage.waitForTimeout(300);
@@ -33,7 +33,7 @@ test.describe('WebSocketAfterScriptExecution', () => {
     await connectBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域存在
-    const wsView = contentPage.locator('.websocket-view, .websocket-response');
+    const wsView = contentPage.locator('.websocket-view');
     await expect(wsView).toBeVisible({ timeout: 10000 });
   });
   // 后置脚本运行时错误时,在响应区域展示运行时错误信息
@@ -54,7 +54,7 @@ test.describe('WebSocketAfterScriptExecution', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(500);
     // 在后置脚本编辑器中输入会导致运行时错误的代码
-    const editor = contentPage.locator('.s-monaco-editor').first();
+    const editor = contentPage.locator('#pane-afterScript .s-monaco-editor');
     await expect(editor).toBeVisible({ timeout: 5000 });
     await editor.click();
     await contentPage.waitForTimeout(300);
@@ -66,7 +66,7 @@ test.describe('WebSocketAfterScriptExecution', () => {
     await connectBtn.click();
     await contentPage.waitForTimeout(2000);
     // 验证响应区域存在
-    const wsView = contentPage.locator('.websocket-view, .websocket-response');
+    const wsView = contentPage.locator('.websocket-view');
     await expect(wsView).toBeVisible({ timeout: 10000 });
   });
   // 后置脚本在收到消息后执行
@@ -87,7 +87,7 @@ test.describe('WebSocketAfterScriptExecution', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(500);
     // 在后置脚本编辑器中输入正常代码
-    const editor = contentPage.locator('.s-monaco-editor').first();
+    const editor = contentPage.locator('#pane-afterScript .s-monaco-editor');
     await expect(editor).toBeVisible({ timeout: 5000 });
     await editor.click();
     await contentPage.waitForTimeout(300);

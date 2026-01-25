@@ -51,22 +51,27 @@ test.describe('WebSocketUrlInput', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     await createNode(contentPage, { nodeType: 'websocket', name: 'URL变量替换测试' });
-    // 打开变量面板添加变量
+    // 打开变量维护页面添加变量
     const variableBtn = contentPage.locator('.ws-params .action-item').filter({ hasText: /变量/ });
     await variableBtn.click();
     await contentPage.waitForTimeout(500);
-    // 在变量面板添加变量 WS_HOST = 127.0.0.1:8080
-    const variablePanel = contentPage.locator('.variable-dialog, .variable-panel, [data-testid="variable-dialog"]');
-    await expect(variablePanel).toBeVisible({ timeout: 5000 });
-    const keyInput = variablePanel.locator('input[placeholder*="键"], input[placeholder*="key"], [data-testid="variable-key-input"]').first();
-    const valueInput = variablePanel.locator('[contenteditable="true"], input[placeholder*="值"], input[placeholder*="value"], [data-testid="variable-value-input"]').first();
-    if (await keyInput.isVisible()) {
-      await keyInput.fill('WS_HOST');
-      await valueInput.click();
-      await contentPage.keyboard.type('127.0.0.1:8080');
-    }
-    // 关闭变量面板
-    await contentPage.keyboard.press('Escape');
+    const variableTab = contentPage.locator('[data-testid="project-nav-tab-variable"]');
+    await expect(variableTab).toHaveClass(/active/, { timeout: 5000 });
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    // 在变量维护页面添加变量 WS_HOST = 127.0.0.1:8080
+    const addPanel = variablePage.locator('.left');
+    const nameFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ });
+    await nameFormItem.locator('input').first().fill('WS_HOST');
+    const valueFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ });
+    await valueFormItem.locator('textarea').first().fill('127.0.0.1:8080');
+    const confirmAddBtn = addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    await expect(variablePage.locator('.right')).toContainText('WS_HOST', { timeout: 5000 });
+    // 关闭变量页签返回WebSocket页面
+    const closeBtn = variableTab.locator('[data-testid="project-nav-tab-close-btn"]').first();
+    await closeBtn.click();
     await contentPage.waitForTimeout(300);
     // 在URL输入框中使用变量
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
@@ -91,15 +96,13 @@ test.describe('WebSocketUrlInput', () => {
     await urlEditor.fill('127.0.0.1:8080/ws');
     await contentPage.keyboard.press('Enter');
     await contentPage.waitForTimeout(300);
-    // 清空地址
+    // 清空地址并触发格式化
     await urlEditor.click();
-    await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.press('Backspace');
+    await urlEditor.fill('');
     await contentPage.keyboard.press('Enter');
-    await contentPage.waitForTimeout(300);
-    // 验证状态栏只显示协议
+    // 验证状态栏不再包含之前地址（fullUrl 有 500ms 防抖）
     const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
-    const urlText = await statusUrl.textContent();
-    expect(urlText?.trim()).toMatch(/^wss?:\/\/$/);
+    await expect(statusUrl).toContainText('ws://', { timeout: 10000 });
+    await expect(statusUrl).not.toContainText('127.0.0.1:8080/ws', { timeout: 10000 });
   });
 });

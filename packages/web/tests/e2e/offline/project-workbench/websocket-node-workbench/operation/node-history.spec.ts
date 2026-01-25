@@ -111,12 +111,11 @@ test.describe('WebSocketNodeHistory', () => {
     await historyItems.last().click();
     await contentPage.waitForTimeout(300);
     // 确认覆盖对话框
-    const confirmDialog = contentPage.locator('.el-message-box, .cl-confirm-dialog');
-    if (await confirmDialog.isVisible()) {
-      const confirmBtn = confirmDialog.locator('.el-button--primary').last();
-      await confirmBtn.click();
-      await contentPage.waitForTimeout(500);
-    }
+    const confirmDialog = contentPage.locator('.cl-confirm-container').first();
+    await expect(confirmDialog).toBeVisible({ timeout: 5000 });
+    const confirmBtn = confirmDialog.locator('.el-button--primary').first();
+    await confirmBtn.click();
+    await contentPage.waitForTimeout(500);
     // 验证URL恢复到第一次保存的状态
     const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
     await expect(statusUrl).toContainText(firstUrl, { timeout: 5000 });
@@ -150,15 +149,12 @@ test.describe('WebSocketNodeHistory', () => {
     await deleteIcon.click();
     await contentPage.waitForTimeout(300);
     // 确认删除对话框
-    const confirmDialog = contentPage.locator('.el-message-box, .cl-confirm-dialog');
-    if (await confirmDialog.isVisible()) {
-      const confirmBtn = confirmDialog.locator('.el-button--primary').last();
-      await confirmBtn.click();
-      await contentPage.waitForTimeout(500);
-    }
-    // 验证历史记录数量减少
-    const afterDeleteCount = await historyItems.count();
-    expect(afterDeleteCount).toBeLessThan(initialCount);
+    const confirmDialog = contentPage.locator('.cl-confirm-container').first();
+    await expect(confirmDialog).toBeVisible({ timeout: 5000 });
+    const confirmBtn = confirmDialog.locator('.el-button--primary').first();
+    await confirmBtn.click();
+    // 验证历史记录数量减少（列表刷新为异步）
+    await expect.poll(async () => historyDropdown.locator('.history-item').count(), { timeout: 5000 }).toBeLessThan(initialCount);
   });
   // 再次点击历史记录按钮关闭下拉框
   test('再次点击历史记录按钮关闭下拉框', async ({ contentPage, clearCache, createProject, createNode }) => {

@@ -13,7 +13,7 @@ test.describe('WebSocketUrlUndo', () => {
     // 记录初始值
     const initialValue = (await urlEditor.innerText()).trim();
     // 输入新URL
-    await urlEditor.fill('127.0.0.1:8080/test');
+    await urlEditor.fill('ws://127.0.0.1:8080/test');
     await contentPage.keyboard.press('Enter');
     await contentPage.waitForTimeout(300);
     // 验证URL已变更
@@ -37,7 +37,7 @@ test.describe('WebSocketUrlUndo', () => {
     // 记录初始值
     const initialValue = (await urlEditor.innerText()).trim();
     // 输入新URL
-    await urlEditor.fill('192.168.1.1:9000/ws');
+    await urlEditor.fill('ws://192.168.1.1:9000/ws');
     await contentPage.keyboard.press('Enter');
     await contentPage.waitForTimeout(300);
     // 验证URL已变更
@@ -58,11 +58,11 @@ test.describe('WebSocketUrlUndo', () => {
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
     await expect(urlEditor).toBeVisible({ timeout: 5000 });
     // 第一次输入
-    await urlEditor.fill('host1:8080/path1');
+    await urlEditor.fill('ws://host1:8080/path1');
     await contentPage.keyboard.press('Enter');
     await contentPage.waitForTimeout(300);
     // 第二次输入
-    await urlEditor.fill('host2:8080/path2');
+    await urlEditor.fill('ws://host2:8080/path2');
     await contentPage.keyboard.press('Enter');
     await contentPage.waitForTimeout(300);
     // 验证当前为第二次输入的值
@@ -89,7 +89,7 @@ test.describe('WebSocketUrlUndo', () => {
     await expect(undoBtn).toHaveClass(/disabled/, { timeout: 5000 });
     // 输入URL后撤销按钮应该可用
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
-    await urlEditor.fill('test:8080/path');
+    await urlEditor.fill('ws://test:8080/path');
     await contentPage.keyboard.press('Enter');
     await contentPage.waitForTimeout(300);
     await expect(undoBtn).not.toHaveClass(/disabled/, { timeout: 5000 });

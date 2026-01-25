@@ -37,18 +37,12 @@ test.describe('WebSocketClearData', () => {
     await contentPage.waitForTimeout(500);
     // 验证消息已显示
     await expect(wsView).toContainText('test message');
-    // 点击清空数据按钮
-    const clearBtn = wsView.locator('.clear-btn, [class*="clear"], button').filter({ hasText: /清空|clear/i });
-    if (await clearBtn.first().isVisible()) {
-      await clearBtn.first().click();
-      await contentPage.waitForTimeout(500);
-      // 如果有确认对话框,点击确认
-      const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary, .el-dialog .el-button--primary');
-      if (await confirmBtn.isVisible()) {
-        await confirmBtn.click();
-        await contentPage.waitForTimeout(500);
-      }
-    }
+    // 点击清空历史按钮（图标按钮无文案）
+    const clearBtn = wsView.locator('.clear-icon').first();
+    await expect(clearBtn).toBeVisible({ timeout: 5000 });
+    await clearBtn.click();
+    // 验证消息列表已清空
+    await expect(wsView).not.toContainText('test message', { timeout: 5000 });
   });
   // 清空数据后,缓存也被清空
   test('清空数据后缓存也被清空', async ({ contentPage, clearCache, createProject, createNode, reload }) => {
@@ -83,26 +77,17 @@ test.describe('WebSocketClearData', () => {
     await sendBtn.click();
     await contentPage.waitForTimeout(500);
     // 点击清空数据按钮
-    const clearBtn = wsView.locator('.clear-btn, [class*="clear"], button').filter({ hasText: /清空|clear/i });
-    if (await clearBtn.first().isVisible()) {
-      await clearBtn.first().click();
-      await contentPage.waitForTimeout(500);
-      // 如果有确认对话框,点击确认
-      const confirmBtn = contentPage.locator('.el-message-box__btns .el-button--primary, .el-dialog .el-button--primary');
-      if (await confirmBtn.isVisible()) {
-        await confirmBtn.click();
-        await contentPage.waitForTimeout(500);
-      }
-    }
+    const clearBtn = wsView.locator('.clear-icon').first();
+    await expect(clearBtn).toBeVisible({ timeout: 5000 });
+    await clearBtn.click();
+    await expect(wsView).not.toContainText('cache test', { timeout: 5000 });
     // 刷新页面验证缓存已清空
     await reload();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(1000);
     // 验证消息列表为空或不包含之前的消息
     const wsViewAfter = contentPage.locator('.websocket-view');
-    const containsCacheTest = await wsViewAfter.textContent();
-    // 缓存应该被清空,不应该包含之前的测试消息
-    expect(containsCacheTest?.includes('cache test')).toBeFalsy();
+    await expect(wsViewAfter).not.toContainText('cache test', { timeout: 5000 });
   });
   // 未连接状态下清空按钮不可用或隐藏
   test('未连接状态下响应区域显示空状态', async ({ contentPage, clearCache, createProject, createNode }) => {

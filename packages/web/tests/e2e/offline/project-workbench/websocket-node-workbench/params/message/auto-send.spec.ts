@@ -92,7 +92,7 @@ test.describe('WebSocketAutoSend', () => {
     const typeSelector = configPopover.locator('.el-select').first();
     await typeSelector.click();
     await contentPage.waitForTimeout(300);
-    const jsonOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^JSON$/ });
+    const jsonOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /^JSON$/ }).first();
     await jsonOption.click();
     await contentPage.waitForTimeout(300);
     // 保存配置
@@ -102,7 +102,7 @@ test.describe('WebSocketAutoSend', () => {
     // 验证保存成功
     await configBtn.click();
     await contentPage.waitForTimeout(300);
-    const selectedType = configPopover.locator('.el-select .el-select__selected-item').first();
+    const selectedType = configPopover.locator('.el-select .el-select__selected-item:not(.is-hidden)').first();
     await expect(selectedType).toContainText('JSON');
   });
   // 自动发送配置支持设置消息内容

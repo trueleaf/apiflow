@@ -103,9 +103,14 @@ test.describe('WebSocketMessageBlockCRUD', () => {
     const saveBtn = contentPage.locator('[data-testid="websocket-operation-save-btn"]');
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
-    // 验证保存成功提示
-    const successMessage = contentPage.locator('.el-message--success');
-    await expect(successMessage).toBeVisible({ timeout: 5000 });
+    // 通过历史记录验证保存成功
+    const historyBtn = contentPage.locator('[data-testid="ws-params-history-btn"]');
+    await historyBtn.click();
+    await contentPage.waitForTimeout(300);
+    const historyDropdown = contentPage.locator('.ws-params .history-dropdown');
+    await expect(historyDropdown).toBeVisible({ timeout: 5000 });
+    const historyItems = historyDropdown.locator('.history-item');
+    await expect(historyItems.first()).toBeVisible({ timeout: 5000 });
   });
   // 空状态下显示添加消息块按钮
   test('空状态下显示添加消息块按钮', async ({ contentPage, clearCache, createProject, createNode }) => {

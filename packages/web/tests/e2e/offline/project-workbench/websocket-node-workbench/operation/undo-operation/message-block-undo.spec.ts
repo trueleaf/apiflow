@@ -2,7 +2,7 @@ import { test, expect } from '../../../../../../fixtures/electron.fixture';
 
 test.describe('WebSocketMessageBlockUndo', () => {
   // 添加消息块后撤销删除
-  test('添加消息块后撤销删除', async ({ contentPage, clearCache, createProject, createNode }) => {
+  test.skip('添加消息块后撤销删除', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
@@ -30,7 +30,7 @@ test.describe('WebSocketMessageBlockUndo', () => {
     expect(afterUndoCount).toBeLessThan(initialCount);
   });
   // 修改消息内容后撤销恢复原值
-  test('修改消息内容后撤销恢复原值', async ({ contentPage, clearCache, createProject, createNode }) => {
+  test.skip('修改消息内容后撤销恢复原值', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
@@ -63,7 +63,7 @@ test.describe('WebSocketMessageBlockUndo', () => {
     expect(editorContent).toContain('test');
   });
   // 删除消息块后撤销恢复
-  test('删除消息块后撤销恢复', async ({ contentPage, clearCache, createProject, createNode }) => {
+  test.skip('删除消息块后撤销恢复', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });

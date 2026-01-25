@@ -17,8 +17,8 @@ test.describe('WebSocketLayoutOperation', () => {
     await horizontalOption.click();
     await contentPage.waitForTimeout(500);
     // 验证布局切换为水平布局
-    const websocketView = contentPage.locator('.websocket-view');
-    await expect(websocketView).not.toHaveClass(/vertical/, { timeout: 5000 });
+    const websocketRoot = contentPage.locator('.websocket');
+    await expect(websocketRoot).not.toHaveClass(/vertical/, { timeout: 5000 });
   });
   // 点击垂直布局按钮,参数区域和响应区域上下排列
   test('点击垂直布局按钮参数区域和响应区域上下排列', async ({ contentPage, clearCache, createProject, createNode }) => {
@@ -36,8 +36,8 @@ test.describe('WebSocketLayoutOperation', () => {
     await verticalOption.click();
     await contentPage.waitForTimeout(500);
     // 验证布局切换为垂直布局
-    const websocketView = contentPage.locator('.websocket-view');
-    await expect(websocketView).toHaveClass(/vertical/, { timeout: 5000 });
+    const websocketRoot = contentPage.locator('.websocket');
+    await expect(websocketRoot).toHaveClass(/vertical/, { timeout: 5000 });
   });
   // 切换布局后刷新页面,布局保持不变
   test('切换布局后刷新页面布局保持不变', async ({ contentPage, clearCache, createProject, createNode, reload }) => {
@@ -55,14 +55,14 @@ test.describe('WebSocketLayoutOperation', () => {
     await verticalOption.click();
     await contentPage.waitForTimeout(500);
     // 验证布局切换为垂直布局
-    const websocketView = contentPage.locator('.websocket-view');
-    await expect(websocketView).toHaveClass(/vertical/, { timeout: 5000 });
+    const websocketRoot = contentPage.locator('.websocket');
+    await expect(websocketRoot).toHaveClass(/vertical/, { timeout: 5000 });
     // 刷新页面
     await reload();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(1000);
     // 验证布局仍然为垂直布局
-    const websocketViewAfter = contentPage.locator('.websocket-view');
-    await expect(websocketViewAfter).toHaveClass(/vertical/, { timeout: 5000 });
+    const websocketRootAfter = contentPage.locator('.websocket');
+    await expect(websocketRootAfter).toHaveClass(/vertical/, { timeout: 5000 });
   });
 });

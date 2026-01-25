@@ -73,22 +73,26 @@ test.describe('WebSocketQueryParams', () => {
     await urlEditor.fill('127.0.0.1:8080/ws');
     await contentPage.keyboard.press('Enter');
     await contentPage.waitForTimeout(300);
-    // 打开变量面板添加变量
+    // 打开变量维护页面添加变量
     const variableBtn = contentPage.locator('.ws-params .action-item').filter({ hasText: /变量/ });
     await variableBtn.click();
     await contentPage.waitForTimeout(500);
-    // 在变量面板添加变量 WS_TOKEN = secret_token
-    const variablePanel = contentPage.locator('.variable-dialog, .variable-panel, [data-testid="variable-dialog"]');
-    await expect(variablePanel).toBeVisible({ timeout: 5000 });
-    const keyInput = variablePanel.locator('input[placeholder*="键"], input[placeholder*="key"], [data-testid="variable-key-input"]').first();
-    const valueInput = variablePanel.locator('[contenteditable="true"], input[placeholder*="值"], input[placeholder*="value"], [data-testid="variable-value-input"]').first();
-    if (await keyInput.isVisible()) {
-      await keyInput.fill('WS_TOKEN');
-      await valueInput.click();
-      await contentPage.keyboard.type('secret_token');
-    }
-    // 关闭变量面板
-    await contentPage.keyboard.press('Escape');
+    const variableTab = contentPage.locator('[data-testid="project-nav-tab-variable"]');
+    await expect(variableTab).toHaveClass(/active/, { timeout: 5000 });
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    const addPanel = variablePage.locator('.left');
+    const nameFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ });
+    await nameFormItem.locator('input').first().fill('WS_TOKEN');
+    const valueFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ });
+    await valueFormItem.locator('textarea').first().fill('secret_token');
+    const confirmAddBtn = addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    await expect(variablePage.locator('.right')).toContainText('WS_TOKEN', { timeout: 5000 });
+    // 关闭变量页签返回WebSocket页面
+    const closeBtn = variableTab.locator('[data-testid="project-nav-tab-close-btn"]').first();
+    await closeBtn.click();
     await contentPage.waitForTimeout(300);
     // 切换到Params标签
     const paramsTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /^Params$/ });

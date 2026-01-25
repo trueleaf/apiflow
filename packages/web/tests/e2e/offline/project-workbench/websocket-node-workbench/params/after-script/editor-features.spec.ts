@@ -13,19 +13,19 @@ test.describe('WebSocketAfterScriptEditorFeatures', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在编辑器中输入包含关键字、函数、变量等的JavaScript代码
-    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+    const afterScriptPane = contentPage.locator('#pane-afterScript');
+    const monacoEditor = afterScriptPane.locator('.s-monaco-editor');
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('const message = "hello world";\nfunction test() {\n  return 123;\n}\n// comment');
     await contentPage.waitForTimeout(500);
     // 验证编辑器使用Monaco Editor并支持语法高亮
-    const editorContainer = contentPage.locator('.s-monaco-editor');
-    await expect(editorContainer.first()).toBeVisible();
+    await expect(monacoEditor).toBeVisible();
     // 验证编辑器中存在语法高亮的token
-    const editorContent = contentPage.locator('.monaco-editor .view-lines');
-    await expect(editorContent.first()).toBeVisible();
+    const editorContent = afterScriptPane.locator('.monaco-editor .view-lines');
+    await expect(editorContent).toBeVisible();
     // 验证存在不同颜色的token类
-    const hasTokens = contentPage.locator('.monaco-editor .mtk1, .monaco-editor .mtk3, .monaco-editor .mtk5, .monaco-editor .mtk6, .monaco-editor .mtk7');
+    const hasTokens = afterScriptPane.locator('.monaco-editor .mtk1, .monaco-editor .mtk3, .monaco-editor .mtk5, .monaco-editor .mtk6, .monaco-editor .mtk7');
     await expect(hasTokens.first()).toBeVisible();
   });
   // 输入af.后出现代码补全提示,包括response等API
@@ -40,13 +40,14 @@ test.describe('WebSocketAfterScriptEditorFeatures', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在编辑器中输入af.触发代码补全
-    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+    const afterScriptPane = contentPage.locator('#pane-afterScript');
+    const monacoEditor = afterScriptPane.locator('.s-monaco-editor');
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('af.');
     await contentPage.waitForTimeout(1000);
     // 验证代码补全列表出现
-    const suggestWidget = contentPage.locator('.monaco-editor .suggest-widget, .monaco-editor .editor-widget.suggest-widget');
+    const suggestWidget = afterScriptPane.locator('.monaco-editor .suggest-widget, .monaco-editor .editor-widget.suggest-widget');
     await expect(suggestWidget.first()).toBeVisible({ timeout: 5000 });
   });
   // 点击格式化按钮,代码格式化正确
@@ -61,17 +62,18 @@ test.describe('WebSocketAfterScriptEditorFeatures', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在编辑器中输入格式不规范的JavaScript代码
-    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+    const afterScriptPane = contentPage.locator('#pane-afterScript');
+    const monacoEditor = afterScriptPane.locator('.s-monaco-editor');
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     // 输入格式混乱的代码
     await contentPage.keyboard.type('const obj={a:1,b:2};function test(){return obj.a+obj.b}');
     await contentPage.waitForTimeout(500);
     // 获取编辑器内容
-    const editorContent = contentPage.locator('.monaco-editor .view-lines');
-    await expect(editorContent.first()).toBeVisible();
+    const editorContent = afterScriptPane.locator('.monaco-editor .view-lines');
+    await expect(editorContent).toBeVisible();
     // 查找格式化按钮并点击
-    const editorWrap = contentPage.locator('.editor-wrap').first();
+    const editorWrap = afterScriptPane.locator('.editor-wrap').first();
     const formatBtn = editorWrap.locator('.format-op .btn, [class*="format"]').first();
     if (await formatBtn.isVisible()) {
       await formatBtn.click();
@@ -91,7 +93,8 @@ test.describe('WebSocketAfterScriptEditorFeatures', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在编辑器中输入代码
-    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+    const afterScriptPane = contentPage.locator('#pane-afterScript');
+    const monacoEditor = afterScriptPane.locator('.s-monaco-editor');
     await expect(monacoEditor).toBeVisible({ timeout: 5000 });
     await monacoEditor.click();
     await contentPage.waitForTimeout(200);
@@ -109,7 +112,7 @@ test.describe('WebSocketAfterScriptEditorFeatures', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(500);
     // 验证脚本内容保持不变
-    const editorContent = contentPage.locator('.monaco-editor .view-lines');
+    const editorContent = contentPage.locator('#pane-afterScript .monaco-editor .view-lines');
     await expect(editorContent).toContainText('afterTestVar');
   });
   // 后置脚本标签有内容时显示红点
@@ -124,7 +127,8 @@ test.describe('WebSocketAfterScriptEditorFeatures', () => {
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
     // 在编辑器中输入代码
-    const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+    const afterScriptPane = contentPage.locator('#pane-afterScript');
+    const monacoEditor = afterScriptPane.locator('.s-monaco-editor');
     await expect(monacoEditor).toBeVisible({ timeout: 5000 });
     await monacoEditor.click();
     await contentPage.waitForTimeout(200);

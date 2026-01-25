@@ -14,11 +14,11 @@ test.describe('WebSocketProtocolSwitch', () => {
     await protocolSelect.click();
     await contentPage.waitForTimeout(300);
     // 选择WS协议
-    const wsOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^WS$/ });
+    const wsOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /^WS$/ }).first();
     await wsOption.click();
     await contentPage.waitForTimeout(300);
     // 验证协议选择器显示WS
-    const selectedValue = protocolSelect.locator('.el-select__selected-item');
+    const selectedValue = protocolSelect.locator('.el-select__selected-item:not(.is-hidden)');
     await expect(selectedValue).toContainText('WS');
   });
   // 切换到WSS协议后,协议选择器显示WSS
@@ -34,11 +34,11 @@ test.describe('WebSocketProtocolSwitch', () => {
     await protocolSelect.click();
     await contentPage.waitForTimeout(300);
     // 选择WSS协议
-    const wssOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^WSS$/ });
+    const wssOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /^WSS$/ }).first();
     await wssOption.click();
     await contentPage.waitForTimeout(300);
     // 验证协议选择器显示WSS
-    const selectedValue = protocolSelect.locator('.el-select__selected-item');
+    const selectedValue = protocolSelect.locator('.el-select__selected-item:not(.is-hidden)');
     await expect(selectedValue).toContainText('WSS');
   });
   // 切换协议后刷新页面,协议保持不变
@@ -54,7 +54,7 @@ test.describe('WebSocketProtocolSwitch', () => {
     await protocolSelect.click();
     await contentPage.waitForTimeout(300);
     // 选择WSS协议
-    const wssOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^WSS$/ });
+    const wssOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /^WSS$/ }).first();
     await wssOption.click();
     await contentPage.waitForTimeout(500);
     // 点击保存按钮
@@ -66,7 +66,7 @@ test.describe('WebSocketProtocolSwitch', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(1000);
     // 验证协议仍然为WSS
-    const selectedValue = contentPage.locator('.ws-operation .protocol-select .el-select .el-select__selected-item');
+    const selectedValue = contentPage.locator('.ws-operation .protocol-select .el-select .el-select__selected-item:not(.is-hidden)');
     await expect(selectedValue).toContainText('WSS');
   });
   // 切换协议后,连接地址的协议前缀同步更新
@@ -85,14 +85,18 @@ test.describe('WebSocketProtocolSwitch', () => {
     // 验证初始状态为ws://
     const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
     await expect(statusUrl).toContainText('ws://');
-    // 切换到WSS协议
+    // 切换到WSS协议（不会自动改写已输入的URL，需要重新输入触发格式化）
     const protocolSelect = contentPage.locator('.ws-operation .protocol-select .el-select');
     await protocolSelect.click();
     await contentPage.waitForTimeout(300);
-    const wssOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^WSS$/ });
+    const wssOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /^WSS$/ }).first();
     await wssOption.click();
     await contentPage.waitForTimeout(300);
-    // 验证连接地址显示wss://
-    await expect(statusUrl).toContainText('wss://');
+    // 重新输入无协议前缀的地址，验证会按WSS格式化
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('127.0.0.1:8080/ws');
+    await contentPage.keyboard.press('Enter');
+    await expect(statusUrl).toContainText('wss://', { timeout: 10000 });
   });
 });
