@@ -1,4 +1,4 @@
-FROM node:20-bookworm-slim AS build
+FROM node:20-bookworm AS build
 
 ARG USE_NPM_MIRROR=false
 
