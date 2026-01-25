@@ -41,11 +41,15 @@ const waitForWindow = async (electronApp: ElectronApplication, predicate: (url: 
 export const test = base.extend<ElectronFixtures>({
   electronApp: async ({}, use) => {
     const mainPath = path.resolve(__dirname, '../../dist/main/main.mjs');       
+    const launchEnv: NodeJS.ProcessEnv = {
+      ...process.env,
+      NODE_ENV: 'test',
+    };
+    delete launchEnv.ELECTRON_RUN_AS_NODE;
     const app = await electron.launch({
       args: [mainPath],
       env: {
-        ...process.env,
-        NODE_ENV: 'test',
+        ...launchEnv,
       },
     });
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -73,6 +77,7 @@ export const test = base.extend<ElectronFixtures>({
       await contentPage.evaluate(() => {
         localStorage.clear();
         sessionStorage.clear();
+        localStorage.setItem('runtime/networkMode', 'online');
         const dbNames = [
           'httpNodeResponseCache',
           'websocketNodeResponseCache',
@@ -90,6 +95,10 @@ export const test = base.extend<ElectronFixtures>({
         dbNames.forEach((dbName) => {
           indexedDB.deleteDatabase(dbName);
         });
+      });
+      await topBarPage.evaluate(() => {
+        localStorage.clear();
+        sessionStorage.clear();
       });
       await contentPage.evaluate(() => {
         window.electronAPI?.ipcManager.sendToMain('apiflow:content:to:topbar:init-tabs', {

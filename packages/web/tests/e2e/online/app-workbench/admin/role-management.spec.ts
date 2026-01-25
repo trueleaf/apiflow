@@ -9,6 +9,7 @@ import {
   fillDialogForm,
   confirmDialog,
   confirmDeleteDialog,
+  cancelDeleteDialog,
   expectSuccessMessage
 } from '../../../../fixtures/admin-helper';
 
@@ -75,7 +76,8 @@ test.describe('Online后台管理-角色管理', () => {
     const confirmBtn = dialog.locator('.el-button--primary').last();
     await confirmBtn.click();
     const errorMessage = dialog.locator('.el-form-item__error');
-    await expect(errorMessage).toBeVisible({ timeout: 3000 });
+    await expect(errorMessage).toHaveCount(2, { timeout: 3000 });
+    await expect(errorMessage).toContainText(['请输入角色名称', '请输入备注']);
   });
 
   test('新增角色-选择前端路由权限', async ({ contentPage }) => {
@@ -90,9 +92,12 @@ test.describe('Online后台管理-角色管理', () => {
     const dialog = contentPage.locator('.el-dialog').first();
     const clientRouteTab = dialog.locator('.el-tabs__item').filter({ hasText: /前端路由/ });
     await clientRouteTab.click();
-    await contentPage.waitForTimeout(500);
-    const firstCheckbox = dialog.locator('.el-checkbox').first();
-    await firstCheckbox.click();
+    // 选择一条前端路由权限（使用“全选”避免定位到隐藏 checkbox）
+    const clientRoutes = dialog.locator('.client-routes');
+    await expect(clientRoutes).toBeVisible({ timeout: 10000 });
+    const selectAllClientRoutes = clientRoutes.locator('.el-checkbox').filter({ hasText: /全选/ }).first();
+    await expect(selectAllClientRoutes).toBeVisible({ timeout: 10000 });
+    await selectAllClientRoutes.click();
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForRoleListLoaded(contentPage);
@@ -112,9 +117,12 @@ test.describe('Online后台管理-角色管理', () => {
     const dialog = contentPage.locator('.el-dialog').first();
     const serverRouteTab = dialog.locator('.el-tabs__item').filter({ hasText: /后端路由/ });
     await serverRouteTab.click();
-    await contentPage.waitForTimeout(500);
-    const firstCheckbox = dialog.locator('.el-checkbox').first();
-    await firstCheckbox.click();
+    // 选择一条后端路由权限（使用“全选”避免定位到隐藏 checkbox）
+    const serverRoutes = dialog.locator('.server-routes');
+    await expect(serverRoutes).toBeVisible({ timeout: 10000 });
+    const selectAllServerRoutes = serverRoutes.locator('.el-checkbox').filter({ hasText: /全选/ }).first();
+    await expect(selectAllServerRoutes).toBeVisible({ timeout: 10000 });
+    await selectAllServerRoutes.click();
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForRoleListLoaded(contentPage);
@@ -134,14 +142,20 @@ test.describe('Online后台管理-角色管理', () => {
     const dialog = contentPage.locator('.el-dialog').first();
     const clientRouteTab = dialog.locator('.el-tabs__item').filter({ hasText: /前端路由/ });
     await clientRouteTab.click();
-    await contentPage.waitForTimeout(500);
-    const clientCheckbox = dialog.locator('.el-checkbox').first();
-    await clientCheckbox.click();
+    // 勾选前端路由权限
+    const clientRoutes = dialog.locator('.client-routes');
+    await expect(clientRoutes).toBeVisible({ timeout: 10000 });
+    const selectAllClientRoutes = clientRoutes.locator('.el-checkbox').filter({ hasText: /全选/ }).first();
+    await expect(selectAllClientRoutes).toBeVisible({ timeout: 10000 });
+    await selectAllClientRoutes.click();
     const serverRouteTab = dialog.locator('.el-tabs__item').filter({ hasText: /后端路由/ });
     await serverRouteTab.click();
-    await contentPage.waitForTimeout(500);
-    const serverCheckbox = dialog.locator('.el-checkbox').first();
-    await serverCheckbox.click();
+    // 勾选后端路由权限
+    const serverRoutes = dialog.locator('.server-routes');
+    await expect(serverRoutes).toBeVisible({ timeout: 10000 });
+    const selectAllServerRoutes = serverRoutes.locator('.el-checkbox').filter({ hasText: /全选/ }).first();
+    await expect(selectAllServerRoutes).toBeVisible({ timeout: 10000 });
+    await selectAllServerRoutes.click();
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForRoleListLoaded(contentPage);
@@ -167,17 +181,16 @@ test.describe('Online后台管理-角色管理', () => {
     await clickRowAction(roleRow, '修改');
     const editDialog = contentPage.locator('.el-dialog').first();
     await expect(editDialog).toBeVisible({ timeout: 5000 });
-    const nameInput = editDialog.locator('input').first();
-    await nameInput.clear();
-    await nameInput.fill(newRoleName);
-    const remarkInput = editDialog.locator('textarea, input').nth(1);
-    await remarkInput.clear();
-    await remarkInput.fill('修改后的备注');
+    // 修改角色名称和备注
+    await fillDialogForm(contentPage, { 
+      '角色名称': newRoleName,
+      '备注': '修改后的备注'
+    });
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForRoleListLoaded(contentPage);
     const newRoleRow = findRoleRowByName(contentPage, newRoleName);
-    await expect(newRoleRow).toBeVisible({ timeout: 5000 });
+    await expect(newRoleRow).toBeVisible({ timeout: 10000 });
     await expect(newRoleRow).toContainText('修改后的备注');
   });
 
@@ -199,9 +212,12 @@ test.describe('Online后台管理-角色管理', () => {
     await expect(editDialog).toBeVisible({ timeout: 5000 });
     const clientRouteTab = editDialog.locator('.el-tabs__item').filter({ hasText: /前端路由/ });
     await clientRouteTab.click();
-    await contentPage.waitForTimeout(500);
-    const firstCheckbox = editDialog.locator('.el-checkbox').first();
-    await firstCheckbox.click();
+    // 增加前端路由权限
+    const clientRoutes = editDialog.locator('.client-routes');
+    await expect(clientRoutes).toBeVisible({ timeout: 10000 });
+    const selectAllClientRoutes = clientRoutes.locator('.el-checkbox').filter({ hasText: /全选/ }).first();
+    await expect(selectAllClientRoutes).toBeVisible({ timeout: 10000 });
+    await selectAllClientRoutes.click();
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
   });
@@ -218,9 +234,12 @@ test.describe('Online后台管理-角色管理', () => {
     const dialog = contentPage.locator('.el-dialog').first();
     const clientRouteTab = dialog.locator('.el-tabs__item').filter({ hasText: /前端路由/ });
     await clientRouteTab.click();
-    await contentPage.waitForTimeout(500);
-    const firstCheckbox = dialog.locator('.el-checkbox').first();
-    await firstCheckbox.click();
+    // 先勾选一条前端路由权限
+    const clientRoutes = dialog.locator('.client-routes');
+    await expect(clientRoutes).toBeVisible({ timeout: 10000 });
+    const selectAllClientRoutes = clientRoutes.locator('.el-checkbox').filter({ hasText: /全选/ }).first();
+    await expect(selectAllClientRoutes).toBeVisible({ timeout: 10000 });
+    await selectAllClientRoutes.click();
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForRoleListLoaded(contentPage);
@@ -230,8 +249,11 @@ test.describe('Online后台管理-角色管理', () => {
     await expect(editDialog).toBeVisible({ timeout: 5000 });
     const editClientRouteTab = editDialog.locator('.el-tabs__item').filter({ hasText: /前端路由/ });
     await editClientRouteTab.click();
-    await contentPage.waitForTimeout(500);
-    const checkedCheckbox = editDialog.locator('.el-checkbox.is-checked').first();
+    // 取消已选中的权限
+    const editClientRoutes = editDialog.locator('.client-routes');
+    await expect(editClientRoutes).toBeVisible({ timeout: 10000 });
+    const checkedCheckbox = editClientRoutes.locator('.el-checkbox.is-checked').first();
+    await expect(checkedCheckbox).toBeVisible({ timeout: 10000 });
     await checkedCheckbox.click();
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
@@ -274,19 +296,14 @@ test.describe('Online后台管理-角色管理', () => {
     await waitForRoleListLoaded(contentPage);
     const roleRow = findRoleRowByName(contentPage, roleName);
     await clickRowAction(roleRow, '删除');
-    const messageBox = contentPage.locator('.el-message-box');
-    await expect(messageBox).toBeVisible({ timeout: 5000 });
-    const cancelBtn = messageBox.locator('.el-button').filter({ hasText: /取消/ });
-    await cancelBtn.click();
-    await expect(messageBox).toBeHidden({ timeout: 5000 });
+    await cancelDeleteDialog(contentPage);
     await waitForRoleListLoaded(contentPage);
     const stillExistsRoleRow = findRoleRowByName(contentPage, roleName);
     await expect(stillExistsRoleRow).toBeVisible({ timeout: 5000 });
   });
 
   test('角色列表展示-角色列表正常加载', async ({ contentPage }) => {
-    const roleTable = contentPage.locator('.el-table').first();
-    await expect(roleTable).toBeVisible({ timeout: 5000 });
+    await waitForRoleListLoaded(contentPage);
     const rowCount = await getTableRowCount(contentPage);
     expect(rowCount).toBeGreaterThanOrEqual(0);
   });
