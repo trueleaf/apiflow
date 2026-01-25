@@ -1,8 +1,14 @@
 <template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('批量修改服务端路由类型')" :before-close="handleClose">
-    <SForm ref="form">
-      <SFormItem :label="t('分组名称')" prop="groupName" required one-line></SFormItem>
-    </SForm>
+    <el-form ref="formRef" :model="formData" :rules="rules" label-width="120px">
+      <el-row>
+        <el-col :span="24">
+          <el-form-item :label="t('分组名称') + '：'" prop="groupName">
+            <el-input v-model="formData.groupName" :placeholder="t('请输入分组名称')" />
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-form>
     <template #footer>
       <el-button @click="handleClose">{{ t("取消") }}</el-button>
       <el-button :loading="loading" type="primary" @click="handleSaveServerRoute">{{ t('确定/AdminServerRoutesEdit2') }}</el-button>
@@ -13,9 +19,7 @@
 <script lang="ts" setup>
 import { nextTick, PropType, ref } from 'vue'
 import type { PermissionServerRoute } from '@src/types'
-import SForm from '@/components/common/forms/form/ClForm.vue'
-import SFormItem from '@/components/common/forms/form/ClFormItem.vue'
-import { FormInstance } from 'element-plus'
+import { FormInstance, FormRules } from 'element-plus'
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
 
@@ -31,20 +35,21 @@ const modelValue = defineModel<boolean>({
 const emits = defineEmits(['success']);
 const { t } = useI18n()
 
+const formData = ref({
+  groupName: '',
+});
+const rules: FormRules = {
+  groupName: [{ required: true, message: t('请输入分组名称'), trigger: 'blur' }],
+}
 const loading = ref(false);
-const form = ref<FormInstance>();
-/*
-|--------------------------------------------------------------------------
-| 函数定义
-|--------------------------------------------------------------------------
-*/
+const formRef = ref<FormInstance>();
+//保存服务端路由
 const handleSaveServerRoute = () => {
-  form.value?.validate((valid) => {
+  formRef.value?.validate((valid) => {
     if (valid) {
-      const { formInfo } = form.value as any;
       const params = {
         ids: props.editData.map((v) => v._id),
-        groupName: formInfo.groupName,
+        groupName: formData.value.groupName,
       };
       loading.value = true;
       request.put('/api/security/server_routes_type', params).then(() => {

@@ -1,10 +1,12 @@
 
 <template>
-    <el-dialog :model-value="modelValue" :title="t('修改')" :before-close="handleClose">
+  <el-dialog :model-value="modelValue" :title="t('修改')" :before-close="handleClose">
     <el-divider content-position="left">{{ t("基础信息") }}</el-divider>
-    <SForm ref="form" v-loading="loading2" :edit-data="formInfo">
-      <SFormItem :label="t('登录名称')" prop="loginName" required half-line></SFormItem>
-    </SForm>
+    <el-form ref="formRef" v-loading="loading2" :model="formInfo" :rules="rules" label-width="100px">
+      <el-form-item :label="t('登录名称')" prop="loginName">
+        <el-input v-model="formInfo.loginName" :placeholder="t('请输入登录名称')"></el-input>
+      </el-form-item>
+    </el-form>
     <el-divider content-position="left">{{ t("角色选择") }}</el-divider>
     <el-checkbox v-model="isAdmin">{{ t('是否为管理员') }}</el-checkbox>
     <template #footer>
@@ -19,14 +21,11 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
 import { PermissionRoleEnum, CommonResponse } from '@src/types'
-import { computed, nextTick, onMounted, ref } from 'vue';
-import { request } from '@/api/api';
-import SForm from '@/components/common/forms/form/ClForm.vue'
-import SFormItem from '@/components/common/forms/form/ClFormItem.vue'
-
-
+import { computed, nextTick, onMounted, ref } from 'vue'
+import { request } from '@/api/api'
 import { message } from '@/helper'
-type ClFormExpose = { validate: (callback: (valid: boolean) => void) => void; formInfo: { value: Record<string, unknown> } }
+import type { FormInstance, FormRules } from 'element-plus'
+
 const modelValue = defineModel<boolean>({
   default: false
 })
@@ -37,14 +36,16 @@ const props = defineProps({
   },
 })
 const emits = defineEmits(['success'])
-const formInfo = ref<Record<string, unknown>>({}) //用户基本信息
-const roleIds = ref<string[]>([]) //角色id列表
-const roleEnum = ref<PermissionRoleEnum>([]) //角色枚举信息
+const formInfo = ref<{ loginName: string }>({ loginName: '' })
+const roleIds = ref<string[]>([])
+const roleEnum = ref<PermissionRoleEnum>([])
 const { t } = useI18n()
-
-const loading = ref(false) //用户信息加载
-const loading2 = ref(false) //修改用户加载
-const form = ref<ClFormExpose | null>(null)
+const loading = ref(false)
+const loading2 = ref(false)
+const formRef = ref<FormInstance>()
+const rules: FormRules = {
+  loginName: [{ required: true, message: t('请输入登录名称'), trigger: 'blur' }]
+}
 // 获取角色id
 const getRoleIdByName = (roleName: '普通用户' | '管理员') => roleEnum.value.find(role => role.roleName === roleName)?._id
 // 更新管理员权限
@@ -79,66 +80,60 @@ const isAdmin = computed({
 })
 // 获取用户基本信息
 const getUserInfo = () => {
-  loading2.value = true;
+  loading2.value = true
   request.get('/api/security/user_info_by_id', { params: { _id: props.userId } }).then((res) => {
-    formInfo.value = {
-      loginName: res.data.loginName,
-    };
-    roleIds.value = res.data.roleIds;
+    formInfo.value.loginName = res.data.loginName
+    roleIds.value = res.data.roleIds
   }).catch((err) => {
-    console.error(err);
+    console.error(err)
   }).finally(() => {
-    loading2.value = false;
-  });
+    loading2.value = false
+  })
 }
 // 获取角色枚举信息
 const getRoleEnum = () => {
   request.get<CommonResponse<PermissionRoleEnum>, CommonResponse<PermissionRoleEnum>>('/api/security/role_enum').then((res) => {
-    roleEnum.value = res.data;
+    roleEnum.value = res.data
   }).catch((err) => {
-    console.error(err);
-  });
+    console.error(err)
+  })
 }
 // 修改用户
 const handleEditUser = () => {
-  form.value?.validate((valid) => {
+  formRef.value?.validate((valid) => {
     if (valid) {
-      const formModel = form.value?.formInfo.value
-      const loginName = typeof formModel?.loginName === 'string' ? formModel.loginName : ''
       const roleNames = roleIds.value.map((val) => {
-        const user = roleEnum.value.find((role) => role._id === val);
-        return user ? user.roleName : '';
-      });
+        const user = roleEnum.value.find((role) => role._id === val)
+        return user ? user.roleName : ''
+      })
       const params = {
         _id: props.userId,
-        loginName,
+        loginName: formInfo.value.loginName,
         roleIds: roleIds.value,
         roleNames,
-      };
-      loading.value = true;
+      }
+      loading.value = true
       request.put('/api/security/user_permission', params).then(() => {
-        emits('success');
-        handleClose();
+        emits('success')
+        handleClose()
       }).catch((err) => {
-        console.error(err);
+        console.error(err)
       }).finally(() => {
-        loading.value = false;
-      });
+        loading.value = false
+      })
     } else {
-      nextTick(() => (document.querySelector('.el-form-item.is-error input') as HTMLInputElement)?.focus());
-      message.warning(t('请完善必填信息'));
-      loading.value = false;
+      nextTick(() => (document.querySelector('.el-form-item.is-error input') as HTMLInputElement)?.focus())
+      message.warning(t('请完善必填信息'))
     }
-  });
+  })
 }
 // 关闭弹窗
 const handleClose = () => {
-  modelValue.value = false;
+  modelValue.value = false
 }
-
 onMounted(() => {
-  getRoleEnum(); // 获取角色枚举信息
-  getUserInfo(); // 获取用户基本信息
+  getRoleEnum()
+  getUserInfo()
 })
 
 </script>

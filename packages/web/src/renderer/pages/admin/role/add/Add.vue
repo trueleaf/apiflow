@@ -3,10 +3,20 @@
   <el-dialog :model-value="modelValue" top="10vh" :title="t('新增角色')" :before-close="handleClose">
     <div class="g-role">
       <SFieldset :title="t('基本信息')">
-        <SForm ref="form" :edit-data="formInfo">
-          <SFormItem :label="t('角色名称')" prop="roleName" required one-line></SFormItem>
-          <SFormItem :label="t('备注')" prop="remark" required one-line></SFormItem>
-        </SForm>
+        <el-form ref="formRef" :model="formData" :rules="rules" label-width="120px">
+          <el-row>
+            <el-col :span="24">
+              <el-form-item :label="t('角色名称') + '：'" prop="roleName">
+                <el-input v-model="formData.roleName" :placeholder="t('请输入') + t('角色名称')" clearable />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item :label="t('备注') + '：'" prop="remark">
+                <el-input v-model="formData.remark" :placeholder="t('请输入') + t('备注')" clearable />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
       </SFieldset>
       <SFieldset :title="t('权限选择')">
         <el-tabs v-model="activeName">
@@ -37,8 +47,6 @@ import { nextTick, ref } from 'vue'
 import SClientMenus from './components/ClientMenus.vue'
 import SClientRoutes from './components/ClientRoutes.vue'
 import SServerRoutes from './components/ServerRoutes.vue'
-import SForm from '@/components/common/forms/form/ClForm.vue'
-import SFormItem from '@/components/common/forms/form/ClFormItem.vue'
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import { FormInstance } from 'element-plus'
 import { request } from '@/api/api'
@@ -61,7 +69,15 @@ const { t } = useI18n()
 
 const activeName = ref('clientRoute');
 const loading = ref(false);
-const form = ref<FormInstance>()
+const formRef = ref<FormInstance>()
+const formData = ref({
+  roleName: '',
+  remark: ''
+})
+const rules = {
+  roleName: [{ required: true, message: t('请输入') + t('角色名称'), trigger: 'blur' }],
+  remark: [{ required: true, message: t('请输入') + t('备注'), trigger: 'blur' }]
+}
 /*
 |--------------------------------------------------------------------------
 | 函数定义
@@ -85,12 +101,11 @@ const handleClose = () => {
 }
 //保存角色
 const handleSaveRole = () => {
-  form.value?.validate((valid) => {
+  formRef.value?.validate((valid) => {
     if (valid) {
-      const formData = (form.value as any).formInfo;
       const params = {
-        roleName: formData.roleName,
-        remark: formData.remark,
+        roleName: formData.value.roleName,
+        remark: formData.value.remark,
         ...formInfo.value,
       };
       loading.value = true;

@@ -1,10 +1,20 @@
 
 <template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('新增菜单')" :before-close="handleClose">
-    <SForm ref="form">
-      <SFormItem :label="t('菜单名称')" prop="name" one-line required></SFormItem>
-      <SFormItem :label="t('路径')" prop="path" one-line required></SFormItem>
-    </SForm>
+    <el-form ref="formRef" :model="formData" :rules="rules" label-width="120px">
+      <el-row>
+        <el-col :span="24">
+          <el-form-item :label="t('菜单名称') + '：'" prop="name">
+            <el-input v-model="formData.name" :placeholder="t('请输入') + t('菜单名称')" clearable />
+          </el-form-item>
+        </el-col>
+        <el-col :span="24">
+          <el-form-item :label="t('路径') + '：'" prop="path">
+            <el-input v-model="formData.path" :placeholder="t('请输入') + t('路径')" clearable />
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-form>
     <template #footer>
       <el-button @click="handleClose">{{ t("取消") }}</el-button>
       <el-button :loading="loading" type="primary" @click="handleAddMenu">{{ t('确定/AdminMenuAdd') }}</el-button>
@@ -14,8 +24,6 @@
 
 <script lang="ts" setup>
 import { CommonResponse } from '@src/types'
-import SForm from '@/components/common/forms/form/ClForm.vue'
-import SFormItem from '@/components/common/forms/form/ClFormItem.vue'
 import { nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { FormInstance } from 'element-plus';
@@ -40,7 +48,15 @@ const emits = defineEmits({
 const { t } = useI18n()
 
 const loading = ref(false);
-const form = ref<FormInstance>()
+const formRef = ref<FormInstance>()
+const formData = ref({
+  name: '',
+  path: ''
+})
+const rules = {
+  name: [{ required: true, message: t('请输入') + t('菜单名称'), trigger: 'blur' }],
+  path: [{ required: true, message: t('请输入') + t('路径'), trigger: 'blur' }]
+}
 /*
 |--------------------------------------------------------------------------
 | 方法定义
@@ -52,12 +68,11 @@ const handleClose = () => {
 }
 //新增菜单
 const handleAddMenu = () => {
-  const formData = (form.value as any).formInfo;
-  form.value?.validate((valid) => {
+  formRef.value?.validate((valid) => {
     if (valid) {
       loading.value = true;
       const params = {
-        ...formData,
+        ...formData.value,
         pid: props.pid,
       };
       request.post<CommonResponse<{ _id: string }>, CommonResponse<{ _id: string }>>('/api/security/client_menu', params).then((res) => {

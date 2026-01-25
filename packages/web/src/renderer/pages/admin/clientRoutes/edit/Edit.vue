@@ -1,10 +1,24 @@
 <template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('修改前端路由')" :before-close="handleClose">
-    <SForm ref="form" :edit-data="formInfo">
-      <SFormItem :label="t('名称')" prop="name" required one-line></SFormItem>
-      <SFormItem :label="t('路径')" prop="path" required one-line></SFormItem>
-      <SFormItem :label="t('分组名称')" prop="groupName" required one-line></SFormItem>
-    </SForm>
+    <el-form ref="formRef" :model="formData" :rules="rules" label-width="120px">
+      <el-row>
+        <el-col :span="24">
+          <el-form-item :label="t('名称') + '：'" prop="name">
+            <el-input v-model="formData.name" :placeholder="t('请输入名称')" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="24">
+          <el-form-item :label="t('路径') + '：'" prop="path">
+            <el-input v-model="formData.path" :placeholder="t('请输入路径')" disabled />
+          </el-form-item>
+        </el-col>
+        <el-col :span="24">
+          <el-form-item :label="t('分组名称') + '：'" prop="groupName">
+            <el-input v-model="formData.groupName" :placeholder="t('请输入分组名称')" />
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-form>
     <template #footer>
       <el-button @click="handleClose">{{ t("取消") }}</el-button>
       <el-button :loading="loading" type="primary" @click="handleSaveClientRoute">{{ t('确定/AdminClientRoutesEdit') }}</el-button>
@@ -15,9 +29,7 @@
 <script lang="ts" setup>
 import { nextTick, PropType, ref, watch } from 'vue'
 import { PermissionClientRoute } from '@src/types'
-import SForm from '@/components/common/forms/form/ClForm.vue'
-import SFormItem from '@/components/common/forms/form/ClFormItem.vue'
-import { FormInstance } from 'element-plus'
+import { FormInstance, FormRules } from 'element-plus'
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
 
@@ -33,25 +45,32 @@ const modelValue = defineModel<boolean>({
 const emits = defineEmits(['success'])
 const { t } = useI18n()
 
-const formInfo = ref({});
+const formData = ref({
+  name: '',
+  path: '',
+  groupName: '',
+});
+const rules: FormRules = {
+  name: [{ required: true, message: t('请输入名称'), trigger: 'blur' }],
+  path: [{ required: true, message: t('请输入路径'), trigger: 'blur' }],
+  groupName: [{ required: true, message: t('请输入分组名称'), trigger: 'blur' }],
+}
 const loading = ref(false);
-const form = ref<FormInstance>();
-watch(props.editData, (val) => {
-  formInfo.value = val;
+const formRef = ref<FormInstance>();
+watch(() => props.editData, (val) => {
+  if (val) {
+    formData.value = { ...val };
+  }
 }, {
-  immediate: true
+  immediate: true,
+  deep: true
 })
-/*
-|--------------------------------------------------------------------------
-| 方法定义
-|--------------------------------------------------------------------------
-*/
+//保存前端路由
 const handleSaveClientRoute = () => {
-  form.value?.validate((valid) => {
+  formRef.value?.validate((valid) => {
     if (valid) {
-      const { formInfo } = form.value as any;
       const params = {
-        ...formInfo,
+        ...formData.value,
       };
       loading.value = true;
       request.put('/api/security/client_routes', params).then(() => {

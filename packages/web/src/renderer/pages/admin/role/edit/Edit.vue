@@ -3,10 +3,20 @@
   <el-dialog :model-value="modelValue" top="10vh" :title="t('修改角色')" :before-close="handleClose">
     <div class="g-role">
       <SFieldset :title="t('基本信息')">
-        <SForm ref="form" :edit-data="formInfo">
-          <SFormItem :label="t('角色名称')" prop="roleName" required one-line></SFormItem>
-          <SFormItem :label="t('备注')" prop="remark" required one-line></SFormItem>
-        </SForm>
+        <el-form ref="formRef" :model="formData" :rules="rules" label-width="120px">
+          <el-row>
+            <el-col :span="24">
+              <el-form-item :label="t('角色名称') + '：'" prop="roleName">
+                <el-input v-model="formData.roleName" :placeholder="t('请输入') + t('角色名称')" clearable />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item :label="t('备注') + '：'" prop="remark">
+                <el-input v-model="formData.remark" :placeholder="t('请输入') + t('备注')" clearable />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
       </SFieldset>
       <SFieldset :title="t('权限选择')">
         <el-tabs v-model="activeName">
@@ -39,8 +49,6 @@ import { nextTick, onMounted, ref } from 'vue'
 import SClientMenus from './components/ClientMenus.vue'
 import SClientRoutes from './components/ClientRoutes.vue'
 import SServerRoutes from './components/ServerRoutes.vue'
-import SForm from '@/components/common/forms/form/ClForm.vue'
-import SFormItem from '@/components/common/forms/form/ClFormItem.vue'
 import { request } from '@/api/api'
 import { FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n'
@@ -83,7 +91,15 @@ const clientRouteRef = ref<{ selectedData: string[] }>({
 const serverRouteRef = ref<{ selectedData: string[] }>({
   selectedData: []
 });
-const form = ref<FormInstance>();
+const formRef = ref<FormInstance>();
+const formData = ref({
+  roleName: '',
+  remark: ''
+})
+const rules = {
+  roleName: [{ required: true, message: t('请输入') + t('角色名称'), trigger: 'blur' }],
+  remark: [{ required: true, message: t('请输入') + t('备注'), trigger: 'blur' }]
+}
 /*
 |--------------------------------------------------------------------------
 | 函数定义
@@ -111,6 +127,10 @@ const getRoleInfo = () => {
     formInfo.value.serverRoutes = res.data.serverRoutes;
     formInfo.value.roleName = res.data.roleName;
     formInfo.value.remark = res.data.remark;
+    formData.value.roleName = res.data.roleName;
+    formData.value.remark = res.data.remark;
+    formData.value.roleName = res.data.roleName;
+    formData.value.remark = res.data.remark;
   }).catch((err) => {
     console.error(err);
   }).finally(() => {
@@ -131,14 +151,13 @@ const handleChangeClientMenus = (val: string[]) => {
 }
 //保存角色
 const handleEditRole = () => {
-  form.value?.validate((valid) => {
+  formRef.value?.validate((valid) => {
     if (valid) {
-      const formData = (form.value as any).formInfo;
       const params = {
         _id: props.userId,
         ...formInfo.value,
-        roleName: formData.roleName,
-        remark: formData.remark,
+        roleName: formData.value.roleName,
+        remark: formData.value.remark,
       };
       loading.value = true;
       request.put('/api/security/role', params).then(() => {

@@ -4,7 +4,7 @@
       {{ formInfo }}
     </div>
     <!-- 内容区域 -->
-    <el-form ref="form" :label-width="labelWidth">
+    <el-form ref="form" :label-width="labelWidth" @submit.prevent="handleSearch">
       <el-row>
         <slot />
       </el-row>

@@ -2,9 +2,15 @@
 <template>
     <el-dialog :model-value="modelValue" :title="t('新增用户')" :before-close="handleClose">
     <el-divider content-position="left">{{ t('基础信息') }}</el-divider>
-    <SForm ref="form">
-      <SFormItem :label="t('登录名称')" prop="loginName" required half-line></SFormItem>
-    </SForm>
+    <el-form ref="formRef" :model="formData" :rules="rules" label-width="120px">
+      <el-row>
+        <el-col :span="12">
+          <el-form-item :label="t('登录名称') + '：'" prop="loginName">
+            <el-input v-model="formData.loginName" :placeholder="t('请输入') + t('登录名称')" clearable />
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-form>
     <el-divider content-position="left">{{ t("角色选择") }}</el-divider>
     <el-checkbox v-model="isAdmin">{{ t('是否为管理员') }}</el-checkbox>
     <el-alert :title="t('新添加的用户默认密码：111111')" type="warning" :closable="false" />
@@ -22,11 +28,9 @@ import { request } from '@/api/api';
 import { PermissionRoleEnum, CommonResponse } from '@src/types'
 import { useI18n } from 'vue-i18n'
 import { computed, nextTick, onMounted, ref } from 'vue';
-import SForm from '@/components/common/forms/form/ClForm.vue'
-import SFormItem from '@/components/common/forms/form/ClFormItem.vue'
-
+import { FormInstance } from 'element-plus';
 import { message } from '@/helper'
-type ClFormExpose = { validate: (callback: (valid: boolean) => void) => void; formInfo: { value: Record<string, unknown> } }
+
 const modelValue = defineModel<boolean>({
   default: false
 })
@@ -36,7 +40,13 @@ const roleEnum = ref<PermissionRoleEnum>([]);
 const { t } = useI18n()
 
 const loading = ref(false);
-const form = ref<ClFormExpose | null>(null);
+const formRef = ref<FormInstance | null>(null);
+const formData = ref({
+  loginName: ''
+})
+const rules = {
+  loginName: [{ required: true, message: t('请输入') + t('登录名称'), trigger: 'blur' }]
+}
 // 获取角色id
 const getRoleIdByName = (roleName: '普通用户' | '管理员') => roleEnum.value.find(role => role.roleName === roleName)?._id
 // 初始化默认角色
@@ -88,10 +98,9 @@ const getRoleEnum = () => {
 }
 // 新增用户
 const handleAddUser = ()  => {
-  form.value?.validate((valid) => {
+  formRef.value?.validate((valid) => {
     if (valid) {
-      const formModel = form.value?.formInfo.value
-      const loginName = typeof formModel?.loginName === 'string' ? formModel.loginName : ''
+      const loginName = formData.value.loginName
       const roleNames = roleIds.value.map((val) => {
         const user = roleEnum.value.find((role) => role._id === val);
         return user ? user.roleName : '';
