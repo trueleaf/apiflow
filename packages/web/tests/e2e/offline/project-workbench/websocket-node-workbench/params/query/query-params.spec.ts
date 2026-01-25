@@ -15,7 +15,7 @@ test.describe('WebSocketQueryParams', () => {
     // 获取初始行数
     const queryParamsPanel = contentPage.locator('.ws-query-params');
     await expect(queryParamsPanel).toBeVisible({ timeout: 5000 });
-    const queryKeyInputs = queryParamsPanel.locator('[data-testid="params-tree-key-autocomplete"] input, [data-testid="params-tree-key-input"] input');
+    const queryKeyInputs = queryParamsPanel.getByPlaceholder('输入参数名称自动换行');
     const initialRowCount = await queryKeyInputs.count();
     // 在第一行Query参数的key输入框中输入参数名
     const queryKeyInput = queryKeyInputs.first();
@@ -48,11 +48,12 @@ test.describe('WebSocketQueryParams', () => {
     await contentPage.waitForTimeout(300);
     // 添加Query参数: key="token", value="abc123"
     const queryParamsPanel = contentPage.locator('.ws-query-params');
-    const queryKeyInput = queryParamsPanel.locator('[data-testid="params-tree-key-autocomplete"] input, [data-testid="params-tree-key-input"] input').first();
+    await expect(queryParamsPanel).toBeVisible({ timeout: 5000 });
+    const queryKeyInput = queryParamsPanel.getByPlaceholder('输入参数名称自动换行').first();
     await queryKeyInput.click();
     await queryKeyInput.fill('token');
     await contentPage.waitForTimeout(200);
-    const queryValueInput = queryParamsPanel.locator('[data-testid="params-tree-value-input"] [contenteditable="true"]').first();
+    const queryValueInput = queryParamsPanel.locator('.cl-rich-input__editor [contenteditable="true"]').first();
     await queryValueInput.click();
     await contentPage.keyboard.type('abc123');
     await contentPage.waitForTimeout(300);
@@ -100,11 +101,12 @@ test.describe('WebSocketQueryParams', () => {
     await contentPage.waitForTimeout(300);
     // 添加Query参数使用变量
     const queryParamsPanel = contentPage.locator('.ws-query-params');
-    const queryKeyInput = queryParamsPanel.locator('[data-testid="params-tree-key-autocomplete"] input, [data-testid="params-tree-key-input"] input').first();
+    await expect(queryParamsPanel).toBeVisible({ timeout: 5000 });
+    const queryKeyInput = queryParamsPanel.getByPlaceholder('输入参数名称自动换行').first();
     await queryKeyInput.click();
     await queryKeyInput.fill('token');
     await contentPage.waitForTimeout(200);
-    const queryValueInput = queryParamsPanel.locator('[data-testid="params-tree-value-input"] [contenteditable="true"]').first();
+    const queryValueInput = queryParamsPanel.locator('.cl-rich-input__editor [contenteditable="true"]').first();
     await queryValueInput.click();
     await contentPage.keyboard.type('{{WS_TOKEN}}');
     await contentPage.waitForTimeout(300);
@@ -131,11 +133,12 @@ test.describe('WebSocketQueryParams', () => {
     await contentPage.waitForTimeout(300);
     // 添加Query参数
     const queryParamsPanel = contentPage.locator('.ws-query-params');
-    const queryKeyInput = queryParamsPanel.locator('[data-testid="params-tree-key-autocomplete"] input, [data-testid="params-tree-key-input"] input').first();
+    await expect(queryParamsPanel).toBeVisible({ timeout: 5000 });
+    const queryKeyInput = queryParamsPanel.getByPlaceholder('输入参数名称自动换行').first();
     await queryKeyInput.click();
     await queryKeyInput.fill('disabled_param');
     await contentPage.waitForTimeout(200);
-    const queryValueInput = queryParamsPanel.locator('[data-testid="params-tree-value-input"] [contenteditable="true"]').first();
+    const queryValueInput = queryParamsPanel.locator('.cl-rich-input__editor [contenteditable="true"]').first();
     await queryValueInput.click();
     await contentPage.keyboard.type('test_value');
     await contentPage.waitForTimeout(300);
@@ -168,12 +171,13 @@ test.describe('WebSocketQueryParams', () => {
     await contentPage.waitForTimeout(300);
     // 添加第一个Query参数
     const queryParamsPanel = contentPage.locator('.ws-query-params');
-    const queryKeyInputs = queryParamsPanel.locator('[data-testid="params-tree-key-autocomplete"] input, [data-testid="params-tree-key-input"] input');
+    await expect(queryParamsPanel).toBeVisible({ timeout: 5000 });
+    const queryKeyInputs = queryParamsPanel.getByPlaceholder('输入参数名称自动换行');
     const queryKeyInput1 = queryKeyInputs.first();
     await queryKeyInput1.click();
     await queryKeyInput1.fill('param1');
     await contentPage.waitForTimeout(200);
-    const queryValueInputs = queryParamsPanel.locator('[data-testid="params-tree-value-input"] [contenteditable="true"]');
+    const queryValueInputs = queryParamsPanel.locator('.cl-rich-input__editor [contenteditable="true"]');
     const queryValueInput1 = queryValueInputs.first();
     await queryValueInput1.click();
     await contentPage.keyboard.type('value1');
@@ -189,9 +193,8 @@ test.describe('WebSocketQueryParams', () => {
     await contentPage.waitForTimeout(300);
     // 验证URL包含两个参数,用&连接
     const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
-    const urlText = await statusUrl.textContent();
-    expect(urlText).toContain('param1=value1');
-    expect(urlText).toContain('param2=value2');
-    expect(urlText).toContain('&');
+    await expect(statusUrl).toContainText('param1=value1', { timeout: 5000 });
+    await expect(statusUrl).toContainText('param2=value2', { timeout: 5000 });
+    await expect(statusUrl).toContainText('&', { timeout: 5000 });
   });
 });
