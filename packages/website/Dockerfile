@@ -1,4 +1,4 @@
-FROM node:20-bookworm AS build
+FROM node:20-bookworm-slim AS build
 
 ARG USE_NPM_MIRROR=false
 
@@ -8,8 +8,7 @@ COPY packages/website/package.json packages/website/package-lock.json ./packages
 RUN if [ "$USE_NPM_MIRROR" = "true" ]; then npm config set registry https://registry.npmmirror.com; fi
 
 WORKDIR /app/packages/website
-# 使用 npm install 替代 npm ci，确保可选依赖正确安装
-RUN npm install --include=optional
+RUN npm ci
 
 COPY packages/website/ ./
 RUN npm run build

@@ -16,9 +16,6 @@ const nextConfig: NextConfig = {
     APP_VERSION: pkg.version,
     APP_BUILD_TIME: dayjs().tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss'),
   },
-  turbopack: {
-    root: '../../',
-  },
 };
 
 export default withNextIntl(nextConfig);
