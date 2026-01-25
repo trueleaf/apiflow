@@ -11,11 +11,11 @@ RUN if [ "$USE_NPM_MIRROR" = "true" ]; then npm config set registry https://regi
 WORKDIR /app/packages/website
 RUN npm ci --include=optional
 
-# 根据目标架构安装对应的 @parcel/watcher 原生绑定（多架构构建时 npm ci 只装宿主机的）
+# 根据目标架构安装对应的原生绑定（多架构构建时 npm ci 只装宿主机的）
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
-      npm install --no-save @parcel/watcher-linux-x64-glibc; \
+      npm install --no-save @parcel/watcher-linux-x64-glibc @next/swc-linux-x64-gnu; \
     elif [ "$TARGETARCH" = "arm64" ]; then \
-      npm install --no-save @parcel/watcher-linux-arm64-glibc; \
+      npm install --no-save @parcel/watcher-linux-arm64-glibc @next/swc-linux-arm64-gnu; \
     fi
 
 COPY packages/website/ ./
