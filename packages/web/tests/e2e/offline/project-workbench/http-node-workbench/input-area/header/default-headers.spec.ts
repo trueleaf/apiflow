@@ -160,7 +160,9 @@ test.describe('DefaultHeaders', () => {
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入数据
     const monacoEditor = contentPage.locator('.s-json-editor').first();
-    await monacoEditor.click();
+    const monacoInner = monacoEditor.locator('.monaco-editor').first();
+    await expect(monacoInner).toBeVisible({ timeout: 10000 });
+    await monacoInner.click({ position: { x: 10, y: 10 } });
     await contentPage.waitForTimeout(300);
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('{"name": "test"}');
@@ -207,7 +209,9 @@ test.describe('DefaultHeaders', () => {
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入数据
     const monacoEditor = contentPage.locator('.s-json-editor').first();
-    await monacoEditor.click();
+    const monacoInner = monacoEditor.locator('.monaco-editor').first();
+    await expect(monacoInner).toBeVisible({ timeout: 10000 });
+    await monacoInner.click({ position: { x: 10, y: 10 } });
     await contentPage.waitForTimeout(300);
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('{"name": "test"}');

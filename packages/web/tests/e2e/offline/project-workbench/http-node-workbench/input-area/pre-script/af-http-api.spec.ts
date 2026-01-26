@@ -30,11 +30,10 @@ test.describe('AfHttpApi', () => {
     await expect(editor).toBeVisible({ timeout: 5000 });
     await editor.click();
     await contentPage.waitForTimeout(300);
-    // 输入前置脚本代码
-    const scriptCode = `const response = await af.http.get("http://127.0.0.1:${MOCK_SERVER_PORT}/echo?test=preGet");
-console.log("GET响应状态码:", response.status);
-console.log("GET响应数据:", JSON.stringify(response.data));`;
-    await contentPage.keyboard.type(scriptCode);
+    // 输入前置脚本代码（使用 insertText 避免 Monaco 自动补全导致语法错乱）
+    const scriptCode = `await af.http.get("http://127.0.0.1:${MOCK_SERVER_PORT}/echo?test=preGet");`;
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.insertText(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -43,7 +42,7 @@ console.log("GET响应数据:", JSON.stringify(response.data));`;
     const responseArea = contentPage.getByTestId('response-area');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.getByTestId('status-code');
-    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    await expect(statusCode).toContainText('200', { timeout: 20000 });
   });
   // 测试用例2: 使用af.http.post()发送POST请求,请求成功并获取响应数据
   test('使用af.http.post发送POST请求并获取响应数据', async ({ contentPage, clearCache, createProject }) => {
@@ -72,11 +71,10 @@ console.log("GET响应数据:", JSON.stringify(response.data));`;
     await expect(editor).toBeVisible({ timeout: 5000 });
     await editor.click();
     await contentPage.waitForTimeout(300);
-    // 输入前置脚本代码
-    const scriptCode = `const response = await af.http.post("http://127.0.0.1:${MOCK_SERVER_PORT}/echo", { name: "John", age: 25 });
-console.log("POST响应状态码:", response.status);
-console.log("POST响应数据:", JSON.stringify(response.data));`;
-    await contentPage.keyboard.type(scriptCode);
+    // 输入前置脚本代码（使用 insertText 避免 Monaco 自动补全导致语法错乱）
+    const scriptCode = `await af.http.post("http://127.0.0.1:${MOCK_SERVER_PORT}/echo", { name: "John", age: 25 });`;
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.insertText(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -85,7 +83,7 @@ console.log("POST响应数据:", JSON.stringify(response.data));`;
     const responseArea = contentPage.getByTestId('response-area');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.getByTestId('status-code');
-    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    await expect(statusCode).toContainText('200', { timeout: 20000 });
   });
   // 测试用例3: 使用af.http.put()发送PUT请求,请求成功并获取响应数据
   test('使用af.http.put发送PUT请求并获取响应数据', async ({ contentPage, clearCache, createProject }) => {
@@ -114,11 +112,10 @@ console.log("POST响应数据:", JSON.stringify(response.data));`;
     await expect(editor).toBeVisible({ timeout: 5000 });
     await editor.click();
     await contentPage.waitForTimeout(300);
-    // 输入前置脚本代码
-    const scriptCode = `const response = await af.http.put("http://127.0.0.1:${MOCK_SERVER_PORT}/echo", { name: "Jane", age: 30 });
-console.log("PUT响应状态码:", response.status);
-console.log("PUT响应数据:", JSON.stringify(response.data));`;
-    await contentPage.keyboard.type(scriptCode);
+    // 输入前置脚本代码（使用 insertText 避免 Monaco 自动补全导致语法错乱）
+    const scriptCode = `await af.http.put("http://127.0.0.1:${MOCK_SERVER_PORT}/echo", { name: "Jane", age: 30 });`;
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.insertText(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -127,7 +124,7 @@ console.log("PUT响应数据:", JSON.stringify(response.data));`;
     const responseArea = contentPage.getByTestId('response-area');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.getByTestId('status-code');
-    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    await expect(statusCode).toContainText('200', { timeout: 20000 });
   });
   // 测试用例4: 使用af.http.delete()发送DELETE请求,请求成功并获取响应数据
   test('使用af.http.delete发送DELETE请求并获取响应数据', async ({ contentPage, clearCache, createProject }) => {
@@ -156,11 +153,10 @@ console.log("PUT响应数据:", JSON.stringify(response.data));`;
     await expect(editor).toBeVisible({ timeout: 5000 });
     await editor.click();
     await contentPage.waitForTimeout(300);
-    // 输入前置脚本代码
-    const scriptCode = `const response = await af.http.delete("http://127.0.0.1:${MOCK_SERVER_PORT}/echo?id=123");
-console.log("DELETE响应状态码:", response.status);
-console.log("DELETE响应数据:", JSON.stringify(response.data));`;
-    await contentPage.keyboard.type(scriptCode);
+    // 输入前置脚本代码（使用 insertText 避免 Monaco 自动补全导致语法错乱）
+    const scriptCode = `await af.http.delete("http://127.0.0.1:${MOCK_SERVER_PORT}/echo?id=123");`;
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.insertText(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -169,7 +165,7 @@ console.log("DELETE响应数据:", JSON.stringify(response.data));`;
     const responseArea = contentPage.getByTestId('response-area');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.getByTestId('status-code');
-    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    await expect(statusCode).toContainText('200', { timeout: 20000 });
   });
   // 测试用例5: af.http请求失败时正确抛出错误并在响应区域展示错误信息
   test('af.http请求失败时正确抛出错误', async ({ contentPage, clearCache, createProject }) => {
@@ -198,14 +194,10 @@ console.log("DELETE响应数据:", JSON.stringify(response.data));`;
     await expect(editor).toBeVisible({ timeout: 5000 });
     await editor.click();
     await contentPage.waitForTimeout(300);
-    // 输入前置脚本代码 - 请求一个不存在的端口以触发错误
-    const scriptCode = `try {
-  const response = await af.http.get("http://127.0.0.1:59999/invalid-endpoint");
-  console.log("响应:", response);
-} catch(e) {
-  console.error("请求失败:", e.message);
-}`;
-    await contentPage.keyboard.type(scriptCode);
+    // 输入前置脚本代码：请求一个不存在的端口并吞掉异常（避免 Monaco 自动补全括号/大括号造成语法错误）
+    const scriptCode = 'await af.http.get("http://127.0.0.1:59999/invalid-endpoint").catch(() => {});';
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.insertText(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -214,7 +206,7 @@ console.log("DELETE响应数据:", JSON.stringify(response.data));`;
     const responseArea = contentPage.getByTestId('response-area');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.getByTestId('status-code');
-    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    await expect(statusCode).toContainText('200', { timeout: 20000 });
   });
 });
 

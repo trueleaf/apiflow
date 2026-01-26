@@ -80,11 +80,17 @@ test.describe('DisplayOrderConfig', () => {
     const tabItems = contentPage.locator('.tab-order-item');
     const firstTabLabel = await tabItems.first().locator('.tab-label').textContent();
     const lastTabLabel = await tabItems.last().locator('.tab-label').textContent();
+    const lastTabLabelText = (lastTabLabel ?? '').trim();
     // 拖拽最后一个元素到第一个位置
     const firstItem = tabItems.first();
     const lastItem = tabItems.last();
-    const firstBox = await firstItem.boundingBox();
-    const lastBox = await lastItem.boundingBox();
+    await lastItem.scrollIntoViewIfNeeded();
+    await firstItem.scrollIntoViewIfNeeded();
+    // 通过拖拽句柄触发 vuedraggable（HTML5 drag 在 Electron 下不稳定，改用鼠标拖拽）
+    const firstHandle = firstItem.locator('.drag-handle');
+    const lastHandle = lastItem.locator('.drag-handle');
+    const firstBox = await firstHandle.boundingBox();
+    const lastBox = await lastHandle.boundingBox();
     if (firstBox && lastBox) {
       await contentPage.mouse.move(lastBox.x + lastBox.width / 2, lastBox.y + lastBox.height / 2);
       await contentPage.mouse.down();
@@ -93,17 +99,17 @@ test.describe('DisplayOrderConfig', () => {
       await contentPage.waitForTimeout(100);
       await contentPage.mouse.up();
     }
-    await contentPage.waitForTimeout(500);
-    // 验证顺序已改变
-    const newFirstTabLabel = await tabItems.first().locator('.tab-label').textContent();
-    expect(newFirstTabLabel).toBe(lastTabLabel);
+    // 等待顺序更新
+    if (lastTabLabelText) {
+      await expect(tabItems.first().locator('.tab-label')).toHaveText(lastTabLabelText, { timeout: 5000 });
+    }
     // 验证标签页的顺序是否更新
     const tabs = contentPage.locator('.params-tabs .el-tabs__item');
     const tabsCount = await tabs.count();
     expect(tabsCount).toBeGreaterThan(0);
     // 验证第一个标签页是我们拖拽到第一位的标签
     const firstTabText = await tabs.first().textContent();
-    expect(firstTabText?.trim()).toContain(lastTabLabel?.trim() || '');
+    expect(firstTabText?.trim()).toContain(lastTabLabelText);
   });
   // 测试用例3: 显示顺序修改后刷新页面,顺序保持不变
   test('显示顺序修改后刷新页面顺序保持不变', async ({ contentPage, clearCache, createProject, reload }) => {

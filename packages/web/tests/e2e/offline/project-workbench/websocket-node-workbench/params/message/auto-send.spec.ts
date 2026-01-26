@@ -25,13 +25,14 @@ test.describe('WebSocketAutoSend', () => {
     await configBtn.click();
     await contentPage.waitForTimeout(300);
     // 在配置面板中勾选自动发送快捷操作
-    const configPopover = contentPage.locator('.config-popover');
+    const configPopover = contentPage.locator('.config-popover:visible');
     await expect(configPopover).toBeVisible({ timeout: 5000 });
     const autoSendCheckbox = configPopover.locator('.quick-operations .el-checkbox').filter({ hasText: /自动发送/ });
     await autoSendCheckbox.click();
     await contentPage.waitForTimeout(300);
     // 保存配置
-    const saveConfigBtn = configPopover.locator('.el-button--primary').filter({ hasText: /保存/ });
+    await expect(configPopover).toBeVisible({ timeout: 5000 });
+    const saveConfigBtn = contentPage.locator('.config-popover:visible .config-actions .el-button--primary').filter({ hasText: /保存/ });
     await saveConfigBtn.click();
     await contentPage.waitForTimeout(300);
     // 验证自动发送checkbox出现在顶部操作栏
@@ -54,7 +55,7 @@ test.describe('WebSocketAutoSend', () => {
     await configBtn.click();
     await contentPage.waitForTimeout(300);
     // 在配置面板中设置发送间隔
-    const configPopover = contentPage.locator('.config-popover');
+    const configPopover = contentPage.locator('.config-popover:visible');
     await expect(configPopover).toBeVisible({ timeout: 5000 });
     const intervalInput = configPopover.locator('.el-input-number input');
     await intervalInput.click();
@@ -62,7 +63,7 @@ test.describe('WebSocketAutoSend', () => {
     await intervalInput.fill('5000');
     await contentPage.waitForTimeout(300);
     // 保存配置
-    const saveConfigBtn = configPopover.locator('.el-button--primary').filter({ hasText: /保存/ });
+    const saveConfigBtn = contentPage.locator('.config-popover:visible .config-actions .el-button--primary').filter({ hasText: /保存/ });
     await saveConfigBtn.click();
     await contentPage.waitForTimeout(500);
     // 重新打开配置面板验证值已保存
@@ -87,16 +88,16 @@ test.describe('WebSocketAutoSend', () => {
     await configBtn.click();
     await contentPage.waitForTimeout(300);
     // 在配置面板中设置消息类型为JSON
-    const configPopover = contentPage.locator('.config-popover');
+    const configPopover = contentPage.locator('.config-popover:visible');
     await expect(configPopover).toBeVisible({ timeout: 5000 });
     const typeSelector = configPopover.locator('.el-select').first();
     await typeSelector.click();
     await contentPage.waitForTimeout(300);
-    const jsonOption = contentPage.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: /^JSON$/ }).first();
-    await jsonOption.click();
-    await contentPage.waitForTimeout(300);
+    await contentPage.keyboard.type('JSON');
+    await contentPage.keyboard.press('Enter');
+    await expect(configPopover).toBeVisible({ timeout: 5000 });
     // 保存配置
-    const saveConfigBtn = configPopover.locator('.el-button--primary').filter({ hasText: /保存/ });
+    const saveConfigBtn = contentPage.locator('.config-popover:visible .config-actions .el-button--primary').filter({ hasText: /保存/ });
     await saveConfigBtn.click();
     await contentPage.waitForTimeout(500);
     // 验证保存成功
@@ -121,7 +122,7 @@ test.describe('WebSocketAutoSend', () => {
     await configBtn.click();
     await contentPage.waitForTimeout(300);
     // 在配置面板的消息内容编辑器中输入内容
-    const configPopover = contentPage.locator('.config-popover');
+    const configPopover = contentPage.locator('.config-popover:visible');
     await expect(configPopover).toBeVisible({ timeout: 5000 });
     const contentEditor = configPopover.locator('.config-content-editor .s-json-editor');
     await contentEditor.click();
@@ -129,7 +130,7 @@ test.describe('WebSocketAutoSend', () => {
     await contentPage.keyboard.type('{"type": "heartbeat"}');
     await contentPage.waitForTimeout(300);
     // 保存配置
-    const saveConfigBtn = configPopover.locator('.el-button--primary').filter({ hasText: /保存/ });
+    const saveConfigBtn = contentPage.locator('.config-popover:visible .config-actions .el-button--primary').filter({ hasText: /保存/ });
     await saveConfigBtn.click();
     await contentPage.waitForTimeout(500);
     // 验证保存成功提示
@@ -155,7 +156,7 @@ test.describe('WebSocketAutoSend', () => {
     await configBtn.click();
     await contentPage.waitForTimeout(300);
     // 获取初始间隔值
-    const configPopover = contentPage.locator('.config-popover');
+    const configPopover = contentPage.locator('.config-popover:visible');
     await expect(configPopover).toBeVisible({ timeout: 5000 });
     const intervalInput = configPopover.locator('.el-input-number input');
     const initialValue = await intervalInput.inputValue();

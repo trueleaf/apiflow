@@ -7,14 +7,21 @@ test.describe('WebSocketUrlUndo', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    await createNode(contentPage, { nodeType: 'websocket', name: 'URL撤销按钮测试' });
+    const nodeId = await createNode(contentPage, { nodeType: 'websocket', name: 'URL撤销按钮测试' });
+    const createdNode = contentPage.locator(`[data-test-node-id="${nodeId}"]`).first();
+    await expect(createdNode).toBeVisible({ timeout: 5000 });
+    await createdNode.click();
+    await expect(contentPage.locator('.ws-operation')).toBeVisible({ timeout: 5000 });
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
     await expect(urlEditor).toBeVisible({ timeout: 5000 });
     // 记录初始值
     const initialValue = (await urlEditor.innerText()).trim();
     // 输入新URL
-    await urlEditor.fill('ws://127.0.0.1:8080/test');
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('ws://127.0.0.1:8080/test');
     await contentPage.keyboard.press('Enter');
+    await contentPage.locator('.ws-operation').click();
     await contentPage.waitForTimeout(300);
     // 验证URL已变更
     await expect(urlEditor).toHaveText(/127\.0\.0\.1:8080\/test/);
@@ -31,14 +38,21 @@ test.describe('WebSocketUrlUndo', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    await createNode(contentPage, { nodeType: 'websocket', name: 'URL快捷键撤销测试' });
+    const nodeId = await createNode(contentPage, { nodeType: 'websocket', name: 'URL快捷键撤销测试' });
+    const createdNode = contentPage.locator(`[data-test-node-id="${nodeId}"]`).first();
+    await expect(createdNode).toBeVisible({ timeout: 5000 });
+    await createdNode.click();
+    await expect(contentPage.locator('.ws-operation')).toBeVisible({ timeout: 5000 });
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
     await expect(urlEditor).toBeVisible({ timeout: 5000 });
     // 记录初始值
     const initialValue = (await urlEditor.innerText()).trim();
     // 输入新URL
-    await urlEditor.fill('ws://192.168.1.1:9000/ws');
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('ws://192.168.1.1:9000/ws');
     await contentPage.keyboard.press('Enter');
+    await contentPage.locator('.ws-operation').click();
     await contentPage.waitForTimeout(300);
     // 验证URL已变更
     await expect(urlEditor).toHaveText(/192\.168\.1\.1:9000\/ws/);
@@ -54,16 +68,26 @@ test.describe('WebSocketUrlUndo', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    await createNode(contentPage, { nodeType: 'websocket', name: 'URL多次撤销测试' });
+    const nodeId = await createNode(contentPage, { nodeType: 'websocket', name: 'URL多次撤销测试' });
+    const createdNode = contentPage.locator(`[data-test-node-id="${nodeId}"]`).first();
+    await expect(createdNode).toBeVisible({ timeout: 5000 });
+    await createdNode.click();
+    await expect(contentPage.locator('.ws-operation')).toBeVisible({ timeout: 5000 });
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
     await expect(urlEditor).toBeVisible({ timeout: 5000 });
     // 第一次输入
-    await urlEditor.fill('ws://host1:8080/path1');
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('ws://host1:8080/path1');
     await contentPage.keyboard.press('Enter');
+    await contentPage.locator('.ws-operation').click();
     await contentPage.waitForTimeout(300);
     // 第二次输入
-    await urlEditor.fill('ws://host2:8080/path2');
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('ws://host2:8080/path2');
     await contentPage.keyboard.press('Enter');
+    await contentPage.locator('.ws-operation').click();
     await contentPage.waitForTimeout(300);
     // 验证当前为第二次输入的值
     await expect(urlEditor).toHaveText(/host2:8080\/path2/);
@@ -83,14 +107,21 @@ test.describe('WebSocketUrlUndo', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    await createNode(contentPage, { nodeType: 'websocket', name: 'URL撤销按钮禁用测试' });
+    const nodeId = await createNode(contentPage, { nodeType: 'websocket', name: 'URL撤销按钮禁用测试' });
+    const createdNode = contentPage.locator(`[data-test-node-id="${nodeId}"]`).first();
+    await expect(createdNode).toBeVisible({ timeout: 5000 });
+    await createdNode.click();
+    await expect(contentPage.locator('.ws-operation')).toBeVisible({ timeout: 5000 });
     // 新创建的节点没有操作历史,撤销按钮应该禁用
     const undoBtn = contentPage.locator('[data-testid="ws-params-undo-btn"]');
     await expect(undoBtn).toHaveClass(/disabled/, { timeout: 5000 });
     // 输入URL后撤销按钮应该可用
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
-    await urlEditor.fill('ws://test:8080/path');
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('ws://test:8080/path');
     await contentPage.keyboard.press('Enter');
+    await contentPage.locator('.ws-operation').click();
     await contentPage.waitForTimeout(300);
     await expect(undoBtn).not.toHaveClass(/disabled/, { timeout: 5000 });
     // 撤销后按钮应该再次禁用

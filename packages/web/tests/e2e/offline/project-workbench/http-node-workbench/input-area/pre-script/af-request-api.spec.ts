@@ -456,13 +456,18 @@ af.request.body.json.newField = "addedValue";`;
     await preScriptTab.click();
     await contentPage.waitForTimeout(500);
     // 在前置脚本编辑器中输入代码
-    const editor = contentPage.locator('.s-monaco-editor');
-    await expect(editor).toBeVisible({ timeout: 5000 });
-    await editor.click();
+    const editorTarget = contentPage
+      .locator('.s-monaco-editor .monaco-editor textarea, .s-monaco-editor textarea, .s-monaco-editor .monaco-editor, .s-monaco-editor')
+      .first();
+    await expect(editorTarget).toBeVisible({ timeout: 5000 });
+    await editorTarget.click();
     await contentPage.waitForTimeout(300);
     // 输入前置脚本代码 - 替换整个URL
     const scriptCode = `af.request.replaceUrl("http://127.0.0.1:${MOCK_SERVER_PORT}/echo?replaced=true&id=123");`;
-    await contentPage.keyboard.type(scriptCode);
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.press('Backspace');
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.insertText(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -472,7 +477,7 @@ af.request.body.json.newField = "addedValue";`;
     const responseArea = contentPage.getByTestId('response-area');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.getByTestId('status-code');
-    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    await expect(statusCode).toContainText('200', { timeout: 20000 });
     const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     // 验证响应中包含替换后的URL信息

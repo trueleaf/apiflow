@@ -7,13 +7,20 @@ test.describe('WebSocketUrlRedo', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    await createNode(contentPage, { nodeType: 'websocket', name: 'URL重做按钮测试' });
+    const nodeId = await createNode(contentPage, { nodeType: 'websocket', name: 'URL重做按钮测试' });
+    const createdNode = contentPage.locator(`[data-test-node-id="${nodeId}"]`).first();
+    await expect(createdNode).toBeVisible({ timeout: 5000 });
+    await createdNode.click();
+    await expect(contentPage.locator('.ws-operation')).toBeVisible({ timeout: 5000 });
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
     await expect(urlEditor).toBeVisible({ timeout: 5000 });
     // 输入URL
     const testUrl = 'ws://127.0.0.1:8080/redo-test';
-    await urlEditor.fill(testUrl);
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type(testUrl);
     await contentPage.keyboard.press('Enter');
+    await contentPage.locator('.ws-operation').click();
     await contentPage.waitForTimeout(300);
     // 验证URL已输入
     await expect(urlEditor).toHaveText(new RegExp(testUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
@@ -36,12 +43,19 @@ test.describe('WebSocketUrlRedo', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    await createNode(contentPage, { nodeType: 'websocket', name: 'URL快捷键重做测试' });
+    const nodeId = await createNode(contentPage, { nodeType: 'websocket', name: 'URL快捷键重做测试' });
+    const createdNode = contentPage.locator(`[data-test-node-id="${nodeId}"]`).first();
+    await expect(createdNode).toBeVisible({ timeout: 5000 });
+    await createdNode.click();
+    await expect(contentPage.locator('.ws-operation')).toBeVisible({ timeout: 5000 });
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
     await expect(urlEditor).toBeVisible({ timeout: 5000 });
     // 输入URL
-    await urlEditor.fill('ws://192.168.1.1:9000/ws');
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('ws://192.168.1.1:9000/ws');
     await contentPage.keyboard.press('Enter');
+    await contentPage.locator('.ws-operation').click();
     await contentPage.waitForTimeout(300);
     // 撤销
     await contentPage.keyboard.press('Control+z');
@@ -60,12 +74,19 @@ test.describe('WebSocketUrlRedo', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    await createNode(contentPage, { nodeType: 'websocket', name: 'URL Ctrl+Shift+Z重做测试' });
+    const nodeId = await createNode(contentPage, { nodeType: 'websocket', name: 'URL Ctrl+Shift+Z重做测试' });
+    const createdNode = contentPage.locator(`[data-test-node-id="${nodeId}"]`).first();
+    await expect(createdNode).toBeVisible({ timeout: 5000 });
+    await createdNode.click();
+    await expect(contentPage.locator('.ws-operation')).toBeVisible({ timeout: 5000 });
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
     await expect(urlEditor).toBeVisible({ timeout: 5000 });
     // 输入URL
-    await urlEditor.fill('ws://localhost:3000/socket');
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('ws://localhost:3000/socket');
     await contentPage.keyboard.press('Enter');
+    await contentPage.locator('.ws-operation').click();
     await contentPage.waitForTimeout(300);
     // 撤销
     await contentPage.keyboard.press('Control+z');
@@ -82,15 +103,25 @@ test.describe('WebSocketUrlRedo', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    await createNode(contentPage, { nodeType: 'websocket', name: 'URL多次重做测试' });
+    const nodeId = await createNode(contentPage, { nodeType: 'websocket', name: 'URL多次重做测试' });
+    const createdNode = contentPage.locator(`[data-test-node-id="${nodeId}"]`).first();
+    await expect(createdNode).toBeVisible({ timeout: 5000 });
+    await createdNode.click();
+    await expect(contentPage.locator('.ws-operation')).toBeVisible({ timeout: 5000 });
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
     // 第一次输入
-    await urlEditor.fill('ws://host1:8080/path1');
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('ws://host1:8080/path1');
     await contentPage.keyboard.press('Enter');
+    await contentPage.locator('.ws-operation').click();
     await contentPage.waitForTimeout(300);
     // 第二次输入
-    await urlEditor.fill('ws://host2:8080/path2');
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('ws://host2:8080/path2');
     await contentPage.keyboard.press('Enter');
+    await contentPage.locator('.ws-operation').click();
     await contentPage.waitForTimeout(300);
     // 连续撤销两次
     const undoBtn = contentPage.locator('[data-testid="ws-params-undo-btn"]');
