@@ -24,6 +24,17 @@
         >
           <Settings :size="16" />
         </button>
+        <button
+          v-if="isAppStore"
+          class="ai-dialog-action"
+          type="button"
+          @mousedown.stop
+          @click="handleReport"
+          :title="t('举报')"
+          :aria-label="t('举报')"
+        >
+          <Flag :size="16" />
+        </button>
       </div>
       <div class="ai-dialog-header-separator" aria-hidden="true"></div>
       <button
@@ -41,15 +52,28 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Plus, Settings, X } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
+import { Plus, Settings, X, Flag } from 'lucide-vue-next'
 import { useAgentViewStore } from '@/store/ai/agentView'
+import { appStateCache } from '@/cache/appState/appStateCache'
 
 const { t } = useI18n()
+const router = useRouter()
 const agentViewStore = useAgentViewStore()
+const isAppStore = ref(false)
 const emit = defineEmits<{
   'close': []
 }>()
+const handleReport = () => {
+  agentViewStore.hideAgentViewDialog()
+  appStateCache.setActiveLocalDataMenu('ai-settings')
+  router.push({ name: 'Settings', query: { action: 'ai-settings' } })
+}
+onMounted(async () => {
+  isAppStore.value = await window.electronAPI?.updateManager.isAppStore() || false
+})
 </script>
 
 <style scoped>

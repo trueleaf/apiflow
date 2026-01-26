@@ -26,11 +26,18 @@
         />
       </div>
     </div>
+    <div v-if="isAppStore" class="report-section">
+      <h3>{{ t('举报 AI 内容') }}</h3>
+      <p class="report-description">
+        {{ t('如果您发现 AI 生成的内容不恰当或令人不适，请通过以下方式向我们举报：') }}
+      </p>
+      <a href="mailto:2581105856@qq.com" class="report-email">2581105856@qq.com</a>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ProviderConfigPanel from './ConfigPanel.vue'
 import DebugPanel from './DebugPanel.vue'
@@ -40,6 +47,7 @@ import type { ChatRequestBody, OpenAiStreamChunk } from '@src/types/ai/agent.typ
 
 const { t } = useI18n()
 const llmClientStore = useLLMClientStore()
+const isAppStore = ref(false)
 
 const responseContent = ref('')
 const reasoningContent = ref('')
@@ -181,6 +189,9 @@ onUnmounted(() => {
   }
   streamBuffer = ''
 })
+onMounted(async () => {
+  isAppStore.value = await window.electronAPI?.updateManager.isAppStore() || false
+})
 </script>
 
 <style lang="scss" scoped>
@@ -223,5 +234,39 @@ onUnmounted(() => {
 .debug-section {
   flex: 1;
   min-width: 0;
+}
+
+.report-section {
+  margin-top: 24px;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+
+  h3 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .report-description {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  .report-email {
+    display: inline-block;
+    font-size: 14px;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 </style>
