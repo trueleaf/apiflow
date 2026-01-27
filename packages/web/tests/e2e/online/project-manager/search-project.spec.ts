@@ -107,6 +107,3 @@ test.describe('SearchProject', () => {
     const projectNameEl = contentPage.locator('[data-testid="home-project-card-0"] .project-name');
     await expect(projectNameEl).toContainText(`AAA_${uniqueId}`);
   });
-});
-
-

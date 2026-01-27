@@ -496,6 +496,10 @@ const handleJumpToProject = (item: ApidocProjectInfo) => {
       mode: 'edit',
     },
   });
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectChanged, {
+    projectId: item._id,
+    projectName: item.projectName
+  })
   projectWorkbenchStore.changeProjectId(item._id);
 }
 // (已删除) 跳转到预览逻辑已移除
@@ -634,7 +638,12 @@ const handleResetSearch = () => {
   allSearchResults.value.clear();
 };
 // 跳转到节点
-const handleJumpToNode = (item: SearchResultItem) => {
+const handleJumpToNode = async (item: SearchResultItem) => {
+  await projectWorkbenchStore.initProjectBaseInfo({ projectId: item.projectId });
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectChanged, {
+    projectId: item.projectId,
+    projectName: item.projectName
+  })
   router.push({
     path: '/workbench',
     query: {

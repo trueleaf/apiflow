@@ -784,6 +784,118 @@ test.describe('SearchProject', () => {
     const datePicker = advancedSearchPanel.locator('.custom-date-picker');
     await expect(datePicker).toBeHidden();
   });
+
+  test('点击搜索结果项跳转后,header正确创建并高亮tab', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    const projectName = await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    // 创建HTTP节点
+    await createNode(contentPage, { nodeType: 'http', name: '搜索测试HTTP' });
+    await contentPage.waitForTimeout(500);
+    // 返回首页
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
+    await logo.click();
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    // 打开高级搜索面板
+    const advancedSearchBtn = contentPage.locator('[data-testid="home-advanced-search-btn"]');
+    await advancedSearchBtn.click();
+    await contentPage.waitForTimeout(300);
+    // 搜索节点
+    const searchInput = contentPage.locator('[data-testid="home-project-search-input"]');
+    await searchInput.fill('搜索测试HTTP');
+    await contentPage.waitForTimeout(500);
+    // 点击搜索结果项
+    const searchResultItem = contentPage.locator('.search-result-item').first();
+    await expect(searchResultItem).toBeVisible({ timeout: 5000 });
+    await searchResultItem.click();
+    // 验证跳转到项目工作区
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 验证header中创建了项目tab
+    const projectTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectName });
+    await expect(projectTab).toBeVisible({ timeout: 5000 });
+    // 验证tab处于激活状态
+    await expect(projectTab).toHaveClass(/active/);
+  });
+
+  test('点击不同节点类型的搜索结果,tab正确创建并跳转到对应节点', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    const projectName = await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    // 创建HTTP节点
+    await createNode(contentPage, { nodeType: 'http', name: 'HTTP搜索节点' });
+    await contentPage.waitForTimeout(300);
+    // 创建WebSocket节点
+    await createNode(contentPage, { nodeType: 'websocket', name: 'WebSocket搜索节点' });
+    await contentPage.waitForTimeout(300);
+    // 创建HTTP Mock节点
+    await createNode(contentPage, { nodeType: 'httpMock', name: 'Mock搜索节点' });
+    await contentPage.waitForTimeout(300);
+    // 返回首页
+    const logo = topBarPage.locator('[data-test-id="header-logo"]');
+    await logo.click();
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    // 打开高级搜索面板
+    const advancedSearchBtn = contentPage.locator('[data-testid="home-advanced-search-btn"]');
+    await advancedSearchBtn.click();
+    await contentPage.waitForTimeout(300);
+    // 搜索HTTP节点
+    const searchInput = contentPage.locator('[data-testid="home-project-search-input"]');
+    await searchInput.fill('HTTP搜索节点');
+    await contentPage.waitForTimeout(500);
+    const httpResultItem = contentPage.locator('.search-result-item').filter({ hasText: /HTTP搜索节点/ }).first();
+    await expect(httpResultItem).toBeVisible({ timeout: 5000 });
+    await httpResultItem.click();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    // 验证URL包含nodeId参数
+    const url1 = contentPage.url();
+    expect(url1).toContain('nodeId=');
+    // 验证节点被选中(文档树中节点高亮)
+    const selectedHttpNode = contentPage.locator('.el-tree-node.is-current .custom-tree-node').filter({ hasText: /HTTP搜索节点/ });
+    await expect(selectedHttpNode).toBeVisible({ timeout: 5000 });
+    // 返回首页搜索WebSocket节点
+    await logo.click();
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await searchInput.fill('WebSocket搜索节点');
+    await contentPage.waitForTimeout(500);
+    const wsResultItem = contentPage.locator('.search-result-item').filter({ hasText: /WebSocket搜索节点/ }).first();
+    await expect(wsResultItem).toBeVisible({ timeout: 5000 });
+    await wsResultItem.click();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    // 验证URL包含nodeId参数
+    const url2 = contentPage.url();
+    expect(url2).toContain('nodeId=');
+    // 验证WebSocket节点被选中
+    const selectedWsNode = contentPage.locator('.el-tree-node.is-current .custom-tree-node').filter({ hasText: /WebSocket搜索节点/ });
+    await expect(selectedWsNode).toBeVisible({ timeout: 5000 });
+    // 验证tab始终只有一个项目tab(没有重复创建)
+    const projectTabs = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectName });
+    await expect(projectTabs).toHaveCount(1);
+
+    // 返回首页搜索Mock节点
+    await logo.click();
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await advancedSearchBtn.click();
+    await contentPage.waitForTimeout(300);
+    await searchInput.fill('Mock搜索节点');
+    await contentPage.waitForTimeout(500);
+    const mockResultItem = contentPage.locator('.search-result-item').filter({ hasText: /Mock搜索节点/ }).first();
+    await expect(mockResultItem).toBeVisible({ timeout: 5000 });
+    await mockResultItem.click();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    // 验证URL包含nodeId参数
+    const url3 = contentPage.url();
+    expect(url3).toContain('nodeId=');
+    // 验证Mock节点被选中
+    const selectedMockNode = contentPage.locator('.el-tree-node.is-current .custom-tree-node').filter({ hasText: /Mock搜索节点/ });
+    await expect(selectedMockNode).toBeVisible({ timeout: 5000 });
+  });
 });
-
-
