@@ -132,5 +132,25 @@ class RuntimeCache {
       return false
     }
   }
+  // 检查是否已创建示例项目
+  hasCreatedExampleProject(): boolean {
+    try {
+      const created = localStorage.getItem(cacheKey.runtime.hasCreatedExampleProject)
+      return created === 'true'
+    } catch (error) {
+      logger.error('获取示例项目创建状态失败', { error })
+      return false
+    }
+  }
+  // 设置示例项目已创建标记
+  setExampleProjectCreated(): boolean {
+    try {
+      localStorage.setItem(cacheKey.runtime.hasCreatedExampleProject, 'true')
+      return true
+    } catch (error) {
+      logger.error('设置示例项目创建状态失败', { error })
+      return false
+    }
+  }
 }
 export const runtimeCache = new RuntimeCache()

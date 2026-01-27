@@ -44,7 +44,6 @@ import { useI18n } from 'vue-i18n'
 import type { FormInstance, FormRules } from 'element-plus'
 import { Lock, KeyRound } from 'lucide-vue-next'
 import { request } from '@/api/api'
-import { message } from '@/helper'
 
 const props = defineProps<{
   modelValue: boolean

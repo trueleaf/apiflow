@@ -11,6 +11,7 @@ export const cacheKey = {
     userInfo: 'runtime/userInfo',
     language: 'runtime/language',
     analyticsEnabled: 'runtime/analyticsEnabled',
+    hasCreatedExampleProject: 'runtime/hasCreatedExampleProject',
   },
   appState: {
     aiDialog: {

@@ -233,6 +233,8 @@ import { useRuntime } from '@/store/runtime/runtimeStore'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
 import { appStateCache } from '@/cache/appState/appStateCache';
 import { IPC_EVENTS } from '@src/types/ipc';
+import { createExampleProject } from '@/helper/exampleProject';
+import { runtimeCache } from '@/cache/runtime/runtimeCache';
 
 //变量
 const { t } = useI18n()
@@ -674,9 +676,33 @@ const saveSearchState = () => {
 watch([projectName, showAdvancedSearch, searchMode, searchConditions], () => {
   saveSearchState();
 }, { deep: true });
+// 创建示例项目
+const createExampleProjectIfNeeded = async () => {
+  if (runtimeCache.hasCreatedExampleProject()) {
+    return
+  }
+  if (runtimeStore.networkMode !== 'offline') {
+    return
+  }
+  if (projectManagerStore.projectList.length > 0) {
+    return
+  }
+  try {
+    const projectId = await createExampleProject()
+    runtimeCache.setExampleProjectCreated()
+    await projectManagerStore.getProjectList()
+    const project = projectManagerStore.projectList.find(p => p._id === projectId)
+    if (project) {
+      handleJumpToProject(project)
+    }
+  } catch (error) {
+    console.error('创建示例项目失败:', error)
+  }
+}
 onMounted(() => {
   getProjectList();
   initCahce();
+  createExampleProjectIfNeeded();
 })
 
 </script>
