@@ -123,23 +123,13 @@ test.describe('QuickIcons', () => {
       }
     });
     test('网络模式切换后Tab列表按模式过滤', async ({ topBarPage, contentPage, createProject, clearCache }) => {
-      // 等待页面稳定后再清空缓存
-      await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(500);
-      // 清空缓存确保从干净状态开始
       await clearCache();
-      // 创建一个离线模式的项目
       const networkBtn = topBarPage.locator('[data-testid="header-network-toggle"]');
       const networkText = networkBtn.locator('.icon-text');
-      const onlineTextPattern = /联网模式|Online|Internet/;
       const offlineTextPattern = /离线模式|Offline/;
-      const initialText = await networkText.innerText();
-      const isOnline = onlineTextPattern.test(initialText);
-      // 如果当前是在线模式，先切换到离线模式
-      if (isOnline) {
-        await networkBtn.click();
-        await expect(networkText).toContainText(offlineTextPattern);
-      }
+      const onlineTextPattern = /联网模式|Online|Internet/;
+      // 等待网络模式按钮显示为离线模式
+      await expect(networkText).toContainText(offlineTextPattern, { timeout: 5000 });
       // 在离线模式下创建项目
       const offlineProjectName = await createProject(`离线项目-${Date.now()}`);
       // 验证项目Tab存在
@@ -147,12 +137,18 @@ test.describe('QuickIcons', () => {
       await expect(offlineTab).toBeVisible();
       // 切换到在线模式
       await networkBtn.click();
-      await expect(networkText).toContainText(onlineTextPattern);
+      // 等待页面刷新完成并且模式切换成功
+      await contentPage.waitForLoadState('domcontentloaded');
+      await expect(networkText).toContainText(onlineTextPattern, { timeout: 5000 });
+      await contentPage.waitForTimeout(500);
       // 验证离线项目Tab被隐藏
       await expect(offlineTab).toBeHidden();
       // 切换回离线模式
       await networkBtn.click();
-      await expect(networkText).toContainText(offlineTextPattern);
+      // 等待页面刷新完成并且模式切换成功
+      await contentPage.waitForLoadState('domcontentloaded');
+      await expect(networkText).toContainText(offlineTextPattern, { timeout: 5000 });
+      await contentPage.waitForTimeout(500);
       // 验证离线项目Tab恢复显示
       await expect(offlineTab).toBeVisible();
     });
