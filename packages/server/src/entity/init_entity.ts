@@ -566,6 +566,13 @@ const INITIAL_SERVER_ROUTES = [
     path: '/api/project/export/word',
   },
   {
+    _id: '67bd4893d9884f97a42260aa',
+    groupName: 'api文档-导入导出',
+    method: 'post',
+    name: '导入文档',
+    path: '/api/project/import/moyu',
+  },
+  {
     _id: '5ff166479c0b4737b81ee490',
     groupName: 'api文档-项目相关',
     method: 'put',
