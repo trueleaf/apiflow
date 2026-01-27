@@ -1,5 +1,5 @@
 import { AgentTool } from '@src/types/ai'
-import { ApidocBanner, ApidocType, CommonResponse, ResponseTable } from '@src/types'
+import { ApidocBanner, ApidocType, CommonResponse, ResponseTable, Language } from '@src/types'
 import { useBanner } from '@/store/projectWorkbench/bannerStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { apiNodesCache } from '@/cache/nodes/nodesCache'
@@ -1317,12 +1317,20 @@ export const nodeOperationTools: AgentTool[] = [
       if (foldersToRename.length === 0) {
         return { code: 0, data: { success: true, message: '没有需要重命名的文件夹', renamed: [] } }
       }
+      const targetLanguage = (args._targetLanguage as Language) || 'zh-cn'
+      const languageInstruction = {
+        'zh-cn': '[CRITICAL] You MUST generate all folder names (newName) in Simplified Chinese.',
+        'zh-tw': '[CRITICAL] You MUST generate all folder names (newName) in Traditional Chinese.',
+        'en': '[CRITICAL] You MUST generate all folder names (newName) in English.',
+        'ja': '[CRITICAL] You MUST generate all folder names (newName) in Japanese.',
+      }[targetLanguage]
       const systemPrompt = folderAutoRenameSystemPrompt
       const userMessage = buildFolderAutoRenameUserPrompt(folderData)
       try {
         const response = await llmClientStore.chat({
           messages: [
             { role: 'system', content: systemPrompt },
+            { role: 'system', content: languageInstruction },
             { role: 'user', content: userMessage },
           ],
         })

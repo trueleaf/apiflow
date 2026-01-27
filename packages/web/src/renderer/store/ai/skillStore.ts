@@ -809,37 +809,72 @@ export const useSkill = defineStore('skill', () => {
     }
     return true;
   }
-  //根据名称或URL搜索httpNode节点
-  const batchCreateHttpNodes = async (options: { projectId: string; nodes: CreateHttpNodeOptions[] }): Promise<{ success: HttpNode[]; failed: CreateHttpNodeOptions[] }> => {
-    const success: HttpNode[] = [];
-    const failed: CreateHttpNodeOptions[] = [];
-    for (const nodeOptions of options.nodes) {
-      const fullOptions = { ...nodeOptions, projectId: options.projectId };
-      const result = await createHttpNode(fullOptions);
+  //批量创建httpNode节点，支持事务模式和失败回滚
+  const batchCreateHttpNodes = async (options: {
+    projectId: string
+    nodes: CreateHttpNodeOptions[]
+    mode?: 'all-or-nothing' | 'best-effort'
+    onProgress?: (current: number, total: number, currentNode: CreateHttpNodeOptions) => void
+  }): Promise<{ success: HttpNode[]; failed: CreateHttpNodeOptions[]; rollbacked: boolean }> => {
+    const success: HttpNode[] = []
+    const failed: CreateHttpNodeOptions[] = []
+    const createdIds: string[] = []
+    const mode = options.mode || 'best-effort'
+    const total = options.nodes.length
+    for (let i = 0; i < options.nodes.length; i += 1) {
+      const nodeOptions = options.nodes[i]
+      const fullOptions = { ...nodeOptions, projectId: options.projectId }
+      //触发进度回调
+      if (options.onProgress) {
+        try {
+          options.onProgress(i + 1, total, nodeOptions)
+        } catch (error) {
+          console.error('Progress callback error:', error)
+        }
+      }
+      const result = await createHttpNode(fullOptions)
       if (result) {
-        success.push(result);
+        success.push(result)
+        createdIds.push(result._id)
       } else {
-        failed.push(nodeOptions);
+        failed.push(nodeOptions)
+        //all-or-nothing模式：失败时回滚所有已创建的节点
+        if (mode === 'all-or-nothing') {
+          console.warn(`Batch creation failed at node ${i + 1}/${total}, rolling back ${createdIds.length} created nodes`)
+          for (const nodeId of createdIds) {
+            try {
+              await deleteHttpNodes([nodeId])
+            } catch (rollbackError) {
+              console.error(`Failed to rollback node ${nodeId}:`, rollbackError)
+            }
+          }
+          return { success: [], failed: options.nodes, rollbacked: true }
+        }
       }
     }
-    return { success, failed };
+    return { success, failed, rollbacked: false }
   }
+  //搜索httpNode节点，支持复杂查询、排序、分页
   const searchHttpNodes = async (options: {
-    projectId: string;
-    keyword?: string;
-    name?: string;
-    description?: string;
-    urlPath?: string;
-    urlPrefix?: string;
-    method?: HttpNodeRequestMethod;
-    contentType?: HttpNodeContentType;
-    bodyMode?: HttpNodeBodyMode;
-    creator?: string;
-    maintainer?: string;
-    version?: string;
-    includeDeleted?: boolean;
+    projectId: string
+    keyword?: string
+    name?: string
+    description?: string
+    urlPath?: string
+    urlPrefix?: string
+    method?: HttpNodeRequestMethod
+    contentType?: HttpNodeContentType
+    bodyMode?: HttpNodeBodyMode
+    creator?: string
+    maintainer?: string
+    version?: string
+    includeDeleted?: boolean
+    orderBy?: { field: 'name' | 'method' | 'createTime' | 'updateTime'; direction: 'asc' | 'desc' }
+    pagination?: { page: number; pageSize: number }
+    fields?: string[]
   }): Promise<HttpNode[]> => {
-    const runtimeStore = useRuntime();
+    const runtimeStore = useRuntime()
+    let results: HttpNode[] = []
     if (runtimeStore.networkMode !== 'offline') {
       try {
         const treeRes = await request.get<CommonResponse<ApidocBanner[]>, CommonResponse<ApidocBanner[]>>('/api/project/doc_tree_node', { params: { projectId: options.projectId } });
@@ -900,56 +935,101 @@ export const useSkill = defineStore('skill', () => {
             logger.error('获取节点详情失败', { error, nodeId: candidate._id });
           }
         }
-        return result;
+        results = result
       } catch (error) {
         logger.error('搜索节点失败', { error, projectId: options.projectId });
-        return [];
+        results = []
       }
+    } else {
+      const allNodes = await apiNodesCache.getNodesByProjectId(options.projectId)
+      results = allNodes.filter(node => {
+        if (node.info.type !== 'http') return false
+        const httpNode = node as HttpNode
+        if (!options.includeDeleted && httpNode.isDeleted) return false
+        if (options.keyword) {
+          const kw = options.keyword.toLowerCase()
+          const matchName = httpNode.info.name.toLowerCase().includes(kw)
+          const matchDesc = httpNode.info.description.toLowerCase().includes(kw)
+          const matchPath = httpNode.item.url.path.toLowerCase().includes(kw)
+          if (!matchName && !matchDesc && !matchPath) return false
+        }
+        if (options.name && !httpNode.info.name.toLowerCase().includes(options.name.toLowerCase())) {
+          return false
+        }
+        if (options.description && !httpNode.info.description.toLowerCase().includes(options.description.toLowerCase())) {
+          return false
+        }
+        if (options.urlPath && !httpNode.item.url.path.toLowerCase().includes(options.urlPath.toLowerCase())) {
+          return false
+        }
+        if (options.urlPrefix && !httpNode.item.url.prefix.toLowerCase().includes(options.urlPrefix.toLowerCase())) {
+          return false
+        }
+        if (options.method && httpNode.item.method !== options.method) {
+          return false
+        }
+        if (options.contentType && httpNode.item.contentType !== options.contentType) {
+          return false
+        }
+        if (options.bodyMode && httpNode.item.requestBody.mode !== options.bodyMode) {
+          return false
+        }
+        if (options.creator && !httpNode.info.creator.toLowerCase().includes(options.creator.toLowerCase())) {
+          return false
+        }
+        if (options.maintainer && !httpNode.info.maintainer.toLowerCase().includes(options.maintainer.toLowerCase())) {
+          return false
+        }
+        if (options.version && httpNode.info.version !== options.version) {
+          return false
+        }
+        return true
+      }) as HttpNode[]
     }
-    const allNodes = await apiNodesCache.getNodesByProjectId(options.projectId);
-    return allNodes.filter(node => {
-      if (node.info.type !== 'http') return false;
-      const httpNode = node as HttpNode;
-      if (!options.includeDeleted && httpNode.isDeleted) return false;
-      if (options.keyword) {
-        const kw = options.keyword.toLowerCase();
-        const matchName = httpNode.info.name.toLowerCase().includes(kw);
-        const matchDesc = httpNode.info.description.toLowerCase().includes(kw);
-        const matchPath = httpNode.item.url.path.toLowerCase().includes(kw);
-        if (!matchName && !matchDesc && !matchPath) return false;
-      }
-      if (options.name && !httpNode.info.name.toLowerCase().includes(options.name.toLowerCase())) {
-        return false;
-      }
-      if (options.description && !httpNode.info.description.toLowerCase().includes(options.description.toLowerCase())) {
-        return false;
-      }
-      if (options.urlPath && !httpNode.item.url.path.toLowerCase().includes(options.urlPath.toLowerCase())) {
-        return false;
-      }
-      if (options.urlPrefix && !httpNode.item.url.prefix.toLowerCase().includes(options.urlPrefix.toLowerCase())) {
-        return false;
-      }
-      if (options.method && httpNode.item.method !== options.method) {
-        return false;
-      }
-      if (options.contentType && httpNode.item.contentType !== options.contentType) {
-        return false;
-      }
-      if (options.bodyMode && httpNode.item.requestBody.mode !== options.bodyMode) {
-        return false;
-      }
-      if (options.creator && !httpNode.info.creator.toLowerCase().includes(options.creator.toLowerCase())) {
-        return false;
-      }
-      if (options.maintainer && !httpNode.info.maintainer.toLowerCase().includes(options.maintainer.toLowerCase())) {
-        return false;
-      }
-      if (options.version && httpNode.info.version !== options.version) {
-        return false;
-      }
-      return true;
-    }) as HttpNode[];
+    //排序
+    if (options.orderBy) {
+      const { field, direction } = options.orderBy
+      results.sort((a, b) => {
+        let aValue: string | number = ''
+        let bValue: string | number = ''
+        if (field === 'name') {
+          aValue = a.info.name
+          bValue = b.info.name
+        } else if (field === 'method') {
+          aValue = a.item.method
+          bValue = b.item.method
+        } else if (field === 'createTime') {
+          aValue = (a as { createTime?: number }).createTime || 0
+          bValue = (b as { createTime?: number }).createTime || 0
+        } else if (field === 'updateTime') {
+          aValue = (a as { updateTime?: number }).updateTime || 0
+          bValue = (b as { updateTime?: number }).updateTime || 0
+        }
+        if (aValue < bValue) return direction === 'asc' ? -1 : 1
+        if (aValue > bValue) return direction === 'asc' ? 1 : -1
+        return 0
+      })
+    }
+    //分页
+    if (options.pagination) {
+      const { page, pageSize } = options.pagination
+      const start = (page - 1) * pageSize
+      const end = start + pageSize
+      results = results.slice(start, end)
+    }
+    //字段选择（减少数据传输）
+    if (options.fields && options.fields.length > 0) {
+      results = results.map(node => {
+        const filtered: Partial<HttpNode> = {}
+        for (const field of options.fields!) {
+          if (field in node) {
+            (filtered as Record<string, unknown>)[field] = (node as Record<string, unknown>)[field]
+          }
+        }
+        return filtered as HttpNode
+      })
+    }
+    return results
   }
   //根据节点ID获取HttpNode信息
   const getHttpNodeById = async (nodeId: string): Promise<HttpNode | null> => {

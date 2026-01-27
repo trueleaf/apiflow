@@ -9,9 +9,24 @@ export type {
   ConversationCacheData,
 } from './conversation'
 
+export type {
+  ToolErrorType,
+  ToolErrorResponse,
+  ToolSuccessResponse,
+  ToolResponse,
+} from './toolError'
+
+//工具执行结果（兼容旧格式和新格式）
 export type ToolExecuteResult = {
   code: number;
-  data: unknown;
+  data?: unknown;
+  error?: {
+    type: string;
+    message: string;
+    details?: Record<string, unknown>;
+    retryable?: boolean;
+    suggestions?: string[];
+  };
 }
 
 export type AgentToolType =

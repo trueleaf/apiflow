@@ -1692,6 +1692,13 @@ export default {
   '举报 AI 内容': 'Report AI Content',
   '如果您发现 AI 生成的内容不恰当或令人不适，请通过以下方式向我们举报：': 'If you find AI-generated content inappropriate or offensive, please report it to us via:',
   '举报': 'Report',
+  '联系邮箱': 'Contact Email',
+  '复制邮箱': 'Copy Email',
+  '已复制到剪贴板': 'Copied to clipboard',
+  '复制失败，请手动复制': 'Copy failed, please copy manually',
+  '请在邮件中描述具体的不当内容': 'Please describe the specific inappropriate content in your email',
+  '我们会认真审核每一条举报': 'We will carefully review every report',
+  '您的反馈将帮助我们改进AI服务': 'Your feedback helps us improve our AI service',
   AI返回内容为空: 'AI returned empty content',
   'AI生成接口数据失败,已创建空接口': 'Failed to generate API data. An empty API has been created.',
   AI助手: 'AI Assistant',
@@ -1809,6 +1816,18 @@ export default {
     httpMockExampleDesc: 'HTTP endpoint that returns Mock user data',
     websocketMockExample: 'WebSocket Mock Example',
     websocketMockExampleDesc: 'WebSocket connection that returns Mock messages',
+  },
+  tools: {
+    errors: {
+      validationFailed: 'Parameter validation failed',
+      createFailed: 'Creation failed',
+      updateFailed: 'Update failed',
+      deleteFailed: 'Deletion failed',
+      nodeNotFound: 'Node not found',
+      networkFailed: 'Network request failed',
+      llmParseFailed: 'AI response parsing failed',
+      unexpectedError: 'An unexpected error occurred',
+    },
   },
 }
 

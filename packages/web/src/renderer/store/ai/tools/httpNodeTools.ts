@@ -2,10 +2,46 @@ import { i18n } from '@/i18n'
 import { useSkill } from '../skillStore'
 import { useLLMClientStore } from '../llmClientStore'
 import { AgentTool } from '@src/types/ai'
-import { HttpNodeRequestMethod, ApidocProperty, HttpNodeContentType, HttpNodeBodyMode, HttpNodeBodyRawType, HttpNodeResponseParams } from '@src/types'
+import { HttpNodeRequestMethod, ApidocProperty, HttpNodeContentType, HttpNodeBodyMode, HttpNodeBodyRawType, HttpNodeResponseParams, Language } from '@src/types'
 import { CreateHttpNodeOptions } from '@src/types/ai/tools.type'
 import { nanoid } from 'nanoid'
 import { simpleCreateHttpNodePrompt } from '@/store/ai/prompt/prompt'
+import { createErrorResponse, createSuccessResponse } from '@src/types/ai/toolError'
+import { validateToolArgs, validators, createValidationErrorResponse } from './validators'
+
+//名称生成缓存：基于API特征的哈希作为key
+const nameGenerationCache = new Map<string, { name: string; timestamp: number }>()
+const CACHE_TTL = 1000 * 60 * 30 //缓存30分钟
+//清理过期缓存
+const cleanExpiredCache = () => {
+  const now = Date.now()
+  for (const [key, value] of nameGenerationCache.entries()) {
+    if (now - value.timestamp > CACHE_TTL) {
+      nameGenerationCache.delete(key)
+    }
+  }
+}
+//生成缓存key
+const generateCacheKey = (method: string, urlPath: string, description: string): string => {
+  return `${method}:${urlPath}:${description.slice(0, 50)}`
+}
+//智能截断名称，处理多字节字符（中文、emoji等）
+const truncateName = (name: string, maxLength: number): string => {
+  if (!name || name.length <= maxLength) return name
+  //使用Intl.Segmenter处理多字节字符（支持emoji、中文等）
+  if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+    try {
+      const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+      const graphemes = Array.from(segmenter.segment(name), s => s.segment)
+      if (graphemes.length <= maxLength) return name
+      return graphemes.slice(0, maxLength).join('') + '…'
+    } catch (error) {
+      console.warn('Intl.Segmenter not available, falling back to simple slice')
+    }
+  }
+  //降级方案：简单截断
+  return name.slice(0, maxLength) + (name.length > maxLength ? '…' : '')
+}
 
 type LLMInferredParam = {
   key?: string
@@ -96,10 +132,18 @@ export const httpNodeTools: AgentTool[] = [
       const projectId = args.projectId as string
       const description = args.description as string
       const pid = typeof args.pid === 'string' ? args.pid : ''
+      const targetLanguage = (args._targetLanguage as Language) || 'zh-cn'
+      const languageInstruction = {
+        'zh-cn': '[CRITICAL] You MUST generate all text fields (name, description) in Simplified Chinese.',
+        'zh-tw': '[CRITICAL] You MUST generate all text fields (name, description) in Traditional Chinese.',
+        'en': '[CRITICAL] You MUST generate all text fields (name, description) in English.',
+        'ja': '[CRITICAL] You MUST generate all text fields (name, description) in Japanese.',
+      }[targetLanguage]
       try {
         const response = await llmClientStore.chat({
           messages: [
             { role: 'system', content: simpleCreateHttpNodePrompt },
+            { role: 'system', content: languageInstruction },
             { role: 'user', content: description }
           ],
           response_format: { type: 'json_object' }
@@ -1489,34 +1533,73 @@ export const httpNodeTools: AgentTool[] = [
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
+      const validation = validateToolArgs<{ nodeId: string }>(args, {
+        required: ['nodeId'],
+        validators: {
+          nodeId: validators.isValidNodeId
+        }
+      })
+      if (!validation.valid) {
+        return createValidationErrorResponse(validation.errors)
+      }
       const skillStore = useSkill()
       const llmClientStore = useLLMClientStore()
-      const nodeId = args.nodeId as string
-      const node = await skillStore.getHttpNodeById(nodeId)
-      if (!node) {
-        return { code: 1, data: { error: 'Node does not exist' } }
-      }
-      const apiDetail = {
-        method: node.item.method,
-        url: node.item.url.path,
-        description: node.info.description,
-        queryParams: node.item.queryParams.map(p => ({ key: p.key, description: p.description })),
-        bodyMode: node.item.requestBody.mode,
-        rawJson: node.item.requestBody.rawJson,
-      }
-      const systemPrompt = `You are an API naming expert. Generate concise and accurate API names based on API information.
-Requirements:
-1. Name length should not exceed 10 characters (or equivalent length in the corresponding language)
-2. Start with common verbs such as: Get, Create, Update, Delete, Query, etc. (or equivalent words in the corresponding language)
-3. Only return the name, without any other content
-4. Generate the name in the same language as the user`
-      const userMessage = `Request Method: ${apiDetail.method}
-URL Path: ${apiDetail.url}
-Description: ${apiDetail.description || 'None'}
-Query Parameters: ${JSON.stringify(apiDetail.queryParams)}
-Request Body Mode: ${apiDetail.bodyMode}
-Request Body Content: ${apiDetail.rawJson || 'None'}`
+      const { nodeId } = validation.data
       try {
+        const node = await skillStore.getHttpNodeById(nodeId)
+        if (!node) {
+          return createErrorResponse('NOT_FOUND', 'Node does not exist', {
+            details: { nodeId }
+          })
+        }
+        const apiDetail = {
+          method: node.item.method,
+          url: node.item.url.path,
+          description: node.info.description || '',
+          queryParams: node.item.queryParams.map(p => ({ key: p.key, description: p.description })),
+          bodyMode: node.item.requestBody.mode,
+          rawJson: node.item.requestBody.rawJson,
+        }
+        //生成缓存key
+        const cacheKey = generateCacheKey(apiDetail.method, apiDetail.url, apiDetail.description)
+        cleanExpiredCache()
+        //检查缓存
+        const cached = nameGenerationCache.get(cacheKey)
+        if (cached) {
+          const result = await skillStore.patchHttpNodeInfoById(nodeId, {
+            info: { name: cached.name }
+          })
+          return createSuccessResponse({ name: cached.name, node: result, fromCache: true })
+        }
+        //优化Prompt：明确要求语言一致性，提供示例
+        const targetLanguage = (args._targetLanguage as Language) || 'zh-cn'
+        const languageInstruction = {
+          'zh-cn': '[CRITICAL] You MUST generate the name in Simplified Chinese.',
+          'zh-tw': '[CRITICAL] You MUST generate the name in Traditional Chinese.',
+          'en': '[CRITICAL] You MUST generate the name in English.',
+          'ja': '[CRITICAL] You MUST generate the name in Japanese.',
+        }[targetLanguage]
+        const systemPrompt = `You are an API naming expert. Generate concise and accurate API names based on API information.
+
+${languageInstruction}
+
+CRITICAL RULES:
+1. Maximum 10 characters (or 10 grapheme clusters for multi-byte languages)
+2. Use action verbs: Get, Create, Update, Delete, Query, List, Search, etc.
+3. Return ONLY the name, no explanations, quotes, or extra text
+4. If description is empty, infer from HTTP method + URL path
+
+Examples:
+- GET /users/{id} → "Get User" or "获取用户"
+- POST /orders → "Create Order" or "创建订单"
+- DELETE /products/{id} → "Delete Prod" or "删除产品"
+- GET /search?q=xxx → "Search" or "搜索"`
+        const userMessage = `Method: ${apiDetail.method}
+URL: ${apiDetail.url}
+Description: ${apiDetail.description || 'None'}
+Query: ${JSON.stringify(apiDetail.queryParams)}
+Body Mode: ${apiDetail.bodyMode}
+Body: ${apiDetail.rawJson || 'None'}`
         const response = await llmClientStore.chat({
           messages: [
             { role: 'system', content: systemPrompt },
@@ -1524,21 +1607,25 @@ Request Body Content: ${apiDetail.rawJson || 'None'}`
           ],
         })
         let generatedName = response.choices[0]?.message?.content?.trim() || ''
-        if (generatedName.length > 10) {
-          generatedName = generatedName.slice(0, 10)
+        //移除可能的引号、括号等包裹符号
+        generatedName = generatedName.replace(/^["'`《「【(]|["'`》」】)]$/g, '')
+        //应用智能截断（正确处理多字节字符）
+        generatedName = truncateName(generatedName, 10)
+        if (!generatedName) {
+          return createErrorResponse('LLM_PARSE_ERROR', 'Generated name is empty', {
+            details: { response: response.choices[0]?.message?.content }
+          })
         }
+        //缓存生成结果
+        nameGenerationCache.set(cacheKey, { name: generatedName, timestamp: Date.now() })
         const result = await skillStore.patchHttpNodeInfoById(nodeId, {
           info: { name: generatedName }
         })
-        return {
-          code: result ? 0 : 1,
-          data: { name: generatedName, node: result },
-        }
+        return createSuccessResponse({ name: generatedName, node: result, fromCache: false })
       } catch (error) {
-        return {
-          code: 1,
-          data: { error: error instanceof Error ? error.message : 'Failed to generate name' }
-        }
+        return createErrorResponse('UNKNOWN', error instanceof Error ? error.message : 'Failed to generate name', {
+          details: { error: String(error) }
+        })
       }
     },
   },

@@ -1451,6 +1451,13 @@ export default {
   '举报 AI 内容': '举报 AI 内容',
   '如果您发现 AI 生成的内容不恰当或令人不适，请通过以下方式向我们举报：': '如果您发现 AI 生成的内容不恰当或令人不适，请通过以下方式向我们举报：',
   '举报': '举报',
+  '联系邮箱': '联系邮箱',
+  '复制邮箱': '复制邮箱',
+  '已复制到剪贴板': '已复制到剪贴板',
+  '复制失败，请手动复制': '复制失败，请手动复制',
+  '请在邮件中描述具体的不当内容': '请在邮件中描述具体的不当内容',
+  '我们会认真审核每一条举报': '我们会认真审核每一条举报',
+  '您的反馈将帮助我们改进AI服务': '您的反馈将帮助我们改进AI服务',
   '搜索组件...': '搜索组件...',
   '未找到匹配的组件': '未找到匹配的组件',
   '组件演示': '组件演示',
@@ -1826,6 +1833,18 @@ export default {
     httpMockExampleDesc: '返回Mock用户数据的HTTP接口',
     websocketMockExample: 'WebSocket Mock示例',
     websocketMockExampleDesc: '返回Mock消息的WebSocket连接',
+  },
+  tools: {
+    errors: {
+      validationFailed: '参数验证失败',
+      createFailed: '创建失败',
+      updateFailed: '更新失败',
+      deleteFailed: '删除失败',
+      nodeNotFound: '节点不存在',
+      networkFailed: '网络请求失败',
+      llmParseFailed: 'AI响应解析失败',
+      unexpectedError: '发生意外错误',
+    },
   },
 }
 

@@ -49,30 +49,34 @@
       </button>
     </div>
   </div>
+  <ReportAiDialog v-model="showReportDialog" />
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
 import { Plus, Settings, X, Flag } from 'lucide-vue-next'
 import { useAgentViewStore } from '@/store/ai/agentView'
-import { appStateCache } from '@/cache/appState/appStateCache'
+import ReportAiDialog from '../aiReport/ReportAiDialog.vue'
 
 const { t } = useI18n()
-const router = useRouter()
 const agentViewStore = useAgentViewStore()
 const isAppStore = ref(false)
+const showReportDialog = ref(false)
 const emit = defineEmits<{
   'close': []
 }>()
 const handleReport = () => {
-  agentViewStore.hideAgentViewDialog()
-  appStateCache.setActiveLocalDataMenu('ai-settings')
-  router.push({ name: 'Settings', query: { action: 'ai-settings' } })
+  showReportDialog.value = true
 }
 onMounted(async () => {
-  isAppStore.value = await window.electronAPI?.updateManager.isAppStore() || false
+  
+  try {
+    const result = await window.electronAPI?.updateManager?.isAppStore()
+    isAppStore.value = result || false
+  } catch (error) {
+    isAppStore.value = false
+  }
 })
 </script>
 

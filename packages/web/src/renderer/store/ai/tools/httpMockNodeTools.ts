@@ -1,4 +1,5 @@
 import { AgentTool } from '@src/types/ai'
+import type { Language } from '@src/types'
 import { useHttpMockNode } from '@/store/httpMockNode/httpMockNodeStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache'
@@ -106,10 +107,18 @@ export const httpMockNodeTools: AgentTool[] = [
       const projectId = args.projectId as string
       const description = args.description as string
       const pid = typeof args.pid === 'string' ? args.pid : ''
+      const targetLanguage = (args._targetLanguage as Language) || 'zh-cn'
+      const languageInstruction = {
+        'zh-cn': '[CRITICAL] You MUST generate all text fields (name) in Simplified Chinese.',
+        'zh-tw': '[CRITICAL] You MUST generate all text fields (name) in Traditional Chinese.',
+        'en': '[CRITICAL] You MUST generate all text fields (name) in English.',
+        'ja': '[CRITICAL] You MUST generate all text fields (name) in Japanese.',
+      }[targetLanguage]
       try {
         const response = await llmClientStore.chat({
           messages: [
             { role: 'system', content: simpleCreateHttpMockNodePrompt },
+            { role: 'system', content: languageInstruction },
             { role: 'user', content: description }
           ],
           response_format: { type: 'json_object' }

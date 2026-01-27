@@ -5,6 +5,7 @@ import { UPDATE_IPC_EVENTS } from '@src/types/ipc/update'
 import type { UpdateSettings, DownloadState, DownloadProgress } from '@src/types/update'
 import { safeContentViewInstanceSend } from '../utils/safeIpcSend'
 import { DownloadManager } from './downloadManager'
+import { isAppStore } from '../utils/index'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as yaml from 'js-yaml'
@@ -22,8 +23,14 @@ class UpdateManager {
   constructor() {
     this.downloadManager = new DownloadManager()
     this.setupDownloadCallbacks()
+    this.registerCriticalIPCHandlers()
   }
-
+  // 注册关键的IPC处理器（无论是否初始化都需要）
+  private registerCriticalIPCHandlers() {
+    ipcMain.handle(UPDATE_IPC_EVENTS.isAppStore, async () => {
+      return isAppStore()
+    })
+  }
   // 设置下载管理器回调
   private setupDownloadCallbacks() {
     this.downloadManager.setProgressCallback((progress: DownloadProgress) => {
@@ -327,11 +334,6 @@ class UpdateManager {
           data: null,
         }
       }
-    })
-
-    // 检测是否为应用商店版本
-    ipcMain.handle(UPDATE_IPC_EVENTS.isAppStore, async () => {
-      return Boolean(process.windowsStore || process.mas)
     })
   }
 

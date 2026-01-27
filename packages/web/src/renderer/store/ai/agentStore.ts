@@ -151,8 +151,8 @@ export const useAgentStore = defineStore('agent', () => {
       return { tools: openaiTools, totalTokens: 0, toolNames: [], fallbackReason: err instanceof Error ? err.message : String(err) };
     }
   };
-  const createThinkingMessage = (content: string): ConversationMessage => {
-    return { id: nanoid(), kind: 'thinking', content, createdAt: Date.now() };
+  const createThinkingMessage = (content: string, language?: Language): ConversationMessage => {
+    return { id: nanoid(), kind: 'thinking', content, createdAt: Date.now(), language };
   };
   const executeToolCall = async (params: { toolCall: OpenAiToolCall; toolIndex: number; thinkingId: string; llmOutput?: string; tokenUsage?: ConversationToolCallTokenUsage; signal?: AbortSignal; targetLocale: Language; messages: LLMessage[] }): Promise<void> => {
     const { toolCall, toolIndex, thinkingId, llmOutput, tokenUsage, signal, targetLocale, messages } = params;
@@ -177,6 +177,7 @@ export const useAgentStore = defineStore('agent', () => {
         toolCall: { toolName, arguments: {}, error: parseError },
         tokenUsage,
         llmOutput,
+        language: targetLocale,
       });
       messages.push({ role: 'tool', content: parseError, tool_call_id: toolCall.id });
       return;
@@ -190,6 +191,7 @@ export const useAgentStore = defineStore('agent', () => {
       toolCall: { toolName, arguments: args },
       tokenUsage,
       llmOutput,
+      language: targetLocale,
     };
     if (toolIndex === 0) {
       agentViewStore.replaceMessage('agent', thinkingId, toolMessage);
@@ -204,7 +206,7 @@ export const useAgentStore = defineStore('agent', () => {
       return;
     }
     try {
-      const result = await tool.execute(args);
+      const result = await tool.execute({ ...args, _targetLanguage: targetLocale });
       checkAborted(signal);
       const resultText = result.code === 0
         ? `${translateWithLocale('执行成功', targetLocale)}：${JSON.stringify(result.data)}`
@@ -234,7 +236,7 @@ export const useAgentStore = defineStore('agent', () => {
     for (let iteration = 0; iteration < config.renderConfig.agentConfig.maxIterations; iteration += 1) {
       checkAborted(signal);
       const thinkingId = nanoid();
-      agentViewStore.addMessage('agent', { id: thinkingId, kind: 'thinking', content: translateWithLocale('正在分析问题...', targetLocale), createdAt: Date.now() });
+      agentViewStore.addMessage('agent', { id: thinkingId, kind: 'thinking', content: translateWithLocale('正在分析问题...', targetLocale), createdAt: Date.now(), language: targetLocale });
       const streamResult = await new Promise<{ content: string; toolCalls: OpenAiToolCall[]; finishReason: OpenAiResponseBody['choices'][number]['finish_reason'] | null }>((resolve, reject) => {
         const decoder = new TextDecoder('utf-8');
         let streamBuffer = '';
@@ -343,7 +345,15 @@ export const useAgentStore = defineStore('agent', () => {
       const finishReason = streamResult.finishReason;
       if (finishReason !== 'tool_calls' || streamResult.toolCalls.length === 0) {
         const finalContent = messageContent || translateWithLocale('任务已完成', targetLocale);
-        agentViewStore.replaceMessage('agent', thinkingId, { id: thinkingId, kind: 'response', content: finalContent, createdAt: Date.now() });
+        // 验证回复语言是否与用户输入匹配
+        if (finalContent.length > 10) {
+          const currentInterfaceLocale = i18n.global.locale.value as Language;
+          const replyLanguage = detectInputLanguage(finalContent, currentInterfaceLocale);
+          if (replyLanguage !== targetLocale) {
+            console.warn(`[Agent] 语言不匹配警告: 期望 ${targetLocale}, 实际检测到 ${replyLanguage}`);
+          }
+        }
+        agentViewStore.replaceMessage('agent', thinkingId, { id: thinkingId, kind: 'response', content: finalContent, createdAt: Date.now(), language: targetLocale });
         const needFallback = !hasToolCalls && finalContent.length < 10;
         return { content: finalContent, needFallback, hasToolCalls };
       }
@@ -364,7 +374,7 @@ export const useAgentStore = defineStore('agent', () => {
       }
     }
     const timeoutText = translateWithLocale('已达到最大迭代次数，Agent 停止执行。', targetLocale);
-    agentViewStore.addMessage('agent', { id: nanoid(), kind: 'response', content: timeoutText, createdAt: Date.now() });
+    agentViewStore.addMessage('agent', { id: nanoid(), kind: 'response', content: timeoutText, createdAt: Date.now(), language: targetLocale });
     return { content: timeoutText, needFallback: false, hasToolCalls: true };
   };
   const stopAgent = () => {
@@ -401,7 +411,7 @@ JSON: ${JSON.stringify({ project: context.project, activeTab: context.activeTab,
       ...historyMessages,
       { role: 'user', content: prompt },
     ];
-    const toolSelectionThinking = createThinkingMessage(translateWithLocale('正在分析需求并选择工具...', detectedLocale));
+    const toolSelectionThinking = createThinkingMessage(translateWithLocale('正在分析需求并选择工具...', detectedLocale), detectedLocale);
     agentViewStore.addMessage('agent', toolSelectionThinking);
     try {
       const toolSelection = await selectToolsByLLM({ prompt, contextText, historyMessages, signal, targetLocale: detectedLocale });
@@ -419,6 +429,7 @@ JSON: ${JSON.stringify({ project: context.project, activeTab: context.activeTab,
           iteration: 1,
           status: 'completed',
         },
+        language: detectedLocale,
       });
       const result = await executeAgentLoop({ messages, tools: toolSelection.tools, signal, targetLocale: detectedLocale });
       agentAbortController = null;
@@ -430,7 +441,7 @@ JSON: ${JSON.stringify({ project: context.project, activeTab: context.activeTab,
         return { code: -2, msg: '', data: '' };
       }
       const errorMessage = err instanceof Error ? err.message : String(err);
-      agentViewStore.addMessage('agent', { id: nanoid(), kind: 'error', content: `${translateWithLocale('Agent 执行失败', detectedLocale)}：${errorMessage}`, createdAt: Date.now() });
+      agentViewStore.addMessage('agent', { id: nanoid(), kind: 'error', content: `${translateWithLocale('Agent 执行失败', detectedLocale)}：${errorMessage}`, createdAt: Date.now(), language: detectedLocale });
       return { code: -1, msg: errorMessage, data: '' };
     }
   };

@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { nanoid } from 'nanoid/non-secure';
-import { i18n } from '@/i18n';
+import { i18n, detectInputLanguage } from '@/i18n';
 import { appStateCache } from '@/cache/appState/appStateCache';
 import { useLLMClientStore } from '@/store/ai/llmClientStore';
 import { clearConversationCache, getConversationCache, setConversationCache } from '@/cache/ai/agentViewCache';
 import type { ChatRequestBody, LLMessage, OpenAiStreamChunk } from '@src/types/ai/agent.type';
 import type { ConversationMessage, ConversationMode } from '@src/types/ai';
+import type { Language } from '@src/types';
 
 export const useAgentViewStore = defineStore('agentView', () => {
   const llmClientStore = useLLMClientStore();
@@ -21,6 +22,7 @@ export const useAgentViewStore = defineStore('agentView', () => {
   const loadingMessageId = ref<string | null>(null);
   const isFirstChunk = ref(false);
   const lastAskPrompt = ref('');
+  const currentMessageLanguage = ref<Language | null>(null);
   let askStreamBuffer = '';
   const cancelCurrentStream = ref<(() => Promise<void>) | null>(null);
   const agentMessages = ref<ConversationMessage[]>([]);
@@ -130,20 +132,20 @@ export const useAgentViewStore = defineStore('agentView', () => {
     clearConversationCache();
   };
   // 生成问题消息
-  const createQuestionMessage = (content: string): ConversationMessage => {
-    return { id: nanoid(), kind: 'question', content, createdAt: Date.now() };
+  const createQuestionMessage = (content: string, language?: Language): ConversationMessage => {
+    return { id: nanoid(), kind: 'question', content, createdAt: Date.now(), language };
   };
   // 生成加载消息
   const createLoadingMessage = (): ConversationMessage => {
     return { id: nanoid(), kind: 'loading', content: '', createdAt: Date.now() };
   };
   // 生成响应消息
-  const createResponseMessage = (content: string): ConversationMessage => {
-    return { id: nanoid(), kind: 'response', content, createdAt: Date.now() };
+  const createResponseMessage = (content: string, language?: Language): ConversationMessage => {
+    return { id: nanoid(), kind: 'response', content, createdAt: Date.now(), language };
   };
   // 生成错误消息
-  const createErrorMessage = (content: string): ConversationMessage => {
-    return { id: nanoid(), kind: 'error', content, createdAt: Date.now() };
+  const createErrorMessage = (content: string, language?: Language): ConversationMessage => {
+    return { id: nanoid(), kind: 'error', content, createdAt: Date.now(), language };
   };
   // 构建 Ask 请求体
   const buildAskRequestBody = (userMessage: string): ChatRequestBody => {
@@ -249,7 +251,13 @@ export const useAgentViewStore = defineStore('agentView', () => {
         if (isFirstChunk.value && loadingMessageId.value) {
           deleteMessage('ask', loadingMessageId.value);
           const responseId = nanoid();
-          const response: ConversationMessage = { id: responseId, kind: 'response', content, createdAt: Date.now() };
+          const response: ConversationMessage = { 
+            id: responseId, 
+            kind: 'response', 
+            content, 
+            createdAt: Date.now(),
+            language: currentMessageLanguage.value || undefined
+          };
           addMessage('ask', response);
           streamingMessageId.value = responseId;
           loadingMessageId.value = null;
@@ -308,7 +316,10 @@ export const useAgentViewStore = defineStore('agentView', () => {
     const message = inputMessage.value;
     inputMessage.value = '';
     lastAskPrompt.value = message;
-    const question = createQuestionMessage(message);
+    const currentInterfaceLocale = i18n.global.locale.value as Language;
+    const detectedLanguage = detectInputLanguage(message, currentInterfaceLocale);
+    currentMessageLanguage.value = detectedLanguage;
+    const question = createQuestionMessage(message, detectedLanguage);
     const loading = createLoadingMessage();
     const requestId = nanoid();
     addMessage('ask', question);

@@ -1,6 +1,7 @@
 import { useSkill } from '../skillStore'
 import { useLLMClientStore } from '../llmClientStore'
 import { AgentTool } from '@src/types/ai'
+import type { Language } from '@src/types'
 import { simpleCreateProjectPrompt } from '@/store/ai/prompt/prompt'
 
 export const projectTools: AgentTool[] = [
@@ -23,10 +24,18 @@ export const projectTools: AgentTool[] = [
       const skillStore = useSkill()
       const llmClientStore = useLLMClientStore()
       const description = args.description as string
+      const targetLanguage = (args._targetLanguage as Language) || 'zh-cn'
+      const languageInstruction = {
+        'zh-cn': '[CRITICAL] You MUST generate the projectName in Simplified Chinese.',
+        'zh-tw': '[CRITICAL] You MUST generate the projectName in Traditional Chinese.',
+        'en': '[CRITICAL] You MUST generate the projectName in English.',
+        'ja': '[CRITICAL] You MUST generate the projectName in Japanese.',
+      }[targetLanguage]
       try {
         const response = await llmClientStore.chat({
           messages: [
             { role: 'system', content: simpleCreateProjectPrompt },
+            { role: 'system', content: languageInstruction },
             { role: 'user', content: description }
           ],
           response_format: { type: 'json_object' }

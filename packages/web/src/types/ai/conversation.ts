@@ -1,3 +1,5 @@
+import type { Language } from '@src/types'
+
 export type ConversationMode = 'agent' | 'ask'
 
 export type ConversationMessageKind =
@@ -32,13 +34,13 @@ export type ConversationToolGroup = {
 }
 
 export type ConversationMessage =
-  | { id: string; kind: 'question'; content: string; createdAt: number }
-  | { id: string; kind: 'response'; content: string; createdAt: number }
-  | { id: string; kind: 'thinking'; content: string; createdAt: number }
+  | { id: string; kind: 'question'; content: string; createdAt: number; language?: Language }
+  | { id: string; kind: 'response'; content: string; createdAt: number; language?: Language }
+  | { id: string; kind: 'thinking'; content: string; createdAt: number; language?: Language }
   | { id: string; kind: 'loading'; content: string; createdAt: number }
-  | { id: string; kind: 'error'; content: string; createdAt: number }
-  | { id: string; kind: 'info'; content: string; createdAt: number }
-  | { id: string; kind: 'tool-group'; content: string; createdAt: number; toolGroup: ConversationToolGroup }
+  | { id: string; kind: 'error'; content: string; createdAt: number; language?: Language }
+  | { id: string; kind: 'info'; content: string; createdAt: number; language?: Language }
+  | { id: string; kind: 'tool-group'; content: string; createdAt: number; toolGroup: ConversationToolGroup; language?: Language }
   | {
     id: string;
     kind: 'tool-call';
@@ -48,6 +50,7 @@ export type ConversationMessage =
     toolCall: ConversationToolCall;
     tokenUsage?: ConversationToolCallTokenUsage;
     llmOutput?: string;
+    language?: Language;
   }
 
 export type ConversationCacheData = {

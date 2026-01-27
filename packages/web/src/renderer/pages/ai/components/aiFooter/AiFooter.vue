@@ -84,6 +84,8 @@ import { Send, ChevronDown, Check, StopCircle, Plus, FolderKanban } from 'lucide
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import { useAgentViewStore } from '@/store/ai/agentView'
 import { useAgentStore } from '@/store/ai/agentStore'
+import { detectInputLanguage } from '@/i18n'
+import type { Language } from '@src/types'
 
 const isMacOS = navigator.platform.toUpperCase().includes('MAC')
 const modeOptions = ['agent', 'ask'] as const
@@ -93,6 +95,7 @@ const modeLabelMap: Record<AiMode, string> = {
   ask: 'Ask'
 }
 const { t } = useI18n()
+const { locale } = useI18n()
 const route = useRoute()
 const projectWorkbench = useProjectWorkbench()
 const agentViewStore = useAgentViewStore()
@@ -154,7 +157,8 @@ const handleSend = async () => {
       return
     }
     agentViewStore.inputMessage = ''
-    agentViewStore.addMessage('agent', agentViewStore.createQuestionMessage(message))
+    const detectedLanguage = detectInputLanguage(message, locale.value as Language)
+    agentViewStore.addMessage('agent', agentViewStore.createQuestionMessage(message, detectedLanguage))
     agentViewStore.setWorkingStatus('working')
     await agentStore.runAgent({ prompt: message })
     agentViewStore.setWorkingStatus('finish')
