@@ -317,15 +317,12 @@
                 <p class="features-title">{{ t('下载Electron客户端可获得完整功能，包括：') }}</p>
                 <ul class="features-list">
                   <li>
-                    <CheckCircle :size="16" class="feature-icon" />
-                    <span>{{ t('无CORS限制，支持所有HTTP请求') }}</span>
+            <span>{{ t('无CORS限制，支持所有HTTP请求') }}</span>
                   </li>
                   <li>
-                    <CheckCircle :size="16" class="feature-icon" />
                     <span>{{ t('支持Mock服务器和WebSocket连接') }}</span>
                   </li>
                   <li>
-                    <CheckCircle :size="16" class="feature-icon" />
                     <span>{{ t('更好的性能和离线使用体验') }}</span>
                   </li>
                 </ul>
@@ -362,7 +359,6 @@ import { ElDialog } from 'element-plus';
 import beautify, { html as htmlBeautify, css as cssBeautify } from 'js-beautify';
 import worker from '@/worker/prettier.worker.ts?worker&inline';
 import { Download, Loading } from '@element-plus/icons-vue';
-import { CheckCircle } from 'lucide-vue-next';
 
 const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
