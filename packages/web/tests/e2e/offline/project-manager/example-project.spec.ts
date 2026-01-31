@@ -95,14 +95,18 @@ test.describe('ExampleProject', () => {
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await contentPage.waitForTimeout(1000);
     // 删除示例项目
-    const firstProjectCard = contentPage.locator('[data-testid="home-project-card-0"]').first();
-    const deleteBtn = firstProjectCard.locator('[data-testid="home-project-delete-btn"]');
+    const exampleProjectCard = contentPage.locator('[data-testid^="home-project-card-"]').filter({ hasText: /示例项目|Example Project/ }).first();
+    await expect(exampleProjectCard).toBeVisible({ timeout: 5000 });
+    const deleteBtn = exampleProjectCard.locator('[data-testid="home-project-delete-btn"]');
     await deleteBtn.click();
     await contentPage.waitForTimeout(300);
     // 确认删除
-    const confirmDialog = contentPage.locator('.cl-confirm-dialog');
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
+    await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     const confirmBtn = confirmDialog.locator('.el-button--primary');
     await confirmBtn.click();
+    await expect(confirmDialog).toBeHidden({ timeout: 5000 });
+    await expect(exampleProjectCard).toBeHidden({ timeout: 10000 });
     await contentPage.waitForTimeout(1000);
     // 重新加载应用
     await reload();
@@ -110,6 +114,8 @@ test.describe('ExampleProject', () => {
     // 验证没有自动创建新的示例项目（停留在首页）
     const url = contentPage.url();
     expect(url).toContain('home');
+    const exampleProjectTabAfterReload = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: /示例项目|Example Project/ });
+    await expect(exampleProjectTabAfterReload).toHaveCount(0);
   });
 
   test('在线模式下不创建示例项目', async ({ contentPage, topBarPage, clearCache }) => {
@@ -126,14 +132,20 @@ test.describe('ExampleProject', () => {
     // 验证没有示例项目Tab
     const exampleProjectTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: /示例项目|Example Project/ });
     await expect(exampleProjectTab).toHaveCount(0);
+    // 切回离线模式，避免影响后续用例
+    await networkBtn.click();
+    await contentPage.waitForLoadState('domcontentloaded');
+    await contentPage.waitForTimeout(1000);
+    await expect(networkText).toContainText(/离线模式|Offline/, { timeout: 5000 });
   });
 
   test('点击示例HTTP接口可以正常打开并展示接口信息', async ({ contentPage, clearCache }) => {
     await clearCache({ skipExampleProject: false });
     await contentPage.waitForTimeout(2000);
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 20000 });
     await contentPage.waitForTimeout(1000);
     const bannerTree = contentPage.getByTestId('banner-doc-tree');
+    await expect(bannerTree).toBeVisible({ timeout: 10000 });
     // 展开真实API示例文件夹
     const realApiFolder = bannerTree.locator('.el-tree-node__content').filter({ hasText: /真实API示例|Real API Examples/ }).first();
     const expandIcon = realApiFolder.locator('.el-tree-node__expand-icon');
@@ -144,7 +156,7 @@ test.describe('ExampleProject', () => {
     await getUserList.click();
     await contentPage.waitForTimeout(500);
     // 验证URL输入框包含正确的接口地址
-    const urlInput = contentPage.locator('.url-input input');
-    await expect(urlInput).toHaveValue(/jsonplaceholder\.typicode\.com\/users/);
+    const urlInput = contentPage.getByTestId('url-input').locator('[contenteditable]').first();
+    await expect(urlInput).toContainText(/jsonplaceholder\.typicode\.com\/users/, { timeout: 10000 });
   });
 });

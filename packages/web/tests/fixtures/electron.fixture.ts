@@ -90,13 +90,35 @@ export const test = base.extend<ElectronFixtures>({
   clearCache: async ({ contentPage, topBarPage }, use) => {
     const clear = async (options?: { skipExampleProject?: boolean }) => {
       const skipExampleProject = options?.skipExampleProject ?? true;
-      // 清除所有存储
-      await contentPage.evaluate((params) => {
+      // 先清除 localStorage 和 sessionStorage，暂时设置 hasCreatedExampleProject 为 true 防止 reload 后自动创建示例项目
+      await contentPage.evaluate(() => {
         localStorage.clear();
         sessionStorage.clear();
-        if (params.skipExampleProject) {
-          localStorage.setItem('runtime/hasCreatedExampleProject', 'true');
-        }
+        localStorage.setItem('runtime/hasCreatedExampleProject', 'true');
+      });
+      await topBarPage.evaluate(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+      });
+      // 清空 tabs 并跳转到首页
+      await contentPage.evaluate(() => {
+        (window as unknown as { electronAPI?: { ipcManager?: { sendToMain: (channel: string, payload: { tabs: unknown[]; activeTabId: string; language: string; networkMode: string }) => void } } }).electronAPI?.ipcManager?.sendToMain('apiflow:content:to:topbar:init-tabs', {
+          tabs: [],
+          activeTabId: '',
+          language: 'zh-cn',
+          networkMode: 'offline'
+        });
+      });
+      await expect(topBarPage.locator('[data-test-id^="header-tab-item-"]')).toHaveCount(0);
+      const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+      await homeBtn.click();
+      await contentPage.waitForTimeout(300);
+      // 先 reload 页面以关闭所有数据库连接
+      await contentPage.reload();
+      await contentPage.waitForLoadState('domcontentloaded');
+      await contentPage.waitForTimeout(500);
+      // 删除所有 IndexedDB 数据库并等待完成
+      await contentPage.evaluate(async () => {
         const dbNames = [
           'httpNodeResponseCache',
           'websocketNodeResponseCache',
@@ -111,28 +133,23 @@ export const test = base.extend<ElectronFixtures>({
           'commonHeadersCache',
           'variablesCache',
         ];
-        dbNames.forEach((dbName) => {
-          indexedDB.deleteDatabase(dbName);
-        });
+        // 等待所有数据库删除完成
+        await Promise.all(dbNames.map((dbName) => {
+          return new Promise<void>((resolve) => {
+            const request = indexedDB.deleteDatabase(dbName);
+            request.onsuccess = () => resolve();
+            request.onerror = () => resolve();
+            request.onblocked = () => resolve();
+          });
+        }));
+      });
+      // 根据选项设置是否跳过示例项目创建
+      await contentPage.evaluate((params) => {
+        if (!params.skipExampleProject) {
+          localStorage.removeItem('runtime/hasCreatedExampleProject');
+        }
       }, { skipExampleProject });
-      await topBarPage.evaluate(() => {
-        localStorage.clear();
-        sessionStorage.clear();
-      });
-      await contentPage.evaluate(() => {
-        (window as unknown as { electronAPI?: { ipcManager?: { sendToMain: (channel: string, payload: { tabs: unknown[]; activeTabId: string; language: string; networkMode: string }) => void } } }).electronAPI?.ipcManager?.sendToMain('apiflow:content:to:topbar:init-tabs', {
-          tabs: [],
-          activeTabId: '',
-          language: 'zh-cn',
-          networkMode: 'offline'
-        });
-      });
-      await expect(topBarPage.locator('[data-test-id^="header-tab-item-"]')).toHaveCount(0);
-      // 点击首页按钮
-      const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
-      await homeBtn.click();
-      await contentPage.waitForTimeout(300);
-      // 刷新页面以应用缓存清除
+      // 再次 reload 以应用缓存清除
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
       await contentPage.waitForTimeout(500);

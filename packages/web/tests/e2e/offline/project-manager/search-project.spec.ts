@@ -825,13 +825,13 @@ test.describe('SearchProject', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
     // 创建HTTP节点
-    await createNode(contentPage, { nodeType: 'http', name: 'HTTP搜索节点' });
+    const httpNodeId = await createNode(contentPage, { nodeType: 'http', name: 'HTTP搜索节点' });
     await contentPage.waitForTimeout(300);
     // 创建WebSocket节点
-    await createNode(contentPage, { nodeType: 'websocket', name: 'WebSocket搜索节点' });
+    const wsNodeId = await createNode(contentPage, { nodeType: 'websocket', name: 'WebSocket搜索节点' });
     await contentPage.waitForTimeout(300);
     // 创建HTTP Mock节点
-    await createNode(contentPage, { nodeType: 'httpMock', name: 'Mock搜索节点' });
+    const mockNodeId = await createNode(contentPage, { nodeType: 'httpMock', name: 'Mock搜索节点' });
     await contentPage.waitForTimeout(300);
     // 返回首页
     const logo = topBarPage.locator('[data-test-id="header-logo"]');
@@ -851,12 +851,13 @@ test.describe('SearchProject', () => {
     await httpResultItem.click();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    // 验证URL包含nodeId参数
+    // 验证跳转到对应节点
     const url1 = contentPage.url();
-    expect(url1).toContain('nodeId=');
-    // 验证节点被选中(文档树中节点高亮)
-    const selectedHttpNode = contentPage.locator('.el-tree-node.is-current .custom-tree-node').filter({ hasText: /HTTP搜索节点/ });
-    await expect(selectedHttpNode).toBeVisible({ timeout: 5000 });
+    const nodeId1Match = /[?&]nodeId=([^&]+)/.exec(url1);
+    const nodeId1 = decodeURIComponent(nodeId1Match?.[1] || '');
+    expect(nodeId1).toBe(httpNodeId);
+    const activeNavTab1 = contentPage.locator('[data-testid^="project-nav-tab-"].active').first();
+    await expect(activeNavTab1).toContainText(/HTTP搜索节点/, { timeout: 10000 });
     // 返回首页搜索WebSocket节点
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
@@ -868,12 +869,13 @@ test.describe('SearchProject', () => {
     await wsResultItem.click();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    // 验证URL包含nodeId参数
+    // 验证跳转到对应节点
     const url2 = contentPage.url();
-    expect(url2).toContain('nodeId=');
-    // 验证WebSocket节点被选中
-    const selectedWsNode = contentPage.locator('.el-tree-node.is-current .custom-tree-node').filter({ hasText: /WebSocket搜索节点/ });
-    await expect(selectedWsNode).toBeVisible({ timeout: 5000 });
+    const nodeId2Match = /[?&]nodeId=([^&]+)/.exec(url2);
+    const nodeId2 = decodeURIComponent(nodeId2Match?.[1] || '');
+    expect(nodeId2).toBe(wsNodeId);
+    const activeNavTab2 = contentPage.locator('[data-testid^="project-nav-tab-"].active').first();
+    await expect(activeNavTab2).toContainText(/WebSocket搜索节点/, { timeout: 10000 });
     // 验证tab始终只有一个项目tab(没有重复创建)
     const projectTabs = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectName });
     await expect(projectTabs).toHaveCount(1);
@@ -891,11 +893,12 @@ test.describe('SearchProject', () => {
     await mockResultItem.click();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    // 验证URL包含nodeId参数
+    // 验证跳转到对应节点
     const url3 = contentPage.url();
-    expect(url3).toContain('nodeId=');
-    // 验证Mock节点被选中
-    const selectedMockNode = contentPage.locator('.el-tree-node.is-current .custom-tree-node').filter({ hasText: /Mock搜索节点/ });
-    await expect(selectedMockNode).toBeVisible({ timeout: 5000 });
+    const nodeId3Match = /[?&]nodeId=([^&]+)/.exec(url3);
+    const nodeId3 = decodeURIComponent(nodeId3Match?.[1] || '');
+    expect(nodeId3).toBe(mockNodeId);
+    const activeNavTab3 = contentPage.locator('[data-testid^="project-nav-tab-"].active').first();
+    await expect(activeNavTab3).toContainText(/Mock搜索节点/, { timeout: 10000 });
   });
 });
