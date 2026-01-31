@@ -193,26 +193,84 @@ if docker compose "${COMPOSE_ARGS[@]}" up -d --force-recreate; then
     print_success "服务已启动"
 else
     print_error "服务启动失败"
-    print_error "正在尝试回滚..."
-    docker compose "${COMPOSE_ARGS[@]}" down
+    print_error "正在停止服务并退出..."
+    docker compose "${COMPOSE_ARGS[@]}" down || true
     exit 1
 fi
 echo ""
 
-print_step "⏳ 等待服务就绪..."
-sleep 5
+TIMEOUT_SECONDS=60
+HEALTH_URL=${HEALTH_URL:-http://localhost/api/health}
+START_TS=$(date +%s)
+DEADLINE_TS=$((START_TS + TIMEOUT_SECONDS))
 
-for i in {1..12}; do
-    if docker compose "${COMPOSE_ARGS[@]}" ps | grep -q "Up"; then
+cleanup_and_exit() {
+    print_error "$1"
+    docker compose "${COMPOSE_ARGS[@]}" ps || true
+    docker compose "${COMPOSE_ARGS[@]}" logs --tail=80 || true
+    docker compose "${COMPOSE_ARGS[@]}" down || true
+    exit 1
+}
+
+SERVICES=$(docker compose "${COMPOSE_ARGS[@]}" config --services 2>/dev/null || true)
+if [ -z "$SERVICES" ]; then
+    cleanup_and_exit "未能获取 compose 服务列表，无法校验启动状态"
+fi
+
+print_step "⏳ 等待服务就绪（${TIMEOUT_SECONDS}s 超时）..."
+while true; do
+    all_ready=true
+    for service in $SERVICES; do
+        container_id=$(docker compose "${COMPOSE_ARGS[@]}" ps -q "$service" 2>/dev/null | head -n 1 || true)
+        if [ -z "$container_id" ]; then
+            all_ready=false
+            continue
+        fi
+
+        status=$(docker inspect -f '{{.State.Status}}' "$container_id" 2>/dev/null || true)
+        if [ "$status" != "running" ]; then
+            cleanup_and_exit "服务 ${service} 状态异常：${status:-unknown}"
+        fi
+
+        health=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{end}}' "$container_id" 2>/dev/null || true)
+        if [ -n "$health" ] && [ "$health" != "healthy" ]; then
+            all_ready=false
+        fi
+    done
+
+    if [ "$all_ready" = true ]; then
         print_success "服务已就绪"
         break
     fi
-    if [ $i -eq 12 ]; then
-        print_error "服务启动超时"
-        exit 1
+
+    now_ts=$(date +%s)
+    if [ "$now_ts" -ge "$DEADLINE_TS" ]; then
+        cleanup_and_exit "服务启动超时"
     fi
-    echo -n "."
-    sleep 5
+    sleep 2
+done
+echo ""
+
+print_step "🏥 检查 /api/health（${TIMEOUT_SECONDS}s 内必须成功）..."
+while true; do
+    now_ts=$(date +%s)
+    if [ "$now_ts" -ge "$DEADLINE_TS" ]; then
+        cleanup_and_exit "/api/health 检查失败或超时：$HEALTH_URL"
+    fi
+
+    if command -v curl >/dev/null 2>&1; then
+        health_body=$(curl -fsS --max-time 3 "$HEALTH_URL" 2>/dev/null || true)
+    elif command -v wget >/dev/null 2>&1; then
+        health_body=$(wget -qO- "$HEALTH_URL" 2>/dev/null || true)
+    else
+        cleanup_and_exit "缺少 curl/wget，无法检查 /api/health：$HEALTH_URL"
+    fi
+
+    if echo "$health_body" | grep -Eq '"status"[[:space:]]*:[[:space:]]*"ok"'; then
+        print_success "/api/health 正常"
+        break
+    fi
+    sleep 2
 done
 echo ""
 
