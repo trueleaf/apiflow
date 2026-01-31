@@ -64,20 +64,22 @@
         </button>
       </div>
     </div>
-    <!-- 语言选择菜单 -->
-    <LanguageMenu
-      :visible="languageMenuVisible"
-      :position="languageMenuPosition"
-      :current-language="language"
-      @language-select="handleLanguageSelect"
-      @close="hideLanguageMenu"
-    />
-    <UserMenu
-      :visible="userMenuVisible"
-      :position="userMenuPosition"
-      @logout="handleLogout"
-      @close="hideUserMenu"
-    />
+    <teleport to="body">
+      <!-- 语言选择菜单 -->
+      <LanguageMenu
+        :visible="languageMenuVisible"
+        :position="languageMenuPosition"
+        :current-language="language"
+        @language-select="handleLanguageSelect"
+        @close="hideLanguageMenu"
+      />
+      <UserMenu
+        :visible="userMenuVisible"
+        :position="userMenuPosition"
+        @logout="handleLogout"
+        @close="hideUserMenu"
+      />
+    </teleport>
   </div>
 </template>
 
