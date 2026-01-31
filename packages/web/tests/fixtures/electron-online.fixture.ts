@@ -50,7 +50,7 @@ export const test = base.extend<ElectronFixtures>({
       args: [mainPath],
       env: {
         ...launchEnv,
-      },
+      } as any,
     });
     await new Promise((resolve) => setTimeout(resolve, 2000));
     await use(app);
@@ -101,7 +101,7 @@ export const test = base.extend<ElectronFixtures>({
         sessionStorage.clear();
       });
       await contentPage.evaluate(() => {
-        window.electronAPI?.ipcManager.sendToMain('apiflow:content:to:topbar:init-tabs', {
+        (window as unknown as { electronAPI?: { ipcManager?: { sendToMain: (channel: string, payload: { tabs: unknown[]; activeTabId: string; language: string; networkMode: string }) => void } } }).electronAPI?.ipcManager?.sendToMain('apiflow:content:to:topbar:init-tabs', {
           tabs: [],
           activeTabId: '',
           language: 'zh-cn',

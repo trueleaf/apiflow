@@ -2,8 +2,7 @@ import { test, expect } from '../../../fixtures/electron.fixture';
 
 test.describe('ExampleProject', () => {
   test('首次启动离线模式自动创建示例项目', async ({ contentPage, topBarPage, clearCache }) => {
-    await clearCache();
-    await contentPage.waitForTimeout(2000);
+    await clearCache({ skipExampleProject: false });
     // 验证示例项目Tab存在
     const exampleProjectTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: /示例项目|Example Project/ });
     await expect(exampleProjectTab).toBeVisible({ timeout: 10000 });
@@ -12,7 +11,7 @@ test.describe('ExampleProject', () => {
   });
 
   test('示例项目包含两个主文件夹', async ({ contentPage, clearCache }) => {
-    await clearCache();
+    await clearCache({ skipExampleProject: false });
     await contentPage.waitForTimeout(2000);
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
     await contentPage.waitForTimeout(1000);
@@ -28,7 +27,7 @@ test.describe('ExampleProject', () => {
   });
 
   test('真实API示例文件夹包含6个接口节点', async ({ contentPage, clearCache }) => {
-    await clearCache();
+    await clearCache({ skipExampleProject: false });
     await contentPage.waitForTimeout(2000);
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
     await contentPage.waitForTimeout(1000);
@@ -60,7 +59,7 @@ test.describe('ExampleProject', () => {
   });
 
   test('Mock示例文件夹包含2个Mock节点', async ({ contentPage, clearCache }) => {
-    await clearCache();
+    await clearCache({ skipExampleProject: false });
     await contentPage.waitForTimeout(2000);
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
     await contentPage.waitForTimeout(1000);
@@ -80,7 +79,7 @@ test.describe('ExampleProject', () => {
   });
 
   test('示例项目标记设置后不会重复创建', async ({ contentPage, topBarPage, clearCache, reload }) => {
-    await clearCache();
+    await clearCache({ skipExampleProject: false });
     await contentPage.waitForTimeout(2000);
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
     // 获取示例项目Tab
@@ -130,7 +129,7 @@ test.describe('ExampleProject', () => {
   });
 
   test('点击示例HTTP接口可以正常打开并展示接口信息', async ({ contentPage, clearCache }) => {
-    await clearCache();
+    await clearCache({ skipExampleProject: false });
     await contentPage.waitForTimeout(2000);
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
     await contentPage.waitForTimeout(1000);

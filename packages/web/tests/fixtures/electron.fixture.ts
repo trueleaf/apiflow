@@ -10,7 +10,7 @@ type ElectronFixtures = {
   electronApp: ElectronApplication;
   topBarPage: Page;
   contentPage: Page;
-  clearCache: () => Promise<void>;
+  clearCache: (options?: { skipExampleProject?: boolean }) => Promise<void>;
   createProject: (name?: string) => Promise<string>;
   createNode: (contentPage: Page, options: { nodeType: 'http' | 'httpMock' | 'websocket' | 'websocketMock' | 'folder', name?: string, pid?: string }) => Promise<string>;
   jumpToSettings: () => Promise<void>;
@@ -57,7 +57,7 @@ export const test = base.extend<ElectronFixtures>({
       args: [mainPath],
       env: {
         ...launchEnv,
-      },
+      } as any,
     });
     // 等待应用完全启动并加载所有窗口
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -88,11 +88,15 @@ export const test = base.extend<ElectronFixtures>({
   },
   // 重置应用（localStorage、sessionStorage、IndexedDB）并重置到首页
   clearCache: async ({ contentPage, topBarPage }, use) => {
-    const clear = async () => {
+    const clear = async (options?: { skipExampleProject?: boolean }) => {
+      const skipExampleProject = options?.skipExampleProject ?? true;
       // 清除所有存储
-      await contentPage.evaluate(() => {
+      await contentPage.evaluate((params) => {
         localStorage.clear();
         sessionStorage.clear();
+        if (params.skipExampleProject) {
+          localStorage.setItem('runtime/hasCreatedExampleProject', 'true');
+        }
         const dbNames = [
           'httpNodeResponseCache',
           'websocketNodeResponseCache',
@@ -110,13 +114,13 @@ export const test = base.extend<ElectronFixtures>({
         dbNames.forEach((dbName) => {
           indexedDB.deleteDatabase(dbName);
         });
-      });
+      }, { skipExampleProject });
       await topBarPage.evaluate(() => {
         localStorage.clear();
         sessionStorage.clear();
       });
       await contentPage.evaluate(() => {
-        window.electronAPI?.ipcManager.sendToMain('apiflow:content:to:topbar:init-tabs', {
+        (window as unknown as { electronAPI?: { ipcManager?: { sendToMain: (channel: string, payload: { tabs: unknown[]; activeTabId: string; language: string; networkMode: string }) => void } } }).electronAPI?.ipcManager?.sendToMain('apiflow:content:to:topbar:init-tabs', {
           tabs: [],
           activeTabId: '',
           language: 'zh-cn',
