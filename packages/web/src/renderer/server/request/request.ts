@@ -28,6 +28,7 @@ import { WebSocketNode } from '@src/types/websocketNode';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { isElectron } from '@/helper';
 import { trackEvent } from '@/utils/analytics';
+import { webRequest } from './request.web';
 /*
 |--------------------------------------------------------------------------
 | 发送请求
@@ -444,19 +445,6 @@ const convertObjectToProperty = (objectParams: Record<string, any>) => {
 }
 
 export const sendRequest = async () => {
-  // 浏览器环境禁止发送请求
-  if (!isElectron()) {
-    const { changeResponseInfo, changeRequestState } = useHttpNodeResponse()
-    changeResponseInfo({
-      responseData: {
-        canApiflowParseType: 'error',
-        errorData: i18n.global.t('浏览器环境不支持发送HTTP请求，请使用Electron客户端')
-      }
-    })
-    changeRequestState('finish')
-    return
-  }
-
   const worker = new preRequestWorker();
   const redirectList = ref<ResponseInfo['redirectList']>([]);
   const projectWorkbenchStore = useProjectWorkbench();
@@ -534,7 +522,9 @@ export const sendRequest = async () => {
     if (!finalSendHeaders['user-agent'] && httpNodeConfigData.userAgent) {
       finalSendHeaders['user-agent'] = httpNodeConfigData.userAgent;
     }
-    window.electronAPI?.sendRequest({
+
+    //构建请求参数
+    const requestOptions: GotRequestOptions = {
       url,
       method,
       timeout: 60000,
@@ -673,7 +663,16 @@ export const sendRequest = async () => {
         httpResponseCache.setResponse(selectedNav?._id ?? '', storedResponseInfo);
         cleanup(); // 请求完成后清理 worker
       },
-    })
+    };
+
+    //根据环境选择请求方式
+    if (isElectron()) {
+      //Electron模式：使用IPC调用主进程
+      window.electronAPI?.sendRequest(requestOptions);
+    } else {
+      //Web模式：使用服务端代理
+      await webRequest(requestOptions);
+    }
   }
   if (!copiedApidoc.preRequest.raw.trim()) {
     // 没有前置脚本，直接发送请求
@@ -812,13 +811,43 @@ export const sendRequest = async () => {
     } else if (e.data.type === 'pre-request-http-request') {
       const { requestId, options } = e.data.value;
       try {
-        const response = await window.electronAPI?.afHttpRequest(options);
+        let response;
+        //根据环境选择请求方式
+        if (isElectron()) {
+          //Electron模式：使用IPC调用主进程的afHttpRequest
+          response = await window.electronAPI?.afHttpRequest(options);
+        } else {
+          //Web模式：使用webRequest (前置脚本中的HTTP请求也通过代理)
+          //注意：这里需要将回调式API转换为Promise式
+          response = await new Promise<typeof response>((resolve, reject) => {
+            const requestOptions: GotRequestOptions = {
+              ...options,
+              onResponse: (responseInfo) => {
+                //收集响应信息但不触发原始回调
+              },
+              onResponseEnd: (responseInfo) => {
+                //前置脚本HTTP请求只需要返回基本信息
+                resolve({
+                  statusCode: responseInfo.statusCode,
+                  headers: responseInfo.headers,
+                  body: responseInfo.responseData.textData || responseInfo.responseData.jsonData || '',
+                  contentType: responseInfo.contentType
+                });
+              },
+              onError: (err) => {
+                reject(err);
+              }
+            };
+            webRequest(requestOptions);
+          });
+        }
+
         if (!response) {
           worker.postMessage({
             type: 'pre-request-http-error',
             value: {
               requestId,
-              message: 'afHttpRequest不可用',
+              message: 'HTTP请求不可用',
             }
           });
           return;

@@ -9,9 +9,12 @@ export const useVariable = defineStore('projectVariable', () => {
   const objectVariable = ref<Record<string, unknown>>({})
   // 同步变量到主进程
   const syncVariablesToMainProcess = async () => {
+    if (!window.electronAPI?.mock?.syncProjectVariables) {
+      return;
+    }
     try {
       const projectId = router.currentRoute.value.query.id as string;
-      await window.electronAPI!.mock.syncProjectVariables(projectId, JSON.parse(JSON.stringify(variables.value)));
+      await window.electronAPI.mock.syncProjectVariables(projectId, JSON.parse(JSON.stringify(variables.value)));
     } catch (error) {
       console.error(error);
     }

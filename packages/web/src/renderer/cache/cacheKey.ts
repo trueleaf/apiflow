@@ -99,6 +99,7 @@ export const cacheKey = {
       logo: 'settings/app/logo',
       theme: 'settings/app/theme',
       serverUrl: 'settings/app/serverUrl',
+      proxyServerUrl: 'settings/app/proxyServerUrl',
       onlineUrl: 'settings/app/onlineUrl',
     },
     shortcuts: 'settings/shortcuts',

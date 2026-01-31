@@ -11,6 +11,17 @@
         class="form-input"
       />
     </div>
+    <div class="form-item">
+      <div class="form-label">
+        {{ t('HTTP代理地址') }}
+      </div>
+      <el-input
+        v-model="localProxyServerUrl"
+        :placeholder="t('请输入HTTP代理地址')"
+        clearable
+        class="form-input"
+      />
+    </div>
     <div class="form-actions">
       <el-form-item class="mb-1">
         <el-button type="primary" @click="handleSave" :disabled="!hasChanges" class="w-100">{{ t('保存') }}</el-button>
@@ -77,6 +88,7 @@ import { IPC_EVENTS } from '@src/types/ipc'
 const { t } = useI18n()
 const appSettingsStore = useAppSettings()
 const localServerUrl = ref(appSettingsStore.serverUrl)
+const localProxyServerUrl = ref(appSettingsStore.proxyServerUrl)
 const isElectronEnv = isElectron()
 const localOnlineUrl = ref('')
 const currentOnlineUrl = ref('')
@@ -85,8 +97,19 @@ const isCheckingUrl = ref(false)
 watch(() => appSettingsStore.serverUrl, (newVal) => {
   localServerUrl.value = newVal
 })
+watch(() => appSettingsStore.proxyServerUrl, (newVal) => {
+  localProxyServerUrl.value = newVal
+})
+watch(localServerUrl, (newVal, oldVal) => {
+  if (localProxyServerUrl.value.trim() === oldVal.trim()) {
+    localProxyServerUrl.value = newVal
+  }
+})
 
-const hasChanges = computed(() => localServerUrl.value.trim() !== appSettingsStore.serverUrl)
+const hasChanges = computed(() => {
+  return localServerUrl.value.trim() !== appSettingsStore.serverUrl ||
+    localProxyServerUrl.value.trim() !== appSettingsStore.proxyServerUrl
+})
 
 const validateUrl = (url: string): boolean => {
   if (!url.trim()) {
@@ -128,11 +151,17 @@ const fetchCurrentOnlineUrl = async () => {
 
 const handleSave = () => {
   const trimmedUrl = localServerUrl.value.trim()
+  const trimmedProxyUrl = localProxyServerUrl.value.trim()
   if (!validateUrl(trimmedUrl)) {
     message.warning(t('请输入有效的接口调用地址'))
     return
   }
+  if (!validateUrl(trimmedProxyUrl)) {
+    message.warning(t('请输入有效的HTTP代理地址'))
+    return
+  }
   appSettingsStore.setServerUrl(trimmedUrl)
+  appSettingsStore.setProxyServerUrl(trimmedProxyUrl)
   updateAxiosBaseURL(trimmedUrl)
   message.success(t('保存成功'))
 }
@@ -149,8 +178,10 @@ const handleReset = async () => {
     return
   }
   appSettingsStore.resetServerUrl()
+  appSettingsStore.resetProxyServerUrl()
   updateAxiosBaseURL(appSettingsStore.serverUrl)
   localServerUrl.value = appSettingsStore.serverUrl
+  localProxyServerUrl.value = appSettingsStore.proxyServerUrl
   message.success(t('重置成功'))
 }
 // 保存在线URL

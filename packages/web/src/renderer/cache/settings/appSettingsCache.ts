@@ -5,6 +5,14 @@ import { cacheKey } from '../cacheKey';
 class AppSettingsCache {
   constructor() {
   }
+  // 检测是否为Electron环境
+  private isElectronEnv(): boolean {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    const win = window as unknown as { electronAPI?: unknown };
+    return typeof win.electronAPI !== 'undefined';
+  }
   // 获取应用标题
   getAppTitle(): string {
     try {
@@ -128,7 +136,13 @@ class AppSettingsCache {
   getServerUrl(): string {
     try {
       const serverUrl = localStorage.getItem(cacheKey.settings.app.serverUrl);
-      return serverUrl || config.renderConfig.httpRequest.url;
+      if (serverUrl) {
+        return serverUrl;
+      }
+      if (!config.isDev && !this.isElectronEnv() && typeof window !== 'undefined') {
+        return window.location.origin;
+      }
+      return config.renderConfig.httpRequest.url;
     } catch (error) {
       logger.error('获取服务器地址失败', { error });
       return config.renderConfig.httpRequest.url;
@@ -148,6 +162,41 @@ class AppSettingsCache {
       localStorage.removeItem(cacheKey.settings.app.serverUrl);
     } catch (error) {
       logger.error('重置服务器地址失败', { error });
+    }
+  }
+  // 是否配置了代理服务器地址
+  hasProxyServerUrl(): boolean {
+    try {
+      return !!localStorage.getItem(cacheKey.settings.app.proxyServerUrl);
+    } catch (error) {
+      logger.error('获取代理服务器地址配置状态失败', { error });
+      return false;
+    }
+  }
+  // 获取代理服务器地址
+  getProxyServerUrl(): string {
+    try {
+      const proxyServerUrl = localStorage.getItem(cacheKey.settings.app.proxyServerUrl);
+      return proxyServerUrl || this.getServerUrl();
+    } catch (error) {
+      logger.error('获取代理服务器地址失败', { error });
+      return this.getServerUrl();
+    }
+  }
+  // 设置代理服务器地址
+  setProxyServerUrl(proxyServerUrl: string) {
+    try {
+      localStorage.setItem(cacheKey.settings.app.proxyServerUrl, proxyServerUrl);
+    } catch (error) {
+      logger.error('设置代理服务器地址失败', { error });
+    }
+  }
+  // 重置代理服务器地址
+  resetProxyServerUrl() {
+    try {
+      localStorage.removeItem(cacheKey.settings.app.proxyServerUrl);
+    } catch (error) {
+      logger.error('重置代理服务器地址失败', { error });
     }
   }
 }
