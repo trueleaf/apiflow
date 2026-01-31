@@ -1798,6 +1798,9 @@ export default {
   exampleProject: {
     name: 'Example Project - Quick Start',
     description: 'Contains common API examples and Mock configurations to help you get started quickly with API Flow',
+    visitBaidu: 'Visit Baidu',
+    visitGoogle: 'Visit Google',
+    visitWebsiteDesc: 'Quick request example in root',
     realApiFolder: 'Real API Examples',
     realApiFolderDesc: 'Test with free APIs provided by jsonplaceholder',
     mockFolder: 'Mock Examples',

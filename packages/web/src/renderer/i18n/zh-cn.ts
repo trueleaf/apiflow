@@ -1815,6 +1815,9 @@ export default {
   exampleProject: {
     name: '示例项目 - 快速开始',
     description: '包含常用API示例和Mock配置，帮助你快速上手API Flow',
+    visitBaidu: '访问百度',
+    visitGoogle: '访问谷歌',
+    visitWebsiteDesc: '根目录快捷请求示例',
     realApiFolder: '真实API示例',
     realApiFolderDesc: '使用jsonplaceholder提供的免费API进行测试',
     mockFolder: 'Mock示例',

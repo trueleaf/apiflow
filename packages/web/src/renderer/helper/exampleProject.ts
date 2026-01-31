@@ -17,13 +17,27 @@ export const createExampleProject = async (): Promise<string> => {
   
   await projectCache.addProject(project)
   
+  const isChineseLocale = i18n.global.locale.value.toLowerCase().startsWith('zh')
+  const visitWebsite = generateEmptyHttpNode(nanoid())
+  visitWebsite.projectId = projectId
+  visitWebsite.pid = ''
+  visitWebsite.sort = 0
+  visitWebsite.info.name = isChineseLocale ? t('exampleProject.visitBaidu') : t('exampleProject.visitGoogle')
+  visitWebsite.info.description = t('exampleProject.visitWebsiteDesc')
+  visitWebsite.item.method = 'GET'
+  visitWebsite.item.url.path = isChineseLocale ? 'https://www.baidu.com' : 'https://www.google.com'
+  visitWebsite.createdAt = new Date().toISOString()
+  visitWebsite.updatedAt = new Date().toISOString()
+
   const realApiFolder = createRealApiFolder(projectId)
   const mockFolder = createMockFolder(projectId)
   
   const realApiChildren = createRealApiChildren(projectId, realApiFolder._id)
   const mockChildren = createMockChildren(projectId, mockFolder._id)
   
-  const allNodes = [realApiFolder, ...realApiChildren, mockFolder, ...mockChildren]
+  realApiFolder.sort = 1
+  mockFolder.sort = 2
+  const allNodes = [visitWebsite, realApiFolder, ...realApiChildren, mockFolder, ...mockChildren]
   
   for (const node of allNodes) {
     await apiNodesCache.addNode(node)
@@ -31,7 +45,6 @@ export const createExampleProject = async (): Promise<string> => {
   
   return projectId
 }
-
 // 创建真实API示例文件夹
 const createRealApiFolder = (projectId: string): HttpNode => {
   const folderId = nanoid()
@@ -46,7 +59,6 @@ const createRealApiFolder = (projectId: string): HttpNode => {
   folder.updatedAt = new Date().toISOString()
   return folder
 }
-
 // 创建Mock示例文件夹
 const createMockFolder = (projectId: string): HttpNode => {
   const folderId = nanoid()
@@ -61,7 +73,6 @@ const createMockFolder = (projectId: string): HttpNode => {
   folder.updatedAt = new Date().toISOString()
   return folder
 }
-
 // 创建真实API子节点
 const createRealApiChildren = (projectId: string, folderId: string): HttpNode[] => {
   const nodes: HttpNode[] = []
@@ -163,7 +174,6 @@ const createRealApiChildren = (projectId: string, folderId: string): HttpNode[] 
   
   return nodes
 }
-
 // 创建Mock子节点
 const createMockChildren = (projectId: string, folderId: string): (HttpMockNode | WebSocketMockNode)[] => {
   const nodes: (HttpMockNode | WebSocketMockNode)[] = []
