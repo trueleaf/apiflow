@@ -113,6 +113,7 @@ import { useRuntime } from '@/store/runtime/runtimeStore';
 import { OpenAPIConverter } from './openapi-converter';
 import { FileJson } from 'lucide-vue-next';
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
+import { buildStandaloneShareHtml, buildStandaloneWordBlob } from './standalone-export'
 
 const appSettingsStore = useAppSettings()
 const projectWorkbenchStore = useProjectWorkbench();
@@ -161,18 +162,19 @@ const handleExportAsHTML = async () => {
       variables: variableStore.variables,
     };
     const cpExportHtmlParams = JSON.parse(JSON.stringify(exportHtmlParams));
-    
-    (window.electronAPI?.exportHtml(cpExportHtmlParams) as Promise<string>)
-      .then((htmlContent: string) => {
-        downloadStringAsText(htmlContent, `${projectWorkbenchStore.projectName}.html`, 'text/html');
-      })
-      .catch((err: Error) => {
-        console.error(err);
-        message.error(t('导出失败'));
-      })
-      .finally(() => {
-        loading.value = false;
-      });
+
+    try {
+      const exportHtml = window.electronAPI?.exportHtml
+      const htmlContent = exportHtml
+        ? await exportHtml(cpExportHtmlParams)
+        : await buildStandaloneShareHtml(cpExportHtmlParams)
+      downloadStringAsText(htmlContent, `${projectWorkbenchStore.projectName}.html`, 'text/html');
+    } catch (err) {
+      console.error(err);
+      message.error(t('导出失败'));
+    } finally {
+      loading.value = false;
+    }
     return;
   }
   const selectedIds = allCheckedNodes.value.map((val) => val._id);
@@ -270,28 +272,27 @@ const handleExportAsWord = async () => {
       nodes: selectedDocs,
       variables: variableStore.variables,
     };
-    console.log(selectedDocs);
 
     const cpExportHtmlParams = JSON.parse(JSON.stringify(exportHtmlParams));
-    (window.electronAPI?.exportWord(cpExportHtmlParams) as Promise<Uint8Array>)
-      .then((buffer: Uint8Array) => {
-        const blob = new Blob([buffer as unknown as BlobPart], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-        const blobUrl = URL.createObjectURL(blob);
-        const downloadElement = document.createElement('a');
-        downloadElement.href = blobUrl;
-        downloadElement.download = `${projectWorkbenchStore.projectName}.docx`;
-        document.body.appendChild(downloadElement);
-        downloadElement.click();
-        document.body.removeChild(downloadElement);
-        window.URL.revokeObjectURL(blobUrl);
-      })
-      .catch((err: Error) => {
-        console.error(err);
-        message.error(t('导出失败'));
-      })
-      .finally(() => {
-        loading.value = false;
-      });
+    try {
+      const exportWord = window.electronAPI?.exportWord
+      const blob = exportWord
+        ? new Blob([await exportWord(cpExportHtmlParams)], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+        : await buildStandaloneWordBlob(cpExportHtmlParams)
+      const blobUrl = URL.createObjectURL(blob);
+      const downloadElement = document.createElement('a');
+      downloadElement.href = blobUrl;
+      downloadElement.download = `${projectWorkbenchStore.projectName}.docx`;
+      document.body.appendChild(downloadElement);
+      downloadElement.click();
+      document.body.removeChild(downloadElement);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error(err);
+      message.error(t('导出失败'));
+    } finally {
+      loading.value = false;
+    }
     return;
   }
   const selectedIds = allCheckedNodes.value.map((val) => val._id);
