@@ -9,6 +9,7 @@
 #   --cn           使用中国镜像源
 
 set -e
+set -o pipefail
 
 COLOR_GREEN='\033[0;32m'
 COLOR_YELLOW='\033[1;33m'
@@ -74,9 +75,9 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-COMPOSE_FILE="docker-compose.yml"
+COMPOSE_ARGS=(-f docker-compose.yml)
 if [ "$USE_CN_COMPOSE" = true ]; then
-    COMPOSE_FILE="docker-compose.yml -f docker-compose.cn.yml"
+    COMPOSE_ARGS+=(-f docker-compose.cn.yml)
     print_warning "使用中国镜像源配置"
 fi
 
@@ -115,17 +116,53 @@ fi
 if [ "$BACKUP_VERSION" = true ]; then
     print_step "📝 备份当前镜像信息..."
     BACKUP_FILE="current_versions_$(date +%Y%m%d_%H%M%S).txt"
-    docker compose -f $COMPOSE_FILE config --images > "$BACKUP_FILE" 2>/dev/null || true
-    
-    # 备份当前运行镜像的 digest
-    docker compose -f $COMPOSE_FILE images --format "table {{.Service}}\t{{.Repository}}:{{.Tag}}\t{{.ID}}" > "${BACKUP_FILE}.digests" 2>/dev/null || true
+    BACKUP_DIGEST_FILE="${BACKUP_FILE}.digests"
+    : > "$BACKUP_FILE"
+    : > "$BACKUP_DIGEST_FILE"
+    printf "service\timage\timage_id\trepo_digest\n" >> "$BACKUP_DIGEST_FILE"
+
+    SERVICES=$(docker compose "${COMPOSE_ARGS[@]}" config --services 2>/dev/null || true)
+    if [ -z "$SERVICES" ]; then
+        print_warning "未能获取 compose 服务列表，跳过版本备份"
+    else
+        for service in $SERVICES; do
+            container_id=$(docker compose "${COMPOSE_ARGS[@]}" ps -q "$service" 2>/dev/null | head -n 1 || true)
+            if [ -z "$container_id" ]; then
+                continue
+            fi
+            image_ref=$(docker inspect -f '{{.Config.Image}}' "$container_id" 2>/dev/null || true)
+            image_id=$(docker inspect -f '{{.Image}}' "$container_id" 2>/dev/null || true)
+            repo_digest=""
+            if [ -n "$image_id" ]; then
+                repo="${image_ref%:*}"
+                digests=$(docker image inspect -f '{{range .RepoDigests}}{{println .}}{{end}}' "$image_id" 2>/dev/null || true)
+                if [ -n "$digests" ]; then
+                    repo_digest=$(echo "$digests" | grep -m 1 "^${repo}@sha256:" 2>/dev/null || true)
+                    if [ -z "$repo_digest" ]; then
+                        repo_digest=$(echo "$digests" | head -n 1 || true)
+                    fi
+                fi
+            fi
+
+            if [ -n "$repo_digest" ]; then
+                echo "${service}=${repo_digest}" >> "$BACKUP_FILE"
+            elif [ -n "$image_ref" ]; then
+                echo "${service}=${image_ref}" >> "$BACKUP_FILE"
+            fi
+            printf "%s\t%s\t%s\t%s\n" "$service" "$image_ref" "$image_id" "$repo_digest" >> "$BACKUP_DIGEST_FILE"
+        done
+    fi
+
+    if [ ! -s "$BACKUP_FILE" ]; then
+        print_warning "未备份到运行中的镜像信息（可能服务未运行）"
+    fi
     
     print_success "版本信息已备份到 $BACKUP_FILE"
     echo ""
 fi
 
 print_step "⏹️  停止当前服务..."
-if docker compose -f $COMPOSE_FILE down; then
+if docker compose "${COMPOSE_ARGS[@]}" down; then
     print_success "服务已停止"
 else
     print_warning "停止服务时出现警告（可能服务未运行）"
@@ -134,7 +171,7 @@ echo ""
 
 print_step "📥 拉取最新镜像..."
 PULL_OUTPUT=$(mktemp)
-if docker compose -f $COMPOSE_FILE pull 2>&1 | tee "$PULL_OUTPUT"; then
+if docker compose "${COMPOSE_ARGS[@]}" pull 2>&1 | tee "$PULL_OUTPUT"; then
     # 检查是否有镜像被更新
     if grep -q "Downloaded newer image" "$PULL_OUTPUT" || grep -q "Pulled" "$PULL_OUTPUT"; then
         print_success "检测到新镜像，拉取完成"
@@ -152,12 +189,12 @@ fi
 echo ""
 
 print_step "▶️  启动新服务..."
-if docker compose -f $COMPOSE_FILE up -d --force-recreate; then
+if docker compose "${COMPOSE_ARGS[@]}" up -d --force-recreate; then
     print_success "服务已启动"
 else
     print_error "服务启动失败"
     print_error "正在尝试回滚..."
-    docker compose -f $COMPOSE_FILE down
+    docker compose "${COMPOSE_ARGS[@]}" down
     exit 1
 fi
 echo ""
@@ -166,7 +203,7 @@ print_step "⏳ 等待服务就绪..."
 sleep 5
 
 for i in {1..12}; do
-    if docker compose -f $COMPOSE_FILE ps | grep -q "Up"; then
+    if docker compose "${COMPOSE_ARGS[@]}" ps | grep -q "Up"; then
         print_success "服务已就绪"
         break
     fi
@@ -180,11 +217,11 @@ done
 echo ""
 
 print_step "🏥 检查服务健康状态..."
-docker compose -f $COMPOSE_FILE ps
+docker compose "${COMPOSE_ARGS[@]}" ps
 echo ""
 
 print_step "📋 查看最近日志..."
-docker compose -f $COMPOSE_FILE logs --tail=30
+docker compose "${COMPOSE_ARGS[@]}" logs --tail=30
 echo ""
 
 if [ "$PRUNE_IMAGES" = true ]; then
