@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>服务暂时不可用 - Apiflow</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f8fa;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #475569;
+        --border: rgba(15, 23, 42, 0.08);
+        --brand: #2563eb;
+        --shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px 16px;
+        background: radial-gradient(1200px 800px at 50% -10%, rgba(37, 99, 235, 0.15), transparent 60%),
+          radial-gradient(900px 600px at 100% 0%, rgba(37, 99, 235, 0.1), transparent 55%),
+          var(--bg);
+        color: var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji",
+          "Segoe UI Emoji";
+      }
+      .card {
+        width: 100%;
+        max-width: 640px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: var(--card);
+        box-shadow: var(--shadow);
+        padding: 28px 24px;
+      }
+      .header {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+      }
+      .icon {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 auto;
+        border-radius: 12px;
+        background: rgba(37, 99, 235, 0.12);
+        display: grid;
+        place-items: center;
+      }
+      .icon svg {
+        width: 26px;
+        height: 26px;
+        color: var(--brand);
+      }
+      h1 {
+        margin: 0;
+        font-size: 20px;
+        line-height: 28px;
+        letter-spacing: 0.1px;
+      }
+      .desc {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 22px;
+      }
+      .meta {
+        margin-top: 18px;
+        padding-top: 16px;
+        border-top: 1px dashed var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .tips {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 18px;
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+      }
+      .links {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        text-decoration: none;
+        color: var(--text);
+        background: rgba(15, 23, 42, 0.02);
+        transition: border-color 120ms ease, background-color 120ms ease;
+      }
+      .link:hover {
+        border-color: rgba(37, 99, 235, 0.35);
+        background: rgba(37, 99, 235, 0.06);
+      }
+      .link:focus-visible {
+        outline: 2px solid rgba(37, 99, 235, 0.4);
+        outline-offset: 2px;
+      }
+      .linkLeft {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+      .linkIcon {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        background: rgba(37, 99, 235, 0.12);
+        flex: 0 0 auto;
+      }
+      .linkIcon svg {
+        width: 18px;
+        height: 18px;
+        color: var(--brand);
+      }
+      .linkText {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
+      .linkTitle {
+        font-size: 13px;
+        line-height: 18px;
+        font-weight: 600;
+        letter-spacing: 0.1px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .linkUrl {
+        font-size: 12px;
+        line-height: 18px;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .linkArrow {
+        width: 16px;
+        height: 16px;
+        color: rgba(71, 85, 105, 0.9);
+        flex: 0 0 auto;
+      }
+      .btn {
+        appearance: none;
+        border: 1px solid var(--border);
+        background: #ffffff;
+        color: var(--text);
+        font-size: 14px;
+        line-height: 20px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: border-color 120ms ease, background-color 120ms ease, transform 120ms ease;
+      }
+      .btn:focus-visible {
+        outline: 2px solid rgba(37, 99, 235, 0.4);
+        outline-offset: 2px;
+      }
+      .btn:hover {
+        border-color: rgba(37, 99, 235, 0.35);
+        background: rgba(37, 99, 235, 0.06);
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+      .btn.primary {
+        border-color: rgba(37, 99, 235, 0.35);
+        background: rgba(37, 99, 235, 0.12);
+        color: var(--brand);
+      }
+      .code {
+        margin-top: 14px;
+        color: rgba(71, 85, 105, 0.9);
+        font-size: 12px;
+        line-height: 18px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          color-scheme: dark;
+          --bg: #0b1220;
+          --card: #0f172a;
+          --text: #e2e8f0;
+          --muted: #94a3b8;
+          --border: rgba(148, 163, 184, 0.14);
+          --brand: #60a5fa;
+          --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+        }
+        .btn {
+          background: rgba(148, 163, 184, 0.06);
+        }
+        .btn:hover {
+          background: rgba(96, 165, 250, 0.12);
+        }
+        .link {
+          background: rgba(148, 163, 184, 0.06);
+        }
+        .linkArrow {
+          color: rgba(148, 163, 184, 0.9);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card" role="main" aria-label="服务不可用">
+      <div class="header">
+        <div class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 17h10" />
+            <path d="M10 21h4" />
+            <rect x="5" y="3" width="14" height="14" rx="2" />
+            <path d="M8 7h0" />
+            <path d="M12 7h0" />
+            <path d="M16 7h0" />
+          </svg>
+        </div>
+        <div>
+          <h1>服务器暂时不可用</h1>
+          <p class="desc">我们正在努力恢复服务，请稍后刷新页面重试。</p>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="tips">建议：检查网络连接，或稍等片刻再访问。</div>
+        <div class="actions">
+          <a class="btn" href="/">返回首页</a>
+          <a class="btn primary" href="">刷新重试</a>
+        </div>
+      </div>
+      <nav class="links" aria-label="相关链接">
+        <a class="link" href="https://apiflow.cn" target="_blank" rel="noopener noreferrer">
+          <span class="linkLeft">
+            <span class="linkIcon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M2 12h20" />
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" />
+              </svg>
+            </span>
+            <span class="linkText">
+              <span class="linkTitle">官网</span>
+              <span class="linkUrl">https://apiflow.cn</span>
+            </span>
+          </span>
+          <svg class="linkArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </a>
+        <a class="link" href="https://github.com/trueleaf/apiflow" target="_blank" rel="noopener noreferrer">
+          <span class="linkLeft">
+            <span class="linkIcon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 19c-4 1.5-4-2.5-6-3m12 5v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 19 4.77 5.07 5.07 0 0 0 18.91 1S17.73.65 15 2.48a13.38 13.38 0 0 0-6 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+              </svg>
+            </span>
+            <span class="linkText">
+              <span class="linkTitle">GitHub 仓库</span>
+              <span class="linkUrl">github.com/trueleaf/apiflow</span>
+            </span>
+          </span>
+          <svg class="linkArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </a>
+        <a class="link" href="https://github.com/trueleaf/apiflow/issues" target="_blank" rel="noopener noreferrer">
+          <span class="linkLeft">
+            <span class="linkIcon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 14v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8" />
+                <path d="M12 11h4" />
+                <path d="M12 15h2" />
+                <path d="M16 3h5v5" />
+                <path d="M16 8l5-5" />
+              </svg>
+            </span>
+            <span class="linkText">
+              <span class="linkTitle">问题反馈</span>
+              <span class="linkUrl">github.com/trueleaf/apiflow/issues</span>
+            </span>
+          </span>
+          <svg class="linkArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </a>
+      </nav>
+      <div class="code">错误码：5xx（如 502/503/504）</div>
+    </main>
+  </body>
+</html>
