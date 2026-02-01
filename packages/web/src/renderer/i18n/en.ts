@@ -659,6 +659,7 @@ export default {
   前置脚本: 'Pre-request',
   变量类型: 'Variable Type',
   后置脚本: 'Post-request',
+  后置脚本执行失败: 'Post-script execution failed',
   请求信息: 'Request',
   全局变量: 'Global Variables',
   点击工具栏按钮新建接口或者鼠标右键新增: 'Create your first API using the toolbar, or right-click to add one',

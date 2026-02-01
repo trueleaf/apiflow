@@ -602,6 +602,9 @@ const toggleAdvancedSearch = () => {
 // 处理高级搜索图标点击事件
 const handleAdvancedSearchClick = () => {
   if (!isStandalone.value) return;
+  if (showAdvancedSearch.value) {
+    return;
+  }
   toggleAdvancedSearch();
 };
 // 重置搜索

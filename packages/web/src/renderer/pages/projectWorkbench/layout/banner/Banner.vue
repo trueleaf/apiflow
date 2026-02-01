@@ -412,6 +412,65 @@ const handleNodeKeyUp = () => {
   pressCtrl.value = false;
 }
 //点击节点，如果按住ctrl则可以多选
+const addNavForNode = (data: ApidocBanner) => {
+  if (data.type === 'http') {
+    projectNavStore.addNav({
+      _id: data._id,
+      projectId: projectId.value,
+      tabType: 'http',
+      label: data.name,
+      saved: true,
+      fixed: false,
+      selected: true,
+      head: {
+        icon: data.method,
+        color: ""
+      },
+    })
+  } else if (data.type === 'httpMock') {
+    projectNavStore.addNav({
+      _id: data._id,
+      projectId: projectId.value,
+      tabType: 'httpMock',
+      label: data.name,
+      saved: true,
+      fixed: false,
+      selected: true,
+      head: {
+        icon: 'MOCK',
+        color: ''
+      },
+    })
+  } else if (data.type === 'websocket') {
+    projectNavStore.addNav({
+      _id: data._id,
+      projectId: projectId.value,
+      tabType: 'websocket',
+      label: data.name,
+      saved: true,
+      fixed: false,
+      selected: true,
+      head: {
+        icon: data.protocol,
+        color: ""
+      },
+    })
+  } else if (data.type === 'websocketMock') {
+    projectNavStore.addNav({
+      _id: data._id,
+      projectId: projectId.value,
+      tabType: 'websocketMock',
+      label: data.name,
+      saved: true,
+      fixed: false,
+      selected: true,
+      head: {
+        icon: 'websocketMock',
+        color: ''
+      },
+    })
+  }
+}
 const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
   showContextmenu.value = false;
   currentOperationalNode.value = data;
@@ -431,63 +490,7 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
       ...data,
       projectId: projectId.value,
     }];
-    if (data.type === 'http') {
-      projectNavStore.addNav({
-        _id: data._id,
-        projectId: projectId.value,
-        tabType: 'http',
-        label: data.name,
-        saved: true,
-        fixed: false,
-        selected: true,
-        head: {
-          icon: data.method,
-          color: ""
-        },
-      })
-    } else if (data.type === 'httpMock') {
-      projectNavStore.addNav({
-        _id: data._id,
-        projectId: projectId.value,
-        tabType: 'httpMock',
-        label: data.name,
-        saved: true,
-        fixed: false,
-        selected: true,
-        head: {
-          icon: 'MOCK',
-          color: ''
-        },
-      })
-    } else if (data.type === 'websocket') {
-      projectNavStore.addNav({
-        _id: data._id,
-        projectId: projectId.value,
-        tabType: 'websocket',
-        label: data.name,
-        saved: true,
-        fixed: false,
-        selected: true,
-        head: {
-          icon: data.protocol,
-          color: ""
-        },
-      })
-    } else if (data.type === 'websocketMock') {
-      projectNavStore.addNav({
-        _id: data._id,
-        projectId: projectId.value,
-        tabType: 'websocketMock',
-        label: data.name,
-        saved: true,
-        fixed: false,
-        selected: true,
-        head: {
-          icon: 'websocketMock',
-          color: ''
-        },
-      })
-    }
+    addNavForNode(data)
   }
 }
 //双击节点固定这个节点
@@ -772,6 +775,21 @@ const locateAndHighlightDoc = async (docId: string) => {
     }
   }
 }
+const openNodeById = async (nodeId: string) => {
+  const matchedNode = findNodeById(bannerData.value, nodeId, { idKey: '_id' }) as ApidocBanner | null;
+  if (!matchedNode) {
+    return;
+  }
+  selectNodes.value = [{
+    ...matchedNode,
+    projectId: projectId.value,
+  }];
+  addNavForNode(matchedNode)
+  await nextTick();
+  setTimeout(() => {
+    locateAndHighlightDoc(nodeId);
+  }, 300);
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -813,10 +831,17 @@ const handleGlobalClick = () => {
 | 监听路由变化，当项目切换时重新获取数据
 |--------------------------------------------------------------------------
 */
-watch(() => router.currentRoute.value.query.id, (newProjectId) => {
+watch(() => router.currentRoute.value.query.id, async (newProjectId) => {
   if (newProjectId && newProjectId !== projectId.value) {
     projectId.value = newProjectId as string;
-    getBannerData();
+    await getBannerData();
+    const nodeId = router.currentRoute.value.query.nodeId as string | undefined;
+    if (nodeId) {
+      await nextTick();
+      setTimeout(() => {
+        openNodeById(nodeId);
+      }, 300);
+    }
   }
 }, { immediate: false });
 //监听路由 docId 参数，定位文档
@@ -825,6 +850,14 @@ watch(() => router.currentRoute.value.query.docId, async (newDocId) => {
     await nextTick();
     setTimeout(() => {
       locateAndHighlightDoc(newDocId);
+    }, 300);
+  }
+}, { immediate: false });
+watch(() => router.currentRoute.value.query.nodeId, async (newNodeId) => {
+  if (newNodeId && typeof newNodeId === 'string') {
+    await nextTick();
+    setTimeout(() => {
+      openNodeById(newNodeId);
     }, 300);
   }
 }, { immediate: false });
@@ -844,6 +877,13 @@ onMounted(async () => {
     await nextTick();
     setTimeout(() => {
       locateAndHighlightDoc(docId);
+    }, 500);
+  }
+  const nodeId = router.currentRoute.value.query.nodeId as string;
+  if (nodeId) {
+    await nextTick();
+    setTimeout(() => {
+      openNodeById(nodeId);
     }, 500);
   }
   document.documentElement.addEventListener('click', handleGlobalClick);

@@ -29,6 +29,7 @@ import { useRuntime } from '@/store/runtime/runtimeStore';
 import { isElectron } from '@/helper';
 import { trackEvent } from '@/utils/analytics';
 import { webRequest } from './request.web';
+import { executeHttpAfterScript } from './executeAfterScript';
 /*
 |--------------------------------------------------------------------------
 | 发送请求
@@ -503,6 +504,47 @@ export const sendRequest = async () => {
   let finalCookies = objCookies;
   const httpNodeConfigStore = useHttpNodeConfig();
   const httpNodeConfigData = httpNodeConfigStore.currentHttpNodeConfig;
+  const variableStore = useVariable();
+  const applyAfterScriptVariables = (updatedVariables: Record<string, unknown>) => {
+    const nextVariables = cloneDeep(variableStore.variables);
+    Object.entries(updatedVariables).forEach(([key, value]) => {
+      const existed = nextVariables.find(item => item.name === key);
+      const valueInfo = (() => {
+        if (value === null) {
+          return { type: 'null' as const, value: 'null' };
+        }
+        if (typeof value === 'number') {
+          return { type: 'number' as const, value: String(value) };
+        }
+        if (typeof value === 'boolean') {
+          return { type: 'boolean' as const, value: value ? 'true' : 'false' };
+        }
+        if (typeof value === 'string') {
+          return { type: 'string' as const, value };
+        }
+        const stringified = JSON.stringify(value);
+        return { type: 'string' as const, value: stringified ?? String(value) };
+      })();
+      if (existed) {
+        existed.type = valueInfo.type;
+        existed.value = valueInfo.value;
+      } else {
+        nextVariables.push({
+          _id: nanoid(),
+          projectId,
+          name: key,
+          type: valueInfo.type,
+          value: valueInfo.value,
+          fileValue: {
+            name: '',
+            path: '',
+            fileType: '',
+          }
+        });
+      }
+    });
+    variableStore.replaceVariables(nextVariables);
+  }
   //实际发送请求
   const invokeRequest = async () => {
     const method = getMethod(copiedApidoc);
@@ -661,6 +703,69 @@ export const sendRequest = async () => {
           changeResponseCacheAllowed(selectedNav?._id ?? '', true);
         }
         httpResponseCache.setResponse(selectedNav?._id ?? '', storedResponseInfo);
+        const afterScript = copiedApidoc.afterRequest.raw;
+        if (afterScript && afterScript.trim()) {
+          const responseText = responseInfo.responseData.textData || '';
+          const responseJson = responseInfo.responseData.jsonData || '';
+          const responseBody = responseText || responseJson || (typeof rawBody === 'string' ? rawBody : '');
+          const afterRequestLocalStorage = httpNodeCache.getPreRequestLocalStorage(projectId);
+          const afterRequestSessionStorage = httpNodeCache.getPreRequestSessionStorage(projectId);
+          (async () => {
+            const latestUrlencoded = await convertPropertyToObject(copiedApidoc.item.requestBody.urlencoded);
+            const latestPaths = await convertPropertyToObject(copiedApidoc.item.paths);
+            const latestQueryParams = await convertPropertyToObject(copiedApidoc.item.queryParams);
+            executeHttpAfterScript(
+              {
+                _id: copiedApidoc._id,
+                projectId,
+                item: {
+                  method,
+                  url,
+                  paths: latestPaths,
+                  queryParams: latestQueryParams,
+                  requestBody: {
+                    json: body?.type === 'json' ? body.value : '{}',
+                    formdata: body?.type === 'formdata' ? body.value : [],
+                    urlencoded: body?.type === 'urlencoded' ? latestUrlencoded : {},
+                    raw: body?.type === 'raw' ? body.value : '',
+                    binary: body?.type === 'binary' ? body.value : { mode: 'var', path: '' },
+                  },
+                  headers: finalSendHeaders,
+                  bodyType: copiedApidoc.item.requestBody.mode,
+                },
+              },
+              {
+                statusCode: responseInfo.statusCode,
+                headers: responseInfo.headers,
+                rt: responseInfo.rt,
+                size: responseInfo.bodyByteLength,
+                ip: responseInfo.ip,
+                text: responseText,
+                json: responseJson,
+                body: responseBody,
+              },
+              toRaw(objectVariable),
+              objCookies,
+              afterRequestLocalStorage,
+              afterRequestSessionStorage,
+              projectId,
+              afterScript
+            ).then((afterScriptResult) => {
+              if (!afterScriptResult.success) {
+                changeResponseInfo({
+                  responseData: {
+                    canApiflowParseType: 'error',
+                    errorData: i18n.global.t('后置脚本执行失败') + `: ${afterScriptResult.error?.message || ''}`
+                  }
+                });
+                return;
+              }
+              if (afterScriptResult.updatedVariables) {
+                applyAfterScriptVariables(afterScriptResult.updatedVariables);
+              }
+            });
+          })();
+        }
         cleanup(); // 请求完成后清理 worker
       },
     };
@@ -819,13 +924,13 @@ export const sendRequest = async () => {
         } else {
           //Web模式：使用webRequest (前置脚本中的HTTP请求也通过代理)
           //注意：这里需要将回调式API转换为Promise式
-          response = await new Promise<typeof response>((resolve, reject) => {
-            const requestOptions: GotRequestOptions = {
+          response = await new Promise<{ statusCode: number; headers: Record<string, string | string[] | undefined>; body: string; contentType: string }>((resolve, reject) => {
+            const requestOptions = ({
               ...options,
-              onResponse: (responseInfo) => {
+              onResponse: (_responseInfo: ResponseInfo) => {
                 //收集响应信息但不触发原始回调
               },
-              onResponseEnd: (responseInfo) => {
+              onResponseEnd: (responseInfo: ResponseInfo) => {
                 //前置脚本HTTP请求只需要返回基本信息
                 resolve({
                   statusCode: responseInfo.statusCode,
@@ -834,10 +939,10 @@ export const sendRequest = async () => {
                   contentType: responseInfo.contentType
                 });
               },
-              onError: (err) => {
+              onError: (err: Error) => {
                 reject(err);
               }
-            };
+            } as unknown) as GotRequestOptions;
             webRequest(requestOptions);
           });
         }
