@@ -63,7 +63,7 @@ const requestMockEcho = (port: number): Promise<unknown> => {
   });
 };
 // 判断占用端口的是否为当前 mock
-const isMockServerOnPort = async (port: number): Promise<boolean> => {
+export const isMockServerOnPort = async (port: number): Promise<boolean> => {
   try {
     const data = await requestMockEcho(port);
     if (!data || typeof data !== 'object') return false;
@@ -72,6 +72,10 @@ const isMockServerOnPort = async (port: number): Promise<boolean> => {
   } catch {
     return false;
   }
+};
+// 判断服务器是否正在运行
+export const isServerRunning = (): boolean => {
+  return isListening(server);
 };
 // 结束占用端口的旧 mock 进程（Windows）
 const killMockProcessOnWindows = async (port: number): Promise<boolean> => {    

@@ -2,6 +2,7 @@ import { test as base, _electron as electron, expect } from '@playwright/test';
 import type { ElectronApplication, Page } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { startServer, isServerRunning, isMockServerOnPort, PORT } from '../mock-server/index';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 type ElectronFixtures = {
@@ -268,6 +269,17 @@ export const test = base.extend<ElectronFixtures>({
     };
     await use(doReload);
   },
+});
+
+test.beforeAll(async () => {
+  if (!isServerRunning()) {
+    const isMockRunning = await isMockServerOnPort(PORT);
+    if (!isMockRunning) {
+      console.log('🚀 单测模式：启动 Mock 服务器...');
+      await startServer();
+      console.log(`✅ Mock 服务器已在端口 ${PORT} 上成功启动`);
+    }
+  }
 });
 
 export { expect };

@@ -15,8 +15,6 @@ dotenv.config({ path: path.resolve(__dirname, '.env.test') });
  * 参考文档: https://playwright.dev/docs/api/class-electron
  */
 export default defineConfig({
-  // 全局 setup（启动 mock 服务器）
-  globalSetup: './tests/mock-server/index.ts',
   // 测试文件目录
   testDir: './tests/e2e',
 
@@ -46,8 +44,13 @@ export default defineConfig({
   // 测试项目配置
   projects: [
     {
+      name: 'setup',
+      testMatch: '**/setup/**/*.setup.ts',
+    },
+    {
       name: 'electron',
       testMatch: '**/*.spec.ts',
+      dependencies: ['setup'],
     },
   ],
 
