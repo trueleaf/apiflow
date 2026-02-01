@@ -1,4 +1,4 @@
-import { Config, Context, Inject, Provide } from '@midwayjs/core';
+import { Config, Context, Inject, Provide, Logger } from '@midwayjs/core';
 import { Group } from '../../entity/security/group.js';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { InjectEntityModel } from '@midwayjs/typegoose';
@@ -6,6 +6,7 @@ import { throwError } from '../../utils/utils.js';
 import { GlobalConfig, LoginTokenInfo } from '../../types/types.js';
 import { AddMemberDTO, CreateGroupDTO, UpdateGroupDTO } from '../../types/dto/security/group.dto.js';
 import { Project } from '../../entity/project/project.js';
+import { ILogger } from '@midwayjs/logger';
 
 @Provide()
 export class GroupService {
@@ -17,6 +18,8 @@ export class GroupService {
   ctx: Context & { tokenInfo: LoginTokenInfo };
   @Config('apiflow')
     apiflowConfig: GlobalConfig['apiflow'];
+  @Logger()
+    logger: ILogger;
 
   // 校验用户是否存在管理员权限
   private async checkGroupAdminPermission(group: Group, userId: string) {
@@ -185,7 +188,7 @@ export class GroupService {
       // await session.commitTransaction();
     } catch (error) {
       // await session.abortTransaction();
-      console.error(error);
+      this.logger.error('添加团队成员失败:', error);
       throwError(1015, '添加团队成员失败')
     } finally {
       // session.endSession();
@@ -235,7 +238,7 @@ export class GroupService {
       // await session.commitTransaction();
     } catch (error) {
       // await session.abortTransaction();
-      console.error(error);
+      this.logger.error('移除团队成员失败:', error);
       throwError(1015, '添加团队成员失败')
     } finally {
       // session.endSession();
@@ -285,7 +288,7 @@ export class GroupService {
       // await session.commitTransaction();
     } catch (error) {
       // await session.abortTransaction();
-      console.error(error);
+      this.logger.error('更新团队成员权限失败:', error);
       throwError(1015, '添加团队成员失败')
     } finally {
       // session.endSession();

@@ -1,8 +1,9 @@
-import { Provide, InjectClient } from '@midwayjs/core';
+import { Provide, InjectClient, Logger } from '@midwayjs/core';
 import { InjectEntityModel } from '@midwayjs/typegoose';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { UserLimitRecord } from '../../entity/security/user_limit_record.js';
 import { CachingFactory, MidwayCache } from '@midwayjs/cache-manager';
+import { ILogger } from '@midwayjs/logger';
 
 @Provide()
 export class UserLimitCleanupService {
@@ -10,6 +11,8 @@ export class UserLimitCleanupService {
     userLimitRecordModel: ReturnModelType<typeof UserLimitRecord>;
   @InjectClient(CachingFactory, 'default')
     cache: MidwayCache;
+  @Logger()
+    logger: ILogger;
 
   /**
    * 清理过期的限制记录
@@ -41,7 +44,7 @@ export class UserLimitCleanupService {
         await this.cache.del(cacheKey);
       }
 
-      console.log(`清理了 ${expiredRecords.length} 条过期的用户限制记录`);
+      this.logger.info(`清理了 ${expiredRecords.length} 条过期的用户限制记录`);
     }
 
     return {
@@ -55,7 +58,7 @@ export class UserLimitCleanupService {
   async cleanupExpiredCache() {
     // 这里可以添加清理过期缓存的逻辑
     // 由于缓存本身有TTL，大部分情况下不需要手动清理
-    console.log('缓存清理完成');
+    this.logger.info('缓存清理完成');
   }
 
   /**

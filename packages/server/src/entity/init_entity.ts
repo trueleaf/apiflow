@@ -1028,7 +1028,6 @@ const INITIAL_CLIENT_MENUS = [
 export async function initUser(userModel: ReturnModelType<typeof User>) {
   const userInfo = await userModel.findOne();
   if (!userInfo) {
-    console.log('初始化用户信息');
     await userModel.insertMany(INITIAL_USER);
   }
   return;
@@ -1042,7 +1041,6 @@ export async function initServerRoutes(
 ) {
   const serverRoutesInfo = await serverRoutesModel.findOne();
   if (!serverRoutesInfo) {
-    console.log('初始化服务端路由');
     await serverRoutesModel.insertMany(INITIAL_SERVER_ROUTES);
   } else {
     const existingRoutes = await serverRoutesModel.find({}, { path: 1, method: 1 }).lean();
@@ -1063,7 +1061,6 @@ export async function initClientRoutes(
 ) {
   const serverRoutesInfo = await clientRoutesModel.findOne();
   if (!serverRoutesInfo) {
-    console.log('初始化客户端端路由');
     await clientRoutesModel.insertMany(INITIAL_CLIENT_ROUTES);
   }
   return;
@@ -1075,7 +1072,6 @@ export async function initClientRoutes(
 export async function initRoles(roleModel: ReturnModelType<typeof Role>) {      
   const roleInfo = await roleModel.findOne();
   if (!roleInfo) {
-    console.log('初始化角色信息');
     await roleModel.insertMany(INITIAL_ROLE);
   } else {
     const projectRecycleRouteIds = [
@@ -1100,7 +1096,6 @@ export async function initRoles(roleModel: ReturnModelType<typeof Role>) {
 export async function initClientMenus(clientMenuModel: ReturnModelType<typeof ClientMenu>) {
   const clientMenuInfo = await clientMenuModel.findOne();
   if (!clientMenuInfo) {
-    console.log('初始化前端菜单');
     await clientMenuModel.insertMany(INITIAL_CLIENT_MENUS);
   }
   return;
@@ -1112,7 +1107,6 @@ export async function initClientMenus(clientMenuModel: ReturnModelType<typeof Cl
 export async function initAttachment(attachmentModel: ReturnModelType<typeof Attachment>) {
   const attachmentInfo = await attachmentModel.findOne();
   if (!attachmentInfo) {
-    console.log('初始化附件信息');
     // await attachmentModel.insertMany([]);
   }
   return;

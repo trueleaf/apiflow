@@ -1,4 +1,4 @@
-import { Config, Context, Inject, Provide } from '@midwayjs/core';
+import { Config, Context, Inject, Provide, Logger } from '@midwayjs/core';
 import { InjectEntityModel } from '@midwayjs/typegoose';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { AddProjectDto, AddMemberToProjectDto, ChangeMemberPermissionInProjectDto, DeleteProjectDto, DeleteMemberFromProjectDto, EditProjectDto, GetDeletedProjectListDto, GetProjectByKeywordDto, GetProjectFullInfoByIdDto, GetProjectInfoByIdDto, GetProjectListDto, GetProjectMembersByIdDto, RestoreProjectDto } from '../../types/dto/project/project.dto.js';
@@ -15,6 +15,7 @@ import { DocPrefixServer } from '../doc/doc_prefix.js';
 import { ProjectVariableService } from './project_variable.js';
 import { ProjectRulesService } from './project_rules.js';
 import { Group } from '../../entity/security/group.js';
+import { ILogger } from '@midwayjs/logger';
 
 @Provide()
 export class ProjectService {
@@ -42,6 +43,8 @@ export class ProjectService {
     commonControl: CommonController
   @Inject()
     ctx: Context & { tokenInfo: LoginTokenInfo };
+  @Logger()
+    logger: ILogger;
   /**
    * 新增项目
    */
@@ -89,7 +92,7 @@ export class ProjectService {
       return result[0]._id;
     } catch (error) {
       // await session.abortTransaction();
-      console.error(error);
+      this.logger.error('新增项目失败:', error);
       throwError(1015, '新增项目失败')
     } finally {
       // session.endSession();
@@ -143,7 +146,6 @@ export class ProjectService {
     }
     if (memberType === 'user') {
       await this.userModel.updateOne({ _id: id }, { $pull: { couldVisitProjects: projectId } });
-      console.log(projectId, id)
       await this.projectModel.findByIdAndUpdate({ _id: projectId }, {
         $pull: {
           users: { userId: id },

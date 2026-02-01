@@ -99,7 +99,6 @@ export class ProjectRulesService {
    */
   async getProjectRulesById(params: GetProjectRulesByIdDto) {
     const { projectId } = params;
-    console.log(this.projectRulesModel)
     const result = await this.projectRulesModel.findOne({
       projectId,
     }).lean();

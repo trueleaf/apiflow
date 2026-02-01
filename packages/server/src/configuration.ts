@@ -245,9 +245,8 @@ export class ContainerLifeCycle {
       const moduleUrl = new URL(`file:///${filePath.replace(/\\/g, '/')}`).href
       const config = await import(moduleUrl);
       Object.assign(remoteConfig, config.default)
-      console.log('config.local.js加载成功');
     } catch (error) {
-      console.log('config.local.js不存在，使用默认配置');
+      // config.local.js不存在，使用默认配置
     }
     return remoteConfig;
   }

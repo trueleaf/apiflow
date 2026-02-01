@@ -1,20 +1,22 @@
-import { WSController, OnWSConnection, OnWSMessage, OnWSDisConnection, Inject } from '@midwayjs/core';
+import { WSController, OnWSConnection, OnWSMessage, OnWSDisConnection, Inject, Logger } from '@midwayjs/core';
 import { Context } from '@midwayjs/ws';
+import { ILogger } from '@midwayjs/logger';
 import * as http from 'http';
 
 @WSController()
 export class HelloSocketController {
   @Inject()
     ctx: Context;
+  @Logger()
+    logger: ILogger;
 
   @OnWSConnection()
   async onConnectionMethod(socket: Context, request: http.IncomingMessage) {
 
-    // 打印请求头、请求url和一些必要信息
-    console.log('WebSocket连接请求头:', request.headers);
-    console.log('WebSocket连接请求url:', request.url);
-    console.log('WebSocket连接远程地址:', request.socket?.remoteAddress);
-    console.log('WebSocket连接协议:', request.headers['sec-websocket-protocol']);
+    this.logger.info('WebSocket连接请求头:', request.headers);
+    this.logger.info('WebSocket连接请求url:', request.url);
+    this.logger.info('WebSocket连接远程地址:', request.socket?.remoteAddress);
+    this.logger.info('WebSocket连接协议:', request.headers['sec-websocket-protocol']);
     // 发送欢迎消息
     this.ctx.send(JSON.stringify({
       type: 'connection',
@@ -28,7 +30,7 @@ export class HelloSocketController {
 
   @OnWSMessage('message')
   async gotMessage(data: Buffer) {
-    console.log('收到消息:', data.toString());
+    this.logger.info('收到消息:', data.toString());
     
     try {
       // 尝试解析JSON数据
@@ -82,7 +84,7 @@ export class HelloSocketController {
 
   @OnWSDisConnection()
   async disconnect(id: number) {
-    console.log('客户端断开连接: ' + id);
+    this.logger.info('客户端断开连接: ' + id);
   }
 
   // 生成JSON数据
