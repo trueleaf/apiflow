@@ -91,24 +91,51 @@ const createVariablesProxy = () => {
 };
 const createStorageProxy = (setType: OnSetLocalStorageEvent['type'] | OnSetSessionStorageEvent['type'], deleteType: OnDeleteLocalStorageEvent['type'] | OnDeleteSessionStorageEvent['type']) => {
   const store: Record<string, unknown> = {};
+  const postSetMessage = () => {
+    self.postMessage({
+      type: setType,
+      value: JSON.parse(JSON.stringify(store)),
+    });
+  };
+  const postDeleteMessage = () => {
+    self.postMessage({
+      type: deleteType,
+      value: JSON.parse(JSON.stringify(store)),
+    });
+  };
   return new Proxy(store, {
     get(_target, key: string) {
+      if (key === 'set') {
+        return (name: string, value: unknown) => {
+          store[name] = value;
+          postSetMessage();
+        };
+      }
+      if (key === 'get') {
+        return (name: string) => store[name] ?? null;
+      }
+      if (key === 'remove') {
+        return (name: string) => {
+          delete store[name];
+          postDeleteMessage();
+        };
+      }
+      if (key === 'clear') {
+        return () => {
+          Object.keys(store).forEach(k => delete store[k]);
+          postDeleteMessage();
+        };
+      }
       return store[key];
     },
     set(_target, key: string, value: unknown) {
       store[key] = value;
-      self.postMessage({
-        type: setType,
-        value: JSON.parse(JSON.stringify(store)),
-      });
+      postSetMessage();
       return true;
     },
     deleteProperty(_target, key: string) {
       delete store[key];
-      self.postMessage({
-        type: deleteType,
-        value: JSON.parse(JSON.stringify(store)),
-      });
+      postDeleteMessage();
       return true;
     },
   });
