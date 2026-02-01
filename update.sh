@@ -199,15 +199,20 @@ else
 fi
 echo ""
 
-TIMEOUT_SECONDS=60
+CONTAINER_TIMEOUT=90
+API_HEALTH_TIMEOUT=60
 HEALTH_URL=${HEALTH_URL:-http://localhost/api/health}
-START_TS=$(date +%s)
-DEADLINE_TS=$((START_TS + TIMEOUT_SECONDS))
 
 cleanup_and_exit() {
     print_error "$1"
+    echo ""
+    print_step "📊 服务状态:"
     docker compose "${COMPOSE_ARGS[@]}" ps || true
+    echo ""
+    print_step "📋 最近日志:"
     docker compose "${COMPOSE_ARGS[@]}" logs --tail=80 || true
+    echo ""
+    print_error "正在停止所有服务..."
     docker compose "${COMPOSE_ARGS[@]}" down || true
     exit 1
 }
@@ -217,7 +222,9 @@ if [ -z "$SERVICES" ]; then
     cleanup_and_exit "未能获取 compose 服务列表，无法校验启动状态"
 fi
 
-print_step "⏳ 等待服务就绪（${TIMEOUT_SECONDS}s 超时）..."
+print_step "⏳ 等待容器健康检查（${CONTAINER_TIMEOUT}s 超时）..."
+START_TS=$(date +%s)
+DEADLINE_TS=$((START_TS + CONTAINER_TIMEOUT))
 while true; do
     all_ready=true
     for service in $SERVICES; do
@@ -235,42 +242,52 @@ while true; do
         health=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{end}}' "$container_id" 2>/dev/null || true)
         if [ -n "$health" ] && [ "$health" != "healthy" ]; then
             all_ready=false
+            printf "."
         fi
     done
 
     if [ "$all_ready" = true ]; then
-        print_success "服务已就绪"
+        echo ""
+        print_success "所有容器健康检查通过"
         break
     fi
 
     now_ts=$(date +%s)
     if [ "$now_ts" -ge "$DEADLINE_TS" ]; then
-        cleanup_and_exit "服务启动超时"
+        echo ""
+        cleanup_and_exit "容器健康检查超时（${CONTAINER_TIMEOUT}s）"
     fi
     sleep 2
 done
 echo ""
 
-print_step "🏥 检查 /api/health（${TIMEOUT_SECONDS}s 内必须成功）..."
+print_step "🏥 检查 API 健康状态（${API_HEALTH_TIMEOUT}s 超时）: $HEALTH_URL"
+START_TS=$(date +%s)
+DEADLINE_TS=$((START_TS + API_HEALTH_TIMEOUT))
+ATTEMPT=0
 while true; do
+    ATTEMPT=$((ATTEMPT + 1))
     now_ts=$(date +%s)
     if [ "$now_ts" -ge "$DEADLINE_TS" ]; then
-        cleanup_and_exit "/api/health 检查失败或超时：$HEALTH_URL"
+        echo ""
+        cleanup_and_exit "API 健康检查超时（${API_HEALTH_TIMEOUT}s，尝试 ${ATTEMPT} 次）: $HEALTH_URL"
     fi
 
     if command -v curl >/dev/null 2>&1; then
-        health_body=$(curl -fsS --max-time 3 "$HEALTH_URL" 2>/dev/null || true)
+        health_body=$(curl -fsS --max-time 5 "$HEALTH_URL" 2>/dev/null || true)
     elif command -v wget >/dev/null 2>&1; then
-        health_body=$(wget -qO- "$HEALTH_URL" 2>/dev/null || true)
+        health_body=$(wget -qO- --timeout=5 "$HEALTH_URL" 2>/dev/null || true)
     else
-        cleanup_and_exit "缺少 curl/wget，无法检查 /api/health：$HEALTH_URL"
+        cleanup_and_exit "缺少 curl/wget 工具，无法检查 API 健康状态"
     fi
 
     if echo "$health_body" | grep -Eq '"status"[[:space:]]*:[[:space:]]*"ok"'; then
-        print_success "/api/health 正常"
+        echo ""
+        print_success "API 健康检查通过（尝试 ${ATTEMPT} 次）"
         break
     fi
-    sleep 2
+    printf "."
+    sleep 3
 done
 echo ""
 

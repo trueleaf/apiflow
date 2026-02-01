@@ -37,6 +37,12 @@ services:
       ALIYUN_EMAIL_REGION: ${ALIYUN_EMAIL_REGION}
     volumes:
       - server_logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:7001/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   website:
     image: xiaoxiaoshu/apiflow-website:latest
@@ -50,8 +56,10 @@ services:
     image: xiaoxiaoshu/apiflow-web:latest
     restart: unless-stopped
     depends_on:
-      - server
-      - website
+      server:
+        condition: service_healthy
+      website:
+        condition: service_started
     environment:
       - DEPLOYMENT_TYPE=${DEPLOYMENT_TYPE:-user}
     ports:
