@@ -1,5 +1,8 @@
 import { User } from '../entity/security/user.js';
 
+//部署类型
+export type DeploymentType = 'user' | 'official';
+
 /**
  * 全局配置
  */

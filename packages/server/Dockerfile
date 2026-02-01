@@ -18,6 +18,8 @@ FROM node:20-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 
+RUN apk add --no-cache curl
+
 COPY --from=build /app/packages/server/package.json ./
 COPY --from=build /app/packages/server/node_modules ./node_modules
 COPY --from=build /app/packages/server/dist ./dist

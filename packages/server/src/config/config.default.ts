@@ -132,7 +132,7 @@ export default (): MidwayConfig => {
       model: process.env.DEEPSEEK_MODEL || 'deepseek-chat',
     },
     permission: {
-      isFree: false,
+      isFree: process.env.DEPLOYMENT_TYPE === 'user',
       whiteList: [
         '/api/health',
         '/mock/image',
