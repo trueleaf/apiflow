@@ -179,7 +179,7 @@ else
 fi
 
 echo "$RESULT"
-if echo "$RESULT" | grep -Eq '"matched"[[:space:]]*:[[:space:]]*1'; then
+if echo "$RESULT" | grep -Eq '(^|[,{[:space:]])"?matched"?[[:space:]]*:[[:space:]]*1([,}[:space:]]|$)'; then
   print_success "密码已重置完成（请用新密码登录）"
 else
   print_warning "未匹配到目标用户（matched!=1），请确认 loginName 是否正确，以及数据库中是否存在该用户"
