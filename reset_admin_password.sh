@@ -72,7 +72,7 @@ generate_salt_and_hash() {
     print_error "请先安装 node，或手动在 MongoDB 中更新 security_users 的 salt/password 字段"
     exit 1
   fi
-  node -e "const {createHash,randomInt}=require('crypto');const password=process.argv[1];const salt=String(randomInt(10000,10000000));const hash=createHash('md5').update((password+salt).slice(2)).digest('hex');process.stdout.write(JSON.stringify({salt,hash}));" "$password"
+  node -e "const {createHash,randomInt}=require('crypto');const password=process.argv[1]??'';const salt=String(randomInt(10000,10000000));const hash=createHash('md5').update((password+salt).slice(2)).digest('hex');process.stdout.write(salt+'\\n'+hash+'\\n');" "$password"
 }
 run_mongosh_docker() {
   local db_name="$1"
@@ -158,9 +158,10 @@ if [ -n "${MONGODB_URI:-}" ]; then
 fi
 
 print_step "生成新的 salt 与哈希（按服务端规则）"
-HASH_JSON="$(generate_salt_and_hash "$PASSWORD")"
-SALT="$(echo "$HASH_JSON" | sed -n 's/.*"salt":"\\([^"]*\\)".*/\\1/p')"
-HASH="$(echo "$HASH_JSON" | sed -n 's/.*"hash":"\\([^"]*\\)".*/\\1/p')"
+SALT_HASH="$(generate_salt_and_hash "$PASSWORD" | tr -d '\r')"
+SALT="${SALT_HASH%%$'\n'*}"
+HASH="${SALT_HASH#*$'\n'}"
+HASH="${HASH%%$'\n'*}"
 if [ -z "$SALT" ] || [ -z "$HASH" ]; then
   print_error "生成 salt/哈希失败"
   exit 1
