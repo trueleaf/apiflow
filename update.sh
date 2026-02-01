@@ -203,6 +203,12 @@ CONTAINER_TIMEOUT=90
 API_HEALTH_TIMEOUT=60
 HEALTH_URL=${HEALTH_URL:-http://localhost/api/health}
 
+DEPLOYMENT_TYPE=${DEPLOYMENT_TYPE:-user}
+HEALTH_HOST=${HEALTH_HOST:-}
+if [ -z "$HEALTH_HOST" ] && [ "$DEPLOYMENT_TYPE" = "official" ]; then
+    HEALTH_HOST="app.apiflow.cn"
+fi
+
 cleanup_and_exit() {
     print_error "$1"
     echo ""
@@ -261,7 +267,7 @@ while true; do
 done
 echo ""
 
-print_step "🏥 检查 API 健康状态（${API_HEALTH_TIMEOUT}s 超时）: $HEALTH_URL"
+print_step "🏥 检查 API 健康状态（${API_HEALTH_TIMEOUT}s 超时）: ${HEALTH_URL}${HEALTH_HOST:+ (Host: $HEALTH_HOST)}"
 START_TS=$(date +%s)
 DEADLINE_TS=$((START_TS + API_HEALTH_TIMEOUT))
 ATTEMPT=0
@@ -274,9 +280,17 @@ while true; do
     fi
 
     if command -v curl >/dev/null 2>&1; then
-        health_body=$(curl -fsS --max-time 5 "$HEALTH_URL" 2>/dev/null || true)
+        curl_args=(-fsS --max-time 5)
+        if [ -n "$HEALTH_HOST" ]; then
+            curl_args+=(-H "Host: $HEALTH_HOST")
+        fi
+        health_body=$(curl "${curl_args[@]}" "$HEALTH_URL" 2>/dev/null || true)
     elif command -v wget >/dev/null 2>&1; then
-        health_body=$(wget -qO- --timeout=5 "$HEALTH_URL" 2>/dev/null || true)
+        wget_args=(-qO- --timeout=5)
+        if [ -n "$HEALTH_HOST" ]; then
+            wget_args+=(--header="Host: $HEALTH_HOST")
+        fi
+        health_body=$(wget "${wget_args[@]}" "$HEALTH_URL" 2>/dev/null || true)
     else
         cleanup_and_exit "缺少 curl/wget 工具，无法检查 API 健康状态"
     fi
