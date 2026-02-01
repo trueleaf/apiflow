@@ -176,6 +176,7 @@ type MockRequestLog = {
     // 保留原有但不显示在标准日志中的字段
     headers: Record<string, string>, // 完整请求头(用于详细查看)
     body: string,                 // 请求体(用于调试)
+    bodyRaw?: string,            // 二进制数据的base64编码(用于图片预览等)
 
     // Console日志收集
     consoleLogs: Array<{

@@ -55,19 +55,32 @@
       </div>
       <div v-show="isBodyExpanded" class="collapse-content">
         <div class="body-content">
-          <template v-if="formatRequestBody(log).type === 'empty'">
-            <div class="empty-hint">{{ formatRequestBody(log).value }}</div>
+          <template v-if="formattedBody.type === 'empty'">
+            <div class="empty-hint">{{ formattedBody.value }}</div>
           </template>
-          <template v-else-if="formatRequestBody(log).type === 'json'">
-            <div v-if="formatRequestBody(log).error" class="error-hint">
-              {{ formatRequestBody(log).error }}
+          <template v-else-if="formattedBody.type === 'image'">
+            <div class="image-preview-container">
+              <div class="image-preview-header">
+                <span class="image-info">{{ formattedBody.info }}</span>
+                <ElButton size="small" @click="toggleImageDisplay(log.id)">
+                  {{ isImageShowingPreview(log.id) ? t('隐藏图片预览') : t('显示图片预览') }}
+                </ElButton>
+              </div>
+              <div v-if="isImageShowingPreview(log.id)" class="image-preview">
+                <img :src="formattedBody.dataUrl" :alt="t('请求体图片')" />
+              </div>
             </div>
-            <pre class="json-body">{{ formatRequestBody(log).value }}</pre>
           </template>
-          <template v-else-if="formatRequestBody(log).type === 'urlencoded'">
+          <template v-else-if="formattedBody.type === 'json'">
+            <div v-if="formattedBody.error" class="error-hint">
+              {{ formattedBody.error }}
+            </div>
+            <pre class="json-body">{{ formattedBody.value }}</pre>
+          </template>
+          <template v-else-if="formattedBody.type === 'urlencoded'">
             <div class="urlencoded-list">
               <div 
-                v-for="(field, idx) in (formatRequestBody(log).fields as Array<{ key: string; value: string }>)" 
+                v-for="(field, idx) in (formattedBody.fields as Array<{ key: string; value: string }>)" 
                 :key="idx"
                 class="urlencoded-item"
               >
@@ -77,14 +90,14 @@
               </div>
             </div>
           </template>
-          <template v-else-if="formatRequestBody(log).type === 'formdata'">
+          <template v-else-if="formattedBody.type === 'formdata'">
             <div class="formdata-table">
               <div class="table-header">
                 <div class="table-cell">{{ t('字段名') }}</div>
                 <div class="table-cell">{{ t('值') }}</div>
               </div>
               <div 
-                v-for="(field, idx) in (formatRequestBody(log).fields as FormDataField[])" 
+                v-for="(field, idx) in (formattedBody.fields as FormDataField[])" 
                 :key="idx"
                 class="table-row"
               >
@@ -109,10 +122,10 @@
             </div>
           </template>
           <template v-else>
-            <div v-if="formatRequestBody(log).error" class="error-hint">
-              {{ formatRequestBody(log).error }}
+            <div v-if="formattedBody.error" class="error-hint">
+              {{ formattedBody.error }}
             </div>
-            <pre class="raw-body">{{ formatRequestBody(log).value }}</pre>
+            <pre class="raw-body">{{ formattedBody.value }}</pre>
           </template>
         </div>
       </div>
@@ -121,7 +134,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { MockLog } from '@src/types/mockNode'
 import { ChevronRight } from 'lucide-vue-next'
 import { ElButton } from 'element-plus'
@@ -130,7 +143,7 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
-defineProps<{
+const props = defineProps<{
   log: Extract<MockLog, { type: 'request' }>
 }>()
 
@@ -142,6 +155,8 @@ defineEmits<{
 const isHeadersExpanded = ref(true)
 const isBodyExpanded = ref(true)
 const expandedFields = ref<Set<number>>(new Set())
+const imagePreviewMode = ref<Set<string>>(new Set())
+
 const toggleFieldExpand = (idx: number) => {
   if (expandedFields.value.has(idx)) {
     expandedFields.value.delete(idx)
@@ -149,7 +164,20 @@ const toggleFieldExpand = (idx: number) => {
     expandedFields.value.add(idx)
   }
 }
+
 const isFieldExpanded = (idx: number) => expandedFields.value.has(idx)
+
+const toggleImageDisplay = (logId: string) => {
+  if (imagePreviewMode.value.has(logId)) {
+    imagePreviewMode.value.delete(logId)
+  } else {
+    imagePreviewMode.value.add(logId)
+  }
+}
+
+const isImageShowingPreview = (logId: string) => imagePreviewMode.value.has(logId)
+
+const formattedBody = computed(() => formatRequestBody(props.log))
 
 const formatTimestamp = (value: number | null) => {
   if (!value) {
@@ -266,11 +294,22 @@ const parseMultipartFormData = (body: string, contentType: string): FormDataFiel
 }
 
 const formatRequestBody = (log: Extract<MockLog, { type: 'request' }>) => {
-  const { body, contentType } = log.data
+  const { body, bodyRaw, contentType } = log.data
   if (!body) {
     return { type: 'empty', value: '无请求体' }
   }
+  // 检查是否为二进制数据
   if (body.startsWith('[Binary Data:')) {
+    const binaryContentType = contentType || ''
+    
+    // 判断是否为图片类型
+    if (binaryContentType.includes('image/') && bodyRaw) {
+      return {
+        type: 'image',
+        info: body,
+        dataUrl: `data:${binaryContentType};base64,${bodyRaw}`
+      }
+    }
     return { type: 'raw', value: body }
   }
   try {
@@ -615,5 +654,43 @@ const formatRequestBody = (log: Extract<MockLog, { type: 'request' }>) => {
 }
 .formdata-toggle:hover {
   text-decoration: underline;
+}
+.image-preview-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.image-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-base);
+  border-radius: var(--border-radius-sm);
+}
+.image-info {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-family: 'Consolas', 'Monaco', monospace;
+  flex: 1;
+  word-break: break-all;
+}
+.image-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-base);
+  border-radius: var(--border-radius-sm);
+  overflow: auto;
+}
+.image-preview img {
+  max-width: 100%;
+  max-height: 500px;
+  object-fit: contain;
+  border-radius: var(--border-radius-sm);
 }
 </style>

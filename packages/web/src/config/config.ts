@@ -58,6 +58,9 @@ export const config: Config = {
     bodyModeOrder: ['json', 'formdata', 'urlencoded', 'raw', 'binary', 'none'],
     tempFileSizeThreshold: 1024 * 50, //粘贴大值自动转临时文件的阈值，默认50KB
   },
+  mockNodeConfig: {
+    imageBase64Limit: 1024 * 1024 * 2,
+  },
   variableConfig: {
     maxStringSize: 1024 * 100, //string类型变量最大大小（字符数）
   },

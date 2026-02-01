@@ -122,6 +122,15 @@ export type Config = {
   },
   httpNodeConfig: HttpNodeConfig,
   /**
+   * Mock节点相关配置
+   */
+  mockNodeConfig: {
+    /**
+     * 图片预览base64最大大小
+     */
+    imageBase64Limit: number,
+  },
+  /**
    * 变量相关配置
    */
   variableConfig: {

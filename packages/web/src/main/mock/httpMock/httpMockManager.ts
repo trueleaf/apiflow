@@ -1,4 +1,5 @@
 import { HttpMockNode, MockInstance, MockLog, MockStatusChangedPayload } from '@src/types/mockNode';
+import { config } from '@src/config/config';
 import { CommonResponse } from '@src/types/project';
 import { MockUtils, ConsoleLogCollector } from '../mockUtils';
 import { matchPath, getPatternPriority, sleep } from '../../utils';
@@ -72,8 +73,8 @@ export class HttpMockManager {
       });
     });
   }
-  // 获取请求体字符串
-  private getRequestBody(ctx: Koa.Context): string {
+  // 获取请求体字符串和原始数据
+  private getRequestBody(ctx: Koa.Context): { body: string; bodyRaw?: string } {
     const body = (ctx.request as any).body;
     const rawBody = (ctx.request as any).rawBody;
     const files = (ctx.request as any).files;
@@ -83,7 +84,15 @@ export class HttpMockManager {
     // 优先检查rawBody是否为Buffer（二进制数据）
     if (Buffer.isBuffer(rawBody)) {
       const size = rawBody.length;
-      return `[Binary Data: ${size} bytes, Content-Type: ${contentType || 'application/octet-stream'}]`;
+      const bodyStr = `[Binary Data: ${size} bytes, Content-Type: ${contentType || 'application/octet-stream'}]`;
+      // 对于image/video/audio等媒体类型，保存base64数据用于预览
+      if (contentType.includes('image/')) {
+        if (size <= config.mockNodeConfig.imageBase64Limit) {
+          return { body: bodyStr, bodyRaw: rawBody.toString('base64') };
+        }
+        return { body: bodyStr };
+      }
+      return { body: bodyStr };
     }
 
     // 检查是否为二进制Content-Type且有Content-Length（即使已被解析为字符串）
@@ -92,19 +101,22 @@ export class HttpMockManager {
       contentType.includes('application/x-msdownload') ||
       contentType.includes('application/x-msdos-program') ||
       contentType.includes('application/x-executable') ||
-      contentType.includes('application/x-dosexec')
+      contentType.includes('application/x-dosexec') ||
+      contentType.includes('image/') ||
+      contentType.includes('video/') ||
+      contentType.includes('audio/')
     )) {
       // 如果body是字符串但应该是二进制，说明被错误解析了
       if (typeof body === 'string' && body.length > 0) {
-        return `[Binary Data: ${contentLength} bytes, Content-Type: ${contentType}]`;
+        return { body: `[Binary Data: ${contentLength} bytes, Content-Type: ${contentType}]` };
       }
     }
 
     if ((body === undefined || body === null) && !files) {
       if (rawBody && typeof rawBody === 'string') {
-        return rawBody;
+        return { body: rawBody };
       }
-      return '';
+      return { body: '' };
     }
 
     // 处理 multipart/form-data（koa-body 解析后的数据）
@@ -143,19 +155,19 @@ export class HttpMockManager {
       }
       if (parts.length > 0) {
         const boundary = (contentType.match(/boundary=([^;]+)/)?.[1] || 'boundary').trim().replace(/^["']|["']$/g, '');
-        return parts.map(part => `--${boundary}\r\n${part}\r\n`).join('') + `--${boundary}--`;
+        return { body: parts.map(part => `--${boundary}\r\n${part}\r\n`).join('') + `--${boundary}--` };
       }
-      return '';
+      return { body: '' };
     }
 
-    if (body === undefined || body === null) return '';
+    if (body === undefined || body === null) return { body: '' };
 
     if (typeof body === 'string') {
-      return body;
+      return { body };
     }
 
     if (contentType.includes('application/json')) {
-      return JSON.stringify(body);
+      return { body: JSON.stringify(body) };
     }
 
     if (contentType.includes('application/x-www-form-urlencoded')) {
@@ -169,16 +181,16 @@ export class HttpMockManager {
             params.append(key, String(value));
           }
         }
-        return params.toString();
+        return { body: params.toString() };
       } catch (e) {
-        return JSON.stringify(body);
+        return { body: JSON.stringify(body) };
       }
     }
 
     try {
-      return JSON.stringify(body);
+      return { body: JSON.stringify(body) };
     } catch {
-      return String(body);
+      return { body: String(body) };
     }
   }
 
@@ -478,7 +490,7 @@ export class HttpMockManager {
 
             // 保留原有但不显示在标准日志中的字段
             headers: ctx.headers as Record<string, string>,
-            body: this.getRequestBody(ctx), // 获取请求体
+            ...this.getRequestBody(ctx), // 获取请求体(包含body和可选的bodyRaw)
 
             // Console日志收集
             consoleLogs: consoleCollector.getLogs(),
@@ -582,7 +594,10 @@ export class HttpMockManager {
           contentType.includes('application/x-msdownload') ||
           contentType.includes('application/x-msdos-program') ||
           contentType.includes('application/x-executable') ||
-          contentType.includes('application/x-dosexec');
+          contentType.includes('application/x-dosexec') ||
+          contentType.includes('image/') ||
+          contentType.includes('video/') ||
+          contentType.includes('audio/');
           
         if (isBinaryType) {
           const chunks: Buffer[] = [];
