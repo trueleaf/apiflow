@@ -238,6 +238,14 @@ export const createMockServer = (): Koa => {
         'text/yaml',
         'application/graphql',
         'application/octet-stream',
+        'image/png',
+        'image/jpeg',
+        'image/gif',
+        'image/webp',
+        'image/svg+xml',
+        'image/*',
+        'audio/*',
+        'video/*',
       ],
     },
     formidable: {
@@ -263,12 +271,34 @@ export const createMockServer = (): Koa => {
     }
     await next();
   };
-  // 条件性使用中间件：XML 类型使用自定义中间件，其他类型使用 koa-body
+  // 自定义中间件：处理 binary 类型（如 image/png, application/octet-stream）
+  const binaryBodyMiddleware = async (ctx: Koa.Context, next: Koa.Next) => {
+    const chunks: Buffer[] = [];
+    for await (const chunk of ctx.req) {
+      chunks.push(chunk);
+    }
+    const rawBody = Buffer.concat(chunks);
+    (ctx.request as any).body = `[Binary data: ${rawBody.length} bytes]`;
+    (ctx.request as any).rawBody = `[Binary data: ${rawBody.length} bytes]`;
+    (ctx.request as any).binaryBuffer = rawBody;
+    await next();
+  };
+  // 判断是否为 binary 类型
+  const isBinaryContentType = (contentType: string): boolean => {
+    return contentType.includes('image/') ||
+           contentType.includes('audio/') ||
+           contentType.includes('video/') ||
+           contentType.includes('application/octet-stream');
+  };
+  // 条件性使用中间件：XML 类型使用自定义中间件，binary 类型使用 binary 中间件，其他类型使用 koa-body
   app.use(async (ctx, next) => {
     const contentType = ctx.get('content-type') || '';
     const isXmlType = contentType.includes('xml');
+    const isBinaryType = isBinaryContentType(contentType);
     if (isXmlType) {
       await xmlBodyMiddleware(ctx, next);
+    } else if (isBinaryType) {
+      await binaryBodyMiddleware(ctx, next);
     } else {
       await koaBody(koaBodyOptions)(ctx, next);
     }

@@ -201,9 +201,28 @@ test.describe('BinaryParams', () => {
     if (!fs.existsSync(testDir)) {
       fs.mkdirSync(testDir, { recursive: true });
     }
-    // 创建一个简单的PNG文件头
-    const pngHeader = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
-    fs.writeFileSync(testFilePath, pngHeader);
+    // 创建一个完整的最小PNG文件 (1x1像素的红色PNG)
+    const pngData = Buffer.from([
+      0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, // PNG signature
+      0x00, 0x00, 0x00, 0x0D, // IHDR chunk length
+      0x49, 0x48, 0x44, 0x52, // IHDR
+      0x00, 0x00, 0x00, 0x01, // width: 1
+      0x00, 0x00, 0x00, 0x01, // height: 1
+      0x08, // bit depth: 8
+      0x02, // color type: RGB
+      0x00, // compression method
+      0x00, // filter method
+      0x00, // interlace method
+      0x90, 0x77, 0x53, 0xDE, // CRC
+      0x00, 0x00, 0x00, 0x0C, // IDAT chunk length
+      0x49, 0x44, 0x41, 0x54, // IDAT
+      0x08, 0xD7, 0x63, 0xF8, 0xCF, 0xC0, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, // compressed data
+      0x1B, 0xB6, 0xEE, 0x56, // CRC
+      0x00, 0x00, 0x00, 0x00, // IEND chunk length
+      0x49, 0x45, 0x4E, 0x44, // IEND
+      0xAE, 0x42, 0x60, 0x82  // CRC
+    ]);
+    fs.writeFileSync(testFilePath, pngData);
     // 创建HTTP节点
     const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
     await addFileBtn.click();
@@ -241,11 +260,23 @@ test.describe('BinaryParams', () => {
     const fileInput = contentPage.locator('.file-mode input[type="file"]');
     await fileInput.setInputFiles(testFilePath);
     await contentPage.waitForTimeout(500);
+    // 验证文件路径是否显示
+    const pathDisplay = contentPage.locator('.file-mode .path');
+    await expect(pathDisplay).toBeVisible({ timeout: 5000 });
+    // 打印显示的路径，用于调试
+    const displayedPath = await pathDisplay.textContent();
     // 点击发送按钮
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     const responseArea = contentPage.getByTestId('response-area');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
+    // 检查是否有错误响应，如果有则打印错误信息
+    const errorMessage = responseArea.getByTestId('response-error');
+    const hasError = await errorMessage.isVisible().catch(() => false);
+    if (hasError) {
+      const errorText = await errorMessage.textContent();
+      throw new Error(`请求失败，错误信息: ${errorText}，显示的路径: ${displayedPath}，期望的路径: ${testFilePath}`);
+    }
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
