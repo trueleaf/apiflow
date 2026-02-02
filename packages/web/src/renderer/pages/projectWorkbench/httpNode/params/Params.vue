@@ -114,56 +114,11 @@
       </div>
     </Teleport>
     <el-tabs v-model="activeName" class="params-tabs" data-testid="http-params-tabs">
-      <el-tab-pane name="SParams">
+      <el-tab-pane v-for="tabName in tabOrder" :key="tabName" :name="tabName">
         <template #label>
-          <span data-testid="http-params-tab-params">
-            <el-badge :is-dot="hasQueryOrPathsParams">Params</el-badge>
+          <span :data-testid="getTabTestId(tabName)">
+            <el-badge :is-dot="getTabBadgeDot(tabName)">{{ getTabLabel(tabName) }}</el-badge>
           </span>
-        </template>
-      </el-tab-pane>
-      <el-tab-pane name="SRequestBody">
-        <template #label>
-          <span data-testid="http-params-tab-body">
-            <el-badge :is-dot="hasBodyParams">Body</el-badge>
-          </span>
-        </template>
-      </el-tab-pane>
-      <el-tab-pane name="SRequestHeaders">
-        <template #label>
-          <span data-testid="http-params-tab-headers">
-            <el-badge :is-dot="hasHeaders">{{ t("请求头") }}</el-badge>
-          </span>
-        </template>
-      </el-tab-pane>
-      <el-tab-pane name="SResponseParams">
-        <template #label>
-          <span data-testid="http-params-tab-response">
-            <el-badge :is-dot="!!responseNum">{{ t("返回参数") }}</el-badge>
-          </span>
-        </template>
-      </el-tab-pane>
-      <el-tab-pane name="SPreRequest">
-        <template #label>
-          <span data-testid="http-params-tab-prescript">
-            <el-badge :is-dot="hasPreRequest">{{ t("前置脚本") }}</el-badge>
-          </span>
-        </template>
-      </el-tab-pane>
-      <el-tab-pane name="SAfterRequest">
-        <template #label>
-          <span data-testid="http-params-tab-afterscript">
-            <el-badge :is-dot="hasAfterRequest">{{ t("后置脚本") }}</el-badge>
-          </span>
-        </template>
-      </el-tab-pane>
-      <el-tab-pane name="SRemarks">
-        <template #label>
-          <span data-testid="http-params-tab-remarks">{{ t('备注') }}</span>
-        </template>
-      </el-tab-pane>
-      <el-tab-pane name="SSettings">
-        <template #label>
-          <span data-testid="http-params-tab-settings">{{ t('设置') }}</span>
         </template>
       </el-tab-pane>
     </el-tabs>
@@ -307,10 +262,12 @@
 </template>
 <script lang="ts" setup>
 import type { DebouncedFunc } from 'lodash-es'
-import type { HttpNode } from '@src/types'
+import type { HttpNode, HttpNodeTabName } from '@src/types'
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts'
 import { appStateCache } from '@/cache/appState/appStateCache.ts'
 import { commonHeaderCache } from '@/cache/project/commonHeadersCache'
+import { tabOrderCache } from '@/cache/httpNode/tabOrderCache'
+import { cacheKey } from '@/cache/cacheKey'
 import { checkPropertyIsEqual } from '@/helper'
 import { debounce } from "lodash-es"
 import { ref, computed, watch, onMounted, onUnmounted, watchEffect } from 'vue'
@@ -346,6 +303,7 @@ const httpRedoUndoStore = useHttpRedoUndo()
 const activeName = ref<ActiceName>('SParams');
 const { t } = useI18n()
 const debounceFn = ref(null as (null | DebouncedFunc<(apidoc: HttpNode) => void>))
+const tabOrder = ref<HttpNodeTabName[]>(tabOrderCache.getTabOrder())
 const route = useRoute()
 const projectId = router.currentRoute.value.query.id as string;
 // 历史记录相关
@@ -464,6 +422,54 @@ const getComponent = () => {
     return SRequestHeaders
   } else if (activeName.value === 'SResponseParams') {
     return SResponseParams
+  }
+}
+//获取标签页显示名称
+const getTabLabel = (tabName: HttpNodeTabName): string => {
+  const labels: Record<HttpNodeTabName, string> = {
+    SParams: 'Params',
+    SRequestBody: 'Body',
+    SRequestHeaders: t('请求头'),
+    SResponseParams: t('返回参数'),
+    SPreRequest: t('前置脚本'),
+    SAfterRequest: t('后置脚本'),
+    SRemarks: t('备注'),
+    SSettings: t('设置'),
+  }
+  return labels[tabName]
+}
+//获取标签页测试ID
+const getTabTestId = (tabName: HttpNodeTabName): string => {
+  const testIds: Record<HttpNodeTabName, string> = {
+    SParams: 'http-params-tab-params',
+    SRequestBody: 'http-params-tab-body',
+    SRequestHeaders: 'http-params-tab-headers',
+    SResponseParams: 'http-params-tab-response',
+    SPreRequest: 'http-params-tab-prescript',
+    SAfterRequest: 'http-params-tab-afterscript',
+    SRemarks: 'http-params-tab-remarks',
+    SSettings: 'http-params-tab-settings',
+  }
+  return testIds[tabName]
+}
+//获取标签页badge圆点状态
+const getTabBadgeDot = (tabName: HttpNodeTabName): boolean => {
+  const badgeDots: Record<HttpNodeTabName, boolean> = {
+    SParams: hasQueryOrPathsParams.value,
+    SRequestBody: hasBodyParams.value,
+    SRequestHeaders: hasHeaders.value,
+    SResponseParams: !!responseNum.value,
+    SPreRequest: hasPreRequest.value,
+    SAfterRequest: hasAfterRequest.value,
+    SRemarks: false,
+    SSettings: false,
+  }
+  return badgeDots[tabName]
+}
+//监听storage变化,同步标签页顺序
+const handleTabOrderStorageChange = (e: StorageEvent) => {
+  if (e.key === cacheKey.settings.httpNode.tabOrder) {
+    tabOrder.value = tabOrderCache.getTabOrder()
   }
 }
 //初始化tab缓存
@@ -976,9 +982,11 @@ onMounted(() => {
   });
   initTabCache();
   document.addEventListener('click', handleClickOutside)
+  window.addEventListener('storage', handleTabOrderStorageChange)
 })
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  window.removeEventListener('storage', handleTabOrderStorageChange)
   // 清理计时器
   if (hoverTimer.value !== null) {
     clearTimeout(hoverTimer.value)

@@ -197,24 +197,26 @@ const hasSendMessage = computed(() => websocket.value.item.messageBlocks.length 
 
 // 撤销/重做相关计算属性
 const canUndo = computed(() => {
-  const nodeId = websocket.value._id;
+  if (!currentSelectNav.value) return false;
+  const nodeId = currentSelectNav.value._id;
   const undoList = redoUndoStore.wsUndoList[nodeId];
   return undoList && undoList.length > 0;
 });
-
 const canRedo = computed(() => {
-  const nodeId = websocket.value._id;
+  if (!currentSelectNav.value) return false;
+  const nodeId = currentSelectNav.value._id;
   const redoList = redoUndoStore.wsRedoList[nodeId];
   return redoList && redoList.length > 0;
 });
-
-//撤销/重做事件处理
+// 撤销/重做事件处理
 const handleUndo = (): void => {
-  const nodeId = websocket.value._id;
+  if (!canUndo.value || !currentSelectNav.value) return;
+  const nodeId = currentSelectNav.value._id;
   redoUndoStore.wsUndo(nodeId);
 };
 const handleRedo = (): void => {
-  const nodeId = websocket.value._id;
+  if (!canRedo.value || !currentSelectNav.value) return;
+  const nodeId = currentSelectNav.value._id;
   redoUndoStore.wsRedo(nodeId);
 };
 //切换布局

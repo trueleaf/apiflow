@@ -1,6 +1,6 @@
 
 import { AF, WorkerMessage, AfHttpRequestOptions, AfHttpResponse, HttpErrorMessage, HttpResponseMessage, OnHttpRequestEvent } from './types/types.ts';
-import { createRequestProxy } from './request/index.ts'
+import { createRequestProxy, setInitializing } from './request/index.ts'
 import { variables } from './variables/index.ts'
 import { cookies } from './cookies/index.ts'
 import { localStorage } from './localStorage/index.ts'
@@ -108,9 +108,11 @@ const options = {
 self.onmessage = (e: MessageEvent<WorkerMessage>) => {
   if (e.data.type === "initData") {
     const { reqeustInfo } = e.data;
+    setInitializing(true);
     af.request.method = reqeustInfo.item.method;
     af.nodeId = reqeustInfo._id;
     af.projectId = reqeustInfo.projectId;
+    af.request.path = reqeustInfo.item.path;
     Object.assign(af.request.headers, reqeustInfo.item.headers)
     Object.assign(af.request.queryParams, reqeustInfo.item.queryParams)
     Object.assign(af.request.pathParams, reqeustInfo.item.paths);
@@ -131,6 +133,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
     af.request.body.binary.path = reqeustInfo.item.requestBody.binary.path;
     const jsonBody = JSONbig.parse(reqeustInfo.item.requestBody.json);
     Object.assign(af.request.body.json, jsonBody);
+    setInitializing(false);
     self.postMessage({
       type: 'pre-request-init-success',
     });

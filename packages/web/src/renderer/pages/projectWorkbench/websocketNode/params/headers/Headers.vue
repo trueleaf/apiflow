@@ -169,11 +169,12 @@ const recordHeadersOperation = (oldValue: ApidocProperty<'string'>[], newValue: 
 };
 const handleChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
   const oldValue = cloneDeep(websocket.value.item.headers);
-  websocket.value.item.headers = newData as ApidocProperty<'string'>[];
+  const clonedNewData = cloneDeep(newData) as ApidocProperty<'string'>[];
+  websocket.value.item.headers = clonedNewData;
   if (websocket.value.item.headers.length === 0) {
     websocket.value.item.headers.push(generateEmptyProperty());
   }
-  recordHeadersOperation(oldValue, newData as ApidocProperty<'string'>[]);
+  recordHeadersOperation(oldValue, clonedNewData);
 };
 
 const refreshCommonHeaders = () => {

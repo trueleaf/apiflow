@@ -38,7 +38,16 @@ class TabOrderCache {
         logger.error('尝试设置无效的标签页顺序')
         return
       }
-      localStorage.setItem(cacheKey.settings.httpNode.tabOrder, JSON.stringify(order))
+      const oldValue = localStorage.getItem(cacheKey.settings.httpNode.tabOrder)
+      const newValue = JSON.stringify(order)
+      localStorage.setItem(cacheKey.settings.httpNode.tabOrder, newValue)
+      // 手动触发storage事件，以便同窗口中的其他代码可以监听到变化
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: cacheKey.settings.httpNode.tabOrder,
+        oldValue,
+        newValue,
+        storageArea: localStorage
+      }))
     } catch (error) {
       logger.error('设置标签页顺序失败', { error })
     }

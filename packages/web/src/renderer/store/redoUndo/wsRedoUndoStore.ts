@@ -126,7 +126,7 @@ export const useWsRedoUndo = defineStore('wsRedoUndo', () => {
         break;
         
       case 'queryParamsOperation':
-        websocketStore.websocket.item.queryParams = cloneDeep(targetValue as ApidocProperty<'string'>[]);
+        websocketStore.changeQueryParams(cloneDeep(targetValue as ApidocProperty<'string'>[]));
         break;
         
       case 'sendMessageOperation':

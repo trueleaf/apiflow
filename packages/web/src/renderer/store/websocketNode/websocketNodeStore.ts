@@ -211,7 +211,7 @@ export const useWebSocket = defineStore('websocket', () => {
   // 批量更新查询参数
   const changeQueryParams = (params: ApidocProperty<'string'>[]): void => {
     if (!websocket.value) return;
-    websocket.value.item.queryParams = params;
+    websocket.value.item.queryParams = cloneDeep(params);
     // 如果没有数据则默认添加一条空数据
     if (websocket.value.item.queryParams.length === 0) {
       websocket.value.item.queryParams.push(generateEmptyProperty());

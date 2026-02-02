@@ -94,7 +94,8 @@ export const getUrl = async (httpNode: HttpNode) => {
     return objectPathParams[variableName] || ''
   }); // 替换路径参数
   const pathString = await getCompiledTemplate(replacedPathParamsString, variables);
-  let fullUrl = pathString + queryString;
+  const prefixString = url.prefix ? await getCompiledTemplate(url.prefix, variables) : '';
+  let fullUrl = prefixString + pathString + queryString;
   if (!fullUrl.startsWith('http') && !fullUrl.startsWith('https')) {
     // 如果以/开头，需要去掉开头的/再添加http://，避免出现http:///
     if (fullUrl.startsWith('/')) {
@@ -794,6 +795,7 @@ export const sendRequest = async () => {
       item: {
         method: preSendMethod,
         url: preSendUrl,
+        path: copiedApidoc.item.url.path,
         paths: objPaths,
         queryParams: objQueryParams,
         requestBody: {
@@ -898,6 +900,27 @@ export const sendRequest = async () => {
       copiedApidoc.item.requestBody.formdata = newParams
     } else if (e.data.type === 'pre-request-set-url') {
       copiedApidoc.item.url.prefix = '';
+      copiedApidoc.item.url.path = e.data.value;
+    } else if (e.data.type === 'pre-request-set-path') {
+      // 尝试从编译后的 URL 中获取 origin
+      let origin = '';
+      try {
+        origin = new URL(preSendUrl).origin;
+      } catch {
+        // 如果编译后的 URL 解析失败，尝试从原始 URL 中获取
+        const originalUrl = copiedApidoc.item.url.prefix + copiedApidoc.item.url.path;
+        try {
+          origin = new URL(originalUrl).origin;
+        } catch {
+          // 如果原始 URL 也无法解析，尝试添加协议后再解析
+          try {
+            origin = new URL('http://' + originalUrl).origin;
+          } catch {
+            origin = '';
+          }
+        }
+      }
+      copiedApidoc.item.url.prefix = origin;
       copiedApidoc.item.url.path = e.data.value;
     } else if (e.data.type === 'pre-request-set-cookie') {
       finalCookies = e.data.value;

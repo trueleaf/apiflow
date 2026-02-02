@@ -20,6 +20,7 @@ export type InitDataMessage = {
     item: {
       method: string;
       url: string;
+      path: string;
       paths: Record<string, string>;
       queryParams: Record<string, string>;
       requestBody: {
@@ -130,6 +131,10 @@ export type OnSetUrlEvent = {
   type: 'pre-request-set-url';
   value: string;
 };
+export type OnSetPathEvent = {
+  type: 'pre-request-set-path';
+  value: string;
+};
 export type OnSetBodyTypeEvent = {
   type: 'pre-request-set-body-type';
   value: string;
@@ -227,6 +232,7 @@ export type ReceivedEvent =
   | OnDeleteUrlencodedEvent
   | OnSetMethodEvent
   | OnSetUrlEvent
+  | OnSetPathEvent
   | OnSetRawBodyEvent
   | OnSetFormdataEvent
   | OnDeleteFormdataEvent
@@ -250,6 +256,7 @@ export type AF = {
   request: {
     method: string;
     url: string;
+    path: string;
     headers: Record<string, string>;
     queryParams: Record<string, string>;
     pathParams: Record<string, string>;

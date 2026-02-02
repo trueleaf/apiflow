@@ -2,14 +2,18 @@ import { queryParams } from './queryParams/index.ts'
 import { pathParams } from './pathParams/index.ts'
 import { headers } from './headers/index.ts'
 import { createBodyProxy } from './body/index.ts'
-import { AF, OnSetBodyTypeEvent, OnSetMethodEvent, OnSetUrlEvent } from '../types/types.ts'
+import { AF, OnSetBodyTypeEvent, OnSetMethodEvent, OnSetUrlEvent, OnSetPathEvent } from '../types/types.ts'
 
-
+let isInitializing = false;
+export const setInitializing = (value: boolean) => {
+  isInitializing = value;
+};
 export const createRequestProxy = () => {
   return new Proxy<AF['request']>({
     method: "",
     bodyType: 'none',
     url: "",
+    path: "",
     headers,
     queryParams,
     pathParams,
@@ -22,6 +26,9 @@ export const createRequestProxy = () => {
       if (key === 'url') {
         return target[key];
       }
+      if (key === 'path') {
+        return target[key];
+      }
       return Reflect.get(target, key, receiver);
     },
     set(target, key, value, receiver) {
@@ -31,10 +38,12 @@ export const createRequestProxy = () => {
           return true;
         }
         target[key] = value;
-        self.postMessage({
-          type: 'pre-request-set-method',
-          value: value,
-        } as OnSetMethodEvent);
+        if (!isInitializing) {
+          self.postMessage({
+            type: 'pre-request-set-method',
+            value: value,
+          } as OnSetMethodEvent);
+        }
         return true;
       }
       if (key === 'url') {
@@ -43,10 +52,26 @@ export const createRequestProxy = () => {
           return true
         }
         target[key] = value;
-        self.postMessage({
-          type: 'pre-request-set-url',
-          value: value,
-        } as OnSetUrlEvent);
+        if (!isInitializing) {
+          self.postMessage({
+            type: 'pre-request-set-url',
+            value: value,
+          } as OnSetUrlEvent);
+        }
+        return true;
+      }
+      if (key === 'path') {
+        if (typeof value !== 'string') {
+          console.warn(`path值在赋值时值类型只能为字符串，传入值类型为${Object.prototype.toString.call(value)}},此操作将被忽略`);
+          return true
+        }
+        target[key] = value;
+        if (!isInitializing) {
+          self.postMessage({
+            type: 'pre-request-set-path',
+            value: value,
+          } as OnSetPathEvent);
+        }
         return true;
       }
       if (key === 'bodyType') {
@@ -55,10 +80,12 @@ export const createRequestProxy = () => {
           return true
         }
         target[key] = value;
-        self.postMessage({
-          type: 'pre-request-set-body-type',
-          value: value,
-        } as OnSetBodyTypeEvent);
+        if (!isInitializing) {
+          self.postMessage({
+            type: 'pre-request-set-body-type',
+            value: value,
+          } as OnSetBodyTypeEvent);
+        }
         return true;
       }
       return Reflect.set(target, key, value, receiver);
@@ -68,6 +95,9 @@ export const createRequestProxy = () => {
         return true;
       }
       if (key === 'url') {
+        return true;
+      }
+      if (key === 'path') {
         return true;
       }
       if (key === 'headers') {
