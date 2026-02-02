@@ -151,7 +151,7 @@ test.describe('RequestConfig', () => {
 
     // 添加一个很长的自定义请求头
     const headersTree = contentPage.locator('.cl-params-tree').first();
-    const headerKeyInput = headersTree.locator('[data-testid="params-tree-key-input"]').first();
+    const headerKeyInput = headersTree.locator('[data-testid="params-tree-key-autocomplete"] input').first();
     const headerValueInput = headersTree.locator('[data-testid="params-tree-value-input"]').first().locator('[contenteditable="true"]');
     await expect(headerKeyInput).toBeVisible({ timeout: 10000 });
     await headerKeyInput.fill('X-Long-Header');

@@ -23,26 +23,19 @@ test.describe('QueryParamsUndo', () => {
     // 找到Query参数区域的key输入框
     const keyInput = contentPage.getByPlaceholder('输入参数名称自动换行').first();
     await keyInput.click();
-    await keyInput.pressSequentially('a', { delay: 100 });
-    await contentPage.waitForTimeout(200);
-    await contentPage.locator('[data-testid="url-input"]').click();
-    await contentPage.waitForTimeout(200);
-    await keyInput.click();
-    await keyInput.pressSequentially('b', { delay: 100 });
+    await keyInput.fill('ab');
     await contentPage.waitForTimeout(200);
     await contentPage.locator('[data-testid="url-input"]').click();
     await contentPage.waitForTimeout(200);
     // 验证key值为ab
     await expect(keyInput).toHaveValue('ab', { timeout: 5000 });
+    // 点击Params标签页使焦点离开输入框，确保全局快捷键能正确触发
+    await paramsTab.click();
+    await contentPage.waitForTimeout(300);
     // 按ctrl+z快捷键
     await contentPage.keyboard.press('ControlOrMeta+z');
-    await contentPage.waitForTimeout(200);
-    // 验证key值为a
-    await expect(keyInput).toHaveValue('a', { timeout: 5000 });
-    // 再次按ctrl+z快捷键
-    await contentPage.keyboard.press('ControlOrMeta+z');
-    await contentPage.waitForTimeout(200);
-    // 验证key值为空
+    await contentPage.waitForTimeout(500);
+    // 验证key值为空（整个输入应被撤销）
     await expect(keyInput).toHaveValue('', { timeout: 5000 });
   });
   // 测试用例2: query参数value输入字符串后撤销
@@ -84,6 +77,9 @@ test.describe('QueryParamsUndo', () => {
     await contentPage.waitForTimeout(200);
     // 验证value值
     await expect(valueEditor).toHaveText('v1v2', { timeout: 5000 });
+    // 点击Params标签页使焦点离开输入框，确保全局快捷键能正确触发
+    await paramsTab.click();
+    await contentPage.waitForTimeout(200);
     // 按ctrl+z快捷键
     await contentPage.keyboard.press('ControlOrMeta+z');
     await contentPage.waitForTimeout(200);

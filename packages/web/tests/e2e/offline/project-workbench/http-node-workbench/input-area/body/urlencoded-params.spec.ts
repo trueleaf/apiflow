@@ -328,9 +328,9 @@ test.describe('UrlencodedParams', () => {
     await valueInputs.nth(1).click();
     await contentPage.keyboard.type('abc123');
     await contentPage.waitForTimeout(300);
-    // 取消勾选token参数的"是否发送"checkbox
-    const tokenRow = contentPage.locator('[data-testid="params-tree-row"]').filter({ hasText: /^token$/i }).first();
-    await tokenRow.getByRole('checkbox').first().click();
+    // 取消勾选token参数的"是否发送"checkbox (el-tree的checkbox在el-tree-node__content层级)
+    const tokenTreeNode = contentPage.locator('.el-tree-node').filter({ has: contentPage.locator('[data-testid="params-tree-row"][data-row-key="token"]') }).first();
+    await tokenTreeNode.locator('> .el-tree-node__content > .el-checkbox > .el-checkbox__input > .el-checkbox__inner').click();
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');

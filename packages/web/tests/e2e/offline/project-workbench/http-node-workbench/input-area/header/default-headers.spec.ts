@@ -60,22 +60,30 @@ test.describe('DefaultHeaders', () => {
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 点击Header标签页
     const headerTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
+    await expect(headerTab).toBeVisible({ timeout: 5000 });
     await headerTab.click();
-    await contentPage.waitForTimeout(300);
-    // 展开隐藏请求头列表
+    // 等待toggle-hidden-headers按钮存在（说明Header标签页已激活）
     const toggleHiddenHeadersBtn = contentPage.locator('[data-testid="toggle-hidden-headers"]');
+    await expect(toggleHiddenHeadersBtn).toBeVisible({ timeout: 5000 });
+    // 展开隐藏请求头列表
     await toggleHiddenHeadersBtn.click();
-    await contentPage.waitForTimeout(300);
+    // 等待隐藏请求头区域出现
+    const defaultHeadersWrap = contentPage.locator('.default-headers-wrap');
+    await expect(defaultHeadersWrap).toBeVisible({ timeout: 5000 });
     // 找到User-Agent并修改值
-    const userAgentRow = contentPage.locator('.default-headers-wrap [data-testid="params-tree-row"]').filter({ hasText: /user-agent/i });
+    const userAgentRow = defaultHeadersWrap.locator('[data-testid="params-tree-row"][data-row-key="User-Agent"]');
+    await expect(userAgentRow).toBeVisible({ timeout: 5000 });
     const userAgentValueInput = userAgentRow.locator('[data-testid="params-tree-value-input"]');
+    await expect(userAgentValueInput).toBeVisible({ timeout: 5000 });
     await userAgentValueInput.click();
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('CustomUserAgent/1.0');
     await contentPage.waitForTimeout(300);
     // 找到Accept并修改值
-    const acceptRow = contentPage.locator('.default-headers-wrap [data-testid="params-tree-row"]').filter({ hasText: /^accept$/i }).first();
+    const acceptRow = defaultHeadersWrap.locator('[data-testid="params-tree-row"][data-row-key="Accept"]');
+    await expect(acceptRow).toBeVisible({ timeout: 5000 });
     const acceptValueInput = acceptRow.locator('[data-testid="params-tree-value-input"]');
+    await expect(acceptValueInput).toBeVisible({ timeout: 5000 });
     await acceptValueInput.click();
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('application/json');
@@ -219,11 +227,15 @@ test.describe('DefaultHeaders', () => {
     // 点击Header标签页
     const headerTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
     await headerTab.click();
-    await contentPage.waitForTimeout(300);
-    // 在自定义请求头中添加Content-Type覆盖自动值
-    const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    // 等待请求头区域的参数行出现
+    const paramsTreeRow = contentPage.locator('[data-testid="params-tree-row"]').first();
+    await expect(paramsTreeRow).toBeVisible({ timeout: 5000 });
+    // 在自定义请求头中添加Content-Type覆盖自动值（使用autocomplete组件）
+    const keyAutocomplete = contentPage.locator('[data-testid="params-tree-key-autocomplete"]').first();
     const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
-    await keyInputs.first().fill('Content-Type');
+    await expect(keyAutocomplete).toBeVisible({ timeout: 5000 });
+    const keyInput = keyAutocomplete.locator('input');
+    await keyInput.fill('Content-Type');
     await valueInputs.first().click();
     await contentPage.keyboard.type('application/custom');
     await contentPage.waitForTimeout(300);

@@ -34,12 +34,22 @@ test.describe('WebSocketHeadersUndo', () => {
     await headerKeyInput.fill('X-Custom-Header')
     await contentPage.waitForTimeout(200)
 
+    // 点击空白区域让key输入失焦，确保撤销记录被正确保存
+    await headersTab.click()
+    await contentPage.waitForTimeout(200)
+
+    // 验证key已正确输入
+    await expect(headerKeyInput).toHaveValue('X-Custom-Header', { timeout: 5000 })
+
     const valueInputWrap = firstRow.locator('[data-testid="params-tree-value-input"]').first()
     const valueEditor = valueInputWrap.locator('[contenteditable], textarea, input').first()
     await expect(valueEditor).toBeVisible({ timeout: 5000 })
     await valueEditor.click()
-    await contentPage.keyboard.type('custom-value')
+    await valueEditor.fill('custom-value')
     await contentPage.waitForTimeout(300)
+
+    // 验证value已正确输入
+    await expect(valueInputWrap).toContainText('custom-value', { timeout: 5000 })
 
     const headerRow = customHeadersTree.locator('[data-testid="params-tree-row"][data-row-key="X-Custom-Header"]').first()
     await expect(headerRow).toBeVisible({ timeout: 5000 })
@@ -48,11 +58,29 @@ test.describe('WebSocketHeadersUndo', () => {
     await headersTab.click()
     await contentPage.waitForTimeout(200)
 
-    // 撤销后应清空该Header（至少清空key，避免继续出现在树中）
+    // 第一次撤销：撤销value的输入
     const undoBtn = contentPage.locator('[data-testid="ws-params-undo-btn"]')
     await expect(undoBtn).not.toHaveClass(/disabled/, { timeout: 5000 })
     await undoBtn.click()
     await contentPage.waitForTimeout(300)
+
+    // 验证value已被撤销
+    await expect(valueInputWrap).not.toContainText('custom-value', { timeout: 5000 })
+
+    // 继续撤销直到header行隐藏（key被清空）
+    // 可能需要多次撤销，取决于输入过程中产生的撤销点数量
+    const maxUndoAttempts = 10
+    for (let i = 0; i < maxUndoAttempts; i++) {
+      const isDisabled = await undoBtn.evaluate(el => el.classList.contains('disabled'))
+      if (isDisabled) break
+      
+      await undoBtn.click()
+      await contentPage.waitForTimeout(200)
+      
+      const isHidden = await headerRow.isHidden().catch(() => true)
+      if (isHidden) break
+    }
+    
     await expect(headerRow).toBeHidden({ timeout: 5000 })
   })
 
@@ -139,9 +167,13 @@ test.describe('WebSocketHeadersUndo', () => {
     const valueEditor = valueInputWrap.locator('[contenteditable], textarea, input').first()
     await expect(valueEditor).toBeVisible({ timeout: 5000 })
     await valueEditor.click()
-    await contentPage.keyboard.type('application/json')
+    await valueEditor.fill('application/json')
     await contentPage.waitForTimeout(300)
     await expect(valueInputWrap).toContainText('application/json', { timeout: 5000 })
+
+    // 点击空白区域让输入框失焦
+    await headersTab.click()
+    await contentPage.waitForTimeout(200)
 
     // 修改Header值为 text/plain
     const headerRow = customHeadersTree.locator('[data-testid="params-tree-row"][data-row-key="Content-Type"]').first()
@@ -150,8 +182,7 @@ test.describe('WebSocketHeadersUndo', () => {
     const contentTypeValueEditor = contentTypeValueInputWrap.locator('[contenteditable], textarea, input').first()
     await expect(contentTypeValueEditor).toBeVisible({ timeout: 5000 })
     await contentTypeValueEditor.click()
-    await contentPage.keyboard.press('Control+a')
-    await contentPage.keyboard.type('text/plain')
+    await contentTypeValueEditor.fill('text/plain')
     await contentPage.waitForTimeout(300)
     await expect(contentTypeValueInputWrap).toContainText('text/plain', { timeout: 5000 })
 

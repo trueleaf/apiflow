@@ -24,7 +24,7 @@ test.describe('HeaderPriority', () => {
     // 多行编辑模式写入公共请求头
     const modeToggleBtn = commonHeaderPage.locator('.mode-toggle-icon');
     await modeToggleBtn.click();
-    const multilineTextarea = commonHeaderPage.locator('[data-testid="params-tree-multiline-textarea"] textarea');
+    const multilineTextarea = commonHeaderPage.locator('[data-testid="params-tree-multiline-textarea"]');
     await expect(multilineTextarea).toBeVisible({ timeout: 20000 });
     await multilineTextarea.fill('X-Custom=from-common');
     const applyBtn = commonHeaderPage.locator('[data-testid="params-tree-apply-btn"]');
@@ -84,7 +84,7 @@ test.describe('HeaderPriority', () => {
     // 多行编辑模式写入公共请求头
     const modeToggleBtn = commonHeaderPage.locator('.mode-toggle-icon');
     await modeToggleBtn.click();
-    const multilineTextarea = commonHeaderPage.locator('[data-testid="params-tree-multiline-textarea"] textarea');
+    const multilineTextarea = commonHeaderPage.locator('[data-testid="params-tree-multiline-textarea"]');
     await expect(multilineTextarea).toBeVisible({ timeout: 20000 });
     await multilineTextarea.fill('User-Agent=CustomAgent/1.0');
     const applyBtn = commonHeaderPage.locator('[data-testid="params-tree-apply-btn"]');
@@ -175,7 +175,7 @@ test.describe('HeaderPriority', () => {
     // 多行编辑模式写入公共请求头
     const modeToggleBtn = commonHeaderPage.locator('.mode-toggle-icon');
     await modeToggleBtn.click();
-    const multilineTextarea = commonHeaderPage.locator('[data-testid="params-tree-multiline-textarea"] textarea');
+    const multilineTextarea = commonHeaderPage.locator('[data-testid="params-tree-multiline-textarea"]');
     await expect(multilineTextarea).toBeVisible({ timeout: 20000 });
     await multilineTextarea.fill('User-Agent=CommonAgent/1.0');
     const applyBtn = commonHeaderPage.locator('[data-testid="params-tree-apply-btn"]');
