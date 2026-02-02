@@ -184,19 +184,20 @@ export const gotRequest = async (options: GotRequestOptions) => {
     headers['accept-encoding'] = options.headers['accept-encoding'] ?? 'gzip, deflate, br';
     //更新请求头信息
     for (const key in options.headers) {
-      if (options.headers[key.toLowerCase()] === null) { //undefined代表未设置值，null代表取消发送
+      const headerValue = options.headers[key];
+      if (headerValue === null) { //undefined代表未设置值，null代表取消发送
         headers[key.toLowerCase()] = undefined
-      } else if (isFormDataBody && key === 'content-type') {
+      } else if (isFormDataBody && key.toLowerCase() === 'content-type') {
         headers[key.toLowerCase()] = (reqeustBody as FormData)?.getHeaders()['content-type'];
-      } else if (isBinaryBody && key === 'content-type') {
+      } else if (isBinaryBody && key.toLowerCase() === 'content-type') {
         const fileTypeInfo = await fileTypeFromBuffer(reqeustBody as Buffer);
         if (fileTypeInfo?.mime) {
           headers[key.toLowerCase()] = fileTypeInfo.mime;
         } else {
-          headers[key.toLowerCase()] = options.headers[key.toLowerCase()]!;
+          headers[key.toLowerCase()] = headerValue!;
         }
       } else {
-        headers[key.toLowerCase()] = options.headers[key.toLowerCase()]!;
+        headers[key.toLowerCase()] = headerValue!;
       }
     }
     // undefined代表未设置值，null代表取消发送
