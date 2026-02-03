@@ -20,7 +20,6 @@ test.describe('WebSocketUrlUndo', () => {
     await urlEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('ws://127.0.0.1:8080/test');
-    await contentPage.keyboard.press('Enter');
     await contentPage.locator('.ws-operation').click();
     await contentPage.waitForTimeout(300);
     // 验证URL已变更

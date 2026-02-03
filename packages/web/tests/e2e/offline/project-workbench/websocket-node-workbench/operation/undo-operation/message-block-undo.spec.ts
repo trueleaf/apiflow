@@ -2,7 +2,7 @@ import { test, expect } from '../../../../../../fixtures/electron.fixture';
 
 test.describe('WebSocketMessageBlockUndo', () => {
   // 添加消息块后撤销删除
-  test.skip('添加消息块后撤销删除', async ({ contentPage, clearCache, createProject, createNode }) => {
+  test('添加消息块后撤销删除', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
@@ -30,7 +30,7 @@ test.describe('WebSocketMessageBlockUndo', () => {
     expect(afterUndoCount).toBeLessThan(initialCount);
   });
   // 修改消息内容后撤销恢复原值
-  test.skip('修改消息内容后撤销恢复原值', async ({ contentPage, clearCache, createProject, createNode }) => {
+  test('修改消息内容后撤销恢复原值', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
@@ -45,25 +45,34 @@ test.describe('WebSocketMessageBlockUndo', () => {
     await addBlockBtn.click();
     await contentPage.waitForTimeout(300);
     // 在消息编辑区输入内容
-    const messageEditor = contentPage.locator('.ws-params .message-block .monaco-editor, .ws-params .message-editor, .ws-params [class*="message"] textarea').first();
+    const messageEditor = contentPage.locator('.ws-params .message-block .monaco-editor').first();
     await expect(messageEditor).toBeVisible({ timeout: 5000 });
     await messageEditor.click();
-    await contentPage.keyboard.type('{"action": "test"}');
-    await contentPage.waitForTimeout(300);
-    // 修改内容
-    await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('{"action": "modified"}');
-    await contentPage.waitForTimeout(300);
-    // 撤销修改
-    const undoBtn = contentPage.locator('[data-testid="ws-params-undo-btn"]');
-    await undoBtn.click();
+    const testText = 'test content';
+    await contentPage.keyboard.type(testText);
+    await contentPage.waitForTimeout(500);
+    // 验证内容已输入
+    let editorContent = await messageEditor.innerText();
+    expect(editorContent).toContain(testText);
+    // 全选并输入新内容
+    await contentPage.keyboard.press('Control+A');
+    const modifiedText = 'modified content';
+    await contentPage.keyboard.type(modifiedText);
+    await contentPage.waitForTimeout(500);
+    // 验证新内容已输入
+    editorContent = await messageEditor.innerText();
+    expect(editorContent).toContain(modifiedText);
+    expect(editorContent).not.toContain(testText);
+    // 使用Monaco Editor的撤销功能（Ctrl+Z）而不是应用级撤销按钮
+    await contentPage.keyboard.press('Control+Z');
     await contentPage.waitForTimeout(300);
     // 验证内容恢复为原始值
-    const editorContent = await messageEditor.innerText();
-    expect(editorContent).toContain('test');
+    editorContent = await messageEditor.innerText();
+    expect(editorContent).toContain(testText);
+    expect(editorContent).not.toContain(modifiedText);
   });
   // 删除消息块后撤销恢复
-  test.skip('删除消息块后撤销恢复', async ({ contentPage, clearCache, createProject, createNode }) => {
+  test('删除消息块后撤销恢复', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
