@@ -79,6 +79,7 @@
         v-model="messageBlocks"
         item-key="id"
         handle=".drag-handle"
+        @start="handleDragStart"
         @end="handleDragEnd"
         class="message-blocks-list"
       >
@@ -186,6 +187,8 @@ import { useVariable } from '@/store/projectWorkbench/variablesStore'
 import { appStateCache } from '@/cache/appState/appStateCache'
 import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache'
 import { useRuntime } from '@/store/runtime/runtimeStore'
+import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
+import { cloneDeep } from 'lodash-es'
 
 const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
@@ -193,11 +196,15 @@ const { t } = useI18n()
 const projectNavStore = useProjectNav()
 const websocketStore = useWebSocket()
 const runtimeStore = useRuntime()
+const redoUndoStore = useWsRedoUndo()
 const { connectionState, connectionId } = storeToRefs(websocketStore)
 const { currentSelectNav } = storeToRefs(projectNavStore)
 
 const configPopoverVisible = ref(false)
 let configTimer: NodeJS.Timeout | null = null
+
+// 拖拽前的消息块快照
+let dragOldBlocks: WebsocketMessageBlock[] = []
 
 // 消息块列表
 const messageBlocks = computed({
@@ -212,6 +219,21 @@ const quickOperations = ref<'autoSend'[]>([])
 
 // 消息块折叠状态
 const collapsedBlocks = ref<Record<string, boolean>>({})
+
+// 记录消息块操作
+const recordMessageBlockOperation = (operationName: string, oldBlocks: WebsocketMessageBlock[]) => {
+  const nodeId = currentSelectNav.value?._id
+  if (!nodeId) return
+  redoUndoStore.recordOperation({
+    nodeId,
+    type: 'sendMessageOperation',
+    operationName,
+    affectedModuleName: 'messageContent',
+    oldValue: oldBlocks,
+    newValue: cloneDeep(messageBlocks.value),
+    timestamp: Date.now(),
+  })
+}
 
 // 弹窗临时配置状态
 const tempAutoSendInterval = ref(1000)
@@ -311,36 +333,46 @@ const handleSaveConfig = async () => {
 
 // 添加消息块
 const handleAddMessageBlock = () => {
+  const oldBlocks = cloneDeep(messageBlocks.value)
   websocketStore.addMessageBlock({
     name: '',
     content: '',
     messageType: 'json',
   })
+  recordMessageBlockOperation('添加消息块', oldBlocks)
 }
-
 // 删除消息块
 const handleDeleteBlock = (id: string) => {
+  const oldBlocks = cloneDeep(messageBlocks.value)
   websocketStore.deleteMessageBlockById(id)
+  recordMessageBlockOperation('删除消息块', oldBlocks)
 }
-
 // 处理消息块名称变化
 const handleBlockNameChange = (id: string, name: string) => {
+  const oldBlocks = cloneDeep(messageBlocks.value)
   websocketStore.updateMessageBlockById(id, { name })
+  recordMessageBlockOperation('修改消息块名称', oldBlocks)
 }
-
 // 处理消息块类型变化
 const handleBlockTypeChange = (id: string, messageType: WebsocketMessageType) => {
+  const oldBlocks = cloneDeep(messageBlocks.value)
   websocketStore.updateMessageBlockById(id, { messageType })
+  recordMessageBlockOperation('修改消息块类型', oldBlocks)
 }
-
 // 处理消息块内容变化
 const handleBlockContentChange = (id: string, content: string) => {
+  const oldBlocks = cloneDeep(messageBlocks.value)
   websocketStore.updateMessageBlockById(id, { content })
+  recordMessageBlockOperation('修改消息块内容', oldBlocks)
 }
-
+// 处理拖拽开始
+const handleDragStart = () => {
+  dragOldBlocks = cloneDeep(messageBlocks.value)
+}
 // 处理拖拽结束
 const handleDragEnd = () => {
-  // 拖拽结束后，消息块顺序已通过 computed setter 更新
+  recordMessageBlockOperation('调整消息块顺序', dragOldBlocks)
+  dragOldBlocks = []
 }
 
 // 格式化消息块
@@ -349,7 +381,9 @@ const handleFormatBlock = (index: number) => {
   if (block && block.messageType === 'json') {
     try {
       const formatted = JSON.stringify(JSON.parse(block.content), null, 2)
+      const oldBlocks = cloneDeep(messageBlocks.value)
       websocketStore.updateMessageBlockById(block.id, { content: formatted })
+      recordMessageBlockOperation('格式化消息块', oldBlocks)
     } catch {
       message.error(t('JSON格式错误'))
     }

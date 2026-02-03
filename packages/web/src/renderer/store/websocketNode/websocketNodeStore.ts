@@ -283,6 +283,11 @@ export const useWebSocket = defineStore('websocket', () => {
       order: index,
     }));
   };
+  // 设置消息块列表（用于撤销/还原）
+  const setMessageBlocks = (blocks: WebsocketMessageBlock[]): void => {
+    if (!websocket.value) return;
+    websocket.value.item.messageBlocks = cloneDeep(blocks);
+  };
 
   /*
   |--------------------------------------------------------------------------
@@ -667,6 +672,7 @@ export const useWebSocket = defineStore('websocket', () => {
     updateMessageBlockById,
     getMessageBlockById,
     updateMessageBlocksOrder,
+    setMessageBlocks,
     // 自动发送方法
     changeWebSocketAutoSend,
     changeWebSocketAutoSendInterval,

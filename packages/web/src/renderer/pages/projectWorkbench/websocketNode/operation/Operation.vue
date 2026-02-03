@@ -23,8 +23,8 @@
         :trim-on-paste="true"
         :min-height="30"
         disable-history
-        @blur="handleFormatUrl"
-        @keyup.enter.stop="handleFormatUrl"
+        @blur="() => handleFormatUrl(protocol)"
+        @keyup.enter.stop="() => handleFormatUrl(protocol)"
       >
         <template #variable="{ label }">
           <div class="variable-token">{{ label }}</div>
@@ -76,7 +76,6 @@ import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue';
 import { useWebSocket } from '@/store/websocketNode/websocketNodeStore';
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { router } from '@/router';
-import { ApidocProperty } from '@src/types';
 import { WebsocketConnectParams } from '@src/types/websocketNode';
 import { nanoid } from 'nanoid/non-secure';
 import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache';
@@ -89,6 +88,7 @@ import { useCookies } from '@/store/projectWorkbench/cookiesStore';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
 import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache';
 import { isElectron } from '@/helper';
+import { handleFormatUrl } from './composables/url';
 
 import { message } from '@/helper'
 const { t } = useI18n();
@@ -420,69 +420,6 @@ const handleRefresh = async () => {
       websocketStore.refreshLoading = false;
     }, 100);
   }
-};
-
-const handleFormatUrl = () => {
-  // 将请求url后面查询参数转换为params
-  const convertQueryToParams = (requestPath: string): void => {
-    const stringParams = requestPath.split('?')[1] || '';
-    if (!stringParams) return;
-
-    const objectParams: Record<string, string> = {};
-    stringParams.split('&').forEach(pair => {
-      const [encodedKey, encodedValue] = pair.split(/=(.*)/s);
-      if (encodedKey) {
-        objectParams[encodedKey] = encodedValue || '';
-      }
-    });
-    
-    const newParams: ApidocProperty<'string'>[] = [];
-    Object.keys(objectParams).forEach(field => {
-      const property: ApidocProperty<'string'> = {
-        _id: nanoid(),
-        key: field,
-        value: objectParams[field] || '',
-        description: '',
-        required: true,
-        type: 'string',
-        select: true,
-      };
-      newParams.push(property);
-    });
-    
-    const uniqueData: ApidocProperty<'string'>[] = [];
-    const originParams = websocketStore.websocket.item.queryParams;
-    newParams.forEach(item => {
-      const matchedItem = originParams.find(v => v.key === item.key);
-      if (originParams.every(v => v.key !== item.key)) {
-        uniqueData.push(item);
-      }
-      if (matchedItem) {
-        matchedItem.value = item.value;
-      }
-    });
-    
-    // 添加新的唯一参数到查询参数列表
-    if (uniqueData.length > 0) {
-      websocketStore.websocket.item.queryParams.unshift(...uniqueData);
-    }
-  };
-
-  const currentPath = connectionUrl.value;
-  convertQueryToParams(currentPath);
-  
-  // 如果URL不为空且不以ws://或wss://开头，且不是以变量开头，则添加协议前缀
-  let formatPath = currentPath;
-  if (formatPath.trim() !== '' && !formatPath.startsWith('ws://') && !formatPath.startsWith('wss://') && !formatPath.startsWith('{{')) {
-    formatPath = `${protocol.value}://${formatPath}`;
-  }
-  
-  // 移除查询参数部分（因为已经转换为params）
-  const queryReg = /(\?.*$)/;
-  formatPath = formatPath.replace(queryReg, '');
-  
-  // 更新连接URL
-  connectionUrl.value = formatPath;
 };
 
 </script>

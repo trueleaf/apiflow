@@ -3,7 +3,7 @@ import { ref } from "vue";
 import type {
   WsRedoUnDoOperation
 } from "@src/types/redoUndo/wsRedoUndo";
-import type { ApidocProperty } from "@src/types";
+import type { ApidocProperty, WebsocketMessageBlock } from "@src/types";
 import type { WebSocketNode } from "@src/types/websocketNode";
 import { useWebSocket } from "@/store/websocketNode/websocketNodeStore";
 import { cloneDeep } from "lodash-es";
@@ -130,7 +130,7 @@ export const useWsRedoUndo = defineStore('wsRedoUndo', () => {
         break;
         
       case 'sendMessageOperation':
-        // 消息块的 undo/redo 暂不支持，跳过
+        websocketStore.setMessageBlocks(cloneDeep(targetValue as WebsocketMessageBlock[]));
         break;
         
       case 'configOperation':
