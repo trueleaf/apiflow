@@ -85,7 +85,7 @@
             />
           </div>
 
-          <div class="form-item form-item-full">
+          <div class="form-item">
             <div class="form-label">
               <Server :size="18" class="label-icon" />
               {{ t('HTTP代理地址') }}
@@ -93,6 +93,19 @@
             <el-input
               v-model="localProxyServerUrl"
               :placeholder="t('请输入HTTP代理地址')"
+              clearable
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-item">
+            <div class="form-label">
+              <Link :size="18" class="label-icon" />
+              {{ t('在线页面地址') }}
+            </div>
+            <el-input
+              v-model="localOnlineUrl"
+              :placeholder="t('请输入在线页面地址')"
               clearable
               class="form-input"
             />
@@ -119,7 +132,7 @@
         {{ t('重置') }}
       </el-button>
       <el-button type="primary" @click="handleSave" :disabled="!hasChanges">
-        {{ t('保存') }}
+        {{ t('保存并刷新') }}
       </el-button>
     </div>
   </section>
@@ -133,7 +146,7 @@ import { loadAnalytics, unloadAnalytics } from '@/utils/analytics'
 import { processImageUpload } from '@/utils/imageHelper'
 import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 import { useI18n } from 'vue-i18n'
-import { AppWindow, Palette, Globe, Server, BarChart3 } from 'lucide-vue-next'
+import { AppWindow, Palette, Globe, Server, BarChart3, Link } from 'lucide-vue-next'
 import type { UploadFile } from 'element-plus'
 import type { AppTheme } from '@src/types'
 import { message } from '@/helper'
@@ -149,12 +162,14 @@ const localAppTitle = ref(appSettingsStore.appTitle)
 const localAppTheme = ref<AppTheme>(appSettingsStore.appTheme)
 const localServerUrl = ref(appSettingsStore.serverUrl)
 const localProxyServerUrl = ref(appSettingsStore.proxyServerUrl)
+const localOnlineUrl = ref(appSettingsStore.onlineUrl)
 const localAnalyticsEnabled = ref(runtimeStore.analyticsEnabled)
 const hasChanges = computed(() => {
   return localAppTitle.value.trim() !== appSettingsStore.appTitle ||
     localAppTheme.value !== appSettingsStore.appTheme ||
     localServerUrl.value.trim() !== appSettingsStore.serverUrl ||
     localProxyServerUrl.value.trim() !== appSettingsStore.proxyServerUrl ||
+    localOnlineUrl.value.trim() !== appSettingsStore.onlineUrl ||
     localAnalyticsEnabled.value !== runtimeStore.analyticsEnabled
 })
 watch(() => appSettingsStore.appTitle, (newVal) => {
@@ -168,6 +183,9 @@ watch(() => appSettingsStore.serverUrl, (newVal) => {
 })
 watch(() => appSettingsStore.proxyServerUrl, (newVal) => {
   localProxyServerUrl.value = newVal
+})
+watch(() => appSettingsStore.onlineUrl, (newVal) => {
+  localOnlineUrl.value = newVal
 })
 watch(localServerUrl, (newVal, oldVal) => {
   if (localProxyServerUrl.value.trim() === oldVal.trim()) {
@@ -209,6 +227,7 @@ const handleSave = () => {
   const trimmedTitle = localAppTitle.value.trim()
   const trimmedUrl = localServerUrl.value.trim()
   const trimmedProxyUrl = localProxyServerUrl.value.trim()
+  const trimmedOnlineUrl = localOnlineUrl.value.trim()
   if (!trimmedTitle) {
     message.warning(t('应用名称不能为空'))
     return
@@ -221,10 +240,15 @@ const handleSave = () => {
     message.warning(t('请输入有效的HTTP代理地址'))
     return
   }
+  if (trimmedOnlineUrl && !validateUrl(trimmedOnlineUrl)) {
+    message.warning(t('请输入有效的在线页面地址'))
+    return
+  }
   appSettingsStore.setAppTitle(trimmedTitle)
   appSettingsStore.setAppTheme(localAppTheme.value)
   appSettingsStore.setServerUrl(trimmedUrl)
   appSettingsStore.setProxyServerUrl(trimmedProxyUrl)
+  appSettingsStore.setOnlineUrl(trimmedOnlineUrl)
   const previousAnalyticsEnabled = runtimeStore.analyticsEnabled
   runtimeStore.setAnalyticsEnabled(localAnalyticsEnabled.value)
   if (localAnalyticsEnabled.value && !previousAnalyticsEnabled) {
@@ -233,7 +257,10 @@ const handleSave = () => {
     unloadAnalytics()
   }
   updateAxiosBaseURL(trimmedUrl)
-  message.success(t('保存成功'))
+  message.success(t('配置已保存，即将刷新应用'))
+  setTimeout(() => {
+    window.location.reload()
+  }, 1000)
 }
 const handleReset = async () => {
   try {

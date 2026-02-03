@@ -22,17 +22,8 @@
         class="form-input"
       />
     </div>
-    <div class="form-actions">
-      <el-form-item class="mb-1">
-        <el-button type="primary" @click="handleSave" :disabled="!hasChanges" class="w-100">{{ t('保存') }}</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button @click="handleReset" class="w-100">{{ t('重置') }}</el-button>
-      </el-form-item>
-    </div>
     <!-- 在线URL配置（仅Electron环境显示） -->
     <template v-if="isElectronEnv">
-      <el-divider />
       <div class="form-item">
         <div class="form-label">
           {{ t('在线页面地址') }}
@@ -49,29 +40,23 @@
           {{ t('当前配置') }}: {{ currentOnlineUrl }}
         </div>
       </div>
-      <div class="form-actions">
-        <el-form-item class="mb-1">
-          <el-button
-            type="primary"
-            @click="handleSaveOnlineUrl"
-            :disabled="!localOnlineUrl.trim() || isCheckingUrl"
-            :loading="isCheckingUrl"
-            class="w-100"
-          >
-            {{ isCheckingUrl ? t('正在检测') : t('保存并刷新') }}
-          </el-button>
-        </el-form-item>
-        <el-form-item>
-          <el-button
-            @click="handleResetOnlineUrl"
-            :disabled="!currentOnlineUrl || isCheckingUrl"
-            class="w-100"
-          >
-            {{ t('恢复默认') }}
-          </el-button>
-        </el-form-item>
-      </div>
     </template>
+    <div class="form-actions">
+      <el-form-item class="mb-1">
+        <el-button 
+          type="primary" 
+          @click="handleSave" 
+          :disabled="!hasChanges" 
+          :loading="isCheckingUrl"
+          class="w-100"
+        >
+          {{ isCheckingUrl ? t('正在检测') : t('保存') }}
+        </el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button @click="handleReset" :disabled="isCheckingUrl" class="w-100">{{ t('重置') }}</el-button>
+      </el-form-item>
+    </div>
   </div>
 </template>
 
@@ -107,8 +92,10 @@ watch(localServerUrl, (newVal, oldVal) => {
 })
 
 const hasChanges = computed(() => {
-  return localServerUrl.value.trim() !== appSettingsStore.serverUrl ||
+  const urlChanged = localServerUrl.value.trim() !== appSettingsStore.serverUrl ||
     localProxyServerUrl.value.trim() !== appSettingsStore.proxyServerUrl
+  const onlineUrlChanged = isElectronEnv && localOnlineUrl.value.trim() !== currentOnlineUrl.value
+  return urlChanged || onlineUrlChanged
 })
 
 const validateUrl = (url: string): boolean => {
@@ -149,9 +136,10 @@ const fetchCurrentOnlineUrl = async () => {
   }
 }
 
-const handleSave = () => {
+const handleSave = async () => {
   const trimmedUrl = localServerUrl.value.trim()
   const trimmedProxyUrl = localProxyServerUrl.value.trim()
+  const trimmedOnlineUrl = localOnlineUrl.value.trim()
   if (!validateUrl(trimmedUrl)) {
     message.warning(t('请输入有效的接口调用地址'))
     return
@@ -160,10 +148,31 @@ const handleSave = () => {
     message.warning(t('请输入有效的HTTP代理地址'))
     return
   }
+  if (isElectronEnv && trimmedOnlineUrl && !validateUrl(trimmedOnlineUrl)) {
+    message.warning(t('请输入有效的在线页面地址'))
+    return
+  }
   appSettingsStore.setServerUrl(trimmedUrl)
   appSettingsStore.setProxyServerUrl(trimmedProxyUrl)
   updateAxiosBaseURL(trimmedUrl)
-  message.success(t('保存成功'))
+  const onlineUrlChanged = isElectronEnv && trimmedOnlineUrl !== currentOnlineUrl.value
+  if (onlineUrlChanged) {
+    isCheckingUrl.value = true
+    try {
+      const isAccessible = await checkUrlAccessible(trimmedOnlineUrl)
+      if (!isAccessible) {
+        message.warning(t('无法访问该地址，请检查URL是否正确'))
+        return
+      }
+      await window.electronAPI?.ipcManager.invoke(IPC_EVENTS.apiflow.rendererToMain.setOnlineUrl, trimmedOnlineUrl)
+    } catch {
+      message.error(t('保存失败'))
+    } finally {
+      isCheckingUrl.value = false
+    }
+  } else {
+    message.success(t('保存成功'))
+  }
 }
 
 const handleReset = async () => {
@@ -182,46 +191,17 @@ const handleReset = async () => {
   updateAxiosBaseURL(appSettingsStore.serverUrl)
   localServerUrl.value = appSettingsStore.serverUrl
   localProxyServerUrl.value = appSettingsStore.proxyServerUrl
-  message.success(t('重置成功'))
-}
-// 保存在线URL
-const handleSaveOnlineUrl = async () => {
-  const trimmedUrl = localOnlineUrl.value.trim()
-  if (!validateUrl(trimmedUrl)) {
-    message.warning(t('请输入有效的在线页面地址'))
-    return
-  }
-  isCheckingUrl.value = true
-  try {
-    const isAccessible = await checkUrlAccessible(trimmedUrl)
-    if (!isAccessible) {
-      message.warning(t('无法访问该地址，请检查URL是否正确'))
-      return
+  const shouldRefresh = isElectronEnv && currentOnlineUrl.value
+  if (shouldRefresh) {
+    try {
+      await window.electronAPI?.ipcManager.invoke(IPC_EVENTS.apiflow.rendererToMain.setOnlineUrl, '')
+      message.success(t('配置已重置，即将刷新应用'))
+    } catch {
+      message.error(t('重置失败'))
     }
-    await window.electronAPI?.ipcManager.invoke(IPC_EVENTS.apiflow.rendererToMain.setOnlineUrl, trimmedUrl)
-  } catch {
-    message.error(t('保存失败'))
-  } finally {
-    isCheckingUrl.value = false
-  }
-}
-// 恢复默认（清除在线URL配置）
-const handleResetOnlineUrl = async () => {
-  try {
-    await ClConfirm({
-      content: t('确认恢复为默认本地页面吗？'),
-      type: 'warning',
-      confirmButtonText: t('确定'),
-      cancelButtonText: t('取消'),
-    })
-  } catch {
-    return
-  }
-  try {
-    await window.electronAPI?.ipcManager.invoke(IPC_EVENTS.apiflow.rendererToMain.setOnlineUrl, '')
-    message.success(t('配置已重置，即将刷新应用'))
-  } catch {
-    message.error(t('重置失败'))
+  } else {
+    localOnlineUrl.value = ''
+    message.success(t('重置成功'))
   }
 }
 

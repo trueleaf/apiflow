@@ -199,5 +199,40 @@ class AppSettingsCache {
       logger.error('重置代理服务器地址失败', { error });
     }
   }
+  // 是否配置了在线页面地址
+  hasOnlineUrl(): boolean {
+    try {
+      return !!localStorage.getItem(cacheKey.settings.app.onlineUrl);
+    } catch (error) {
+      logger.error('获取在线页面地址配置状态失败', { error });
+      return false;
+    }
+  }
+  // 获取在线页面地址
+  getOnlineUrl(): string {
+    try {
+      const onlineUrl = localStorage.getItem(cacheKey.settings.app.onlineUrl);
+      return onlineUrl || '';
+    } catch (error) {
+      logger.error('获取在线页面地址失败', { error });
+      return '';
+    }
+  }
+  // 设置在线页面地址
+  setOnlineUrl(onlineUrl: string) {
+    try {
+      localStorage.setItem(cacheKey.settings.app.onlineUrl, onlineUrl);
+    } catch (error) {
+      logger.error('设置在线页面地址失败', { error });
+    }
+  }
+  // 重置在线页面地址
+  resetOnlineUrl() {
+    try {
+      localStorage.removeItem(cacheKey.settings.app.onlineUrl);
+    } catch (error) {
+      logger.error('重置在线页面地址失败', { error });
+    }
+  }
 }
 export const appSettingsCache = new AppSettingsCache();

@@ -11,6 +11,7 @@ export const useAppSettings = defineStore('appSettings', () => {
   const appTheme = ref<AppTheme>(appSettingsCache.getAppTheme())
   const serverUrl = ref(appSettingsCache.getServerUrl())
   const proxyServerUrl = ref(appSettingsCache.getProxyServerUrl())
+  const onlineUrl = ref(appSettingsCache.getOnlineUrl())
   
   const appLogo = computed(() => _appLogo.value || defaultLogoImg)
 
@@ -21,7 +22,8 @@ export const useAppSettings = defineStore('appSettings', () => {
         appLogo: appLogo.value,
         appTheme: appTheme.value,
         serverUrl: serverUrl.value,
-        proxyServerUrl: proxyServerUrl.value
+        proxyServerUrl: proxyServerUrl.value,
+        onlineUrl: onlineUrl.value
       })
     }
   }
@@ -103,6 +105,16 @@ export const useAppSettings = defineStore('appSettings', () => {
     appSettingsCache.resetProxyServerUrl()
     proxyServerUrl.value = appSettingsCache.getProxyServerUrl()
   }
+  // 设置在线页面地址
+  const setOnlineUrl = (url: string): void => {
+    onlineUrl.value = url
+    appSettingsCache.setOnlineUrl(url)
+  }
+  // 重置在线页面地址
+  const resetOnlineUrl = (): void => {
+    appSettingsCache.resetOnlineUrl()
+    onlineUrl.value = appSettingsCache.getOnlineUrl()
+  }
 
   // 重置所有应用设置
   const resetAllSettings = (): void => {
@@ -111,6 +123,7 @@ export const useAppSettings = defineStore('appSettings', () => {
     resetAppTheme()
     resetServerUrl()
     resetProxyServerUrl()
+    resetOnlineUrl()
     notifyAppSettingsChanged()
   }
 
@@ -121,9 +134,10 @@ export const useAppSettings = defineStore('appSettings', () => {
     appTheme.value = appSettingsCache.getAppTheme()
     serverUrl.value = appSettingsCache.getServerUrl()
     proxyServerUrl.value = appSettingsCache.getProxyServerUrl()
+    onlineUrl.value = appSettingsCache.getOnlineUrl()
   }
   // 从IPC数据直接更新设置（用于topBarView接收contentView的设置变更）
-  const updateFromIPC = (data: { appTitle: string, appLogo: string, appTheme: AppTheme, serverUrl?: string, proxyServerUrl?: string }): void => {
+  const updateFromIPC = (data: { appTitle: string, appLogo: string, appTheme: AppTheme, serverUrl?: string, proxyServerUrl?: string, onlineUrl?: string }): void => {
     appTitle.value = data.appTitle
     // 如果传入的logo是默认logo，则将_appLogo设为空字符串，让computed使用默认值
     // 否则直接设置传入的logo
@@ -135,6 +149,9 @@ export const useAppSettings = defineStore('appSettings', () => {
     if (data.proxyServerUrl !== undefined) {
       proxyServerUrl.value = data.proxyServerUrl
     }
+    if (data.onlineUrl !== undefined) {
+      onlineUrl.value = data.onlineUrl
+    }
   }
 
   return {
@@ -143,15 +160,18 @@ export const useAppSettings = defineStore('appSettings', () => {
     appTheme,
     serverUrl,
     proxyServerUrl,
+    onlineUrl,
     setAppTitle,
     setAppLogo,
     setAppTheme,
     setServerUrl,
     setProxyServerUrl,
+    setOnlineUrl,
     resetAllSettings,
     refreshSettings,
     updateFromIPC,
     resetServerUrl,
     resetProxyServerUrl,
+    resetOnlineUrl,
   }
 })
