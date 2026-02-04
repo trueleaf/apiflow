@@ -20,7 +20,7 @@ test.describe('WebSocketUrlFormat', () => {
     await contentPage.waitForTimeout(200);
     await expect(urlEditor).toHaveText('127.0.0.1:8080/test', { timeout: 5000 });
     // blur触发格式化，自动添加ws://前缀
-    await contentPage.locator('.ws-operation').click();
+    await contentPage.locator('.ws-operation .status-wrap').click();
     await contentPage.waitForTimeout(300);
     await expect(urlEditor).toHaveText(/ws:\/\/127\.0\.0\.1:8080\/test/, { timeout: 5000 });
     // 撤销操作应该回到空值，而不是格式化前的值
@@ -73,7 +73,7 @@ test.describe('WebSocketUrlFormat', () => {
     await contentPage.keyboard.type('ws://test.com/path?name=test&id=123');
     await contentPage.waitForTimeout(200);
     // blur触发格式化
-    await contentPage.locator('.ws-operation').click();
+    await contentPage.locator('.ws-operation .status-wrap').click();
     await contentPage.waitForTimeout(300);
     // 验证query参数被移除
     await expect(urlEditor).toHaveText('ws://test.com/path', { timeout: 5000 });
@@ -101,7 +101,7 @@ test.describe('WebSocketUrlFormat', () => {
     await contentPage.keyboard.type('ws://example.com:9000/api');
     await contentPage.waitForTimeout(200);
     // blur触发格式化
-    await contentPage.locator('.ws-operation').click();
+    await contentPage.locator('.ws-operation .status-wrap').click();
     await contentPage.waitForTimeout(300);
     // 验证前缀没有重复
     await expect(urlEditor).toHaveText('ws://example.com:9000/api', { timeout: 5000 });
@@ -129,7 +129,7 @@ test.describe('WebSocketUrlFormat', () => {
     await contentPage.waitForTimeout(200);
     await expect(urlEditor).toHaveText('abc', { timeout: 5000 });
     // blur触发格式化（添加ws://前缀）
-    await contentPage.locator('.ws-operation').click();
+    await contentPage.locator('.ws-operation .status-wrap').click();
     await contentPage.waitForTimeout(300);
     await expect(urlEditor).toHaveText(/ws:\/\/abc/, { timeout: 5000 });
     // 撤销三次应该回到空值（每个字符一次撤销），格式化不占用撤销栈

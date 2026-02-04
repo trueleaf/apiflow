@@ -133,12 +133,14 @@ test.describe('WebSocketQueryParamsRedo', () => {
     await expect(statusUrl).toContainText('shortcutKey=shortcutValue', { timeout: 5000 })
 
     // 点击空白区域让输入框失焦，避免快捷键仅影响输入内容
-    await paramsTab.click()
+    await contentPage.locator('.ws-operation .status-wrap').click()
     await contentPage.waitForTimeout(200)
+    await expect(valueEditor).not.toBeFocused({ timeout: 5000 })
 
     // Ctrl+Z撤销后应移除Query参数拼接，再Ctrl+Y重做恢复
     await contentPage.keyboard.press('Control+z')
     await contentPage.waitForTimeout(300)
+    await expect(contentPage.locator('[data-testid="ws-params-redo-btn"]')).not.toHaveClass(/disabled/, { timeout: 5000 })
     await expect(statusUrl).not.toContainText('shortcutKey=shortcutValue', { timeout: 5000 })
     await contentPage.keyboard.press('Control+y')
     await contentPage.waitForTimeout(300)
