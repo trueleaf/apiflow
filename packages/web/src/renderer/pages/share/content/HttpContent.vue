@@ -238,7 +238,8 @@ watchEffect(async () => {
   if (!apidocInfo.value) return '';
   const { prefix, path } = apidocInfo.value.item.url || { prefix: '', path: '' };
   const rawUrl = `${prefix}${path}`;
-  fullUrl.value = await getCompiledTemplate(rawUrl, shareStore.varibles);
+  const compiledUrl = await getCompiledTemplate(rawUrl, shareStore.varibles);
+  fullUrl.value = typeof compiledUrl === 'string' ? compiledUrl : String(compiledUrl ?? '');
 });
 
 const getMethodColor = (method: string) => {

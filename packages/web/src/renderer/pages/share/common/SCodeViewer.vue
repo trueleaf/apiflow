@@ -11,7 +11,7 @@
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import beautify from 'js-beautify'
 
-const Prism = (window as Record<string, unknown>).Prism as {
+const Prism = (window as unknown as Record<string, unknown>).Prism as {
   highlightElement: (element: HTMLElement) => void
 } | undefined
 

@@ -21,6 +21,7 @@ export const useWsRedoUndo = defineStore('wsRedoUndo', () => {
   const wsRedoList = ref<Record<string, WsRedoUnDoOperation[]>>({});
   const wsUndoList = ref<Record<string, WsRedoUnDoOperation[]>>({});
   const websocketStore = useWebSocket();
+  const urlOperationMergeMs = 250;
   /*
   |--------------------------------------------------------------------------
   | 操作记录方法
@@ -34,6 +35,20 @@ export const useWsRedoUndo = defineStore('wsRedoUndo', () => {
     const nodeId = operation.nodeId;
     if (!wsUndoList.value[nodeId]) {
       wsUndoList.value[nodeId] = [];
+    }
+    const lastOperation = wsUndoList.value[nodeId].at(-1);
+    if (
+      operation.type === 'urlOperation' &&
+      lastOperation?.type === 'urlOperation' &&
+      operation.operationName === lastOperation.operationName &&
+      operation.affectedModuleName === lastOperation.affectedModuleName &&
+      operation.timestamp - lastOperation.timestamp <= urlOperationMergeMs
+    ) {
+      lastOperation.newValue = operation.newValue;
+      lastOperation.timestamp = operation.timestamp;
+      wsRedoList.value[nodeId] = [];
+      wsRedoUndoCache.setRedoUndoListByNodeId(nodeId, wsRedoList.value[nodeId], wsUndoList.value[nodeId]);
+      return;
     }
     wsUndoList.value[nodeId].push(operation);
     wsRedoList.value[nodeId] = []; // 清空redo列表
@@ -117,8 +132,15 @@ export const useWsRedoUndo = defineStore('wsRedoUndo', () => {
         break;
         
       case 'urlOperation':
-        // URL操作仅改变path字段
-        websocketStore.changeWebSocketPath(targetValue as string);
+        {
+          const protocol = websocketStore.websocket.item.protocol;
+          let formatPath = String(targetValue);
+          if (formatPath.trim() !== '' && !formatPath.startsWith('ws://') && !formatPath.startsWith('wss://') && !formatPath.startsWith('{{')) {
+            formatPath = `${protocol}://${formatPath}`;
+          }
+          formatPath = formatPath.replace(/(\?.*$)/, '');
+          websocketStore.changeWebSocketPath(formatPath);
+        }
         break;
         
       case 'headersOperation':
@@ -156,7 +178,7 @@ export const useWsRedoUndo = defineStore('wsRedoUndo', () => {
         break;
         
       default:
-        logger.warn('未知的操作类型', { type: (operation as any).type });
+        logger.warn('未知的操作类型', { type: (operation as { type: string }).type });
     }
   };
 

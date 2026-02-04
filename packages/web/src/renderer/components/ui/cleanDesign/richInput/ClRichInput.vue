@@ -165,6 +165,14 @@ const getEditorDom = (): HTMLElement | null => {
     return null
   }
 }
+const handleEditorKeyUp = (event: KeyboardEvent) => {
+  if (event.key !== 'Enter') {
+    return
+  }
+  if (event.shiftKey || event.ctrlKey || event.metaKey) {
+    event.stopPropagation()
+  }
+}
 const insertText = (text: string, shouldTrim?: boolean) => {
   if (!editor.value || !editor.value.view) {
     return false
@@ -255,6 +263,24 @@ const editor = useEditor({
       return true
     },
     handleKeyDown(_view, event) {
+      if (event.key === 'Enter') {
+        const isMod = event.ctrlKey || event.metaKey
+        if (isMod && !event.shiftKey) {
+          const view = editor.value?.view
+          const hardBreak = view?.state.schema.nodes.hard_break
+          if (!view || !hardBreak) {
+            return false
+          }
+          event.preventDefault()
+          view.dispatch(view.state.tr.replaceSelectionWith(hardBreak.create()).scrollIntoView())
+          return true
+        }
+        if (event.shiftKey) {
+          return false
+        }
+        event.preventDefault()
+        return true
+      }
       if (!props.disableHistory) {
         return false
       }
@@ -446,6 +472,7 @@ onMounted(() => {
     const editorElement = getEditorDom()
     if (editorElement) {
       editorElement.addEventListener('click', handleEditorClick)
+      editorElement.addEventListener('keyup', handleEditorKeyUp, true)
     }
   })
   window.addEventListener('click', handleOutsideClick, true)
@@ -502,6 +529,7 @@ onBeforeUnmount(() => {
   const editorElement = getEditorDom()
   if (editorElement) {
     editorElement.removeEventListener('click', handleEditorClick)
+    editorElement.removeEventListener('keyup', handleEditorKeyUp, true)
   }
   if (editor.value) {
     editor.value.destroy()

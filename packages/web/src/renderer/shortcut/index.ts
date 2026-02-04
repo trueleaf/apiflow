@@ -86,12 +86,13 @@ class ShortcutManager {
           route: "/workbench",
           tabType: "websocket",
         },
-        handler: () => {
+        handler: (event: KeyboardEvent) => {
           const currentRoute = router.currentRoute.value?.path || "";
           const currentNavType = projectNavStore.currentSelectNav?.tabType;
           if (currentRoute !== "/workbench" || currentNavType !== "websocket") {
             return;
           }
+          event.preventDefault();
           const wsRedoUndoStore = useWsRedoUndo();
           const nodeId = projectNavStore.currentSelectNav?._id || "";
           wsRedoUndoStore.wsUndo(nodeId);
@@ -106,12 +107,13 @@ class ShortcutManager {
           route: "/workbench",
           tabType: "websocket",
         },
-        handler: () => {
+        handler: (event: KeyboardEvent) => {
           const currentRoute = router.currentRoute.value?.path || "";
           const currentNavType = projectNavStore.currentSelectNav?.tabType;
           if (currentRoute !== "/workbench" || currentNavType !== "websocket") {
             return;
           }
+          event.preventDefault();
           const wsRedoUndoStore = useWsRedoUndo();
           const nodeId = projectNavStore.currentSelectNav?._id || "";
           wsRedoUndoStore.wsRedo(nodeId);
@@ -184,7 +186,7 @@ class ShortcutManager {
     }
     this.shortcutConfigs.forEach((config) => {
       const keys = config.userSetKeys || config.defaultKeys;
-      hotkeys(keys, (event) => {
+      hotkeys(keys, { capture: true }, (event) => {
         config.handler(event);
       });
     });
@@ -212,7 +214,7 @@ class ShortcutManager {
     hotkeys.unbind(oldKeys);
     config.userSetKeys = newKeys;
     shortcutCache.setShortcutKeys(shortcutId, newKeys);
-    hotkeys(newKeys, (event) => {
+    hotkeys(newKeys, { capture: true }, (event) => {
       config.handler(event);
     });
   }
@@ -225,7 +227,7 @@ class ShortcutManager {
     hotkeys.unbind(oldKeys);
     config.userSetKeys = "";
     shortcutCache.removeShortcutKeys(shortcutId);
-    hotkeys(config.defaultKeys, (event) => {
+    hotkeys(config.defaultKeys, { capture: true }, (event) => {
       config.handler(event);
     });
   }
@@ -234,7 +236,7 @@ class ShortcutManager {
       const oldKeys = config.userSetKeys || config.defaultKeys;
       hotkeys.unbind(oldKeys);
       config.userSetKeys = "";
-      hotkeys(config.defaultKeys, (event) => {
+      hotkeys(config.defaultKeys, { capture: true }, (event) => {
         config.handler(event);
       });
     });

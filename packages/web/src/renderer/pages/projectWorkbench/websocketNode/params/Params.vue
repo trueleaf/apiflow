@@ -212,12 +212,18 @@ const canRedo = computed(() => {
 const handleUndo = (): void => {
   if (!canUndo.value || !currentSelectNav.value) return;
   const nodeId = currentSelectNav.value._id;
-  redoUndoStore.wsUndo(nodeId);
+  const result = redoUndoStore.wsUndo(nodeId);
+  if (result.code !== 0) {
+    message.error(result.msg);
+  }
 };
 const handleRedo = (): void => {
   if (!canRedo.value || !currentSelectNav.value) return;
   const nodeId = currentSelectNav.value._id;
-  redoUndoStore.wsRedo(nodeId);
+  const result = redoUndoStore.wsRedo(nodeId);
+  if (result.code !== 0) {
+    message.error(result.msg);
+  }
 };
 //切换布局
 const handleChangeLayout = (layoutOption: 'vertical' | 'horizontal') => {

@@ -26,6 +26,16 @@ const { t } = useI18n()
 const modelValue = defineModel<string>({
   default: ''
 })
+const props = defineProps({
+  manualUndoRedo: {
+    type: Boolean,
+    default: false
+  }
+});
+const emits = defineEmits<{
+  (e: 'undo', payload: { cursorPosition: monaco.Position | null }): void
+  (e: 'redo', payload: { cursorPosition: monaco.Position | null }): void
+}>()
 const preEditor: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
 let monacoCompletionItem: monaco.IDisposable | null = null;
@@ -35,7 +45,11 @@ let isDisposed = false; // 标记编辑器是否已被销毁
 watch(modelValue, (newValue) => {
   const value = monacoInstance?.getValue();
   if (newValue !== value) {
+    const cursorPosition = monacoInstance?.getPosition();
     monacoInstance?.setValue(newValue ?? '')
+    if (cursorPosition) {
+      monacoInstance?.setPosition(cursorPosition);
+    }
   }
 })
 onMounted(() => {
@@ -82,6 +96,20 @@ onMounted(() => {
   monacoInstance.onDidChangeModelContent(() => {
     modelValue.value = monacoInstance?.getValue() ?? ''
   })
+  if (props.manualUndoRedo) {
+    monacoInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyZ, () => {
+      const cursorPosition = getCursorPosition();
+      emits('undo', { cursorPosition });
+    });
+    monacoInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyZ, () => {
+      const cursorPosition = getCursorPosition();
+      emits('redo', { cursorPosition });
+    });
+    monacoInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyY, () => {
+      const cursorPosition = getCursorPosition();
+      emits('redo', { cursorPosition });
+    });
+  }
 })
 eventEmitter.on('websocket/editor/removePreEditor', () => {
   try {
@@ -126,6 +154,20 @@ const handleFormat = () => {
   const formatStr = beautify(modelValue.value, { indent_size: 4 });
   monacoInstance?.setValue(formatStr)
 }
+//获取光标位置
+const getCursorPosition = () => {
+  return monacoInstance?.getPosition() || null;
+}
+//设置光标位置
+const setCursorPosition = (position: monaco.Position) => {
+  if (!position) return;
+  monacoInstance?.setPosition(position);
+  monacoInstance?.focus();
+}
+defineExpose({
+  getCursorPosition,
+  setCursorPosition
+})
 </script>
 
 <style lang='scss' scoped>

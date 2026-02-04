@@ -22,6 +22,7 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
   const httpRedoList = ref<Record<string, HttpRedoUnDoOperation[]>>({});
   const httpUndoList = ref<Record<string, HttpRedoUnDoOperation[]>>({});
   const httpNodeStore = useHttpNode();
+  const pathOperationMergeMs = 250;
   /**
    * 记录操作
    */
@@ -29,6 +30,20 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
     const nodeId = operation.nodeId;
     if (!httpUndoList.value[nodeId]) {
       httpUndoList.value[nodeId] = [];
+    }
+    const lastOperation = httpUndoList.value[nodeId].at(-1);
+    if (
+      operation.type === 'pathOperation' &&
+      lastOperation?.type === 'pathOperation' &&
+      operation.operationName === lastOperation.operationName &&
+      operation.affectedModuleName === lastOperation.affectedModuleName &&
+      operation.timestamp - lastOperation.timestamp <= pathOperationMergeMs
+    ) {
+      lastOperation.newValue = operation.newValue;
+      lastOperation.timestamp = operation.timestamp;
+      httpRedoList.value[nodeId] = [];
+      httpRedoUndoCache.setRedoUndoListByNodeId(nodeId, httpRedoList.value[nodeId], httpUndoList.value[nodeId]);
+      return;
     }
     httpUndoList.value[nodeId].push(operation);
     httpRedoList.value[nodeId] = []; // 清空redo列表
@@ -179,7 +194,7 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
         break;
 
       default:
-        logger.warn('未知的操作类型', { type: (operation as any).type });
+        logger.warn('未知的操作类型', { type: (operation as { type: string }).type });
     }
   };
 
