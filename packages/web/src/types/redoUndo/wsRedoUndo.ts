@@ -1,5 +1,6 @@
 import type { ApidocProperty } from "../httpNode/types";
 import type { WebSocketNode, WebsocketMessageBlock } from "../websocketNode";
+import type * as monaco from 'monaco-editor';
 
 // WebSocket模块名称联合类型
 export type WsModuleName = 
@@ -86,6 +87,7 @@ export type WsPreRequestOperation = {
   affectedModuleName: WsModuleName;
   oldValue: WebSocketNode['preRequest'];
   newValue: WebSocketNode['preRequest'];
+  cursorPosition?: monaco.Position;
   timestamp: number;
 };
 
@@ -97,6 +99,7 @@ export type WsAfterRequestOperation = {
   affectedModuleName: WsModuleName;
   oldValue: WebSocketNode['afterRequest'];
   newValue: WebSocketNode['afterRequest'];
+  cursorPosition?: monaco.Position;
   timestamp: number;
 };
 

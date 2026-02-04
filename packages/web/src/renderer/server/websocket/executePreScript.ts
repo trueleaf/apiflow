@@ -13,23 +13,21 @@ type ExecutePreScriptResult = {
   };
 }
 
-/**
- * 执行 WebSocket 前置脚本
- * @param websocketNode WebSocket 节点数据
- * @param variables 变量数据
- * @param cookies Cookie 数据
- * @param localStorage 本地存储数据
- * @param sessionStorage 会话存储数据
- * @returns 执行结果
- */
-export async function executeWebSocketPreScript(
+// 将数据深拷贝为可 postMessage 的对象
+const jsonClone = <T>(value: T): T => {
+  const json = JSON.stringify(value);
+  const parsed = JSON.parse(json ?? 'null') as unknown;
+  return parsed as T;
+};
+// 执行 WebSocket 前置脚本
+export const executeWebSocketPreScript = async (
   websocketNode: WebSocketNode,
   variables: Record<string, unknown>,
   cookies: Record<string, unknown>,
   localStorage: Record<string, unknown>,
   sessionStorage: Record<string, unknown>,
   projectId: string
-): Promise<ExecutePreScriptResult> {
+): Promise<ExecutePreScriptResult> => {
   // 如果没有前置脚本，直接返回成功
   if (!websocketNode.preRequest.raw || websocketNode.preRequest.raw.trim() === '') {
     return {
@@ -68,7 +66,7 @@ export async function executeWebSocketPreScript(
       }
     });
 
-    worker.onmessage = (e: MessageEvent) => {
+    worker.onmessage = (e: MessageEvent<WorkerMessage>) => {
       const { type } = e.data;
 
       if (type === 'ws-pre-request-init-success') {
@@ -191,11 +189,11 @@ export async function executeWebSocketPreScript(
     // 发送初始化数据
     worker.postMessage({
       type: 'initData',
-      websocketInfo: websocketNode,
-      variables,
-      cookies,
-      localStorage,
-      sessionStorage,
+      websocketInfo: jsonClone(websocketNode),
+      variables: jsonClone(variables),
+      cookies: jsonClone(cookies),
+      localStorage: jsonClone(localStorage),
+      sessionStorage: jsonClone(sessionStorage),
     });
   });
-}
+};
