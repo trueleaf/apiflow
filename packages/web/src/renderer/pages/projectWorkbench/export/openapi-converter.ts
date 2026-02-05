@@ -265,30 +265,39 @@ export class OpenAPIConverter {
   private convertResponse(response: HttpNodeResponseParams): OpenAPIResponse | null {
     const responseObj: OpenAPIResponse = {
       description: response.title,
-      content: {}
     };
-    if (response.value.dataType === 'application/json' && response.value.strJson) {
+    const dataType = response.value.dataType;
+    if (!dataType) {
+      return responseObj;
+    }
+    const content: NonNullable<OpenAPIResponse['content']> = {};
+    const jsonText = response.value.strJson || response.value.text;
+    if (dataType === 'application/json') {
       try {
-        const jsonSchema = this.parseJsonToSchema(response.value.strJson);
-        responseObj.content!['application/json'] = {
+        const jsonSchema = jsonText ? this.parseJsonToSchema(jsonText) : {
+          type: 'object',
+          description: 'JSON响应'
+        };
+        content['application/json'] = {
           schema: jsonSchema
         };
-      } catch (error) {
-        responseObj.content!['application/json'] = {
+      } catch {
+        content['application/json'] = {
           schema: {
             type: 'object',
             description: 'JSON响应'
           }
         };
       }
-    } else if (response.value.text) {
-      responseObj.content!['text/plain'] = {
+    } else {
+      content[dataType] = {
         schema: {
           type: 'string',
-          description: '文本响应'
+          description: '响应内容'
         }
       };
     }
+    responseObj.content = content;
     return responseObj;
   }
   private parseJsonToSchema(jsonString: string): unknown {
