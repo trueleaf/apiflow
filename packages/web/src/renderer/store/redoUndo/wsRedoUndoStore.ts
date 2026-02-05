@@ -132,15 +132,7 @@ export const useWsRedoUndo = defineStore('wsRedoUndo', () => {
         break;
         
       case 'urlOperation':
-        {
-          const protocol = websocketStore.websocket.item.protocol;
-          let formatPath = String(targetValue);
-          if (formatPath.trim() !== '' && !formatPath.startsWith('ws://') && !formatPath.startsWith('wss://') && !formatPath.startsWith('{{')) {
-            formatPath = `${protocol}://${formatPath}`;
-          }
-          formatPath = formatPath.replace(/(\?.*$)/, '');
-          websocketStore.changeWebSocketPath(formatPath);
-        }
+        websocketStore.changeWebSocketPath(String(targetValue));
         break;
         
       case 'headersOperation':
