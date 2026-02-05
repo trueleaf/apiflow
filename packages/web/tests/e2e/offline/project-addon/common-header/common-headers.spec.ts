@@ -47,8 +47,8 @@ test.describe('CommonHeaders', () => {
     // await contentPage.waitForTimeout(300);
     // 点击确认修改按钮保存
     const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
-    await confirmBtn.click();
     await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await confirmBtn.click();
     // 在folder下创建一个HTTP节点
     await folderNode.click({ button: 'right' });
     // await contentPage.waitForTimeout(300);
@@ -67,7 +67,6 @@ test.describe('CommonHeaders', () => {
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求信息中包含公共请求头（避免依赖响应体渲染实现）
     await expect(contentPage.locator('[data-testid="response-tabs"]')).toBeVisible({ timeout: 10000 });
     await contentPage.locator('#tab-SRequestView').click();
@@ -75,6 +74,126 @@ test.describe('CommonHeaders', () => {
     await expect(requestInfo).toBeVisible({ timeout: 10000 });
     await expect(requestInfo).toContainText('Authorization', { timeout: 10000 });
     await expect(requestInfo).toContainText('Bearer testtoken', { timeout: 10000 });
+  });
+  // 测试用例1-补充: 接口本身请求头优先级高于公共请求头（相同 key 覆盖）
+  test('接口请求头优先级高于公共请求头(相同key覆盖)', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 创建文件夹并设置公共请求头
+    const treeWrap = contentPage.locator('.tree-wrap');
+    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
+    const contextMenu = contentPage.locator('.s-contextmenu');
+    await contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ }).click();
+    const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
+    await expect(folderDialog).toBeVisible({ timeout: 5000 });
+    await folderDialog.locator('input').first().fill('覆盖文件夹');
+    await folderDialog.locator('.el-button--primary').last().click();
+    const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '覆盖文件夹' });
+    await expect(folderNode).toBeVisible({ timeout: 5000 });
+    await folderNode.click({ button: 'right' });
+    await contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ }).click();
+    const commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
+    const commonKeyInputs = commonHeaderPage.locator('[data-testid="params-tree-key-input"]');
+    const commonValueInputs = commonHeaderPage.locator('[data-testid="params-tree-value-input"]');
+    await commonKeyInputs.first().fill('Authorization');
+    await commonValueInputs.first().click();
+    await contentPage.keyboard.type('Bearer common-token');
+    const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await confirmBtn.click();
+    // 在文件夹下创建接口，并在接口自身 Headers 中设置同 key 的请求头
+    await folderNode.click({ button: 'right' });
+    await contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ }).click();
+    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|新增接口/ });
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('覆盖接口');
+    await addFileDialog.locator('.el-button--primary').last().click();
+    const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
+    await headersTab.click();
+    const nodeKeyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    const nodeValueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await expect(nodeKeyInputs.first()).toBeVisible({ timeout: 5000 });
+    await nodeKeyInputs.first().fill('Authorization');
+    await nodeValueInputs.first().click();
+    await contentPage.keyboard.type('Bearer override-token');
+    // 发送请求，验证最终使用接口自身请求头而非公共请求头
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    await contentPage.locator('[data-testid="operation-send-btn"]').click();
+    await expect(contentPage.locator('[data-testid="response-tabs"]')).toBeVisible({ timeout: 10000 });
+    await contentPage.locator('#tab-SRequestView').click();
+    const requestInfo = contentPage.locator('.request-info');
+    await expect(requestInfo).toBeVisible({ timeout: 10000 });
+    await expect(requestInfo).toContainText('Authorization', { timeout: 10000 });
+    await expect(requestInfo).toContainText('Bearer override-token', { timeout: 10000 });
+    await expect(requestInfo).not.toContainText('Bearer common-token', { timeout: 10000 });
+  });
+  // 测试用例1-补充: 清空公共请求头后接口不再继承
+  test('清空公共请求头后接口不再继承', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 创建文件夹、设置公共请求头并创建接口
+    const treeWrap = contentPage.locator('.tree-wrap');
+    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
+    const contextMenu = contentPage.locator('.s-contextmenu');
+    await contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ }).click();
+    const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
+    await expect(folderDialog).toBeVisible({ timeout: 5000 });
+    await folderDialog.locator('input').first().fill('清空文件夹');
+    await folderDialog.locator('.el-button--primary').last().click();
+    const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '清空文件夹' });
+    await expect(folderNode).toBeVisible({ timeout: 5000 });
+    await folderNode.click({ button: 'right' });
+    await contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ }).click();
+    const commonHeaderPage = contentPage.locator('.common-header');
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
+    const keyInputs = commonHeaderPage.locator('[data-testid="params-tree-key-input"]');
+    const valueInputs = commonHeaderPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.first().fill('X-Test');
+    await valueInputs.first().click();
+    await contentPage.keyboard.type('value-1');
+    const confirmBtn = commonHeaderPage.locator('.el-button--success').filter({ hasText: /确认修改/ });
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await confirmBtn.click();
+    // 创建接口并首次发送请求，确认继承生效
+    await folderNode.click({ button: 'right' });
+    await contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ }).click();
+    const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|新增接口/ });
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('清空接口');
+    await addFileDialog.locator('.el-button--primary').last().click();
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    await contentPage.locator('[data-testid="operation-send-btn"]').click();
+    await expect(contentPage.locator('[data-testid="response-tabs"]')).toBeVisible({ timeout: 10000 });
+    await contentPage.locator('#tab-SRequestView').click();
+    const requestInfo = contentPage.locator('.request-info');
+    await expect(requestInfo).toBeVisible({ timeout: 10000 });
+    await expect(requestInfo).toContainText('X-Test', { timeout: 10000 });
+    await expect(requestInfo).toContainText('value-1', { timeout: 10000 });
+    // 清空公共请求头并保存
+    await folderNode.click({ button: 'right' });
+    await contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /设置公共请求头/ }).click();
+    await expect(commonHeaderPage).toBeVisible({ timeout: 5000 });
+    const clearKeyInput = commonHeaderPage.locator('[data-testid="params-tree-key-input"]').first();
+    const clearValueEditable = commonHeaderPage.locator('[data-testid="params-tree-value-input"]').first().locator('[contenteditable="true"]').first();
+    await clearKeyInput.fill('');
+    await clearValueEditable.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.press('Backspace');
+    await expect(confirmBtn).toBeEnabled({ timeout: 5000 });
+    await confirmBtn.click();
+    // 再次发送请求，验证不再携带公共请求头
+    const apiNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '清空接口' });
+    await apiNode.click();
+    await contentPage.locator('[data-testid="operation-send-btn"]').click();
+    await expect(contentPage.locator('[data-testid="response-tabs"]')).toBeVisible({ timeout: 10000 });
+    await contentPage.locator('#tab-SRequestView').click();
+    await expect(requestInfo).not.toContainText('X-Test', { timeout: 10000 });
+    await expect(requestInfo).not.toContainText('value-1', { timeout: 10000 });
   });
   // 测试用例2: 公共请求头支持表格模式和多行编辑模式切换,两种模式数据同步
   test('公共请求头支持表格模式和多行编辑模式切换,两种模式数据同步', async ({ contentPage, clearCache, createProject }) => {
@@ -331,7 +450,6 @@ test.describe('CommonHeaders', () => {
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求信息中包含继承的公共请求头
     await expect(contentPage.locator('[data-testid="response-tabs"]')).toBeVisible({ timeout: 10000 });
     await contentPage.locator('#tab-SRequestView').click();
@@ -464,7 +582,6 @@ test.describe('CommonHeaders', () => {
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求信息中包含所有三层的公共请求头
     await expect(contentPage.locator('[data-testid="response-tabs"]')).toBeVisible({ timeout: 10000 });
     await contentPage.locator('#tab-SRequestView').click();
@@ -578,7 +695,6 @@ test.describe('CommonHeaders', () => {
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     // 验证请求信息中子目录覆盖父目录
     await expect(contentPage.locator('[data-testid="response-tabs"]')).toBeVisible({ timeout: 10000 });
     await contentPage.locator('#tab-SRequestView').click();

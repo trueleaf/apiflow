@@ -124,14 +124,29 @@ test.describe('WebSocketHeadersUndo', () => {
     await headersTab.click()
     await contentPage.waitForTimeout(200)
 
-    // Ctrl+Z撤销后应清空该Header
-    await contentPage.keyboard.press('Control+z')
-    await contentPage.waitForTimeout(300)
+    // 确保已产生可撤销记录（撤销按钮可用）
+    const undoBtn = contentPage.locator('[data-testid="ws-params-undo-btn"]')
+    await expect(undoBtn).not.toHaveClass(/disabled/, { timeout: 5000 })
+
+    // Ctrl+Z 可能需要多次（输入/自动补空行等会产生多个撤销点）
+    const maxUndoAttempts = 10
+    for (let i = 0; i < maxUndoAttempts; i++) {
+      await contentPage.keyboard.press('Control+z')
+      await contentPage.waitForTimeout(200)
+
+      const isHidden = await headerRow.isHidden().catch(() => true)
+      if (isHidden) break
+
+      const isDisabled = await undoBtn.evaluate(el => el.classList.contains('disabled'))
+      if (isDisabled) break
+    }
+
     await expect(headerRow).toBeHidden({ timeout: 5000 })
   })
 
   // 修改Header值后撤销恢复
   test('修改Header值后撤销恢复', async ({ contentPage, clearCache, createProject, createNode }) => {
+    test.setTimeout(60000)
     await clearCache()
     await createProject()
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 })

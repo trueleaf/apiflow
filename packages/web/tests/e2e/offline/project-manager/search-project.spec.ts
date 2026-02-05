@@ -140,25 +140,27 @@ test.describe('SearchProject', () => {
     await clearCache();
     const projectName = await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
     // 添加一个HTTP节点
     await createNode(contentPage, { nodeType: 'http', name: '未命名接口' });
     // 返回首页
     const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
     // 展开高级搜索面板
     const advancedSearchBtn = contentPage.locator('[data-testid="home-advanced-search-btn"]');
     await advancedSearchBtn.click();
-    await contentPage.waitForTimeout(300);
     // 输入搜索关键词
     const searchInput = contentPage.locator('[data-testid="home-project-search-input"]');
     await searchInput.fill('未命名接口');
-    await contentPage.waitForTimeout(500);
     // 验证搜索结果显示
     const searchResults = contentPage.locator('.search-results');
     await expect(searchResults).toBeVisible({ timeout: 5000 });
+    const groupTitle = searchResults.locator('.group-title').first();
+    await expect(groupTitle).toContainText(projectName, { timeout: 5000 });
+    const searchResultItem = searchResults.locator('.search-result-item').first();
+    await expect(searchResultItem).toBeVisible({ timeout: 8000 });
+    await expect(searchResultItem.locator('.node-name')).toContainText('未命名接口', { timeout: 8000 });
+    await expect(searchResultItem.locator('.node-type-label')).toContainText('HTTP', { timeout: 8000 });
   });
 
   test('高级搜索基础信息选项均可生效', async ({ topBarPage, contentPage, clearCache, createProject }) => {
@@ -215,26 +217,45 @@ test.describe('SearchProject', () => {
     const resetBtn = advancedSearchPanel.locator('.search-actions .el-button').last();
     const searchInput = contentPage.locator('[data-testid="home-project-search-input"]');
     const firstResult = contentPage.locator('.search-result-item').first();
-    const assertMatch = async (checkboxText: RegExp, keyword: string, expectFieldText: string) => {
-      await resetBtn.click();
-      await contentPage.waitForTimeout(200);
-      await toggleSelectAllBtn.click();
-      await contentPage.waitForTimeout(200);
-      const checkbox = advancedSearchPanel.locator('.el-checkbox').filter({ hasText: checkboxText }).first();
-      await checkbox.click();
-      await contentPage.waitForTimeout(200);
-      await searchInput.fill('');
-      await contentPage.waitForTimeout(100);
-      await searchInput.fill(keyword);
-      await contentPage.waitForTimeout(500);
-      await expect(firstResult).toBeVisible({ timeout: 8000 });
-      await expect(firstResult.locator('.field-tag')).toContainText(expectFieldText);
-    };
-    await assertMatch(/项目名称/, projectKeyword, '项目名称');
-    await assertMatch(/文档名称/, docKeyword, '文档名称');
-    await assertMatch(/请求URL/, urlKeyword, '请求URL');
-    await assertMatch(/请求方法/, methodKeyword, '请求方法');
-    await assertMatch(/备注/, remarkKeyword, '备注');
+    await resetBtn.click();
+    await contentPage.waitForTimeout(200);
+    await toggleSelectAllBtn.click();
+    await contentPage.waitForTimeout(200);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /项目名称/ }).first().click();
+    await searchInput.fill(projectKeyword);
+    await expect(firstResult.locator('.field-tag')).toContainText('项目名称', { timeout: 8000 });
+
+    await resetBtn.click();
+    await contentPage.waitForTimeout(200);
+    await toggleSelectAllBtn.click();
+    await contentPage.waitForTimeout(200);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /文档名称/ }).first().click();
+    await searchInput.fill(docKeyword);
+    await expect(firstResult.locator('.field-tag')).toContainText('文档名称', { timeout: 8000 });
+
+    await resetBtn.click();
+    await contentPage.waitForTimeout(200);
+    await toggleSelectAllBtn.click();
+    await contentPage.waitForTimeout(200);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /请求URL/ }).first().click();
+    await searchInput.fill(urlKeyword);
+    await expect(firstResult.locator('.field-tag')).toContainText('请求URL', { timeout: 8000 });
+
+    await resetBtn.click();
+    await contentPage.waitForTimeout(200);
+    await toggleSelectAllBtn.click();
+    await contentPage.waitForTimeout(200);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /请求方法/ }).first().click();
+    await searchInput.fill(methodKeyword);
+    await expect(firstResult.locator('.field-tag')).toContainText('请求方法', { timeout: 8000 });
+
+    await resetBtn.click();
+    await contentPage.waitForTimeout(200);
+    await toggleSelectAllBtn.click();
+    await contentPage.waitForTimeout(200);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /备注/ }).first().click();
+    await searchInput.fill(remarkKeyword);
+    await expect(firstResult.locator('.field-tag')).toContainText('备注', { timeout: 8000 });
   });
 
   test('高级搜索节点类型筛选选项均可生效', async ({ topBarPage, contentPage, clearCache, createProject }) => {
@@ -304,29 +325,49 @@ test.describe('SearchProject', () => {
     const resetBtn = advancedSearchPanel.locator('.search-actions .el-button').last();
     const searchInput = contentPage.locator('[data-testid="home-project-search-input"]');
     const firstResult = contentPage.locator('.search-result-item').first();
-    const assertNodeType = async (nodeTypeText: RegExp, keyword: string, expectTypeLabel: string) => {
-      await resetBtn.click();
-      await contentPage.waitForTimeout(200);
-      await toggleSelectAllBtn.click();
-      await contentPage.waitForTimeout(200);
-      const docNameCheckbox = advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /文档名称/ }).first();
-      await docNameCheckbox.click();
-      await contentPage.waitForTimeout(100);
-      const nodeTypeCheckbox = advancedSearchPanel.locator('.el-checkbox').filter({ hasText: nodeTypeText }).first();
-      await nodeTypeCheckbox.click();
-      await contentPage.waitForTimeout(200);
-      await searchInput.fill('');
-      await contentPage.waitForTimeout(100);
-      await searchInput.fill(keyword);
-      await contentPage.waitForTimeout(500);
-      await expect(firstResult).toBeVisible({ timeout: 8000 });
-      await expect(firstResult.locator('.node-type-label')).toContainText(expectTypeLabel);
-      await expect(firstResult.locator('.field-tag')).toContainText('文档名称');
-    };
-    await assertNodeType(/目录/, folderKeyword, '目录');
-    await assertNodeType(/HTTP/, httpKeyword, 'HTTP');
-    await assertNodeType(/WebSocket/, wsKeyword, 'WebSocket');
-    await assertNodeType(/HTTP Mock/, mockKeyword, 'HTTP Mock');
+    await resetBtn.click();
+    await contentPage.waitForTimeout(200);
+    await toggleSelectAllBtn.click();
+    await contentPage.waitForTimeout(200);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /文档名称/ }).first().click();
+    await contentPage.waitForTimeout(100);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /目录/ }).first().click();
+    await searchInput.fill(folderKeyword);
+    await expect(firstResult.locator('.node-type-label')).toContainText('目录', { timeout: 8000 });
+    await expect(firstResult.locator('.field-tag')).toContainText('文档名称', { timeout: 8000 });
+
+    await resetBtn.click();
+    await contentPage.waitForTimeout(200);
+    await toggleSelectAllBtn.click();
+    await contentPage.waitForTimeout(200);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /文档名称/ }).first().click();
+    await contentPage.waitForTimeout(100);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /HTTP节点/ }).first().click();
+    await searchInput.fill(httpKeyword);
+    await expect(firstResult.locator('.node-type-label')).toContainText('HTTP', { timeout: 8000 });
+    await expect(firstResult.locator('.field-tag')).toContainText('文档名称', { timeout: 8000 });
+
+    await resetBtn.click();
+    await contentPage.waitForTimeout(200);
+    await toggleSelectAllBtn.click();
+    await contentPage.waitForTimeout(200);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /文档名称/ }).first().click();
+    await contentPage.waitForTimeout(100);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /WebSocket节点/ }).first().click();
+    await searchInput.fill(wsKeyword);
+    await expect(firstResult.locator('.node-type-label')).toContainText('WebSocket', { timeout: 8000 });
+    await expect(firstResult.locator('.field-tag')).toContainText('文档名称', { timeout: 8000 });
+
+    await resetBtn.click();
+    await contentPage.waitForTimeout(200);
+    await toggleSelectAllBtn.click();
+    await contentPage.waitForTimeout(200);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /文档名称/ }).first().click();
+    await contentPage.waitForTimeout(100);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /HTTP Mock节点/ }).first().click();
+    await searchInput.fill(mockKeyword);
+    await expect(firstResult.locator('.node-type-label')).toContainText('HTTP Mock', { timeout: 8000 });
+    await expect(firstResult.locator('.field-tag')).toContainText('文档名称', { timeout: 8000 });
   });
 
   test('高级搜索请求参数选项均可生效', async ({ topBarPage, contentPage, clearCache, createProject }) => {
@@ -461,29 +502,69 @@ test.describe('SearchProject', () => {
     const resetBtn = advancedSearchPanel.locator('.search-actions .el-button').last();
     const searchInput = contentPage.locator('[data-testid="home-project-search-input"]');
     const firstResult = contentPage.locator('.search-result-item').first();
-    const assertParam = async (checkboxText: RegExp, keyword: string, expectFieldText: string) => {
-      await resetBtn.click();
-      await contentPage.waitForTimeout(200);
-      await toggleSelectAllBtn.click();
-      await contentPage.waitForTimeout(200);
-      const checkbox = advancedSearchPanel.locator('.el-checkbox').filter({ hasText: checkboxText }).first();
-      await checkbox.click();
-      await contentPage.waitForTimeout(200);
-      await searchInput.fill('');
-      await contentPage.waitForTimeout(100);
-      await searchInput.fill(keyword);
-      await contentPage.waitForTimeout(600);
-      await expect(firstResult).toBeVisible({ timeout: 8000 });
-      await expect(firstResult.locator('.field-tag')).toContainText(expectFieldText);
-    };
-    await assertParam(/Query参数/, queryKeyword, 'Query参数');
-    await assertParam(/Path参数/, pathKeyword, 'Path参数');
-    await assertParam(/请求头参数/, headerKeyword, '请求头参数');
-    await assertParam(/Body参数/, bodyKeyword, 'Body参数');
-    await assertParam(/返回参数/, responseKeyword, '返回参数');
-    await assertParam(/前置脚本/, preScriptKeyword, '前置脚本');
-    await assertParam(/后置脚本/, afterScriptKeyword, '后置脚本');
-    await assertParam(/WebSocket消息/, wsMessageKeyword, 'WebSocket消息');
+    await resetBtn.click();
+    await contentPage.waitForTimeout(200);
+    await toggleSelectAllBtn.click();
+    await contentPage.waitForTimeout(200);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /Query参数/ }).first().click();
+    await searchInput.fill(queryKeyword);
+    await expect(firstResult.locator('.field-tag')).toContainText('Query参数', { timeout: 8000 });
+
+    await resetBtn.click();
+    await contentPage.waitForTimeout(200);
+    await toggleSelectAllBtn.click();
+    await contentPage.waitForTimeout(200);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /Path参数/ }).first().click();
+    await searchInput.fill(pathKeyword);
+    await expect(firstResult.locator('.field-tag')).toContainText('Path参数', { timeout: 8000 });
+
+    await resetBtn.click();
+    await contentPage.waitForTimeout(200);
+    await toggleSelectAllBtn.click();
+    await contentPage.waitForTimeout(200);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /请求头参数/ }).first().click();
+    await searchInput.fill(headerKeyword);
+    await expect(firstResult.locator('.field-tag')).toContainText('请求头参数', { timeout: 8000 });
+
+    await resetBtn.click();
+    await contentPage.waitForTimeout(200);
+    await toggleSelectAllBtn.click();
+    await contentPage.waitForTimeout(200);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /Body参数/ }).first().click();
+    await searchInput.fill(bodyKeyword);
+    await expect(firstResult.locator('.field-tag')).toContainText('Body参数', { timeout: 8000 });
+
+    await resetBtn.click();
+    await contentPage.waitForTimeout(200);
+    await toggleSelectAllBtn.click();
+    await contentPage.waitForTimeout(200);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /返回参数/ }).first().click();
+    await searchInput.fill(responseKeyword);
+    await expect(firstResult.locator('.field-tag')).toContainText('返回参数', { timeout: 8000 });
+
+    await resetBtn.click();
+    await contentPage.waitForTimeout(200);
+    await toggleSelectAllBtn.click();
+    await contentPage.waitForTimeout(200);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /前置脚本/ }).first().click();
+    await searchInput.fill(preScriptKeyword);
+    await expect(firstResult.locator('.field-tag')).toContainText('前置脚本', { timeout: 8000 });
+
+    await resetBtn.click();
+    await contentPage.waitForTimeout(200);
+    await toggleSelectAllBtn.click();
+    await contentPage.waitForTimeout(200);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /后置脚本/ }).first().click();
+    await searchInput.fill(afterScriptKeyword);
+    await expect(firstResult.locator('.field-tag')).toContainText('后置脚本', { timeout: 8000 });
+
+    await resetBtn.click();
+    await contentPage.waitForTimeout(200);
+    await toggleSelectAllBtn.click();
+    await contentPage.waitForTimeout(200);
+    await advancedSearchPanel.locator('.el-checkbox').filter({ hasText: /WebSocket消息/ }).first().click();
+    await searchInput.fill(wsMessageKeyword);
+    await expect(firstResult.locator('.field-tag')).toContainText('WebSocket消息', { timeout: 8000 });
   });
 
   test('高级搜索更新日期选项均可生效', async ({ topBarPage, contentPage, clearCache, createProject }) => {
@@ -527,27 +608,23 @@ test.describe('SearchProject', () => {
     await searchInput.fill(docKeyword);
     await contentPage.waitForTimeout(600);
     await expect(firstResult).toBeVisible({ timeout: 8000 });
-    const setDateRangeAndAssert = async (radioText: RegExp, expectEmpty: boolean) => {
-      const radio = advancedSearchPanel.locator('.el-radio').filter({ hasText: radioText }).first();
-      await radio.click();
-      await contentPage.waitForTimeout(300);
-      await searchInput.fill(`${docKeyword} `);
-      await contentPage.waitForTimeout(100);
-      await searchInput.fill(docKeyword);
-      await contentPage.waitForTimeout(600);
-      if (expectEmpty) {
-        const emptyState = contentPage.locator('.search-results .empty-state');
-        await expect(emptyState).toBeVisible({ timeout: 8000 });
-        return;
-      }
-      await expect(firstResult).toBeVisible({ timeout: 8000 });
-    };
-    await setDateRangeAndAssert(/不限制/, false);
-    await setDateRangeAndAssert(/最近3天/, false);
-    await setDateRangeAndAssert(/最近1周/, false);
-    await setDateRangeAndAssert(/最近1月/, false);
-    await setDateRangeAndAssert(/最近3月/, false);
-    await setDateRangeAndAssert(/自定义/, false);
+    await advancedSearchPanel.locator('.el-radio').filter({ hasText: /不限制/ }).first().click();
+    await expect(firstResult).toBeVisible({ timeout: 8000 });
+
+    await advancedSearchPanel.locator('.el-radio').filter({ hasText: /最近3天/ }).first().click();
+    await expect(firstResult).toBeVisible({ timeout: 8000 });
+
+    await advancedSearchPanel.locator('.el-radio').filter({ hasText: /最近1周/ }).first().click();
+    await expect(firstResult).toBeVisible({ timeout: 8000 });
+
+    await advancedSearchPanel.locator('.el-radio').filter({ hasText: /最近1月/ }).first().click();
+    await expect(firstResult).toBeVisible({ timeout: 8000 });
+
+    await advancedSearchPanel.locator('.el-radio').filter({ hasText: /最近3月/ }).first().click();
+    await expect(firstResult).toBeVisible({ timeout: 8000 });
+
+    await advancedSearchPanel.locator('.el-radio').filter({ hasText: /自定义/ }).first().click();
+    await expect(firstResult).toBeVisible({ timeout: 8000 });
     const dateInputs = advancedSearchPanel.locator('.custom-date-picker input');
     await expect(dateInputs).toHaveCount(2, { timeout: 5000 });
     await dateInputs.nth(0).fill('2000-01-01');
@@ -649,30 +726,23 @@ test.describe('SearchProject', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
     // 添加一个HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
-    await addHttpBtn.click();
+    await contentPage.getByTestId('banner-add-http-btn').click();
     const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
     await expect(addApiDialog).toBeVisible({ timeout: 5000 });
     await addApiDialog.locator('input').first().fill('未命名接口');
     await addApiDialog.locator('.el-button--primary').last().click();
     await expect(addApiDialog).toBeHidden({ timeout: 5000 });
-    await contentPage.waitForTimeout(500);
     // 返回首页
     const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
     // 展开高级搜索面板
     const advancedSearchBtn = contentPage.locator('[data-testid="home-advanced-search-btn"]');
     await advancedSearchBtn.click();
-    await contentPage.waitForTimeout(300);
     // 输入搜索关键词
     const searchInput = contentPage.locator('[data-testid="home-project-search-input"]');
     await searchInput.fill('未命名');
-    await contentPage.waitForTimeout(500);
     // 验证搜索结果项
     const searchResultItem = contentPage.locator('.search-result-item').first();
     await expect(searchResultItem).toBeVisible({ timeout: 5000 });
@@ -682,42 +752,37 @@ test.describe('SearchProject', () => {
     // 验证匹配标签
     const matchLabel = matchInfo.locator('.match-label');
     await expect(matchLabel).toBeVisible();
+    await expect(matchLabel).toContainText(/匹配/, { timeout: 5000 });
+    const fieldTag = matchInfo.locator('.field-tag').first();
+    await expect(fieldTag).toContainText(/文档名称/, { timeout: 8000 });
   });
 
-  test('点击搜索结果项跳转到对应节点', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+  test('点击搜索结果项跳转到对应节点', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
     // 添加一个HTTP节点
-    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await expect(addHttpBtn).toBeVisible({ timeout: 5000 });
-    await addHttpBtn.click();
-    const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
-    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
-    await addApiDialog.locator('input').first().fill('未命名接口');
-    await addApiDialog.locator('.el-button--primary').last().click();
-    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
-    await contentPage.waitForTimeout(500);
+    const nodeName = `跳转节点-${Date.now()}`;
+    const nodeId = await createNode(contentPage, { nodeType: 'http', name: nodeName });
     // 返回首页
     const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
     // 展开高级搜索面板
     const advancedSearchBtn = contentPage.locator('[data-testid="home-advanced-search-btn"]');
     await advancedSearchBtn.click();
-    await contentPage.waitForTimeout(300);
     // 输入搜索关键词
     const searchInput = contentPage.locator('[data-testid="home-project-search-input"]');
-    await searchInput.fill('未命名');
-    await contentPage.waitForTimeout(500);
+    await searchInput.fill(nodeName);
     // 点击搜索结果项
-    const searchResultItem = contentPage.locator('.search-result-item').first();
+    const searchResultItem = contentPage.locator('.search-result-item').filter({ hasText: nodeName }).first();
     await expect(searchResultItem).toBeVisible({ timeout: 5000 });
     await searchResultItem.click();
     // 验证跳转到项目工作区
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await expect(contentPage).toHaveURL(new RegExp(`nodeId=${encodeURIComponent(nodeId)}`), { timeout: 10000 });
+    const activeNavTab = contentPage.locator('[data-testid^="project-nav-tab-"].active').first();
+    await expect(activeNavTab).toContainText(nodeName, { timeout: 10000 });
   });
 
   test('高级搜索无结果时显示空状态提示', async ({ topBarPage, contentPage, clearCache, createProject }) => {

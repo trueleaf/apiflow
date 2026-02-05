@@ -9,11 +9,9 @@ test.describe('ApiflowImport', () => {
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
-    await contentPage.waitForTimeout(300);
     const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
     await expect(importItem).toBeVisible({ timeout: 5000 });
     await importItem.click();
-    await contentPage.waitForTimeout(500);
     // 验证导入页面正确渲染
     const importPage = contentPage.locator('.doc-import');
     await expect(importPage).toBeVisible({ timeout: 5000 });
@@ -32,11 +30,9 @@ test.describe('ApiflowImport', () => {
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
-    await contentPage.waitForTimeout(300);
     const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
     await expect(importItem).toBeVisible({ timeout: 5000 });
     await importItem.click();
-    await contentPage.waitForTimeout(500);
     // 验证导入页面正确渲染
     const importPage = contentPage.locator('.doc-import');
     await expect(importPage).toBeVisible({ timeout: 5000 });
@@ -55,11 +51,9 @@ test.describe('ApiflowImport', () => {
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
-    await contentPage.waitForTimeout(300);
     const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
     await expect(importItem).toBeVisible({ timeout: 5000 });
     await importItem.click();
-    await contentPage.waitForTimeout(500);
     // 验证导入页面正确渲染
     const importPage = contentPage.locator('.doc-import');
     await expect(importPage).toBeVisible({ timeout: 5000 });
@@ -75,22 +69,19 @@ test.describe('ApiflowImport', () => {
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
-    await contentPage.waitForTimeout(300);
     const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
     await expect(importItem).toBeVisible({ timeout: 5000 });
     await importItem.click();
-    await contentPage.waitForTimeout(500);
     // 点击覆盖方式radio
     const coverRadio = contentPage.locator('.el-radio').filter({ hasText: /覆盖方式|Override/ });
     await coverRadio.click();
-    await contentPage.waitForTimeout(300);
     // 验证确认对话框出现
     const confirmDialog = contentPage.locator('.cl-confirm-container').filter({ hasText: /覆盖后的数据将无法还原|cannot be restored/ });
     await expect(confirmDialog).toBeVisible({ timeout: 3000 });
     // 取消操作
     const cancelBtn = confirmDialog.locator('.el-button').filter({ hasText: /取消|Cancel/ });
     await cancelBtn.click();
-    await contentPage.waitForTimeout(300);
+    await expect(confirmDialog).not.toBeVisible({ timeout: 5000 });
   });
   // 测试用例5: 无数据时点击确定导入显示警告
   test('无数据时点击确定导入显示警告', async ({ contentPage, clearCache, createProject }) => {
@@ -100,11 +91,9 @@ test.describe('ApiflowImport', () => {
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
-    await contentPage.waitForTimeout(300);
     const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
     await expect(importItem).toBeVisible({ timeout: 5000 });
     await importItem.click();
-    await contentPage.waitForTimeout(500);
     // 验证确定导入按钮是禁用状态（无数据时）
     const submitBtn = contentPage.locator('.submit-wrap .el-button--primary');
     await expect(submitBtn).toBeDisabled();
@@ -117,23 +106,102 @@ test.describe('ApiflowImport', () => {
     // 点击导入文档按钮
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
-    await contentPage.waitForTimeout(300);
     const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
     await expect(importItem).toBeVisible({ timeout: 5000 });
     await importItem.click();
-    await contentPage.waitForTimeout(500);
     // 点击URL导入选项
     const urlSource = contentPage.locator('.source-item').filter({ hasText: /URL导入|URL/ });
     await urlSource.click();
-    await contentPage.waitForTimeout(300);
     // 验证URL导入选项被选中
     await expect(urlSource).toHaveClass(/active/);
     // 点击粘贴内容选项
     const pasteSource = contentPage.locator('.source-item').filter({ hasText: /粘贴内容|Paste/ });
     await pasteSource.click();
-    await contentPage.waitForTimeout(300);
     // 验证粘贴内容选项被选中
     await expect(pasteSource).toHaveClass(/active/);
+  });
+
+  // 测试用例7: 粘贴内容导入 apiflow 文档并更新文档树
+  test('粘贴内容导入 apiflow 文档后文档树出现导入节点', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const currentUrl = contentPage.url();
+    const projectIdMatch = currentUrl.match(/[?&]id=([^&]+)/);
+    expect(projectIdMatch).not.toBeNull();
+    const projectId = decodeURIComponent(projectIdMatch?.[1] || '');
+    // 打开导入文档页面并切换到“粘贴内容”
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
+    await importItem.click();
+    const pasteSource = contentPage.locator('.source-item').filter({ hasText: /粘贴内容|Paste/ });
+    await pasteSource.click();
+    await expect(pasteSource).toHaveClass(/active/);
+    // 粘贴 apiflow JSON 并解析
+    const importPage = contentPage.locator('.doc-import');
+    await expect(importPage).toBeVisible({ timeout: 5000 });
+    const pasteTextarea = importPage.locator('.paste-import textarea');
+    await expect(pasteTextarea).toBeVisible({ timeout: 5000 });
+    const now = new Date().toISOString();
+    const apiflowJson = JSON.stringify({
+      type: 'apiflow',
+      info: { projectName: '导入测试项目' },
+      docs: [
+        {
+          _id: 'import_http_1',
+          pid: '',
+          projectId,
+          sort: 0,
+          info: {
+            name: '导入-接口1',
+            description: '',
+            version: '',
+            type: 'http',
+            creator: '',
+            maintainer: '',
+            deletePerson: '',
+          },
+          item: {
+            method: 'get',
+            url: { prefix: '', path: '/echo' },
+            paths: [],
+            queryParams: [],
+            requestBody: {
+              mode: 'none',
+              rawJson: '',
+              formdata: [],
+              urlencoded: [],
+              raw: { data: '', dataType: 'text/plain' },
+              binary: { mode: 'file', varValue: '', binaryValue: { path: '', raw: '', id: '' } },
+            },
+            responseParams: [],
+            headers: [],
+            contentType: '',
+          },
+          preRequest: { raw: '' },
+          afterRequest: { raw: '' },
+          createdAt: now,
+          updatedAt: now,
+          isDeleted: false,
+        },
+      ],
+    });
+    await pasteTextarea.fill(apiflowJson);
+    const parseBtn = importPage.locator('.paste-actions .el-button--primary').filter({ hasText: /解析内容|Parse/ });
+    await expect(parseBtn).toBeEnabled();
+    await parseBtn.click();
+    // 验证预览树出现节点，并且确定导入按钮可用
+    const previewTree = importPage.locator('.el-tree');
+    const previewNode = previewTree.locator('.custom-tree-node').filter({ hasText: '导入-接口1' });
+    await expect(previewNode).toBeVisible({ timeout: 5000 });
+    const submitBtn = importPage.locator('.submit-wrap .el-button--primary').filter({ hasText: /确定导入|Import/ });
+    await expect(submitBtn).toBeEnabled();
+    // 点击确定导入后，左侧文档树出现导入节点
+    await submitBtn.click();
+    const bannerTree = contentPage.getByTestId('banner-doc-tree');
+    const importedNode = bannerTree.locator('.el-tree-node__content').filter({ hasText: '导入-接口1' }).first();
+    await expect(importedNode).toBeVisible({ timeout: 10000 });
   });
 });
 

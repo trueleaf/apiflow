@@ -438,7 +438,7 @@ test.describe('Navigation', () => {
     await closeMenuItem.click();
     await topBarPage.waitForTimeout(500);
     // 验证项目A的tab已关闭，项目B的tab仍然存在
-    await expect(projectATab).toBeHidden();
+    await expect(projectATab).toHaveCount(0);
     const projectBTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectBName });
     await expect(projectBTab).toBeVisible();
   });
@@ -460,8 +460,8 @@ test.describe('Navigation', () => {
     // 验证项目A和B的tab已关闭，项目C的tab保留
     const projectATab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectAName });
     const projectBTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectBName });
-    await expect(projectATab).toBeHidden();
-    await expect(projectBTab).toBeHidden();
+    await expect(projectATab).toHaveCount(0);
+    await expect(projectBTab).toHaveCount(0);
     await expect(projectCTab).toBeVisible();
   });
 
@@ -483,8 +483,8 @@ test.describe('Navigation', () => {
     const projectBTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectBName });
     const projectCTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectCName });
     await expect(projectATab).toBeVisible();
-    await expect(projectBTab).toBeHidden();
-    await expect(projectCTab).toBeHidden();
+    await expect(projectBTab).toHaveCount(0);
+    await expect(projectCTab).toHaveCount(0);
   });
 
   test('右键菜单关闭其他tab', async ({ topBarPage, contentPage, createProject }) => {
@@ -504,9 +504,9 @@ test.describe('Navigation', () => {
     // 验证只有项目B的tab保留，项目A和C的tab已关闭
     const projectATab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectAName });
     const projectCTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectCName });
-    await expect(projectATab).toBeHidden();
+    await expect(projectATab).toHaveCount(0);
     await expect(projectBTab).toBeVisible();
-    await expect(projectCTab).toBeHidden();
+    await expect(projectCTab).toHaveCount(0);
   });
 
   test('右键菜单全部关闭tab后跳转到主页', async ({ topBarPage, contentPage, createProject }) => {
@@ -572,7 +572,7 @@ test.describe('Navigation', () => {
     // 验证项目B保持高亮状态，项目C已关闭
     await expect(projectBTab).toHaveClass(/active/);
     const projectCTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectCName });
-    await expect(projectCTab).toBeHidden();
+    await expect(projectCTab).toHaveCount(0);
   });
 });
 

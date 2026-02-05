@@ -7,11 +7,11 @@ test.describe('Export', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 打开导出页面
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const exportItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导出文档/ });
     await exportItem.click();
-    await contentPage.waitForTimeout(500);
     const exportPage = contentPage.locator('.doc-export');
     await expect(exportPage).toBeVisible({ timeout: 5000 });
     const htmlOption = exportPage.locator('.item').filter({ hasText: 'HTML' });
@@ -27,11 +27,11 @@ test.describe('Export', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 打开导出页面
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const exportItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导出文档/ });
     await exportItem.click();
-    await contentPage.waitForTimeout(500);
     const exportPage = contentPage.locator('.doc-export');
     await expect(exportPage).toBeVisible({ timeout: 5000 });
     const jsonOption = exportPage.locator('.item').filter({ hasText: /JSON文档/ });
@@ -42,11 +42,11 @@ test.describe('Export', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 打开导出页面
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const exportItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导出文档/ });
     await exportItem.click();
-    await contentPage.waitForTimeout(500);
     const exportPage = contentPage.locator('.doc-export');
     await expect(exportPage).toBeVisible({ timeout: 5000 });
     const openapiOption = exportPage.locator('.item').filter({ hasText: 'OpenAPI' });
@@ -57,18 +57,18 @@ test.describe('Export', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 先创建节点，确保选择导出有可选内容
     await createNode(contentPage, { nodeType: 'http', name: '测试接口' });
+    // 打开导出页面
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const exportItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导出文档/ });
     await exportItem.click();
-    await contentPage.waitForTimeout(500);
     const exportPage = contentPage.locator('.doc-export');
     await expect(exportPage).toBeVisible({ timeout: 5000 });
     const selectExportCheckbox = exportPage.locator('.config-item').filter({ hasText: /选择导出/ }).locator('.el-checkbox');
     await expect(selectExportCheckbox).toBeVisible({ timeout: 5000 });
     await selectExportCheckbox.click();
-    await contentPage.waitForTimeout(300);
     const tree = exportPage.locator('.el-tree');
     await expect(tree).toBeVisible({ timeout: 5000 });
     const treeNode = tree.locator('.el-tree-node');
@@ -78,12 +78,13 @@ test.describe('Export', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 创建节点，确保导出内容非空
     await createNode(contentPage, { nodeType: 'http', name: '导出测试接口' });
+    // 打开导出页面
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const exportItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导出文档/ });
     await exportItem.click();
-    await contentPage.waitForTimeout(500);
     const exportPage = contentPage.locator('.doc-export');
     await expect(exportPage).toBeVisible({ timeout: 5000 });
     const jsonOption = exportPage.locator('.item').filter({ hasText: /JSON文档/ });
@@ -138,12 +139,11 @@ test.describe('Export', () => {
     await urlInput.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/openapi/params/{userId}`);
-    await contentPage.waitForTimeout(500);
     const paramsTab = contentPage.locator('[data-testid="http-params-tab-params"]');
     await paramsTab.click();
-    await contentPage.waitForTimeout(300);
     const queryParamsTree = contentPage.locator('.query-path-params .cl-params-tree').first();
     const queryRows = queryParamsTree.locator('[data-testid="params-tree-row"]');
+    await expect(queryRows.nth(0)).toBeVisible({ timeout: 10000 });
     // 填写 Query 参数（使用 click + keyboard，避免直接依赖 el-input 内部 input 结构）
     await queryRows.nth(0).locator('[data-testid="params-tree-key-input"]').click();
     await contentPage.keyboard.press('Control+a');
@@ -171,9 +171,9 @@ test.describe('Export', () => {
     await contentPage.keyboard.type('用户ID');
     const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
     await headersTab.click();
-    await contentPage.waitForTimeout(300);
     // 填写 Headers 参数（使用 data-testid 直接定位，避免依赖容器 class）
     const headerKeyInput = contentPage.locator('[data-testid="params-tree-key-autocomplete"] input, [data-testid="params-tree-key-input"] input').first();
+    await expect(headerKeyInput).toBeVisible({ timeout: 10000 });
     await headerKeyInput.click();
     await headerKeyInput.fill('X-Token');
     const headerValueInput = contentPage.locator('[data-testid="params-tree-value-input"] .ProseMirror').first();
@@ -182,7 +182,6 @@ test.describe('Export', () => {
     await contentPage.locator('[data-testid="params-tree-description-input"]').first().click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('令牌');
-    await contentPage.waitForTimeout(300);
     // 保存接口，确保导出时能读取到最新配置
     const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
@@ -197,42 +196,42 @@ test.describe('Export', () => {
     await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first().click();
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
-    await contentPage.waitForTimeout(300);
-    await contentPage.locator('.body-mode-item').filter({ hasText: /^json$/i }).locator('.el-radio').click();
-    await contentPage.waitForTimeout(300);
+    const jsonBodyRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^json$/i }).locator('.el-radio');
+    await expect(jsonBodyRadio).toBeVisible({ timeout: 10000 });
+    await jsonBodyRadio.click();
     const jsonEditor = contentPage.locator('.s-json-editor').first();
+    await expect(jsonEditor).toBeVisible({ timeout: 10000 });
     await jsonEditor.click({ force: true });
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('{"name":"test","count":1,"active":true,"tags":["a"],"meta":{"id":1}}');
-    await contentPage.waitForTimeout(300);
     const responseTab = contentPage.locator('[data-testid="http-params-tab-response"]');
     await responseTab.click();
-    await contentPage.waitForTimeout(300);
     const responseParams = contentPage.locator('.response-params');
+    await expect(responseParams).toBeVisible({ timeout: 10000 });
     const contentTypeArea = responseParams.locator('.content-type').first();
     await contentTypeArea.locator('.cursor-pointer').first().click();
-    await contentPage.waitForTimeout(300);
-    await contentPage.locator('.el-popper.el-popover:visible').locator('.item').filter({ hasText: /^JSON$/ }).first().click();
-    await contentPage.waitForTimeout(300);
+    const responseTypePopover = contentPage.locator('.el-popper.el-popover:visible');
+    await expect(responseTypePopover).toBeVisible({ timeout: 10000 });
+    await responseTypePopover.locator('.item').filter({ hasText: /^JSON$/ }).first().click();
     const responseJsonEditor = responseParams.locator('.response-collapse-card').first().locator('.editor-wrap').first();
+    await expect(responseJsonEditor).toBeVisible({ timeout: 10000 });
     await responseJsonEditor.click({ force: true });
     await contentPage.keyboard.type('{"ok":true,"data":{"id":1}}');
-    await contentPage.waitForTimeout(300);
     await responseParams.locator('.card-actions .action-icon').first().click();
-    await contentPage.waitForTimeout(300);
     const secondCard = responseParams.locator('.response-collapse-card').nth(1);
+    await expect(secondCard).toBeVisible({ timeout: 10000 });
     await secondCard.locator('.status-code .cursor-pointer').first().click();
-    await contentPage.waitForTimeout(300);
-    await contentPage.locator('.el-popper.el-popover:visible').filter({ hasText: /400/ }).locator('text=400').first().click();
-    await contentPage.waitForTimeout(300);
+    const statusCodePopover = contentPage.locator('.el-popper.el-popover:visible');
+    await expect(statusCodePopover).toBeVisible({ timeout: 10000 });
+    await statusCodePopover.filter({ hasText: /400/ }).locator('text=400').first().click();
     await secondCard.locator('.content-type .cursor-pointer').first().click();
-    await contentPage.waitForTimeout(300);
-    await contentPage.locator('.el-popper.el-popover:visible').locator('.item').filter({ hasText: /^text\/plain$/ }).first().click();
-    await contentPage.waitForTimeout(300);
+    const contentTypePopover = contentPage.locator('.el-popper.el-popover:visible');
+    await expect(contentTypePopover).toBeVisible({ timeout: 10000 });
+    await contentTypePopover.locator('.item').filter({ hasText: /^text\/plain$/ }).first().click();
     const secondCardEditor = secondCard.locator('.editor-wrap').first();
+    await expect(secondCardEditor).toBeVisible({ timeout: 10000 });
     await secondCardEditor.click({ force: true });
     await contentPage.keyboard.type('error');
-    await contentPage.waitForTimeout(300);
     // 保存接口，确保响应配置会被导出到 OpenAPI
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
@@ -244,19 +243,20 @@ test.describe('Export', () => {
     await methodSelect.click();
     await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first().click();
     await bodyTab.click();
-    await contentPage.waitForTimeout(300);
-    await contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio').click();
-    await contentPage.waitForTimeout(300);
+    const formDataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
+    await expect(formDataRadio).toBeVisible({ timeout: 10000 });
+    await formDataRadio.click();
     const formTree = contentPage.locator('.body-params .cl-params-tree').first();
     const formRows = formTree.locator('[data-testid="params-tree-row"]');
+    await expect(formRows.nth(0)).toBeVisible({ timeout: 10000 });
     // 填写 FormData 参数
     await formRows.nth(0).locator('[data-testid="params-tree-key-input"]').click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('file');
     await formRows.nth(0).locator('[data-testid="params-tree-type-select"]').click();
-    await contentPage.waitForTimeout(200);
-    await contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /^File$/ }).first().click();
-    await contentPage.waitForTimeout(200);
+    const fileTypeOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /^File$/ }).first();
+    await expect(fileTypeOption).toBeVisible({ timeout: 10000 });
+    await fileTypeOption.click();
     await formRows.nth(0).locator('[data-testid="params-tree-description-input"]').click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('上传文件');
@@ -271,7 +271,6 @@ test.describe('Export', () => {
     await formRows.nth(1).locator('[data-testid="params-tree-description-input"]').click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('名称');
-    await contentPage.waitForTimeout(300);
     // 保存接口，确保请求体配置会被导出到 OpenAPI
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
@@ -283,11 +282,12 @@ test.describe('Export', () => {
     await methodSelect.click();
     await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first().click();
     await bodyTab.click();
-    await contentPage.waitForTimeout(300);
-    await contentPage.locator('.body-mode-item').filter({ hasText: /^x-www-form-urlencoded$/i }).locator('.el-radio').click();
-    await contentPage.waitForTimeout(300);
+    const urlEncodedRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^x-www-form-urlencoded$/i }).locator('.el-radio');
+    await expect(urlEncodedRadio).toBeVisible({ timeout: 10000 });
+    await urlEncodedRadio.click();
     const urlencodedTree = contentPage.locator('.body-params .cl-params-tree').first();
     const urlencodedRows = urlencodedTree.locator('[data-testid="params-tree-row"]');
+    await expect(urlencodedRows.nth(0)).toBeVisible({ timeout: 10000 });
     await urlencodedRows.nth(0).locator('[data-testid="params-tree-key-input"]').click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('a');
@@ -307,7 +307,6 @@ test.describe('Export', () => {
     await urlencodedRows.nth(1).locator('[data-testid="params-tree-description-input"]').click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('b非必填');
-    await contentPage.waitForTimeout(300);
     // 保存接口，确保请求体配置会被导出到 OpenAPI
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
@@ -319,13 +318,15 @@ test.describe('Export', () => {
     await methodSelect.click();
     await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first().click();
     await bodyTab.click();
-    await contentPage.waitForTimeout(300);
-    await contentPage.locator('.body-mode-item').filter({ hasText: /^raw$/i }).locator('.el-radio').click();
-    await contentPage.waitForTimeout(300);
-    await contentPage.locator('[data-testid="raw-body-type-select"]').click();
-    await contentPage.waitForTimeout(200);
-    await contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: 'xml' }).first().click();
-    await contentPage.waitForTimeout(200);
+    const rawRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^raw$/i }).locator('.el-radio');
+    await expect(rawRadio).toBeVisible({ timeout: 10000 });
+    await rawRadio.click();
+    const rawBodyTypeSelect = contentPage.locator('[data-testid="raw-body-type-select"]');
+    await expect(rawBodyTypeSelect).toBeVisible({ timeout: 10000 });
+    await rawBodyTypeSelect.click();
+    const xmlOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: 'xml' }).first();
+    await expect(xmlOption).toBeVisible({ timeout: 10000 });
+    await xmlOption.click();
     const rawTextarea = contentPage.locator('.raw-textarea textarea, .raw-editor textarea, [data-testid="raw-body-input"]');
     const rawTextareaCount = await rawTextarea.count();
     if (rawTextareaCount > 0) {
@@ -335,7 +336,6 @@ test.describe('Export', () => {
       await rawEditor.click({ force: true });
       await contentPage.keyboard.type('<?xml version=\"1.0\"?><root><name>test</name></root>');
     }
-    await contentPage.waitForTimeout(300);
     // 保存接口，确保 Raw Body 配置会被导出到 OpenAPI
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
@@ -344,7 +344,6 @@ test.describe('Export', () => {
     await moreBtn.click();
     const exportItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导出文档/ });
     await exportItem.click();
-    await contentPage.waitForTimeout(500);
     const exportPage = contentPage.locator('.doc-export');
     await expect(exportPage).toBeVisible({ timeout: 5000 });
     const openapiOption = exportPage.locator('.item').filter({ hasText: 'OpenAPI' });

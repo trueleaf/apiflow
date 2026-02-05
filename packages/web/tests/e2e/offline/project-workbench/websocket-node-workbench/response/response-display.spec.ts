@@ -8,14 +8,12 @@ test.describe('WebSocketResponseDisplay', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
     await createNode(contentPage, { nodeType: 'websocket', name: '连接信息显示测试' });
     // 输入连接地址
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
     await expect(urlEditor).toBeVisible({ timeout: 5000 });
     await urlEditor.fill(`127.0.0.1:${MOCK_SERVER_PORT}/ws`);
     await contentPage.keyboard.press('Enter');
-    await contentPage.waitForTimeout(300);
     // 发起连接
     const connectBtn = contentPage.getByRole('button', { name: /发起连接|重新连接/ });
     await connectBtn.click();
@@ -28,14 +26,12 @@ test.describe('WebSocketResponseDisplay', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
     await createNode(contentPage, { nodeType: 'websocket', name: '消息显示测试' });
     // 输入连接地址
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
     await expect(urlEditor).toBeVisible({ timeout: 5000 });
     await urlEditor.fill(`127.0.0.1:${MOCK_SERVER_PORT}/ws`);
     await contentPage.keyboard.press('Enter');
-    await contentPage.waitForTimeout(300);
     // 发起连接
     const connectBtn = contentPage.getByRole('button', { name: /发起连接|重新连接/ });
     await connectBtn.click();
@@ -45,13 +41,11 @@ test.describe('WebSocketResponseDisplay', () => {
     // 添加消息块并发送消息
     const addBlockBtn = contentPage.locator('.message-content .add-block-button').first();
     await addBlockBtn.click();
-    await contentPage.waitForTimeout(300);
     const messageBlock = contentPage.locator('.message-block').first();
     const messageEditor = messageBlock.locator('.s-json-editor').first();
     await messageEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('ping');
-    await contentPage.waitForTimeout(200);
     // 发送消息
     const sendBtn = messageBlock.getByRole('button', { name: /^发送$/ });
     await sendBtn.click();
@@ -63,40 +57,33 @@ test.describe('WebSocketResponseDisplay', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
     await createNode(contentPage, { nodeType: 'websocket', name: '基本信息显示测试' });
     // 确保是水平布局
     const layoutDropdown = contentPage.locator('.ws-params .action-item').filter({ hasText: /布局/ });
     await layoutDropdown.click();
-    await contentPage.waitForTimeout(300);
     const horizontalOption = contentPage.locator('.el-dropdown-menu__item').filter({ hasText: /左右布局|Horizontal/ });
     await horizontalOption.click();
-    await contentPage.waitForTimeout(500);
+    const baseInfo = contentPage.locator('.websocket-base-info');
+    await expect(baseInfo).toBeVisible({ timeout: 5000 });
     // 输入连接地址
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
     await expect(urlEditor).toBeVisible({ timeout: 5000 });
     await urlEditor.fill('127.0.0.1:8080/test-ws');
     await contentPage.keyboard.press('Enter');
-    await contentPage.waitForTimeout(300);
     // 验证基本信息区域显示连接地址
-    const baseInfo = contentPage.locator('.websocket-base-info');
-    if (await baseInfo.isVisible()) {
-      await expect(baseInfo).toContainText('127.0.0.1:8080/test-ws');
-    }
+    await expect(baseInfo).toContainText('127.0.0.1:8080/test-ws', { timeout: 5000 });
   });
   // 断开连接后显示断开信息
   test('断开连接后显示断开信息', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
     await createNode(contentPage, { nodeType: 'websocket', name: '断开连接测试' });
     // 输入连接地址
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
     await expect(urlEditor).toBeVisible({ timeout: 5000 });
     await urlEditor.fill(`127.0.0.1:${MOCK_SERVER_PORT}/ws`);
     await contentPage.keyboard.press('Enter');
-    await contentPage.waitForTimeout(300);
     // 发起连接
     const connectBtn = contentPage.getByRole('button', { name: /发起连接|重新连接/ });
     await connectBtn.click();
@@ -107,24 +94,22 @@ test.describe('WebSocketResponseDisplay', () => {
     const disconnectBtn = contentPage.getByRole('button', { name: /断开连接/ });
     await expect(disconnectBtn).toBeVisible({ timeout: 5000 });
     await disconnectBtn.click();
-    await contentPage.waitForTimeout(1000);
     // 验证显示断开信息或连接按钮重新出现
     const reconnectBtn = contentPage.getByRole('button', { name: /发起连接|重新连接/ });
     await expect(reconnectBtn).toBeVisible({ timeout: 5000 });
+    await expect(wsView).toContainText('已断开连接：', { timeout: 10000 });
   });
   // 多条消息按时间顺序显示
   test('多条消息按时间顺序显示', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
     await createNode(contentPage, { nodeType: 'websocket', name: '消息顺序测试' });
     // 输入连接地址
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
     await expect(urlEditor).toBeVisible({ timeout: 5000 });
     await urlEditor.fill(`127.0.0.1:${MOCK_SERVER_PORT}/ws`);
     await contentPage.keyboard.press('Enter');
-    await contentPage.waitForTimeout(300);
     // 发起连接
     const connectBtn = contentPage.getByRole('button', { name: /发起连接|重新连接/ });
     await connectBtn.click();
@@ -134,26 +119,28 @@ test.describe('WebSocketResponseDisplay', () => {
     // 添加消息块
     const addBlockBtn = contentPage.locator('.message-content .add-block-button').first();
     await addBlockBtn.click();
-    await contentPage.waitForTimeout(300);
     const messageBlock = contentPage.locator('.message-block').first();
     const messageEditor = messageBlock.locator('.s-json-editor').first();
     // 发送第一条消息
     await messageEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('message1');
-    await contentPage.waitForTimeout(200);
     const sendBtn = messageBlock.getByRole('button', { name: /^发送$/ });
     await sendBtn.click();
-    await contentPage.waitForTimeout(500);
     // 发送第二条消息
     await messageEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('message2');
-    await contentPage.waitForTimeout(200);
     await sendBtn.click();
-    await contentPage.waitForTimeout(500);
-    // 验证响应区域包含多条消息
-    await expect(wsView).toContainText('message1');
-    await expect(wsView).toContainText('message2');
+    // 验证响应区域包含多条消息且顺序正确
+    const messageContents = wsView.locator('.websocket-message .message-content');
+    await expect(messageContents.filter({ hasText: 'message1' })).toHaveCount(1, { timeout: 10000 });
+    await expect(messageContents.filter({ hasText: 'message2' })).toHaveCount(1, { timeout: 10000 });
+    const allMessages = await messageContents.allTextContents();
+    const index1 = allMessages.findIndex(item => item.includes('message1'));
+    const index2 = allMessages.findIndex(item => item.includes('message2'));
+    expect(index1).toBeGreaterThanOrEqual(0);
+    expect(index2).toBeGreaterThanOrEqual(0);
+    expect(index1).toBeLessThan(index2);
   });
 });

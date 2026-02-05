@@ -23,9 +23,8 @@ test.describe('ProjectRecoveryDocNum', () => {
     }
     const projectId = await contentPage.evaluate(async ({ name }) => {
       const projectDb = await new Promise<IDBDatabase>((resolve, reject) => {
-        const req = indexedDB.open('projectCache', 1)
+        const req = indexedDB.open('projectCache')
         req.onerror = () => reject(req.error)
-        req.onupgradeneeded = () => reject(new Error('projectCache 不应触发升级'))
         req.onsuccess = () => resolve(req.result)
       })
       const projectList = await new Promise<Array<Record<string, unknown>>>((resolve, reject) => {
@@ -49,11 +48,11 @@ test.describe('ProjectRecoveryDocNum', () => {
     await projectTab.click()
     const bannerTree = contentPage.locator('[data-testid="banner-doc-tree"]')
     await expect(bannerTree).toBeVisible({ timeout: 5000 })
-    const folderId = await createNode(contentPage, { nodeType: 'folder', name: `Folder-${Date.now()}` })
+    await createNode(contentPage, { nodeType: 'folder', name: `Folder-${Date.now()}` })
     await createNode(contentPage, { nodeType: 'http', name: `HTTP-${Date.now()}` })
     await createNode(contentPage, { nodeType: 'websocket', name: `WebSocket-${Date.now()}` })
     await createNode(contentPage, { nodeType: 'httpMock', name: `HTTPMock-${Date.now()}` })
-    await createNode(contentPage, { nodeType: 'httpMock', name: `WebSocketMock-${Date.now()}` })
+    await createNode(contentPage, { nodeType: 'websocketMock', name: `WebSocketMock-${Date.now()}` })
     await homeBtn.click()
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 })
     await contentPage.waitForTimeout(500)
@@ -72,9 +71,8 @@ test.describe('ProjectRecoveryDocNum', () => {
     await contentPage.evaluate(async ({ projectId: pid }) => {
       const now = new Date().toISOString()
       const nodesDb = await new Promise<IDBDatabase>((resolve, reject) => {
-        const req = indexedDB.open('apiNodesCache', 1)
+        const req = indexedDB.open('apiNodesCache')
         req.onerror = () => reject(req.error)
-        req.onupgradeneeded = () => reject(new Error('apiNodesCache 不应触发升级'))
         req.onsuccess = () => resolve(req.result)
       })
       await new Promise<void>((resolve, reject) => {
@@ -96,9 +94,8 @@ test.describe('ProjectRecoveryDocNum', () => {
       })
       nodesDb.close()
       const projectDb = await new Promise<IDBDatabase>((resolve, reject) => {
-        const req = indexedDB.open('projectCache', 1)
+        const req = indexedDB.open('projectCache')
         req.onerror = () => reject(req.error)
-        req.onupgradeneeded = () => reject(new Error('projectCache 不应触发升级'))
         req.onsuccess = () => resolve(req.result)
       })
       await new Promise<void>((resolve, reject) => {

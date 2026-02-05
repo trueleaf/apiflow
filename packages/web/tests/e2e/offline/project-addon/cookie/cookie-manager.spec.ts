@@ -5,11 +5,11 @@ test.describe('CookieManagement', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 打开 Cookie 管理页面
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
     await cookieItem.click();
-    await contentPage.waitForTimeout(500);
     const cookiePage = contentPage.locator('.cookies-page');
     await expect(cookiePage).toBeVisible({ timeout: 5000 });
     const title = cookiePage.locator('.title');
@@ -27,13 +27,14 @@ test.describe('CookieManagement', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 打开 Cookie 管理页面
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
     await cookieItem.click();
-    await contentPage.waitForTimeout(500);
     const cookiePage = contentPage.locator('.cookies-page');
     await expect(cookiePage).toBeVisible({ timeout: 5000 });
+    // 新增 Cookie 并保存
     const addBtn = cookiePage.locator('.el-button--primary').filter({ hasText: /新增 Cookie/ });
     await addBtn.click();
     const dialog = contentPage.locator('.el-dialog').filter({ hasText: /新增 Cookie/ });
@@ -44,7 +45,6 @@ test.describe('CookieManagement', () => {
     await valueInput.fill('testValue123');
     const saveBtn = dialog.locator('.el-button--primary').filter({ hasText: /保存/ });
     await saveBtn.click();
-    await contentPage.waitForTimeout(500);
     await expect(dialog).not.toBeVisible({ timeout: 5000 });
     const cookieTable = cookiePage.locator('.el-table');
     await expect(cookieTable).toContainText('testCookie');
@@ -54,13 +54,14 @@ test.describe('CookieManagement', () => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 打开 Cookie 管理页面
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
     await cookieItem.click();
-    await contentPage.waitForTimeout(500);
     const cookiePage = contentPage.locator('.cookies-page');
     await expect(cookiePage).toBeVisible({ timeout: 5000 });
+    // 新增一条 Cookie 作为编辑目标
     const addBtn = cookiePage.locator('.el-button--primary').filter({ hasText: /新增 Cookie/ });
     await addBtn.click();
     const addDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增 Cookie/ });
@@ -71,8 +72,12 @@ test.describe('CookieManagement', () => {
     await valueInput.fill('originalValue');
     const saveBtn = addDialog.locator('.el-button--primary').filter({ hasText: /保存/ });
     await saveBtn.click();
-    await contentPage.waitForTimeout(500);
-    const editBtn = cookiePage.locator('.el-table .el-button').filter({ hasText: /编辑/ }).first();
+    await expect(addDialog).not.toBeVisible({ timeout: 5000 });
+    // 在列表中定位目标行并点击编辑
+    const cookieTable = cookiePage.locator('.el-table');
+    const targetRow = cookieTable.locator('.el-table__row').filter({ hasText: 'editableCookie' });
+    await expect(targetRow).toBeVisible({ timeout: 5000 });
+    const editBtn = targetRow.locator('.el-button').filter({ hasText: /编辑/ });
     await editBtn.click();
     const editDialog = contentPage.locator('.el-dialog').filter({ hasText: /编辑 Cookie/ });
     await expect(editDialog).toBeVisible({ timeout: 5000 });
@@ -80,22 +85,21 @@ test.describe('CookieManagement', () => {
     await editValueInput.fill('updatedValue');
     const editSaveBtn = editDialog.locator('.el-button--primary').filter({ hasText: /保存/ });
     await editSaveBtn.click();
-    await contentPage.waitForTimeout(500);
     await expect(editDialog).not.toBeVisible({ timeout: 5000 });
-    const cookieTable = cookiePage.locator('.el-table');
     await expect(cookieTable).toContainText('updatedValue');
   });
   test('删除Cookie成功,Cookie从列表中移除', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 打开 Cookie 管理页面
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
     await cookieItem.click();
-    await contentPage.waitForTimeout(500);
     const cookiePage = contentPage.locator('.cookies-page');
     await expect(cookiePage).toBeVisible({ timeout: 5000 });
+    // 新增一条 Cookie 作为删除目标
     const addBtn = cookiePage.locator('.el-button--primary').filter({ hasText: /新增 Cookie/ });
     await addBtn.click();
     const addDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增 Cookie/ });
@@ -106,30 +110,32 @@ test.describe('CookieManagement', () => {
     await valueInput.fill('deleteMe');
     const saveBtn = addDialog.locator('.el-button--primary').filter({ hasText: /保存/ });
     await saveBtn.click();
-    await contentPage.waitForTimeout(500);
     const cookieTable = cookiePage.locator('.el-table');
     await expect(cookieTable).toContainText('deletableCookie');
-    const deleteBtn = cookiePage.locator('.el-table .el-button--danger').filter({ hasText: /删除/ }).first();
+    // 在列表中定位目标行并点击删除
+    const targetRow = cookieTable.locator('.el-table__row').filter({ hasText: 'deletableCookie' });
+    await expect(targetRow).toBeVisible({ timeout: 5000 });
+    const deleteBtn = targetRow.locator('.el-button').filter({ hasText: /删除/ });
     await deleteBtn.click();
     const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 3000 });
     const confirmBtn = confirmDialog.locator('.el-button--primary');
     await confirmBtn.click();
-    await contentPage.waitForTimeout(500);
     await expect(cookieTable).not.toContainText('deletableCookie');
   });
   test('按名称搜索Cookie,列表显示匹配的Cookie', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 打开 Cookie 管理页面
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
     await cookieItem.click();
-    await contentPage.waitForTimeout(500);
     const cookiePage = contentPage.locator('.cookies-page');
     await expect(cookiePage).toBeVisible({ timeout: 5000 });
     const addBtn = cookiePage.locator('.el-button--primary').filter({ hasText: /新增 Cookie/ });
+    // 新增两条 Cookie，便于验证筛选
     await addBtn.click();
     let addDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增 Cookie/ });
     await expect(addDialog).toBeVisible({ timeout: 5000 });
@@ -139,7 +145,7 @@ test.describe('CookieManagement', () => {
     await valueInput.fill('searchValue');
     let saveBtn = addDialog.locator('.el-button--primary').filter({ hasText: /保存/ });
     await saveBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addDialog).not.toBeVisible({ timeout: 5000 });
     await addBtn.click();
     addDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增 Cookie/ });
     await expect(addDialog).toBeVisible({ timeout: 5000 });
@@ -149,13 +155,13 @@ test.describe('CookieManagement', () => {
     await valueInput.fill('otherValue');
     saveBtn = addDialog.locator('.el-button--primary').filter({ hasText: /保存/ });
     await saveBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(addDialog).not.toBeVisible({ timeout: 5000 });
     const cookieTable = cookiePage.locator('.el-table');
     await expect(cookieTable).toContainText('searchCookie');
     await expect(cookieTable).toContainText('otherCookie');
     const searchInput = cookiePage.locator('input[placeholder*="名称"]');
+    // 输入搜索关键字，验证列表仅显示匹配项
     await searchInput.fill('search');
-    await contentPage.waitForTimeout(300);
     await expect(cookieTable).toContainText('searchCookie');
     await expect(cookieTable).not.toContainText('otherCookie');
   });
@@ -169,7 +175,6 @@ test.describe('CookieManagement', () => {
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
     await cookieItem.click();
-    await contentPage.waitForTimeout(500);
     const cookiePage = contentPage.locator('.cookies-page');
     await expect(cookiePage).toBeVisible({ timeout: 5000 });
     const addBtn = cookiePage.locator('.el-button--primary').filter({ hasText: /新增 Cookie/ });
@@ -190,12 +195,11 @@ test.describe('CookieManagement', () => {
       await valueInput.fill(cookie.value);
       const saveBtn = addDialog.locator('.el-button--primary').filter({ hasText: /保存/ });
       await saveBtn.click();
-      await contentPage.waitForTimeout(500);
+      await expect(addDialog).not.toBeVisible({ timeout: 5000 });
     }
     // 场景1: 精确搜索
     const searchInput = cookiePage.locator('input[placeholder*="名称"]');
     await searchInput.fill('search_test_1');
-    await contentPage.waitForTimeout(300);
     await expect(cookieTable).toContainText('search_test_1');
     await expect(cookieTable).not.toContainText('search_test_2');
     await expect(cookieTable).not.toContainText('other_name');
@@ -203,7 +207,6 @@ test.describe('CookieManagement', () => {
     await expect(rows1).toHaveCount(1);
     // 场景2: 模糊搜索
     await searchInput.fill('search');
-    await contentPage.waitForTimeout(300);
     await expect(cookieTable).toContainText('search_test_1');
     await expect(cookieTable).toContainText('search_test_2');
     await expect(cookieTable).not.toContainText('other_name');
@@ -211,12 +214,10 @@ test.describe('CookieManagement', () => {
     await expect(rows2).toHaveCount(2);
     // 场景3: 搜索无结果
     await searchInput.fill('nonexistent');
-    await contentPage.waitForTimeout(300);
     const emptyText = cookieTable.locator('.el-table__empty-text');
     await expect(emptyText).toBeVisible();
     // 场景4: 清空搜索
     await searchInput.clear();
-    await contentPage.waitForTimeout(300);
     const rows4 = cookieTable.locator('.el-table__row');
     await expect(rows4).toHaveCount(3);
   });
@@ -230,7 +231,6 @@ test.describe('CookieManagement', () => {
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
     await cookieItem.click();
-    await contentPage.waitForTimeout(500);
     const cookiePage = contentPage.locator('.cookies-page');
     await expect(cookiePage).toBeVisible({ timeout: 5000 });
     const addBtn = cookiePage.locator('.el-button--primary').filter({ hasText: /新增 Cookie/ });
@@ -255,15 +255,13 @@ test.describe('CookieManagement', () => {
       }
       const saveBtn = addDialog.locator('.el-button--primary').filter({ hasText: /保存/ });
       await saveBtn.click();
-      await contentPage.waitForTimeout(500);
+      await expect(addDialog).not.toBeVisible({ timeout: 5000 });
     }
     // 场景1: 筛选特定域名
     const domainSelect = cookiePage.locator('.el-select').first();
     await domainSelect.click();
-    await contentPage.waitForTimeout(300);
     const option127 = contentPage.locator('.el-select-dropdown__item').filter({ hasText: '127.0.0.1' });
     await option127.click();
-    await contentPage.waitForTimeout(300);
     await expect(cookieTable).toContainText('domain_127_cookie');
     await expect(cookieTable).not.toContainText('universal_cookie');
     await expect(cookieTable).not.toContainText('domain_localhost_cookie');
@@ -271,10 +269,8 @@ test.describe('CookieManagement', () => {
     await expect(rows1).toHaveCount(1);
     // 场景2: 筛选万能域名
     await domainSelect.click();
-    await contentPage.waitForTimeout(300);
     const optionUniversal = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /万能域名/ });
     await optionUniversal.click();
-    await contentPage.waitForTimeout(300);
     await expect(cookieTable).toContainText('universal_cookie');
     await expect(cookieTable).not.toContainText('domain_127_cookie');
     await expect(cookieTable).not.toContainText('domain_localhost_cookie');     
@@ -284,25 +280,21 @@ test.describe('CookieManagement', () => {
     // 悬停展示清除按钮后再清空筛选
     await domainSelect.hover();
     const clearBtn = domainSelect.locator('.el-select__clear');
+    await expect(clearBtn).toBeVisible({ timeout: 5000 });
     await clearBtn.click();
-    await contentPage.waitForTimeout(300);
     const rows3 = cookieTable.locator('.el-table__row');
     await expect(rows3).toHaveCount(3);
     // 场景4: 组合筛选(域名+名称搜索)
     await domainSelect.click();
-    await contentPage.waitForTimeout(300);
     const option127Again = contentPage.locator('.el-select-dropdown__item').filter({ hasText: '127.0.0.1' });
     await option127Again.click();
-    await contentPage.waitForTimeout(300);
     const searchInput = cookiePage.locator('input[placeholder*="名称"]');
     await searchInput.fill('domain_127');
-    await contentPage.waitForTimeout(300);
     await expect(cookieTable).toContainText('domain_127_cookie');
     const rows4 = cookieTable.locator('.el-table__row');
     await expect(rows4).toHaveCount(1);
     // 修改搜索关键词，应该无结果
     await searchInput.fill('universal');
-    await contentPage.waitForTimeout(300);
     const emptyText = cookieTable.locator('.el-table__empty-text');
     await expect(emptyText).toBeVisible();
   });
@@ -316,7 +308,6 @@ test.describe('CookieManagement', () => {
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
     await cookieItem.click();
-    await contentPage.waitForTimeout(500);
     const cookiePage = contentPage.locator('.cookies-page');
     await expect(cookiePage).toBeVisible({ timeout: 5000 });
     const addBtn = cookiePage.locator('.el-button--primary').filter({ hasText: /新增 Cookie/ });
@@ -337,7 +328,7 @@ test.describe('CookieManagement', () => {
       await valueInput.fill(cookie.value);
       const saveBtn = addDialog.locator('.el-button--primary').filter({ hasText: /保存/ });
       await saveBtn.click();
-      await contentPage.waitForTimeout(500);
+      await expect(addDialog).not.toBeVisible({ timeout: 5000 });
     }
     // 验证批量删除按钮初始为禁用状态
     const batchDeleteBtn = cookiePage.locator('.el-button--danger').filter({ hasText: /批量删除/ });
@@ -346,7 +337,6 @@ test.describe('CookieManagement', () => {
     const checkboxes = cookieTable.locator('.el-checkbox__input');
     await checkboxes.nth(1).click();
     await checkboxes.nth(2).click();
-    await contentPage.waitForTimeout(300);
     // 验证批量删除按钮变为可用状态
     await expect(batchDeleteBtn).toBeEnabled();
     // 点击批量删除按钮
@@ -358,7 +348,7 @@ test.describe('CookieManagement', () => {
     // 点击确认删除
     const confirmBtn = confirmDialog.locator('.el-button--primary');
     await confirmBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(confirmDialog).not.toBeVisible({ timeout: 5000 });
     // 验证被删除的Cookie不再显示
     await expect(cookieTable).not.toContainText('batch_delete_1');
     await expect(cookieTable).not.toContainText('batch_delete_2');
@@ -380,7 +370,6 @@ test.describe('CookieManagement', () => {
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
     await cookieItem.click();
-    await contentPage.waitForTimeout(500);
     const cookiePage = contentPage.locator('.cookies-page');
     await expect(cookiePage).toBeVisible({ timeout: 5000 });
     // 打开新增弹窗
@@ -394,7 +383,6 @@ test.describe('CookieManagement', () => {
     // 点击保存按钮
     const saveBtn = dialog.locator('.el-button--primary').filter({ hasText: /保存/ });
     await saveBtn.click();
-    await contentPage.waitForTimeout(300);
     // 验证表单验证错误提示显示
     const errorMsg = dialog.locator('.el-form-item__error').filter({ hasText: /请输入名称/ });
     await expect(errorMsg).toBeVisible();
@@ -411,7 +399,6 @@ test.describe('CookieManagement', () => {
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
     await cookieItem.click();
-    await contentPage.waitForTimeout(500);
     const cookiePage = contentPage.locator('.cookies-page');
     await expect(cookiePage).toBeVisible({ timeout: 5000 });
     // 打开新增弹窗
@@ -425,7 +412,6 @@ test.describe('CookieManagement', () => {
     // 点击保存按钮
     const saveBtn = dialog.locator('.el-button--primary').filter({ hasText: /保存/ });
     await saveBtn.click();
-    await contentPage.waitForTimeout(300);
     // 验证表单验证错误提示显示
     const errorMsg = dialog.locator('.el-form-item__error').filter({ hasText: /请输入值/ });
     await expect(errorMsg).toBeVisible();
@@ -442,7 +428,6 @@ test.describe('CookieManagement', () => {
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
     await cookieItem.click();
-    await contentPage.waitForTimeout(500);
     const cookiePage = contentPage.locator('.cookies-page');
     await expect(cookiePage).toBeVisible({ timeout: 5000 });
     // 打开新增弹窗
@@ -463,10 +448,11 @@ test.describe('CookieManagement', () => {
     const expiresFormItem = dialog.locator('.el-form-item').filter({ hasText: /^过期时间/ });
     const datePickerInput = expiresFormItem.locator('input[role="combobox"]');
     await datePickerInput.click();
-    await contentPage.waitForTimeout(300);
+    const pickerPanel = contentPage.locator('.el-picker-panel');
+    await expect(pickerPanel).toBeVisible({ timeout: 5000 });
     const tomorrowBtn = contentPage.locator('.el-picker-panel__shortcut').filter({ hasText: /24小时后/ });
     await tomorrowBtn.click();
-    await contentPage.waitForTimeout(300);
+    await expect(pickerPanel).not.toBeVisible({ timeout: 5000 });
     // 开启HttpOnly和Secure开关
     const httpOnlySwitch = dialog.locator('.el-form-item').filter({ hasText: /^HttpOnly/ }).locator('.el-switch');
     await httpOnlySwitch.click();
@@ -475,13 +461,12 @@ test.describe('CookieManagement', () => {
     // 选择SameSite为Strict
     const sameSiteSelect = dialog.locator('.el-form-item').filter({ hasText: /^SameSite/ }).locator('.el-select');
     await sameSiteSelect.click();
-    await contentPage.waitForTimeout(300);
     const strictOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'Strict' });
+    await expect(strictOption).toBeVisible({ timeout: 5000 });
     await strictOption.click();
     // 保存并验证弹窗关闭
     const saveBtn = dialog.locator('.el-button--primary').filter({ hasText: /保存/ });
     await saveBtn.click();
-    await contentPage.waitForTimeout(500);
     await expect(dialog).not.toBeVisible({ timeout: 5000 });
     // 在表格中查找该Cookie行并验证各列显示
     const cookieTable = cookiePage.locator('.el-table');
@@ -518,7 +503,6 @@ test.describe('CookieManagement', () => {
     await moreBtn.click();
     const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
     await cookieItem.click();
-    await contentPage.waitForTimeout(500);
     const cookiePage = contentPage.locator('.cookies-page');
     await expect(cookiePage).toBeVisible({ timeout: 5000 });
     // 打开新增弹窗
@@ -534,7 +518,6 @@ test.describe('CookieManagement', () => {
     // 保存
     const saveBtn = dialog.locator('.el-button--primary').filter({ hasText: /保存/ });
     await saveBtn.click();
-    await contentPage.waitForTimeout(500);
     await expect(dialog).not.toBeVisible({ timeout: 5000 });
     // 验证表格显示
     const cookieTable = cookiePage.locator('.el-table');
@@ -559,6 +542,37 @@ test.describe('CookieManagement', () => {
     // 验证SameSite列显示Lax(默认值)
     const sameSiteCell = targetRow.locator('td').nth(8);
     await expect(sameSiteCell).toContainText('Lax');
+  });
+  // 测试用例13: Cookie 列表刷新后仍然存在（离线持久化）
+  test('刷新后Cookie仍然存在', async ({ topBarPage, contentPage, clearCache, createProject, reload }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 打开 Cookie 管理页面并新增一条 Cookie
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
+    await cookieItem.click();
+    const cookiePage = contentPage.locator('.cookies-page');
+    await expect(cookiePage).toBeVisible({ timeout: 5000 });
+    const addBtn = cookiePage.locator('.el-button--primary').filter({ hasText: /新增 Cookie/ });
+    await addBtn.click();
+    const dialog = contentPage.locator('.el-dialog').filter({ hasText: /新增 Cookie/ });
+    await expect(dialog).toBeVisible({ timeout: 5000 });
+    await dialog.locator('.el-form-item').filter({ hasText: /名称/ }).locator('input').fill('persist_cookie');
+    await dialog.locator('.el-form-item').filter({ hasText: /值/ }).locator('textarea').fill('persist_value');
+    await dialog.locator('.el-button--primary').filter({ hasText: /保存/ }).click();
+    await expect(dialog).not.toBeVisible({ timeout: 5000 });
+    const cookieTable = cookiePage.locator('.el-table');
+    await expect(cookieTable).toContainText('persist_cookie');
+    // 刷新后再次进入 Cookie 页面验证仍存在
+    await reload();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await moreBtn.click();
+    await cookieItem.click();
+    await expect(cookiePage).toBeVisible({ timeout: 5000 });
+    await expect(cookieTable).toContainText('persist_cookie');
+    await expect(cookieTable).toContainText('persist_value');
   });
 });
 

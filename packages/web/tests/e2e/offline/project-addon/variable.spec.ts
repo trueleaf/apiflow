@@ -128,6 +128,9 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(500);
     const errorMessage = contentPage.locator('.el-message--error');
     await expect(errorMessage).toBeVisible({ timeout: 3000 });
+    const duplicateRows = variablePage.locator('.right .el-table__body-wrapper tr').filter({ hasText: 'duplicateVar' });
+    await expect(duplicateRows).toHaveCount(1);
+    await expect(duplicateRows.first()).toContainText('first value');
   });
 
   test('删除变量成功,变量从列表中移除', async ({ topBarPage, contentPage, clearCache, createProject }) => {
@@ -150,12 +153,13 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(500);
     const variableTable = variablePage.locator('.right .el-table');
     await expect(variableTable).toContainText('toBeDeleted');
-    const deleteBtn = variablePage.locator('.right .el-table .el-button').filter({ hasText: /删除|Delete/ });
-    await deleteBtn.click();
+    const targetRow = variablePage.locator('.right .el-table__body-wrapper tr').filter({ hasText: 'toBeDeleted' }).first();
+    await expect(targetRow).toBeVisible({ timeout: 5000 });
+    await targetRow.locator('.el-button').filter({ hasText: /删除|Delete/ }).first().click();
     const confirmBtn = contentPage.locator('.cl-confirm-footer-right .el-button--primary');
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
-    await expect(variableTable).not.toContainText('toBeDeleted');
+    await expect(variablePage.locator('.right .el-table__body-wrapper tr').filter({ hasText: 'toBeDeleted' })).toHaveCount(0);
   });
 
   test('编辑变量成功,变量值更新', async ({ topBarPage, contentPage, clearCache, createProject }) => {
@@ -176,9 +180,9 @@ test.describe('Variable', () => {
     const addBtn = variablePage.locator('.left .el-button--primary');
     await addBtn.click();
     await contentPage.waitForTimeout(500);
-    const editBtn = variablePage.locator('.right .el-table .el-button').filter({ hasText: /编辑|Edit/ });
-    await editBtn.click();
-    await contentPage.waitForTimeout(300);
+    const targetRow = variablePage.locator('.right .el-table__body-wrapper tr').filter({ hasText: 'toBeEdited' }).first();
+    await expect(targetRow).toBeVisible({ timeout: 5000 });
+    await targetRow.locator('.el-button').filter({ hasText: /编辑|Edit/ }).first().click();
     const editDialog = contentPage.locator('.el-dialog').filter({ hasText: /修改变量|Edit/ });
     await expect(editDialog).toBeVisible({ timeout: 5000 });
     const editValueTextarea = editDialog.locator('textarea');
@@ -186,8 +190,7 @@ test.describe('Variable', () => {
     const confirmBtn = editDialog.locator('.el-button--primary');
     await confirmBtn.click();
     await contentPage.waitForTimeout(500);
-    const variableTable = variablePage.locator('.right .el-table');
-    await expect(variableTable).toContainText('updated value');
+    await expect(targetRow).toContainText('updated value');
   });
 
   test('在请求Body中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {
@@ -243,7 +246,6 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(300);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('variable_value', { timeout: 10000 });
   });
@@ -279,7 +281,6 @@ test.describe('Variable', () => {
     await urlInput.fill('{{baseUrl}}/echo');
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('/echo', { timeout: 10000 });
   });
@@ -324,7 +325,6 @@ test.describe('Variable', () => {
     await contentPage.keyboard.type('{{authToken}}');
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('Bearer test-token-123', { timeout: 10000 });
   });
@@ -384,7 +384,6 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(200);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('/echo/users/user_12345', { timeout: 10000 });
     await expect(responseBody).toContainText('userId', { timeout: 10000 });
@@ -458,7 +457,6 @@ test.describe('Variable', () => {
 
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('x-apiflow-var', { timeout: 10000 });
     await expect(responseBody).toContainText('common-header-value', { timeout: 10000 });
@@ -531,7 +529,6 @@ test.describe('Variable', () => {
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('var_cookie=cookie_value_123', { timeout: 10000 });
   });
@@ -587,7 +584,6 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(300);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('raw_variable_value', { timeout: 10000 });
   });
@@ -640,7 +636,6 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(300);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('urlencoded_value', { timeout: 10000 });
   });
@@ -693,7 +688,6 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(300);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('formdata_value', { timeout: 10000 });
   });
@@ -754,7 +748,6 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(300);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     const responseText = (await responseBody.textContent()) || '';
     const jsonStartIndex = responseText.indexOf('{');
@@ -831,7 +824,6 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(300);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('{{notExistVar}}', { timeout: 10000 });
   });

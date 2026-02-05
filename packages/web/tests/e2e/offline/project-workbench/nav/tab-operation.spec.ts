@@ -14,9 +14,8 @@ test.describe('TabOperation', () => {
     // 点击关闭按钮
     const closeBtn = tab.locator('[data-testid="project-nav-tab-close-btn"]');
     await closeBtn.click();
-    await contentPage.waitForTimeout(300);
     // 验证tab不存在
-    await expect(tab).not.toBeVisible({ timeout: 3000 });
+    await expect(tab).toHaveCount(0, { timeout: 3000 });
   });
   // 测试用例2: 右键菜单关闭当前tab
   test('右键菜单关闭当前tab', async ({ contentPage, clearCache, createProject, createNode }) => {
@@ -32,9 +31,8 @@ test.describe('TabOperation', () => {
     // 点击关闭菜单项
     const closeMenuItem = contentPage.locator('[data-testid="contextmenu-item-关闭"], [data-testid="contextmenu-item-Close"]');
     await closeMenuItem.click();
-    await contentPage.waitForTimeout(300);
     // 验证tab不存在
-    await expect(tab).not.toBeVisible({ timeout: 3000 });
+    await expect(tab).toHaveCount(0, { timeout: 3000 });
   });
   // 测试用例3: 右键菜单关闭左侧tab
   test('右键菜单关闭左侧tab', async ({ contentPage, clearCache, createProject, createNode }) => {
@@ -54,8 +52,8 @@ test.describe('TabOperation', () => {
     await closeLeftMenuItem.click();
     await contentPage.waitForTimeout(300);
     // 验证左侧tab不存在
-    await expect(contentPage.locator('.nav .item').filter({ hasText: '左侧测试1' })).not.toBeVisible();
-    await expect(contentPage.locator('.nav .item').filter({ hasText: '左侧测试2' })).not.toBeVisible();
+    await expect(contentPage.locator('.nav .item').filter({ hasText: '左侧测试1' })).toHaveCount(0);
+    await expect(contentPage.locator('.nav .item').filter({ hasText: '左侧测试2' })).toHaveCount(0);
     // 验证第三个tab仍然存在
     await expect(tab3).toBeVisible();
   });
@@ -77,8 +75,8 @@ test.describe('TabOperation', () => {
     await closeRightMenuItem.click();
     await contentPage.waitForTimeout(300);
     // 验证右侧tab不存在
-    await expect(contentPage.locator('.nav .item').filter({ hasText: '右侧测试2' })).not.toBeVisible();
-    await expect(contentPage.locator('.nav .item').filter({ hasText: '右侧测试3' })).not.toBeVisible();
+    await expect(contentPage.locator('.nav .item').filter({ hasText: '右侧测试2' })).toHaveCount(0);
+    await expect(contentPage.locator('.nav .item').filter({ hasText: '右侧测试3' })).toHaveCount(0);
     // 验证第一个tab仍然存在
     await expect(tab1).toBeVisible();
   });
@@ -100,8 +98,8 @@ test.describe('TabOperation', () => {
     await closeOtherMenuItem.click();
     await contentPage.waitForTimeout(300);
     // 验证其他tab不存在
-    await expect(contentPage.locator('.nav .item').filter({ hasText: '其他测试1' })).not.toBeVisible();
-    await expect(contentPage.locator('.nav .item').filter({ hasText: '其他测试3' })).not.toBeVisible();
+    await expect(contentPage.locator('.nav .item').filter({ hasText: '其他测试1' })).toHaveCount(0);
+    await expect(contentPage.locator('.nav .item').filter({ hasText: '其他测试3' })).toHaveCount(0);
     // 验证第二个tab仍然存在且是唯一的tab
     await expect(tab2).toBeVisible();
     const tabCount = await contentPage.locator('.nav .drag-wrap .item').count();
