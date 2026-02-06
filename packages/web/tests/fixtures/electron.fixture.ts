@@ -252,7 +252,13 @@ export const test = base.extend<ElectronFixtures>({
     const jump = async () => {
       const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
       await settingsBtn.click();
-      await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 10000 });
+      const settingsTab = topBarPage.locator('[data-test-id^="header-tab-item-"][data-id^="settings-"]').first();
+      await expect(settingsTab).toBeVisible({ timeout: 10000 });
+      await expect(settingsTab).toHaveClass(/active/, { timeout: 10000 });
+      await expect.poll(async () => {
+        return await topBarPage.evaluate(() => localStorage.getItem('appWorkbench/header/activeTab') || '');
+      }, { timeout: 10000 }).toMatch(/^settings-/);
     };
     await use(jump);
   },

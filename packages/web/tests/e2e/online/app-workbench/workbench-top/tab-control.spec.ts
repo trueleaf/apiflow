@@ -67,15 +67,10 @@ test.describe('Navigation', () => {
   test('打开设置会新增设置tab并自动高亮', async ({ topBarPage, contentPage, loginAccount, jumpToSettings }) => {
     await loginAccount();
     await jumpToSettings();
-    // 验证存在设置Tab
-    const settingsTabs = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: /设置|Settings/ });
-    const settingsTabCount = await settingsTabs.count();
-    expect(settingsTabCount).toBeGreaterThanOrEqual(1);
-    // 验证有设置Tab被高亮（使用更具体的选择器）
-    const settingsActiveTab = topBarPage.locator('[data-test-id^="header-tab-item-"].active');
-    // 等待高亮Tab出现
-    await expect(settingsActiveTab).toBeVisible({ timeout: 5000 });
-    // 获取当前高亮Tab的标题，验证是设置Tab或者内容区域是设置页面
+    // 等待设置Tab创建并高亮（避免点击后渲染/缓存同步延迟导致的偶发失败）
+    const settingsTab = topBarPage.locator('[data-test-id^="header-tab-item-"][data-id^="settings-"]').first();
+    await expect(settingsTab).toBeVisible({ timeout: 10000 });
+    await expect(settingsTab).toHaveClass(/active/, { timeout: 10000 });
     await expect(contentPage).toHaveURL(/.*#\/settings.*/);
   });
 

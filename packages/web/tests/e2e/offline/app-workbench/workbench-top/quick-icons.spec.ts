@@ -107,20 +107,28 @@ test.describe('QuickIcons', () => {
       const initialText = await networkText.innerText();
       const isOnline = onlineTextPattern.test(initialText);
       await networkBtn.click();
-      // 等待模式文案更新
-      if (isOnline) {
-        await expect(networkText).toContainText(offlineTextPattern);
-      } else {
-        await expect(networkText).toContainText(onlineTextPattern);
-      }
+      await topBarPage.waitForLoadState('domcontentloaded');
+      // 等待模式文案更新（切换过程可能触发重载或存在 IPC 同步延迟）
+      const expectedAfterToggle = isOnline ? offlineTextPattern : onlineTextPattern;
+      await expect.poll(async () => {
+        try {
+          return await networkText.innerText();
+        } catch {
+          return '';
+        }
+      }, { timeout: 15000 }).toMatch(expectedAfterToggle);
       // 切换回原模式
       await networkBtn.click();
+      await topBarPage.waitForLoadState('domcontentloaded');
       // 等待模式文案恢复
-      if (isOnline) {
-        await expect(networkText).toContainText(onlineTextPattern);
-      } else {
-        await expect(networkText).toContainText(offlineTextPattern);
-      }
+      const expectedAfterRestore = isOnline ? onlineTextPattern : offlineTextPattern;
+      await expect.poll(async () => {
+        try {
+          return await networkText.innerText();
+        } catch {
+          return '';
+        }
+      }, { timeout: 15000 }).toMatch(expectedAfterRestore);
     });
     test('网络模式切换后Tab列表按模式过滤', async ({ topBarPage, contentPage, createProject, clearCache }) => {
       await clearCache();
