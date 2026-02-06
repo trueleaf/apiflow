@@ -63,12 +63,14 @@ test.describe('CommonHeaders', () => {
     await fileConfirmBtn.click();
     // await contentPage.waitForTimeout(500);
     // 设置请求URL并发送
-    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const urlInput = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+    await expect(urlInput).toBeVisible({ timeout: 5000 });
+    await urlInput.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    // 验证请求信息中包含公共请求头（避免依赖响应体渲染实现）
-    await expect(contentPage.locator('[data-testid="response-tabs"]')).toBeVisible({ timeout: 10000 });
+    await expect(contentPage.getByTestId('status-code')).toContainText('200', { timeout: 20000 });
     await contentPage.locator('#tab-SRequestView').click();
     const requestInfo = contentPage.locator('.request-info');
     await expect(requestInfo).toBeVisible({ timeout: 10000 });
@@ -110,16 +112,25 @@ test.describe('CommonHeaders', () => {
     await expect(addFileDialog).toBeVisible({ timeout: 5000 });
     await addFileDialog.locator('input').first().fill('覆盖接口');
     await addFileDialog.locator('.el-button--primary').last().click();
+    // 确保已进入接口编辑页
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await expect(urlInput).toBeVisible({ timeout: 5000 });
     const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
+    await expect(headersTab).toBeVisible({ timeout: 5000 });
     await headersTab.click();
-    const nodeKeyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
-    const nodeValueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
-    await expect(nodeKeyInputs.first()).toBeVisible({ timeout: 5000 });
-    await nodeKeyInputs.first().fill('Authorization');
-    await nodeValueInputs.first().click();
+    const headerKeyAutocomplete = contentPage.getByTestId('params-tree-key-autocomplete');
+    const headerKeyInputs = contentPage.getByTestId('params-tree-key-input');
+    const headerValueInputs = contentPage.getByTestId('params-tree-value-input');
+    await expect(headerValueInputs.first()).toBeVisible({ timeout: 5000 });
+    const headerKeyAutocompleteCount = await headerKeyAutocomplete.count();
+    if (headerKeyAutocompleteCount > 0) {
+      await headerKeyAutocomplete.first().locator('input').fill('Authorization');
+    } else {
+      await headerKeyInputs.first().fill('Authorization');
+    }
+    await headerValueInputs.first().click();
     await contentPage.keyboard.type('Bearer override-token');
     // 发送请求，验证最终使用接口自身请求头而非公共请求头
-    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.locator('[data-testid="operation-send-btn"]').click();
     await expect(contentPage.locator('[data-testid="response-tabs"]')).toBeVisible({ timeout: 10000 });
@@ -132,6 +143,8 @@ test.describe('CommonHeaders', () => {
   });
   // 测试用例1-补充: 清空公共请求头后接口不再继承
   test('清空公共请求头后接口不再继承', async ({ contentPage, clearCache, createProject }) => {
+    // 该用例步骤较多，避免低性能环境下超时误报
+    test.setTimeout(90000);
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
@@ -169,7 +182,10 @@ test.describe('CommonHeaders', () => {
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await contentPage.locator('[data-testid="operation-send-btn"]').click();
     await expect(contentPage.locator('[data-testid="response-tabs"]')).toBeVisible({ timeout: 10000 });
-    await contentPage.locator('#tab-SRequestView').click();
+    await expect(contentPage.getByTestId('response-area').getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    const requestViewTab = contentPage.locator('#tab-SRequestView');
+    await expect(requestViewTab).toBeVisible({ timeout: 10000 });
+    await requestViewTab.click();
     const requestInfo = contentPage.locator('.request-info');
     await expect(requestInfo).toBeVisible({ timeout: 10000 });
     await expect(requestInfo).toContainText('X-Test', { timeout: 10000 });
@@ -191,7 +207,9 @@ test.describe('CommonHeaders', () => {
     await apiNode.click();
     await contentPage.locator('[data-testid="operation-send-btn"]').click();
     await expect(contentPage.locator('[data-testid="response-tabs"]')).toBeVisible({ timeout: 10000 });
-    await contentPage.locator('#tab-SRequestView').click();
+    await expect(contentPage.getByTestId('response-area').getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    await expect(requestViewTab).toBeVisible({ timeout: 10000 });
+    await requestViewTab.click();
     await expect(requestInfo).not.toContainText('X-Test', { timeout: 10000 });
     await expect(requestInfo).not.toContainText('value-1', { timeout: 10000 });
   });
@@ -705,5 +723,4 @@ test.describe('CommonHeaders', () => {
     expect(requestText).not.toContain('parent-value');
   });
 });
-
 

@@ -136,10 +136,10 @@ test.describe('WebSocketUrlFormat', () => {
     const undoBtn = contentPage.locator('[data-testid="ws-params-undo-btn"]');
     await undoBtn.click();
     await contentPage.waitForTimeout(300);
-    await expect(urlEditor).toHaveText(/ws:\/\/ab/, { timeout: 5000 });
+    await expect(urlEditor).toHaveText('ab', { timeout: 5000 });
     await undoBtn.click();
     await contentPage.waitForTimeout(300);
-    await expect(urlEditor).toHaveText(/ws:\/\/a/, { timeout: 5000 });
+    await expect(urlEditor).toHaveText('a', { timeout: 5000 });
     await undoBtn.click();
     await contentPage.waitForTimeout(300);
     await expect(urlEditor).toHaveText(/^\s*$/, { timeout: 5000 });

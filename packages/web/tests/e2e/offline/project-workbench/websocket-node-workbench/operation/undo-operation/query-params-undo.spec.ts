@@ -137,7 +137,7 @@ test.describe('WebSocketQueryParamsUndo', () => {
   // 删除Query参数后撤销恢复
   // 由于删除操作的撤销涉及复杂的数据同步（删除后自动添加空行），暂时跳过此测试
   // 核心的 Ctrl+Z 撤销功能已在 "使用Ctrl+Z撤销Query参数编辑" 测试中验证
-  test.skip('删除Query参数后撤销恢复', async ({ contentPage, clearCache, createProject, createNode }) => {
+  test('删除Query参数后撤销恢复', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache()
     await createProject()
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 })
@@ -193,11 +193,23 @@ test.describe('WebSocketQueryParamsUndo', () => {
     await expect(statusUrl).toContainText('deleteKey=deleteValue', { timeout: 5000 })
 
     // 删除该行
-    const deleteRow = queryParamsPanel.locator('[data-testid="params-tree-row"][data-row-key="deleteKey"]').first()
-    await expect(deleteRow).toBeVisible({ timeout: 5000 })
+    const rows = queryParamsPanel.locator('[data-testid="params-tree-row"]')
+    const rowCount = await rows.count()
+    let targetRowIndex = -1
+    for (let index = 0; index < rowCount; index += 1) {
+      const row = rows.nth(index)
+      const keyInput = row.getByPlaceholder(/参数名称/).first()
+      const keyValue = await keyInput.inputValue()
+      if (keyValue === 'deleteKey') {
+        targetRowIndex = index
+        break
+      }
+    }
+    expect(targetRowIndex).toBeGreaterThanOrEqual(0)
+    const deleteRow = rows.nth(targetRowIndex)
     const deleteBtn = deleteRow.locator('[data-testid="params-tree-delete-btn"]').first()
+    await expect(deleteBtn).toBeVisible({ timeout: 5000 })
     await deleteBtn.click()
-    await contentPage.waitForTimeout(800)
     await expect(statusUrl).not.toContainText('deleteKey=deleteValue', { timeout: 5000 })
 
     // 点击标题区域确保焦点不在任何输入框内（这样 Ctrl+Z 才会触发全局快捷键）
@@ -207,14 +219,19 @@ test.describe('WebSocketQueryParamsUndo', () => {
 
     // 撤销删除后应恢复Query参数 - 首先验证参数行恢复
     await contentPage.keyboard.press('Control+z')
-    // 等待足够长的时间让数据更新
-    await contentPage.waitForTimeout(1000)
-    
-    // 验证参数行是否恢复（通过检查 key 输入框的值）
-    const restoredRow = queryParamsPanel.locator('[data-testid="params-tree-row"][data-row-key="deleteKey"]').first()
-    await expect(restoredRow).toBeVisible({ timeout: 5000 })
-    
-    // 然后验证 URL 拼接
     await expect(statusUrl).toContainText('deleteKey=deleteValue', { timeout: 5000 })
+    const restoredRows = queryParamsPanel.locator('[data-testid="params-tree-row"]')
+    const restoredRowCount = await restoredRows.count()
+    let restored = false
+    for (let index = 0; index < restoredRowCount; index += 1) {
+      const row = restoredRows.nth(index)
+      const keyInput = row.getByPlaceholder(/参数名称/).first()
+      const keyValue = await keyInput.inputValue()
+      if (keyValue === 'deleteKey') {
+        restored = true
+        break
+      }
+    }
+    expect(restored).toBe(true)
   })
 })

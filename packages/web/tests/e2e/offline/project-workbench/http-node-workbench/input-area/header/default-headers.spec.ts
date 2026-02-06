@@ -187,6 +187,7 @@ test.describe('DefaultHeaders', () => {
   });
   // 测试用例5: 自动添加的content-type值允许修改,调用echo接口返回请求头参数正确
   test('自动添加的content-type值允许修改', async ({ contentPage, clearCache, createProject }) => {
+    test.setTimeout(60000);
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
@@ -201,8 +202,11 @@ test.describe('DefaultHeaders', () => {
     await confirmAddBtn.click();
     await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 设置请求URL
-    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+    await expect(urlEditor).toBeVisible({ timeout: 10000 });
+    await urlEditor.click();
+    await contentPage.keyboard.press('ControlOrMeta+a');
+    await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 选择POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
@@ -210,20 +214,16 @@ test.describe('DefaultHeaders', () => {
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
-    await contentPage.waitForTimeout(300);
     // 选择JSON类型
     const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: 'json' });
     await jsonRadio.click();
-    await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入数据
     const monacoEditor = contentPage.locator('.s-json-editor').first();
     const monacoInner = monacoEditor.locator('.monaco-editor').first();
     await expect(monacoInner).toBeVisible({ timeout: 10000 });
     await monacoInner.click({ position: { x: 10, y: 10 } });
-    await contentPage.waitForTimeout(300);
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('{"name": "test"}');
-    await contentPage.waitForTimeout(500);
     // 点击Header标签页
     const headerTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
     await headerTab.click();
@@ -231,14 +231,17 @@ test.describe('DefaultHeaders', () => {
     const paramsTreeRow = contentPage.locator('[data-testid="params-tree-row"]').first();
     await expect(paramsTreeRow).toBeVisible({ timeout: 5000 });
     // 在自定义请求头中添加Content-Type覆盖自动值（使用autocomplete组件）
-    const keyAutocomplete = contentPage.locator('[data-testid="params-tree-key-autocomplete"]').first();
-    const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    const keyAutocomplete = paramsTreeRow.locator('[data-testid="params-tree-key-autocomplete"]');
     await expect(keyAutocomplete).toBeVisible({ timeout: 5000 });
     const keyInput = keyAutocomplete.locator('input');
     await keyInput.fill('Content-Type');
-    await valueInputs.first().click();
+    await contentPage.keyboard.press('Enter');
+    const valueInput = paramsTreeRow.locator('[data-testid="params-tree-value-input"]');
+    await expect(valueInput).toBeVisible({ timeout: 5000 });
+    await valueInput.click();
+    await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('application/custom');
-    await contentPage.waitForTimeout(300);
+    await contentPage.keyboard.press('Enter');
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();

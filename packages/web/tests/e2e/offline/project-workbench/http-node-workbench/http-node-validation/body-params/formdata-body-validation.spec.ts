@@ -210,8 +210,6 @@ test.describe('FormdataBodyValidation', () => {
     await expect(responseBody).toContainText('name', { timeout: 10000 });
   });
 
-  // 测试用例4: 调用echo接口验证文件上传是否正常返回,content-type是否设置正确
-  test.skip('调用echo接口验证文件上传是否正常返回,content-type是否设置正确', async () => {});
 });
 
 

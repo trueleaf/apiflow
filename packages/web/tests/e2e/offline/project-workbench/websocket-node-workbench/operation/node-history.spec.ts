@@ -80,6 +80,7 @@ test.describe('WebSocketNodeHistory', () => {
   });
   // 选择历史记录后恢复到该状态
   test('选择历史记录后恢复到该状态', async ({ contentPage, clearCache, createProject, createNode }) => {
+    test.setTimeout(60000);
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
@@ -93,32 +94,31 @@ test.describe('WebSocketNodeHistory', () => {
     await contentPage.keyboard.press('Enter');
     await contentPage.waitForTimeout(300);
     await saveBtn.click();
-    await contentPage.waitForTimeout(1000);
     // 修改URL后第二次保存
     await urlEditor.fill('127.0.0.1:8080/second-state');
     await contentPage.keyboard.press('Enter');
     await contentPage.waitForTimeout(300);
     await saveBtn.click();
-    await contentPage.waitForTimeout(1000);
     // 点击历史记录按钮
     const historyBtn = contentPage.locator('[data-testid="ws-params-history-btn"]');
     await historyBtn.click();
-    await contentPage.waitForTimeout(500);
-    // 选择第一条历史记录(通常是最新的,所以要选择第二条来恢复到第一次保存的状态)
     const historyDropdown = contentPage.locator('.ws-params .history-dropdown');
+    await expect(historyDropdown).toBeVisible({ timeout: 10000 });
+    await expect.poll(async () => historyDropdown.locator('.history-item').count(), { timeout: 10000 }).toBeGreaterThanOrEqual(2);
+    // 选择第一条历史记录(通常是最新的,所以要选择第二条来恢复到第一次保存的状态)
     const historyItems = historyDropdown.locator('.history-item');
     // 点击历史记录项
     await historyItems.last().click();
     await contentPage.waitForTimeout(300);
     // 确认覆盖对话框
     const confirmDialog = contentPage.locator('.cl-confirm-container').first();
-    await expect(confirmDialog).toBeVisible({ timeout: 5000 });
+    await expect(confirmDialog).toBeVisible({ timeout: 10000 });
     const confirmBtn = confirmDialog.locator('.el-button--primary').first();
     await confirmBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(confirmDialog).toBeHidden({ timeout: 10000 });
     // 验证URL恢复到第一次保存的状态
     const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
-    await expect(statusUrl).toContainText(firstUrl, { timeout: 5000 });
+    await expect(statusUrl).toContainText(firstUrl, { timeout: 10000 });
   });
   // 删除历史记录后列表更新
   test('删除历史记录后列表更新', async ({ contentPage, clearCache, createProject, createNode }) => {

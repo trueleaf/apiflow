@@ -207,24 +207,18 @@ test.describe('Trash/回收站', () => {
 
       // 关闭详情抽屉
       await contentPage.keyboard.press('Escape');
-      await contentPage.waitForTimeout(200);
-      const drawerVisible = await contentPage.locator('.el-drawer').isVisible({ timeout: 500 }).catch(() => false);
-      if (drawerVisible) {
-        const drawer = contentPage.locator('.el-drawer').first();
-        const closeBtn1 = drawer.locator('.el-drawer__headerbtn').first();
-        const closeBtn1Visible = await closeBtn1.isVisible({ timeout: 300 }).catch(() => false);
-        if (closeBtn1Visible) {
-          await closeBtn1.click();
+      const closedByEsc = await docDetail.waitFor({ state: 'hidden', timeout: 1500 }).then(() => true).catch(() => false);
+      if (!closedByEsc) {
+        const visibleDrawer = contentPage.locator('.el-drawer:visible').first();
+        const closeBtn = visibleDrawer.getByLabel('关闭此对话框');
+        const closeBtnVisible = await closeBtn.isVisible({ timeout: 800 }).catch(() => false);
+        if (closeBtnVisible) {
+          await closeBtn.click({ force: true });
         } else {
-          const closeBtn2 = drawer.locator('.el-drawer__close-btn').first();
-          const closeBtn2Visible = await closeBtn2.isVisible({ timeout: 300 }).catch(() => false);
-          if (closeBtn2Visible) {
-            await closeBtn2.click();
-          }
+          await visibleDrawer.locator('.el-drawer__headerbtn, .el-drawer__close-btn').first().click({ force: true });
         }
       }
-      await expect(contentPage.locator('.doc-detail')).toBeHidden({ timeout: 5000 });
-      await contentPage.waitForTimeout(200);
+      await expect(docDetail).toBeHidden({ timeout: 5000 });
     }
   });
 

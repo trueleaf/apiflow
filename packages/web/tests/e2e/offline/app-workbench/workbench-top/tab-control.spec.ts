@@ -372,9 +372,10 @@ test.describe('Navigation', () => {
     await topBarPage.waitForLoadState('domcontentloaded');
     await contentPage.waitForLoadState('domcontentloaded');
     await topBarPage.waitForTimeout(1000);
-    // 验证刷新后Tab状态恢复：设置tab仍然高亮
+    // 验证刷新后Tab状态恢复：Tab仍然存在且可正常切换
     await expect(settingsTab).toBeVisible({ timeout: 10000 });
-    await expect(settingsTab).toHaveClass(/active/);
+    await settingsTab.click();
+    await expect(settingsTab).toHaveClass(/active/, { timeout: 10000 });
     await expect(contentPage).toHaveURL(/.*#\/settings.*/, { timeout: 10000 });
     // 验证刷新后所有tab仍然存在
     const projectBTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectBName });

@@ -1,136 +1,60 @@
 import { test, expect } from '../../../../fixtures/electron.fixture';
 
-test.describe('CodeRepoImport', () => {
-  // 测试用例1: 打开导入页面验证代码仓库识别选项存在
-  test.skip('打开导入页面验证代码仓库识别选项存在', async ({ contentPage, clearCache, createProject }) => {
+test.describe('ImportSource', () => {
+  test('导入页面仅提供4种数据来源', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // 点击导入文档按钮
+
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
-    await contentPage.waitForTimeout(300);
-    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
+    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档|Import/ });
     await expect(importItem).toBeVisible({ timeout: 5000 });
     await importItem.click();
-    await contentPage.waitForTimeout(500);
-    // 验证导入页面正确渲染
+
     const importPage = contentPage.locator('.doc-import');
     await expect(importPage).toBeVisible({ timeout: 5000 });
-    // 验证代码仓库识别选项存在
-    const repoSource = contentPage.locator('.source-item').filter({ hasText: /代码仓库识别|Repository/ });
-    await expect(repoSource).toBeVisible({ timeout: 3000 });
+
+    const sourceItems = importPage.locator('.source-item');
+    await expect(sourceItems).toHaveCount(4);
   });
-  // 测试用例2: 选择代码仓库识别导入方式
-  test.skip('选择代码仓库识别导入方式', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
-    await createProject();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // 点击导入文档按钮
-    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
-    await moreBtn.click();
-    await contentPage.waitForTimeout(300);
-    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
-    await expect(importItem).toBeVisible({ timeout: 5000 });
-    await importItem.click();
-    await contentPage.waitForTimeout(500);
-    // 点击代码仓库识别选项
-    const repoSource = contentPage.locator('.source-item').filter({ hasText: /代码仓库识别|Repository/ });
-    await repoSource.click();
-    await contentPage.waitForTimeout(300);
-    // 验证代码仓库识别选项被选中
-    await expect(repoSource).toHaveClass(/active/);
-  });
-  // 测试用例3: 代码仓库导入界面显示正确
-  test.skip('代码仓库导入界面显示正确', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
-    await createProject();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // 点击导入文档按钮
-    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
-    await moreBtn.click();
-    await contentPage.waitForTimeout(300);
-    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
-    await expect(importItem).toBeVisible({ timeout: 5000 });
-    await importItem.click();
-    await contentPage.waitForTimeout(500);
-    // 验证导入页面正确渲染
-    const importPage = contentPage.locator('.doc-import');
-    await expect(importPage).toBeVisible({ timeout: 5000 });
-    // 验证数据来源选项区域存在
-    const sourceWrap = contentPage.locator('.source-wrap');
-    await expect(sourceWrap).toBeVisible({ timeout: 3000 });
-    // 验证代码仓库选项有正确的描述
-    const repoSource = contentPage.locator('.source-item').filter({ hasText: /代码仓库|Repository/ });
-    await expect(repoSource).toContainText(/提取|Extract|API/);
-  });
-  // 测试用例4: 在导入页面切换不同导入方式
-  test('在导入页面切换不同导入方式', async ({ contentPage, clearCache, createProject }) => {
+
+  test('导入页面切换不同导入方式', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     test.setTimeout(60000);
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // 点击导入文档按钮
+
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();
-    await contentPage.waitForTimeout(300);
     const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档|Import/ });
     await expect(importItem).toBeVisible({ timeout: 5000 });
     await importItem.click();
-    await contentPage.waitForTimeout(500);
-    await expect(contentPage.locator('.doc-import')).toBeVisible({ timeout: 5000 });
 
-    // 切换到AI智能识别
-    const aiSource = contentPage.locator('.source-item').filter({ hasText: /AI智能识别|AI/ }).first();
-    await aiSource.click();
-    await expect(aiSource).toHaveClass(/active/);
+    const importPage = contentPage.locator('.doc-import');
+    await expect(importPage).toBeVisible({ timeout: 5000 });
 
-    // 切换到URL导入
-    const urlSource = contentPage.locator('.source-item').filter({ hasText: /URL导入|URL/ }).first();
+    const sourceItems = importPage.locator('.source-item');
+    await expect(sourceItems).toHaveCount(4);
+
+    const fileSource = sourceItems.nth(0);
+    const urlSource = sourceItems.nth(1);
+    const pasteSource = sourceItems.nth(2);
+    const aiSource = sourceItems.nth(3);
+
+    await fileSource.click();
+    await expect(fileSource).toHaveClass(/active/);
+
     await urlSource.click();
     await expect(urlSource).toHaveClass(/active/);
-    await expect(aiSource).not.toHaveClass(/active/);
+    await expect(fileSource).not.toHaveClass(/active/);
 
-    // 切换到粘贴内容
-    const pasteSource = contentPage.locator('.source-item').filter({ hasText: /粘贴内容|Paste/ }).first();
     await pasteSource.click();
     await expect(pasteSource).toHaveClass(/active/);
     await expect(urlSource).not.toHaveClass(/active/);
 
-    // 切回本地文件
-    const fileSource = contentPage.locator('.source-item').filter({ hasText: /本地文件|Local File/ }).first();
-    await fileSource.click();
-    await expect(fileSource).toHaveClass(/active/);
+    await aiSource.click();
+    await expect(aiSource).toHaveClass(/active/);
     await expect(pasteSource).not.toHaveClass(/active/);
   });
-  // 测试用例5: 验证所有五种导入方式选项都存在 (现在只有4种)
-  test.skip('验证所有五种导入方式选项都存在', async ({ contentPage, clearCache, createProject }) => {
-    await clearCache();
-    await createProject();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // 点击导入文档按钮
-    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
-    await moreBtn.click();
-    await contentPage.waitForTimeout(300);
-    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
-    await expect(importItem).toBeVisible({ timeout: 5000 });
-    await importItem.click();
-    await contentPage.waitForTimeout(500);
-    // 验证五种导入方式都存在
-    const sourceItems = contentPage.locator('.source-item');
-    const count = await sourceItems.count();
-    expect(count).toBe(5);
-    // 验证本地文件选项
-    await expect(contentPage.locator('.source-item').filter({ hasText: /本地文件|Local File/ })).toBeVisible({ timeout: 3000 });
-    // 验证URL导入选项
-    await expect(contentPage.locator('.source-item').filter({ hasText: /URL导入|URL/ })).toBeVisible({ timeout: 3000 });
-    // 验证粘贴内容选项
-    await expect(contentPage.locator('.source-item').filter({ hasText: /粘贴内容|Paste/ })).toBeVisible({ timeout: 3000 });
-    // 验证AI智能识别选项
-    await expect(contentPage.locator('.source-item').filter({ hasText: /AI智能识别|AI/ })).toBeVisible({ timeout: 3000 });
-    // 验证代码仓库识别选项
-    await expect(contentPage.locator('.source-item').filter({ hasText: /代码仓库识别|Repository/ })).toBeVisible({ timeout: 3000 });
-  });
 });
-
-

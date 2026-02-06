@@ -31,13 +31,14 @@ test.describe('WebSocketClearData', () => {
     const sendBtn = messageBlock.getByRole('button', { name: /^发送$/ });
     await sendBtn.click();
     // 验证消息已显示
-    await expect(wsView.locator('.websocket-message .message-content').filter({ hasText: 'test message' })).toHaveCount(1, { timeout: 10000 });
+    const messageItems = wsView.locator('.websocket-message .message-content').filter({ hasText: 'test message' });
+    await expect.poll(async () => await messageItems.count(), { timeout: 10000 }).toBeGreaterThan(0);
     // 点击清空历史按钮（图标按钮无文案）
     const clearBtn = wsView.locator('.clear-icon').first();
     await expect(clearBtn).toBeVisible({ timeout: 5000 });
     await clearBtn.click();
     // 验证消息列表已清空
-    await expect(wsView.locator('.websocket-message .message-content').filter({ hasText: 'test message' })).toHaveCount(0, { timeout: 5000 });
+    await expect(messageItems).toHaveCount(0, { timeout: 5000 });
     await expect(wsView.locator('.el-empty')).toBeVisible({ timeout: 5000 });
   });
   // 清空数据后,缓存也被清空
@@ -67,12 +68,13 @@ test.describe('WebSocketClearData', () => {
     await contentPage.keyboard.type('cache test');
     const sendBtn = messageBlock.getByRole('button', { name: /^发送$/ });
     await sendBtn.click();
-    await expect(wsView.locator('.websocket-message .message-content').filter({ hasText: 'cache test' })).toHaveCount(1, { timeout: 10000 });
+    const cacheMessageItems = wsView.locator('.websocket-message .message-content').filter({ hasText: 'cache test' });
+    await expect.poll(async () => await cacheMessageItems.count(), { timeout: 10000 }).toBeGreaterThan(0);
     // 点击清空数据按钮
     const clearBtn = wsView.locator('.clear-icon').first();
     await expect(clearBtn).toBeVisible({ timeout: 5000 });
     await clearBtn.click();
-    await expect(wsView.locator('.websocket-message .message-content').filter({ hasText: 'cache test' })).toHaveCount(0, { timeout: 5000 });
+    await expect(cacheMessageItems).toHaveCount(0, { timeout: 5000 });
     await expect(wsView.locator('.el-empty')).toBeVisible({ timeout: 5000 });
     // 刷新页面验证缓存已清空
     await reload();

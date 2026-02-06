@@ -561,6 +561,15 @@ test.describe('CookieManagement', () => {
     await expect(dialog).toBeVisible({ timeout: 5000 });
     await dialog.locator('.el-form-item').filter({ hasText: /名称/ }).locator('input').fill('persist_cookie');
     await dialog.locator('.el-form-item').filter({ hasText: /值/ }).locator('textarea').fill('persist_value');
+    // 设置过期时间，避免 Session Cookie 刷新后被清理
+    const expiresFormItem = dialog.locator('.el-form-item').filter({ hasText: /^过期时间/ });
+    const datePickerInput = expiresFormItem.locator('input[role="combobox"]');
+    await datePickerInput.click();
+    const pickerPanel = contentPage.locator('.el-picker-panel');
+    await expect(pickerPanel).toBeVisible({ timeout: 5000 });
+    const shortcutBtn = contentPage.locator('.el-picker-panel__shortcut').filter({ hasText: /24小时后/ });
+    await shortcutBtn.click();
+    await expect(pickerPanel).not.toBeVisible({ timeout: 5000 });
     await dialog.locator('.el-button--primary').filter({ hasText: /保存/ }).click();
     await expect(dialog).not.toBeVisible({ timeout: 5000 });
     const cookieTable = cookiePage.locator('.el-table');

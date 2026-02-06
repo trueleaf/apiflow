@@ -48,6 +48,7 @@ test.describe('FormDataParams', () => {
     });
     // 测试用例2: formdata参数key,value,description输入值以后,调用echo接口返回结果正确
     test('formdata参数key,value输入值以后调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+      test.setTimeout(60000);
       await clearCache();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
@@ -62,8 +63,11 @@ test.describe('FormDataParams', () => {
       await confirmAddBtn.click();
       await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
-      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+      await expect(urlEditor).toBeVisible({ timeout: 10000 });
+      await urlEditor.click();
+      await contentPage.keyboard.press('ControlOrMeta+a');
+      await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
@@ -141,8 +145,11 @@ test.describe('FormDataParams', () => {
       await confirmAddBtn.click();
       await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
-      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+      await expect(urlEditor).toBeVisible({ timeout: 10000 });
+      await urlEditor.click();
+      await contentPage.keyboard.press('ControlOrMeta+a');
+      await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
@@ -181,6 +188,7 @@ test.describe('FormDataParams', () => {
     });
     // 测试用例4: formdata参数key,value支持mock,调用echo接口返回结果正确
     test('formdata参数key,value支持mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+      test.setTimeout(60000);
       await clearCache();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
@@ -195,8 +203,11 @@ test.describe('FormDataParams', () => {
       await confirmAddBtn.click();
       await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
-      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+      await expect(urlEditor).toBeVisible({ timeout: 10000 });
+      await urlEditor.click();
+      await contentPage.keyboard.press('ControlOrMeta+a');
+      await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
@@ -221,16 +232,20 @@ test.describe('FormDataParams', () => {
       await valueInputs.nth(1).click();
       await contentPage.keyboard.type('@id');
       await contentPage.waitForTimeout(300);
+      await contentPage.locator('[data-testid="url-input"]').click();
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
       // 验证响应
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
-      await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+      const statusCode = responseArea.getByTestId('status-code');
+      await expect(statusCode).toBeVisible({ timeout: 10000 });
+      await expect(statusCode).toContainText('200', { timeout: 10000 });
       const responseBody = responseArea.locator('.s-json-editor').first();
+      await expect(responseBody).toBeVisible({ timeout: 10000 });
       // 验证Content-Type包含multipart/form-data
-      await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
+      await expect(responseBody).toContainText('multipart/form-data', { timeout: 20000 });
       // 验证mock数据已生成(不包含@符号说明已被替换)
       await expect(responseBody).toContainText('phone', { timeout: 10000 });
       await expect(responseBody).toContainText('user_id', { timeout: 10000 });
@@ -267,8 +282,11 @@ test.describe('FormDataParams', () => {
       await confirmAddBtn.click();
       await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
-      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+      await expect(urlEditor).toBeVisible({ timeout: 10000 });
+      await urlEditor.click();
+      await contentPage.keyboard.press('ControlOrMeta+a');
+      await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
@@ -307,6 +325,7 @@ test.describe('FormDataParams', () => {
     });
     // 测试用例6: formdata参数是否发送未勾选那么当前参数不会发送
     test('formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject }) => {
+      test.setTimeout(60000);
       await clearCache();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
@@ -321,8 +340,11 @@ test.describe('FormDataParams', () => {
       await confirmAddBtn.click();
       await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
-      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+      await expect(urlEditor).toBeVisible({ timeout: 10000 });
+      await urlEditor.click();
+      await contentPage.keyboard.press('ControlOrMeta+a');
+      await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
@@ -330,28 +352,23 @@ test.describe('FormDataParams', () => {
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
-      await contentPage.waitForTimeout(300);
       // 选择FormData类型
       const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
-      await contentPage.waitForTimeout(300);
       // 添加表单字段: username=admin (已勾选)
       const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
       const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
       await keyInputs.first().fill('username');
       await valueInputs.first().click();
       await contentPage.keyboard.type('admin');
-      await contentPage.waitForTimeout(300);
       // 添加表单字段: password=123456 (将取消勾选)
       await keyInputs.nth(1).fill('password');
       await valueInputs.nth(1).click();
       await contentPage.keyboard.type('123456');
-      await contentPage.waitForTimeout(300);
       // 取消勾选password参数的"是否发送"checkbox (el-tree内置复选框)
-      const treeNodes = contentPage.locator('.body-params .el-tree-node');
-      const secondNodeCheckbox = treeNodes.nth(1).locator('.el-tree-node__content > .el-checkbox').first();
-      await secondNodeCheckbox.click();
-      await contentPage.waitForTimeout(300);
+      const passwordTreeNode = keyInputs.nth(1).locator('xpath=ancestor::*[contains(@class,"el-tree-node")]').first();
+      const sendCheckbox = passwordTreeNode.locator('.el-tree-node__content > .el-checkbox').first();
+      await sendCheckbox.click({ force: true });
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
@@ -363,7 +380,7 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('username', { timeout: 10000 });
       await expect(responseBody).toContainText('admin', { timeout: 10000 });
       // 验证password没有被发送
-      const responseText = await responseBody.textContent();
+      const responseText = (await responseBody.textContent()) ?? '';
       expect(responseText).not.toContain('password');
     });
   });
@@ -446,8 +463,11 @@ test.describe('FormDataParams', () => {
       await confirmAddBtn.click();
       await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
-      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+      await expect(urlEditor).toBeVisible({ timeout: 10000 });
+      await urlEditor.click();
+      await contentPage.keyboard.press('ControlOrMeta+a');
+      await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
@@ -512,8 +532,11 @@ test.describe('FormDataParams', () => {
       await confirmAddBtn.click();
       await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
-      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+      await expect(urlEditor).toBeVisible({ timeout: 10000 });
+      await urlEditor.click();
+      await contentPage.keyboard.press('ControlOrMeta+a');
+      await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
@@ -589,8 +612,11 @@ test.describe('FormDataParams', () => {
       await confirmAddBtn.click();
       await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
-      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+      await expect(urlEditor).toBeVisible({ timeout: 10000 });
+      await urlEditor.click();
+      await contentPage.keyboard.press('ControlOrMeta+a');
+      await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
@@ -668,8 +694,11 @@ test.describe('FormDataParams', () => {
       await confirmAddBtn.click();
       await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
-      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+      await expect(urlEditor).toBeVisible({ timeout: 10000 });
+      await urlEditor.click();
+      await contentPage.keyboard.press('ControlOrMeta+a');
+      await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
@@ -728,8 +757,11 @@ test.describe('FormDataParams', () => {
       await confirmAddBtn.click();
       await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
-      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+      await expect(urlEditor).toBeVisible({ timeout: 10000 });
+      await urlEditor.click();
+      await contentPage.keyboard.press('ControlOrMeta+a');
+      await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
@@ -804,8 +836,11 @@ test.describe('FormDataParams', () => {
       await confirmAddBtn.click();
       await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
-      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+      await expect(urlEditor).toBeVisible({ timeout: 10000 });
+      await urlEditor.click();
+      await contentPage.keyboard.press('ControlOrMeta+a');
+      await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
@@ -870,8 +905,11 @@ test.describe('FormDataParams', () => {
       await confirmAddBtn.click();
       await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
-      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+      await expect(urlEditor).toBeVisible({ timeout: 10000 });
+      await urlEditor.click();
+      await contentPage.keyboard.press('ControlOrMeta+a');
+      await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
@@ -952,8 +990,11 @@ test.describe('FormDataParams', () => {
       await confirmAddBtn.click();
       await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
-      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+      await expect(urlEditor).toBeVisible({ timeout: 10000 });
+      await urlEditor.click();
+      await contentPage.keyboard.press('ControlOrMeta+a');
+      await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
@@ -1005,6 +1046,7 @@ test.describe('FormDataParams', () => {
     });
     // 测试用例10: file类型formdata参数是否发送未勾选那么当前参数不会发送
     test('file类型formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject }) => {
+      test.setTimeout(60000);
       await clearCache();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
@@ -1019,8 +1061,11 @@ test.describe('FormDataParams', () => {
       await confirmAddBtn.click();
       await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
-      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+      await expect(urlEditor).toBeVisible({ timeout: 10000 });
+      await urlEditor.click();
+      await contentPage.keyboard.press('ControlOrMeta+a');
+      await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
@@ -1028,18 +1073,15 @@ test.describe('FormDataParams', () => {
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
-      await contentPage.waitForTimeout(300);
       // 选择FormData类型
       const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
-      await contentPage.waitForTimeout(300);
       // 第一行string: username=admin
       const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
       const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
       await keyInputs.first().fill('username');
       await valueInputs.first().click();
       await contentPage.keyboard.type('admin');
-      await contentPage.waitForTimeout(300);
       // 第二行file: avatar=logo.png
       await keyInputs.nth(1).fill('avatar');
       await contentPage.waitForTimeout(300);
@@ -1062,10 +1104,9 @@ test.describe('FormDataParams', () => {
       await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
       await contentPage.waitForTimeout(500);
       // 取消勾选第二行参数的"是否发送"checkbox
-      const treeNodes = contentPage.locator('.body-params .el-tree-node');
-      const secondNodeCheckbox = treeNodes.nth(1).locator('.el-tree-node__content > .el-checkbox').first();
-      await secondNodeCheckbox.click();
-      await contentPage.waitForTimeout(300);
+      const avatarTreeNode = keyInputs.nth(1).locator('xpath=ancestor::*[contains(@class,"el-tree-node")]').first();
+      const sendCheckbox = avatarTreeNode.locator('.el-tree-node__content > .el-checkbox').first();
+      await sendCheckbox.click({ force: true });
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
@@ -1100,8 +1141,11 @@ test.describe('FormDataParams', () => {
       await confirmAddBtn.click();
       await expect(addFileDialog).toBeHidden({ timeout: 10000 });
       // 设置请求URL
-      const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-      await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+      const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror').first();
+      await expect(urlEditor).toBeVisible({ timeout: 10000 });
+      await urlEditor.click();
+      await contentPage.keyboard.press('ControlOrMeta+a');
+      await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
       // 选择POST方法
       const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();

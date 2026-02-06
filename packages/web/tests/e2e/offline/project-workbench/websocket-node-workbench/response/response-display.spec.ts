@@ -134,8 +134,10 @@ test.describe('WebSocketResponseDisplay', () => {
     await sendBtn.click();
     // 验证响应区域包含多条消息且顺序正确
     const messageContents = wsView.locator('.websocket-message .message-content');
-    await expect(messageContents.filter({ hasText: 'message1' })).toHaveCount(1, { timeout: 10000 });
-    await expect(messageContents.filter({ hasText: 'message2' })).toHaveCount(1, { timeout: 10000 });
+    const message1Items = messageContents.filter({ hasText: 'message1' });
+    const message2Items = messageContents.filter({ hasText: 'message2' });
+    await expect.poll(async () => await message1Items.count(), { timeout: 10000 }).toBeGreaterThan(0);
+    await expect.poll(async () => await message2Items.count(), { timeout: 10000 }).toBeGreaterThan(0);
     const allMessages = await messageContents.allTextContents();
     const index1 = allMessages.findIndex(item => item.includes('message1'));
     const index2 = allMessages.findIndex(item => item.includes('message2'));

@@ -3,6 +3,7 @@ import { test, expect } from '../../../../../../fixtures/electron.fixture'
 test.describe('WebSocketQueryParamsRedo', () => {
   // 撤销Query参数后点击重做恢复
   test('撤销Query参数后点击重做恢复', async ({ contentPage, clearCache, createProject, createNode }) => {
+    test.setTimeout(60000)
     await clearCache()
     await createProject()
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 })
@@ -65,19 +66,18 @@ test.describe('WebSocketQueryParamsRedo', () => {
     const undoBtn = contentPage.locator('[data-testid="ws-params-undo-btn"]')
     await expect(undoBtn).not.toHaveClass(/disabled/, { timeout: 5000 })
     await undoBtn.click()
-    await contentPage.waitForTimeout(300)
     await expect(statusUrl).not.toContainText('redoKey=redoValue', { timeout: 5000 })
 
     // 重做后应恢复Query参数拼接
     const redoBtn = contentPage.locator('[data-testid="ws-params-redo-btn"]')
     await expect(redoBtn).not.toHaveClass(/disabled/, { timeout: 5000 })
     await redoBtn.click()
-    await contentPage.waitForTimeout(300)
     await expect(statusUrl).toContainText('redoKey=redoValue', { timeout: 5000 })
   })
 
   // 使用快捷键重做Query参数
   test('使用快捷键重做Query参数', async ({ contentPage, clearCache, createProject, createNode }) => {
+    test.setTimeout(60000)
     await clearCache()
     await createProject()
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 })
@@ -139,11 +139,9 @@ test.describe('WebSocketQueryParamsRedo', () => {
 
     // Ctrl+Z撤销后应移除Query参数拼接，再Ctrl+Y重做恢复
     await contentPage.keyboard.press('Control+z')
-    await contentPage.waitForTimeout(300)
     await expect(contentPage.locator('[data-testid="ws-params-redo-btn"]')).not.toHaveClass(/disabled/, { timeout: 5000 })
     await expect(statusUrl).not.toContainText('shortcutKey=shortcutValue', { timeout: 5000 })
     await contentPage.keyboard.press('Control+y')
-    await contentPage.waitForTimeout(300)
     await expect(statusUrl).toContainText('shortcutKey=shortcutValue', { timeout: 5000 })
   })
 })
