@@ -118,6 +118,7 @@ const createWindow = () => {
       }
     });
     onLoadFailure((info) => {
+      if (!info) return;
       console.error(`[ContentView] Load failed: ${info.errorDescription} (code: ${info.errorCode})`);
     });
   }

@@ -27,7 +27,9 @@ let contentView: WebContentsView | null = null;
 let loadState: ContentViewLoadState = 'idle';
 let failureInfo: LoadFailureInfo | null = null;
 let loadTimeoutTimer: ReturnType<typeof setTimeout> | null = null;
+let retryDelayTimer: ReturnType<typeof setTimeout> | null = null;
 let retryCount = 0;
+let isShowingErrorPage = false;
 let currentUrl = '';
 let fallbackUrl = '';
 let config: LifecycleConfig = { ...DEFAULT_CONFIG };
@@ -63,6 +65,8 @@ const registerWebContentsEvents = () => {
 };
 // 处理开始加载
 const handleStartLoading = () => {
+  // 错误页 loadURL 触发的 did-start-loading，跳过状态重置
+  if (isShowingErrorPage) return;
   loadState = 'loading';
   failureInfo = null;
   startLoadTimeout();
@@ -70,6 +74,10 @@ const handleStartLoading = () => {
 // 处理加载完成
 const handleFinishLoad = () => {
   clearLoadTimeout();
+  if (isShowingErrorPage) {
+    isShowingErrorPage = false;
+    return;
+  }
   loadState = 'loaded';
   retryCount = 0;
   onLoadSuccessCallback?.();
@@ -97,14 +105,16 @@ const handleFailLoad = (
   // 尝试重试
   if (retryCount < config.maxRetries) {
     retryCount++;
-    setTimeout(() => {
+    retryDelayTimer = setTimeout(() => {
+      retryDelayTimer = null;
       retryLoad();
     }, config.retryDelay);
     return;
   }
   // 重试次数用尽，显示错误页面
+  const savedInfo = failureInfo;
   showErrorPage();
-  onLoadFailureCallback?.(failureInfo);
+  if (savedInfo) onLoadFailureCallback?.(savedInfo);
 };
 // 处理渲染进程崩溃
 const handleRenderProcessGone = (_event: Electron.Event, details: Electron.RenderProcessGoneDetails) => {
@@ -116,8 +126,9 @@ const handleRenderProcessGone = (_event: Electron.Event, details: Electron.Rende
     validatedURL: currentUrl,
     timestamp: Date.now(),
   };
+  const savedInfo = failureInfo;
   showErrorPage();
-  onLoadFailureCallback?.(failureInfo);
+  if (savedInfo) onLoadFailureCallback?.(savedInfo);
 };
 // 开始加载超时计时器
 const startLoadTimeout = () => {
@@ -134,8 +145,9 @@ const startLoadTimeout = () => {
         timestamp: Date.now(),
       };
       // 显示错误页面
+      const savedInfo = failureInfo;
       showErrorPage();
-      onLoadFailureCallback?.(failureInfo);
+      if (savedInfo) onLoadFailureCallback?.(savedInfo);
     }
   }, config.loadTimeout);
 };
@@ -144,6 +156,13 @@ const clearLoadTimeout = () => {
   if (loadTimeoutTimer) {
     clearTimeout(loadTimeoutTimer);
     loadTimeoutTimer = null;
+  }
+};
+// 清除重试延迟计时器
+const clearRetryDelayTimer = () => {
+  if (retryDelayTimer) {
+    clearTimeout(retryDelayTimer);
+    retryDelayTimer = null;
   }
 };
 // 重试加载
@@ -161,11 +180,14 @@ const showErrorPage = () => {
     retryCount,
     maxRetries: config.maxRetries,
   });
+  // 标记正在显示错误页，防止 loadURL 触发的 did-start-loading 重置状态
+  isShowingErrorPage = true;
   contentView.webContents.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(errorHtml)}`);
 };
 // 手动重试加载原URL
 export const manualRetry = () => {
   if (!contentView || !currentUrl) return;
+  isShowingErrorPage = false;
   retryCount = 0;
   loadState = 'idle';
   failureInfo = null;
@@ -174,6 +196,7 @@ export const manualRetry = () => {
 // 降级到本地版本
 export const fallbackToLocal = () => {
   if (!contentView || !fallbackUrl) return;
+  isShowingErrorPage = false;
   retryCount = 0;
   loadState = 'idle';
   failureInfo = null;
@@ -183,6 +206,7 @@ export const fallbackToLocal = () => {
 // 加载URL（替代直接调用 webContents.loadURL）
 export const loadUrl = (url: string) => {
   if (!contentView) return;
+  isShowingErrorPage = false;
   currentUrl = url;
   retryCount = 0;
   contentView.webContents.loadURL(url);
@@ -210,6 +234,7 @@ export const onLoadFailure = (callback: (info: LoadFailureInfo) => void) => {
 // 重置状态（用于刷新场景）
 export const resetLoadState = () => {
   clearLoadTimeout();
+  isShowingErrorPage = false;
   loadState = 'idle';
   failureInfo = null;
   retryCount = 0;
@@ -217,6 +242,7 @@ export const resetLoadState = () => {
 // 销毁生命周期管理器
 export const destroyContentViewLifecycle = () => {
   clearLoadTimeout();
+  clearRetryDelayTimer();
   if (contentView) {
     const webContents = contentView.webContents;
     webContents.removeListener('did-start-loading', handleStartLoading);
@@ -227,6 +253,7 @@ export const destroyContentViewLifecycle = () => {
   contentView = null;
   loadState = 'idle';
   failureInfo = null;
+  isShowingErrorPage = false;
   retryCount = 0;
   currentUrl = '';
   onLoadSuccessCallback = null;

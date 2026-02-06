@@ -146,6 +146,28 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     handshakeManager.setContentViewReady();
   });
 
+  if (process.env.NODE_ENV === 'test') {
+    ipcMain.handle('apiflow:test:content-view-lifecycle:init-and-load', (_: IpcMainInvokeEvent, params: {
+      fallbackUrl: string;
+      url: string;
+      config?: { loadTimeout: number; maxRetries: number; retryDelay: number };
+    }) => {
+      const lifecycle = require('../lifecycle/contentViewLifecycle.ts') as unknown as {
+        destroyContentViewLifecycle: () => void;
+        initContentViewLifecycle: (
+          view: WebContentsView,
+          localFallbackUrl: string,
+          customConfig?: { loadTimeout: number; maxRetries: number; retryDelay: number }
+        ) => void;
+        loadUrl: (url: string) => void;
+      };
+      lifecycle.destroyContentViewLifecycle();
+      lifecycle.initContentViewLifecycle(contentView, params.fallbackUrl, params.config);
+      lifecycle.loadUrl(params.url);
+      return { code: 0, msg: 'success' };
+    });
+  }
+
   /*
   |--------------------------------------------------------------------------
   | contentView → topBarView 初始化数据传递
