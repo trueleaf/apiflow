@@ -132,9 +132,27 @@ docker compose pull
 docker compose up -d
 
 # Verify deployment
-curl http://localhost  
-curl http://localhost/api/health 
+curl http://localhost
+curl http://localhost/api/health
 ```
+
+### Adding Users After Deployment
+
+After successfully deploying Apiflow, follow these steps to add users:
+
+1. **Switch to Internet Mode**
+   - Click the network mode toggle in the application (usually in the top-right corner)
+   - Select "Internet Mode" to enable online features
+
+2. **Login with Default Admin Account**
+   - Username: `admin`
+   - Default Password: `111111`
+   - ⚠️ **Important**: Change the default password after first login for security
+
+3. **Add New Users**
+   - Navigate to the admin panel/backend management
+   - Find the user management section
+   - Click "Add User" to create new accounts for your team members
 
 ### 🚀 Code Update
 

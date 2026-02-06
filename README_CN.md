@@ -126,9 +126,27 @@ docker compose -f docker-compose.yml -f docker-compose.cn.yml pull
 docker compose -f docker-compose.yml -f docker-compose.cn.yml up -d
 
 # 验证部署
-curl http://localhost             
-curl http://localhost/api/health 
+curl http://localhost
+curl http://localhost/api/health
 ```
+
+### 部署后添加用户
+
+部署成功后,按照以下步骤添加用户:
+
+1. **切换到互联网模式**
+   - 点击应用中的网络模式切换按钮(通常在右上角)
+   - 选择"互联网模式"以启用在线功能
+
+2. **登录管理员账号**
+   - 账号: `admin`
+   - 默认密码: `111111`
+   - ⚠️ **重要提示**: 首次登录后请立即修改默认密码以确保安全
+
+3. **添加新用户**
+   - 进入后台管理系统
+   - 找到用户管理模块
+   - 点击"添加用户"为团队成员创建新账号
 
 ### 代码更新
 
