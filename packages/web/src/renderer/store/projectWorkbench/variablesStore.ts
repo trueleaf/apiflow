@@ -20,24 +20,22 @@ export const useVariable = defineStore('projectVariable', () => {
     }
   };
   // 改变变量值
-  const changeVariableById = (id: string, varInfo: ApidocVariable) => {
+  const changeVariableById = async (id: string, varInfo: ApidocVariable) => {
     variables.value.forEach((item) => {
       if (item._id === id) {
         Object.assign(item, varInfo)
       }
     })
-    getObjectVariable(variables.value).then((value) => {
-      objectVariable.value = value;
-    })
+    const value = await getObjectVariable(variables.value);
+    objectVariable.value = value;
     // 同步到主进程
     syncVariablesToMainProcess();
   }
   // 替换所有变量
-  const replaceVariables = (varList: ApidocVariable[]) => {
+  const replaceVariables = async (varList: ApidocVariable[]) => {
     variables.value.splice(0, variables.value.length, ...varList);
-    getObjectVariable(variables.value).then((value) => {
-      objectVariable.value = value;
-    })
+    const value = await getObjectVariable(variables.value);
+    objectVariable.value = value;
     // 同步到主进程
     syncVariablesToMainProcess();
   }

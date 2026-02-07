@@ -334,7 +334,7 @@ const getStandaloneVariables = async () => {
     if (response.code === 0) {
       standaloneVariables.value = response.data;
       // 更新变量枚举
-      variableStore.replaceVariables(response.data);
+      await variableStore.replaceVariables(response.data);
     } else {
       message.error(response.msg || t('获取变量列表失败'));
     }
@@ -349,8 +349,8 @@ const getStandaloneVariables = async () => {
 const getVariableEnum = () => {
   axiosInstance.get<CommonResponse<ApidocVariable[]>, CommonResponse<ApidocVariable[]>>('/api/project/project_variable_enum', { params: {
     projectId: route.query.id as string
-  } }).then((res) => {
-    variableStore.replaceVariables(res.data)
+  } }).then(async (res) => {
+    await variableStore.replaceVariables(res.data)
   }).catch((err) => {
     console.error(err);
   })

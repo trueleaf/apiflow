@@ -506,7 +506,7 @@ export const sendRequest = async () => {
   const httpNodeConfigStore = useHttpNodeConfig();
   const httpNodeConfigData = httpNodeConfigStore.currentHttpNodeConfig;
   const variableStore = useVariable();
-  const applyAfterScriptVariables = (updatedVariables: Record<string, unknown>) => {
+  const applyAfterScriptVariables = async (updatedVariables: Record<string, unknown>) => {
     const nextVariables = cloneDeep(variableStore.variables);
     Object.entries(updatedVariables).forEach(([key, value]) => {
       const existed = nextVariables.find(item => item.name === key);
@@ -544,7 +544,7 @@ export const sendRequest = async () => {
         });
       }
     });
-    variableStore.replaceVariables(nextVariables);
+    await variableStore.replaceVariables(nextVariables);
   }
   //实际发送请求
   const invokeRequest = async () => {
@@ -715,7 +715,7 @@ export const sendRequest = async () => {
             const latestUrlencoded = await convertPropertyToObject(copiedApidoc.item.requestBody.urlencoded);
             const latestPaths = await convertPropertyToObject(copiedApidoc.item.paths);
             const latestQueryParams = await convertPropertyToObject(copiedApidoc.item.queryParams);
-            executeHttpAfterScript(
+            const afterScriptResult = await executeHttpAfterScript(
               {
                 _id: copiedApidoc._id,
                 projectId,
@@ -751,20 +751,19 @@ export const sendRequest = async () => {
               afterRequestSessionStorage,
               projectId,
               afterScript
-            ).then((afterScriptResult) => {
-              if (!afterScriptResult.success) {
-                changeResponseInfo({
-                  responseData: {
-                    canApiflowParseType: 'error',
-                    errorData: i18n.global.t('后置脚本执行失败') + `: ${afterScriptResult.error?.message || ''}`
-                  }
-                });
-                return;
-              }
-              if (afterScriptResult.updatedVariables) {
-                applyAfterScriptVariables(afterScriptResult.updatedVariables);
-              }
-            });
+            );
+            if (!afterScriptResult.success) {
+              changeResponseInfo({
+                responseData: {
+                  canApiflowParseType: 'error',
+                  errorData: i18n.global.t('后置脚本执行失败') + `: ${afterScriptResult.error?.message || ''}`
+                }
+              });
+              return;
+            }
+            if (afterScriptResult.updatedVariables) {
+              await applyAfterScriptVariables(afterScriptResult.updatedVariables);
+            }
           })();
         }
         cleanup(); // 请求完成后清理 worker

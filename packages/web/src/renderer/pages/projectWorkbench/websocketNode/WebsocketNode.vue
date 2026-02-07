@@ -403,17 +403,17 @@ const initWebSocketEventListeners = () => {
           // 应用脚本更新的变量（如果有）
           if (afterScriptResult.updatedVariables) {
             // 遍历更新后的变量，更新到 variableStore
-            Object.entries(afterScriptResult.updatedVariables).forEach(([key, value]) => {
+            for (const [key, value] of Object.entries(afterScriptResult.updatedVariables)) {
               // 查找对应的变量
               const variable = variableStore.variables.find(v => v.name === key);
               if (variable) {
                 // 更新已存在的变量值
-                variableStore.changeVariableById(variable._id, {
+                await variableStore.changeVariableById(variable._id, {
                   ...variable,
                   value: String(value),
                 });
               }
-            });
+            }
             console.log('后置脚本更新的变量:', afterScriptResult.updatedVariables);
           }
 
