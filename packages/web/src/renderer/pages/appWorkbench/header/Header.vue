@@ -7,10 +7,6 @@
       <Home class="menu-icon" :size="14" />
       <span>{{ t('主页面') }}</span>
     </div>
-    <div v-if="showAdminMenu" class="home admin" :class="{ active: activeTabId === '__admin__' }" data-testid="header-admin-btn" @click="jumpToAdmin">
-      <Shield class="menu-icon" :size="14" />
-      <span>{{ t('后台管理') }}</span>
-    </div>
     <div v-if="filteredTabs.length > 0" class="short-divider">
       <span class="short-divider-content"></span>
     </div>
@@ -93,7 +89,7 @@ import draggable from 'vuedraggable'
  import type { AppWorkbenchHeaderTab, AppWorkbenchHeaderTabContextActionPayload } from '@src/types/appWorkbench/appWorkbenchType'
  import type { RuntimeNetworkMode } from '@src/types/runtime'
  import { useI18n } from 'vue-i18n'
- import { Folder, Settings, Bot, User, Shield, RefreshCw, ArrowLeft, ArrowRight, Languages, Wifi, WifiOff, Home, Download } from 'lucide-vue-next'
+ import { Folder, Settings, Bot, User, RefreshCw, ArrowLeft, ArrowRight, Languages, Wifi, WifiOff, Home, Download } from 'lucide-vue-next'
  import { IPC_EVENTS } from '@src/types/ipc'
  import { UPDATE_IPC_EVENTS } from '@src/types/ipc/update'
  import type { DownloadProgress, DownloadState } from '@src/types/update'       
@@ -126,9 +122,6 @@ const showDownloadProgress = computed(() => {
 })
 const downloadPercent = computed(() => {
   return downloadState.percent.toFixed(2) + '%'
-})
-const showAdminMenu = computed(() => {
-  return networkMode.value === 'online' && runtimeStore.userInfo.role === 'admin' && Boolean(runtimeStore.userInfo.id)
 })
 const filteredTabs = computed(() => {
   return tabs.value.filter(tab => tab.network === networkMode.value)      
@@ -384,14 +377,6 @@ const jumpToHome = () => {
   activeTabId.value = '';
   syncActiveTabToContentView()
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.navigate, '/home')
-}
-const jumpToAdmin = () => {
-  if (!showAdminMenu.value) {
-    return
-  }
-  activeTabId.value = '__admin__'
-  syncActiveTabToContentView()
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.navigate, '/admin')
 }
 // 跳转到设置
 const jumpToSettings = () => {
@@ -712,9 +697,6 @@ body {
   }
   .menu-icon {
     margin-right: 3px;
-  }
-  &.admin {
-    flex: 0 0 92px;
   }
   &.active {
     color: var(--text-white);

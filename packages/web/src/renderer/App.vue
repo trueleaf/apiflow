@@ -330,9 +330,7 @@ const initAppHeaderTabs = async () => {
   // 从缓存读取 tabs 和 activeTabId，如果不存在则使用空值
   const tabs = appWorkbenchCache.getAppWorkbenchHeaderTabs() || [];
   const cachedActiveTabId = appWorkbenchCache.getAppWorkbenchHeaderActiveTab() || ''
-  const activeTabId = !cachedActiveTabId && router.currentRoute.value.path === '/admin'
-    ? '__admin__'
-    : cachedActiveTabId
+  const activeTabId = cachedActiveTabId
   // 发送给 header.vue，包含当前的语言和网络模式
   window.electronAPI?.ipcManager.sendToMain(
     IPC_EVENTS.apiflow.contentToTopBar.initTabs,

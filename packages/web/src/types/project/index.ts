@@ -146,39 +146,6 @@ export type PermissionServerRoute = {
   _id: string;
 };
 
-// 客户端菜单
-export type PermissionClientMenu = {
-  id?: string;
-  /**
-   * 菜单id
-   */
-  _id: string;
-  /**
-   * 菜单名称
-   */
-  name: string;
-  /**
-   * 菜单路径
-   */
-  path: string;
-  /**
-   * 菜单父元素id
-   */
-  pid: string;
-  /**
-   * 菜单排序
-   */
-  sort: number;
-  /**
-   * 菜单类型，inline:内联菜单  link:外链跳转
-   */
-  type: 'inline' | 'link';
-  /**
-   * 子菜单
-   */
-  children: PermissionClientMenu[] | [];
-};
-
 // ============================================================================
 // 项目基础类型
 // ============================================================================
@@ -494,4 +461,10 @@ export type GlobalConfig = {
    * 版本信息
    */
   version: string;
+};
+
+// 系统功能开关配置
+export type SystemFeatureConfig = {
+  enableGuest: boolean;
+  enableRegister: boolean;
 };

@@ -16,7 +16,7 @@
         <img :src="captchaUrl" data-testid="login-captcha-img" @click="freshCapchaUrl" />
       </div>
     </el-form-item>
-    <el-form-item class="mb-1">
+    <el-form-item v-if="systemConfigStore.enableGuest" class="mb-1">
       <el-button :loading="quickLoginLoading" type="primary" class="w-100" data-testid="login-quick-login-btn" @click="handleQuickLogin">{{ t('一键创建账号并登录') }}</el-button>
     </el-form-item>
     <el-form-item class="mb-1">
@@ -66,7 +66,9 @@ import { clearNotificationDismissed } from '@/cache/runtime/notificationSession'
 import logoImg from '@/assets/imgs/logo.png'
 import { message } from '@/helper'
 import { trackEvent } from '@/utils/analytics';
+import { useSystemConfig } from '@/store/systemConfig/systemConfigStore';
 const emits = defineEmits(['jumpToRegister', 'jumpToResetPassword'])
+const systemConfigStore = useSystemConfig()
 const { t } = useI18n()
 const runtimeStore = useRuntime()
 const userInfo = ref({

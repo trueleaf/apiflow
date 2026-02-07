@@ -12,7 +12,6 @@ import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache';
 import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache';
 import { webSocketHistoryCache } from '@/cache/websocketNode/websocketHistoryCache';
 import HomePage from "@/pages/home/Home.vue";
-import AdminPage from "@/pages/admin/Admin.vue";
 import ProjectWorkbenchPage from "@/pages/projectWorkbench/ProjectWorkbench.vue";
 import SettingsPage from "@/pages/settings/Settings.vue";
 import NotFoundPage from "@/pages/appWorkbench/404/404.vue";
@@ -60,11 +59,6 @@ const routes: Array<RouteRecordRaw> = [
     path: "/home",
     name: "Home",
     component: HomePage,
-  },
-  {
-    path: "/admin",
-    name: "Admin",
-    component: AdminPage,
   },
   {
     path: "/workbench",
@@ -126,11 +120,6 @@ const routerConfig = {
       component: HomePage,
     },
     {
-      path: "/admin",
-      name: "Admin",
-      component: AdminPage,
-    },
-    {
       path: "/workbench",
       name: "Workbench",
       component: ProjectWorkbenchPage,
@@ -166,20 +155,6 @@ router.beforeEach(async (to, _, next) => {
   const dbRequiredPaths = ['/workbench', '/home'];
   if (dbRequiredPaths.some(path => to.path.startsWith(path))) {
     await initDatabases();
-  }
-  if (to.path === '/admin') {
-    if (runtimeStore.networkMode !== 'online') {
-      next('/home')
-      return
-    }
-    if (!runtimeStore.userInfo.id) {
-      next('/login')
-      return
-    }
-    if (runtimeStore.userInfo.role !== 'admin') {
-      next('/home')
-      return
-    }
   }
   if (runtimeStore.networkMode === 'offline') {
     next();

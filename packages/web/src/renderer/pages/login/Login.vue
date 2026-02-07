@@ -11,7 +11,7 @@
         <el-tabs v-if="!showForgotPassword" v-model="activeName" class="w-100" data-testid="login-tabs">
           <el-tab-pane :label="t('用户登录')" name="loginAccount" data-testid="login-tab-account">
           </el-tab-pane>
-          <el-tab-pane :label="t('注册')" name="registerEmail" data-testid="login-tab-register">
+          <el-tab-pane v-if="systemConfigStore.enableRegister" :label="t('注册')" name="registerEmail" data-testid="login-tab-register">
           </el-tab-pane>
           <el-tab-pane :label="t('设置')" name="setting" data-testid="login-tab-setting">
           </el-tab-pane>
@@ -38,18 +38,23 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { config as globalConfig } from '@src/config/config'
 import LoginAccount from './components/LoginAccount.vue';
 import LoginEmail from './components/LoginEmail.vue';
 import ServerConfig from './components/ServerConfig.vue';
 import ForgotPassword from './components/ForgotPassword.vue';
+import { useSystemConfig } from '@/store/systemConfig/systemConfigStore';
 
 const { t } = useI18n();
 const config = ref(globalConfig);
 const activeName = ref('loginAccount');
 const showForgotPassword = ref(false);
+const systemConfigStore = useSystemConfig();
+onMounted(() => {
+  systemConfigStore.fetchConfig();
+});
 //显示忘记密码界面
 const handleForgotPassword = () => {
   showForgotPassword.value = true;

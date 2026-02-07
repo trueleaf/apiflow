@@ -25,13 +25,33 @@
             class="tab-item"
             :class="{ active: activeTab === setting.action }"
             :data-testid="`settings-menu-${setting.action}`"
-            @click="handleSettingClick(setting)"
+            @click="handleTabClick(setting)"
           >
             <component :is="setting.icon" class="tab-icon" />
             <span>{{ setting.name }}</span>
             <span v-if="setting.action === 'about' && showUpdateBadge" class="update-badge"></span>
           </div>
         </div>
+
+        <template v-if="showAdminTabs">
+          <div class="sidebar-title sidebar-settings-title">
+            <span>{{ t('系统管理') }}</span>
+          </div>
+
+          <div class="menu-group">
+            <div
+              v-for="(tab, index) in adminTabs"
+              :key="index"
+              class="tab-item"
+              :class="{ active: activeTab === tab.action }"
+              :data-testid="`settings-menu-${tab.action}`"
+              @click="handleTabClick(tab)"
+            >
+              <component :is="tab.icon" class="tab-icon" />
+              <span>{{ tab.name }}</span>
+            </div>
+          </div>
+        </template>
       </div>
 
       <div class="content-area">
@@ -43,6 +63,11 @@
         <AiSettings v-if="activeTab === 'ai-settings'" />
         <TestCase v-if="activeTab === 'test-case'" />
         <About v-if="activeTab === 'about'" @update-badge="handleUpdateBadge" />
+        <AdminUser v-if="activeTab === 'admin-user'" />
+        <AdminRole v-if="activeTab === 'admin-role'" />
+        <AdminClientRoutes v-if="activeTab === 'admin-client-routes'" />
+        <AdminServerRoutes v-if="activeTab === 'admin-server-routes'" />
+        <AdminSystemConfig v-if="activeTab === 'admin-system-config'" />
       </div>
     </div>
   </div>
@@ -52,6 +77,7 @@
 import { computed, ref, watch, onMounted, onUnmounted, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { appStateCache } from '@/cache/appState/appStateCache.ts'
+import { useRuntime } from '@/store/runtime/runtimeStore'
 import CacheManagement from './cacheManager/CacheManagement.vue'
 import CommonSettings from './commonSettings/CommonSettings.vue'
 import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
@@ -60,9 +86,15 @@ import ProjectRecovery from './projectRecovery/ProjectRecovery.vue'
 import Shortcuts from './shortcuts/Shortcuts.vue'
 import TestCase from './testCase/TestCase.vue'
 import About from './about/About.vue'
-import { UserCircle, HardDrive, Command, Box, BrainCircuit, Trash2, FlaskConical, Info } from 'lucide-vue-next'
+import AdminUser from './adminUser/User.vue'
+import AdminRole from './adminRole/Role.vue'
+import AdminClientRoutes from './adminClientRoutes/ClientRoutes.vue'
+import AdminServerRoutes from './adminServerRoutes/ServerRoutes.vue'
+import AdminSystemConfig from './adminSystemConfig/SystemConfig.vue'
+import { UserCircle, HardDrive, Command, Box, BrainCircuit, Trash2, FlaskConical, Info, Users, ShieldCheck, Route, Globe, Settings } from 'lucide-vue-next'
 
 const { t } = useI18n()
+const runtimeStore = useRuntime()
 
 type TabItem = {
   name: string
@@ -72,6 +104,9 @@ type TabItem = {
 
 const activeTab = ref(appStateCache.getActiveLocalDataMenu() || 'common-settings')
 const showUpdateBadge = ref(false)
+const showAdminTabs = computed(() => {
+  return runtimeStore.networkMode === 'online' && runtimeStore.userInfo.role === 'admin' && Boolean(runtimeStore.userInfo.id)
+})
 const tabs = computed<TabItem[]>(() => [
   { name: t('通用配置'), icon: UserCircle, action: 'common-settings' },
   { name: t('本地数据'), icon: HardDrive, action: 'local-data' },
@@ -84,9 +119,13 @@ const settingTabs = computed<TabItem[]>(() => [
   { name: t('测试案例'), icon: FlaskConical, action: 'test-case' },
   { name: t('关于'), icon: Info, action: 'about' }
 ])
-const handleSettingClick = (setting: TabItem) => {
-  activeTab.value = setting.action
-}
+const adminTabs = computed<TabItem[]>(() => [
+  { name: t('用户管理'), icon: Users, action: 'admin-user' },
+  { name: t('角色管理'), icon: ShieldCheck, action: 'admin-role' },
+  { name: t('客户端路由'), icon: Route, action: 'admin-client-routes' },
+  { name: t('服务端路由'), icon: Globe, action: 'admin-server-routes' },
+  { name: t('系统配置'), icon: Settings, action: 'admin-system-config' }
+])
 const handleTabClick = (tab: TabItem) => {
   activeTab.value = tab.action
 }

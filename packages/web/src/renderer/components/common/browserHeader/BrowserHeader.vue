@@ -7,10 +7,6 @@
       <Home class="menu-icon" :size="14" />
       <span>{{ t('主页面') }}</span>
     </div>
-    <div v-if="showAdminMenu" class="home admin" :class="{ active: activeTabId === '__admin__' }" data-testid="header-admin-btn" @click="jumpToAdmin">
-      <Shield class="menu-icon" :size="14" />
-      <span>{{ t('后台管理') }}</span>
-    </div>
     <div v-if="filteredTabs.length > 0" class="short-divider">
       <span class="short-divider-content"></span>
     </div>
@@ -91,7 +87,7 @@ import type { AnchorRect } from '@src/types/common'
 import type { AppWorkbenchHeaderTab } from '@src/types/appWorkbench/appWorkbenchType'
  import type { RuntimeNetworkMode } from '@src/types/runtime'
  import { useI18n } from 'vue-i18n'
- import { Folder, Settings, Bot, Shield, Home, User } from 'lucide-vue-next'
+ import { Folder, Settings, Bot, Home, User } from 'lucide-vue-next'
   import { changeLanguage } from '@/i18n'
   import { useAppSettings } from '@/store/appSettings/appSettingsStore'
   import { useRuntime } from '@/store/runtime/runtimeStore'
@@ -122,9 +118,6 @@ const language = ref<Language>('zh-cn')
  const languageMenuPosition = ref<AnchorRect>({ x: 0, y: 0, width: 0, height: 0 })
  const userMenuVisible = ref(false)
  const userMenuPosition = ref<AnchorRect>({ x: 0, y: 0, width: 0, height: 0 })
- const showAdminMenu = computed(() => {
-   return networkMode.value === 'online' && runtimeStore.userInfo.role === 'admin' && Boolean(runtimeStore.userInfo.id)
- })
 
  const filteredTabs = computed(() => {
    return tabs.value.filter(tab => tab.network === networkMode.value)      
@@ -270,14 +263,6 @@ const jumpToHome = () => {
   syncActiveTabToCache()
   router.push('/home')
 }
-const jumpToAdmin = () => {
-  if (runtimeStore.networkMode === 'online' && router.currentRoute.value.path === '/login') {
-    return
-  }
-  activeTabId.value = '__admin__'
-  syncActiveTabToCache()
-  router.push('/admin')
-}
 const jumpToSettings = () => {
   const settingsTabId = `settings-${networkMode.value}`
   const existingTab = tabs.value.find(t => t.id === settingsTabId)        
@@ -361,9 +346,6 @@ watch(
       if (projectId && projectName) {
         switchToProject(projectId, projectName)
       }
-    } else if (newRoute.path === '/admin') {
-      activeTabId.value = '__admin__'
-      syncActiveTabToCache()
     } else if (newRoute.path === '/home') {
       activeTabId.value = ''
       syncActiveTabToCache()
@@ -453,9 +435,6 @@ defineExpose({
   }
   .menu-icon {
     margin-right: 3px;
-  }
-  &.admin {
-    width: 92px;
   }
   &.active {
     color: var(--text-white);

@@ -33,7 +33,7 @@
         </el-button>
       </div>
     </el-form-item>
-    <el-form-item v-if="mode === 'login'" class="mb-1">
+    <el-form-item v-if="mode === 'login' && systemConfigStore.enableGuest" class="mb-1">
       <el-button :loading="quickLoginLoading" type="primary" class="w-100" data-testid="login-quick-login-btn" @click="handleQuickLogin">{{ t('一键创建账号并登录') }}</el-button>
     </el-form-item>
     <el-form-item class="mb-1">
@@ -59,6 +59,7 @@ import { useRuntime } from '@/store/runtime/runtimeStore';
 import { trackEvent } from '@/utils/analytics';
 import { PermissionUserInfo, CommonResponse } from '@src/types';
 import { setQuickLoginCredential } from '@/cache/runtime/quickLoginSession';
+import { useSystemConfig } from '@/store/systemConfig/systemConfigStore';
 import { IPC_EVENTS } from '@src/types/ipc';
 
 const props = defineProps<{
@@ -67,6 +68,7 @@ const props = defineProps<{
 
 const { t } = useI18n();
 const runtimeStore = useRuntime();
+const systemConfigStore = useSystemConfig();
 const formRef = ref<FormInstance>();
 const loading = ref(false);
 const quickLoginLoading = ref(false);
