@@ -62,6 +62,8 @@ export class UserService {
     paginationConfig: GlobalConfig['pagination']
   @Inject()
     verifyCodeService: VerifyCodeService;
+  @Inject()
+    systemConfigService: SystemConfigService;
 
   @InjectEntityModel(Role)
     roleModel: ReturnModelType<typeof Role>;

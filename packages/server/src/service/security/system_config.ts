@@ -1,4 +1,4 @@
-import { Config, Inject, Provide } from '@midwayjs/core';
+import { Config, Provide } from '@midwayjs/core';
 import { InjectEntityModel } from '@midwayjs/typegoose';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { SystemConfig } from '../../entity/security/system_config.js';
