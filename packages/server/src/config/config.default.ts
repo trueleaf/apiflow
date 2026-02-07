@@ -19,6 +19,7 @@ import * as koa from '@midwayjs/koa';
 import { Attachment } from '../entity/attachment/attachment.js';
 import { Group } from '../entity/security/group.js';
 import { GlobalCommonHeader } from '../entity/project/project_common_headers.js';
+import { SystemConfig } from '../entity/security/system_config.js';
 
 export default (): MidwayConfig => {
   const mongooseOptions: Record<string, unknown> = {};
@@ -96,6 +97,7 @@ export default (): MidwayConfig => {
             Attachment,
             Group,
             GlobalCommonHeader,
+            SystemConfig,
           ],
         },
       },
@@ -152,6 +154,7 @@ export default (): MidwayConfig => {
         '/api/llm/chat',
         '/api/llm/chat/stream',
         '/api/proxy/http',
+        '/api/system/config',
       ],
     },
     security: {

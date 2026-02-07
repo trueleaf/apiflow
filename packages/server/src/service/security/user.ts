@@ -33,6 +33,7 @@ import { ClientRoutes } from '../../entity/security/client_routes.js';
 import { Role } from '../../entity/security/role.js';
 import { Group } from '../../entity/security/group.js';
 import { VerifyCodeService } from './verify_code.js';
+import { SystemConfigService } from './system_config.js';
 import {
   RegisterByEmailDto,
   LoginByEmailDto,
@@ -491,10 +492,12 @@ export class UserService {
     await this.userModel.findByIdAndUpdate({ _id }, updateDoc);
     return;
   }
-  /**
-   * 访客登录(默认创建一个固定密码的用户)
-   */
+  // 访客登录(默认创建一个固定密码的用户)
   async guestLogin() {
+    const systemConfig = await this.systemConfigService.getSystemConfig();
+    if (!systemConfig.enableGuest) {
+      throwError(4003, '系统已关闭一键创建账号功能');
+    }
     const loginName = `guest_${Date.now().toString().slice(-8)}`;
     const password = randomBytes(9).toString('base64url');
     const user: Partial<User> = {};
@@ -608,8 +611,6 @@ export class UserService {
         title: '快乐摸鱼',
         version: appVersion,
         consoleWelcome: true,
-        enableRegister: false,
-        enableGuest: true,
         enableDocLink: true,
         autoUpdate: false,
         updateUrl: '',
@@ -647,6 +648,10 @@ export class UserService {
   }
   //邮箱注册
   async registerByEmail(params: RegisterByEmailDto) {
+    const systemConfig = await this.systemConfigService.getSystemConfig();
+    if (!systemConfig.enableRegister) {
+      throwError(4003, '系统已关闭注册功能');
+    }
     if (!this.securityConfig.allowEmailRegister) {
       throwError(2009, '系统未开放邮箱注册功能');
     }
