@@ -51,17 +51,36 @@ test.describe('HandshakeMechanism', () => {
     } else {
       await expect(networkText).toContainText(onlineTextPattern, { timeout: 10000 });
     }
-    // 等待刷新完成
+    // 等待页面完全加载
     await contentPage.waitForLoadState('domcontentloaded');
-    await contentPage.waitForTimeout(1000);
+    // 根据切换后的模式等待不同的页面元素
+    if (isOnline) {
+      // 从online切换到offline，等待主页tabs元素
+      const homeTabsElement = contentPage.locator('[data-testid="home-tabs"]');
+      await expect(homeTabsElement).toBeVisible({ timeout: 5000 });
+    } else {
+      // 从offline切换到online，会跳转到登录页面，等待登录表单
+      const loginForm = contentPage.locator('button').filter({ hasText: /登录|Login/ }).first();
+      await expect(loginForm).toBeVisible({ timeout: 5000 });
+    }
+    // 额外等待以确保事件监听器注册完成
+    await contentPage.waitForTimeout(500);
     // 验证切换后AI按钮仍然可用
     const aiBtn = topBarPage.locator('[data-testid="header-ai-btn"]');
     await aiBtn.click();
     const aiDialog = contentPage.locator('.ai-dialog');
     await expect(aiDialog).toBeVisible({ timeout: 5000 });
-    // 关闭弹窗
+    // 检查是否有确认对话框，如果有则关闭
+    const confirmDialog = contentPage.locator('.cl-confirm-wrapper');
+    const isConfirmVisible = await confirmDialog.isVisible({ timeout: 1000 }).catch(() => false);
+    if (isConfirmVisible) {
+      const confirmCloseBtn = confirmDialog.locator('.cl-confirm-close');
+      await confirmCloseBtn.click({ force: true });
+      await confirmDialog.waitFor({ state: 'hidden', timeout: 2000 }).catch(() => {});
+    }
+    // 关闭AI对话框
     const closeBtn = aiDialog.locator('.ai-dialog-close');
-    await closeBtn.click();
+    await closeBtn.click({ force: true });
     await expect(aiDialog).toBeHidden({ timeout: 5000 });
     // 验证设置按钮仍然可用
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');

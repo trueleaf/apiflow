@@ -361,12 +361,12 @@ test.describe('Navigation', () => {
     await topBarPage.waitForTimeout(500);
     const settingsTab = topBarPage.locator('[data-test-id^="header-tab-item-"][data-id="settings-offline"]');
     await expect(settingsTab).toHaveClass(/active/);
-    // 等待Tab状态写入缓存，避免刷新过快导致状态未持久化而偶发丢失
+    // 等待Tab状态写入缓存，避免刷新过快导致状态未持久化而偶发丢失（注意：应该在contentPage而非topBarPage中检查，因为localStorage是分离的）
     await expect.poll(async () => {
-      return await topBarPage.evaluate(() => localStorage.getItem('appWorkbench/header/activeTab') || '');
+      return await contentPage.evaluate(() => localStorage.getItem('appWorkbench/header/activeTab') || '');
     }, { timeout: 10000 }).toBe('settings-offline');
     await expect.poll(async () => {
-      return await topBarPage.evaluate(() => localStorage.getItem('appWorkbench/header/tabs') || '[]');
+      return await contentPage.evaluate(() => localStorage.getItem('appWorkbench/header/tabs') || '[]');
     }, { timeout: 10000 }).toContain('settings-offline');
     // 刷新页面
     const refreshBtn = topBarPage.locator('[data-testid="header-refresh-btn"]');

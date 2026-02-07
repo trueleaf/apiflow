@@ -257,7 +257,7 @@ export const test = base.extend<ElectronFixtures>({
       await expect(settingsTab).toBeVisible({ timeout: 10000 });
       await expect(settingsTab).toHaveClass(/active/, { timeout: 10000 });
       await expect.poll(async () => {
-        return await topBarPage.evaluate(() => localStorage.getItem('appWorkbench/header/activeTab') || '');
+        return await contentPage.evaluate(() => localStorage.getItem('appWorkbench/header/activeTab') || '');
       }, { timeout: 10000 }).toMatch(/^settings-/);
     };
     await use(jump);
