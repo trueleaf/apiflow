@@ -1,10 +1,13 @@
 #!/bin/bash
 
 # Apiflow Docker 回滚脚本
-# 使用方法: ./rollback.sh <版本号>
-# 示例: ./rollback.sh v1.2.3
+# 使用方法:
+#   ./rollback.sh --previous [--cn]
+#   ./rollback.sh --file <current_versions_*.txt> [--cn]
+#   ./rollback.sh <tag|sha> [--cn]
 
 set -e
+set -o pipefail
 
 COLOR_GREEN='\033[0;32m'
 COLOR_YELLOW='\033[1;33m'
@@ -44,10 +47,21 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         --help|-h)
-            echo "使用方法:"
-            echo "  $0 --previous [--cn]                        自动回滚到上一个备份快照"
-            echo "  $0 --file <current_versions_*.txt> [--cn]   回滚到指定备份快照"
-            echo "  $0 <版本号> [--cn]                          兼容模式：按 tag 替换（不保证精确）"
+            echo "用法:"
+            echo "  1) 推荐：按快照（精确回滚，优先使用）"
+            echo "     $0 --previous [--cn]"
+            echo "     $0 --file <current_versions_*.txt> [--cn]"
+            echo ""
+            echo "  2) 兼容：按 tag/sha（不保证精确回滚，适合紧急场景）"
+            echo "     $0 <tag|sha> [--cn]"
+            echo "     例如：$0 v1.2.3"
+            echo "          $0 0.9.81"
+            echo "          $0 7f3a2b1c4d5e"
+            echo ""
+            echo "说明:"
+            echo "  - 快照文件由 ./update.sh 生成（不要加 --no-backup），位于当前目录，形如：current_versions_YYYYMMDD_HHMMSS.txt"
+            echo "  - --cn 会叠加 docker-compose.cn.yml（中国镜像源配置）"
+            echo "  - 脚本会生成临时文件 docker-compose.rollback.yml；确认回滚成功后可手动删除"
             exit 0
             ;;
         *)
@@ -64,6 +78,7 @@ done
 
 if [ -z "$VERSION" ] && [ -z "$SNAPSHOT_FILE" ] && [ "$USE_PREVIOUS" = false ]; then
     print_error "错误: 请指定回滚目标"
+    echo "使用 --help 查看详细用法"
     echo ""
     echo "使用方法:"
     echo "  $0 --previous [--cn]"
@@ -91,7 +106,7 @@ fi
 
 if [ "$USE_PREVIOUS" = true ]; then
     print_step "🔍 正在查找上一个备份快照..."
-    SNAPSHOT_FILE=$(ls -t current_versions_*.txt 2>/dev/null | head -n 2 | tail -n 1 || true)
+    SNAPSHOT_FILE=$(ls -t current_versions_*.txt 2>/dev/null | head -n 1 || true)
     if [ -z "$SNAPSHOT_FILE" ]; then
         print_error "错误: 未找到上一个备份快照文件（current_versions_*.txt）"
         exit 1
@@ -148,7 +163,11 @@ else
     echo ""
     print_step "🔄 开始回滚到版本: $VERSION"
     echo ""
-    cp docker-compose.yml "$ROLLBACK_COMPOSE_FILE"
+    SOURCE_COMPOSE_FOR_VERSION="docker-compose.yml"
+    if [ "$USE_CN_COMPOSE" = true ]; then
+        SOURCE_COMPOSE_FOR_VERSION="docker-compose.cn.yml"
+    fi
+    cp "$SOURCE_COMPOSE_FOR_VERSION" "$ROLLBACK_COMPOSE_FILE"
     sed -i "s/:latest/:${VERSION}/g" "$ROLLBACK_COMPOSE_FILE"
     sed -i "s/:v[0-9]\+\.[0-9]\+\.[0-9]\+/:${VERSION}/g" "$ROLLBACK_COMPOSE_FILE"
     sed -i "s/:[a-f0-9]\{12\}/:${VERSION}/g" "$ROLLBACK_COMPOSE_FILE"

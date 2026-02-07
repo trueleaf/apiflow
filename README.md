@@ -176,10 +176,21 @@ docker compose down
 docker compose up -d
 ```
 
-**Rollback to Previous Version**
+**Rollback (recommended: snapshot-based rollback)**
 
 ```bash
+# Option 1: rollback to the latest snapshot created by update.sh (recommended)
+./rollback.sh --previous
+
+# Option 2: rollback to a specified snapshot file (recommended)
+./rollback.sh --file current_versions_20260122_120000.txt
+
+# Option 3: compatibility mode, rollback by tag/sha (not guaranteed to be exact)
 ./rollback.sh v1.2.3
+# ./rollback.sh 7f3a2b1c4d5e
+
+# CN registry compose overlay (if needed)
+./rollback.sh --previous --cn
 ```
 
 ---

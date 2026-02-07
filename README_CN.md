@@ -170,10 +170,21 @@ docker compose -f docker-compose.yml -f docker-compose.cn.yml pull
 docker compose -f docker-compose.yml -f docker-compose.cn.yml up -d
 ```
 
-**回滚到指定版本**
+**回滚（推荐使用快照精确回滚）**
 
 ```bash
+# 方式一：回滚到最近一次 update.sh 备份的快照（推荐）
+./rollback.sh --previous
+
+# 方式二：回滚到指定快照文件（推荐）
+./rollback.sh --file current_versions_20260122_120000.txt
+
+# 方式三：兼容模式，按 tag/sha 回滚（不保证精确，适合紧急）
 ./rollback.sh v1.2.3
+# ./rollback.sh 7f3a2b1c4d5e
+
+# 中国镜像源配置（如需）
+./rollback.sh --previous --cn
 ```
 
 ---
