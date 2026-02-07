@@ -1,10 +1,35 @@
 #!/bin/bash
 
 # Apiflow Docker 回滚脚本
+# 
 # 使用方法:
-#   ./rollback.sh --previous [--cn]
-#   ./rollback.sh --file <current_versions_*.txt> [--cn]
-#   ./rollback.sh <tag|sha> [--cn]
+#   方式一：回滚到最近一次快照（推荐）
+#     ./rollback.sh --previous [--cn]
+#     示例: ./rollback.sh --previous
+#          ./rollback.sh --previous --cn
+#
+#   方式二：回滚到指定快照文件（推荐）
+#     ./rollback.sh --file <current_versions_*.txt> [--cn]
+#     示例: ./rollback.sh --file current_versions_20260122_120000.txt
+#          ./rollback.sh --file current_versions_20260122_120000.txt --cn
+#
+#   方式三：按版本标签或Git SHA回滚（兼容模式）
+#     ./rollback.sh <tag|sha> [--cn]
+#     示例: ./rollback.sh v1.2.3
+#          ./rollback.sh 0.9.81
+#          ./rollback.sh 7f3a2b1c4d5e
+#          ./rollback.sh v1.2.3 --cn
+#
+# 参数说明:
+#   --previous/-p  : 使用最近一次update.sh备份的快照
+#   --file         : 指定快照文件路径
+#   --cn           : 使用中国镜像源配置（叠加docker-compose.cn.yml）
+#   --help/-h      : 显示详细帮助信息
+#
+# 注意事项:
+#   - 快照文件由update.sh生成，格式为current_versions_YYYYMMDD_HHMMSS.txt
+#   - 推荐使用快照方式回滚，可确保精确回滚到之前的版本
+#   - 按tag/sha回滚不保证精确，适合紧急场景
 
 set -e
 set -o pipefail
