@@ -58,7 +58,7 @@ export const test = base.extend<ElectronFixtures>({
       args: [mainPath],
       env: {
         ...launchEnv,
-      } as any,
+      },
     });
     // 等待应用完全启动并加载所有窗口
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -181,6 +181,9 @@ export const test = base.extend<ElectronFixtures>({
     const create = async (page: Page, options: { nodeType: 'http' | 'httpMock' | 'websocket' | 'websocketMock' | 'folder', name?: string, pid?: string }) => {
       const { nodeType, name, pid } = options;
       const nodeName = name || `测试节点-${Date.now()}`;
+      await page.waitForLoadState('domcontentloaded');
+      const bannerTree = page.getByTestId('banner-doc-tree');
+      await expect(bannerTree).toBeVisible({ timeout: 10000 });
       if (pid) {
         const parentNode = page.locator(`[data-test-node-id="${pid}"]`);
         await expect(parentNode).toBeVisible({ timeout: 5000 });
@@ -216,24 +219,30 @@ export const test = base.extend<ElectronFixtures>({
           await newFolderItem.click();
         } else {
           const addFileBtn = page.getByTestId('banner-add-http-btn');
+          await expect(addFileBtn).toBeVisible({ timeout: 10000 });
           await addFileBtn.click();
         }
       }
       const dialogPattern = nodeType === 'folder' ? /新建文件夹|新增文件夹/ : /新建接口|新增接口|Create/;
       const dialog = page.locator('.el-dialog').filter({ hasText: dialogPattern });
-      await expect(dialog).toBeVisible({ timeout: 5000 });
+      await expect(dialog).toBeVisible({ timeout: 10000 });
       const nameInput = dialog.locator('input').first();
+      await expect(nameInput).toBeVisible({ timeout: 5000 });
       await nameInput.fill(nodeName);
       if (nodeType !== 'folder') {
         const radioText = nodeType === 'http' ? /^HTTP$/ : nodeType === 'websocket' ? /^WebSocket$/ : nodeType === 'httpMock' ? /HTTP Mock/ : /WebSocket Mock/;
         const typeRadio = dialog.locator('.el-radio').filter({ hasText: radioText }).first();
         const typeRadioVisible = await typeRadio.isVisible({ timeout: 500 }).catch(() => false);
         if (typeRadioVisible) {
-          await typeRadio.click();
-          await page.waitForTimeout(200);
+          const isChecked = await typeRadio.evaluate((el) => el.classList.contains('is-checked')).catch(() => false);
+          if (!isChecked) {
+            await typeRadio.click({ force: true });
+            await expect(typeRadio).toHaveClass(/is-checked/, { timeout: 5000 });
+          }
         }
       }
       const confirmBtn = dialog.locator('.el-button--primary').last();
+      await expect(confirmBtn).toBeVisible({ timeout: 5000 });
       await confirmBtn.click();
       await expect(dialog).toBeHidden({ timeout: 5000 });
       await page.waitForTimeout(500);
