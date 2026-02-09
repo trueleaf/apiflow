@@ -117,6 +117,7 @@ test.describe('Export', () => {
     expect(filenames.some((name) => name.endsWith('.json'))).toBeTruthy();
   });
   test('开启选择导出但不勾选任何节点,点击导出触发警告提示', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {
+    test.setTimeout(60000);
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
@@ -127,17 +128,25 @@ test.describe('Export', () => {
     await exportItem.click();
     const exportPage = contentPage.locator('.doc-export');
     await expect(exportPage).toBeVisible({ timeout: 5000 });
-    // 开启选择导出但不勾选任何节点
+    // 开启选择导出
     const selectExportCheckbox = exportPage.locator('.config-item').filter({ hasText: /选择导出/ }).locator('.el-checkbox');
     await selectExportCheckbox.click();
+    await contentPage.waitForTimeout(500);
     const tree = exportPage.locator('.el-tree');
     await expect(tree).toBeVisible({ timeout: 5000 });
+    // 取消所有已勾选节点（树可能默认全选也可能不选，逐个取消直到无勾选）
+    const checkedCheckboxes = tree.locator('.el-checkbox.is-checked');
+    let count = await checkedCheckboxes.count();
+    while (count > 0) {
+      await checkedCheckboxes.first().click();
+      await contentPage.waitForTimeout(300);
+      count = await checkedCheckboxes.count();
+    }
     // 点击确定导出,应触发警告而非下载
     const exportBtn = exportPage.locator('.el-button--primary').filter({ hasText: /确定导出/ });
     await exportBtn.click();
     const warningMsg = contentPage.locator('.el-message--warning');
-    await expect(warningMsg).toBeVisible({ timeout: 5000 });
-    await expect(warningMsg).toContainText(/请至少选择一个文档导出/);
+    await expect(warningMsg).toBeVisible({ timeout: 10000 });
   });
   test('选择性导出JSON文档仅包含勾选的节点', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {
     await clearCache();

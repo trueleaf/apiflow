@@ -104,7 +104,7 @@ test.describe('WebSocketNodeRequest', () => {
     const messageEditor = messageBlock.locator('.s-json-editor').first();
     await messageEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('hello');
+    await contentPage.keyboard.type('ping');
     await contentPage.waitForTimeout(200);
     const sendBtn = messageBlock.getByRole('button', { name: /^发送$/ });
     await sendBtn.click();

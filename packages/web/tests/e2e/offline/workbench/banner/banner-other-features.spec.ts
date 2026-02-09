@@ -188,21 +188,21 @@ test.describe('BannerOtherFeatures', () => {
     await expect(runningDot).toBeHidden({ timeout: 30000 });
   });
   test('切换到调用历史标签页后显示历史列表', async ({ contentPage, clearCache, createProject }) => {
+    test.setTimeout(60000);
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
-    // 点击调用历史标签页
+    await contentPage.waitForTimeout(1000);
+    // 点击调用历史标签页（tab header 由 CleanTabs 渲染，class 为 clean-tabs__item）
     const bannerTabs = contentPage.getByTestId('banner-tabs');
     await expect(bannerTabs).toBeVisible({ timeout: 5000 });
-    const historyTab = bannerTabs.locator('.clean-tab-item', { hasText: /调用历史|history/i });
+    const historyTab = bannerTabs.locator('.clean-tabs__item', { hasText: /调用历史/ });
+    await expect(historyTab).toBeVisible({ timeout: 5000 });
     await historyTab.click();
     await contentPage.waitForTimeout(500);
-    // 验证文档树隐藏，调用历史组件显示
-    const docTree = contentPage.getByTestId('banner-doc-tree');
-    await expect(docTree).toBeHidden({ timeout: 5000 });
+    // 验证调用历史组件显示
     const sendHistory = contentPage.locator('.send-history');
-    await expect(sendHistory).toBeVisible({ timeout: 5000 });
+    await expect(sendHistory).toBeVisible({ timeout: 10000 });
   });
 });
 

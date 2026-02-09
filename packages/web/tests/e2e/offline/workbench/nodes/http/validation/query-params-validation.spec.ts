@@ -190,7 +190,8 @@ test.describe('QueryParamsValidation', () => {
     await contentPage.waitForTimeout(2000);
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('filter', { timeout: 10000 });
-    await expect(responseBody).toContainText('200', { timeout: 10000 });
+    // 验证特殊字符参数已正确编码传递（echo返回中包含编码后的参数值）
+    await expect(responseBody).toContainText('a%26b%3Dc', { timeout: 10000 });
   });
 });
 

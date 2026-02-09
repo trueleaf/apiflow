@@ -843,8 +843,8 @@ test.describe('Variable', () => {
     // 不填写变量名,直接点击添加
     const addBtn = variablePage.locator('.left .el-button--primary');
     await addBtn.click();
-    // 验证校验提示出现
-    const errorTip = variablePage.locator('.el-form-item__error');
+    // 验证变量名校验提示出现（匹配第一个错误提示）
+    const errorTip = variablePage.locator('.el-form-item__error').first();
     await expect(errorTip).toBeVisible({ timeout: 3000 });
   });
   test('编辑变量名为已存在名称时显示错误提示', async ({ topBarPage, contentPage, clearCache, createProject }) => {

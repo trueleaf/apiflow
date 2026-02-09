@@ -210,6 +210,7 @@ test.describe('AfHttpApi', () => {
   });
   // 使用af.http响应数据设置变量并在主请求中使用
   test('使用af.http响应数据设置变量并在主请求中使用', async ({ contentPage, clearCache, createProject }) => {
+    test.setTimeout(60000);
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
@@ -233,16 +234,14 @@ test.describe('AfHttpApi', () => {
     await editor.click();
     await contentPage.waitForTimeout(300);
     // 前置脚本：请求echo接口并从响应中提取method字段设置为变量
-    const scriptCode = `const res = await af.http.get("http://127.0.0.1:${MOCK_SERVER_PORT}/echo"); const data = JSON.parse(res.body); af.variables.set("pre_token", data.method)`;
+    const scriptCode = `const res = await af.http.get("http://127.0.0.1:${MOCK_SERVER_PORT}/echo"); af.variables["pre_token"] = res.json.method`;
     await contentPage.keyboard.insertText(scriptCode);
     await contentPage.waitForTimeout(300);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    const responseArea = contentPage.getByTestId('response-area');
-    await expect(responseArea).toBeVisible({ timeout: 20000 });
-    // 验证响应中包含变量替换后的值（说明前置脚本的HTTP请求结果成功传递给了主请求）
-    const responseBody = responseArea.locator('.s-json-editor').first();
-    await expect(responseBody).toContainText('GET', { timeout: 20000 });
+    // 等待响应渲染（前置脚本HTTP请求+主请求双重延迟）
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('GET', { timeout: 30000 });
   });
 });
 

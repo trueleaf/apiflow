@@ -112,11 +112,11 @@ test.describe('WebSocketSaveRefresh', () => {
     await contentPage.waitForTimeout(300);
     const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
     await expect(statusUrl).toContainText('modified-url', { timeout: 5000 });
-    // 点击刷新按钮
-    const refreshBtn = contentPage.locator('[data-testid="websocket-operation-refresh-btn"]');
+    // 点击刷新按钮（按钮无data-testid，通过文本定位）
+    const refreshBtn = contentPage.locator('.ws-operation').getByRole('button', { name: /刷新/ });
     await refreshBtn.click();
-    await contentPage.waitForTimeout(1000);
+    await contentPage.waitForTimeout(2000);
     // 验证URL恢复为保存时的地址
-    await expect(statusUrl).toContainText('saved-url', { timeout: 5000 });
+    await expect(statusUrl).toContainText('saved-url', { timeout: 10000 });
   });
 });

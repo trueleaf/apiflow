@@ -142,12 +142,13 @@ test.describe('WebSocketClearData', () => {
     const messageEditor = messageBlock.locator('.s-json-editor').first();
     await messageEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('test-clear');
+    await contentPage.keyboard.type('ping');
     const sendBtn = messageBlock.getByRole('button', { name: /^发送$/ });
     await sendBtn.click();
     await expect(wsView).toContainText('pong', { timeout: 10000 });
     // 点击清空数据按钮
-    const clearBtn = contentPage.locator('.websocket-view .clear-btn, .websocket-view [data-testid="ws-clear-btn"]').first();
+    const clearBtn = wsView.locator('.clear-icon').first();
+    await expect(clearBtn).toBeVisible({ timeout: 5000 });
     await clearBtn.click();
     await contentPage.waitForTimeout(500);
     // 验证断开连接按钮仍然可见（连接未断开）

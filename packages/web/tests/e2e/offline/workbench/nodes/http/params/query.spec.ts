@@ -316,14 +316,12 @@ test.describe('Query', () => {
     await expect(multilineTextarea).toBeVisible({ timeout: 5000 });
     await multilineTextarea.fill('page=1\nsize=10');
     await contentPage.waitForTimeout(200);
-    // 点击应用按钮
+    // 点击应用按钮（应用后自动切换回表格模式）
     const applyBtn = queryParamsPanel.locator('[data-testid="params-tree-apply-btn"]');
     await applyBtn.click();
-    await contentPage.waitForTimeout(300);
-    // 切换回表格模式验证参数已应用
-    await modeToggleBtn.click();
-    await contentPage.waitForTimeout(300);
-    const queryKeyInputs = queryParamsPanel.getByPlaceholder(/输入参数名称自动换行/);
+    await contentPage.waitForTimeout(500);
+    // 验证已自动切回表格模式且参数已应用
+    const queryKeyInputs = queryParamsPanel.locator('[data-testid="params-tree-key-input"]');
     const rowCount = await queryKeyInputs.count();
     expect(rowCount).toBeGreaterThanOrEqual(2);
   });

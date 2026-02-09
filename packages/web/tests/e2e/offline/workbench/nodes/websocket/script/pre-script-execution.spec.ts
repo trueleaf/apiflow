@@ -130,7 +130,7 @@ test.describe('WebSocketPreScriptExecution', () => {
     const messageEditor = messageBlock.locator('.s-json-editor').first();
     await messageEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('hello');
+    await contentPage.keyboard.type('ping');
     const sendBtn = messageBlock.getByRole('button', { name: /^发送$/ });
     await sendBtn.click();
     await expect(wsView).toContainText('pong', { timeout: 10000 });

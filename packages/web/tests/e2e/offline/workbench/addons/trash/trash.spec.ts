@@ -524,8 +524,8 @@ test.describe('Trash/回收站', () => {
     await expect(recyclerPage).toBeVisible({ timeout: 5000 });
     // 验证无任何docinfo条目
     await expect(recyclerPage.locator('.docinfo')).toHaveCount(0);
-    // 验证搜索区域仍可见
-    const searchArea = recyclerPage.locator('.search-wrap');
+    // 验证过滤区域仍可见
+    const searchArea = recyclerPage.locator('.search');
     await expect(searchArea).toBeVisible();
   });
   test('恢复确认弹窗点击取消后节点保留在回收站中', async ({ contentPage, clearCache, createProject, createNode }) => {

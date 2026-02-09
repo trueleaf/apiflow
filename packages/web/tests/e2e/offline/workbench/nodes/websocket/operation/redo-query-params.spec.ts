@@ -146,19 +146,38 @@ test.describe('WebSocketQueryParamsRedo', () => {
   })
   // 撤销后重做多个Query参数操作验证参数正确恢复
   test('撤销后重做多个Query参数操作验证参数正确恢复', async ({ contentPage, clearCache, createProject, createNode }) => {
+    test.setTimeout(60000)
     await clearCache()
     await createProject()
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 })
     await contentPage.waitForTimeout(500)
-    await createNode(contentPage, { nodeType: 'websocket', name: 'Query多参数重做测试' })
-    // 切换到Query参数标签页
-    const queryTab = contentPage.locator('.ws-params .params-tab .el-tabs__item').filter({ hasText: /Query/ })
-    await queryTab.click()
+    const nodeId = await createNode(contentPage, { nodeType: 'websocket', name: 'Query多参数重做测试' })
+    // 点击节点确保状态同步
+    const createdNode = contentPage.locator(`[data-test-node-id="${nodeId}"]`).first()
+    await expect(createdNode).toBeVisible({ timeout: 5000 })
+    await createdNode.click()
+    await expect(contentPage.locator('.ws-operation')).toBeVisible({ timeout: 5000 })
+    // 输入连接地址
+    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first()
+    await urlEditor.fill('ws://127.0.0.1:8080/ws')
+    await contentPage.keyboard.press('Enter')
     await contentPage.waitForTimeout(300)
-    const paramsTree = contentPage.locator('.ws-params .cl-params-tree').first()
-    // 添加第一个参数
-    const firstRow = paramsTree.locator('.params-tree-row').last()
-    const queryKeyInput = firstRow.locator('[data-testid="params-tree-key-input"]').first()
+    // 切换到Params标签页
+    const paramsTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /Params/ })
+    await paramsTab.click()
+    await contentPage.waitForTimeout(300)
+    // 添加Query参数
+    const queryParamsPanel = contentPage.locator('.ws-query-params')
+    await expect(queryParamsPanel).toBeVisible({ timeout: 5000 })
+    const firstRow = queryParamsPanel.locator('[data-testid="params-tree-row"]').first()
+    await expect(firstRow).toBeVisible({ timeout: 5000 })
+    const rowCheckbox = firstRow.locator('.el-checkbox').first()
+    const checkboxClass = (await rowCheckbox.getAttribute('class')) || ''
+    if (!checkboxClass.includes('is-checked')) {
+      await rowCheckbox.click()
+      await contentPage.waitForTimeout(200)
+    }
+    const queryKeyInput = firstRow.getByPlaceholder(/参数名称/).first()
     await queryKeyInput.click()
     await queryKeyInput.fill('key1')
     await contentPage.waitForTimeout(200)

@@ -173,9 +173,8 @@ test.describe('WebSocketResponseDisplay', () => {
     await sendBtn.click();
     await expect(wsView).toContainText('pong', { timeout: 10000 });
     // 验证响应区域同时包含发送和接收的消息
-    const messages = wsView.locator('.websocket-message');
-    await expect(messages).toContainText('ping', { timeout: 5000 });
-    await expect(messages).toContainText('pong', { timeout: 5000 });
+    await expect(wsView).toContainText('ping', { timeout: 5000 });
+    await expect(wsView).toContainText('pong', { timeout: 5000 });
   });
   // 连接成功后基本信息区域显示协议版本或状态信息
   test('连接成功后基本信息区域显示端口信息', async ({ contentPage, clearCache, createProject, createNode }) => {

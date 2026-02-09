@@ -54,6 +54,7 @@ const handleEnabled = () => {
   emits('change', isEnabled.value);
 }
 const isEnabled = ref(false);
+defineExpose({ isEnabled });
 
 </script>
 

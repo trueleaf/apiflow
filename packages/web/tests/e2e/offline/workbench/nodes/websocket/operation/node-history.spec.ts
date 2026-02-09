@@ -197,7 +197,7 @@ test.describe('WebSocketNodeHistory', () => {
     const historyDropdown = contentPage.locator('.ws-params .history-dropdown');
     await expect(historyDropdown).toBeVisible({ timeout: 5000 });
     const historyItem = historyDropdown.locator('.history-item').first();
-    // 验证历史记录项包含时间格式（如 HH:MM 或 YYYY 等日期相关文本）
-    await expect(historyItem).toContainText(/\d{2}:\d{2}|\d{4}/, { timeout: 5000 });
+    // 验证历史记录项包含时间信息（刚保存时显示"刚刚"，之后显示HH:MM格式）
+    await expect(historyItem).toContainText(/\d{2}:\d{2}|\d{4}|刚刚/, { timeout: 5000 });
   });
 });

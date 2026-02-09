@@ -120,6 +120,7 @@ test.describe('EnvVariableAccess', () => {
   });
   // 前置脚本中通过变量值修改请求头
   test('前置脚本中通过变量值修改请求头', async ({ contentPage, clearCache, createProject }) => {
+    test.setTimeout(60000);
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
@@ -141,17 +142,15 @@ test.describe('EnvVariableAccess', () => {
     await expect(editor).toBeVisible({ timeout: 5000 });
     await editor.click();
     await contentPage.waitForTimeout(300);
-    // 前置脚本：设置变量并通过af.request.headers修改请求头
-    const scriptCode = 'af.variables.set("auth_val", "Bearer test-xyz"); af.request.headers["X-Custom-Auth"] = af.variables.get("auth_val")';
+    // 前置脚本：通过af.variables设置变量并通过af.request.headers修改请求头
+    const scriptCode = 'af.variables["auth_val"] = "Bearer test-xyz"; af.request.headers["X-Custom-Auth"] = af.variables["auth_val"]';
     await contentPage.keyboard.type(scriptCode);
     await contentPage.waitForTimeout(300);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    const responseArea = contentPage.getByTestId('response-area');
-    await expect(responseArea).toBeVisible({ timeout: 10000 });
-    // 验证响应体中包含自定义请求头（echo接口会返回所有请求头）
-    const responseBody = responseArea.locator('.s-json-editor').first();
-    await expect(responseBody).toContainText('x-custom-auth', { timeout: 10000 });
+    // 等待响应渲染
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('x-custom-auth', { timeout: 20000 });
   });
 });
 

@@ -129,6 +129,7 @@ test.describe('RedirectConfig', () => {
   });
   // 重定向配置修改后刷新页面配置保持不变
   test('重定向配置修改后刷新页面配置保持不变', async ({ contentPage, clearCache, createProject, reload }) => {
+    test.setTimeout(60000);
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
@@ -156,14 +157,18 @@ test.describe('RedirectConfig', () => {
     await maxRedirectInput.click();
     await maxRedirectInput.fill('5');
     await contentPage.waitForTimeout(300);
-    // 刷新页面
+    // 保存后刷新页面
+    await contentPage.keyboard.press('Control+s');
+    await contentPage.waitForTimeout(1000);
     await reload();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
-    await contentPage.waitForTimeout(1000);
+    await contentPage.waitForTimeout(2000);
     // 重新点击节点并打开设置标签页
-    const treeNode = contentPage.locator('.tree-wrap .el-tree-node__content').first();
+    const bannerTree = contentPage.getByTestId('banner-doc-tree');
+    await expect(bannerTree).toBeVisible({ timeout: 10000 });
+    const treeNode = bannerTree.locator('.el-tree-node__content').first();
     await treeNode.click();
-    await contentPage.waitForTimeout(300);
+    await contentPage.waitForTimeout(500);
     const settingsTab2 = contentPage.locator('[data-testid="http-params-tab-settings"]');
     await settingsTab2.click();
     await contentPage.waitForTimeout(300);

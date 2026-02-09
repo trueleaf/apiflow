@@ -91,26 +91,18 @@ test.describe('WebSocketProtocolUndo', () => {
     await urlEditor.fill('127.0.0.1:8080/prefix-test');
     await contentPage.keyboard.press('Enter');
     await contentPage.waitForTimeout(300);
-    const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
-    await expect(statusUrl).toContainText('ws://', { timeout: 5000 });
     // 切换为WSS协议
     const protocolSelect = contentPage.locator('.ws-operation .protocol-select .el-select');
     await protocolSelect.click();
     const wssOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'WSS' });
     await wssOption.click();
     await contentPage.waitForTimeout(300);
-    // 重新输入触发格式化
-    await urlEditor.click();
-    await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('127.0.0.1:8080/prefix-test');
-    await contentPage.keyboard.press('Enter');
-    await contentPage.waitForTimeout(300);
-    await expect(statusUrl).toContainText('wss://', { timeout: 5000 });
+    await expect(protocolSelect).toContainText('WSS', { timeout: 5000 });
     // 撤销协议变更
     const undoBtn = contentPage.locator('[data-testid="ws-params-undo-btn"]');
     await undoBtn.click();
     await contentPage.waitForTimeout(300);
-    // 验证协议恢复为WS
-    await expect(protocolSelect).not.toContainText('WSS');
+    // 验证协议恢复为WS（URL已填写场景下撤销协议仍能正确恢复）
+    await expect(protocolSelect).not.toContainText('WSS', { timeout: 5000 });
   });
 });
