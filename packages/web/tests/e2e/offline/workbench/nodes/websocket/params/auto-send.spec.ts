@@ -175,4 +175,37 @@ test.describe('WebSocketAutoSend', () => {
     const currentValue = await configPopover.locator('.el-input-number input').inputValue();
     expect(currentValue).toBe(initialValue);
   });
+  // 自动发送配置保存后重新打开配置仍然显示保存的值
+  test('自动发送配置保存后重新打开配置仍然显示保存的值', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'websocket', name: '配置保存测试' });
+    // 切换到消息内容标签
+    const messageTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /消息内容/ });
+    await messageTab.click();
+    await contentPage.waitForTimeout(300);
+    // 打开配置面板
+    const configBtn = contentPage.locator('.message-content .config-button');
+    await configBtn.click();
+    await contentPage.waitForTimeout(300);
+    const configPopover = contentPage.locator('.config-popover:visible');
+    await expect(configPopover).toBeVisible({ timeout: 5000 });
+    // 修改发送间隔为5000ms
+    const intervalInput = configPopover.locator('.el-input-number input');
+    await intervalInput.click();
+    await contentPage.keyboard.press('Control+a');
+    await intervalInput.fill('5000');
+    await contentPage.waitForTimeout(300);
+    // 点击保存按钮
+    const saveBtn = configPopover.locator('.el-button').filter({ hasText: /保存|Save/ });
+    await saveBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 重新打开配置面板验证值已保存
+    await configBtn.click();
+    await contentPage.waitForTimeout(300);
+    const savedValue = await configPopover.locator('.el-input-number input').inputValue();
+    expect(savedValue).toBe('5000');
+  });
 });

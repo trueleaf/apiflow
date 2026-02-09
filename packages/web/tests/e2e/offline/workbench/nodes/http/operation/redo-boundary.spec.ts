@@ -71,6 +71,28 @@ test.describe('RedoBoundary', () => {
     // 观察重做按钮状态,进行新操作后重做历史栈被清空
     await expect(redoBtn).toHaveClass(/disabled/, { timeout: 5000 });
   });
+  test('没有可撤销的操作时,撤销按钮置灰不可点击', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('撤销边界测试');
+    await addFileDialog.locator('.el-button--primary').last().click();
+    await contentPage.waitForTimeout(500);
+    // 验证撤销按钮置灰
+    const undoBtn = contentPage.locator('[data-testid="http-params-undo-btn"]');
+    await expect(undoBtn).toHaveClass(/disabled/, { timeout: 5000 });
+    // 按Ctrl+Z快捷键应无响应
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    await expect(methodSelect).toContainText('GET', { timeout: 5000 });
+    await contentPage.keyboard.press('Control+z');
+    await contentPage.waitForTimeout(300);
+    await expect(methodSelect).toContainText('GET', { timeout: 5000 });
+    await expect(undoBtn).toHaveClass(/disabled/, { timeout: 5000 });
+  });
 });
 
 

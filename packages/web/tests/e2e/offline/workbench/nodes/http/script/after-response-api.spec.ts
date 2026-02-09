@@ -277,6 +277,72 @@ test.describe('AfResponseApi', () => {
     const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toContainText('ip', { timeout: 10000 });
   });
+  // 使用af.response.statusCode获取非200响应状态码
+  test('使用af.response.statusCode获取非200响应状态码', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('af.response.statusCode非200测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 请求返回404状态码的端点
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/status/404`);
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
+    await afterScriptTab.click();
+    await contentPage.waitForTimeout(300);
+    const monacoEditor = contentPage.locator('#pane-afterRequest .s-monaco-editor, .s-monaco-editor:visible').first();
+    await expect(monacoEditor).toBeVisible({ timeout: 5000 });
+    await monacoEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('if (af.response.statusCode !== 404) { throw new Error("预期404,实际:" + af.response.statusCode) }');
+    await contentPage.waitForTimeout(300);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    // 验证脚本无报错（statusCode确实为404）
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('404', { timeout: 10000 });
+  });
+  // 使用af.response.httpVersion获取HTTP协议版本
+  test('使用af.response.httpVersion获取HTTP协议版本', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('af.response.httpVersion测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
+    await afterScriptTab.click();
+    await contentPage.waitForTimeout(300);
+    const monacoEditor = contentPage.locator('#pane-afterRequest .s-monaco-editor, .s-monaco-editor:visible').first();
+    await expect(monacoEditor).toBeVisible({ timeout: 5000 });
+    await monacoEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('if (!af.response.httpVersion) { throw new Error("httpVersion为空") }');
+    await contentPage.waitForTimeout(300);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+  });
 });
 
 

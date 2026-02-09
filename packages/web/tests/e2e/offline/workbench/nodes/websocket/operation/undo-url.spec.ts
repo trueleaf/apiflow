@@ -128,4 +128,31 @@ test.describe('WebSocketUrlUndo', () => {
     await contentPage.waitForTimeout(300);
     await expect(undoBtn).toHaveClass(/disabled/, { timeout: 5000 });
   });
+  // 输入URL后保存再撤销验证内容恢复
+  test('输入URL后保存再撤销验证内容恢复', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'websocket', name: 'URL保存撤销测试' });
+    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
+    await urlEditor.fill('127.0.0.1:8080/save-undo-test');
+    await contentPage.keyboard.press('Enter');
+    await contentPage.waitForTimeout(300);
+    // 保存接口
+    const saveBtn = contentPage.locator('[data-testid="websocket-operation-save-btn"]');
+    await saveBtn.click();
+    await contentPage.waitForTimeout(1000);
+    // 修改URL
+    await urlEditor.fill('127.0.0.1:9999/new-url');
+    await contentPage.keyboard.press('Enter');
+    await contentPage.waitForTimeout(300);
+    const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
+    await expect(statusUrl).toContainText('new-url', { timeout: 5000 });
+    // 撤销后URL应恢复为上一次的内容
+    const undoBtn = contentPage.locator('[data-testid="ws-params-undo-btn"]');
+    await undoBtn.click();
+    await contentPage.waitForTimeout(300);
+    await expect(statusUrl).toContainText('save-undo-test', { timeout: 5000 });
+  });
 });

@@ -127,6 +127,54 @@ test.describe('RedirectConfig', () => {
     const errorText = responseArea.locator('.s-json-editor').first().or(responseArea.getByTestId('response-error').first());
     await expect(errorText).toContainText(/redirect|重定向|error|错误/i, { timeout: 10000 });
   });
+  // 重定向配置修改后刷新页面配置保持不变
+  test('重定向配置修改后刷新页面配置保持不变', async ({ contentPage, clearCache, createProject, reload }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('重定向持久化测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    const settingsTab = contentPage.locator('[data-testid="http-params-tab-settings"]');
+    await settingsTab.click();
+    await contentPage.waitForTimeout(300);
+    // 关闭自动跟随重定向开关
+    const followRedirectSwitch = contentPage.locator('.request-settings .config-item').filter({ hasText: /自动跟随重定向|Follow Redirect/ }).locator('.el-switch');
+    const isChecked = await followRedirectSwitch.locator('input').isChecked();
+    if (isChecked) {
+      await followRedirectSwitch.click();
+      await contentPage.waitForTimeout(300);
+    }
+    // 修改最大重定向次数为5
+    const maxRedirectInput = contentPage.locator('.request-settings .config-item').filter({ hasText: /最大重定向次数|Max Redirect/ }).locator('.control-number input');
+    await maxRedirectInput.click();
+    await maxRedirectInput.fill('5');
+    await contentPage.waitForTimeout(300);
+    // 刷新页面
+    await reload();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
+    await contentPage.waitForTimeout(1000);
+    // 重新点击节点并打开设置标签页
+    const treeNode = contentPage.locator('.tree-wrap .el-tree-node__content').first();
+    await treeNode.click();
+    await contentPage.waitForTimeout(300);
+    const settingsTab2 = contentPage.locator('[data-testid="http-params-tab-settings"]');
+    await settingsTab2.click();
+    await contentPage.waitForTimeout(300);
+    // 验证开关仍为关闭状态
+    const followRedirectSwitch2 = contentPage.locator('.request-settings .config-item').filter({ hasText: /自动跟随重定向|Follow Redirect/ }).locator('.el-switch');
+    const isCheckedAfterReload = await followRedirectSwitch2.locator('input').isChecked();
+    expect(isCheckedAfterReload).toBe(false);
+    // 验证最大重定向次数仍为5
+    const maxRedirectInput2 = contentPage.locator('.request-settings .config-item').filter({ hasText: /最大重定向次数|Max Redirect/ }).locator('.control-number input');
+    await expect(maxRedirectInput2).toHaveValue('5');
+  });
 });
 
 

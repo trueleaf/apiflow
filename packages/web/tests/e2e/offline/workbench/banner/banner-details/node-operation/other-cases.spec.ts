@@ -192,6 +192,27 @@ test.describe('OtherCases', () => {
     const minHttpIndex = Math.min(...httpIndexes);
     expect(maxFolderIndex).toBeLessThan(minHttpIndex);
   });
+  test('新增节点后刷新页面,节点顺序保持不变', async ({ contentPage, clearCache, createProject, createNode, reload }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 按顺序创建文件夹和HTTP节点
+    await createNode(contentPage, { nodeType: 'folder', name: '持久化文件夹' });
+    await createNode(contentPage, { nodeType: 'http', name: '持久化HTTP-1' });
+    await createNode(contentPage, { nodeType: 'http', name: '持久化HTTP-2' });
+    // 记录刷新前顺序
+    const treeNodes = contentPage.locator('.el-tree > .el-tree-node');
+    const beforeTexts = await treeNodes.evaluateAll((els) => els.map((el) => (el.textContent ?? '').replace(/\s+/g, ' ').trim()));
+    // 刷新页面后验证顺序不变
+    await reload();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
+    const bannerTree = contentPage.getByTestId('banner-doc-tree');
+    await expect(bannerTree).toBeVisible({ timeout: 5000 });
+    await expect(bannerTree.locator('.el-tree-node__content').filter({ hasText: '持久化文件夹' }).first()).toBeVisible({ timeout: 5000 });
+    const afterTreeNodes = contentPage.locator('.el-tree > .el-tree-node');
+    const afterTexts = await afterTreeNodes.evaluateAll((els) => els.map((el) => (el.textContent ?? '').replace(/\s+/g, ' ').trim()));
+    expect(afterTexts).toEqual(beforeTexts);
+  });
 });
 
 

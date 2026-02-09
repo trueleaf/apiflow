@@ -77,4 +77,22 @@ test.describe('WebSocketRedoBoundary', () => {
     // 验证重做按钮被禁用(已经重做到最新状态)
     await expect(redoBtn).toHaveClass(/disabled/, { timeout: 5000 });
   });
+  // 没有可撤销的操作时撤销按钮禁用且快捷键无响应
+  test('没有可撤销的操作时撤销按钮禁用', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'websocket', name: '撤销边界测试' });
+    // 新创建的节点没有操作历史,撤销按钮应该禁用
+    const undoBtn = contentPage.locator('[data-testid="ws-params-undo-btn"]');
+    await expect(undoBtn).toHaveClass(/disabled/, { timeout: 5000 });
+    // 记录当前URL值
+    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
+    const originalUrl = (await urlEditor.innerText()).trim();
+    // 尝试按Ctrl+Z快捷键，验证无响应，URL值不变
+    await contentPage.keyboard.press('Control+z');
+    await contentPage.waitForTimeout(300);
+    await expect(urlEditor).toHaveText(originalUrl === '' ? /^\s*$/ : originalUrl, { timeout: 5000 });
+  });
 });

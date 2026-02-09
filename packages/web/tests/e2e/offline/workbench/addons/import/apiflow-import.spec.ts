@@ -203,6 +203,66 @@ test.describe('ApiflowImport', () => {
     const importedNode = bannerTree.locator('.el-tree-node__content').filter({ hasText: '导入-接口1' }).first();
     await expect(importedNode).toBeVisible({ timeout: 10000 });
   });
+  test('覆盖方式导入后旧节点被替换为新导入节点', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const currentUrl = contentPage.url();
+    const projectIdMatch = currentUrl.match(/[?&]id=([^&]+)/);
+    const projectId = decodeURIComponent(projectIdMatch?.[1] || '');
+    // 先创建一个节点作为现有数据
+    await createNode(contentPage, { nodeType: 'http', name: '旧接口-将被覆盖' });
+    const bannerTree = contentPage.getByTestId('banner-doc-tree');
+    await expect(bannerTree.locator('.el-tree-node__content').filter({ hasText: '旧接口-将被覆盖' }).first()).toBeVisible({ timeout: 5000 });
+    // 打开导入文档并粘贴新数据
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
+    await importItem.click();
+    const importPage = contentPage.locator('.doc-import');
+    await expect(importPage).toBeVisible({ timeout: 5000 });
+    const pasteSource = contentPage.locator('.source-item').filter({ hasText: /粘贴内容|Paste/ });
+    await pasteSource.click();
+    const pasteTextarea = importPage.locator('.paste-import textarea');
+    await expect(pasteTextarea).toBeVisible({ timeout: 5000 });
+    const now = new Date().toISOString();
+    const apiflowJson = JSON.stringify({
+      type: 'apiflow',
+      info: { projectName: '覆盖测试' },
+      docs: [
+        {
+          _id: 'cover_node_1',
+          pid: '',
+          projectId,
+          sort: 0,
+          info: { name: '新接口-覆盖导入', description: '', version: '', type: 'http', creator: '', maintainer: '', deletePerson: '' },
+          item: { method: 'post', url: { prefix: '', path: '/new-api' }, paths: [], queryParams: [], requestBody: { mode: 'none', rawJson: '', formdata: [], urlencoded: [], raw: { data: '', dataType: 'text/plain' }, binary: { mode: 'file', varValue: '', binaryValue: { path: '', raw: '', id: '' } } }, responseParams: [], headers: [], contentType: '' },
+          preRequest: { raw: '' },
+          afterRequest: { raw: '' },
+          createdAt: now,
+          updatedAt: now,
+          isDeleted: false,
+        },
+      ],
+    });
+    await pasteTextarea.fill(apiflowJson);
+    const parseBtn = importPage.locator('.paste-actions .el-button--primary').filter({ hasText: /解析内容|Parse/ });
+    await parseBtn.click();
+    const previewTree = importPage.locator('.el-tree');
+    await expect(previewTree.locator('.custom-tree-node').filter({ hasText: '新接口-覆盖导入' })).toBeVisible({ timeout: 5000 });
+    // 选择覆盖方式并确认
+    const coverRadio = contentPage.locator('.el-radio').filter({ hasText: /覆盖方式|Override/ });
+    await coverRadio.click();
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
+    await expect(confirmDialog).toBeVisible({ timeout: 3000 });
+    const confirmBtn = confirmDialog.locator('.el-button--primary');
+    await confirmBtn.click();
+    const submitBtn = importPage.locator('.submit-wrap .el-button--primary').filter({ hasText: /确定导入|Import/ });
+    await submitBtn.click();
+    // 验证旧节点被替换,新节点出现
+    await expect(bannerTree.locator('.el-tree-node__content').filter({ hasText: '新接口-覆盖导入' }).first()).toBeVisible({ timeout: 10000 });
+    await expect(bannerTree.locator('.el-tree-node__content').filter({ hasText: '旧接口-将被覆盖' })).toHaveCount(0);
+  });
 });
 
 

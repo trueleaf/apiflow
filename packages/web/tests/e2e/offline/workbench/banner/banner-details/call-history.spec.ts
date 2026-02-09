@@ -384,6 +384,110 @@ test.describe('CallHistory', () => {
     // 清理按钮应消失（没有可清理的已删除历史）
     await expect(cleanDeletedBtn).toBeHidden({ timeout: 5000 });
   });
+  test('搜索过滤实际生效,输入文本后列表仅显示匹配项', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 创建两个接口并分别发送请求生成不同名称的历史记录
+    await createNode(contentPage, { nodeType: 'http', name: '登录接口' });
+    const bannerTree = contentPage.locator('[data-testid="banner-doc-tree"]');
+    await bannerTree.locator('.el-tree-node__content', { hasText: '登录接口' }).first().click();
+    const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror');
+    await expect(urlEditor).toBeVisible({ timeout: 5000 });
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.type('http://localhost:3456/echo');
+    await contentPage.locator('[data-testid="operation-send-btn"]').click();
+    await contentPage.waitForTimeout(800);
+    await createNode(contentPage, { nodeType: 'http', name: '用户列表' });
+    await bannerTree.locator('.el-tree-node__content', { hasText: '用户列表' }).first().click();
+    await expect(urlEditor).toBeVisible({ timeout: 5000 });
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.type('http://localhost:3456/echo?type=users');
+    await contentPage.locator('[data-testid="operation-send-btn"]').click();
+    await contentPage.waitForTimeout(800);
+    // 切换到调用历史Tab
+    const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
+    await bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ }).click();
+    await contentPage.waitForTimeout(500);
+    await expect(contentPage.locator('.send-history-list .history-item').first()).toBeVisible({ timeout: 15000 });
+    // 搜索"登录",验证只显示登录接口
+    const searchInput = contentPage.locator('.send-history-search .el-input input');
+    await searchInput.fill('登录');
+    await contentPage.waitForTimeout(500);
+    const visibleItems = contentPage.locator('.send-history-list .history-item');
+    await expect(visibleItems).toHaveCount(1, { timeout: 5000 });
+    await expect(visibleItems.first().locator('.item-name')).toContainText('登录接口');
+    // 清空搜索后列表恢复
+    await searchInput.fill('');
+    await contentPage.waitForTimeout(500);
+    await expect(contentPage.locator('.send-history-list .history-item')).toHaveCount(2, { timeout: 5000 });
+  });
+  test('历史记录项正确展示方法标签和节点信息', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '详情测试接口' });
+    const bannerTree = contentPage.locator('[data-testid="banner-doc-tree"]');
+    await bannerTree.locator('.el-tree-node__content', { hasText: '详情测试接口' }).first().click();
+    const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror');
+    await expect(urlEditor).toBeVisible({ timeout: 5000 });
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.type('http://localhost:3456/echo');
+    await contentPage.locator('[data-testid="operation-send-btn"]').click();
+    await contentPage.waitForTimeout(800);
+    // 切换到调用历史Tab
+    const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
+    await bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ }).click();
+    await contentPage.waitForTimeout(500);
+    const historyItem = contentPage.locator('.send-history-list .history-item').first();
+    await expect(historyItem).toBeVisible({ timeout: 15000 });
+    // 验证方法标签显示GET
+    await expect(historyItem.locator('.method-tag')).toContainText('GET');
+    // 验证节点名称
+    await expect(historyItem.locator('.item-name')).toContainText('详情测试接口');
+    // 验证URL
+    await expect(historyItem.locator('.item-url')).toContainText('http://localhost:3456/echo');
+    // 验证时间显示（刚刚发送，应包含时间文本）
+    await expect(historyItem.locator('.item-time')).not.toBeEmpty();
+  });
+  test('高级筛选按节点类型过滤历史记录', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 创建HTTP接口并发送请求
+    await createNode(contentPage, { nodeType: 'http', name: '筛选HTTP接口' });
+    const bannerTree = contentPage.locator('[data-testid="banner-doc-tree"]');
+    await bannerTree.locator('.el-tree-node__content', { hasText: '筛选HTTP接口' }).first().click();
+    const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror');
+    await expect(urlEditor).toBeVisible({ timeout: 5000 });
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.type('http://localhost:3456/echo');
+    await contentPage.locator('[data-testid="operation-send-btn"]').click();
+    await contentPage.waitForTimeout(800);
+    // 切换到调用历史Tab
+    const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
+    await bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ }).click();
+    await contentPage.waitForTimeout(500);
+    await expect(contentPage.locator('.send-history-list .history-item').first()).toBeVisible({ timeout: 15000 });
+    // 点击高级筛选图标展开面板
+    const filterIcon = contentPage.locator('.filter-history-icon');
+    await filterIcon.click();
+    const advancedFilter = contentPage.locator('.send-history-advanced-filter');
+    await expect(advancedFilter).toBeVisible({ timeout: 3000 });
+    // 取消勾选HTTP节点,验证列表变空
+    const httpCheckbox = advancedFilter.locator('.el-checkbox').filter({ hasText: /HTTP/ });
+    await httpCheckbox.click();
+    await contentPage.waitForTimeout(300);
+    await expect(contentPage.locator('.send-history-list .history-item')).toHaveCount(0, { timeout: 5000 });
+    // 重新勾选HTTP节点,列表恢复
+    await httpCheckbox.click();
+    await contentPage.waitForTimeout(300);
+    await expect(contentPage.locator('.send-history-list .history-item')).toHaveCount(1, { timeout: 5000 });
+  });
 });
 
 

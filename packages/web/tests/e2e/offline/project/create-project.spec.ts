@@ -72,6 +72,22 @@ test.describe('CreateProject', () => {
     await expect(activeTab).toContainText(projectName);
   });
 
+  test('在新建项目弹窗中按Enter键提交,成功创建项目并跳转到工作区', async ({ topBarPage, contentPage }) => {
+    const projectName = `Enter提交项目-${Date.now()}`;
+    const addProjectBtn = topBarPage.locator('[data-testid="header-add-project-btn"]');
+    await addProjectBtn.click();
+    const projectDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建项目|新增项目|Create Project/ });
+    await expect(projectDialog).toBeVisible({ timeout: 5000 });
+    const projectNameInput = projectDialog.locator('input').first();
+    await projectNameInput.fill(projectName);
+    // 按Enter键提交而非点击确定按钮
+    await projectNameInput.press('Enter');
+    await expect(projectDialog).toBeHidden({ timeout: 5000 });
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const activeTab = topBarPage.locator('[data-test-id^="header-tab-item-"].active');
+    await expect(activeTab).toContainText(projectName);
+  });
+
   test('新建项目后返回首页,新项目排在全部项目列表第一位', async ({ topBarPage, contentPage, clearCache, reload }) => {
     await clearCache();
     await reload();

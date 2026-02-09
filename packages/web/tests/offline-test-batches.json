@@ -1,0 +1,2635 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-02-09T06:59:35.179Z",
+  "summary": {
+    "totalFiles": 134,
+    "totalBatches": 31,
+    "totalTests": 743,
+    "completedBatches": 0,
+    "inProgressBatches": 0,
+    "pendingBatches": 31
+  },
+  "batches": [
+    {
+      "id": "batch-001",
+      "name": "应用程序外壳 - IPC通信",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "应用程序外壳",
+        "level2": "IPC通信"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/app-shell/ipc-handshake.spec.ts",
+          "relatedBusinessCode": [
+            "src/main/ipcMessage/",
+            "src/main/main.ts",
+            "src/renderer/pages/layout/"
+          ],
+          "testCases": [
+            "应用启动时事件监听器立即可用",
+            "设置按钮点击后Tab和页面同步创建",
+            "网络模式切换后事件监听器仍然正常",
+            "项目创建后topBar和contentView通讯正常",
+            "快速连续操作不会丢失事件",
+            "应用刷新后IPC通讯立即恢复",
+            "Tab切换通知在初始化后立即可用"
+          ],
+          "testCount": 7
+        }
+      ],
+      "stats": {
+        "fileCount": 1,
+        "testCount": 7
+      }
+    },
+    {
+      "id": "batch-002",
+      "name": "应用程序外壳 - 顶部栏功能",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "应用程序外壳",
+        "level2": "顶部栏功能"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/app-shell/topbar/logo.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/layout/header/"
+          ],
+          "testCases": [
+            "点击logo跳转主页面",
+            "设置页面更改应用图标后logo立马被更新, 刷新页面保持更新后的图标",
+            "点击重置后，图标恢复为默认"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/app-shell/topbar/nav-control.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/layout/header/"
+          ],
+          "testCases": [
+            "点击刷新按钮后Tab状态保持",
+            "前进后退按钮按历史栈导航",
+            "多次后退和前进验证完整历史栈",
+            "历史栈为空时后退到主页面"
+          ],
+          "testCount": 4
+        },
+        {
+          "path": "tests/e2e/offline/app-shell/topbar/quick-icons.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/layout/header/"
+          ],
+          "testCases": [
+            "点击AI助理按钮弹出AI助理弹窗",
+            "多次点击AI助理按钮不会关闭弹窗",
+            "点击语言按钮显示语言选择菜单",
+            "语言菜单包含4种语言选项",
+            "点击语言选项切换语言",
+            "点击内容区域关闭语言菜单",
+            "网络模式按钮显示当前模式",
+            "点击网络模式按钮切换模式",
+            "网络模式切换后Tab列表按模式过滤"
+          ],
+          "testCount": 9
+        },
+        {
+          "path": "tests/e2e/offline/app-shell/topbar/settings-navigation.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/layout/header/"
+          ],
+          "testCases": [
+            "点击设置按钮创建Tab并跳转设置页面",
+            "多次点击设置按钮不重复创建Tab",
+            "在项目工作区点击设置能正常跳转",
+            "关闭设置Tab后再次点击设置按钮重新创建",
+            "设置Tab图标显示正确"
+          ],
+          "testCount": 5
+        },
+        {
+          "path": "tests/e2e/offline/app-shell/topbar/tab-context-menu.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/layout/header/"
+          ],
+          "testCases": [
+            "右键Tab显示上下文菜单",
+            "上下文菜单包含所有操作选项",
+            "点击关闭菜单项关闭Tab",
+            "点击关闭其他菜单项保留当前Tab",
+            "点击关闭左侧菜单项关闭左边所有Tab",
+            "点击关闭右侧菜单项关闭右边所有Tab",
+            "点击遮罩层关闭上下文菜单",
+            "右键不同Tab切换菜单位置"
+          ],
+          "testCount": 8
+        },
+        {
+          "path": "tests/e2e/offline/app-shell/topbar/tab-control.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/layout/header/"
+          ],
+          "testCases": [
+            "项目tab显示项目图标,设置tab显示设置图标",
+            "新建项目会新增tab并自动高亮",
+            "打开设置会新增设置tab并自动高亮",
+            "点击编辑按钮打开不存在的项目tab会新增tab并高亮",
+            "点击已存在的tab高亮而不新增",
+            "tab默认排序:项目在前,设置在后",
+            "可以拖拽tab改变顺序",
+            "关闭高亮Tab后自动高亮右侧Tab",
+            "关闭最右侧高亮Tab后高亮左侧最近的Tab",
+            "关闭非高亮Tab不影响当前高亮状态",
+            "更新项目名称后tab页签名称同步更新",
+            "删除项目后对应的tab页签关闭",
+            "历史栈为空时多次点击后退按钮停留在首页",
+            "刷新页面后tab状态恢复且可正常切换",
+            "右键点击tab显示右键菜单",
+            "右键菜单关闭当前tab",
+            "右键菜单关闭左侧tab",
+            "右键菜单关闭右侧tab",
+            "右键菜单关闭其他tab",
+            "右键菜单全部关闭tab后跳转到主页",
+            "右键菜单项禁用状态正确",
+            "右键关闭后tab高亮状态正确"
+          ],
+          "testCount": 22
+        }
+      ],
+      "stats": {
+        "fileCount": 6,
+        "testCount": 51
+      }
+    },
+    {
+      "id": "batch-003",
+      "name": "项目管理",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "项目管理",
+        "level2": ""
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/project/create-project.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/home/",
+            "src/renderer/store/project/",
+            "src/renderer/cache/project/"
+          ],
+          "testCases": [
+            "点击顶部栏新建项目按钮打开弹窗,输入框自动聚焦",
+            "点击首页内容区新建项目按钮打开弹窗,输入框自动聚焦",
+            "不输入项目名称直接点击确定,显示必填错误提示",
+            "输入纯空格作为项目名称,显示空格校验错误提示",
+            "新建项目后自动跳转项目详情,顶部新增高亮Tab",
+            "新建项目后返回首页,新项目排在全部项目列表第一位"
+          ],
+          "testCount": 6
+        },
+        {
+          "path": "tests/e2e/offline/project/example-project.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/home/",
+            "src/renderer/store/project/",
+            "src/renderer/cache/project/"
+          ],
+          "testCases": [
+            "首次启动离线模式自动创建示例项目",
+            "示例项目包含两个主文件夹",
+            "真实API示例文件夹包含6个接口节点",
+            "Mock示例文件夹包含2个Mock节点",
+            "示例项目标记设置后不会重复创建",
+            "在线模式下不创建示例项目",
+            "点击示例HTTP接口可以正常打开并展示接口信息"
+          ],
+          "testCount": 7
+        },
+        {
+          "path": "tests/e2e/offline/project/project-list.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/home/",
+            "src/renderer/store/project/",
+            "src/renderer/cache/project/"
+          ],
+          "testCases": [
+            "项目列表以卡片形式展示,卡片包含:项目名称,修改图标,删除图标,收藏图标,创建者,最新更新日期,接口总数,编辑按钮",
+            "点击编辑按钮,跳转对应项目工作区",
+            "点击修改按钮,弹出修改名称弹窗,并且输入框选中对应项目名称",
+            "点击修改按钮,弹出修改名称弹窗,点击确认后项目列表卡片名称更新为最新,顶部导航栏项目名称更新为最新",
+            "未收藏项目,点击收藏图标,图标变为已收藏图标,并且在收藏的项目中展示被收藏项目",
+            "如果不存在收藏的项目,不展示收藏的项目标题",
+            "收藏的项目,点击收藏图标,图标变为未收藏图标,并且从收藏的项目中移除",
+            "点击删除项目图标,提示用户是否删除,确认后删除项目,在左下角出现撤回倒计时,在倒计时时间内允许用户撤回删除的项目",
+            "接口数量需要正确展示,folder节点不计入接口总数"
+          ],
+          "testCount": 9
+        },
+        {
+          "path": "tests/e2e/offline/project/project-recovery-docnum.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/home/",
+            "src/renderer/store/project/",
+            "src/renderer/cache/project/"
+          ],
+          "testCases": [
+            "恢复项目后接口数量正确展示，folder节点不计入接口总数"
+          ],
+          "testCount": 1
+        },
+        {
+          "path": "tests/e2e/offline/project/search-project.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/home/",
+            "src/renderer/store/project/",
+            "src/renderer/cache/project/"
+          ],
+          "testCases": [
+            "输入不存在的项目名称,显示空状态提示",
+            "清空搜索框后,项目列表恢复显示",
+            "搜索匹配项目名称,项目列表正确过滤",
+            "点击高级搜索按钮后,高级搜索面板与选项正确展示",
+            "高级搜索可以按节点名称搜索",
+            "高级搜索基础信息选项均可生效",
+            "高级搜索节点类型筛选选项均可生效",
+            "高级搜索请求参数选项均可生效",
+            "高级搜索更新日期选项均可生效",
+            "搜索结果按项目分组显示",
+            "搜索结果项显示节点类型和名称",
+            "搜索结果项显示匹配字段信息",
+            "点击搜索结果项跳转到对应节点",
+            "高级搜索无结果时显示空状态提示",
+            "重置按钮恢复所有搜索条件为默认值",
+            "点击搜索结果项跳转后,header正确创建并高亮tab",
+            "点击不同节点类型的搜索结果,tab正确创建并跳转到对应节点"
+          ],
+          "testCount": 17
+        }
+      ],
+      "stats": {
+        "fileCount": 5,
+        "testCount": 40
+      }
+    },
+    {
+      "id": "batch-004",
+      "name": "附加功能 - common-header",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "附加功能",
+        "level2": "common-header"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/addons/common-header/common-headers.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/dialog/commonHeaders/",
+            "src/renderer/cache/common/commonHeaders.ts"
+          ],
+          "testCases": [
+            "为folder节点设置公共请求头,该folder下所有接口自动继承这些请求头",
+            "接口请求头优先级高于公共请求头(相同key覆盖)",
+            "清空公共请求头后接口不再继承",
+            "公共请求头支持表格模式和多行编辑模式切换,两种模式数据同步",
+            "批量模式应用参数后自动在尾部添加空行",
+            "公共请求头顺序在刷新后保持一致,且在HTTP节点中展示顺序相同",
+            "在目录下创建的httpNode继承该目录的公共请求头",
+            "多层目录嵌套的公共请求头继承场景",
+            "子目录公共请求头优先级高于父目录"
+          ],
+          "testCount": 9
+        }
+      ],
+      "stats": {
+        "fileCount": 1,
+        "testCount": 9
+      }
+    },
+    {
+      "id": "batch-005",
+      "name": "附加功能 - cookie",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "附加功能",
+        "level2": "cookie"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/addons/cookie/cookie-manager.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/store/apidoc/cookiesStore.ts",
+            "src/renderer/cache/apidoc/cookies.ts",
+            "src/renderer/pages/projectWorkbench/dialog/cookieManager/"
+          ],
+          "testCases": [
+            "打开Cookie管理页面,显示Cookie列表和操作按钮",
+            "新增Cookie成功,Cookie显示在列表中",
+            "编辑Cookie成功,Cookie值被更新",
+            "删除Cookie成功,Cookie从列表中移除",
+            "按名称搜索Cookie,列表显示匹配的Cookie",
+            "按名称搜索Cookie-精确搜索、模糊搜索、无结果、清空搜索",
+            "按域名筛选Cookie-特定域名、万能域名、清空筛选、组合筛选",
+            "批量删除Cookie-选中多个删除",
+            "新增Cookie表单验证-名称为空时不允许保存",
+            "新增Cookie表单验证-值为空时不允许保存",
+            "新增Cookie-填写所有属性验证列表完整展示",
+            "新增Cookie-仅填写必填项验证默认值展示",
+            "刷新后Cookie仍然存在"
+          ],
+          "testCount": 13
+        },
+        {
+          "path": "tests/e2e/offline/workbench/addons/cookie/cookie.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/store/apidoc/cookiesStore.ts",
+            "src/renderer/cache/apidoc/cookies.ts",
+            "src/renderer/pages/projectWorkbench/dialog/cookieManager/"
+          ],
+          "testCases": [
+            "Set-Cookie 保存后续请求自动携带(含覆盖更新)",
+            "Path 匹配：仅在匹配路径下携带 Cookie",
+            "手动 Cookie 请求头完全覆盖自动注入",
+            "跨 host 不携带 Cookie",
+            "Domain 属性不匹配时忽略 Cookie",
+            "Max-Age=0 删除 Cookie",
+            "同名不同 Path 发送顺序：更长 Path 在前",
+            "默认 Path：未设置 Path 使用目录",
+            "Expires 已过期的 Cookie 不应被携带"
+          ],
+          "testCount": 9
+        }
+      ],
+      "stats": {
+        "fileCount": 2,
+        "testCount": 22
+      }
+    },
+    {
+      "id": "batch-006",
+      "name": "附加功能 - export",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "附加功能",
+        "level2": "export"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/addons/export/export.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/dialog/export/",
+            "src/renderer/server/export/"
+          ],
+          "testCases": [
+            "导出弹窗显示HTML、WORD、JSON文档、OpenAPI四种导出类型",
+            "选择JSON文档类型后显示active状态",
+            "选择OpenAPI类型后显示active状态",
+            "开启选择导出后显示el-tree节点树",
+            "导出JSON文档格式,点击确定导出按钮触发下载",
+            "离线模式创建全类型节点与参数组合,导出OpenAPI并校验schema与required"
+          ],
+          "testCount": 6
+        }
+      ],
+      "stats": {
+        "fileCount": 1,
+        "testCount": 6
+      }
+    },
+    {
+      "id": "batch-007",
+      "name": "附加功能 - import",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "附加功能",
+        "level2": "import"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/addons/import/ai-data-import.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/dialog/import/",
+            "src/renderer/server/import/"
+          ],
+          "testCases": [
+            "打开导入页面验证AI智能识别选项存在",
+            "选择AI智能识别导入方式",
+            "AI导入界面显示正确",
+            "从AI导入切换回其他导入方式"
+          ],
+          "testCount": 4
+        },
+        {
+          "path": "tests/e2e/offline/workbench/addons/import/apiflow-import.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/dialog/import/",
+            "src/renderer/server/import/"
+          ],
+          "testCases": [
+            "打开导入页面并选择本地文件导入方式",
+            "导入apiflow格式数据预览正确显示",
+            "选择追加导入方式",
+            "选择覆盖导入方式弹出确认框",
+            "无数据时点击确定导入显示警告",
+            "切换不同数据来源类型",
+            "粘贴内容导入 apiflow 文档后文档树出现导入节点"
+          ],
+          "testCount": 7
+        },
+        {
+          "path": "tests/e2e/offline/workbench/addons/import/code-repo-import.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/dialog/import/",
+            "src/renderer/server/import/"
+          ],
+          "testCases": [
+            "导入页面仅提供4种数据来源",
+            "导入页面切换不同导入方式"
+          ],
+          "testCount": 2
+        },
+        {
+          "path": "tests/e2e/offline/workbench/addons/import/openapi-import.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/dialog/import/",
+            "src/renderer/server/import/"
+          ],
+          "testCases": [
+            "打开导入页面验证OpenAPI/Swagger格式选择器",
+            "OpenAPI格式文件夹命名方式选择",
+            "选择追加导入方式不选择目标目录",
+            "选择追加导入方式并选择目标目录"
+          ],
+          "testCount": 4
+        },
+        {
+          "path": "tests/e2e/offline/workbench/addons/import/postman-import.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/dialog/import/",
+            "src/renderer/server/import/"
+          ],
+          "testCases": [
+            "打开导入页面验证Postman格式支持",
+            "验证Postman Collection格式识别",
+            "选择追加导入方式",
+            "无数据时确定导入按钮禁用"
+          ],
+          "testCount": 4
+        }
+      ],
+      "stats": {
+        "fileCount": 5,
+        "testCount": 21
+      }
+    },
+    {
+      "id": "batch-008",
+      "name": "附加功能 - trash",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "附加功能",
+        "level2": "trash"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/addons/trash/trash.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/dialog/recycler/",
+            "src/renderer/cache/apidoc/httpNodeList.ts"
+          ],
+          "testCases": [
+            "删除所有类型节点后同步展示到回收站，并可逐个恢复",
+            "验证各类型节点在回收站列表与详情中的展示逻辑",
+            "验证搜索条件是否生效（日期范围/接口名称/接口url/清空/全部清空/刷新）",
+            "父子节点同时删除后恢复子节点时同步恢复父节点（覆盖全部类型子节点）",
+            "父子节点同时删除后恢复父节点时同步恢复子节点（覆盖全部类型子节点）"
+          ],
+          "testCount": 5
+        }
+      ],
+      "stats": {
+        "fileCount": 1,
+        "testCount": 5
+      }
+    },
+    {
+      "id": "batch-009",
+      "name": "附加功能 - variable",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "附加功能",
+        "level2": "variable"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/addons/variable/variable.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/store/apidoc/variablesStore.ts",
+            "src/renderer/cache/apidoc/variables.ts",
+            "src/renderer/pages/projectWorkbench/dialog/variablesManager/"
+          ],
+          "testCases": [
+            "打开变量管理页面,显示新增变量表单和变量列表",
+            "新增string类型变量成功,变量列表中显示新增的变量",
+            "新增number类型变量成功",
+            "新增boolean类型变量成功",
+            "新增重复变量名显示错误提示",
+            "删除变量成功,变量从列表中移除",
+            "编辑变量成功,变量值更新",
+            "在请求Body中使用变量,发送请求后变量被正确替换",
+            "在请求URL中使用变量,发送请求后变量被正确替换",
+            "在请求Headers中使用变量,发送请求后变量被正确替换",
+            "在请求Params(Path/Query)中使用变量,发送请求后变量被正确替换",
+            "在公共请求头(Common Header)中使用变量,发送请求后变量被正确替换",
+            "在Cookie值中使用变量,发送请求后变量被正确替换",
+            "在Raw Body中使用变量,发送请求后变量被正确替换",
+            "在Urlencoded Body中使用变量,发送请求后变量被正确替换",
+            "在Form-Data Body中使用变量,发送请求后变量被正确替换",
+            "在Binary(变量模式)中使用变量,发送请求后rawBody等于文件内容",
+            "新增any类型变量执行JavaScript表达式,动态时间戳",
+            "使用不存在的变量时保留原始文本"
+          ],
+          "testCount": 19
+        }
+      ],
+      "stats": {
+        "fileCount": 1,
+        "testCount": 19
+      }
+    },
+    {
+      "id": "batch-010",
+      "name": "工作台横幅 - call-history.spec.ts",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "工作台横幅",
+        "level2": "call-history.spec.ts"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/banner/banner-details/call-history.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/layout/banner/"
+          ],
+          "testCases": [
+            "切换到调用历史Tab页,验证Tab切换功能",
+            "调用历史搜索框功能验证,包括placeholder和清空按钮",
+            "清空所有历史记录功能验证,包括确认弹窗",
+            "历史记录列表展示验证,包括空状态",
+            "点击历史记录项打开对应接口Tab页",
+            "已删除接口的历史记录标记验证",
+            "历史记录滚动加载验证",
+            "清理已删除接口历史功能验证"
+          ],
+          "testCount": 8
+        }
+      ],
+      "stats": {
+        "fileCount": 1,
+        "testCount": 8
+      }
+    },
+    {
+      "id": "batch-011",
+      "name": "工作台横幅 - node-operation",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "工作台横幅",
+        "level2": "node-operation"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/banner/banner-details/node-operation/add-node.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/layout/banner/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "鼠标右键空白区域添加http节点",
+            "鼠标右键目录添加http节点",
+            "点击新增按钮添加http节点",
+            "鼠标右键空白区域添加http节点(AI)",
+            "鼠标右键空白区域添加websocket节点",
+            "鼠标右键目录添加websocket节点",
+            "点击新增按钮添加websocket节点",
+            "鼠标右键空白区域添加httpMock节点",
+            "鼠标右键目录添加httpMock节点",
+            "点击新增按钮添加httpMock节点",
+            "鼠标右键空白区域添加websocketMock节点",
+            "鼠标右键目录添加websocketMock节点",
+            "点击新增按钮添加websocketMock节点",
+            "鼠标右键空白区域添加folder节点",
+            "鼠标右键目录添加folder节点",
+            "点击新增按钮添加folder节点",
+            "在folder节点上点击更多按钮添加folder节点",
+            "鼠标右键非folder节点不出现新建接口选项",
+            "非folder节点点击更多按钮不出现新建接口选项"
+          ],
+          "testCount": 19
+        },
+        {
+          "path": "tests/e2e/offline/workbench/banner/banner-details/node-operation/context-menu.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/layout/banner/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "鼠标右键空白区域,出现新建接口,新建文件夹,设置公共请求头,粘贴节点(可能置灰)等功能",
+            "鼠标右键空白区域,点击新建接口,成功后在根节点末尾生成节点",
+            "鼠标右键空白区域,点击新建文件夹,成功后在根节点最后一个目录节点下面生成目录节点",
+            "鼠标右键空白区域,点击设置公共请求头,导航区域增加公共请求头标签",
+            "鼠标右键空白区域,点击粘贴,可以粘贴节点",
+            "鼠标右键folder节点,出现新建接口,新建文件夹,设置公共请求头,剪切,复制,粘贴,重命名,删除等功能",
+            "鼠标右键folder节点,点击新建接口,成功后在当前folder内生成节点",
+            "鼠标右键folder节点,点击新建文件夹,成功后在当前folder内生成节点",
+            "鼠标右键folder节点,点击设置公共请求头,导航区域增加公共请求头标签",
+            "鼠标右键folder节点,点击剪切,被剪切节点样式发生改变,粘贴可以移动节点",
+            "鼠标右键folder节点,点击复制,粘贴可以复制节点",
+            "鼠标右键folder节点,点击重命名,可以正常重命名",
+            "鼠标右键folder节点,点击删除,可以正常删除目录",
+            "鼠标右键非folder节点,出现剪切,复制,生成副本,重命名,删除等功能",
+            "鼠标右键非folder节点,点击剪切,被剪切节点样式发生改变,粘贴可以移动节点",
+            "鼠标右键非folder节点,点击复制,粘贴可以复制节点",
+            "鼠标右键非folder节点,点击生成副本,可以在当前节点后面生成副本节点",
+            "鼠标右键非folder节点,点击重命名,可以正常重命名",
+            "鼠标右键非folder节点,点击删除,可以正常删除节点"
+          ],
+          "testCount": 19
+        },
+        {
+          "path": "tests/e2e/offline/workbench/banner/banner-details/node-operation/copy-node.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/layout/banner/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "复制单个httpNode节点粘贴到根节点下",
+            "复制单个httpNode节点粘贴到folder节点下",
+            "复制多个httpNode节点粘贴到根节点下",
+            "复制单个websocketNode节点粘贴到根节点下",
+            "复制单个websocketNode节点粘贴到folder节点下",
+            "复制单个httpMockNode节点粘贴到根节点下",
+            "复制单个httpMockNode节点粘贴到folder节点下",
+            "复制单个websocketMockNode节点粘贴到根节点下",
+            "复制单个websocketMockNode节点粘贴到folder节点下",
+            "复制单个folder节点粘贴到根节点下",
+            "复制包含子节点的folder节点",
+            "批量复制不同类型节点粘贴到根节点下",
+            "使用Ctrl+C和Ctrl+V复制粘贴节点"
+          ],
+          "testCount": 13
+        },
+        {
+          "path": "tests/e2e/offline/workbench/banner/banner-details/node-operation/cut-node.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/layout/banner/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "剪切单个httpNode节点粘贴到根节点下",
+            "剪切单个httpNode节点粘贴到folder节点下",
+            "剪切多个httpNode节点粘贴到根节点下",
+            "剪切httpNode节点在非folder节点右键不显示粘贴选项",
+            "剪切单个websocketNode节点粘贴到根节点下",
+            "剪切单个websocketNode节点粘贴到folder节点下",
+            "剪切单个httpMockNode节点粘贴到根节点下",
+            "剪切单个httpMockNode节点粘贴到folder节点下",
+            "剪切单个websocketMockNode节点粘贴到根节点下",
+            "剪切单个websocketMockNode节点粘贴到folder节点下",
+            "剪切单个folder节点粘贴到根节点下",
+            "剪切包含子节点的folder节点",
+            "批量剪切不同类型节点粘贴到根节点下",
+            "使用Ctrl+X和Ctrl+V剪切粘贴节点",
+            "剪切节点后进行复制操作,原剪切内容被覆盖"
+          ],
+          "testCount": 15
+        },
+        {
+          "path": "tests/e2e/offline/workbench/banner/banner-details/node-operation/delete-node.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/layout/banner/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "鼠标右键httpNode节点删除",
+            "鼠标移动到httpNode节点,点击更多操作删除节点",
+            "按住ctrl鼠标左键批量选择httpNode节点,鼠标右键批量删除",
+            "鼠标右键websocketNode节点删除",
+            "鼠标移动到websocketNode节点,点击更多操作删除节点",
+            "按住ctrl鼠标左键批量选择websocketNode节点,鼠标右键批量删除",
+            "鼠标右键httpMockNode节点删除",
+            "鼠标移动到httpMockNode节点,点击更多操作删除节点",
+            "按住ctrl鼠标左键批量选择httpMockNode节点,鼠标右键批量删除",
+            "鼠标右键websocketMockNode节点删除",
+            "鼠标移动到websocketMockNode节点,点击更多操作删除节点",
+            "按住ctrl鼠标左键批量选择websocketMockNode节点,鼠标右键批量删除",
+            "鼠标右键folder节点删除",
+            "鼠标移动到folder节点,点击更多操作删除节点",
+            "按住ctrl鼠标左键批量选择folder节点,鼠标右键批量删除",
+            "按住ctrl鼠标左键批量选择httpNode,websocketNode,httpMockNode,websocketMockNode,folder节点,鼠标右键批量删除"
+          ],
+          "testCount": 16
+        },
+        {
+          "path": "tests/e2e/offline/workbench/banner/banner-details/node-operation/move-node.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/layout/banner/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "拖拽单个httpNode节点到banner空白区域,移动到根节点下",
+            "拖拽单个httpNode节点到folder节点上,移动到folder节点下",
+            "拖拽单个httpNode节点调整在同一层级的顺序",
+            "拖拽httpNode节点到非folder节点中,操作被阻止",
+            "拖拽单个websocketNode节点到banner空白区域,移动到根节点下",
+            "拖拽单个websocketNode节点到folder节点上,移动到folder节点下",
+            "拖拽单个httpMockNode节点到banner空白区域,移动到根节点下",
+            "拖拽单个httpMockNode节点到folder节点上,移动到folder节点下",
+            "拖拽单个websocketMockNode节点到banner空白区域,移动到根节点下",
+            "拖拽单个websocketMockNode节点到folder节点上,移动到folder节点下",
+            "拖拽单个folder节点到banner空白区域,移动到根节点下",
+            "拖拽单个folder节点到folder节点上,移动到folder节点下作为子节点",
+            "拖拽folder节点调整在同一层级的顺序",
+            "拖拽folder节点到其自身子节点下,操作被阻止",
+            "移动包含多层嵌套的folder节点,层级结构保持不变"
+          ],
+          "testCount": 15
+        },
+        {
+          "path": "tests/e2e/offline/workbench/banner/banner-details/node-operation/other-cases.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/layout/banner/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "在根节点新增/粘贴非folder节点,会排序在末尾",
+            "在根节点新增/粘贴folder节点,会排序到根目录下最后一个目录节点下面",
+            "在根节点粘贴包含folder节点的混合节点,folder排序到文件夹区域,非folder排序在末尾"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/banner/banner-details/node-operation/rename-node.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/layout/banner/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "active节点,点击节点右键,点击重命名,输入名称,回车",
+            "active节点,F2重命名,输入名称,回车",
+            "点击节点更多操作,点击重命名,输入名称,blur",
+            "节点名称未填写不允许重命名",
+            "active节点,点击节点右键,点击重命名,输入名称,回车",
+            "active节点,F2重命名,输入名称,回车",
+            "点击节点更多操作,点击重命名,输入名称,blur",
+            "节点名称未填写不允许重命名",
+            "active节点,点击节点右键,点击重命名,输入名称,回车",
+            "active节点,F2重命名,输入名称,回车",
+            "点击节点更多操作,点击重命名,输入名称,blur",
+            "节点名称未填写不允许重命名",
+            "active节点,点击节点右键,点击重命名,输入名称,回车",
+            "active节点,F2重命名,输入名称,回车",
+            "点击节点更多操作,点击重命名,输入名称,blur",
+            "节点名称未填写不允许重命名",
+            "active节点,点击节点右键,点击重命名,输入名称,回车",
+            "active节点,F2重命名,输入名称,回车",
+            "点击节点更多操作,点击重命名,输入名称,blur",
+            "节点名称未填写不允许重命名"
+          ],
+          "testCount": 20
+        }
+      ],
+      "stats": {
+        "fileCount": 8,
+        "testCount": 120
+      }
+    },
+    {
+      "id": "batch-012",
+      "name": "工作台横幅 - 横幅功能",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "工作台横幅",
+        "level2": "横幅功能"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/banner/banner-other-features.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/layout/banner/"
+          ],
+          "testCases": [
+            "banner区域拖拽条可见",
+            "拖拽改变banner宽度",
+            "拖拽时显示宽度指示器",
+            "宽度不会小于最小值",
+            "宽度不会大于最大值",
+            "双击拖拽条还原默认宽度",
+            "拖拽时拖拽条高亮",
+            "httpMockNode启动后显示呼吸动画"
+          ],
+          "testCount": 8
+        },
+        {
+          "path": "tests/e2e/offline/workbench/banner/project-toggle.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/layout/banner/"
+          ],
+          "testCases": [
+            "显示当前项目名称",
+            "点击切换按钮弹出项目面板",
+            "项目面板显示项目列表标题",
+            "项目面板显示项目列表",
+            "项目项显示项目名称和创建者",
+            "点击外部区域关闭项目面板",
+            "点击项目触发切换"
+          ],
+          "testCount": 7
+        },
+        {
+          "path": "tests/e2e/offline/workbench/banner/search.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/layout/banner/"
+          ],
+          "testCases": [
+            "搜索框显示正确的placeholder和clearable按钮",
+            "输入内容可以匹配节点名称",
+            "输入内容可以匹配节点URL",
+            "无搜索结果时节点树不显示节点",
+            "搜索结果中关键字高亮显示",
+            "离线模式下不显示高级筛选按钮"
+          ],
+          "testCount": 6
+        },
+        {
+          "path": "tests/e2e/offline/workbench/banner/tools.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/layout/banner/"
+          ],
+          "testCases": [
+            "工具栏默认显示固定工具",
+            "点击更多操作按钮展开工具面板",
+            "更多操作面板显示完整工具列表",
+            "点击关闭按钮关闭更多操作面板",
+            "点击外部区域关闭更多操作面板",
+            "点击固定按钮将工具固定到工具栏",
+            "点击取消固定将工具从工具栏移除",
+            "点击新增目录按钮弹出目录创建对话框",
+            "点击新增接口按钮弹出接口创建对话框",
+            "点击回收站按钮打开回收站标签页",
+            "点击Cookie管理按钮打开Cookies标签页",
+            "点击变量按钮打开变量标签页",
+            "点击导入文档按钮打开导入文档标签页",
+            "点击导出文档按钮打开导出文档标签页"
+          ],
+          "testCount": 14
+        }
+      ],
+      "stats": {
+        "fileCount": 4,
+        "testCount": 35
+      }
+    },
+    {
+      "id": "batch-013",
+      "name": "导航功能",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "导航功能",
+        "level2": ""
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nav/banner-nav-interaction.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/layout/nav/",
+            "src/renderer/store/apidoc/tabsStore.ts"
+          ],
+          "testCases": [
+            "单击左侧非folder类型节点新增非固定tab页签且字体斜体",
+            "双击左侧非folder类型节点新增固定tab页签且字体正常",
+            "单击左侧folder类型节点不会新增tab页签",
+            "单击非folder节点B覆盖非固定tab节点A",
+            "双击非folder节点覆盖非固定页签并设为固定",
+            "banner新增节点会在右侧导航栏新增固定tab页签",
+            "删除banner节点右侧导航栏删除对应tab页签",
+            "重命名banner节点右侧导航栏对应tab页签名称更新",
+            "点击tab页签左侧banner节点高亮",
+            "双击非固定页签变为固定"
+          ],
+          "testCount": 10
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nav/nav-basic-style.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/layout/nav/",
+            "src/renderer/store/apidoc/tabsStore.ts"
+          ],
+          "testCases": [
+            "导航栏在项目工作区正确渲染",
+            "tab页签激活状态样式正确",
+            "非固定页签显示斜体样式",
+            "固定页签显示正常样式",
+            "未保存状态显示小圆点",
+            "HTTP节点tab显示请求方法标识",
+            "页签文本过长显示省略号"
+          ],
+          "testCount": 7
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nav/tab-drag.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/layout/nav/",
+            "src/renderer/store/apidoc/tabsStore.ts"
+          ],
+          "testCases": [
+            "拖拽tab页签改变顺序",
+            "拖拽tab页签后激活状态保持",
+            "拖拽后页签数量不变",
+            "只有单个tab时拖拽无变化",
+            "拖拽后固定状态保持"
+          ],
+          "testCount": 5
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nav/tab-operation.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/layout/nav/",
+            "src/renderer/store/apidoc/tabsStore.ts"
+          ],
+          "testCases": [
+            "点击关闭按钮关闭当前tab",
+            "右键菜单关闭当前tab",
+            "右键菜单关闭左侧tab",
+            "右键菜单关闭右侧tab",
+            "右键菜单关闭其他tab",
+            "右键菜单全部关闭",
+            "点击tab切换选中状态",
+            "新增空白接口按钮功能",
+            "双击tab固定非固定页签"
+          ],
+          "testCount": 9
+        }
+      ],
+      "stats": {
+        "fileCount": 4,
+        "testCount": 31
+      }
+    },
+    {
+      "id": "batch-014",
+      "name": "HTTP节点 - body",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "HTTP节点",
+        "level2": "body"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/body/binary-params.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/body/",
+            "src/renderer/store/apidoc/requestStore.ts",
+            "src/renderer/server/request/"
+          ],
+          "testCases": [
+            "变量模式下无效变量发送被阻止",
+            "变量模式下有效变量正确发送",
+            "文件模式下未选择文件发送被阻止",
+            "文件模式下选择文件正确发送"
+          ],
+          "testCount": 4
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/body/form-data-params.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/body/",
+            "src/renderer/store/apidoc/requestStore.ts",
+            "src/renderer/server/request/"
+          ],
+          "testCases": [
+            "formdata参数key输入值以后自动新增一行数据",
+            "formdata参数key,value输入值以后调用echo接口返回结果正确",
+            "formdata参数key,value支持变量调用echo接口返回结果正确",
+            "formdata参数key,value支持mock调用echo接口返回结果正确",
+            "formdata参数key,value支持混合变量调用echo接口返回结果正确",
+            "formdata参数是否发送未勾选那么当前参数不会发送",
+            "value模式切换后要清空之前的数据",
+            "value如果为文件模式选择文件调用echo接口返回结果正确",
+            "value如果为文件模式未选择文件时提示文件不存在",
+            "value如果为变量模式且文件存在调用echo接口返回结果正确",
+            "value如果为变量模式且文件不存在时提示文件不存在",
+            "value如果为变量模式但值不是变量时提示文件不存在",
+            "formdata参数key为变量调用echo接口返回结果正确",
+            "formdata参数key为mock调用echo接口返回结果正确",
+            "formdata参数key为混合变量调用echo接口返回结果正确",
+            "file类型formdata参数是否发送未勾选那么当前参数不会发送",
+            "存在string类型value和file类型value时候调用echo接口返回结果正确"
+          ],
+          "testCount": 17
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/body/json.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/body/",
+            "src/renderer/store/apidoc/requestStore.ts",
+            "src/renderer/server/request/"
+          ],
+          "testCases": [
+            "输入json5格式数据调用echo接口返回结果正确且content-type为application/json",
+            "json数据值字段支持变量调用echo接口返回结果正确",
+            "json数据支持超大数字调用echo接口返回结果正确"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/body/none-params.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/body/",
+            "src/renderer/store/apidoc/requestStore.ts",
+            "src/renderer/server/request/"
+          ],
+          "testCases": [
+            "None参数发送请求body为空"
+          ],
+          "testCount": 1
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/body/raw-params.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/body/",
+            "src/renderer/store/apidoc/requestStore.ts",
+            "src/renderer/server/request/"
+          ],
+          "testCases": [
+            "raw text参数输入值以后,请求头自动添加contentType:text/plain,调用echo接口返回结果参数和请求头正确",
+            "raw html参数输入值以后,请求头自动添加contentType:text/html,调用echo接口返回结果参数和请求头正确",
+            "raw xml参数输入值以后,请求头自动添加contentType:application/xml,调用echo接口返回结果参数和请求头正确",
+            "raw javascript参数输入值以后,请求头自动添加contentType:text/javascript,调用echo接口返回结果参数和请求头正确",
+            "raw参数无任何值时,请求头不自动添加Content-Type,调用echo接口返回正确"
+          ],
+          "testCount": 5
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/body/urlencoded-params.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/body/",
+            "src/renderer/store/apidoc/requestStore.ts",
+            "src/renderer/server/request/"
+          ],
+          "testCases": [
+            "urlencoded参数key输入值以后自动新增一行数据",
+            "urlencoded参数key,value输入值以后调用echo接口返回结果正确",
+            "urlencoded参数key,value支持变量调用echo接口返回结果正确",
+            "urlencoded参数key,value支持mock调用echo接口返回结果正确",
+            "urlencoded参数key,value支持混合变量调用echo接口返回结果正确",
+            "urlencoded参数是否发送未勾选那么当前参数不会发送"
+          ],
+          "testCount": 6
+        }
+      ],
+      "stats": {
+        "fileCount": 6,
+        "testCount": 36
+      }
+    },
+    {
+      "id": "batch-015",
+      "name": "HTTP节点 - operation (批次1)",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "HTTP节点",
+        "level2": "operation"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/layout-operation.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "点击水平布局按钮,请求区域和响应区域左右排列",
+            "点击垂直布局按钮,请求区域和响应区域上下排列",
+            "切换布局后刷新页面,布局保持不变"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/node-history.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "点击历史记录按钮,展示当前节点的发送历史列表",
+            "鼠标悬停历史记录项展示详情信息",
+            "节点没有历史记录时展示空状态提示"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/redo-boundary.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "没有可重做的操作时,重做按钮置灰不可点击",
+            "撤销后进行新操作,重做历史被清空,重做按钮置灰不可点击"
+          ],
+          "testCount": 2
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/redo-query-params.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "query参数key输入值后撤销再重做,值恢复到撤销前的状态",
+            "query参数拖拽后撤销再重做,顺序恢复到撤销前的状态"
+          ],
+          "testCount": 2
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/redo-request-method.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "切换请求方法两次后点击撤销按钮再点击重做按钮,请求方法恢复到撤销前的状态",
+            "切换请求方法两次后按ctrl+z再按ctrl+shift+z,请求方法恢复到撤销前的状态"
+          ],
+          "testCount": 2
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/redo-request-url.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "请求url输入后撤销再按ctrl+shift+z重做,url值恢复",
+            "请求url输入后点击撤销按钮再点击重做按钮,url值恢复"
+          ],
+          "testCount": 2
+        }
+      ],
+      "stats": {
+        "fileCount": 6,
+        "testCount": 14
+      }
+    },
+    {
+      "id": "batch-016",
+      "name": "HTTP节点 - operation (批次2)",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "HTTP节点",
+        "level2": "operation"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/refresh-button.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "刷新按钮点击后清空修改的值",
+            "验证录入项变更后刷新页面数据恢复"
+          ],
+          "testCount": 2
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/request-method-input.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "正确展示GET,POST,PUT,DEL,PATCH,HEAD,OPTIONS,选择或点击空白区域下拉菜单消失",
+            "切换请求方法不会改变banner节点中的请求方法,只有保存后才会生效",
+            "切换请求方法后发送请求,响应中method字段与选中的方法一致"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/request-url-display.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "url地址展示encode后的结果",
+            "url地址存在异常时需要提示",
+            "url没有协议时自动添加http前缀"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/request-url-format.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "输入URL后blur自动添加http://前缀，撤销不会回到格式化前",
+            "输入带query参数的URL，格式化后query参数被移除且不进入撤销栈",
+            "输入已有http://前缀的URL，格式化不会重复添加前缀",
+            "输入以/开头的相对路径，格式化不添加协议前缀",
+            "逐字符输入后格式化，撤销回到逐字符输入前的状态"
+          ],
+          "testCount": 5
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/request-url-input.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "输入localhost地址调用echo接口成功返回",
+            "输入127.0.0.1地址调用echo接口成功返回",
+            "使用变量调用echo接口成功返回",
+            "不带协议的URL自动添加http后成功请求",
+            "URL中的query参数自动解析到参数列表",
+            "URL中带query参数发送请求返回结果正确",
+            "粘贴的URL去除前后空格"
+          ],
+          "testCount": 7
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/save-button.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "无任何数据变更时可以点击保存按钮",
+            "存在数据变更点击保存按钮后小圆点消失且刷新后数据保持",
+            "验证录入项变更后保存成功且刷新后数据不丢失"
+          ],
+          "testCount": 3
+        }
+      ],
+      "stats": {
+        "fileCount": 6,
+        "testCount": 23
+      }
+    },
+    {
+      "id": "batch-017",
+      "name": "HTTP节点 - operation (批次3)",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "HTTP节点",
+        "level2": "operation"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/send-button.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "发送请求按钮点击后出现取消请求按钮点击后取消请求",
+            "发送请求按钮请求完成后恢复为发送请求按钮"
+          ],
+          "testCount": 2
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/undo-path-params.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "path参数key输入后按ctrl+z撤销",
+            "url和path参数联动变化后撤销",
+            "path参数value输入后点击撤销按钮恢复"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/undo-query-params.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "query参数key输入后按ctrl+z撤销",
+            "query参数value输入后按ctrl+z撤销",
+            "url和query参数联动变化后撤销"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/undo-request-method.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "切换请求方法后点击撤销按钮恢复",
+            "切换请求方法后按ctrl+z快捷键恢复"
+          ],
+          "testCount": 2
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/undo-request-url.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "快速输入URL后点击撤销按钮恢复初始值"
+          ],
+          "testCount": 1
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/variable-crud.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "新增string类型变量保存成功",
+            "新增number类型变量保存成功",
+            "修改已存在变量的值保存后更新",
+            "删除变量后从列表中移除"
+          ],
+          "testCount": 4
+        }
+      ],
+      "stats": {
+        "fileCount": 6,
+        "testCount": 15
+      }
+    },
+    {
+      "id": "batch-018",
+      "name": "HTTP节点 - operation (批次4)",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "HTTP节点",
+        "level2": "operation"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/variable-dialog.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "点击变量按钮打开变量管理页签",
+            "变量管理页签可关闭并再次打开"
+          ],
+          "testCount": 2
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/operation/variable-usage.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/",
+            "src/renderer/store/apidoc/",
+            "src/renderer/cache/apidoc/"
+          ],
+          "testCases": [
+            "在url中使用变量语法发送请求时变量被正确替换",
+            "在query参数中使用变量发送请求时变量被正确替换",
+            "在header参数中使用变量发送请求时变量被正确替换",
+            "在body json中使用变量发送请求时变量被正确替换"
+          ],
+          "testCount": 4
+        }
+      ],
+      "stats": {
+        "fileCount": 2,
+        "testCount": 6
+      }
+    },
+    {
+      "id": "batch-019",
+      "name": "HTTP节点 - params",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "HTTP节点",
+        "level2": "params"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/params/headers/custom-headers.spec.ts",
+          "relatedBusinessCode": [],
+          "testCases": [
+            "请求头key输入匹配时出现下拉列表并支持键盘选择",
+            "自定义请求头key忽略大小写覆盖默认请求头",
+            "header参数key输入后自动新增一行",
+            "自定义header参数正确发送到服务器",
+            "header参数支持变量替换",
+            "未勾选的header参数不会发送"
+          ],
+          "testCount": 6
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/params/headers/default-headers.spec.ts",
+          "relatedBusinessCode": [],
+          "testCases": [
+            "未设置body参数时默认请求头正确发送",
+            "隐藏请求头user-agent和accept值可以更改",
+            "隐藏请求头展开和收起功能正常",
+            "body中json类型自动添加content-type请求头",
+            "自动添加的content-type值允许修改"
+          ],
+          "testCount": 5
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/params/headers/header-priority.spec.ts",
+          "relatedBusinessCode": [],
+          "testCases": [
+            "自定义请求头优先级大于公共请求头,相同key时自定义header值被发送",
+            "公共请求头优先级大于可更改的默认请求头",
+            "自定义请求头优先级大于默认请求头",
+            "完整优先级链验证 - 自定义header优先级高于公共header优先级高于默认header"
+          ],
+          "testCount": 4
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/params/query.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/params/",
+            "src/renderer/pages/projectWorkbench/httpNode/headers/",
+            "src/renderer/store/apidoc/requestStore.ts"
+          ],
+          "testCases": [
+            "query参数key输入后自动新增一行",
+            "query参数正确发送到服务器",
+            "query参数支持变量替换",
+            "query参数支持mock数据",
+            "query参数支持混合变量",
+            "未勾选的query参数不会发送"
+          ],
+          "testCount": 6
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/params/remark.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/params/",
+            "src/renderer/pages/projectWorkbench/httpNode/headers/",
+            "src/renderer/store/apidoc/requestStore.ts"
+          ],
+          "testCases": [
+            "备注编辑器支持Markdown格式输入和预览",
+            "输入普通文本后保存,刷新页面内容保持不变",
+            "输入Markdown标题正确渲染为标题样式",
+            "输入Markdown粗体正确渲染为粗体样式",
+            "输入Markdown链接正确渲染为可点击链接",
+            "输入Markdown代码块正确渲染",
+            "备注内容变更后出现未保存小圆点,保存后小圆点消失",
+            "备注支持撤销操作,ctrl+z可以撤销输入",
+            "备注支持重做操作,ctrl+shift+z可以重做撤销的操作"
+          ],
+          "testCount": 9
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/params/response-params.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/params/",
+            "src/renderer/pages/projectWorkbench/httpNode/headers/",
+            "src/renderer/store/apidoc/requestStore.ts"
+          ],
+          "testCases": [
+            "返回参数可以新增、删除、修改名称、状态码和数据类型",
+            "状态码选择和颜色显示正确",
+            "响应类型选择和对应输入框显示正确"
+          ],
+          "testCount": 3
+        }
+      ],
+      "stats": {
+        "fileCount": 6,
+        "testCount": 33
+      }
+    },
+    {
+      "id": "batch-020",
+      "name": "HTTP节点 - response",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "HTTP节点",
+        "level2": "response"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/response/raw-value.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/response/",
+            "src/renderer/store/apidoc/responseStore.ts"
+          ],
+          "testCases": [
+            "原始值正确返回",
+            "原始值与JSON格式化显示内容一致"
+          ],
+          "testCount": 2
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/response/request-basic-info.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/response/",
+            "src/renderer/store/apidoc/responseStore.ts"
+          ],
+          "testCases": [
+            "发送请求后基本信息区域内容正确展示",
+            "发送不同请求方法验证颜色显示正确"
+          ],
+          "testCount": 2
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/response/request-info.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/response/",
+            "src/renderer/store/apidoc/responseStore.ts"
+          ],
+          "testCases": [
+            "请求信息区域基本信息正确展示",
+            "POST请求的请求头和请求body正确展示"
+          ],
+          "testCount": 2
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/response/response-basic-info.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/response/",
+            "src/renderer/store/apidoc/responseStore.ts"
+          ],
+          "testCases": [
+            "未发送请求时响应基本信息显示问号图标",
+            "发送请求成功展示正确的状态码和颜色",
+            "发送请求成功展示正确的响应时长",
+            "发送请求成功展示正确的返回大小",
+            "发送请求成功展示正确的返回格式"
+          ],
+          "testCount": 5
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/response/response-cookie.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/response/",
+            "src/renderer/store/apidoc/responseStore.ts"
+          ],
+          "testCases": [
+            "返回Cookie正确展示",
+            "Cookie展示包含完整信息"
+          ],
+          "testCount": 2
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/response/response-header.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/response/",
+            "src/renderer/store/apidoc/responseStore.ts"
+          ],
+          "testCases": [
+            "响应头正确展示",
+            "响应头列表显示Content-Type等标准头"
+          ],
+          "testCount": 2
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/response/response-value.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/response/",
+            "src/renderer/store/apidoc/responseStore.ts"
+          ],
+          "testCases": [
+            "JSON格式返回值正确展示",
+            "JSON返回值区域可以正常滚动查看完整内容"
+          ],
+          "testCount": 2
+        }
+      ],
+      "stats": {
+        "fileCount": 7,
+        "testCount": 17
+      }
+    },
+    {
+      "id": "batch-021",
+      "name": "HTTP节点 - script (批次1)",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "HTTP节点",
+        "level2": "script"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/script/after-cookies-api.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/worker/",
+            "src/renderer/server/request/request.ts",
+            "src/renderer/pages/projectWorkbench/httpNode/script/"
+          ],
+          "testCases": [
+            "使用af.cookies.get(name)获取指定Cookie值",
+            "使用af.cookies.getAll()获取所有Cookie",
+            "使用af.cookies.set(name, value)设置Cookie值",
+            "使用af.cookies.remove(name)删除Cookie"
+          ],
+          "testCount": 4
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/script/after-editor-features.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/worker/",
+            "src/renderer/server/request/request.ts",
+            "src/renderer/pages/projectWorkbench/httpNode/script/"
+          ],
+          "testCases": [
+            "后置脚本编辑器支持JavaScript语法高亮",
+            "输入af.后出现代码补全提示",
+            "点击格式化按钮代码格式化正确"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/script/after-local-storage-api.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/worker/",
+            "src/renderer/server/request/request.ts",
+            "src/renderer/pages/projectWorkbench/httpNode/script/"
+          ],
+          "testCases": [
+            "使用af.localStorage.set(key, value)存储持久数据",
+            "使用af.localStorage.get(key)获取持久数据",
+            "使用af.localStorage.remove(key)删除持久数据",
+            "使用af.localStorage.clear()清空所有持久数据",
+            "获取不存在的键返回null"
+          ],
+          "testCount": 5
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/script/after-response-api.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/worker/",
+            "src/renderer/server/request/request.ts",
+            "src/renderer/pages/projectWorkbench/httpNode/script/"
+          ],
+          "testCases": [
+            "使用af.response.statusCode获取响应状态码",
+            "使用af.response.headers获取响应头",
+            "使用af.response.cookies获取响应Cookie",
+            "使用af.response.body获取响应体数据",
+            "使用af.response.rt获取响应时长",
+            "使用af.response.size获取响应大小",
+            "使用af.response.ip获取远端IP地址"
+          ],
+          "testCount": 7
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/script/after-script-execution.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/worker/",
+            "src/renderer/server/request/request.ts",
+            "src/renderer/pages/projectWorkbench/httpNode/script/"
+          ],
+          "testCases": [
+            "后置脚本语法错误时在响应区域展示脚本错误信息",
+            "后置脚本运行时错误时在响应区域展示运行时错误信息",
+            "后置脚本在主请求响应后执行"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/script/after-session-storage-api.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/worker/",
+            "src/renderer/server/request/request.ts",
+            "src/renderer/pages/projectWorkbench/httpNode/script/"
+          ],
+          "testCases": [
+            "使用af.sessionStorage.set(key, value)存储会话数据",
+            "使用af.sessionStorage.get(key)获取会话数据",
+            "使用af.sessionStorage.remove(key)删除会话数据",
+            "使用af.sessionStorage.clear()清空所有会话数据"
+          ],
+          "testCount": 4
+        }
+      ],
+      "stats": {
+        "fileCount": 6,
+        "testCount": 26
+      }
+    },
+    {
+      "id": "batch-022",
+      "name": "HTTP节点 - script (批次2)",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "HTTP节点",
+        "level2": "script"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/script/after-variables-api.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/worker/",
+            "src/renderer/server/request/request.ts",
+            "src/renderer/pages/projectWorkbench/httpNode/script/"
+          ],
+          "testCases": [
+            "使用af.variables.get(name)获取指定变量值",
+            "使用af.variables.set(name, value)设置变量值",
+            "后置脚本中设置的变量在下次请求中可以使用"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/script/pre-editor-features.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/worker/",
+            "src/renderer/server/request/request.ts",
+            "src/renderer/pages/projectWorkbench/httpNode/script/"
+          ],
+          "testCases": [
+            "前置脚本编辑器支持JavaScript语法高亮",
+            "输入af后出现代码补全提示",
+            "点击格式化按钮代码格式化正确",
+            "鼠标悬停在af对象属性上显示API说明提示"
+          ],
+          "testCount": 4
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/script/pre-env-variable-access.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/worker/",
+            "src/renderer/server/request/request.ts",
+            "src/renderer/pages/projectWorkbench/httpNode/script/"
+          ],
+          "testCases": [
+            "使用af.envs获取所有环境变量列表",
+            "使用af.currentEnv获取当前激活的环境变量"
+          ],
+          "testCount": 2
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/script/pre-http-api.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/worker/",
+            "src/renderer/server/request/request.ts",
+            "src/renderer/pages/projectWorkbench/httpNode/script/"
+          ],
+          "testCases": [
+            "使用af.http.get发送GET请求并获取响应数据",
+            "使用af.http.post发送POST请求并获取响应数据",
+            "使用af.http.put发送PUT请求并获取响应数据",
+            "使用af.http.delete发送DELETE请求并获取响应数据",
+            "af.http请求失败时正确抛出错误"
+          ],
+          "testCount": 5
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/script/pre-request-api.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/worker/",
+            "src/renderer/server/request/request.ts",
+            "src/renderer/pages/projectWorkbench/httpNode/script/"
+          ],
+          "testCases": [
+            "使用af.request.path修改请求路径",
+            "使用af.request.headers修改请求头",
+            "使用af.request.queryParams修改Query参数",
+            "使用af.request.pathParams修改Path参数",
+            "使用af.request.body.json修改JSON body",
+            "使用af.request.body.formdata修改formdata body",
+            "使用af.request.method修改请求方法",
+            "使用af.request.url替换整个URL"
+          ],
+          "testCount": 8
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/script/pre-script-execution.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/worker/",
+            "src/renderer/server/request/request.ts",
+            "src/renderer/pages/projectWorkbench/httpNode/script/"
+          ],
+          "testCases": [
+            "前置脚本语法错误时展示脚本错误信息",
+            "前置脚本运行时错误时展示运行时错误信息",
+            "前置脚本正常执行后主请求继续发送"
+          ],
+          "testCount": 3
+        }
+      ],
+      "stats": {
+        "fileCount": 6,
+        "testCount": 25
+      }
+    },
+    {
+      "id": "batch-023",
+      "name": "HTTP节点 - settings",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "HTTP节点",
+        "level2": "settings"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/settings/display-order-config.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/settings/",
+            "src/renderer/store/apidoc/requestStore.ts"
+          ],
+          "testCases": [
+            "拖拽调整Body参数模式显示顺序后Body区域按新顺序展示",
+            "拖拽调整标签页显示顺序后标签按新顺序展示",
+            "显示顺序修改后刷新页面顺序保持不变"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/settings/redirect-config.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/settings/",
+            "src/renderer/store/apidoc/requestStore.ts"
+          ],
+          "testCases": [
+            "开启自动跟随重定向时,请求自动跟随重定向并返回最终响应",
+            "关闭自动跟随重定向时,请求返回重定向响应不继续跟随",
+            "修改最大重定向次数配置,超过次数后停止重定向并提示"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/settings/request-config.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/settings/",
+            "src/renderer/store/apidoc/requestStore.ts"
+          ],
+          "testCases": [
+            "修改最大文本Body大小配置",
+            "修改最大原始Body大小配置",
+            "修改自定义User-Agent配置",
+            "修改请求头值最大展示长度配置"
+          ],
+          "testCount": 4
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/settings/restore-default.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/httpNode/settings/",
+            "src/renderer/store/apidoc/requestStore.ts"
+          ],
+          "testCases": [
+            "点击恢复默认按钮所有配置项恢复为默认值",
+            "修改重定向配置后点击恢复按钮配置恢复为默认值",
+            "恢复默认后刷新页面配置保持为默认值",
+            "Body参数显示顺序恢复默认后顺序恢复为初始状态"
+          ],
+          "testCount": 4
+        }
+      ],
+      "stats": {
+        "fileCount": 4,
+        "testCount": 14
+      }
+    },
+    {
+      "id": "batch-024",
+      "name": "HTTP节点 - validation (批次1)",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "HTTP节点",
+        "level2": "validation"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/validation/binary-body-validation.spec.ts",
+          "relatedBusinessCode": [
+            "src/main/sendRequest.ts",
+            "src/renderer/server/request/request.ts"
+          ],
+          "testCases": [
+            "切换Body类型为Binary后显示Binary选项",
+            "Binary变量模式输入框可见",
+            "Binary变量模式可以输入变量",
+            "Binary文件模式选择文件按钮可见",
+            "Binary模式切换在变量和文件之间",
+            "POST方法下可以选择Binary类型",
+            "PUT方法下可以选择Binary类型",
+            "PATCH方法下可以选择Binary类型",
+            "Binary变量模式输入值在切换tab后保持",
+            "Binary模式选择在切换tab后保持",
+            "从Binary切换到JSON类型后再切回Binary",
+            "Binary变量模式输入框有正确的placeholder提示"
+          ],
+          "testCount": 12
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/validation/formdata-body-validation.spec.ts",
+          "relatedBusinessCode": [
+            "src/main/sendRequest.ts",
+            "src/renderer/server/request/request.ts"
+          ],
+          "testCases": [
+            "调用echo接口验证常规formdata是否正常返回,content-type是否设置正确",
+            "调用echo接口验证使用变量的formdata是否正常返回,content-type是否设置正确",
+            "调用echo接口验证使用mock的formdata是否正常返回,content-type是否设置正确"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/validation/formdata-file-upload-validation.spec.ts",
+          "relatedBusinessCode": [
+            "src/main/sendRequest.ts",
+            "src/renderer/server/request/request.ts"
+          ],
+          "testCases": [
+            "调用echo接口验证包含字符串和file类型的formData是否正常返回,content-type是否设置正确",
+            "调用echo接口验证formData录入value如果是变量是否正常返回,content-type是否设置正确",
+            "调用echo接口验证formData录入value如果是mock是否正常返回,content-type是否设置正确",
+            "调用echo接口验证formData中没有file字段时是否正常返回,content-type是否设置正确"
+          ],
+          "testCount": 4
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/validation/json-body-validation.spec.ts",
+          "relatedBusinessCode": [
+            "src/main/sendRequest.ts",
+            "src/renderer/server/request/request.ts"
+          ],
+          "testCases": [
+            "调用echo接口验证常规json是否正常返回,content-type是否设置正确",
+            "调用echo接口验证使用变量的json是否正常返回,content-type是否设置正确",
+            "调用echo接口验证使用mock的json是否正常返回,content-type是否设置正确",
+            "调用echo接口验证基础类型json是否正常返回,content-type是否设置正确"
+          ],
+          "testCount": 4
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/validation/none-body-validation.spec.ts",
+          "relatedBusinessCode": [
+            "src/main/sendRequest.ts",
+            "src/renderer/server/request/request.ts"
+          ],
+          "testCases": [
+            "调用echo接口验证body为none请求是否正常返回,content-type是否正确",
+            "DELETE方法配合None请求体验证"
+          ],
+          "testCount": 2
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/validation/path-params-validation.spec.ts",
+          "relatedBusinessCode": [
+            "src/main/sendRequest.ts",
+            "src/renderer/server/request/request.ts"
+          ],
+          "testCases": [
+            "调用echo接口验证path参数是否正常返回",
+            "调用echo接口验证单个path参数是否正常返回",
+            "调用echo接口验证中文path参数是否正常返回",
+            "调用echo接口验证使用变量的path参数是否正常返回",
+            "调用echo接口验证多个path参数混合URL编码是否正常返回"
+          ],
+          "testCount": 5
+        }
+      ],
+      "stats": {
+        "fileCount": 6,
+        "testCount": 30
+      }
+    },
+    {
+      "id": "batch-025",
+      "name": "HTTP节点 - validation (批次2)",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "HTTP节点",
+        "level2": "validation"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/validation/query-params-validation.spec.ts",
+          "relatedBusinessCode": [
+            "src/main/sendRequest.ts",
+            "src/renderer/server/request/request.ts"
+          ],
+          "testCases": [
+            "调用echo接口验证参数为空是否正常返回",
+            "调用echo接口验证常规参数是否正常返回",
+            "调用echo接口验证同名参数是否正常返回",
+            "调用echo接口验证中文参数是否正常返回"
+          ],
+          "testCount": 4
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/validation/raw-body-validation.spec.ts",
+          "relatedBusinessCode": [
+            "src/main/sendRequest.ts",
+            "src/renderer/server/request/request.ts"
+          ],
+          "testCases": [
+            "调用echo接口验证text格式参数是否正常返回,content-type是否设置正确",
+            "调用echo接口验证html格式参数是否正常返回,content-type是否设置正确",
+            "调用echo接口验证xml格式参数是否正常返回,content-type是否设置正确",
+            "调用echo接口验证javascript格式参数是否正常返回,content-type是否设置正确"
+          ],
+          "testCount": 4
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/validation/request-method-validation.spec.ts",
+          "relatedBusinessCode": [
+            "src/main/sendRequest.ts",
+            "src/renderer/server/request/request.ts"
+          ],
+          "testCases": [
+            "验证GET方法能正常发送",
+            "验证POST方法能正常发送",
+            "验证PUT方法能正常发送",
+            "验证DELETE方法能正常发送",
+            "验证PATCH方法能正常发送",
+            "验证HEAD方法响应不包含body",
+            "验证OPTIONS方法能正常发送",
+            "验证方法切换后UI立即更新显示新的方法"
+          ],
+          "testCount": 8
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/validation/request-url-validation.spec.ts",
+          "relatedBusinessCode": [
+            "src/main/sendRequest.ts",
+            "src/renderer/server/request/request.ts"
+          ],
+          "testCases": [
+            "验证localhost格式的url能正确请求并显示正确的url地址",
+            "验证127.0.0.1格式的ip url能正确请求并显示正确的url地址"
+          ],
+          "testCount": 2
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/http/validation/urlencoded-body-validation.spec.ts",
+          "relatedBusinessCode": [
+            "src/main/sendRequest.ts",
+            "src/renderer/server/request/request.ts"
+          ],
+          "testCases": [
+            "调用echo接口验证urlencoded参数是否正常返回,content-type是否设置正确",
+            "PUT方法配合URLEncoded请求体验证"
+          ],
+          "testCount": 2
+        }
+      ],
+      "stats": {
+        "fileCount": 5,
+        "testCount": 20
+      }
+    },
+    {
+      "id": "batch-026",
+      "name": "WebSocket节点 - operation (批次1)",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "WebSocket节点",
+        "level2": "operation"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/operation/connect-send.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/",
+            "src/main/websocket/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "连接并收发消息"
+          ],
+          "testCount": 1
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/operation/layout-operation.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/",
+            "src/main/websocket/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "点击水平布局按钮参数区域和响应区域左右排列",
+            "点击垂直布局按钮参数区域和响应区域上下排列",
+            "切换布局后刷新页面布局保持不变"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/operation/node-history.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/",
+            "src/main/websocket/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "点击历史记录按钮打开历史下拉框",
+            "保存后历史记录列表显示保存记录",
+            "多次保存后历史记录列表显示多条记录",
+            "选择历史记录后恢复到该状态",
+            "删除历史记录后列表更新",
+            "再次点击历史记录按钮关闭下拉框"
+          ],
+          "testCount": 6
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/operation/protocol-switch.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/",
+            "src/main/websocket/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "切换到WS协议后协议选择器显示WS",
+            "切换到WSS协议后协议选择器显示WSS",
+            "切换协议后刷新页面协议保持不变",
+            "切换协议后连接地址的协议前缀同步更新"
+          ],
+          "testCount": 4
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/operation/redo-boundary.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/",
+            "src/main/websocket/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "没有可重做的操作时重做按钮禁用",
+            "撤销后进行新操作,重做历史被清空,重做按钮禁用",
+            "连续重做到尽头后重做按钮禁用"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/operation/redo-protocol.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/",
+            "src/main/websocket/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "撤销协议变更后点击重做按钮恢复",
+            "使用快捷键重做协议变更"
+          ],
+          "testCount": 2
+        }
+      ],
+      "stats": {
+        "fileCount": 6,
+        "testCount": 19
+      }
+    },
+    {
+      "id": "batch-027",
+      "name": "WebSocket节点 - operation (批次2)",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "WebSocket节点",
+        "level2": "operation"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/operation/redo-query-params.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/",
+            "src/main/websocket/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "撤销Query参数后点击重做恢复",
+            "使用快捷键重做Query参数"
+          ],
+          "testCount": 2
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/operation/redo-url.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/",
+            "src/main/websocket/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "逐字符输入后撤销再点击重做按钮恢复",
+            "逐字符输入后撤销再使用Ctrl+Y重做",
+            "逐字符输入多个字符后多次撤销再逐步重做"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/operation/save-refresh.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/",
+            "src/main/websocket/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "点击保存按钮数据保存成功",
+            "点击刷新按钮数据重新加载",
+            "未保存数据切换节点时提示保存确认"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/operation/undo-headers.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/",
+            "src/main/websocket/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "添加Header后点击撤销恢复",
+            "使用Ctrl+Z撤销Header编辑",
+            "修改Header值后撤销恢复"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/operation/undo-message-block.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/",
+            "src/main/websocket/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "添加消息块后撤销删除",
+            "修改消息内容后撤销恢复原值",
+            "删除消息块后撤销恢复"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/operation/undo-protocol.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/",
+            "src/main/websocket/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "切换协议后点击撤销按钮恢复原协议",
+            "使用Ctrl+Z快捷键撤销协议变更",
+            "多次切换协议后逐步撤销"
+          ],
+          "testCount": 3
+        }
+      ],
+      "stats": {
+        "fileCount": 6,
+        "testCount": 17
+      }
+    },
+    {
+      "id": "batch-028",
+      "name": "WebSocket节点 - operation (批次3)",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "WebSocket节点",
+        "level2": "operation"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/operation/undo-query-params.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/",
+            "src/main/websocket/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "添加Query参数后点击撤销恢复",
+            "使用Ctrl+Z撤销Query参数编辑",
+            "删除Query参数后撤销恢复"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/operation/undo-url.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/",
+            "src/main/websocket/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "输入URL后点击撤销按钮恢复原值",
+            "使用Ctrl+Z快捷键撤销URL变更",
+            "连续输入多次后可以逐步撤销",
+            "没有可撤销操作时撤销按钮禁用"
+          ],
+          "testCount": 4
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/operation/url-format.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/",
+            "src/main/websocket/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "输入URL后blur自动添加ws://前缀，撤销不会回到格式化前",
+            "输入URL后按Enter键触发格式化，验证格式化不进入撤销栈",
+            "输入带query参数的URL，格式化后query参数被移除且不进入撤销栈",
+            "输入已有ws://前缀的URL，格式化不会重复添加前缀",
+            "逐字符输入后格式化，撤销回到逐字符输入前的状态"
+          ],
+          "testCount": 5
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/operation/url-input.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/",
+            "src/main/websocket/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "URL输入框支持输入WebSocket地址",
+            "URL输入后刷新页面地址保持不变",
+            "URL输入框支持变量替换",
+            "URL输入框清空后状态栏显示空地址"
+          ],
+          "testCount": 4
+        }
+      ],
+      "stats": {
+        "fileCount": 4,
+        "testCount": 16
+      }
+    },
+    {
+      "id": "batch-029",
+      "name": "WebSocket节点 - params",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "WebSocket节点",
+        "level2": "params"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/params/auto-send.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/params/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "勾选自动发送后连接成功自动发送消息",
+            "自动发送配置支持设置发送间隔",
+            "自动发送配置支持设置消息类型",
+            "自动发送配置支持设置消息内容",
+            "关闭配置面板后配置不保存"
+          ],
+          "testCount": 5
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/params/headers/custom-headers.spec.ts",
+          "relatedBusinessCode": [],
+          "testCases": [
+            "请求头key输入匹配时出现下拉列表",
+            "请求头key输入后自动新增一行",
+            "取消勾选请求头后该请求头不发送",
+            "请求头支持变量替换",
+            "多行编辑模式切换"
+          ],
+          "testCount": 5
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/params/headers/default-headers.spec.ts",
+          "relatedBusinessCode": [],
+          "testCases": [
+            "默认请求头列表可见",
+            "点击隐藏后默认请求头折叠显示隐藏数量",
+            "点击显示后默认请求头展开",
+            "默认请求头可以取消勾选",
+            "默认请求头不可编辑"
+          ],
+          "testCount": 5
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/params/message/message-block-crud.spec.ts",
+          "relatedBusinessCode": [],
+          "testCases": [
+            "点击添加消息块按钮新增一个消息块",
+            "删除消息块后消息块列表减少一个",
+            "修改消息块名称后名称显示更新",
+            "修改消息块内容后内容保存成功",
+            "空状态下显示添加消息块按钮",
+            "折叠消息块后编辑器区域隐藏"
+          ],
+          "testCount": 6
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/params/message/message-type.spec.ts",
+          "relatedBusinessCode": [],
+          "testCases": [
+            "切换消息类型为JSON编辑器语言切换为JSON",
+            "切换消息类型为XML编辑器语言切换为XML",
+            "切换消息类型为HTML编辑器语言切换为HTML",
+            "切换消息类型为文本编辑器语言切换为纯文本",
+            "切换消息类型为二进制Base64编辑器支持Base64输入",
+            "切换消息类型为二进制Hex编辑器支持Hex输入",
+            "JSON类型消息块显示格式化按钮"
+          ],
+          "testCount": 7
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/params/query-params.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/params/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "Query参数key输入后自动新增一行",
+            "Query参数正确添加到URL中",
+            "Query参数支持变量替换",
+            "取消勾选Query参数后URL中不包含该参数",
+            "多个Query参数正确拼接"
+          ],
+          "testCount": 5
+        }
+      ],
+      "stats": {
+        "fileCount": 6,
+        "testCount": 33
+      }
+    },
+    {
+      "id": "batch-030",
+      "name": "WebSocket节点 - response",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "WebSocket节点",
+        "level2": "response"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/response/clear-data.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/response/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "点击清空数据按钮后消息列表清空",
+            "清空数据后缓存也被清空",
+            "未连接状态下响应区域显示空状态",
+            "连接错误后显示错误信息"
+          ],
+          "testCount": 4
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/response/response-display.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/pages/projectWorkbench/websocketNode/response/",
+            "src/renderer/store/websocket/"
+          ],
+          "testCases": [
+            "连接成功后显示连接信息",
+            "收到消息后在响应区域显示",
+            "基本信息区域显示连接地址",
+            "断开连接后显示断开信息",
+            "多条消息按时间顺序显示"
+          ],
+          "testCount": 5
+        }
+      ],
+      "stats": {
+        "fileCount": 2,
+        "testCount": 9
+      }
+    },
+    {
+      "id": "batch-031",
+      "name": "WebSocket节点 - script",
+      "status": "pending",
+      "lastUpdated": null,
+      "category": {
+        "level1": "WebSocket节点",
+        "level2": "script"
+      },
+      "files": [
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/script/after-editor-features.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/worker/",
+            "src/renderer/pages/projectWorkbench/websocketNode/script/"
+          ],
+          "testCases": [
+            "后置脚本编辑器支持JavaScript语法高亮",
+            "输入af后出现代码补全提示",
+            "点击格式化按钮代码格式化正确",
+            "后置脚本内容保存后刷新页面保持不变",
+            "后置脚本标签有内容时显示红点"
+          ],
+          "testCount": 5
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/script/after-script-execution.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/worker/",
+            "src/renderer/pages/projectWorkbench/websocketNode/script/"
+          ],
+          "testCases": [
+            "后置脚本语法错误时在响应区域展示脚本错误信息",
+            "后置脚本运行时错误时在响应区域展示运行时错误信息",
+            "后置脚本在收到消息后执行"
+          ],
+          "testCount": 3
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/script/pre-editor-features.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/worker/",
+            "src/renderer/pages/projectWorkbench/websocketNode/script/"
+          ],
+          "testCases": [
+            "前置脚本编辑器支持JavaScript语法高亮",
+            "输入af后出现代码补全提示",
+            "点击格式化按钮代码格式化正确",
+            "前置脚本内容保存后刷新页面保持不变",
+            "前置脚本标签有内容时显示红点"
+          ],
+          "testCount": 5
+        },
+        {
+          "path": "tests/e2e/offline/workbench/nodes/websocket/script/pre-script-execution.spec.ts",
+          "relatedBusinessCode": [
+            "src/renderer/worker/",
+            "src/renderer/pages/projectWorkbench/websocketNode/script/"
+          ],
+          "testCases": [
+            "前置脚本语法错误时在响应区域展示脚本错误信息",
+            "前置脚本运行时错误时在响应区域展示运行时错误信息",
+            "前置脚本正常执行后WebSocket连接继续进行"
+          ],
+          "testCount": 3
+        }
+      ],
+      "stats": {
+        "fileCount": 4,
+        "testCount": 16
+      }
+    }
+  ]
+}

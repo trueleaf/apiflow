@@ -262,6 +262,49 @@ test.describe('JsonBodyValidation', () => {
     await expect(responseBody).toContainText('2', { timeout: 10000 });
     await expect(responseBody).toContainText('3', { timeout: 10000 });
   });
+  // 调用echo接口验证嵌套JSON对象是否正常返回,content-type是否设置正确
+  test('调用echo接口验证嵌套JSON对象是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('JSON嵌套对象测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    await methodSelect.click();
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    await postOption.click();
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+    await bodyTab.click();
+    await contentPage.waitForTimeout(300);
+    const jsonRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^json$/i }).locator('.el-radio');
+    await jsonRadio.click();
+    await contentPage.waitForTimeout(300);
+    // 输入嵌套JSON数据
+    const monacoEditor = contentPage.locator('.s-json-editor').first();
+    await monacoEditor.click({ force: true });
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('{"user":{"name":"test","address":{"city":"Beijing"}},"tags":["api","test"]}');
+    await contentPage.waitForTimeout(300);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    // 验证Content-Type和嵌套字段
+    await expect(responseBody).toContainText('application/json', { timeout: 10000 });
+    await expect(responseBody).toContainText('user', { timeout: 10000 });
+    await expect(responseBody).toContainText('address', { timeout: 10000 });
+    await expect(responseBody).toContainText('Beijing', { timeout: 10000 });
+    await expect(responseBody).toContainText('tags', { timeout: 10000 });
+  });
 });
 
 

@@ -145,4 +145,54 @@ test.describe('WebSocketResponseDisplay', () => {
     expect(index2).toBeGreaterThanOrEqual(0);
     expect(index1).toBeLessThan(index2);
   });
+  // 发送消息后响应区域显示发送和接收消息类型标记
+  test('发送消息后响应区域同时显示发送和接收消息', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'websocket', name: '消息类型标记测试' });
+    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
+    await urlEditor.fill(`127.0.0.1:${MOCK_SERVER_PORT}/ws`);
+    await contentPage.keyboard.press('Enter');
+    await contentPage.waitForTimeout(300);
+    // 连接
+    const connectBtn = contentPage.getByRole('button', { name: /发起连接|重新连接/ });
+    await connectBtn.click();
+    const wsView = contentPage.locator('.websocket-view');
+    await expect(wsView).toContainText('已连接到：', { timeout: 10000 });
+    // 添加消息块并发送
+    const addBlockBtn = contentPage.locator('.message-content .add-block-button').first();
+    await addBlockBtn.click();
+    await contentPage.waitForTimeout(300);
+    const messageBlock = contentPage.locator('.message-block').first();
+    const messageEditor = messageBlock.locator('.s-json-editor').first();
+    await messageEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('ping');
+    const sendBtn = messageBlock.getByRole('button', { name: /^发送$/ });
+    await sendBtn.click();
+    await expect(wsView).toContainText('pong', { timeout: 10000 });
+    // 验证响应区域同时包含发送和接收的消息
+    const messages = wsView.locator('.websocket-message');
+    await expect(messages).toContainText('ping', { timeout: 5000 });
+    await expect(messages).toContainText('pong', { timeout: 5000 });
+  });
+  // 连接成功后基本信息区域显示协议版本或状态信息
+  test('连接成功后基本信息区域显示端口信息', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'websocket', name: '基本信息端口测试' });
+    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
+    await urlEditor.fill(`127.0.0.1:${MOCK_SERVER_PORT}/ws`);
+    await contentPage.keyboard.press('Enter');
+    await contentPage.waitForTimeout(300);
+    const connectBtn = contentPage.getByRole('button', { name: /发起连接|重新连接/ });
+    await connectBtn.click();
+    const wsView = contentPage.locator('.websocket-view');
+    await expect(wsView).toContainText('已连接到：', { timeout: 10000 });
+    // 验证基本信息区域显示 mock server 端口
+    const basicInfo = contentPage.locator('.ws-response .basic-info, .websocket-view .status-info');
+    await expect(basicInfo.first()).toContainText(String(MOCK_SERVER_PORT), { timeout: 5000 });
+  });
 });

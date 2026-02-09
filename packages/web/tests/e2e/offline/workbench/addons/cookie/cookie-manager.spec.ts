@@ -543,6 +543,62 @@ test.describe('CookieManagement', () => {
     const sameSiteCell = targetRow.locator('td').nth(8);
     await expect(sameSiteCell).toContainText('Lax');
   });
+  // 测试用例: Session Cookie(无过期时间)刷新后应消失
+  test('Session Cookie刷新后不再存在', async ({ topBarPage, contentPage, clearCache, createProject, reload }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
+    await cookieItem.click();
+    const cookiePage = contentPage.locator('.cookies-page');
+    await expect(cookiePage).toBeVisible({ timeout: 5000 });
+    // 新增一条不设过期时间的Session Cookie
+    const addBtn = cookiePage.locator('.el-button--primary').filter({ hasText: /新增 Cookie/ });
+    await addBtn.click();
+    const dialog = contentPage.locator('.el-dialog').filter({ hasText: /新增 Cookie/ });
+    await expect(dialog).toBeVisible({ timeout: 5000 });
+    await dialog.locator('.el-form-item').filter({ hasText: /名称/ }).locator('input').fill('session_cookie');
+    await dialog.locator('.el-form-item').filter({ hasText: /值/ }).locator('textarea').fill('session_value');
+    await dialog.locator('.el-button--primary').filter({ hasText: /保存/ }).click();
+    await expect(dialog).not.toBeVisible({ timeout: 5000 });
+    const cookieTable = cookiePage.locator('.el-table');
+    await expect(cookieTable).toContainText('session_cookie');
+    // 刷新后重新打开Cookie管理页面,验证Session Cookie已消失
+    await reload();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await moreBtn.click();
+    await cookieItem.click();
+    await expect(cookiePage).toBeVisible({ timeout: 5000 });
+    await expect(cookieTable).not.toContainText('session_cookie', { timeout: 5000 });
+  });
+  // 测试用例: 新增Cookie路径不以/开头,显示校验错误
+  test('新增Cookie路径不以/开头时显示校验错误', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
+    await cookieItem.click();
+    const cookiePage = contentPage.locator('.cookies-page');
+    await expect(cookiePage).toBeVisible({ timeout: 5000 });
+    const addBtn = cookiePage.locator('.el-button--primary').filter({ hasText: /新增 Cookie/ });
+    await addBtn.click();
+    const dialog = contentPage.locator('.el-dialog').filter({ hasText: /新增 Cookie/ });
+    await expect(dialog).toBeVisible({ timeout: 5000 });
+    await dialog.locator('.el-form-item').filter({ hasText: /名称/ }).locator('input').fill('path_test');
+    await dialog.locator('.el-form-item').filter({ hasText: /值/ }).locator('textarea').fill('val');
+    // 输入不以/开头的路径
+    const pathInput = dialog.locator('.el-form-item').filter({ hasText: /路径/ }).locator('input');
+    await pathInput.fill('invalid-path');
+    await dialog.locator('.el-dialog__header').click();
+    await contentPage.waitForTimeout(300);
+    const errorMsg = dialog.locator('.el-form-item__error').filter({ hasText: /路径必须以 \/ 开头/ });
+    await expect(errorMsg).toBeVisible({ timeout: 3000 });
+    await expect(dialog).toBeVisible();
+  });
   // 测试用例13: Cookie 列表刷新后仍然存在（离线持久化）
   test('刷新后Cookie仍然存在', async ({ topBarPage, contentPage, clearCache, createProject, reload }) => {
     await clearCache();

@@ -66,6 +66,36 @@ test.describe('ResponseHeader', () => {
     const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
   });
+  // \u9a8c\u8bc1\u54cd\u5e94\u5934tab\u663e\u793a\u6570\u91cf\u6807\u8bb0\u4e14\u8868\u683c\u5c55\u793a\u5177\u4f53header\u952e\u503c
+  test('\u54cd\u5e94\u5934tab\u663e\u793a\u6570\u91cf\u6807\u8bb0\u4e14\u8868\u683c\u5c55\u793a\u5177\u4f53header\u952e\u503c', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('\u54cd\u5e94\u5934\u6570\u91cf\u6d4b\u8bd5');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(3000);
+    const responseTabs2 = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseTabs2).toBeVisible({ timeout: 10000 });
+    // \u9a8c\u8bc1\u8fd4\u56de\u5934tab\u663e\u793a\u6570\u91cf\u6807\u8bb0\uff0c\u5982 "\u8fd4\u56de\u5934 (N)" \u6216 "Headers (N)"
+    const headersTab = responseTabs2.getByRole('tab', { name: /\u8fd4\u56de\u5934|Headers/i }).first();
+    await expect(headersTab).toContainText(/\(\d+\)/);
+    // \u5207\u6362\u5230\u8fd4\u56de\u5934\u9762\u677f\u9a8c\u8bc1\u5177\u4f53header\u5185\u5bb9
+    await headersTab.click();
+    await contentPage.waitForTimeout(300);
+    const headersPane = contentPage.locator('[data-testid="response-tab-headers"]');
+    await expect(headersPane).toContainText('content-type', { timeout: 5000 });
+  });
 });
 
 

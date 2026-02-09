@@ -149,6 +149,52 @@ test.describe('UrlencodedBodyValidation', () => {
     await expect(statusCode).toBeVisible({ timeout: 10000 });
     await expect(statusCode).toContainText('200');
   });
+  // 验证URLEncoded请求体中文字符编码正确
+  test('验证URLEncoded请求体中文字符编码正确', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('URLEncoded中文测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    // 选择POST方法
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    await methodSelect.click();
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    await postOption.click();
+    // 切换到Body标签页并选择x-www-form-urlencoded
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+    await bodyTab.click();
+    await contentPage.waitForTimeout(300);
+    const urlencodedRadio = contentPage.locator('.body-mode-item').filter({ hasText: /x-www-form-urlencoded/i }).locator('.el-radio');
+    await urlencodedRadio.click();
+    await contentPage.waitForTimeout(300);
+    // 添加中文参数
+    const paramsTree = contentPage.locator('.cl-params-tree').first();
+    const firstKeyInput = paramsTree.locator('[data-testid="params-tree-key-input"]').first();
+    await firstKeyInput.fill('username');
+    await contentPage.waitForTimeout(200);
+    const firstValueInput = paramsTree.locator('[data-testid="params-tree-value-input"]').nth(0).locator('[contenteditable="true"]');
+    await firstValueInput.click();
+    await contentPage.keyboard.type('测试用户');
+    await contentPage.waitForTimeout(200);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('username', { timeout: 10000 });
+    await expect(responseBody).toContainText('测试用户', { timeout: 10000 });
+    await expect(responseBody).toContainText('application/x-www-form-urlencoded', { timeout: 10000 });
+  });
 });
 
 

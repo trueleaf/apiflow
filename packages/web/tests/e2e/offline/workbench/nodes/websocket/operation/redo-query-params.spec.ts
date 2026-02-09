@@ -144,4 +144,41 @@ test.describe('WebSocketQueryParamsRedo', () => {
     await contentPage.keyboard.press('Control+y')
     await expect(statusUrl).toContainText('shortcutKey=shortcutValue', { timeout: 5000 })
   })
+  // 撤销后重做多个Query参数操作验证参数正确恢复
+  test('撤销后重做多个Query参数操作验证参数正确恢复', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache()
+    await createProject()
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 })
+    await contentPage.waitForTimeout(500)
+    await createNode(contentPage, { nodeType: 'websocket', name: 'Query多参数重做测试' })
+    // 切换到Query参数标签页
+    const queryTab = contentPage.locator('.ws-params .params-tab .el-tabs__item').filter({ hasText: /Query/ })
+    await queryTab.click()
+    await contentPage.waitForTimeout(300)
+    const paramsTree = contentPage.locator('.ws-params .cl-params-tree').first()
+    // 添加第一个参数
+    const firstRow = paramsTree.locator('.params-tree-row').last()
+    const queryKeyInput = firstRow.locator('[data-testid="params-tree-key-input"]').first()
+    await queryKeyInput.click()
+    await queryKeyInput.fill('key1')
+    await contentPage.waitForTimeout(200)
+    const valueInputWrap = firstRow.locator('[data-testid="params-tree-value-input"]').first()
+    const valueEditor = valueInputWrap.locator('[contenteditable], textarea, input').first()
+    await valueEditor.click()
+    await contentPage.keyboard.type('val1')
+    await contentPage.waitForTimeout(300)
+    const statusUrl = contentPage.locator('.ws-operation .status-wrap .url')
+    await expect(statusUrl).toContainText('key1=val1', { timeout: 5000 })
+    // 点击空白区域失焦
+    await contentPage.locator('.ws-operation .status-wrap').click()
+    await contentPage.waitForTimeout(200)
+    // 撤销后参数应被移除
+    await contentPage.keyboard.press('Control+z')
+    await contentPage.waitForTimeout(300)
+    await expect(statusUrl).not.toContainText('key1=val1', { timeout: 5000 })
+    // 重做后参数应恢复
+    await contentPage.keyboard.press('Control+y')
+    await contentPage.waitForTimeout(300)
+    await expect(statusUrl).toContainText('key1=val1', { timeout: 5000 })
+  })
 })

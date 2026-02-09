@@ -559,6 +559,21 @@ test.describe('Navigation', () => {
     await expect(closeRightMenuItem).toHaveClass(/disabled/);
   });
 
+  test('关闭唯一活跃Tab后跳转到首页', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+    await clearCache();
+    const projectName = await createProject(`唯一Tab-${Date.now()}`);
+    const projectTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectName });
+    await expect(projectTab).toHaveClass(/active/);
+    // 当前只有一个Tab，通过关闭按钮关闭
+    const closeBtn = projectTab.locator('[data-test-id^="header-tab-close-btn-"]');
+    await closeBtn.click();
+    await topBarPage.waitForTimeout(500);
+    // 验证curModeTabs为空时自动跳转首页
+    await expect(projectTab).toBeHidden();
+    await expect(topBarPage.locator('[data-test-id^="header-tab-item-"]')).toHaveCount(0);
+    await expect(contentPage).toHaveURL(/.*#\/(home)?$/, { timeout: 5000 });
+  });
+
   test('右键关闭后tab高亮状态正确', async ({ topBarPage, contentPage, createProject }) => {
     // 创建三个项目tab
     const projectAName = await createProject(`高亮A-${Date.now()}`);

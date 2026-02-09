@@ -69,6 +69,30 @@ test.describe('RequestUrlValidation', () => {
     // 验证响应中包含请求的URL信息
     await expect(responseBody).toContainText('/echo', { timeout: 10000 });
   });
+  // 验证请求返回非200状态码时正确显示状态码
+  test('验证请求返回非200状态码时正确显示状态码', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('状态码测试接口');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 请求返回404状态码的端点
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/status/404`);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('404', { timeout: 10000 });
+  });
 });
 
 

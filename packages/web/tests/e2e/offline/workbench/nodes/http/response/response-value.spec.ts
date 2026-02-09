@@ -62,6 +62,34 @@ test.describe('ResponseValue', () => {
     const responseArea = contentPage.locator('.remote-response-wrap');
     await expect(responseArea.first()).toBeVisible({ timeout: 5000 });
   });
+  // \u91cd\u5b9a\u5411\u8bf7\u6c42\u6b63\u786e\u5c55\u793a\u91cd\u5b9a\u5411\u6b21\u6570\u4fe1\u606f
+  test('\u91cd\u5b9a\u5411\u8bf7\u6c42\u6b63\u786e\u5c55\u793a\u91cd\u5b9a\u5411\u6b21\u6570\u4fe1\u606f', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('\u91cd\u5b9a\u5411\u6d4b\u8bd5');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // \u8bf7\u6c42redirect-302\u7aef\u70b9\uff0c\u670d\u52a1\u7aef\u4f1a302\u91cd\u5b9a\u5411\u5230/echo
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/redirect-302`);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(3000);
+    const responseBody = contentPage.locator('[data-testid="response-tab-body"]');
+    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    // \u9a8c\u8bc1\u91cd\u5b9a\u5411\u4fe1\u606f\u533a\u57df\u53ef\u89c1\u4e14\u663e\u793a\u91cd\u5b9a\u5411\u6b21\u6570
+    const redirectControl = contentPage.locator('.redirect-control');
+    await expect(redirectControl).toBeVisible({ timeout: 5000 });
+    const redirectInfo = contentPage.locator('.redirect-info');
+    await expect(redirectInfo).toContainText('1', { timeout: 5000 });
+  });
 });
 
 

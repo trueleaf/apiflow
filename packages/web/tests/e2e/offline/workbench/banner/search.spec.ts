@@ -118,6 +118,28 @@ test.describe('Search', () => {
     // 由于测试在离线模式运行,高级筛选按钮应该不可见
     await expect(filterBtn).toBeHidden({ timeout: 5000 });
   });
+  test('清空搜索内容后恢复显示所有节点', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    // 创建两个不同名称的节点
+    await createNode(contentPage, { nodeType: 'http', name: '接口AAA' });
+    await createNode(contentPage, { nodeType: 'http', name: '接口BBB' });
+    const bannerTree = contentPage.getByTestId('banner-doc-tree');
+    const searchInput = contentPage.locator('[data-testid="banner-search-input"] input');
+    // 搜索只匹配一个节点
+    await searchInput.fill('接口AAA');
+    await contentPage.waitForTimeout(500);
+    const nodeBBB = bannerTree.locator('.el-tree-node__content', { hasText: '接口BBB' });
+    await expect(nodeBBB).toBeHidden({ timeout: 5000 });
+    // 清空搜索后验证所有节点恢复显示
+    const clearBtn = contentPage.locator('[data-testid="banner-search-input"] .el-input__clear');
+    await clearBtn.click();
+    await contentPage.waitForTimeout(500);
+    await expect(bannerTree.locator('.el-tree-node__content', { hasText: '接口AAA' }).first()).toBeVisible({ timeout: 5000 });
+    await expect(bannerTree.locator('.el-tree-node__content', { hasText: '接口BBB' }).first()).toBeVisible({ timeout: 5000 });
+  });
 });
 
 

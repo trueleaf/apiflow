@@ -197,4 +197,38 @@ test.describe('WebSocketQueryParams', () => {
     await expect(statusUrl).toContainText('param2=value2', { timeout: 5000 });
     await expect(statusUrl).toContainText('&', { timeout: 5000 });
   });
+  // 删除Query参数后URL中相应参数移除
+  test('删除Query参数后URL中相应参数移除', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'websocket', name: 'Query删除测试' });
+    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
+    await urlEditor.fill('127.0.0.1:8080/ws');
+    await contentPage.keyboard.press('Enter');
+    await contentPage.waitForTimeout(300);
+    // 切换到Params标签
+    const paramsTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /^Params$/ });
+    await paramsTab.click();
+    await contentPage.waitForTimeout(300);
+    // 添加参数
+    const queryParamsPanel = contentPage.locator('.ws-query-params');
+    const queryKeyInput = queryParamsPanel.getByPlaceholder('输入参数名称自动换行').first();
+    await queryKeyInput.click();
+    await queryKeyInput.fill('delParam');
+    await contentPage.waitForTimeout(200);
+    const queryValueInput = queryParamsPanel.locator('.cl-rich-input__editor [contenteditable="true"]').first();
+    await queryValueInput.click();
+    await contentPage.keyboard.type('delValue');
+    await contentPage.waitForTimeout(300);
+    const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
+    await expect(statusUrl).toContainText('delParam=delValue', { timeout: 5000 });
+    // 删除参数行
+    const deleteBtn = queryParamsPanel.locator('[data-testid="params-tree-delete-btn"]').first();
+    await deleteBtn.click();
+    await contentPage.waitForTimeout(300);
+    // 验证URL中不再包含该参数
+    await expect(statusUrl).not.toContainText('delParam=delValue', { timeout: 5000 });
+  });
 });

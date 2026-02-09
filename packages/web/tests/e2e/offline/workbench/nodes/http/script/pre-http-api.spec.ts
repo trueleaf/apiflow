@@ -208,6 +208,42 @@ test.describe('AfHttpApi', () => {
     const statusCode = responseArea.getByTestId('status-code');
     await expect(statusCode).toContainText('200', { timeout: 20000 });
   });
+  // 使用af.http响应数据设置变量并在主请求中使用
+  test('使用af.http响应数据设置变量并在主请求中使用', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('af.http变量传递测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // URL中使用变量，前置脚本会通过af.http.get获取数据后设置该变量
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?dynamic={{pre_token}}`);
+    const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
+    await preScriptTab.click();
+    await contentPage.waitForTimeout(500);
+    const editor = contentPage.locator('.s-monaco-editor');
+    await expect(editor).toBeVisible({ timeout: 5000 });
+    await editor.click();
+    await contentPage.waitForTimeout(300);
+    // 前置脚本：请求echo接口并从响应中提取method字段设置为变量
+    const scriptCode = `const res = await af.http.get("http://127.0.0.1:${MOCK_SERVER_PORT}/echo"); const data = JSON.parse(res.body); af.variables.set("pre_token", data.method)`;
+    await contentPage.keyboard.insertText(scriptCode);
+    await contentPage.waitForTimeout(300);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 20000 });
+    // 验证响应中包含变量替换后的值（说明前置脚本的HTTP请求结果成功传递给了主请求）
+    const responseBody = responseArea.locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('GET', { timeout: 20000 });
+  });
 });
 
 

@@ -118,6 +118,41 @@ test.describe('EnvVariableAccess', () => {
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
+  // 前置脚本中通过变量值修改请求头
+  test('前置脚本中通过变量值修改请求头', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('变量修改请求头测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
+    await preScriptTab.click();
+    await contentPage.waitForTimeout(500);
+    const editor = contentPage.locator('.s-monaco-editor');
+    await expect(editor).toBeVisible({ timeout: 5000 });
+    await editor.click();
+    await contentPage.waitForTimeout(300);
+    // 前置脚本：设置变量并通过af.request.headers修改请求头
+    const scriptCode = 'af.variables.set("auth_val", "Bearer test-xyz"); af.request.headers["X-Custom-Auth"] = af.variables.get("auth_val")';
+    await contentPage.keyboard.type(scriptCode);
+    await contentPage.waitForTimeout(300);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    // 验证响应体中包含自定义请求头（echo接口会返回所有请求头）
+    const responseBody = responseArea.locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('x-custom-auth', { timeout: 10000 });
+  });
 });
 
 

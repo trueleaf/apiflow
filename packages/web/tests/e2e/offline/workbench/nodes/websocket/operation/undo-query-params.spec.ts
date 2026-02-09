@@ -234,4 +234,38 @@ test.describe('WebSocketQueryParamsUndo', () => {
     }
     expect(restored).toBe(true)
   })
+  // 撤销Query参数值编辑后参数值恢复为编辑前
+  test('撤销Query参数值编辑后参数值恢复为编辑前', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache()
+    await createProject()
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 })
+    await contentPage.waitForTimeout(500)
+    await createNode(contentPage, { nodeType: 'websocket', name: 'Query参数值撤销测试' })
+    // 切换到Query参数标签页
+    const queryTab = contentPage.locator('.ws-params .params-tab .el-tabs__item').filter({ hasText: /Query/ })
+    await queryTab.click()
+    await contentPage.waitForTimeout(300)
+    const paramsTree = contentPage.locator('.ws-params .cl-params-tree').first()
+    const firstRow = paramsTree.locator('.params-tree-row').last()
+    const queryKeyInput = firstRow.locator('[data-testid="params-tree-key-input"]').first()
+    await queryKeyInput.click()
+    await queryKeyInput.fill('testKey')
+    await contentPage.waitForTimeout(200)
+    // 输入参数值
+    const valueInputWrap = firstRow.locator('[data-testid="params-tree-value-input"]').first()
+    const valueEditor = valueInputWrap.locator('[contenteditable], textarea, input').first()
+    await valueEditor.click()
+    await contentPage.keyboard.type('originalVal')
+    await contentPage.waitForTimeout(300)
+    const statusUrl = contentPage.locator('.ws-operation .status-wrap .url')
+    await expect(statusUrl).toContainText('testKey=originalVal', { timeout: 5000 })
+    // 点击空白区域失焦
+    await contentPage.locator('.ws-operation .status-wrap').click()
+    await contentPage.waitForTimeout(200)
+    // 撤销后参数应被移除
+    const undoBtn = contentPage.locator('[data-testid="ws-params-undo-btn"]')
+    await undoBtn.click()
+    await contentPage.waitForTimeout(300)
+    await expect(statusUrl).not.toContainText('testKey=originalVal', { timeout: 5000 })
+  })
 })

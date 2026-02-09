@@ -141,4 +141,37 @@ test.describe('WebSocketAfterScriptEditorFeatures', () => {
     const badge = afterScriptTab.locator('.el-badge');
     expect(await badge.isVisible()).toBeTruthy();
   });
+  // 后置脚本编辑器清空内容后红点消失
+  test('后置脚本编辑器清空内容后红点消失', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'websocket', name: '后置脚本红点消失测试' });
+    const afterScriptTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /后置脚本/ });
+    await afterScriptTab.click();
+    await contentPage.waitForTimeout(300);
+    // 输入代码
+    const afterScriptPane = contentPage.locator('#pane-afterScript');
+    const monacoEditor = afterScriptPane.locator('.s-monaco-editor');
+    await expect(monacoEditor).toBeVisible({ timeout: 5000 });
+    await monacoEditor.click();
+    await contentPage.waitForTimeout(200);
+    await contentPage.keyboard.type('const z = 3;');
+    await contentPage.waitForTimeout(300);
+    // 验证红点显示
+    const badge = afterScriptTab.locator('.el-badge');
+    expect(await badge.isVisible()).toBeTruthy();
+    // 清空编辑器内容
+    await monacoEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.press('Backspace');
+    await contentPage.waitForTimeout(500);
+    // 验证红点消失（badge不可见或内容为空）
+    const badgeAfterClear = afterScriptTab.locator('.el-badge__content');
+    const isBadgeVisible = await badgeAfterClear.isVisible().catch(() => false);
+    if (isBadgeVisible) {
+      await expect(badgeAfterClear).not.toBeVisible({ timeout: 5000 });
+    }
+  });
 });

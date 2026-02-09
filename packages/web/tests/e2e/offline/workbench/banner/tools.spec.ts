@@ -280,6 +280,21 @@ test.describe('Tools', () => {
     // 验证导出文档内容区显示
     await expect(contentPage.locator('.doc-export')).toBeVisible({ timeout: 5000 });
   });
+  test('离线模式下工具面板不显示项目分享选项', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    // 展开更多操作面板
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    await contentPage.waitForTimeout(300);
+    const toolPanel = contentPage.locator('.tool-panel');
+    await expect(toolPanel).toBeVisible({ timeout: 5000 });
+    // 验证离线模式下没有项目分享选项
+    const shareItem = toolPanel.locator('.dropdown-item').filter({ hasText: /项目分享/ });
+    await expect(shareItem).toHaveCount(0);
+  });
 });
 
 

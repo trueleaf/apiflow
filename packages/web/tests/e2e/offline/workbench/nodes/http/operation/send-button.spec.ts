@@ -60,6 +60,29 @@ test.describe('SendButton', () => {
     // 验证按钮恢复为发送请求状态
     await expect(sendBtn).toBeVisible({ timeout: 5000 });
   });
+  test('发送延迟请求后点击取消按钮验证请求被取消', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('延迟取消测试');
+    await addFileDialog.locator('.el-button--primary').last().click();
+    await contentPage.waitForTimeout(500);
+    // 设置延迟响应URL
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/delay/10000`);
+    // 点击发送按钮
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    // 等待取消按钮出现并点击
+    const cancelBtn = contentPage.locator('[data-testid="operation-cancel-btn"]');
+    await expect(cancelBtn).toBeVisible({ timeout: 5000 });
+    await cancelBtn.click();
+    await contentPage.waitForTimeout(1000);
+    // 验证发送按钮恢复
+    await expect(sendBtn).toBeVisible({ timeout: 10000 });
+  });
 });
-
-

@@ -188,6 +188,35 @@ test.describe('Json', () => {
     await expect(responseTabs).toContainText('9007199254740992', { timeout: 10000 });
     await expect(responseTabs).toContainText('big_number', { timeout: 10000 });
   });
+  test('点击格式化按钮后JSON内容格式化正确', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: 'JSON格式化测试' });
+    // 切换到Body标签页并选择JSON类型
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+    await bodyTab.click();
+    await contentPage.waitForTimeout(300);
+    const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: /json/i });
+    await jsonRadio.click();
+    await contentPage.waitForTimeout(300);
+    // 在编辑器中输入压缩的JSON
+    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor textarea, .s-json-editor textarea, .s-json-editor .monaco-editor, .s-json-editor').first();
+    await editorTarget.click({ force: true });
+    await contentPage.waitForTimeout(300);
+    await contentPage.keyboard.press('ControlOrMeta+a');
+    await contentPage.keyboard.type('{"name":"test","age":25}');
+    await contentPage.waitForTimeout(500);
+    // 点击格式化按钮
+    const formatBtn = contentPage.locator('.body-op .btn').first();
+    await formatBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 验证格式化后编辑器仍包含原始数据
+    const editorContent = contentPage.locator('.s-json-editor').first();
+    await expect(editorContent).toContainText('name', { timeout: 5000 });
+    await expect(editorContent).toContainText('test', { timeout: 5000 });
+    await expect(editorContent).toContainText('age', { timeout: 5000 });
+  });
 });
 
 

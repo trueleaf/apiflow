@@ -106,4 +106,33 @@ test.describe('WebSocketPreScriptExecution', () => {
     const wsView = contentPage.locator('.websocket-view');
     await expect(wsView).toContainText('已连接到：', { timeout: 10000 });
   });
+  // 前置脚本为空时WebSocket连接正常进行
+  test('前置脚本为空时WebSocket连接正常进行', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'websocket', name: '前置脚本空测试' });
+    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
+    await urlEditor.fill(`127.0.0.1:${MOCK_SERVER_PORT}/ws`);
+    await contentPage.keyboard.press('Enter');
+    await contentPage.waitForTimeout(300);
+    // 不输入前置脚本，直接连接
+    const connectBtn = contentPage.getByRole('button', { name: /发起连接|重新连接/ });
+    await connectBtn.click();
+    const wsView = contentPage.locator('.websocket-view');
+    await expect(wsView).toContainText('已连接到：', { timeout: 10000 });
+    // 验证连接成功后可以正常收发消息
+    const addBlockBtn = contentPage.locator('.message-content .add-block-button').first();
+    await addBlockBtn.click();
+    await contentPage.waitForTimeout(300);
+    const messageBlock = contentPage.locator('.message-block').first();
+    const messageEditor = messageBlock.locator('.s-json-editor').first();
+    await messageEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('hello');
+    const sendBtn = messageBlock.getByRole('button', { name: /^发送$/ });
+    await sendBtn.click();
+    await expect(wsView).toContainText('pong', { timeout: 10000 });
+  });
 });

@@ -187,6 +187,23 @@ test.describe('BannerOtherFeatures', () => {
     await stopMockItem.click();
     await expect(runningDot).toBeHidden({ timeout: 30000 });
   });
+  test('切换到调用历史标签页后显示历史列表', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    // 点击调用历史标签页
+    const bannerTabs = contentPage.getByTestId('banner-tabs');
+    await expect(bannerTabs).toBeVisible({ timeout: 5000 });
+    const historyTab = bannerTabs.locator('.clean-tab-item', { hasText: /调用历史|history/i });
+    await historyTab.click();
+    await contentPage.waitForTimeout(500);
+    // 验证文档树隐藏，调用历史组件显示
+    const docTree = contentPage.getByTestId('banner-doc-tree');
+    await expect(docTree).toBeHidden({ timeout: 5000 });
+    const sendHistory = contentPage.locator('.send-history');
+    await expect(sendHistory).toBeVisible({ timeout: 5000 });
+  });
 });
 
 

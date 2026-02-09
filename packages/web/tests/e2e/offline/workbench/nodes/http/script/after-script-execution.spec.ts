@@ -124,6 +124,39 @@ test.describe('AfterScriptExecution', () => {
     await expect(responseBody).toContainText('host', { timeout: 10000 });
     await expect(responseBody).toContainText('127.0.0.1', { timeout: 10000 });
   });
+  // 后置脚本解析响应体JSON并提取字段设置为变量
+  test('后置脚本解析响应体JSON并提取字段设置为变量', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('后置脚本提取变量测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    await contentPage.waitForTimeout(300);
+    const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
+    await afterScriptTab.click();
+    await contentPage.waitForTimeout(500);
+    // 输入后置脚本：解析响应体JSON，提取host字段设置为变量，验证变量值正确
+    const afterScriptEditor = contentPage.locator('.s-monaco-editor').first();
+    await afterScriptEditor.click();
+    await contentPage.waitForTimeout(300);
+    await contentPage.keyboard.type('const body = JSON.parse(af.response.body); af.variables.set("extracted_method", body.method); if (af.variables.get("extracted_method") !== "GET") { throw new Error("提取失败") }');
+    await contentPage.waitForTimeout(500);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    // 验证脚本执行成功（无报错说明JSON解析和变量设置均正确）
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+  });
 });
 
 

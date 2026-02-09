@@ -258,7 +258,7 @@ test.describe('SearchProject', () => {
     await expect(firstResult.locator('.field-tag')).toContainText('备注', { timeout: 8000 });
   });
 
-  test('高级搜索节点类型筛选选项均可生效', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+  test('高级搜索节点类型筛选选项均可生效', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     const folderKeyword = `ADV_FOLDER_${Date.now()}`;
     const httpKeyword = `ADV_HTTP_${Date.now()}`;
@@ -266,52 +266,11 @@ test.describe('SearchProject', () => {
     const mockKeyword = `ADV_MOCK_${Date.now()}`;
     await createProject(`节点类型项目-${Date.now()}`);
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
-    const treeWrap = contentPage.locator('.tree-wrap');
-    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
-    await contentPage.waitForTimeout(300);
-    const newFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
-    await newFolderItem.click();
-    await contentPage.waitForTimeout(300);
-    const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
-    await expect(folderDialog).toBeVisible({ timeout: 5000 });
-    await folderDialog.locator('input').first().fill(`目录-${folderKeyword}`);
-    await folderDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
-    await treeWrap.click({ button: 'right', position: { x: 100, y: 240 } });
-    await contentPage.waitForTimeout(300);
-    const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
-    await newInterfaceItem.click();
-    await contentPage.waitForTimeout(300);
-    const httpDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
-    await expect(httpDialog).toBeVisible({ timeout: 5000 });
-    await httpDialog.locator('input').first().fill(`HTTP节点-${httpKeyword}`);
-    await httpDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
-    await treeWrap.click({ button: 'right', position: { x: 100, y: 280 } });
-    await contentPage.waitForTimeout(300);
-    await newInterfaceItem.click();
-    await contentPage.waitForTimeout(300);
-    const wsDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
-    await expect(wsDialog).toBeVisible({ timeout: 5000 });
-    await wsDialog.locator('input').first().fill(`WebSocket节点-${wsKeyword}`);
-    const wsRadio = wsDialog.locator('.el-radio').filter({ hasText: 'WebSocket' }).first();
-    await wsRadio.click();
-    await contentPage.waitForTimeout(200);
-    await wsDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
-    await treeWrap.click({ button: 'right', position: { x: 100, y: 320 } });
-    await contentPage.waitForTimeout(300);
-    await newInterfaceItem.click();
-    await contentPage.waitForTimeout(300);
-    const mockDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
-    await expect(mockDialog).toBeVisible({ timeout: 5000 });
-    await mockDialog.locator('input').first().fill(`HTTP Mock节点-${mockKeyword}`);
-    const mockRadio = mockDialog.locator('.el-radio').filter({ hasText: 'HTTP Mock' }).first();
-    await mockRadio.click();
-    await contentPage.waitForTimeout(200);
-    await mockDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
+    // 使用createNode fixture创建4种类型节点
+    await createNode(contentPage, { nodeType: 'folder', name: `目录-${folderKeyword}` });
+    await createNode(contentPage, { nodeType: 'http', name: `HTTP节点-${httpKeyword}` });
+    await createNode(contentPage, { nodeType: 'websocket', name: `WebSocket节点-${wsKeyword}` });
+    await createNode(contentPage, { nodeType: 'httpMock', name: `HTTP Mock节点-${mockKeyword}` });
     const logo = topBarPage.locator('[data-test-id="header-logo"]');
     await logo.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });

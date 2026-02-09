@@ -153,4 +153,27 @@ test.describe('WebSocketMessageBlockCRUD', () => {
     // 验证编辑器隐藏
     await expect(blockEditor).not.toBeVisible();
   });
+  // 添加多个消息块后列表正确显示
+  test('添加多个消息块后列表正确显示', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'websocket', name: '多消息块测试' });
+    const messageTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /消息内容/ });
+    await messageTab.click();
+    await contentPage.waitForTimeout(300);
+    const addBlockBtn = contentPage.locator('.message-content .add-block-button').first();
+    // 添加3个消息块
+    await addBlockBtn.click();
+    await contentPage.waitForTimeout(300);
+    await addBlockBtn.click();
+    await contentPage.waitForTimeout(300);
+    await addBlockBtn.click();
+    await contentPage.waitForTimeout(300);
+    // 验证消息块数量为3
+    const messageBlocks = contentPage.locator('.message-content .message-block');
+    const count = await messageBlocks.count();
+    expect(count).toBe(3);
+  });
 });

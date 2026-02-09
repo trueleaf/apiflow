@@ -130,6 +130,34 @@ test.describe('QuickIcons', () => {
         }
       }, { timeout: 15000 }).toMatch(expectedAfterRestore);
     });
+    test('语言切换后刷新页面语言状态保持', async ({ topBarPage, contentPage, clearCache }) => {
+      await clearCache();
+      const languageBtn = topBarPage.locator('[data-testid="header-language-btn"]');
+      await languageBtn.click();
+      const languageMenu = contentPage.locator('.language-dropdown-menu');
+      await expect(languageMenu).toBeVisible({ timeout: 5000 });
+      // 切换到English
+      await languageMenu.locator('text=English').click();
+      await topBarPage.waitForTimeout(500);
+      await expect(languageBtn).toHaveText('EN');
+      // 刷新页面
+      const refreshBtn = topBarPage.locator('[data-testid="header-refresh-btn"]');
+      await refreshBtn.click();
+      await topBarPage.waitForLoadState('domcontentloaded');
+      await contentPage.waitForLoadState('domcontentloaded');
+      await topBarPage.waitForTimeout(1000);
+      // 验证刷新后语言状态通过IPC缓存恢复
+      const languageBtnAfter = topBarPage.locator('[data-testid="header-language-btn"]');
+      await expect(languageBtnAfter).toHaveText('EN', { timeout: 10000 });
+      // 恢复为简体中文
+      await languageBtnAfter.click();
+      const languageMenu2 = contentPage.locator('.language-dropdown-menu');
+      await expect(languageMenu2).toBeVisible({ timeout: 5000 });
+      await languageMenu2.locator('text=简体中文').click();
+      await topBarPage.waitForTimeout(500);
+      await expect(languageBtnAfter).toHaveText('中');
+    });
+
     test('网络模式切换后Tab列表按模式过滤', async ({ topBarPage, contentPage, createProject, clearCache }) => {
       await clearCache();
       const networkBtn = topBarPage.locator('[data-testid="header-network-toggle"]');

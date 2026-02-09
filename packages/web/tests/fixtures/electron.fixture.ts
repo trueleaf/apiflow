@@ -118,8 +118,8 @@ export const test = base.extend<ElectronFixtures>({
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
       await contentPage.waitForTimeout(500);
-      // 删除所有 IndexedDB 数据库并等待完成
-      await contentPage.evaluate(async () => {
+      // 删除所有 IndexedDB 数据库并设置是否跳过示例项目创建（合并为单次evaluate，避免导航竞态）
+      await contentPage.evaluate(async (params) => {
         const dbNames = [
           'httpNodeResponseCache',
           'websocketNodeResponseCache',
@@ -134,7 +134,6 @@ export const test = base.extend<ElectronFixtures>({
           'commonHeadersCache',
           'variablesCache',
         ];
-        // 等待所有数据库删除完成
         await Promise.all(dbNames.map((dbName) => {
           return new Promise<void>((resolve) => {
             const request = indexedDB.deleteDatabase(dbName);
@@ -143,9 +142,6 @@ export const test = base.extend<ElectronFixtures>({
             request.onblocked = () => resolve();
           });
         }));
-      });
-      // 根据选项设置是否跳过示例项目创建
-      await contentPage.evaluate((params) => {
         if (!params.skipExampleProject) {
           localStorage.removeItem('runtime/hasCreatedExampleProject');
         }

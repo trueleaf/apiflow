@@ -152,6 +152,42 @@ test.describe('ResponseParams', () => {
     // 验证类型已更新
     await expect(contentTypeArea).toContainText('text/html', { timeout: 5000 });
   });
+  // 返回参数卡片支持折叠和展开
+  test('返回参数卡片支持折叠和展开', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('折叠展开测试接口');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 切换到返回参数标签页
+    const responseTab = contentPage.locator('[data-testid="http-params-tab-response"]');
+    await responseTab.click();
+    await contentPage.waitForTimeout(300);
+    const responseParams = contentPage.locator('.response-params');
+    await expect(responseParams).toBeVisible({ timeout: 5000 });
+    const card = responseParams.locator('.response-collapse-card').first();
+    const cardContent = card.locator('.card-content');
+    // 默认展开状态，card-content可见
+    await expect(cardContent).toBeVisible({ timeout: 5000 });
+    // 点击折叠控制按钮
+    const collapseControl = card.locator('.collapse-control');
+    await collapseControl.click();
+    await contentPage.waitForTimeout(300);
+    // 验证内容被折叠隐藏
+    await expect(cardContent).toBeHidden();
+    // 再次点击展开
+    await collapseControl.click();
+    await contentPage.waitForTimeout(300);
+    // 验证内容重新展开可见
+    await expect(cardContent).toBeVisible();
+  });
 });
 
 

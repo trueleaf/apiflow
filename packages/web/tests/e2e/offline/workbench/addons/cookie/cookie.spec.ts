@@ -296,6 +296,47 @@ test.describe('CookieBusiness', () => {
     await expect(responseBody).not.toContainText('af_default_path=1', { timeout: 10000 });
   });
 
+  test('手动创建万能域名Cookie在实际请求中被自动携带', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 通过Cookie管理页面手动创建一个空domain(万能域名)Cookie
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const cookieItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /Cookie管理|Cookies/ });
+    await cookieItem.click();
+    const cookiePage = contentPage.locator('.cookies-page');
+    await expect(cookiePage).toBeVisible({ timeout: 5000 });
+    const addBtn = cookiePage.locator('.el-button--primary').filter({ hasText: /新增 Cookie/ });
+    await addBtn.click();
+    const dialog = contentPage.locator('.el-dialog').filter({ hasText: /新增 Cookie/ });
+    await expect(dialog).toBeVisible({ timeout: 5000 });
+    const nameInput = dialog.locator('.el-form-item').filter({ hasText: /名称/ }).locator('input');
+    await nameInput.fill('af_universal');
+    const valueInput = dialog.locator('.el-form-item').filter({ hasText: /值/ }).locator('textarea');
+    await valueInput.fill('universal_val');
+    // 不填domain,保持默认空(万能域名)
+    const saveBtn = dialog.locator('.el-button--primary').filter({ hasText: /保存/ });
+    await saveBtn.click();
+    await expect(dialog).not.toBeVisible({ timeout: 5000 });
+    // 创建接口发送请求,验证万能域名Cookie被自动携带
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('万能域名测试');
+    await addFileDialog.locator('.el-button--primary').last().click();
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await expect(urlInput).toBeVisible({ timeout: 5000 });
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('af_universal=universal_val', { timeout: 10000 });
+  });
+
   test('Expires 已过期的 Cookie 不应被携带', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();
     await createProject();

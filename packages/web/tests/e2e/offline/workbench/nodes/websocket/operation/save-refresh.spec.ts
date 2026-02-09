@@ -91,4 +91,32 @@ test.describe('WebSocketSaveRefresh', () => {
       }
     }
   });
+  // 保存后点击刷新按钮数据恢复为保存的状态
+  test('保存后修改URL再刷新数据恢复为保存的状态', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'websocket', name: 'WS保存刷新测试' });
+    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
+    await urlEditor.fill('127.0.0.1:8080/saved-url');
+    await contentPage.keyboard.press('Enter');
+    await contentPage.waitForTimeout(300);
+    // 保存接口
+    const saveBtn = contentPage.locator('[data-testid="websocket-operation-save-btn"]');
+    await saveBtn.click();
+    await contentPage.waitForTimeout(1000);
+    // 修改URL为新地址
+    await urlEditor.fill('127.0.0.1:9999/modified-url');
+    await contentPage.keyboard.press('Enter');
+    await contentPage.waitForTimeout(300);
+    const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
+    await expect(statusUrl).toContainText('modified-url', { timeout: 5000 });
+    // 点击刷新按钮
+    const refreshBtn = contentPage.locator('[data-testid="websocket-operation-refresh-btn"]');
+    await refreshBtn.click();
+    await contentPage.waitForTimeout(1000);
+    // 验证URL恢复为保存时的地址
+    await expect(statusUrl).toContainText('saved-url', { timeout: 5000 });
+  });
 });

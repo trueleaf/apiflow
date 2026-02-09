@@ -94,6 +94,31 @@ test.describe('NoneBodyValidation', () => {
     await expect(statusCode).toBeVisible({ timeout: 10000 });
     await expect(statusCode).toContainText('200');
   });
+  // HEAD方法配合None请求体验证
+  test('HEAD方法配合None请求体验证', async ({ contentPage }) => {
+    // 选择HEAD方法
+    const methodSelect = contentPage.locator('[data-testid="method-select"]').first();
+    await expect(methodSelect).toBeVisible({ timeout: 5000 });
+    await methodSelect.click();
+    const methodDropdown = contentPage.locator('.el-select-dropdown:visible');
+    await methodDropdown.locator('.el-select-dropdown__item', { hasText: /^HEAD$/ }).first().click();
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.click();
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    // 确认Body为None
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+    await bodyTab.click();
+    await contentPage.waitForTimeout(300);
+    const noneRadio = contentPage.locator('.body-params .el-radio', { hasText: /none/i });
+    await expect(noneRadio).toBeVisible();
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    // HEAD请求应返回200状态码
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = contentPage.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+  });
 });
 
 

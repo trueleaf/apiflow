@@ -235,6 +235,31 @@ test.describe('RequestUrlInput', () => {
     const responseBody = contentPage.locator('[data-testid="response-tab-body"]');
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
+  test('URL中包含中文字符发送请求能正确返回', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('中文URL测试');
+    await addFileDialog.locator('.el-button--primary').last().click();
+    await contentPage.waitForTimeout(500);
+    // 输入包含中文query参数的URL
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?名称=测试`);
+    await contentPage.waitForTimeout(300);
+    await contentPage.locator('[data-testid="method-select"]').click();
+    await contentPage.waitForTimeout(300);
+    // 发送请求
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(3000);
+    // 验证响应正常返回
+    const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseTabs).toBeVisible({ timeout: 10000 });
+  });
 });
 
 

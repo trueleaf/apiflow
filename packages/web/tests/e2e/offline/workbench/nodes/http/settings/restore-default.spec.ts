@@ -161,6 +161,45 @@ test.describe('RestoreDefault', () => {
     const restoredFirstModeLabel = await modeItems.first().locator('.mode-label').textContent();
     expect(restoredFirstModeLabel).toBe(originalFirstModeLabel);
   });
+  // 标签页显示顺序恢复默认后顺序恢复为初始状态
+  test('标签页显示顺序恢复默认后顺序恢复为初始状态', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addHttpBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 10000 });
+    const nameInput = addFileDialog.locator('input').first();
+    await nameInput.fill('标签页顺序恢复测试');
+    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmBtn.click();
+    const settingsTab = contentPage.locator('[data-testid="http-params-tab-settings"]');
+    await expect(settingsTab).toBeVisible({ timeout: 10000 });
+    await settingsTab.click();
+    const settingsPanel = contentPage.locator('.request-settings');
+    await expect(settingsPanel).toBeVisible({ timeout: 10000 });
+    // 找到标签页显示顺序配置区域
+    const tabOrderSection = contentPage.locator('.config-item').filter({ hasText: /标签页显示顺序|Tab Order/ });
+    const tabItems = tabOrderSection.locator('.tab-order-item');
+    const originalFirstTabLabel = await tabItems.first().locator('.tab-label').textContent();
+    const originalLastTabLabel = await tabItems.last().locator('.tab-label').textContent();
+    // 拖拽最后一个标签到第一个位置
+    const lastItem = tabItems.last();
+    const firstItem = tabItems.first();
+    await lastItem.dragTo(firstItem);
+    await contentPage.waitForTimeout(300);
+    // 验证顺序已改变
+    const modifiedFirstTabLabel = await tabItems.first().locator('.tab-label').textContent();
+    expect(modifiedFirstTabLabel).toBe(originalLastTabLabel);
+    // 点击标签页显示顺序的恢复按钮
+    const tabOrderResetBtn = tabOrderSection.locator('.reset-btn');
+    await tabOrderResetBtn.click();
+    await contentPage.waitForTimeout(300);
+    // 验证顺序已恢复为初始状态
+    const restoredFirstTabLabel = await tabItems.first().locator('.tab-label').textContent();
+    expect(restoredFirstTabLabel).toBe(originalFirstTabLabel);
+  });
 });
 
 

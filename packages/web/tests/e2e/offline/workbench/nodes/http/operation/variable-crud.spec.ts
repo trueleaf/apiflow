@@ -162,6 +162,41 @@ test.describe('VariableCrud', () => {
     await contentPage.waitForTimeout(500);
     await expect(variablePage.locator('.right')).not.toContainText('toDelete', { timeout: 5000 });
   });
+  test('新增boolean类型变量保存成功', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('boolean变量测试');
+    await addFileDialog.locator('.el-button--primary').last().click();
+    await contentPage.waitForTimeout(500);
+    // 打开变量管理页签
+    const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
+    await variableBtn.click();
+    await contentPage.waitForTimeout(300);
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    const addPanel = variablePage.locator('.left');
+    // 选择boolean类型
+    const typeFormItem = addPanel.locator('.el-form-item').filter({ hasText: /值类型|Type/ });
+    await typeFormItem.locator('.el-select').click();
+    await contentPage.waitForTimeout(300);
+    const boolOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'boolean' });
+    await boolOption.click();
+    await contentPage.waitForTimeout(300);
+    // 填写变量名称
+    const nameFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ });
+    await nameFormItem.locator('input').first().fill('testBoolean');
+    // 点击确认添加
+    const confirmAddBtn = addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 验证变量列表包含新增的boolean变量
+    await expect(variablePage.locator('.right')).toContainText('testBoolean', { timeout: 5000 });
+  });
 });
 
 

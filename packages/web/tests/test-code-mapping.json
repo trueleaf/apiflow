@@ -1,0 +1,205 @@
+{
+  "version": "1.0.0",
+  "description": "测试文件与业务代码的路径映射规则",
+  "mappingRules": [
+    {
+      "testPattern": "app-shell/ipc-handshake.spec.ts",
+      "businessCode": [
+        "src/main/ipcMessage/",
+        "src/main/main.ts",
+        "src/renderer/pages/layout/"
+      ],
+      "description": "IPC通信机制"
+    },
+    {
+      "testPattern": "app-shell/topbar/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/layout/header/"
+      ],
+      "description": "顶部栏功能"
+    },
+    {
+      "testPattern": "project/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/home/",
+        "src/renderer/store/project/",
+        "src/renderer/cache/project/"
+      ],
+      "description": "项目管理"
+    },
+    {
+      "testPattern": "workbench/nodes/http/body/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/projectWorkbench/httpNode/body/",
+        "src/renderer/store/apidoc/requestStore.ts",
+        "src/renderer/server/request/"
+      ],
+      "description": "HTTP Body参数"
+    },
+    {
+      "testPattern": "workbench/nodes/http/operation/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/projectWorkbench/httpNode/",
+        "src/renderer/store/apidoc/",
+        "src/renderer/cache/apidoc/"
+      ],
+      "description": "HTTP节点操作"
+    },
+    {
+      "testPattern": "workbench/nodes/http/params/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/projectWorkbench/httpNode/params/",
+        "src/renderer/pages/projectWorkbench/httpNode/headers/",
+        "src/renderer/store/apidoc/requestStore.ts"
+      ],
+      "description": "HTTP请求参数"
+    },
+    {
+      "testPattern": "workbench/nodes/http/response/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/projectWorkbench/httpNode/response/",
+        "src/renderer/store/apidoc/responseStore.ts"
+      ],
+      "description": "HTTP响应展示"
+    },
+    {
+      "testPattern": "workbench/nodes/http/script/*.spec.ts",
+      "businessCode": [
+        "src/renderer/worker/",
+        "src/renderer/server/request/request.ts",
+        "src/renderer/pages/projectWorkbench/httpNode/script/"
+      ],
+      "description": "HTTP脚本功能"
+    },
+    {
+      "testPattern": "workbench/nodes/http/settings/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/projectWorkbench/httpNode/settings/",
+        "src/renderer/store/apidoc/requestStore.ts"
+      ],
+      "description": "HTTP设置配置"
+    },
+    {
+      "testPattern": "workbench/nodes/http/validation/*.spec.ts",
+      "businessCode": [
+        "src/main/sendRequest.ts",
+        "src/renderer/server/request/request.ts"
+      ],
+      "description": "HTTP验证测试"
+    },
+    {
+      "testPattern": "workbench/nodes/websocket/operation/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/projectWorkbench/websocketNode/",
+        "src/main/websocket/",
+        "src/renderer/store/websocket/"
+      ],
+      "description": "WebSocket节点操作"
+    },
+    {
+      "testPattern": "workbench/nodes/websocket/params/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/projectWorkbench/websocketNode/params/",
+        "src/renderer/store/websocket/"
+      ],
+      "description": "WebSocket参数配置"
+    },
+    {
+      "testPattern": "workbench/nodes/websocket/response/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/projectWorkbench/websocketNode/response/",
+        "src/renderer/store/websocket/"
+      ],
+      "description": "WebSocket响应展示"
+    },
+    {
+      "testPattern": "workbench/nodes/websocket/script/*.spec.ts",
+      "businessCode": [
+        "src/renderer/worker/",
+        "src/renderer/pages/projectWorkbench/websocketNode/script/"
+      ],
+      "description": "WebSocket脚本功能"
+    },
+    {
+      "testPattern": "workbench/banner/banner-details/node-operation/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/projectWorkbench/layout/banner/",
+        "src/renderer/store/apidoc/",
+        "src/renderer/cache/apidoc/"
+      ],
+      "description": "节点CRUD操作"
+    },
+    {
+      "testPattern": "workbench/banner/banner-details/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/projectWorkbench/layout/banner/"
+      ],
+      "description": "横幅详情功能"
+    },
+    {
+      "testPattern": "workbench/banner/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/projectWorkbench/layout/banner/"
+      ],
+      "description": "横幅其他功能"
+    },
+    {
+      "testPattern": "workbench/nav/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/projectWorkbench/layout/nav/",
+        "src/renderer/store/apidoc/tabsStore.ts"
+      ],
+      "description": "导航功能"
+    },
+    {
+      "testPattern": "workbench/addons/common-header/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/projectWorkbench/dialog/commonHeaders/",
+        "src/renderer/cache/common/commonHeaders.ts"
+      ],
+      "description": "公共请求头"
+    },
+    {
+      "testPattern": "workbench/addons/cookie/*.spec.ts",
+      "businessCode": [
+        "src/renderer/store/apidoc/cookiesStore.ts",
+        "src/renderer/cache/apidoc/cookies.ts",
+        "src/renderer/pages/projectWorkbench/dialog/cookieManager/"
+      ],
+      "description": "Cookie管理"
+    },
+    {
+      "testPattern": "workbench/addons/variable/*.spec.ts",
+      "businessCode": [
+        "src/renderer/store/apidoc/variablesStore.ts",
+        "src/renderer/cache/apidoc/variables.ts",
+        "src/renderer/pages/projectWorkbench/dialog/variablesManager/"
+      ],
+      "description": "变量管理"
+    },
+    {
+      "testPattern": "workbench/addons/import/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/projectWorkbench/dialog/import/",
+        "src/renderer/server/import/"
+      ],
+      "description": "导入功能"
+    },
+    {
+      "testPattern": "workbench/addons/export/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/projectWorkbench/dialog/export/",
+        "src/renderer/server/export/"
+      ],
+      "description": "导出功能"
+    },
+    {
+      "testPattern": "workbench/addons/trash/*.spec.ts",
+      "businessCode": [
+        "src/renderer/pages/projectWorkbench/dialog/recycler/",
+        "src/renderer/cache/apidoc/httpNodeList.ts"
+      ],
+      "description": "回收站功能"
+    }
+  ]
+}

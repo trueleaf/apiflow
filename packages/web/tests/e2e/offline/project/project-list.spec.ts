@@ -239,6 +239,73 @@ test.describe('ProjectList', () => {
     await expect(restoredProjectName).toContainText(projectName);
   });
 
+  test('编辑项目时输入空名称或纯空格,显示校验错误提示且弹窗不关闭', async ({ topBarPage, contentPage, clearCache, createProject, reload }) => {
+    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache, reload);
+    await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
+    const projectCard = contentPage.locator('[data-testid="home-project-card-0"]');
+    await expect(projectCard).toBeVisible({ timeout: 5000 });
+    const editIcon = projectCard.locator('.operator div[title="编辑"]');
+    await editIcon.click();
+    const editDialog = contentPage.locator('.el-dialog').filter({ hasText: /编辑项目|修改项目/ });
+    await expect(editDialog).toBeVisible({ timeout: 5000 });
+    const projectNameInput = editDialog.locator('input').first();
+    // 清空名称后点击确定,验证必填校验
+    await projectNameInput.fill('');
+    await editDialog.locator('.el-dialog__header').click();
+    await contentPage.waitForTimeout(300);
+    const errorMessage = editDialog.locator('.el-form-item__error');
+    await expect(errorMessage).toBeVisible({ timeout: 3000 });
+    await expect(errorMessage).toContainText(/请填写项目名称/);
+    await expect(editDialog).toBeVisible();
+    // 输入纯空格,验证空格校验
+    await projectNameInput.fill('   ');
+    await editDialog.locator('.el-dialog__header').click();
+    await contentPage.waitForTimeout(300);
+    await expect(errorMessage).toBeVisible({ timeout: 3000 });
+    await expect(errorMessage).toContainText(/项目名称不能为空或仅包含空格/);
+    await expect(editDialog).toBeVisible();
+  });
+
+  test('连续删除多个项目,撤回操作只能恢复最后一个被删除的项目', async ({ topBarPage, contentPage, clearCache, createProject, reload }) => {
+    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache, reload);
+    // 创建两个项目
+    const projectName1 = await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn, `第一个项目-${Date.now()}`);
+    const projectName2 = await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn, `第二个项目-${Date.now()}`);
+    // 确认两个项目都存在
+    const card0 = contentPage.locator('[data-testid="home-project-card-0"]');
+    const card1 = contentPage.locator('[data-testid="home-project-card-1"]');
+    await expect(card0).toBeVisible({ timeout: 5000 });
+    await expect(card1).toBeVisible({ timeout: 5000 });
+    // 删除排在第一位的项目(最新创建的projectName2)
+    const deleteBtn0 = card0.locator('[data-testid="home-project-delete-btn"]');
+    await deleteBtn0.click();
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
+    await expect(confirmDialog).toBeVisible({ timeout: 5000 });
+    await confirmDialog.locator('.el-button--primary').click();
+    await expect(confirmDialog).toBeHidden({ timeout: 5000 });
+    const undoNotification = contentPage.locator('.undo-notification');
+    await expect(undoNotification).toBeVisible({ timeout: 5000 });
+    // 紧接着删除剩余的项目(projectName1),新删除覆盖旧的deletedProjectData
+    const remainingCard = contentPage.locator('[data-testid="home-project-card-0"]');
+    await expect(remainingCard).toContainText(projectName1);
+    const deleteBtn1 = remainingCard.locator('[data-testid="home-project-delete-btn"]');
+    await deleteBtn1.click();
+    await expect(confirmDialog).toBeVisible({ timeout: 5000 });
+    await confirmDialog.locator('.el-button--primary').click();
+    await expect(confirmDialog).toBeHidden({ timeout: 5000 });
+    await expect(undoNotification).toBeVisible({ timeout: 5000 });
+    // 点击撤回,验证只恢复最后删除的项目(projectName1)
+    const undoBtn = undoNotification.locator('.btn-undo');
+    await undoBtn.click();
+    await expect(undoNotification).toBeHidden({ timeout: 5000 });
+    const restoredCard = contentPage.locator('[data-testid="home-project-card-0"]');
+    await expect(restoredCard).toBeVisible({ timeout: 5000 });
+    await expect(restoredCard).toContainText(projectName1);
+    // 验证projectName2没有恢复(列表中只有一个项目)
+    const secondCard = contentPage.locator('[data-testid="home-project-card-1"]');
+    await expect(secondCard).toBeHidden({ timeout: 3000 });
+  });
+
   test('接口数量需要正确展示,folder节点不计入接口总数', async ({ topBarPage, contentPage, clearCache, createProject, reload }) => {
     const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache, reload);
     await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);

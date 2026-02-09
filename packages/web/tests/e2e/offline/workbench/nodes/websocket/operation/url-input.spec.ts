@@ -105,4 +105,21 @@ test.describe('WebSocketUrlInput', () => {
     await expect(statusUrl).toContainText('ws://', { timeout: 10000 });
     await expect(statusUrl).not.toContainText('127.0.0.1:8080/ws', { timeout: 10000 });
   });
+  // URL输入框输入地址后状态栏同步更新
+  test('URL输入框输入地址后状态栏同步更新', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'websocket', name: 'URL状态栏同步测试' });
+    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
+    await expect(urlEditor).toBeVisible({ timeout: 5000 });
+    // 输入地址并触发格式化
+    await urlEditor.fill('example.com:8080/ws-path');
+    await contentPage.keyboard.press('Enter');
+    await contentPage.waitForTimeout(500);
+    // 验证状态栏显示完整URL（包含自动添加的ws://前缀）
+    const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
+    await expect(statusUrl).toContainText('ws://example.com:8080/ws-path', { timeout: 5000 });
+  });
 });

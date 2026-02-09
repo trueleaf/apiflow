@@ -128,6 +128,22 @@ test.describe('TabContextMenu', () => {
     await expect(contextMenu).toBeHidden({ timeout: 3000 });
   });
 
+  test('全部关闭菜单项清空所有Tab并跳转首页', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject(`全关A-${Date.now()}`);
+    await createProject(`全关B-${Date.now()}`);
+    // 右键第一个Tab，点击全部关闭
+    const firstTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').first();
+    await firstTab.click({ button: 'right' });
+    await topBarPage.waitForTimeout(300);
+    const closeAllMenuItem = contentPage.locator('[data-test-id="header-tab-contextmenu-close-all"]');
+    await closeAllMenuItem.click();
+    await topBarPage.waitForTimeout(500);
+    // 验证所有Tab已清空且跳转到首页
+    await expect(topBarPage.locator('[data-test-id^="header-tab-item-"]')).toHaveCount(0);
+    await expect(contentPage).toHaveURL(/.*#\/home/, { timeout: 5000 });
+  });
+
   test('右键不同Tab切换菜单位置', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
     // 创建两个项目

@@ -79,4 +79,38 @@ test.describe('WebSocketProtocolUndo', () => {
     await expect(protocolSelect).toContainText('WS');
     await expect(protocolSelect).not.toContainText('WSS');
   });
+  // 撤销协议变更后URL前缀同步恢复
+  test('撤销协议变更后URL前缀同步恢复', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'websocket', name: '协议撤销URL前缀测试' });
+    // 填写URL地址
+    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
+    await urlEditor.fill('127.0.0.1:8080/prefix-test');
+    await contentPage.keyboard.press('Enter');
+    await contentPage.waitForTimeout(300);
+    const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
+    await expect(statusUrl).toContainText('ws://', { timeout: 5000 });
+    // 切换为WSS协议
+    const protocolSelect = contentPage.locator('.ws-operation .protocol-select .el-select');
+    await protocolSelect.click();
+    const wssOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'WSS' });
+    await wssOption.click();
+    await contentPage.waitForTimeout(300);
+    // 重新输入触发格式化
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('127.0.0.1:8080/prefix-test');
+    await contentPage.keyboard.press('Enter');
+    await contentPage.waitForTimeout(300);
+    await expect(statusUrl).toContainText('wss://', { timeout: 5000 });
+    // 撤销协议变更
+    const undoBtn = contentPage.locator('[data-testid="ws-params-undo-btn"]');
+    await undoBtn.click();
+    await contentPage.waitForTimeout(300);
+    // 验证协议恢复为WS
+    await expect(protocolSelect).not.toContainText('WSS');
+  });
 });

@@ -381,50 +381,14 @@ test.describe('MoveNode', () => {
 
   test.describe('移动单个httpMockNode节点', () => {
     // 拖拽单个httpMockNode节点到banner空白区域,移动到根节点下
-    test('拖拽单个httpMockNode节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject }) => {
+    test('拖拽单个httpMockNode节点到banner空白区域,移动到根节点下', async ({ contentPage, clearCache, createProject, createNode }) => {
       await clearCache();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-      await contentPage.waitForTimeout(500);
       const treeWrap = contentPage.locator('.tree-wrap');
-      // 先创建一个文件夹
-      await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
-      await contentPage.waitForTimeout(300);
-      const newFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
-      await newFolderItem.click();
-      await contentPage.waitForTimeout(300);
-      const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
-      const folderNameInput = folderDialog.locator('input').first();
-      await folderNameInput.fill('测试文件夹');
-      const folderConfirmBtn = folderDialog.locator('.el-button--primary').last();
-      await folderConfirmBtn.click();
-      await contentPage.waitForTimeout(500);
-      // 在文件夹中创建httpMock节点
-      const folderNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试文件夹' });
-      await folderNode.click({ button: 'right' });
-      await contentPage.waitForTimeout(300);
-      const newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
-      await newInterfaceItem.click();
-      await contentPage.waitForTimeout(300);
-      const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
-      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-      const mockNameInput = addFileDialog.locator('input').first();
-      await mockNameInput.fill('测试Mock节点');
-      const httpMockRadio = addFileDialog.locator('.el-radio').filter({ hasText: 'HTTP Mock' }).first();
-      await httpMockRadio.click();
-      await contentPage.waitForTimeout(200);
-      const mockConfirmBtn = addFileDialog.locator('.el-button--primary').last();
-      await mockConfirmBtn.click();
-      await contentPage.waitForTimeout(500);
-      // 展开文件夹
-      const folderTreeNode = folderNode.locator('xpath=ancestor::div[contains(@class,"el-tree-node")][1]');
-      await expect(folderTreeNode).toBeVisible({ timeout: 5000 });
-      const isExpanded = await folderTreeNode.evaluate(el => el.classList.contains('is-expanded'));
-      if (!isExpanded) {
-        const expandIcon = folderTreeNode.locator('.el-tree-node__expand-icon').first();
-        await expandIcon.click();
-        await contentPage.waitForTimeout(300);
-      }
+      // 使用createNode fixture创建文件夹和httpMock节点（createNode会自动展开父节点）
+      const folderId = await createNode(contentPage, { nodeType: 'folder', name: '测试文件夹' });
+      await createNode(contentPage, { nodeType: 'httpMock', name: '测试Mock节点', pid: folderId });
       // 拖拽mock节点到空白区域
       const mockNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '测试Mock节点' });
       const mockNodeBox = await mockNode.boundingBox();

@@ -511,6 +511,82 @@ test.describe('Trash/回收站', () => {
       await expect(restoredChildNode).toBeVisible({ timeout: 5000 });
     }
   });
+  test('无已删节点时回收站展示空状态', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 直接打开回收站,不删除任何节点
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const recyclerItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /回收站/ });
+    await recyclerItem.click();
+    const recyclerPage = contentPage.locator('.recycler');
+    await expect(recyclerPage).toBeVisible({ timeout: 5000 });
+    // 验证无任何docinfo条目
+    await expect(recyclerPage.locator('.docinfo')).toHaveCount(0);
+    // 验证搜索区域仍可见
+    const searchArea = recyclerPage.locator('.search-wrap');
+    await expect(searchArea).toBeVisible();
+  });
+  test('恢复确认弹窗点击取消后节点保留在回收站中', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    test.setTimeout(60000);
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const bannerTree = contentPage.getByTestId('banner-doc-tree');
+    await expect(bannerTree).toBeVisible({ timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '取消恢复测试节点' });
+    // 删除节点
+    const node = bannerTree.locator('.el-tree-node__content', { hasText: '取消恢复测试节点' }).first();
+    await node.click({ button: 'right' });
+    await contentPage.locator('.s-contextmenu-item').filter({ hasText: /删除/ }).click();
+    await contentPage.locator('.cl-confirm-container .el-button--primary').click();
+    await contentPage.waitForTimeout(500);
+    // 打开回收站
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const recyclerItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /回收站/ });
+    await recyclerItem.click();
+    const recyclerPage = contentPage.locator('.recycler');
+    await expect(recyclerPage).toBeVisible({ timeout: 5000 });
+    const deletedDoc = recyclerPage.locator('.docinfo').filter({ hasText: '取消恢复测试节点' });
+    await expect(deletedDoc).toHaveCount(1, { timeout: 10000 });
+    // 点击恢复后在确认弹窗中取消
+    await deletedDoc.first().locator('.el-button').filter({ hasText: /恢复/ }).click();
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
+    await expect(confirmDialog).toBeVisible({ timeout: 3000 });
+    await confirmDialog.locator('.el-button').filter({ hasText: /取消/ }).click();
+    await expect(confirmDialog).toBeHidden({ timeout: 3000 });
+    // 验证节点仍在回收站中
+    await expect(deletedDoc).toHaveCount(1);
+    // 验证节点未回到文档树
+    await expect(bannerTree.locator('.el-tree-node__content', { hasText: '取消恢复测试节点' })).toHaveCount(0);
+  });
+  test('回收站已打开时删除新节点自动刷新显示', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    test.setTimeout(60000);
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const bannerTree = contentPage.getByTestId('banner-doc-tree');
+    await expect(bannerTree).toBeVisible({ timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '实时刷新测试节点' });
+    // 先打开回收站确认为空
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const recyclerItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /回收站/ });
+    await recyclerItem.click();
+    const recyclerPage = contentPage.locator('.recycler');
+    await expect(recyclerPage).toBeVisible({ timeout: 5000 });
+    await expect(recyclerPage.locator('.docinfo').filter({ hasText: '实时刷新测试节点' })).toHaveCount(0);
+    // 在文档树中删除节点(回收站仍处于打开状态)
+    const node = bannerTree.locator('.el-tree-node__content', { hasText: '实时刷新测试节点' }).first();
+    await node.click({ button: 'right' });
+    await contentPage.locator('.s-contextmenu-item').filter({ hasText: /删除/ }).click();
+    await contentPage.locator('.cl-confirm-container .el-button--primary').click();
+    // 验证回收站自动刷新显示新删除的节点
+    const newDeletedDoc = recyclerPage.locator('.docinfo').filter({ hasText: '实时刷新测试节点' });
+    await expect(newDeletedDoc).toHaveCount(1, { timeout: 10000 });
+  });
 });
 
 

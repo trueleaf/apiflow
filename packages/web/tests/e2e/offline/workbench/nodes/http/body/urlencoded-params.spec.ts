@@ -344,6 +344,62 @@ test.describe('UrlencodedParams', () => {
     const responseText = await responseBody.textContent();
     expect(responseText).not.toContain('token');
   });
+  test('urlencoded参数key为变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 创建HTTP节点
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('urlencoded变量Key测试');
+    await addFileDialog.locator('.el-button--primary').last().click();
+    await contentPage.waitForTimeout(500);
+    // 设置请求URL和POST方法
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    await methodSelect.click();
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).click();
+    // 添加变量 dynamic_key=username
+    const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]');
+    await variableBtn.click();
+    await contentPage.waitForTimeout(500);
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    const addPanel = variablePage.locator('.left');
+    await addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ }).locator('input').first().fill('dynamic_key');
+    await addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ }).locator('textarea').first().fill('username');
+    await addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first().click();
+    await contentPage.waitForTimeout(500);
+    // 切回 HTTP 节点
+    const httpTab = contentPage.locator('.nav .item').filter({ hasText: 'urlencoded变量Key测试' }).first();
+    await httpTab.click();
+    await contentPage.waitForTimeout(300);
+    // 切换到Body标签页，选择urlencoded类型
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+    await bodyTab.click();
+    await contentPage.waitForTimeout(300);
+    const urlencodedRadio = contentPage.locator('.el-radio').filter({ hasText: /urlencoded/i });
+    await urlencodedRadio.click();
+    await contentPage.waitForTimeout(300);
+    // key使用变量，value设置为admin
+    const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.first().fill('{{dynamic_key}}');
+    await valueInputs.first().click();
+    await contentPage.keyboard.type('admin');
+    await contentPage.waitForTimeout(300);
+    // 发送请求
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    // 验证响应中变量被替换为实际key名
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('username', { timeout: 10000 });
+    await expect(responseBody).toContainText('admin', { timeout: 10000 });
+  });
 });
 
 

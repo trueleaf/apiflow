@@ -167,6 +167,32 @@ test.describe('RequestConfig', () => {
     const statusCode = responseArea.getByTestId('status-code');
     await expect(statusCode).toContainText('200', { timeout: 10000 });
   });
+  // 修改发送文件最大大小配置
+  test('修改发送文件最大大小配置', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await expect(addHttpBtn).toBeVisible({ timeout: 10000 });
+    await addHttpBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 10000 });
+    const nameInput = addFileDialog.locator('input').first();
+    await nameInput.fill('发送文件大小测试');
+    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmBtn.click();
+    const settingsTab = contentPage.locator('[data-testid="http-params-tab-settings"]');
+    await expect(settingsTab).toBeVisible({ timeout: 10000 });
+    await settingsTab.click();
+    const settingsPanel = contentPage.locator('.request-settings');
+    await expect(settingsPanel).toBeVisible({ timeout: 10000 });
+    // 找到"发送文件最大大小"配置项的数字输入框
+    const maxSendFileSizeInput = contentPage.locator('.request-settings .config-item').filter({ hasText: /发送文件最大大小|Max Send File Size/ }).locator('.control-number input');
+    await expect(maxSendFileSizeInput).toBeVisible({ timeout: 5000 });
+    await maxSendFileSizeInput.click();
+    await maxSendFileSizeInput.fill('2');
+    await expect(maxSendFileSizeInput).toHaveValue('2');
+  });
 });
 
 

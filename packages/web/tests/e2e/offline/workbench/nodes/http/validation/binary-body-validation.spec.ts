@@ -539,6 +539,55 @@ test.describe('BinaryBodyValidation', () => {
     expect(placeholder).toContain('{{');
     expect(placeholder).toContain('}}');
   });
+  // 调用echo接口验证Binary变量模式请求是否正常发送
+  test('调用echo接口验证Binary变量模式请求是否正常发送', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    const treeWrap = contentPage.locator('.tree-wrap');
+    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
+    await contentPage.waitForTimeout(300);
+    const contextMenu = contentPage.locator('.s-contextmenu');
+    const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
+    await newInterfaceItem.click();
+    await contentPage.waitForTimeout(300);
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    const nameInput = addFileDialog.locator('input').first();
+    await nameInput.fill('Binary发送测试');
+    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmBtn.click();
+    await contentPage.waitForTimeout(500);
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill('http://127.0.0.1:3456/echo');
+    // 选择POST方法
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    await methodSelect.click();
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    await postOption.click();
+    // 切换到Body标签并选择binary类型
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+    await bodyTab.click();
+    await contentPage.waitForTimeout(300);
+    const binaryRadio = contentPage.locator('.body-params .el-radio', { hasText: /binary/i });
+    await binaryRadio.click();
+    await contentPage.waitForTimeout(300);
+    // 选择变量模式并输入内容
+    const binaryWrap = contentPage.locator('.binary-wrap');
+    const varModeRadio = binaryWrap.locator('.el-radio', { hasText: /变量模式/ });
+    await varModeRadio.click();
+    await contentPage.waitForTimeout(300);
+    const varInput = binaryWrap.locator('.var-mode .el-input input');
+    await varInput.fill('test binary content');
+    await contentPage.waitForTimeout(300);
+    // 发送请求
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+  });
 });
 
 

@@ -286,6 +286,47 @@ test.describe('Query', () => {
     const responseSummary = contentPage.locator('.response-summary-view');
     await expect(responseSummary).toBeVisible({ timeout: 10000 });
   });
+  // Query参数支持多行编辑模式切换和应用
+  test('Query参数多行编辑模式切换后参数正确应用', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addHttpBtn.click();
+    await contentPage.waitForTimeout(300);
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    const nameInput = addFileDialog.locator('input').first();
+    await nameInput.fill('Query多行编辑测试');
+    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 切换到Query标签
+    const queryTab = contentPage.locator('[data-testid="http-params-tab-params"]');
+    await queryTab.click();
+    await contentPage.waitForTimeout(300);
+    const queryParamsPanel = contentPage.locator('.query-path-params');
+    await expect(queryParamsPanel).toBeVisible({ timeout: 5000 });
+    // 点击多行编辑模式切换按钮
+    const modeToggleBtn = queryParamsPanel.locator('.mode-toggle-icon');
+    await modeToggleBtn.click();
+    await contentPage.waitForTimeout(300);
+    // 验证多行编辑文本域可见并输入内容
+    const multilineTextarea = queryParamsPanel.locator('[data-testid="params-tree-multiline-textarea"]');
+    await expect(multilineTextarea).toBeVisible({ timeout: 5000 });
+    await multilineTextarea.fill('page=1\nsize=10');
+    await contentPage.waitForTimeout(200);
+    // 点击应用按钮
+    const applyBtn = queryParamsPanel.locator('[data-testid="params-tree-apply-btn"]');
+    await applyBtn.click();
+    await contentPage.waitForTimeout(300);
+    // 切换回表格模式验证参数已应用
+    await modeToggleBtn.click();
+    await contentPage.waitForTimeout(300);
+    const queryKeyInputs = queryParamsPanel.getByPlaceholder(/输入参数名称自动换行/);
+    const rowCount = await queryKeyInputs.count();
+    expect(rowCount).toBeGreaterThanOrEqual(2);
+  });
 });
 
 

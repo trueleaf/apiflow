@@ -116,6 +116,128 @@ test.describe('Export', () => {
     });
     expect(filenames.some((name) => name.endsWith('.json'))).toBeTruthy();
   });
+  test('开启选择导出但不勾选任何节点,点击导出触发警告提示', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '选择导出警告测试' });
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const exportItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导出文档/ });
+    await exportItem.click();
+    const exportPage = contentPage.locator('.doc-export');
+    await expect(exportPage).toBeVisible({ timeout: 5000 });
+    // 开启选择导出但不勾选任何节点
+    const selectExportCheckbox = exportPage.locator('.config-item').filter({ hasText: /选择导出/ }).locator('.el-checkbox');
+    await selectExportCheckbox.click();
+    const tree = exportPage.locator('.el-tree');
+    await expect(tree).toBeVisible({ timeout: 5000 });
+    // 点击确定导出,应触发警告而非下载
+    const exportBtn = exportPage.locator('.el-button--primary').filter({ hasText: /确定导出/ });
+    await exportBtn.click();
+    const warningMsg = contentPage.locator('.el-message--warning');
+    await expect(warningMsg).toBeVisible({ timeout: 5000 });
+    await expect(warningMsg).toContainText(/请至少选择一个文档导出/);
+  });
+  test('选择性导出JSON文档仅包含勾选的节点', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 创建3个节点,后续只勾选导出其中1个
+    await createNode(contentPage, { nodeType: 'http', name: '导出节点A' });
+    await createNode(contentPage, { nodeType: 'http', name: '不导出节点B' });
+    await createNode(contentPage, { nodeType: 'http', name: '不导出节点C' });
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const exportItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导出文档/ });
+    await exportItem.click();
+    const exportPage = contentPage.locator('.doc-export');
+    await expect(exportPage).toBeVisible({ timeout: 5000 });
+    // 选择JSON文档类型
+    const jsonOption = exportPage.locator('.item').filter({ hasText: /JSON文档/ });
+    await jsonOption.click();
+    await expect(jsonOption).toHaveClass(/active/);
+    // 开启选择导出
+    const selectExportCheckbox = exportPage.locator('.config-item').filter({ hasText: /选择导出/ }).locator('.el-checkbox');
+    await selectExportCheckbox.click();
+    const tree = exportPage.locator('.el-tree');
+    await expect(tree).toBeVisible({ timeout: 5000 });
+    // 只勾选"导出节点A"
+    const nodeA = tree.locator('.el-tree-node').filter({ hasText: '导出节点A' }).first();
+    await nodeA.locator('.el-checkbox').click();
+    // 拦截下载并捕获内容
+    await contentPage.evaluate(() => {
+      const w = window as unknown as { __exportContent?: string };
+      const origClick = HTMLAnchorElement.prototype.click;
+      HTMLAnchorElement.prototype.click = function () {
+        const href = this.getAttribute('href') || '';
+        if (this.getAttribute('download') && href.startsWith('blob:')) {
+          fetch(href).then(r => r.text()).then(text => { w.__exportContent = text; });
+        }
+        return origClick.apply(this);
+      };
+    });
+    const exportBtn = exportPage.locator('.el-button--primary').filter({ hasText: /确定导出/ });
+    await exportBtn.click();
+    // 等待下载内容被捕获
+    await expect.poll(async () => {
+      return await contentPage.evaluate(() => {
+        const w = window as unknown as { __exportContent?: string };
+        return !!w.__exportContent;
+      });
+    }, { timeout: 10000 }).toBeTruthy();
+    const exportContent = await contentPage.evaluate(() => {
+      const w = window as unknown as { __exportContent?: string };
+      return w.__exportContent || '';
+    });
+    const parsed = JSON.parse(exportContent) as { type: string; docs: { info: { name: string } }[] };
+    expect(parsed.type).toBe('apiflow');
+    // 验证只包含勾选的节点A,不含B和C
+    const docNames = parsed.docs.map(d => d.info?.name);
+    expect(docNames).toContain('导出节点A');
+    expect(docNames).not.toContain('不导出节点B');
+    expect(docNames).not.toContain('不导出节点C');
+  });
+  test('导出HTML格式触发.html文件下载', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: 'HTML导出测试接口' });
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const exportItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导出文档/ });
+    await exportItem.click();
+    const exportPage = contentPage.locator('.doc-export');
+    await expect(exportPage).toBeVisible({ timeout: 5000 });
+    // HTML是默认选中类型,直接导出
+    const htmlOption = exportPage.locator('.item').filter({ hasText: 'HTML' });
+    await expect(htmlOption).toHaveClass(/active/);
+    await contentPage.evaluate(() => {
+      const w = window as unknown as { __downloadFilenames?: string[] };
+      w.__downloadFilenames = [];
+      const originalClick = HTMLAnchorElement.prototype.click;
+      HTMLAnchorElement.prototype.click = function () {
+        const downloadAttr = this.getAttribute('download');
+        if (downloadAttr) {
+          w.__downloadFilenames?.push(downloadAttr);
+        }
+        return originalClick.apply(this);
+      };
+    });
+    const exportBtn = exportPage.locator('.el-button--primary').filter({ hasText: /确定导出/ });
+    await exportBtn.click();
+    await expect.poll(async () => {
+      return await contentPage.evaluate(() => {
+        const w = window as unknown as { __downloadFilenames?: string[] };
+        return w.__downloadFilenames?.length || 0;
+      });
+    }, { timeout: 10000 }).toBeGreaterThan(0);
+    const filenames = await contentPage.evaluate(() => {
+      const w = window as unknown as { __downloadFilenames?: string[] };
+      return w.__downloadFilenames || [];
+    });
+    expect(filenames.some((name) => name.endsWith('.html'))).toBeTruthy();
+  });
   test('离线模式创建全类型节点与参数组合,导出OpenAPI并校验schema与required', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {
     // 该用例步骤较多，避免在 CI/低性能环境下因超时导致误报失败
     test.setTimeout(300000);

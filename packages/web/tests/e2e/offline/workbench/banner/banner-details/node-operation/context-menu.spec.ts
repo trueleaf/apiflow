@@ -745,6 +745,24 @@ test.describe('ContextMenu', () => {
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
+    test('鼠标右键websocket节点,点击生成副本,成功生成副本节点', async ({ contentPage, clearCache, createProject, createNode }) => {
+      await clearCache();
+      await createProject();
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await createNode(contentPage, { nodeType: 'websocket', name: '源WS节点' });
+      const bannerTree = contentPage.getByTestId('banner-doc-tree');
+      const wsNode = bannerTree.locator('.el-tree-node__content', { hasText: '源WS节点' }).first();
+      await expect(wsNode).toBeVisible({ timeout: 5000 });
+      // 右键websocket节点,点击生成副本
+      await wsNode.click({ button: 'right' });
+      const forkItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /生成副本/ });
+      await expect(forkItem).toBeVisible({ timeout: 3000 });
+      await forkItem.click();
+      await contentPage.waitForTimeout(500);
+      // 验证出现两个源WS节点
+      const allWsNodes = bannerTree.locator('.el-tree-node__content').filter({ hasText: '源WS节点' });
+      await expect(allWsNodes).toHaveCount(2, { timeout: 5000 });
+    });
   });
 });
 

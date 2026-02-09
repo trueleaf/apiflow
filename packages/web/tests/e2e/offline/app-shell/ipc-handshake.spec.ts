@@ -185,4 +185,99 @@ test.describe('HandshakeMechanism', () => {
     // 验证contentView切换到项目B
     await expect(contentPage).toHaveURL(new RegExp(`.*workbench.*id=${projectBIdEscaped}`), { timeout: 5000 });
   });
+
+  test('ContentView单独刷新后topBar到contentView的IPC通讯恢复', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject(`单独刷新测试-${Date.now()}`);
+    // 仅刷新contentView（区别于全应用刷新，topBar不重载）
+    await contentPage.reload();
+    await contentPage.waitForLoadState('domcontentloaded');
+    await contentPage.waitForTimeout(1000);
+    // 验证topBar→contentView的IPC通讯仍然正常
+    const aiBtn = topBarPage.locator('[data-testid="header-ai-btn"]');
+    await aiBtn.click();
+    const aiDialog = contentPage.locator('.ai-dialog');
+    await expect(aiDialog).toBeVisible({ timeout: 5000 });
+    const closeBtn = aiDialog.locator('.ai-dialog-close');
+    await closeBtn.click();
+    await expect(aiDialog).toBeHidden({ timeout: 5000 });
+    // 验证设置导航IPC也正常
+    const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
+    await settingsBtn.click();
+    await contentPage.waitForTimeout(500);
+    await expect(contentPage).toHaveURL(/.*#\/settings/, { timeout: 5000 });
+  });
+
+  test('全应用刷新后多个Tab通过IPC缓存机制恢复', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+    await clearCache();
+    // 创建3个项目产生3个Tab，测试cachedTabsData缓存机制
+    const projectNames: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      const name = await createProject(`缓存恢复-${i}-${Date.now()}`);
+      projectNames.push(name);
+    }
+    for (const name of projectNames) {
+      const tab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: name });
+      await expect(tab).toBeVisible();
+    }
+    // 全应用刷新（两个View均重载，握手管理器重置）
+    const refreshBtn = topBarPage.locator('[data-testid="header-refresh-btn"]');
+    await refreshBtn.click();
+    await topBarPage.waitForLoadState('domcontentloaded');
+    await contentPage.waitForLoadState('domcontentloaded');
+    await contentPage.waitForTimeout(1500);
+    // 验证所有Tab通过握手管理器的cachedTabsData恢复
+    for (const name of projectNames) {
+      const tab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: name });
+      await expect(tab).toBeVisible({ timeout: 5000 });
+    }
+    // 验证Tab切换IPC在恢复后仍可用
+    const firstTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectNames[0] });
+    await firstTab.click();
+    await contentPage.waitForTimeout(500);
+    await expect(contentPage).toHaveURL(/.*#\/workbench/, { timeout: 5000 });
+  });
+
+  test('项目删除IPC事件正确经由主进程从contentView传递到topBar', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+    await clearCache();
+    const projectAName = await createProject(`IPC删除A-${Date.now()}`);
+    const projectBName = await createProject(`IPC删除B-${Date.now()}`);
+    const tabA = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectAName });
+    const tabB = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectBName });
+    await expect(tabA).toBeVisible();
+    await expect(tabB).toBeVisible();
+    // 回到首页删除项目A
+    const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+    await homeBtn.click();
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
+    await topBarPage.waitForTimeout(500);
+    // 关闭可能出现的提示弹窗
+    const msgBoxConfirmBtn = contentPage.locator('.cl-confirm-footer-right .el-button--primary');
+    const msgBoxVisible = await msgBoxConfirmBtn.isVisible({ timeout: 1000 }).catch(() => false);
+    if (msgBoxVisible) {
+      await msgBoxConfirmBtn.click();
+      await topBarPage.waitForTimeout(300);
+    }
+    await expect(contentPage.locator('[data-testid="home-project-card-0"]')).toBeVisible({ timeout: 5000 });
+    const projectCard = contentPage.locator('.project-list').filter({ hasText: projectAName });
+    await expect(projectCard).toBeVisible({ timeout: 5000 });
+    await projectCard.hover();
+    await topBarPage.waitForTimeout(300);
+    const deleteBtn = projectCard.locator('[data-testid="home-project-delete-btn"]');
+    await deleteBtn.click();
+    await topBarPage.waitForTimeout(300);
+    const confirmDialog = contentPage.locator('.cl-confirm-container');
+    await expect(confirmDialog).toBeVisible({ timeout: 5000 });
+    const confirmBtn = confirmDialog.locator('.el-button--primary');
+    await confirmBtn.click();
+    await topBarPage.waitForTimeout(500);
+    // 验证projectDeleted IPC事件成功传递：contentView→main→topBar
+    await expect(tabA).toBeHidden({ timeout: 5000 });
+    await expect(tabB).toBeVisible();
+    // 验证IPC链路在删除操作后仍然完整（可继续创建项目）
+    const projectCName = await createProject(`IPC删除后创建-${Date.now()}`);
+    const tabC = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectCName });
+    await expect(tabC).toBeVisible();
+    await expect(contentPage).toHaveURL(/.*#\/workbench/, { timeout: 5000 });
+  });
 });

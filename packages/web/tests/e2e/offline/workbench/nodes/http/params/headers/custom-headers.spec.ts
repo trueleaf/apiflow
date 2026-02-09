@@ -263,6 +263,44 @@ test.describe('CustomHeaders', () => {
     const responseArea = contentPage.locator('[data-testid="response-tabs"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
   });
+  // 删除自定义请求头行且至少保留一行
+  test('删除自定义请求头行且至少保留一行', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    const addHttpBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addHttpBtn.click();
+    await contentPage.waitForTimeout(300);
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    const nameInput = addFileDialog.locator('input').first();
+    await nameInput.fill('Header删除行测试');
+    const confirmBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 切换到Headers标签
+    const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
+    await headersTab.click();
+    await contentPage.waitForTimeout(300);
+    const headersTree = contentPage.locator('.cl-params-tree').first();
+    // 填写第一行header key触发自动新增第二行
+    const firstKeyInput = headersTree.locator('[data-testid="params-tree-key-autocomplete"] input').first();
+    await firstKeyInput.click();
+    await firstKeyInput.fill('X-Test-Header');
+    await contentPage.waitForTimeout(300);
+    const rows = headersTree.locator('[data-testid="params-tree-row"]');
+    const rowCountAfterInput = await rows.count();
+    expect(rowCountAfterInput).toBeGreaterThanOrEqual(2);
+    // 删除第一行
+    const firstDeleteBtn = rows.first().locator('[data-testid="params-tree-delete-btn"]');
+    await firstDeleteBtn.click();
+    await contentPage.waitForTimeout(300);
+    const rowCountAfterDelete = await rows.count();
+    expect(rowCountAfterDelete).toBeLessThan(rowCountAfterInput);
+    // 验证最后一行的删除按钮置灰不可点击
+    const lastDeleteBtn = rows.first().locator('[data-testid="params-tree-delete-btn"]');
+    await expect(lastDeleteBtn).toHaveClass(/disabled/);
+  });
 });
 
 

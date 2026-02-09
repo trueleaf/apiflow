@@ -98,6 +98,32 @@ test.describe('SaveButton', () => {
     const methodText = await methodSelectAfterReload.textContent();
     expect(methodText).toContain('POST');
   });
+  test('快捷键Ctrl+S保存接口数据', async ({ contentPage, clearCache, createProject, reload }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('Ctrl+S保存测试');
+    await addFileDialog.locator('.el-button--primary').last().click();
+    await contentPage.waitForTimeout(500);
+    // 修改URL
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    const testUrl = `http://127.0.0.1:${MOCK_SERVER_PORT}/echo`;
+    await urlInput.fill(testUrl);
+    await contentPage.waitForTimeout(300);
+    // 使用Ctrl+S保存
+    await contentPage.keyboard.press('Control+s');
+    await contentPage.waitForTimeout(1000);
+    // 刷新页面验证数据持久化
+    await reload();
+    await contentPage.waitForTimeout(500);
+    const urlInputAfterReload = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    const savedUrl = (await urlInputAfterReload.innerText()).trim();
+    expect(savedUrl).toBe(testUrl);
+  });
 });
 
 

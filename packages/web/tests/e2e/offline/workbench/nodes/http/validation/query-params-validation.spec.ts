@@ -167,6 +167,31 @@ test.describe('QueryParamsValidation', () => {
     await expect(responseBody).toContainText('张三', { timeout: 10000 });
     await expect(responseBody).toContainText('tag', { timeout: 10000 });
   });
+  // 调用echo接口验证特殊字符参数是否正常编码返回
+  test('调用echo接口验证特殊字符参数是否正常编码返回', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('Query特殊字符参数测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 直接在URL中带特殊字符参数
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?filter=a%26b%3Dc`);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('filter', { timeout: 10000 });
+    await expect(responseBody).toContainText('200', { timeout: 10000 });
+  });
 });
 
 

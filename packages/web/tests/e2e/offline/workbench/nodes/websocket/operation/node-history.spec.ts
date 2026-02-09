@@ -176,4 +176,28 @@ test.describe('WebSocketNodeHistory', () => {
     // 验证下拉框隐藏
     await expect(historyDropdown).not.toBeVisible({ timeout: 5000 });
   });
+  // 保存后历史记录项中包含时间信息
+  test('保存后历史记录项中包含时间信息', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'websocket', name: '历史记录时间测试' });
+    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
+    await urlEditor.fill('127.0.0.1:8080/time-test');
+    await contentPage.keyboard.press('Enter');
+    await contentPage.waitForTimeout(300);
+    const saveBtn = contentPage.locator('[data-testid="websocket-operation-save-btn"]');
+    await saveBtn.click();
+    await contentPage.waitForTimeout(1000);
+    // 打开历史记录
+    const historyBtn = contentPage.locator('[data-testid="ws-params-history-btn"]');
+    await historyBtn.click();
+    await contentPage.waitForTimeout(500);
+    const historyDropdown = contentPage.locator('.ws-params .history-dropdown');
+    await expect(historyDropdown).toBeVisible({ timeout: 5000 });
+    const historyItem = historyDropdown.locator('.history-item').first();
+    // 验证历史记录项包含时间格式（如 HH:MM 或 YYYY 等日期相关文本）
+    await expect(historyItem).toContainText(/\d{2}:\d{2}|\d{4}/, { timeout: 5000 });
+  });
 });

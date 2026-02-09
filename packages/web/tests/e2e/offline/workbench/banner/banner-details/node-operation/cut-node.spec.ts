@@ -542,48 +542,14 @@ test.describe('CutNode', () => {
     });
   });
   test.describe('剪切混合节点', () => {
-    test('批量剪切不同类型节点粘贴到根节点下', async ({ contentPage, clearCache, createProject }) => {
+    test('批量剪切不同类型节点粘贴到根节点下', async ({ contentPage, clearCache, createProject, createNode }) => {
       await clearCache();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-      await contentPage.waitForTimeout(500);
-      const treeWrap = contentPage.locator('.tree-wrap');
-      await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
-      await contentPage.waitForTimeout(300);
-      let newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
-      await newInterfaceItem.click();
-      await contentPage.waitForTimeout(300);
-      let addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
-      let nameInput = addFileDialog.locator('input').first();
-      await nameInput.fill('混合HTTP节点');
-      let confirmBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmBtn.click();
-      await contentPage.waitForTimeout(500);
-      await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
-      await contentPage.waitForTimeout(300);
-      newInterfaceItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建接口/ });
-      await newInterfaceItem.click();
-      await contentPage.waitForTimeout(300);
-      addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
-      nameInput = addFileDialog.locator('input').first();
-      await nameInput.fill('混合WebSocket节点');
-      const wsRadio = addFileDialog.locator('.el-radio').filter({ hasText: 'WebSocket' }).first();
-      await wsRadio.click();
-      await contentPage.waitForTimeout(200);
-      confirmBtn = addFileDialog.locator('.el-button--primary').last();
-      await confirmBtn.click();
-      await contentPage.waitForTimeout(500);
-      await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
-      await contentPage.waitForTimeout(300);
-      const newFolderItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /新建文件夹/ });
-      await newFolderItem.click();
-      await contentPage.waitForTimeout(300);
-      const folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
-      const folderNameInput = folderDialog.locator('input').first();
-      await folderNameInput.fill('目标文件夹');
-      const folderConfirmBtn = folderDialog.locator('.el-button--primary').last();
-      await folderConfirmBtn.click();
-      await contentPage.waitForTimeout(500);
+      // 使用createNode fixture创建HTTP节点、WebSocket节点和目标文件夹
+      await createNode(contentPage, { nodeType: 'http', name: '混合HTTP节点' });
+      await createNode(contentPage, { nodeType: 'websocket', name: '混合WebSocket节点' });
+      await createNode(contentPage, { nodeType: 'folder', name: '目标文件夹' });
       const httpNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '混合HTTP节点' });
       await httpNode.click();
       await contentPage.waitForTimeout(200);

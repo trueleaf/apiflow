@@ -748,7 +748,9 @@ test.describe('Variable', () => {
     await contentPage.waitForTimeout(300);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
+    // 等待响应内容加载完成
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('{', { timeout: 10000 });
     const responseText = (await responseBody.textContent()) || '';
     const jsonStartIndex = responseText.indexOf('{');
     const jsonEndIndex = responseText.lastIndexOf('}');
@@ -826,6 +828,84 @@ test.describe('Variable', () => {
     await sendBtn.click();
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toContainText('{{notExistVar}}', { timeout: 10000 });
+  });
+  test('变量名为空时点击添加显示校验提示', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
+    await variableOption.click();
+    await contentPage.waitForTimeout(500);
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    // 不填写变量名,直接点击添加
+    const addBtn = variablePage.locator('.left .el-button--primary');
+    await addBtn.click();
+    // 验证校验提示出现
+    const errorTip = variablePage.locator('.el-form-item__error');
+    await expect(errorTip).toBeVisible({ timeout: 3000 });
+  });
+  test('编辑变量名为已存在名称时显示错误提示', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
+    await variableOption.click();
+    await contentPage.waitForTimeout(500);
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    // 创建两个变量
+    const nameInput = variablePage.locator('.left input').first();
+    const valueTextarea = variablePage.locator('.left textarea');
+    const addBtn = variablePage.locator('.left .el-button--primary');
+    await nameInput.fill('varAlpha');
+    await valueTextarea.fill('alpha');
+    await addBtn.click();
+    await contentPage.waitForTimeout(500);
+    await nameInput.fill('varBeta');
+    await valueTextarea.fill('beta');
+    await addBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 编辑varBeta的名称为varAlpha
+    const targetRow = variablePage.locator('.right .el-table__body-wrapper tr').filter({ hasText: 'varBeta' }).first();
+    await targetRow.locator('.el-button').filter({ hasText: /编辑|Edit/ }).first().click();
+    const editDialog = contentPage.locator('.el-dialog').filter({ hasText: /修改变量|Edit/ });
+    await expect(editDialog).toBeVisible({ timeout: 5000 });
+    const editNameInput = editDialog.locator('input').first();
+    await editNameInput.fill('varAlpha');
+    await editDialog.locator('.el-button--primary').click();
+    // 验证错误提示
+    const errorMsg = contentPage.locator('.el-message--error');
+    await expect(errorMsg).toBeVisible({ timeout: 3000 });
+  });
+  test('新增null类型变量成功', async ({ topBarPage, contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
+    await variableOption.click();
+    await contentPage.waitForTimeout(500);
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    const nameInput = variablePage.locator('.left input').first();
+    await nameInput.fill('nullVar');
+    // 选择null类型
+    const typeSelect = variablePage.locator('.left .el-select').first();
+    await typeSelect.click();
+    const nullOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^null$/ });
+    await nullOption.click();
+    const addBtn = variablePage.locator('.left .el-button--primary');
+    await addBtn.click();
+    await contentPage.waitForTimeout(500);
+    const variableTable = variablePage.locator('.right .el-table');
+    await expect(variableTable).toContainText('nullVar');
+    await expect(variableTable).toContainText('null');
   });
 });
 

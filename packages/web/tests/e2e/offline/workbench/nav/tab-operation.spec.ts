@@ -187,6 +187,53 @@ test.describe('TabOperation', () => {
     // 验证变为固定状态
     await expect(itemText).not.toHaveClass(/unfixed/);
   });
+  // 鼠标中键点击关闭tab
+  test('鼠标中键点击关闭tab', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '中键关闭测试' });
+    const tab = contentPage.locator('.nav .item').filter({ hasText: '中键关闭测试' });
+    await expect(tab).toBeVisible({ timeout: 3000 });
+    // 中键点击关闭tab
+    await tab.click({ button: 'middle' });
+    await contentPage.waitForTimeout(300);
+    await expect(tab).toHaveCount(0, { timeout: 3000 });
+  });
+  test('关闭当前激活tab后自动选中其他tab', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '自动选中A' });
+    await createNode(contentPage, { nodeType: 'http', name: '自动选中B' });
+    // 当前激活的应该是B
+    const tabB = contentPage.locator('.nav .item').filter({ hasText: '自动选中B' });
+    await expect(tabB).toHaveClass(/active/);
+    // 关闭B
+    const closeBtn = tabB.locator('[data-testid="project-nav-tab-close-btn"]');
+    await closeBtn.click();
+    await contentPage.waitForTimeout(300);
+    // 验证关闭后有其他tab被自动激活
+    const activeTab = contentPage.locator('.nav .item.active');
+    await expect(activeTab).toHaveCount(1, { timeout: 3000 });
+  });
+  test('右键菜单强制全部关闭', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '强制关闭A' });
+    await createNode(contentPage, { nodeType: 'http', name: '强制关闭B' });
+    const tabB = contentPage.locator('.nav .item').filter({ hasText: '强制关闭B' });
+    await tabB.click({ button: 'right' });
+    await contentPage.waitForTimeout(300);
+    // 点击强制全部关闭
+    const forceCloseAll = contentPage.locator('.s-contextmenu-item').filter({ hasText: /强制全部关闭/ });
+    await forceCloseAll.click();
+    await contentPage.waitForTimeout(500);
+    // 验证所有tab都被关闭
+    const tabCount = await contentPage.locator('.nav .drag-wrap .item').count();
+    expect(tabCount).toBe(0);
+  });
 });
 
 
