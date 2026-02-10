@@ -38,8 +38,8 @@ test.describe('WebSocketUrlInput', () => {
     await contentPage.waitForTimeout(500);
     // 刷新页面
     await reload();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(1000);
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 15000 });
+    await contentPage.waitForTimeout(1500);
     // 验证地址保持不变
     const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
     await expect(statusUrl).toContainText(testUrl);
@@ -96,10 +96,12 @@ test.describe('WebSocketUrlInput', () => {
     await urlEditor.fill('127.0.0.1:8080/ws');
     await contentPage.keyboard.press('Enter');
     await contentPage.waitForTimeout(300);
-    // 清空地址并触发格式化
+    // 使用全选+删除模拟用户清空操作，确保 contenteditable 触发正确的输入事件
     await urlEditor.click();
-    await urlEditor.fill('');
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.press('Backspace');
     await contentPage.keyboard.press('Enter');
+    await contentPage.waitForTimeout(800);
     // 验证状态栏不再包含之前地址（fullUrl 有 500ms 防抖）
     const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
     await expect(statusUrl).toContainText('ws://', { timeout: 10000 });

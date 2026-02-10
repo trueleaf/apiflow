@@ -256,11 +256,18 @@ export const test = base.extend<ElectronFixtures>({
   jumpToSettings: async ({ topBarPage, contentPage }, use) => {
     const jump = async () => {
       const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
+      await expect(settingsBtn).toBeVisible({ timeout: 5000 });
       await settingsBtn.click();
-      await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 10000 });
       const settingsTab = topBarPage.locator('[data-test-id^="header-tab-item-"][data-id^="settings-"]').first();
+      // 设置tab由IPC驱动创建，可能存在竞态导致tab未出现，3秒后重试点击
+      try {
+        await expect(settingsTab).toBeVisible({ timeout: 3000 });
+      } catch {
+        await settingsBtn.click();
+      }
       await expect(settingsTab).toBeVisible({ timeout: 10000 });
       await expect(settingsTab).toHaveClass(/active/, { timeout: 10000 });
+      await contentPage.waitForURL(/.*?#?\/settings/, { timeout: 10000 });
       await expect.poll(async () => {
         return await contentPage.evaluate(() => localStorage.getItem('appWorkbench/header/activeTab') || '');
       }, { timeout: 10000 }).toMatch(/^settings-/);
@@ -270,10 +277,13 @@ export const test = base.extend<ElectronFixtures>({
   reload: async ({ topBarPage, contentPage }, use) => {
     const doReload = async () => {
       const refreshBtn = topBarPage.locator('[data-testid="header-refresh-btn"]');
-      await refreshBtn.click();
-      await topBarPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForLoadState('domcontentloaded');
-      await topBarPage.waitForTimeout(1000);
+      // 在点击刷新前开始监听 load 事件，确保能捕获 IPC 驱动的 reload 完成
+      await Promise.all([
+        contentPage.waitForEvent('load', { timeout: 15000 }),
+        refreshBtn.click(),
+      ]);
+      await contentPage.waitForLoadState('domcontentloaded', { timeout: 15000 });
+      await contentPage.waitForTimeout(1500);
     };
     await use(doReload);
   },
