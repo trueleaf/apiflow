@@ -503,6 +503,22 @@ export const sendRequest = async () => {
   let finalSendHeaders = preSendHeaders;
 
   let finalCookies = objCookies;
+  const normalizeCookieHeader = (cookieHeader: string) => {
+    return cookieHeader
+      .split(';')
+      .map((cookieItem) => cookieItem.trim())
+      .filter((cookieItem) => cookieItem !== '')
+      .map((cookieItem) => {
+        const equalIndex = cookieItem.indexOf('=');
+        if (equalIndex === -1) {
+          return encodeURIComponent(safeDecodeURIComponent(cookieItem));
+        }
+        const rawKey = cookieItem.slice(0, equalIndex).trim();
+        const rawValue = cookieItem.slice(equalIndex + 1).trim();
+        return `${encodeURIComponent(safeDecodeURIComponent(rawKey))}=${encodeURIComponent(safeDecodeURIComponent(rawValue))}`;
+      })
+      .join('; ');
+  };
   const httpNodeConfigStore = useHttpNodeConfig();
   const httpNodeConfigData = httpNodeConfigStore.currentHttpNodeConfig;
   const variableStore = useVariable();
@@ -551,11 +567,19 @@ export const sendRequest = async () => {
     const method = getMethod(copiedApidoc);
     const url = await getUrl(copiedApidoc);
     const body = await getBody(copiedApidoc);
+    if (typeof finalSendHeaders.cookie === 'string') {
+      const normalizedCookieHeader = normalizeCookieHeader(finalSendHeaders.cookie);
+      if (normalizedCookieHeader === '') {
+        delete finalSendHeaders.cookie;
+      } else {
+        finalSendHeaders.cookie = normalizedCookieHeader;
+      }
+    }
     // 只有当用户未在 headers 中配置 cookie 时，才使用 cookie store 的值
     if (finalSendHeaders.cookie === undefined || finalSendHeaders.cookie === null) {
       if (Object.values(finalCookies).length > 0) {
         finalSendHeaders.cookie = Object.entries(finalCookies)
-          .map(([key, value]) => `${key}=${value}`)
+          .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
           .join('; ');
       } else {
         delete finalSendHeaders.cookie;
