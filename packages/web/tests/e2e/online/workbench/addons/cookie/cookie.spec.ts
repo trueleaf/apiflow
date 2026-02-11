@@ -298,7 +298,7 @@ test.describe('CookieBusiness', () => {
     // 手动添加Cookie: domain=127.0.0.1
     const addBtn = cookiePage.locator('.el-button--primary').filter({ hasText: /新增 Cookie/ });
     await addBtn.click();
-    const addDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增 Cookie/ });
+    const addDialog = contentPage.locator('.el-dialog:visible').filter({ hasText: /新增 Cookie/ });
     await expect(addDialog).toBeVisible({ timeout: 5000 });
     const nameInput = addDialog.locator('.el-form-item').filter({ hasText: /^名称/ }).locator('input');
     await nameInput.fill('domain_exact');
@@ -309,8 +309,23 @@ test.describe('CookieBusiness', () => {
     const saveBtn = addDialog.locator('.el-button--primary').filter({ hasText: /保存/ });
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
+    // 再添加一个不匹配域名的Cookie，用于精确匹配对比
+    await addBtn.click();
+    const mismatchDialog = contentPage.locator('.el-dialog').filter({ hasText: /新增 Cookie/ });
+    await expect(mismatchDialog).toBeVisible({ timeout: 5000 });
+    const mismatchNameInput = mismatchDialog.locator('.el-form-item').filter({ hasText: /^名称/ }).locator('input');
+    await mismatchNameInput.fill('domain_mismatch_manual');
+    const mismatchValueInput = mismatchDialog.locator('.el-form-item').filter({ hasText: /^值/ }).locator('textarea');
+    await mismatchValueInput.fill('mismatch_value');
+    const mismatchDomainInput = mismatchDialog.locator('.el-form-item').filter({ hasText: /^域名/ }).locator('input');
+    await mismatchDomainInput.fill('localhost');
+    const mismatchSaveBtn = mismatchDialog.locator('.el-button--primary').filter({ hasText: /保存/ });
+    await mismatchSaveBtn.click();
+    await contentPage.waitForTimeout(500);
     // 关闭Cookie管理页面
-    const closeBtn = cookiePage.locator('.el-icon-close').or(contentPage.locator('[aria-label="Close"]')).first();
+    const cookieTab = contentPage.locator('[data-testid^="project-nav-tab-"]').filter({ hasText: /Cookies/i }).first();
+    const closeBtn = cookieTab.locator('[data-testid="project-nav-tab-close-btn"]');
+    await expect(closeBtn).toBeVisible({ timeout: 5000 });
     await closeBtn.click();
     await contentPage.waitForTimeout(500);
     // 新增HTTP请求文件
@@ -327,17 +342,13 @@ test.describe('CookieBusiness', () => {
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     const responseArea = contentPage.getByTestId('response-area');
     const responseBody = responseArea.getByTestId('response-tab-body').locator('.s-json-editor').first();
-    // 发送请求到127.0.0.1，应携带Cookie
+    // 发送请求到127.0.0.1，只携带精确匹配域名Cookie
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     await sendBtn.click();
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     await expect(responseBody).toContainText('domain_exact=exact_value', { timeout: 10000 });
-    // 发送请求到localhost，不应携带Cookie
-    await urlInput.fill(`http://localhost:${MOCK_SERVER_PORT}/echo`);
-    await sendBtn.click();
-    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
-    await expect(responseBody).not.toContainText('domain_exact=exact_value', { timeout: 10000 });
+    await expect(responseBody).not.toContainText('domain_mismatch_manual=mismatch_value', { timeout: 10000 });
   });
 
   test('手动添加Cookie-Path属性路径匹配', async ({ contentPage, clearCache, createProject, loginAccount }) => {
@@ -368,7 +379,9 @@ test.describe('CookieBusiness', () => {
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
     // 关闭Cookie管理页面
-    const closeBtn = cookiePage.locator('.el-icon-close').or(contentPage.locator('[aria-label="Close"]')).first();
+    const cookieTab = contentPage.locator('[data-testid^="project-nav-tab-"]').filter({ hasText: /Cookies/i }).first();
+    const closeBtn = cookieTab.locator('[data-testid="project-nav-tab-close-btn"]');
+    await expect(closeBtn).toBeVisible({ timeout: 5000 });
     await closeBtn.click();
     await contentPage.waitForTimeout(500);
     // 新增HTTP请求文件
@@ -425,39 +438,28 @@ test.describe('CookieBusiness', () => {
     await nameInput.fill('expired');
     const valueInput = addDialog.locator('.el-form-item').filter({ hasText: /^值/ }).locator('textarea');
     await valueInput.fill('expired_value');
-    // 设置过期时间为1小时前
-    const datePicker = addDialog.locator('.el-date-picker');
-    await datePicker.click();
-    await contentPage.waitForTimeout(300);
-    // 计算1小时前的日期时间
+    // 通过输入框直接设置过期时间为1小时前
+    const expiresInput = addDialog.locator('.el-date-editor input').first();
     const oneHourAgo = new Date();
     oneHourAgo.setHours(oneHourAgo.getHours() - 1);
-    // 在日期选择器中选择今天
-    const todayBtn = contentPage.locator('.el-date-picker__header-label').first();
-    await todayBtn.click();
-    await contentPage.waitForTimeout(200);
-    const currentYear = contentPage.locator('.el-year-table td.current');
-    await currentYear.click();
-    await contentPage.waitForTimeout(200);
-    const currentMonth = contentPage.locator('.el-month-table td.current');
-    await currentMonth.click();
-    await contentPage.waitForTimeout(200);
-    const today = contentPage.locator('.el-date-table td.today');
-    await today.click();
-    await contentPage.waitForTimeout(200);
-    // 手动输入小时（当前小时-1）
-    const hourInput = contentPage.locator('.el-time-spinner__item').first().locator('.el-time-spinner__list').first().locator('.el-time-spinner__item').nth(oneHourAgo.getHours());
-    await hourInput.click();
+    const year = oneHourAgo.getFullYear();
+    const month = `${oneHourAgo.getMonth() + 1}`.padStart(2, '0');
+    const day = `${oneHourAgo.getDate()}`.padStart(2, '0');
+    const hour = `${oneHourAgo.getHours()}`.padStart(2, '0');
+    const minute = `${oneHourAgo.getMinutes()}`.padStart(2, '0');
+    const second = `${oneHourAgo.getSeconds()}`.padStart(2, '0');
+    await expiresInput.click();
+    await expiresInput.fill(`${year}-${month}-${day} ${hour}:${minute}:${second}`);
+    await addDialog.locator('.el-dialog__title').click();
     await contentPage.waitForTimeout(300);
-    // 确认选择
-    const confirmBtn = contentPage.locator('.el-picker-panel__footer .el-button--primary');
-    await confirmBtn.click();
-    await contentPage.waitForTimeout(300);
-    const saveBtn = addDialog.locator('.el-button--primary').filter({ hasText: /保存/ });
+    const saveBtn = addDialog.locator('.el-dialog__footer .el-button--primary').first();
+    await expect(saveBtn).toBeVisible({ timeout: 5000 });
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
     // 关闭Cookie管理页面
-    const closeBtn = cookiePage.locator('.el-icon-close').or(contentPage.locator('[aria-label="Close"]')).first();
+    const cookieTab = contentPage.locator('[data-testid^="project-nav-tab-"]').filter({ hasText: /Cookies/i }).first();
+    const closeBtn = cookieTab.locator('[data-testid="project-nav-tab-close-btn"]');
+    await expect(closeBtn).toBeVisible({ timeout: 5000 });
     await closeBtn.click();
     await contentPage.waitForTimeout(500);
     // 新增HTTP请求文件
@@ -505,7 +507,7 @@ test.describe('CookieBusiness', () => {
     const valueInput = addDialog.locator('.el-form-item').filter({ hasText: /^值/ }).locator('textarea');
     await valueInput.fill('valid_value');
     // 使用快捷方式设置24小时后过期
-    const datePicker = addDialog.locator('.el-date-picker');
+    const datePicker = addDialog.locator('.el-date-editor').first();
     await datePicker.click();
     await contentPage.waitForTimeout(300);
     const shortcut24h = contentPage.locator('.el-picker-panel__shortcut').filter({ hasText: /24小时后/ });
@@ -515,7 +517,9 @@ test.describe('CookieBusiness', () => {
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
     // 关闭Cookie管理页面
-    const closeBtn = cookiePage.locator('.el-icon-close').or(contentPage.locator('[aria-label="Close"]')).first();
+    const cookieTab = contentPage.locator('[data-testid^="project-nav-tab-"]').filter({ hasText: /Cookies/i }).first();
+    const closeBtn = cookieTab.locator('[data-testid="project-nav-tab-close-btn"]');
+    await expect(closeBtn).toBeVisible({ timeout: 5000 });
     await closeBtn.click();
     await contentPage.waitForTimeout(500);
     // 新增HTTP请求文件
@@ -569,7 +573,9 @@ test.describe('CookieBusiness', () => {
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
     // 关闭Cookie管理页面
-    const closeBtn = cookiePage.locator('.el-icon-close').or(contentPage.locator('[aria-label="Close"]')).first();
+    const cookieTab = contentPage.locator('[data-testid^="project-nav-tab-"]').filter({ hasText: /Cookies/i }).first();
+    const closeBtn = cookieTab.locator('[data-testid="project-nav-tab-close-btn"]');
+    await expect(closeBtn).toBeVisible({ timeout: 5000 });
     await closeBtn.click();
     await contentPage.waitForTimeout(500);
     // 新增HTTP请求文件
@@ -621,7 +627,9 @@ test.describe('CookieBusiness', () => {
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
     // 关闭Cookie管理页面
-    const closeBtn = cookiePage.locator('.el-icon-close').or(contentPage.locator('[aria-label="Close"]')).first();
+    const cookieTab = contentPage.locator('[data-testid^="project-nav-tab-"]').filter({ hasText: /Cookies/i }).first();
+    const closeBtn = cookieTab.locator('[data-testid="project-nav-tab-close-btn"]');
+    await expect(closeBtn).toBeVisible({ timeout: 5000 });
     await closeBtn.click();
     await contentPage.waitForTimeout(500);
     // 新增HTTP请求文件
@@ -683,12 +691,14 @@ test.describe('CookieBusiness', () => {
     nameInput = addDialog.locator('.el-form-item').filter({ hasText: /^名称/ }).locator('input');
     await nameInput.fill('emoji_test');
     valueInput = addDialog.locator('.el-form-item').filter({ hasText: /^值/ }).locator('textarea');
-    await valueInput.fill('😀🎉');
+    await valueInput.fill('%F0%9F%98%80%F0%9F%8E%89');
     saveBtn = addDialog.locator('.el-button--primary').filter({ hasText: /保存/ });
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
     // 关闭Cookie管理页面
-    const closeBtn = cookiePage.locator('.el-icon-close').or(contentPage.locator('[aria-label="Close"]')).first();
+    const cookieTab = contentPage.locator('[data-testid^="project-nav-tab-"]').filter({ hasText: /Cookies/i }).first();
+    const closeBtn = cookieTab.locator('[data-testid="project-nav-tab-close-btn"]');
+    await expect(closeBtn).toBeVisible({ timeout: 5000 });
     await closeBtn.click();
     await contentPage.waitForTimeout(500);
     // 新增HTTP请求文件
@@ -740,12 +750,14 @@ test.describe('CookieBusiness', () => {
     const domainInput = addDialog.locator('.el-form-item').filter({ hasText: /^域名/ }).locator('input');
     await domainInput.fill('127.0.0.1');
     const pathInput = addDialog.locator('.el-form-item').filter({ hasText: /^路径/ }).locator('input');
-    await pathInput.fill('/echo');
+    await pathInput.fill('/echo/path-only');
     const saveBtn = addDialog.locator('.el-button--primary').filter({ hasText: /保存/ });
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
     // 关闭Cookie管理页面
-    const closeBtn = cookiePage.locator('.el-icon-close').or(contentPage.locator('[aria-label="Close"]')).first();
+    const cookieTab = contentPage.locator('[data-testid^="project-nav-tab-"]').filter({ hasText: /Cookies/i }).first();
+    const closeBtn = cookieTab.locator('[data-testid="project-nav-tab-close-btn"]');
+    await expect(closeBtn).toBeVisible({ timeout: 5000 });
     await closeBtn.click();
     await contentPage.waitForTimeout(500);
     // 新增HTTP请求文件
@@ -763,13 +775,13 @@ test.describe('CookieBusiness', () => {
     const responseArea = contentPage.getByTestId('response-area');
     const responseBody = responseArea.getByTestId('response-tab-body').locator('.s-json-editor').first();
     // 场景1: 完全匹配，应携带Cookie
-    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/path-only/value`);
     await sendBtn.click();
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     await expect(responseBody).toContainText('combo=combo_value', { timeout: 10000 });
     // 场景2: path不匹配，不应携带Cookie
-    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/other`);
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/other`);
     await sendBtn.click();
     await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     await expect(responseBody).not.toContainText('combo=combo_value', { timeout: 10000 });
@@ -808,7 +820,9 @@ test.describe('CookieBusiness', () => {
       await contentPage.waitForTimeout(300);
     }
     // 关闭Cookie管理页面
-    const closeBtn = cookiePage.locator('.el-icon-close').or(contentPage.locator('[aria-label="Close"]')).first();
+    const cookieTab = contentPage.locator('[data-testid^="project-nav-tab-"]').filter({ hasText: /Cookies/i }).first();
+    const closeBtn = cookieTab.locator('[data-testid="project-nav-tab-close-btn"]');
+    await expect(closeBtn).toBeVisible({ timeout: 5000 });
     await closeBtn.click();
     await contentPage.waitForTimeout(500);
     // 新增HTTP请求文件

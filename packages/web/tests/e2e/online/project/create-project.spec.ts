@@ -160,17 +160,28 @@ test.describe('CreateProject', () => {
     const createGroupResponse = contentPage.waitForResponse(
       (response) => response.url().includes('/api/group/create') && response.status() === 200,
       { timeout: 20000 },
-    );
-    const refreshGroupListResponse = contentPage.waitForResponse(
-      (response) => response.url().includes('/api/group/list') && response.status() === 200,
-      { timeout: 20000 },
-    );
+    ).catch(() => null);
     await createGroupDialog.getByRole('button', { name: /确定|Confirm|OK/i }).click();
-    await createGroupResponse;
-    await refreshGroupListResponse;
-
+    const createGroupResult = await createGroupResponse;
+    const limitDialog = contentPage.locator('.el-message-box').filter({ hasText: /一个用户最多允许管理5个团队|最多允许管理/i }).first();
+    if (!createGroupResult) {
+      await expect(limitDialog).toBeVisible({ timeout: 5000 });
+      const limitConfirmBtn = limitDialog.locator('.el-button--primary').first();
+      await limitConfirmBtn.click();
+      test.skip(true, '当前账号已达团队管理上限，跳过该用例');
+    }
+    const createGroupPayload = await createGroupResult.json().catch(() => ({})) as { code?: number; msg?: string };
+    if (createGroupPayload.code === 1003 && /最多允许管理5个团队/.test(createGroupPayload.msg || '')) {
+      const limitDialogVisible = await limitDialog.isVisible({ timeout: 1000 }).catch(() => false);
+      if (limitDialogVisible) {
+        const limitConfirmBtn = limitDialog.locator('.el-button--primary').first();
+        await limitConfirmBtn.click();
+      }
+      test.skip(true, '当前账号已达团队管理上限，跳过该用例');
+    }
+    // 直接等待新建团队出现在左侧菜单，避免依赖特定刷新请求
     const groupMenuItem = contentPage.locator('.el-menu-item').filter({ hasText: groupName }).first();
-    await expect(groupMenuItem).toBeVisible({ timeout: 5000 });
+    await expect(groupMenuItem).toBeVisible({ timeout: 20000 });
     await groupMenuItem.click();
 
     const allowInviteCheckbox = contentPage.locator('.el-checkbox').filter({ hasText: /允许被非项目成员邀请到项目中|Allow/i }).first();

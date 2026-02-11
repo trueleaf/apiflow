@@ -19,7 +19,7 @@ test.describe('SettingsNavigation', () => {
     // 验证页面跳转到设置页
     await expect(contentPage).toHaveURL(/.*#\/settings/, { timeout: 5000 });
     // 验证设置页面内容可见
-    const settingsMenu = contentPage.locator('[data-testid="settings-menu"]');
+    const settingsMenu = contentPage.locator('[data-testid="settings-menu-common-settings"]');
     await expect(settingsMenu).toBeVisible({ timeout: 5000 });
   });
 

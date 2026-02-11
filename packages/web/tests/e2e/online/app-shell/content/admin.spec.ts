@@ -49,28 +49,27 @@ test.describe('Online后台管理权限', () => {
     // 验证非管理员不显示管理员按钮
     const nonAdminVisible = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
     test.skip(nonAdminVisible, '当前测试环境两个账号均为管理员');
-    // 尝试直接访问后台管理路由,验证重定向到首页
+    // 尝试直接访问后台管理路由,验证无法进入后台管理
     await contentPage.evaluate(() => {
       window.location.hash = '#/admin';
     });
-    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
+    await contentPage.waitForLoadState('domcontentloaded');
     await expect(adminBtn).toBeHidden({ timeout: 2000 });
+    await expect(contentPage.locator('.s-permission')).toHaveCount(0);
   });
 
-  // 测试用例3: 未登录用户访问/admin路由自动重定向到首页
+  // 测试用例3: 未登录用户访问/admin路由自动重定向到登录页或首页
   test('未登录用户访问/admin路由自动重定向', async ({ topBarPage, contentPage, clearCache }) => {
     // 清除缓存保持未登录状态
     await clearCache();
-    // 等待页面加载到首页
-    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
     const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
     await expect(adminBtn).toBeHidden({ timeout: 2000 });
-    // 尝试访问后台管理路由,验证自动重定向到首页
+    // 尝试访问后台管理路由,验证自动重定向到登录页或首页
     await contentPage.evaluate(() => {
       window.location.hash = '#/admin';
     });
     await contentPage.waitForLoadState('networkidle');
-    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 10000 });
+    await contentPage.waitForURL(/.*?#?\/(login|home)/, { timeout: 10000 });
   });
 });
 

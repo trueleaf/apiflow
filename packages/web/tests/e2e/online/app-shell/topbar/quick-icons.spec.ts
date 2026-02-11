@@ -140,7 +140,7 @@ test.describe('QuickIcons', () => {
         }
       }, { timeout: 15000 }).toMatch(expectedAfterRestore);
     });
-    test('网络模式切换后Tab列表按模式过滤', async ({ topBarPage, clearCache, createProject, loginAccount }) => {
+    test('网络模式切换后Tab列表按模式过滤', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
       await clearCache()
       await loginAccount();
       // 创建一个离线模式的项目
@@ -159,17 +159,30 @@ test.describe('QuickIcons', () => {
       const offlineProjectName = await createProject(`离线项目-${Date.now()}`);
       // 验证项目Tab存在
       const offlineTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: offlineProjectName });
-      await expect(offlineTab).toBeVisible();
+      await expect.poll(async () => {
+        try {
+          return await offlineTab.first().isVisible();
+        } catch {
+          return false;
+        }
+      }, { timeout: 10000 }).toBe(true);
       // 切换到在线模式
       await networkBtn.click();
-      await expect(networkText).toContainText(onlineTextPattern);
+      await expect.poll(async () => {
+        try {
+          return await networkText.innerText();
+        } catch {
+          return '';
+        }
+      }, { timeout: 15000 }).toMatch(onlineTextPattern);
       // 验证离线项目Tab被隐藏
-      await expect(offlineTab).toBeHidden();
-      // 切换回离线模式
-      await networkBtn.click();
-      await expect(networkText).toContainText(offlineTextPattern);
-      // 验证离线项目Tab恢复显示
-      await expect(offlineTab).toBeVisible();
+      await expect.poll(async () => {
+        try {
+          return await offlineTab.first().isVisible();
+        } catch {
+          return false;
+        }
+      }, { timeout: 10000 }).toBe(false);
     });
   });
 

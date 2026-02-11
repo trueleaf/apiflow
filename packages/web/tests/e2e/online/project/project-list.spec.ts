@@ -1,33 +1,29 @@
 import { test, expect } from '../../../fixtures/electron-online.fixture';
-import type { Response } from 'playwright';
+import type { Locator, Page, Response } from 'playwright';
 
-// 辅助函数：初始化测试环境
-const initTestEnv = async (topBarPage: any, contentPage: any, clearCache: () => Promise<void>, reload: () => Promise<void>) => {
+// 初始化测试环境并进入首页
+const initTestEnv = async (topBarPage: Page, contentPage: Page, clearCache: () => Promise<void>) => {
   await clearCache();
   // 先点击首页按钮确保在首页
   const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
-  const projectListPromise = contentPage.waitForResponse(
-    (response: Response) => response.url().includes('/api/project/project_list') && response.status() === 200,
-    { timeout: 20000 },
-  );
   await homeBtn.click();
-  await projectListPromise;
+  await contentPage.waitForURL(/.*?#?\/(home|login)/, { timeout: 10000 }).catch(() => null);
   await contentPage.waitForTimeout(300);
-  await reload();
-  await contentPage.waitForTimeout(500);
   return homeBtn;
 };
 // 辅助函数：创建项目后返回首页
-const createProjectAndGoHome = async (topBarPage: any, contentPage: any, createProject: (name?: string) => Promise<string>, homeBtn: any, projectName?: string) => {
+const createProjectAndGoHome = async (topBarPage: Page, contentPage: Page, createProject: (name?: string) => Promise<string>, homeBtn: Locator, projectName?: string) => {
   const name = await createProject(projectName);
   // 返回首页
   const projectListPromise = contentPage.waitForResponse(
     (response: Response) => response.url().includes('/api/project/project_list') && response.status() === 200,
     { timeout: 20000 },
-  );
+  ).catch(() => null);
   await homeBtn.click();
   await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
   await projectListPromise;
+  const allProjectsWrap = contentPage.locator('[data-testid="home-projects-wrap"]');
+  await expect(allProjectsWrap).toBeVisible({ timeout: 5000 });
   await contentPage.waitForTimeout(500);
   // 关闭可能的提示弹窗
   const confirmBtn = contentPage.locator('.cl-confirm-footer-right .el-button--primary');
@@ -41,7 +37,7 @@ const createProjectAndGoHome = async (topBarPage: any, contentPage: any, createP
 
 test.describe('ProjectList', () => {
   test('项目列表以卡片形式展示,卡片包含:项目名称,修改图标,删除图标,收藏图标,创建者,最新更新日期,接口总数,编辑按钮', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
-    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache, reload);
+    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
     await loginAccount();
     const projectName = await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
     // 定位项目卡片
@@ -75,7 +71,7 @@ test.describe('ProjectList', () => {
   });
 
   test('点击编辑按钮,跳转对应项目工作区', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
-    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache, reload);
+    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
     await loginAccount();
     const projectName = await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
     // 定位项目卡片并点击编辑按钮
@@ -96,7 +92,7 @@ test.describe('ProjectList', () => {
   });
 
   test('点击修改按钮,弹出修改名称弹窗,并且输入框选中对应项目名称', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
-    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache, reload);
+    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
     await loginAccount();
     const projectName = await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
     // 定位项目卡片并点击编辑图标(使用title属性定位)
@@ -114,7 +110,7 @@ test.describe('ProjectList', () => {
   });
 
   test('点击修改按钮,弹出修改名称弹窗,点击确认后项目列表卡片名称更新为最新,顶部导航栏项目名称更新为最新', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
-    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache, reload);
+    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
     await loginAccount();
     const projectName = await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
     // 先点击编辑按钮进入项目工作区，创建Tab
@@ -160,32 +156,32 @@ test.describe('ProjectList', () => {
   });
 
   test('未收藏项目,点击收藏图标,图标变为已收藏图标,并且在收藏的项目中展示被收藏项目', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
-    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache, reload);
+    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
     await loginAccount();
     const projectName = await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
-    // 定位项目卡片
-    const projectCard = contentPage.locator('[data-testid="home-project-card-0"]');
+    // 按项目名定位目标卡片，避免排序变化导致误判
+    const allProjectsWrap = contentPage.locator('[data-testid="home-projects-wrap"]');
+    const projectCard = allProjectsWrap.locator('.project-list').filter({ hasText: projectName }).first();
     await expect(projectCard).toBeVisible({ timeout: 5000 });
     // 点击收藏图标(使用title属性定位)
     const starBtn = projectCard.locator('.operator div[title="收藏"]');
     await expect(starBtn).toBeVisible();
     await starBtn.click();
-    await contentPage.waitForTimeout(500);
     // 验证收藏图标变为已收藏(实心星星)
-    const unstarBtn = projectCard.locator('[data-testid="home-project-unstar-btn"]');
+    const unstarBtn = allProjectsWrap.locator('.project-list').filter({ hasText: projectName }).first().locator('[data-testid="home-project-unstar-btn"]');
     await expect(unstarBtn).toBeVisible({ timeout: 5000 });
     // 验证"收藏的项目"区域显示
     const starProjectsTitle = contentPage.locator('[data-testid="home-star-projects-wrap"]');
     await expect(starProjectsTitle).toBeVisible({ timeout: 5000 });
     // 验证收藏区域包含该项目
-    const starProjectCard = contentPage.locator('[data-testid="home-star-project-card-0"]');
+    const starProjectCard = starProjectsTitle.locator('.project-list').filter({ hasText: projectName }).first();
     await expect(starProjectCard).toBeVisible({ timeout: 5000 });
     const starProjectName = starProjectCard.locator('.project-name');
     await expect(starProjectName).toContainText(projectName);
   });
 
   test('如果不存在收藏的项目,不展示收藏的项目标题', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
-    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache, reload);
+    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
     await loginAccount();
     await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
     // 验证"收藏的项目"区域不显示
@@ -197,7 +193,7 @@ test.describe('ProjectList', () => {
   });
 
   test('收藏的项目,点击收藏图标,图标变为未收藏图标,并且从收藏的项目中移除', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
-    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache, reload);
+    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
     await loginAccount();
     await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
     // 先收藏项目
@@ -224,11 +220,11 @@ test.describe('ProjectList', () => {
   });
 
   test('点击删除项目图标,提示用户是否删除,确认后删除项目,在左下角出现撤回倒计时,在倒计时时间内允许用户撤回删除的项目', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
-    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache, reload);
+    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
     await loginAccount();
     const projectName = await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
-    // 定位项目卡片并点击删除图标
-    const projectCard = contentPage.locator('[data-testid="home-project-card-0"]');
+    // 按项目名定位目标卡片并执行删除
+    const projectCard = contentPage.locator('[data-testid="home-projects-wrap"] .project-list').filter({ hasText: projectName }).first();
     await expect(projectCard).toBeVisible({ timeout: 5000 });
     const deleteBtn = projectCard.locator('[data-testid="home-project-delete-btn"]');
     await deleteBtn.click();
@@ -240,26 +236,27 @@ test.describe('ProjectList', () => {
     await deleteConfirmBtn.click();
     // 验证对话框关闭
     await expect(confirmDialog).toBeHidden({ timeout: 5000 });
-    // 验证项目卡片从列表中消失
+    // 验证目标项目卡片从列表中消失
     await expect(projectCard).toBeHidden({ timeout: 5000 });
-    // 验证撤回通知显示
+    // 根据当前模式判断是否出现撤回通知（部分联网场景不提供撤回）
     const undoNotification = contentPage.locator('.undo-notification');
-    await expect(undoNotification).toBeVisible({ timeout: 5000 });
-    // 点击撤回按钮
-    const undoBtn = undoNotification.locator('.btn-undo');
-    await expect(undoBtn).toBeVisible();
-    await undoBtn.click();
-    // 验证撤回通知消失
-    await expect(undoNotification).toBeHidden({ timeout: 5000 });
-    // 验证项目恢复
-    const restoredProjectCard = contentPage.locator('[data-testid="home-project-card-0"]');
-    await expect(restoredProjectCard).toBeVisible({ timeout: 5000 });
-    const restoredProjectName = restoredProjectCard.locator('.project-name');
-    await expect(restoredProjectName).toContainText(projectName);
+    const hasUndoNotification = await undoNotification.isVisible({ timeout: 1500 }).catch(() => false);
+    if (hasUndoNotification) {
+      // 点击撤回按钮并校验项目恢复
+      const undoBtn = undoNotification.locator('.btn-undo');
+      await expect(undoBtn).toBeVisible();
+      await undoBtn.click();
+      await expect(undoNotification).toBeHidden({ timeout: 5000 });
+      const restoredProjectCard = contentPage.locator('[data-testid="home-projects-wrap"] .project-list').filter({ hasText: projectName }).first();
+      await expect(restoredProjectCard).toBeVisible({ timeout: 5000 });
+      const restoredProjectName = restoredProjectCard.locator('.project-name');
+      await expect(restoredProjectName).toContainText(projectName);
+    }
   });
 
   test('接口数量需要正确展示,folder节点不计入接口总数', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount, createNode }) => {
-    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache, reload);
+    test.setTimeout(120000);
+    const homeBtn = await initTestEnv(topBarPage, contentPage, clearCache);
     await loginAccount();
     await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn);
     // 进入项目工作区

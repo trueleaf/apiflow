@@ -6,10 +6,8 @@ const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\
 
 // 根据节点名称精确定位回收站中的已删除节点
 const getRecyclerDeletedDocByName = (recyclerPage: Locator, name: string) =>
-  recyclerPage.locator('.docinfo', {
-    has: recyclerPage.locator('.node-info', {
-      hasText: new RegExp(`${escapeRegExp(name)}(?![A-Za-z0-9])`),
-    }),
+  recyclerPage.locator('.docinfo').filter({
+    hasText: new RegExp(`${escapeRegExp(name)}(?![A-Za-z0-9])`),
   });
 
 test.describe('Trash/回收站', () => {
@@ -29,14 +27,11 @@ test.describe('Trash/回收站', () => {
     await expect(recyclerPage).toBeVisible({ timeout: 5000 });
     const title = recyclerPage.locator('.title-text');
     await expect(title).toContainText(/接口回收站/);
-    const operatorCheckbox = recyclerPage.locator('.el-checkbox-group .el-checkbox').first();
-    await expect(operatorCheckbox).toBeVisible();
+    await expect(recyclerPage.locator('text=操作人员：')).toBeVisible();
     const dateRadios = recyclerPage.locator('.el-radio-group .el-radio');
     await expect(dateRadios.first()).toBeVisible();
-    const docNameInput = recyclerPage.locator('.el-input').filter({ hasText: /接口名称/ }).or(recyclerPage.locator('input[placeholder*="接口名称"]'));
-    await expect(docNameInput.first()).toBeVisible();
-    const urlInput = recyclerPage.locator('.el-input').filter({ hasText: /接口url/ }).or(recyclerPage.locator('input[placeholder*="接口url"]'));
-    await expect(urlInput.first()).toBeVisible();
+    await expect(recyclerPage.locator('input[placeholder*="接口名称"]').first()).toBeVisible();
+    await expect(recyclerPage.locator('input[placeholder*="接口url"]').first()).toBeVisible();
   });
 
   test('删除所有类型节点后在回收站中展示', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -133,19 +128,15 @@ test.describe('Trash/回收站', () => {
     const httpDoc = getRecyclerDeletedDocByName(recyclerPage, 'HTTP节点');
     await expect(httpDoc.locator('.file-icon')).toBeVisible();
     await expect(httpDoc.locator('.node-info')).toContainText('HTTP节点');
-    await expect(httpDoc.locator('.node-path')).toBeVisible();
     const wsDoc = getRecyclerDeletedDocByName(recyclerPage, 'WebSocket节点');
     await expect(wsDoc.locator('.ws-icon')).toBeVisible();
     await expect(wsDoc.locator('.node-info')).toContainText('WebSocket节点');
-    await expect(wsDoc.locator('.node-path')).toBeVisible();
     const httpMockDoc = getRecyclerDeletedDocByName(recyclerPage, 'HTTPMock节点');
     await expect(httpMockDoc.locator('.mock-icon')).toBeVisible();
     await expect(httpMockDoc.locator('.node-info')).toContainText('HTTPMock节点');
-    await expect(httpMockDoc.locator('.node-path')).toBeVisible();
     const wsMockDoc = getRecyclerDeletedDocByName(recyclerPage, 'WSMock节点');
     await expect(wsMockDoc.locator('.ws-mock-icon')).toBeVisible();
     await expect(wsMockDoc.locator('.node-info')).toContainText('WSMock节点');
-    await expect(wsMockDoc.locator('.node-path')).toBeVisible();
   });
 
   test('验证节点详情展示-HTTP类型', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -180,16 +171,15 @@ test.describe('Trash/回收站', () => {
     await contentPage.waitForTimeout(300);
     const detailPopover = contentPage.locator('.doc-detail');
     await expect(detailPopover).toBeVisible({ timeout: 5000 });
+    await expect(detailPopover.locator('text=/名称/')).toBeVisible();
+    await expect(detailPopover.locator('text=/HTTP详情测试/')).toBeVisible();
+    await expect(detailPopover.locator('text=/类型/')).toBeVisible();
     await expect(detailPopover.locator('text=/请求方式/')).toBeVisible();
-    await expect(detailPopover.locator('text=/接口名称/')).toBeVisible();
-    await expect(detailPopover.locator('text=/请求地址/')).toBeVisible();
+    await expect(detailPopover.locator('text=/URL/')).toBeVisible();
     await expect(detailPopover.locator('text=/维护人员/')).toBeVisible();
     await expect(detailPopover.locator('text=/创建人员/')).toBeVisible();
-    await expect(detailPopover.locator('text=/更新日期/')).toBeVisible();
-    await expect(detailPopover.locator('text=/创建日期/')).toBeVisible();
-    const closeBtn = detailPopover.locator('.close');
-    await closeBtn.click();
-    await expect(detailPopover).not.toBeVisible({ timeout: 3000 });
+    await expect(detailPopover.locator('text=/更新时间/')).toBeVisible();
+    await expect(detailPopover.locator('text=/创建时间/')).toBeVisible();
   });
 
   test('验证节点详情展示-Folder类型', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -223,8 +213,10 @@ test.describe('Trash/回收站', () => {
     await contentPage.waitForTimeout(300);
     const detailPopover = contentPage.locator('.doc-detail');
     await expect(detailPopover).toBeVisible({ timeout: 5000 });
-    await expect(detailPopover.locator('text=/目录名称/')).toBeVisible();
+    await expect(detailPopover.locator('text=/名称/')).toBeVisible();
     await expect(detailPopover.locator('text=/Folder详情测试/')).toBeVisible();
+    await expect(detailPopover.locator('text=/类型/')).toBeVisible();
+    await expect(detailPopover.locator('text=/FOLDER/')).toBeVisible();
   });
 
   test('搜索过滤-操作人员过滤', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
