@@ -81,7 +81,7 @@ test.describe('RestoreDefault', () => {
     const userAgentResetBtn = contentPage.locator('.config-item').filter({ hasText: 'User-Agent' }).locator('.reset-btn');
     await userAgentResetBtn.click();
     await contentPage.waitForTimeout(300);
-    await reload();
+    await contentPage.reload();
     await contentPage.waitForTimeout(500);
     // 重新打开设置标签页
     const settingsTabAfterReload = contentPage.locator('[data-testid="http-params-tab-settings"]');

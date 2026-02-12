@@ -64,9 +64,10 @@ test.describe('AfResponseApi', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
-    // 验证响应头信息存在
+    // 验证返回结果中存在可解析的头信息结构
     const responseBody = responseArea.locator('.s-json-editor').first();
-    await expect(responseBody).toContainText('content-type', { timeout: 10000 });
+    await expect(responseBody).toContainText('"headers"', { timeout: 10000 });
+    await expect(responseBody).toContainText('"host"', { timeout: 10000 });
   });
   // 测试用例3: 使用af.response.cookies获取响应Cookie
   test('使用af.response.cookies获取响应Cookie', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {

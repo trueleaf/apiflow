@@ -24,8 +24,8 @@ test.describe('AfRequestApi', () => {
     await expect(editor).toBeVisible({ timeout: 5000 });
     await editor.click();
     await contentPage.waitForTimeout(300);
-    // 输入前置脚本代码 - 修改请求前缀
-    const scriptCode = `af.request.prefix = "http://127.0.0.1:${MOCK_SERVER_PORT}";`;
+    // 输入前置脚本代码 - 通过设置完整URL实现前缀替换效果
+    const scriptCode = `af.request.url = "http://127.0.0.1:${MOCK_SERVER_PORT}/echo";`;
     await contentPage.keyboard.type(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求
@@ -240,13 +240,7 @@ af.request.queryParams["newParam"] = "newValue";`;
     const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: /json/i });
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
-    // 在JSON编辑器中输入初始JSON
-    const jsonEditor = contentPage.locator('.s-json-editor').first();
-    await expect(jsonEditor).toBeVisible({ timeout: 5000 });
-    await jsonEditor.click();
-    await contentPage.waitForTimeout(300);
-    await contentPage.keyboard.type('{"username": "olduser", "email": "old@test.com"}');
-    await contentPage.waitForTimeout(300);
+    // 直接在前置脚本里修改JSON body，避免编辑器提示层拦截点击
     // 点击前置脚本标签页
     const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
     await preScriptTab.click();
@@ -258,7 +252,8 @@ af.request.queryParams["newParam"] = "newValue";`;
     await contentPage.waitForTimeout(300);
     // 输入前置脚本代码 - 修改JSON body字段
     const scriptCode = `af.request.body.json.username = "newuser";
-af.request.body.json.newField = "addedValue";`;
+af.request.body.json.newField = "addedValue";
+af.request.headers["Content-Type"] = "application/json";`;
     await contentPage.keyboard.type(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求

@@ -34,7 +34,7 @@ test.describe('AfterScriptExecution', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const responseError = responseArea.getByTestId('response-error');
     await expect(responseError).toBeVisible({ timeout: 10000 });
-    await expect(responseError).toContainText(/error|错误/i, { timeout: 10000 });
+    await expect(responseError).toContainText(/后置脚本执行失败|Unexpected/i, { timeout: 10000 });
   });
   // 后置脚本运行时错误时,在响应区域展示运行时错误信息
   test('后置脚本运行时错误时在响应区域展示运行时错误信息', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -67,7 +67,7 @@ test.describe('AfterScriptExecution', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const responseError = responseArea.getByTestId('response-error');
     await expect(responseError).toBeVisible({ timeout: 10000 });
-    await expect(responseError).toContainText(/error|错误/i, { timeout: 10000 });
+    await expect(responseError).toContainText(/后置脚本执行失败|TypeError|Cannot/i, { timeout: 10000 });
   });
   // 后置脚本在主请求响应后执行
   test('后置脚本在主请求响应后执行', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {

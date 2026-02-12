@@ -168,13 +168,8 @@ console.log("DELETE响应数据:", JSON.stringify(response.data));`;
     await expect(editor).toBeVisible({ timeout: 5000 });
     await editor.click();
     await contentPage.waitForTimeout(300);
-    // 输入前置脚本代码 - 请求一个不存在的端口以触发错误
-    const scriptCode = `try {
-  const response = await af.http.get("http://127.0.0.1:59999/invalid-endpoint");
-  console.log("响应:", response);
-} catch(e) {
-  console.error("请求失败:", e.message);
-}`;
+    // 输入前置脚本代码 - 请求一个不存在的端口并在脚本内吞掉错误
+    const scriptCode = `await af.http.get("http://127.0.0.1:59999/invalid-endpoint").catch(() => {});`;
     await contentPage.keyboard.type(scriptCode);
     await contentPage.waitForTimeout(300);
     // 发送请求

@@ -67,31 +67,37 @@ test.describe('DisplayOrderConfig', () => {
     // 获取初始顺序
     const tabItems = contentPage.locator('.tab-order-item');
     const firstTabLabel = await tabItems.first().locator('.tab-label').textContent();
+    const secondTabLabel = await tabItems.nth(1).locator('.tab-label').textContent();
     const lastTabLabel = await tabItems.last().locator('.tab-label').textContent();
-    // 拖拽最后一个元素到第一个位置
-    const firstItem = tabItems.first();
-    const lastItem = tabItems.last();
-    const firstBox = await firstItem.boundingBox();
-    const lastBox = await lastItem.boundingBox();
-    if (firstBox && lastBox) {
+    // 使用拖拽手柄将最后一个标签拖到第二个位置（Params固定在第一位）
+    const tabDragHandles = contentPage.locator('.tab-order-item .drag-handle');
+    const secondHandle = tabDragHandles.nth(1);
+    const lastHandle = tabDragHandles.last();
+    await lastHandle.scrollIntoViewIfNeeded();
+    const secondBox = await secondHandle.boundingBox();
+    const lastBox = await lastHandle.boundingBox();
+    if (secondBox && lastBox) {
       await contentPage.mouse.move(lastBox.x + lastBox.width / 2, lastBox.y + lastBox.height / 2);
       await contentPage.mouse.down();
       await contentPage.waitForTimeout(100);
-      await contentPage.mouse.move(firstBox.x + firstBox.width / 2, firstBox.y + firstBox.height / 2, { steps: 10 });
+      await contentPage.mouse.move(secondBox.x + secondBox.width / 2, secondBox.y + secondBox.height / 2, { steps: 20 });
       await contentPage.waitForTimeout(100);
       await contentPage.mouse.up();
     }
-    await contentPage.waitForTimeout(500);
+    await contentPage.waitForTimeout(800);
     // 验证顺序已改变
     const newFirstTabLabel = await tabItems.first().locator('.tab-label').textContent();
-    expect(newFirstTabLabel).toBe(lastTabLabel);
+    const newSecondTabLabel = await tabItems.nth(1).locator('.tab-label').textContent();
+    expect(newFirstTabLabel).toBe(firstTabLabel);
+    expect(newSecondTabLabel).not.toBe(secondTabLabel);
+    expect(newSecondTabLabel).toBe(lastTabLabel);
     // 验证标签页的顺序是否更新
     const tabs = contentPage.locator('.params-tabs .el-tabs__item');
     const tabsCount = await tabs.count();
     expect(tabsCount).toBeGreaterThan(0);
-    // 验证第一个标签页是我们拖拽到第一位的标签
-    const firstTabText = await tabs.first().textContent();
-    expect(firstTabText?.trim()).toContain(lastTabLabel?.trim() || '');
+    // 验证第二个标签页是我们拖拽上来的标签
+    const secondTabText = await tabs.nth(1).textContent();
+    expect(secondTabText?.trim()).toContain(lastTabLabel?.trim() || '');
   });
   // 测试用例3: 显示顺序修改后刷新页面,顺序保持不变
   test('显示顺序修改后刷新页面顺序保持不变', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -129,7 +135,7 @@ test.describe('DisplayOrderConfig', () => {
     // 验证顺序已改变
     const newFirstModeLabel = await modeItems.first().locator('.mode-label').textContent();
     expect(newFirstModeLabel).toBe(lastModeLabel);
-    await reload();
+    await contentPage.reload();
     await contentPage.waitForTimeout(500);
     // 重新打开设置标签页
     const settingsTabAfterReload = contentPage.locator('[data-testid="http-params-tab-settings"]');

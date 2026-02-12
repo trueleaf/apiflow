@@ -1,8 +1,5 @@
 import { test, expect } from '../../../../../../../fixtures/electron-online.fixture';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('FormdataFileUploadValidation', () => {
@@ -53,7 +50,7 @@ test.describe('FormdataFileUploadValidation', () => {
     await contentPage.waitForTimeout(300);
     // 选择文件上传
     const fileInput = contentPage.locator('[data-testid="params-tree-file-input"]').first();
-    const testFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
+    const testFilePath = path.resolve(process.cwd(), 'src/renderer/assets/imgs/logo.png');
     await fileInput.setInputFiles(testFilePath);
     await contentPage.waitForTimeout(500);
     // 发送请求

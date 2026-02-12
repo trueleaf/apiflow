@@ -499,6 +499,11 @@ test.describe('BinaryBodyValidation', () => {
     const binaryRadio = contentPage.locator('.body-params .el-radio', { hasText: /binary/i });
     await binaryRadio.click();
     await contentPage.waitForTimeout(300);
+    // 切换到变量模式后再输入变量值
+    const binaryWrap = contentPage.locator('.binary-wrap');
+    const varModeRadio = binaryWrap.locator('.el-radio', { hasText: /变量模式/ });
+    await varModeRadio.click();
+    await contentPage.waitForTimeout(300);
     // 输入变量值
     const varInput = contentPage.locator('.var-mode .el-input input');
     await varInput.fill('{{myBinaryData}}');
@@ -508,7 +513,6 @@ test.describe('BinaryBodyValidation', () => {
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 验证binary-wrap隐藏
-    const binaryWrap = contentPage.locator('.binary-wrap');
     await expect(binaryWrap).toBeHidden();
     // 切换回binary类型
     await binaryRadio.click();
