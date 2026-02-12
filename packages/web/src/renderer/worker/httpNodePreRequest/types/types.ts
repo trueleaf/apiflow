@@ -256,6 +256,7 @@ export type AF = {
   request: {
     method: string;
     url: string;
+    replaceUrl: (url: string) => void;
     path: string;
     headers: Record<string, string>;
     queryParams: Record<string, string>;

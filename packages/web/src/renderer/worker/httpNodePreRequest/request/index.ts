@@ -13,6 +13,7 @@ export const createRequestProxy = () => {
     method: "",
     bodyType: 'none',
     url: "",
+    replaceUrl: () => { },
     path: "",
     headers,
     queryParams,
@@ -25,6 +26,15 @@ export const createRequestProxy = () => {
       }
       if (key === 'url') {
         return target[key];
+      }
+      if (key === 'replaceUrl') {
+        return (url: string) => {
+          if (typeof url !== 'string') {
+            console.warn(`replaceUrl值在赋值时值类型只能为字符串，传入值类型为${Object.prototype.toString.call(url)}},此操作将被忽略`);
+            return;
+          }
+          Reflect.set(receiver, 'url', url);
+        };
       }
       if (key === 'path') {
         return target[key];
@@ -95,6 +105,9 @@ export const createRequestProxy = () => {
         return true;
       }
       if (key === 'url') {
+        return true;
+      }
+      if (key === 'replaceUrl') {
         return true;
       }
       if (key === 'path') {
