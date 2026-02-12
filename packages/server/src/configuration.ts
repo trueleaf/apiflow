@@ -93,8 +93,8 @@ export class ContainerLifeCycle {
       return {
         around: async (joinPoint: JoinPoint) => {
           const { ttl, max, limitBy = 'user', limitExtraKey, errorMsg, enableGlobalLimit } = options.metadata as ReqLimit;
-          // 本地(local)环境下把 max 扩大 100 倍以方便本地调试，仅限 local
-          const effectiveMax = process.env.NODE_ENV === 'local' && typeof max === 'number' ? max * 100 : max;
+          // 本地(local)环境下把 max 扩大 10000 倍以方便本地调试，仅限 local
+          const effectiveMax = process.env.NODE_ENV === 'local' && typeof max === 'number' ? max * 10000 : max;
           const instance = joinPoint.target;
           const ctx = instance[REQUEST_OBJ_CTX_KEY] as koa.Context;
           const reqBody = ctx.request.body;
