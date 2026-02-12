@@ -51,19 +51,24 @@ test.describe('DefaultHeaders', () => {
     await headerTab.click();
     await contentPage.waitForTimeout(300);
     // 展开隐藏请求头列表
-    const toggleHiddenHeadersBtn = contentPage.locator('[data-testid="toggle-hidden-headers"]');
-    await toggleHiddenHeadersBtn.click();
-    await contentPage.waitForTimeout(300);
+    const defaultHeadersWrap = contentPage.locator('.default-headers-wrap');
+    if (!(await defaultHeadersWrap.isVisible())) {
+      const toggleHiddenHeadersBtn = contentPage.locator('[data-testid="toggle-hidden-headers"]:visible').first();
+      await toggleHiddenHeadersBtn.click();
+      await expect(defaultHeadersWrap).toBeVisible({ timeout: 5000 });
+    }
     // 找到User-Agent并修改值
-    const userAgentRow = contentPage.locator('.default-headers-wrap [data-testid="params-tree-row"]').filter({ hasText: /user-agent/i });
-    const userAgentValueInput = userAgentRow.locator('[data-testid="params-tree-value-input"]');
+    const userAgentRow = defaultHeadersWrap.locator('[data-testid="params-tree-row"][data-row-key="User-Agent"]');
+    await expect(userAgentRow).toBeVisible({ timeout: 5000 });
+    const userAgentValueInput = userAgentRow.locator('[data-testid="params-tree-value-input"] [contenteditable="true"]').first();
     await userAgentValueInput.click();
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('CustomUserAgent/1.0');
     await contentPage.waitForTimeout(300);
     // 找到Accept并修改值
-    const acceptRow = contentPage.locator('.default-headers-wrap [data-testid="params-tree-row"]').filter({ hasText: /^accept$/i }).first();
-    const acceptValueInput = acceptRow.locator('[data-testid="params-tree-value-input"]');
+    const acceptRow = defaultHeadersWrap.locator('[data-testid="params-tree-row"][data-row-key="Accept"]');
+    await expect(acceptRow).toBeVisible({ timeout: 5000 });
+    const acceptValueInput = acceptRow.locator('[data-testid="params-tree-value-input"] [contenteditable="true"]').first();
     await acceptValueInput.click();
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('application/json');
@@ -119,20 +124,13 @@ test.describe('DefaultHeaders', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     await createNode(contentPage, { nodeType: 'http', name: 'ContentType自动添加测试' });
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('ContentType自动添加测试');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     // 设置请求URL
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 选择POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    await contentPage.getByRole('option', { name: 'POST' }).click();
+    await contentPage.getByRole('option', { name: /^POST$/ }).click();
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
@@ -141,6 +139,12 @@ test.describe('DefaultHeaders', () => {
     const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: 'json' });
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
+    // 首次进入JSON编辑区可能有引导层，先关闭避免遮挡编辑器
+    const hideTipBtn = contentPage.locator('.json-tip .no-tip');
+    if (await hideTipBtn.isVisible({ timeout: 500 }).catch(() => false)) {
+      await hideTipBtn.click();
+      await contentPage.waitForTimeout(200);
+    }
     // 在JSON编辑器中输入数据
     const monacoEditor = contentPage.locator('.s-json-editor').first();
     await monacoEditor.click();
@@ -173,7 +177,7 @@ test.describe('DefaultHeaders', () => {
     // 选择POST方法
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     await methodSelect.click();
-    await contentPage.getByRole('option', { name: 'POST' }).click();
+    await contentPage.getByRole('option', { name: /^POST$/ }).click();
     // 点击Body标签页
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
@@ -182,6 +186,12 @@ test.describe('DefaultHeaders', () => {
     const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: 'json' });
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
+    // 首次进入JSON编辑区可能有引导层，先关闭避免遮挡编辑器
+    const hideTipBtn = contentPage.locator('.json-tip .no-tip');
+    if (await hideTipBtn.isVisible({ timeout: 500 }).catch(() => false)) {
+      await hideTipBtn.click();
+      await contentPage.waitForTimeout(200);
+    }
     // 在JSON编辑器中输入数据
     const monacoEditor = contentPage.locator('.s-json-editor').first();
     await monacoEditor.click();
@@ -194,10 +204,14 @@ test.describe('DefaultHeaders', () => {
     await headerTab.click();
     await contentPage.waitForTimeout(300);
     // 在自定义请求头中添加Content-Type覆盖自动值
-    const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
-    const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
-    await keyInputs.first().fill('Content-Type');
-    await valueInputs.first().click();
+    const headersTree = contentPage.locator('.cl-params-tree').first();
+    const headerKeyInput = headersTree.locator('[data-testid="params-tree-key-autocomplete"] input').first();
+    const headerValueInput = headersTree.locator('[data-testid="params-tree-value-input"] [contenteditable="true"]').first();
+    await expect(headerKeyInput).toBeVisible({ timeout: 5000 });
+    await headerKeyInput.click();
+    await headerKeyInput.fill('Content-Type');
+    await headerValueInput.click();
+    await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('application/custom');
     await contentPage.waitForTimeout(300);
     // 发送请求

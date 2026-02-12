@@ -1,6 +1,7 @@
 import { test, expect } from '../../../../../../../fixtures/electron-online.fixture';
 
 const MOCK_SERVER_PORT = 3456;
+const STORAGE_CACHE_KEY = 'httpNodeCache/preRequest/localStorage';
 
 test.describe('AfLocalStorageApi', () => {
   // 测试用例1: 使用af.localStorage.set(key, value)存储持久数据
@@ -33,12 +34,16 @@ test.describe('AfLocalStorageApi', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
-    // 验证数据已存储到localStorage
-    const storedValue = await contentPage.evaluate(() => {
-      return localStorage.getItem('af_user_id');
-    });
-    console.log('Stored Value:', storedValue);
-    expect(storedValue).toBe('"12345"');
+    // 验证af.localStorage已写入项目级缓存
+    await expect.poll(async () => contentPage.evaluate((cacheKey) => {
+      const raw = localStorage.getItem(cacheKey);
+      if (!raw) {
+        return null;
+      }
+      const parsed = JSON.parse(raw) as Record<string, Record<string, unknown>>;
+      const firstProjectStorage = Object.values(parsed)[0] ?? {};
+      return (firstProjectStorage.user_id as string | undefined) ?? null;
+    }, STORAGE_CACHE_KEY), { timeout: 10000 }).toBe('12345');
   });
   // 测试用例2: 使用af.localStorage.get(key)获取持久数据
   test('使用af.localStorage.get(key)获取持久数据', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -47,10 +52,6 @@ test.describe('AfLocalStorageApi', () => {
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // 预先设置localStorage数据
-    await contentPage.evaluate(() => {
-      localStorage.setItem('af_test_key', '"test_value"');
-    });
     // 新增HTTP节点
     await createNode(contentPage, { nodeType: 'http', name: 'localStorage get测试' });
     // 设置请求URL（使用变量将获取的值传递到请求中验证）
@@ -60,11 +61,11 @@ test.describe('AfLocalStorageApi', () => {
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
-    // 输入后置脚本，获取值并存储到变量中
+    // 输入后置脚本，先写入再读取并回写，验证get逻辑
     const monacoEditor = contentPage.locator('.s-monaco-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('const value = af.localStorage.get("test_key"); af.variables.set("retrieved_value", value);');
+    await contentPage.keyboard.type('af.localStorage.set("test_key", "test_value"); const value = af.localStorage.get("test_key"); af.localStorage.set("retrieved_value", value);');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -74,6 +75,16 @@ test.describe('AfLocalStorageApi', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
+    // 验证读取到的值已被写回缓存
+    await expect.poll(async () => contentPage.evaluate((cacheKey) => {
+      const raw = localStorage.getItem(cacheKey);
+      if (!raw) {
+        return null;
+      }
+      const parsed = JSON.parse(raw) as Record<string, Record<string, unknown>>;
+      const firstProjectStorage = Object.values(parsed)[0] ?? {};
+      return (firstProjectStorage.retrieved_value as string | undefined) ?? null;
+    }, STORAGE_CACHE_KEY), { timeout: 10000 }).toBe('test_value');
   });
   // 测试用例3: 使用af.localStorage.remove(key)删除持久数据
   test('使用af.localStorage.remove(key)删除持久数据', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -82,15 +93,6 @@ test.describe('AfLocalStorageApi', () => {
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // 预先设置localStorage数据
-    await contentPage.evaluate(() => {
-      localStorage.setItem('af_remove_key', '"remove_value"');
-    });
-    // 验证数据已存在
-    const initialValue = await contentPage.evaluate(() => {
-      return localStorage.getItem('af_remove_key');
-    });
-    expect(initialValue).toBe('"remove_value"');
     // 新增HTTP节点
     await createNode(contentPage, { nodeType: 'http', name: 'localStorage remove测试' });
     // 设置请求URL
@@ -100,25 +102,39 @@ test.describe('AfLocalStorageApi', () => {
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
-    // 输入后置脚本删除数据
+    // 先写入待删除数据
     const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+    await monacoEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('af.localStorage.set("remove_key", "remove_value")');
+    await contentPage.waitForTimeout(300);
+    // 发送请求
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    // 再执行删除操作
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('af.localStorage.remove("remove_key")');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     // 验证请求成功
-    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
-    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
-    // 验证数据已被删除
-    const deletedValue = await contentPage.evaluate(() => {
-      return localStorage.getItem('af_remove_key');
-    });
-    expect(deletedValue).toBeNull();
+    // 验证项目级缓存中的key已被移除
+    await expect.poll(async () => contentPage.evaluate((cacheKey) => {
+      const raw = localStorage.getItem(cacheKey);
+      if (!raw) {
+        return null;
+      }
+      const parsed = JSON.parse(raw) as Record<string, Record<string, unknown>>;
+      const firstProjectStorage = Object.values(parsed)[0] ?? {};
+      return (firstProjectStorage.remove_key as string | undefined) ?? null;
+    }, STORAGE_CACHE_KEY), { timeout: 10000 }).toBeNull();
   });
   // 测试用例4: 使用af.localStorage.clear()清空所有持久数据
   test('使用af.localStorage.clear()清空所有持久数据', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -127,23 +143,6 @@ test.describe('AfLocalStorageApi', () => {
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // 预先设置多个localStorage数据
-    await contentPage.evaluate(() => {
-      localStorage.setItem('af_clear_key1', '"value1"');
-      localStorage.setItem('af_clear_key2', '"value2"');
-      localStorage.setItem('af_clear_key3', '"value3"');
-    });
-    // 验证数据已存在
-    const initialValues = await contentPage.evaluate(() => {
-      return {
-        key1: localStorage.getItem('af_clear_key1'),
-        key2: localStorage.getItem('af_clear_key2'),
-        key3: localStorage.getItem('af_clear_key3'),
-      };
-    });
-    expect(initialValues.key1).toBe('"value1"');
-    expect(initialValues.key2).toBe('"value2"');
-    expect(initialValues.key3).toBe('"value3"');
     // 新增HTTP节点
     await createNode(contentPage, { nodeType: 'http', name: 'localStorage clear测试' });
     // 设置请求URL
@@ -153,31 +152,39 @@ test.describe('AfLocalStorageApi', () => {
     const afterScriptTab = contentPage.locator('[data-testid="http-params-tab-afterscript"]');
     await afterScriptTab.click();
     await contentPage.waitForTimeout(300);
-    // 输入后置脚本清空所有数据
+    // 先写入多个键，构造待清空数据
     const monacoEditor = contentPage.locator('.s-monaco-editor').first();
+    await monacoEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('af.localStorage.set("clear_key1", "value1"); af.localStorage.set("clear_key2", "value2"); af.localStorage.set("clear_key3", "value3");');
+    await contentPage.waitForTimeout(300);
+    // 发送请求
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    const responseArea = contentPage.locator('[data-testid="response-area"]');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
+    await expect(statusCode).toContainText('200', { timeout: 10000 });
+    // 再执行clear操作
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
     await contentPage.keyboard.type('af.localStorage.clear()');
     await contentPage.waitForTimeout(300);
     // 发送请求
-    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     // 验证请求成功
-    const responseArea = contentPage.locator('[data-testid="response-area"]');
     await expect(responseArea).toBeVisible({ timeout: 10000 });
-    const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
-    // 验证所有af_前缀的数据已被清空
-    const clearedValues = await contentPage.evaluate(() => {
-      return {
-        key1: localStorage.getItem('af_clear_key1'),
-        key2: localStorage.getItem('af_clear_key2'),
-        key3: localStorage.getItem('af_clear_key3'),
-      };
-    });
-    expect(clearedValues.key1).toBeNull();
-    expect(clearedValues.key2).toBeNull();
-    expect(clearedValues.key3).toBeNull();
+    // 验证项目级缓存已被清空
+    await expect.poll(async () => contentPage.evaluate((cacheKey) => {
+      const raw = localStorage.getItem(cacheKey);
+      if (!raw) {
+        return 0;
+      }
+      const parsed = JSON.parse(raw) as Record<string, Record<string, unknown>>;
+      const firstProjectStorage = Object.values(parsed)[0] ?? {};
+      return Object.keys(firstProjectStorage).length;
+    }, STORAGE_CACHE_KEY), { timeout: 10000 }).toBe(0);
   });
   // 测试用例5: 获取不存在的键返回null
   test('获取不存在的键返回null', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -209,11 +216,16 @@ test.describe('AfLocalStorageApi', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
-    // 验证结果为null
-    const resultValue = await contentPage.evaluate(() => {
-      return localStorage.getItem('af_result');
-    });
-    expect(resultValue).toBe('"is_null"');
+    // 验证获取不存在键时返回null分支
+    await expect.poll(async () => contentPage.evaluate((cacheKey) => {
+      const raw = localStorage.getItem(cacheKey);
+      if (!raw) {
+        return null;
+      }
+      const parsed = JSON.parse(raw) as Record<string, Record<string, unknown>>;
+      const firstProjectStorage = Object.values(parsed)[0] ?? {};
+      return (firstProjectStorage.result as string | undefined) ?? null;
+    }, STORAGE_CACHE_KEY), { timeout: 10000 }).toBe('is_null');
   });
 });
 

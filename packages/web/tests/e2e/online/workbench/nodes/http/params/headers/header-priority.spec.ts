@@ -41,10 +41,14 @@ test.describe('HeaderPriority', () => {
     await headersTab.click();
     await contentPage.waitForTimeout(300);
     // 添加自定义请求头: X-Custom=from-custom
-    const headerKeyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
-    const headerValueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
-    await headerKeyInputs.first().fill('X-Custom');
-    await headerValueInputs.first().click();
+    const headersTree = contentPage.locator('.cl-params-tree').first();
+    const headerKeyInput = headersTree.locator('[data-testid="params-tree-key-autocomplete"] input').first();
+    const headerValueInput = headersTree.locator('[data-testid="params-tree-value-input"] [contenteditable="true"]').first();
+    await expect(headerKeyInput).toBeVisible({ timeout: 5000 });
+    await headerKeyInput.click();
+    await headerKeyInput.fill('X-Custom');
+    await headerValueInput.click();
+    await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('from-custom');
     await contentPage.waitForTimeout(300);
     // 发送请求
@@ -125,10 +129,14 @@ test.describe('HeaderPriority', () => {
     await headersTab.click();
     await contentPage.waitForTimeout(300);
     // 添加自定义请求头覆盖User-Agent
-    const headerKeyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
-    const headerValueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
-    await headerKeyInputs.first().fill('User-Agent');
-    await headerValueInputs.first().click();
+    const headersTree = contentPage.locator('.cl-params-tree').first();
+    const headerKeyInput = headersTree.locator('[data-testid="params-tree-key-autocomplete"] input').first();
+    const headerValueInput = headersTree.locator('[data-testid="params-tree-value-input"] [contenteditable="true"]').first();
+    await expect(headerKeyInput).toBeVisible({ timeout: 5000 });
+    await headerKeyInput.click();
+    await headerKeyInput.fill('User-Agent');
+    await headerValueInput.click();
+    await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('MyCustomAgent/2.0');
     await contentPage.waitForTimeout(300);
     // 发送请求
@@ -183,10 +191,14 @@ test.describe('HeaderPriority', () => {
     await headersTab.click();
     await contentPage.waitForTimeout(300);
     // 添加自定义请求头覆盖User-Agent
-    const headerKeyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
-    const headerValueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
-    await headerKeyInputs.first().fill('User-Agent');
-    await headerValueInputs.first().click();
+    const headersTree = contentPage.locator('.cl-params-tree').first();
+    const headerKeyInput = headersTree.locator('[data-testid="params-tree-key-autocomplete"] input').first();
+    const headerValueInput = headersTree.locator('[data-testid="params-tree-value-input"] [contenteditable="true"]').first();
+    await expect(headerKeyInput).toBeVisible({ timeout: 5000 });
+    await headerKeyInput.click();
+    await headerKeyInput.fill('User-Agent');
+    await headerValueInput.click();
+    await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('CustomAgent/2.0');
     await contentPage.waitForTimeout(300);
     // 发送请求

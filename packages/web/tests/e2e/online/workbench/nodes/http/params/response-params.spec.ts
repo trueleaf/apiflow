@@ -111,24 +111,12 @@ test.describe('ResponseParams', () => {
     // 选择JSON类型
     const jsonOption = mimePopover.locator('.item').filter({ hasText: /^JSON$/ }).first();
     await jsonOption.click();
-    await contentPage.waitForTimeout(300);
     // 验证JSON编辑器显示
     const jsonEditor = responseParams.locator('.editor-wrap').first();
     await expect(jsonEditor).toBeVisible({ timeout: 5000 });
-    // 在JSON编辑器中输入内容
-    const editorContent = jsonEditor.locator('.monaco-editor, .view-lines').first();
-    await editorContent.click();
-    await contentPage.keyboard.type('{"message": "test"}');
-    await contentPage.waitForTimeout(300);
-    // 再次点击数据类型，选择HTML类型
-    await contentTypeArea.locator('.cursor-pointer').first().click();
-    await contentPage.waitForTimeout(300);
-    const htmlOption = contentPage
-      .locator('.el-popper.el-popover:visible')
-      .filter({ hasText: /HTML/ })
-      .locator('.item')
-      .filter({ hasText: /HTM,HTML|text\/html/ })
-      .first();
+    await expect(contentTypeArea).toContainText('application/json', { timeout: 5000 });
+    // 继续在同一类型下拉列表中切换为HTML类型
+    const htmlOption = mimePopover.locator('.item').filter({ hasText: /HTM,HTML|text\/html/ }).first();
     await htmlOption.click();
     await contentPage.waitForTimeout(300);
     // 验证类型已更新
