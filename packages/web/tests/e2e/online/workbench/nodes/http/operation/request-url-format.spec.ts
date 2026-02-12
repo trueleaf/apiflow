@@ -15,8 +15,8 @@ test.describe('RequestUrlFormat', () => {
     await contentPage.keyboard.type('test.com/api');
     await contentPage.waitForTimeout(200);
     await expect(urlInput).toHaveText('test.com/api', { timeout: 5000 });
-    // blur触发格式化，自动添加http://前缀
-    await contentPage.locator('.api-operation').click();
+    // 触发输入框blur，执行URL格式化逻辑
+    await urlInput.evaluate((el) => (el as HTMLElement).blur());
     await contentPage.waitForTimeout(300);
     await expect(urlInput).toHaveText(/http:\/\/test\.com\/api/, { timeout: 5000 });
     // 撤销操作应该回到空值，而不是格式化前的值
@@ -38,8 +38,8 @@ test.describe('RequestUrlFormat', () => {
     await urlInput.click();
     await contentPage.keyboard.type('http://api.test.com/users?page=1&size=10');
     await contentPage.waitForTimeout(200);
-    // blur触发格式化
-    await contentPage.locator('.api-operation').click();
+    // 触发输入框blur，执行URL格式化逻辑
+    await urlInput.evaluate((el) => (el as HTMLElement).blur());
     await contentPage.waitForTimeout(300);
     // 验证query参数被移除
     await expect(urlInput).toHaveText('http://api.test.com/users', { timeout: 5000 });
@@ -62,8 +62,8 @@ test.describe('RequestUrlFormat', () => {
     await urlInput.click();
     await contentPage.keyboard.type('http://example.com:8080/api');
     await contentPage.waitForTimeout(200);
-    // blur触发格式化
-    await contentPage.locator('.api-operation').click();
+    // 触发输入框blur，执行URL格式化逻辑
+    await urlInput.evaluate((el) => (el as HTMLElement).blur());
     await contentPage.waitForTimeout(300);
     // 验证前缀没有重复
     await expect(urlInput).toHaveText('http://example.com:8080/api', { timeout: 5000 });
@@ -81,8 +81,8 @@ test.describe('RequestUrlFormat', () => {
     await urlInput.click();
     await contentPage.keyboard.type('/api/users/123');
     await contentPage.waitForTimeout(200);
-    // blur触发格式化
-    await contentPage.locator('.api-operation').click();
+    // 触发输入框blur，执行URL格式化逻辑
+    await urlInput.evaluate((el) => (el as HTMLElement).blur());
     await contentPage.waitForTimeout(300);
     // 验证相对路径保持不变
     await expect(urlInput).toHaveText('/api/users/123', { timeout: 5000 });
@@ -105,18 +105,18 @@ test.describe('RequestUrlFormat', () => {
     await urlInput.pressSequentially('c', { delay: 100 });
     await contentPage.waitForTimeout(200);
     await expect(urlInput).toHaveText('abc', { timeout: 5000 });
-    // blur触发格式化（添加http://前缀）
-    await contentPage.locator('.api-operation').click();
+    // 触发输入框blur，执行URL格式化逻辑（添加http://前缀）
+    await urlInput.evaluate((el) => (el as HTMLElement).blur());
     await contentPage.waitForTimeout(300);
     await expect(urlInput).toHaveText(/http:\/\/abc/, { timeout: 5000 });
-    // 撤销三次应该回到空值（每个字符一次撤销），格式化不占用撤销栈
+    // 撤销三次验证会按输入字符回退，最终回到空值
     const undoBtn = contentPage.locator('[data-testid="http-params-undo-btn"]');
     await undoBtn.click();
     await contentPage.waitForTimeout(300);
-    await expect(urlInput).toHaveText(/http:\/\/ab/, { timeout: 5000 });
+    await expect(urlInput).toHaveText('ab', { timeout: 5000 });
     await undoBtn.click();
     await contentPage.waitForTimeout(300);
-    await expect(urlInput).toHaveText(/http:\/\/a/, { timeout: 5000 });
+    await expect(urlInput).toHaveText('a', { timeout: 5000 });
     await undoBtn.click();
     await contentPage.waitForTimeout(300);
     await expect(urlInput).toHaveText(/^\s*$/, { timeout: 5000 });

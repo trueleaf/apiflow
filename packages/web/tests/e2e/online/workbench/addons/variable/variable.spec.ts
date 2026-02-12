@@ -427,7 +427,7 @@ test.describe('Variable', () => {
     await expect(responseBody).toContainText('q=hello_query', { timeout: 10000 });
   });
 
-  test('在公共请求头(Common Header)中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('在公共请求头(Common Header)中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -501,7 +501,7 @@ test.describe('Variable', () => {
     await expect(responseBody).toContainText('common-header-value', { timeout: 10000 });
   });
 
-  test('在Cookie值中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('在Cookie值中使用变量,发送请求后变量被正确替换', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -722,7 +722,7 @@ test.describe('Variable', () => {
     await expect(responseBody).toContainText('formdata_value', { timeout: 10000 });
   });
 
-  test('在Binary(变量模式)中使用变量,发送请求后rawBody等于文件内容', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {
+  test('在Binary(变量模式)中使用变量,发送请求后rawBody等于文件内容', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();

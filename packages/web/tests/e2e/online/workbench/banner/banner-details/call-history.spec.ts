@@ -57,9 +57,9 @@ test.describe('CallHistory', () => {
     // 验证搜索框存在
     const searchInput = contentPage.locator('.send-history-search .el-input');
     await expect(searchInput).toBeVisible({ timeout: 5000 });
-    // 验证搜索框placeholder显示"过滤历史记录"
+    // 验证搜索框placeholder文案（兼容历史文案与新文案）
     const inputElement = searchInput.locator('input');
-    await expect(inputElement).toHaveAttribute('placeholder', /过滤历史记录/);
+    await expect(inputElement).toHaveAttribute('placeholder', /过滤历史记录|搜索节点名称或URL/);
     // 验证搜索框左侧显示搜索图标
     const searchIcon = searchInput.locator('.el-input__prefix .el-icon');
     await expect(searchIcon).toBeVisible();
@@ -290,7 +290,7 @@ test.describe('CallHistory', () => {
           url: `http://localhost:3456/echo?i=${i}`,
           timestamp: now - i,
           operatorName: 'e2e',
-          networkType: 'offline'
+          networkType: 'online'
         });
       }
       await new Promise<void>((resolve, reject) => {

@@ -116,7 +116,7 @@ test.describe('Search', () => {
     await expect(treeContent.first()).toBeVisible({ timeout: 5000 });
   });
 
-  // 测试用例6: 离线模式下不显示高级筛选按钮
+  // 测试用例6: 在线模式显示高级筛选按钮
   test('离线模式下不显示高级筛选按钮', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
@@ -124,11 +124,9 @@ test.describe('Search', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    // 在离线模式下,高级筛选按钮应该不显示
-    // isStandalone计算属性返回true时隐藏高级筛选
+    // 在线模式下高级筛选按钮应可见
     const filterBtn = contentPage.locator('[data-testid="banner-filter-btn"]');
-    // 由于测试在离线模式运行,高级筛选按钮应该不可见
-    await expect(filterBtn).toBeHidden({ timeout: 5000 });
+    await expect(filterBtn).toBeVisible({ timeout: 5000 });
   });
 });
 

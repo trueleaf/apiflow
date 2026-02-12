@@ -61,7 +61,7 @@ test.describe('LayoutOperation', () => {
     await expect(requestLayout).toHaveClass(/vertical/, { timeout: 5000 });
   });
   // 测试用例3: 切换布局后刷新页面,布局保持不变
-  test('切换布局后刷新页面,布局保持不变', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+  test('切换布局后刷新页面,布局保持不变', async ({ contentPage, clearCache, createProject, createNode, loginAccount, reload }) => {
     await clearCache();
 
     await loginAccount();

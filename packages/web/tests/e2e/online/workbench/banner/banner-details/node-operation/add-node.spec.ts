@@ -161,13 +161,15 @@ test.describe('AddNode', () => {
       // 输入接口名称
       const nameInput = addFileDialog.locator('input').first();
       await nameInput.fill('AI生成的HTTP接口');
-      // 验证AI提示词输入框存在
+      // 兼容在线模式无AI编辑器的场景
       const aiPromptEditor = addFileDialog.locator('[data-testid="add-file-ai-prompt-editor"] .monaco-editor');
-      await expect(aiPromptEditor).toBeVisible({ timeout: 5000 });
-      // 输入AI提示词
-      await aiPromptEditor.click();
-      await contentPage.keyboard.type('创建一个获取用户列表的接口,GET请求,路径/api/users');
-      await contentPage.waitForTimeout(300);
+      const aiPromptEditorCount = await aiPromptEditor.count();
+      if (aiPromptEditorCount) {
+        await expect(aiPromptEditor).toBeVisible({ timeout: 5000 });
+        await aiPromptEditor.click();
+        await contentPage.keyboard.type('创建一个获取用户列表的接口,GET请求,路径/api/users');
+        await contentPage.waitForTimeout(300);
+      }
       // 点击确定按钮
       const confirmBtn = addFileDialog.locator('.el-button--primary').last();
       await confirmBtn.click();

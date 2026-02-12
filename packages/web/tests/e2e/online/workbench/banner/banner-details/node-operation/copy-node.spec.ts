@@ -572,7 +572,7 @@ test.describe('CopyNode', () => {
         await contentPage.waitForTimeout(200);
       }
       const secondChildNode = secondFolderNode
-        .locator('.el-tree-node__ch')
+        .locator('.el-tree-node__children .el-tree-node__content')
         .filter({ hasText: '子节点HTTP' });
       await expect(secondChildNode).toHaveCount(1, { timeout: 5000 });
     });

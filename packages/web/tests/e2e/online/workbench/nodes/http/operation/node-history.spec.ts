@@ -15,26 +15,20 @@ test.describe('NodeHistory', () => {
     const createdNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '历史记录测试' });
     await createdNode.click();
     await expect(contentPage.locator('[data-testid="url-input"]')).toBeVisible({ timeout: 5000 });
-    // 设置请求URL并发送多次请求以生成历史记录
+    // 通过“保存接口”生成历史记录（历史记录来自保存快照，不依赖发送请求）
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?request=first`);
-    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
-    await sendBtn.click();
-    const responseArea = contentPage.getByTestId('response-area');
-    await expect(responseArea).toBeVisible({ timeout: 10000 });
-    const statusCode = responseArea.getByTestId('status-code');
-    await expect(statusCode).toContainText('200', { timeout: 10000 });
-    await expect(sendBtn).toBeEnabled({ timeout: 10000 });
-    // 发送第二次请求
+    await saveBtn.click();
+    await expect(saveBtn).toBeEnabled({ timeout: 10000 });
+    // 修改URL并保存第二次
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?request=second`);
-    await sendBtn.click();
-    await expect(statusCode).toContainText('200', { timeout: 10000 });
-    await expect(sendBtn).toBeEnabled({ timeout: 10000 });
-    // 发送第三次请求
+    await saveBtn.click();
+    await expect(saveBtn).toBeEnabled({ timeout: 10000 });
+    // 修改URL并保存第三次
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?request=third`);
-    await sendBtn.click();
-    await expect(statusCode).toContainText('200', { timeout: 10000 });
-    await expect(sendBtn).toBeEnabled({ timeout: 10000 });
+    await saveBtn.click();
+    await expect(saveBtn).toBeEnabled({ timeout: 10000 });
     // 点击历史记录按钮
     const historyBtn = contentPage.locator('[data-testid="http-params-history-btn"]');
     await historyBtn.click();
@@ -59,16 +53,12 @@ test.describe('NodeHistory', () => {
     const createdNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '历史详情测试' });
     await createdNode.click();
     await expect(contentPage.locator('[data-testid="url-input"]')).toBeVisible({ timeout: 5000 });
-    // 设置请求URL并发送请求以生成历史记录
+    // 通过保存接口生成历史记录，避免依赖在线请求链路
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?detail=test`);
-    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
-    await sendBtn.click();
-    const responseArea = contentPage.getByTestId('response-area');
-    await expect(responseArea).toBeVisible({ timeout: 10000 });
-    const statusCode = responseArea.getByTestId('status-code');
-    await expect(statusCode).toContainText('200', { timeout: 10000 });
-    await expect(sendBtn).toBeEnabled({ timeout: 10000 });
+    const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
+    await saveBtn.click();
+    await expect(saveBtn).toBeEnabled({ timeout: 10000 });
     // 点击历史记录按钮
     const historyBtn = contentPage.locator('[data-testid="http-params-history-btn"]');
     await historyBtn.click();
@@ -76,15 +66,14 @@ test.describe('NodeHistory', () => {
     await expect(historyPanel).toBeVisible({ timeout: 5000 });
     const historyLoading = contentPage.locator('.history-loading');
     await expect(historyLoading).toBeHidden({ timeout: 10000 });
-    // 点击历史记录列表中的某条记录
+    // 悬停历史记录项触发详情面板显示
     const historyItems = historyPanel.locator('.history-item');
     await expect.poll(async () => historyItems.count(), { timeout: 10000 }).toBeGreaterThan(0);
     await expect(historyItems.first()).toBeVisible({ timeout: 10000 });
-    await historyItems.first().click();
-    await contentPage.waitForTimeout(500);
+    await historyItems.first().hover();
     // 验证显示该历史记录的详细信息
     const historyDetail = contentPage.locator('.history-detail-panel');
-    await expect(historyDetail).toBeVisible({ timeout: 5000 });
+    await expect(historyDetail).toBeVisible({ timeout: 7000 });
     // 验证详情包含请求URL信息
     await expect(historyDetail).toContainText('echo', { timeout: 5000 });
   });

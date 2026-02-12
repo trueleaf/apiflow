@@ -17,16 +17,17 @@ test.describe('RequestMethodInput', () => {
     await methodSelect.click();
     await contentPage.waitForTimeout(300);
     // 验证下拉选项包含所有请求方法
-    const options = contentPage.locator('.el-select-dropdown__item');
-    await expect(options.filter({ hasText: 'GET' })).toBeVisible({ timeout: 5000 });
-    await expect(options.filter({ hasText: 'POST' })).toBeVisible({ timeout: 5000 });
-    await expect(options.filter({ hasText: 'PUT' })).toBeVisible({ timeout: 5000 });
-    await expect(options.filter({ hasText: 'DEL' })).toBeVisible({ timeout: 5000 });
-    await expect(options.filter({ hasText: 'PATCH' })).toBeVisible({ timeout: 5000 });
-    await expect(options.filter({ hasText: 'HEAD' })).toBeVisible({ timeout: 5000 });
-    await expect(options.filter({ hasText: 'OPTIONS' })).toBeVisible({ timeout: 5000 });
+    const dropdown = contentPage.locator('.el-select-dropdown:visible').last();
+    await expect(dropdown).toBeVisible({ timeout: 5000 });
+    await expect(dropdown.getByRole('option', { name: /^GET$/ })).toBeVisible({ timeout: 5000 });
+    await expect(dropdown.getByRole('option', { name: /^POST$/ })).toBeVisible({ timeout: 5000 });
+    await expect(dropdown.getByRole('option', { name: /^PUT$/ })).toBeVisible({ timeout: 5000 });
+    await expect(dropdown.getByRole('option', { name: /^DEL$/ })).toBeVisible({ timeout: 5000 });
+    await expect(dropdown.getByRole('option', { name: /^PATCH$/ })).toBeVisible({ timeout: 5000 });
+    await expect(dropdown.getByRole('option', { name: /^HEAD$/ })).toBeVisible({ timeout: 5000 });
+    await expect(dropdown.getByRole('option', { name: /^OPTIONS$/ })).toBeVisible({ timeout: 5000 });
     // 选择POST方法
-    const postOption = options.filter({ hasText: 'POST' });
+    const postOption = dropdown.getByRole('option', { name: /^POST$/ });
     await postOption.click();
     await contentPage.waitForTimeout(300);
     // 验证下拉菜单关闭,显示选中值
@@ -39,8 +40,8 @@ test.describe('RequestMethodInput', () => {
     await urlInput.click();
     await contentPage.waitForTimeout(300);
     // 验证下拉菜单已关闭
-    const dropdown = contentPage.locator('.el-select-dropdown').filter({ hasText: 'GET' });
-    await expect(dropdown).toBeHidden({ timeout: 5000 });
+    const closedDropdown = contentPage.locator('.el-select-dropdown').filter({ hasText: 'GET' });
+    await expect(closedDropdown).toBeHidden({ timeout: 5000 });
   });
   // 测试用例2: 切换请求方法不会改变banner节点中的请求方法,只有保存后才会生效
   test('切换请求方法不会改变banner节点中的请求方法,只有保存后才会生效', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {

@@ -479,8 +479,35 @@ export const test = base.extend<ElectronFixtures>({
         const quickLoginBtn = contentPage.locator('[data-testid="login-quick-login-btn"]');
         const hasQuickLoginBtn = await quickLoginBtn.isVisible({ timeout: 2000 }).catch(() => false);
         if (hasQuickLoginBtn) {
-          await quickLoginBtn.click();
-          const quickLoginSuccess = await waitLoginSuccess(20000);
+          let quickLoginSuccess = false;
+          for (let i = 0; i < 2; i += 1) {
+            await quickLoginBtn.click().catch(async () => {
+              const messageBox = contentPage.locator('.el-overlay-message-box');
+              const hasMessageBox = await messageBox.isVisible({ timeout: 1000 }).catch(() => false);
+              if (hasMessageBox) {
+                const confirmBtn = messageBox.locator('.el-button--primary').first();
+                const hasConfirmBtn = await confirmBtn.isVisible({ timeout: 1000 }).catch(() => false);
+                if (hasConfirmBtn) {
+                  await confirmBtn.click();
+                }
+              }
+              await contentPage.waitForTimeout(1500);
+            });
+            quickLoginSuccess = await waitLoginSuccess(10000);
+            if (quickLoginSuccess) {
+              break;
+            }
+            const messageBox = contentPage.locator('.el-overlay-message-box');
+            const hasMessageBox = await messageBox.isVisible({ timeout: 800 }).catch(() => false);
+            if (hasMessageBox) {
+              const confirmBtn = messageBox.locator('.el-button--primary').first();
+              const hasConfirmBtn = await confirmBtn.isVisible({ timeout: 1000 }).catch(() => false);
+              if (hasConfirmBtn) {
+                await confirmBtn.click();
+              }
+              await contentPage.waitForTimeout(1500);
+            }
+          }
           if (!quickLoginSuccess) {
             throw new Error('快捷登录后仍未进入首页');
           }

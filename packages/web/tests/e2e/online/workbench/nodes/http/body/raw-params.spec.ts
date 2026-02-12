@@ -254,8 +254,10 @@ test.describe('RawParams', () => {
     const responseBody = responseArea.locator('.s-json-editor').first();
     // 验证请求成功返回
     await expect(responseBody).toBeVisible({ timeout: 10000 });
-    // 验证服务器接收到空的body
-    await expect(responseBody).toContainText('body', { timeout: 10000 });
+    // 验证raw空值时不自动附加Content-Type且请求体为空
+    await expect(responseBody).toContainText(/"contentType"\s*:\s*""/, { timeout: 10000 });
+    await expect(responseBody).toContainText(/"rawBody"\s*:\s*""/, { timeout: 10000 });
+    await expect(responseBody).not.toContainText(/"content-type"/i);
   });
 });
 
