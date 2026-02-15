@@ -1,4 +1,5 @@
 import { test, expect } from '../../../../../../../fixtures/electron-online.fixture';
+import path from 'path';
 
 const MOCK_SERVER_PORT = 3456;
 
@@ -193,7 +194,60 @@ test.describe('FormdataBodyValidation', () => {
   });
 
   // 测试用例4: 调用echo接口验证文件上传是否正常返回,content-type是否设置正确
-  test.skip('调用echo接口验证文件上传是否正常返回,content-type是否设置正确', async () => {});
+  test('调用echo接口验证文件上传是否正常返回,content-type是否设置正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 新增HTTP节点
+    await createNode(contentPage, { nodeType: 'http', name: 'FormData文件上传验证' });
+    // 设置请求URL并选择POST方法
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    await methodSelect.click();
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    await postOption.click();
+    // 点击Body标签页并选择FormData类型
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+    await bodyTab.click();
+    await contentPage.waitForTimeout(300);
+    const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
+    await formdataRadio.click();
+    await contentPage.waitForTimeout(300);
+    // 添加字符串字段: username=testuser
+    const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.first().fill('username');
+    await valueInputs.first().click();
+    await contentPage.keyboard.type('testuser');
+    await contentPage.waitForTimeout(300);
+    // 添加文件字段: 先填key，再切换类型为file，最后选择文件
+    await keyInputs.nth(1).fill('file');
+    const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
+    await typeSelects.nth(1).click();
+    const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
+    await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
+    await contentPage.waitForTimeout(300);
+    const fileInput = contentPage.locator('[data-testid="params-tree-file-input"]').first();
+    const testFilePath = path.resolve(process.cwd(), 'src/renderer/assets/imgs/logo.png');
+    await fileInput.setInputFiles(testFilePath);
+    await contentPage.waitForTimeout(500);
+    // 发送请求
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    // 验证响应body中Content-Type包含multipart/form-data
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
+    // 验证字符串字段正常返回
+    await expect(responseBody).toContainText('username', { timeout: 10000 });
+    await expect(responseBody).toContainText('testuser', { timeout: 10000 });
+    // 验证文件字段正常返回（echo接口会返回files信息）
+    await expect(responseBody).toContainText('file', { timeout: 10000 });
+    await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
+  });
 });
 
 

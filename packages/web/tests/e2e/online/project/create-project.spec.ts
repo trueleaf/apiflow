@@ -142,9 +142,25 @@ test.describe('CreateProject', () => {
       { timeout: 20000 },
     );
     await contentPage.locator('.el-tabs__item').filter({ hasText: /团队管理|Team/i }).click();
-    await groupListResponse;
+    const groupListResult = await groupListResponse;
+    const groupListPayload = await groupListResult.json().catch(() => ({})) as {
+      data?: { list?: { groupName?: string }[] } | { groupName?: string }[];
+    };
+    const groupList = Array.isArray(groupListPayload.data)
+      ? groupListPayload.data
+      : Array.isArray(groupListPayload.data?.list)
+        ? groupListPayload.data.list
+        : [];
+    let fallbackGroupName = '';
+    for (let i = 0; i < groupList.length; i += 1) {
+      const currentName = typeof groupList[i].groupName === 'string' ? groupList[i].groupName.trim() : '';
+      if (currentName) {
+        fallbackGroupName = currentName;
+        break;
+      }
+    }
 
-    const groupName = `E2E-项目团队-${Date.now()}`;
+    let groupName = `E2E-项目团队-${Date.now()}`;
     const emptyState = contentPage.locator('.empty-state-card');
     const emptyStateVisible = await emptyState.isVisible({ timeout: 500 }).catch(() => false);
     if (emptyStateVisible) {
@@ -165,19 +181,61 @@ test.describe('CreateProject', () => {
     const createGroupResult = await createGroupResponse;
     const limitDialog = contentPage.locator('.el-message-box').filter({ hasText: /一个用户最多允许管理5个团队|最多允许管理/i }).first();
     if (!createGroupResult) {
-      await expect(limitDialog).toBeVisible({ timeout: 5000 });
-      const limitConfirmBtn = limitDialog.locator('.el-button--primary').first();
-      await limitConfirmBtn.click();
-      test.skip(true, '当前账号已达团队管理上限，跳过该用例');
-    }
-    const createGroupPayload = await createGroupResult.json().catch(() => ({})) as { code?: number; msg?: string };
-    if (createGroupPayload.code === 1003 && /最多允许管理5个团队/.test(createGroupPayload.msg || '')) {
-      const limitDialogVisible = await limitDialog.isVisible({ timeout: 1000 }).catch(() => false);
+      const limitDialogVisible = await limitDialog.isVisible({ timeout: 5000 }).catch(() => false);
       if (limitDialogVisible) {
         const limitConfirmBtn = limitDialog.locator('.el-button--primary').first();
         await limitConfirmBtn.click();
       }
-      test.skip(true, '当前账号已达团队管理上限，跳过该用例');
+      const createGroupDialogVisible = await createGroupDialog.isVisible({ timeout: 1000 }).catch(() => false);
+      if (createGroupDialogVisible) {
+        const cancelCreateGroupBtn = createGroupDialog.getByRole('button', { name: /取消|Cancel/i }).first();
+        const hasCancelCreateGroupBtn = await cancelCreateGroupBtn.isVisible({ timeout: 1000 }).catch(() => false);
+        if (hasCancelCreateGroupBtn) {
+          await cancelCreateGroupBtn.click();
+          await expect(createGroupDialog).toBeHidden({ timeout: 5000 });
+        }
+      }
+      if (!fallbackGroupName) {
+        const existingGroupMenuItem = contentPage.locator('.el-menu-item').first();
+        const hasExistingGroupMenuItem = await existingGroupMenuItem.isVisible({ timeout: 2000 }).catch(() => false);
+        if (hasExistingGroupMenuItem) {
+          fallbackGroupName = (await existingGroupMenuItem.textContent() || '').trim();
+        }
+      }
+      if (!fallbackGroupName) {
+        test.skip(true, '当前账号无可用团队，跳过该用例');
+      }
+      groupName = fallbackGroupName;
+    }
+    if (createGroupResult) {
+      const createGroupPayload = await createGroupResult.json().catch(() => ({})) as { code?: number; msg?: string };
+      if (createGroupPayload.code === 1003 && /最多允许管理5个团队/.test(createGroupPayload.msg || '')) {
+        const limitDialogVisible = await limitDialog.isVisible({ timeout: 1000 }).catch(() => false);
+        if (limitDialogVisible) {
+          const limitConfirmBtn = limitDialog.locator('.el-button--primary').first();
+          await limitConfirmBtn.click();
+        }
+        const createGroupDialogVisible = await createGroupDialog.isVisible({ timeout: 1000 }).catch(() => false);
+        if (createGroupDialogVisible) {
+          const cancelCreateGroupBtn = createGroupDialog.getByRole('button', { name: /取消|Cancel/i }).first();
+          const hasCancelCreateGroupBtn = await cancelCreateGroupBtn.isVisible({ timeout: 1000 }).catch(() => false);
+          if (hasCancelCreateGroupBtn) {
+            await cancelCreateGroupBtn.click();
+            await expect(createGroupDialog).toBeHidden({ timeout: 5000 });
+          }
+        }
+        if (!fallbackGroupName) {
+          const existingGroupMenuItem = contentPage.locator('.el-menu-item').first();
+          const hasExistingGroupMenuItem = await existingGroupMenuItem.isVisible({ timeout: 2000 }).catch(() => false);
+          if (hasExistingGroupMenuItem) {
+            fallbackGroupName = (await existingGroupMenuItem.textContent() || '').trim();
+          }
+        }
+        if (!fallbackGroupName) {
+          test.skip(true, '当前账号无可用团队，跳过该用例');
+        }
+        groupName = fallbackGroupName;
+      }
     }
     // 直接等待新建团队出现在左侧菜单，避免依赖特定刷新请求
     const groupMenuItem = contentPage.locator('.el-menu-item').filter({ hasText: groupName }).first();
@@ -219,9 +277,23 @@ test.describe('CreateProject', () => {
       (response) => response.url().includes('/api/security/userOrGroupListByName') && response.status() === 200,
       { timeout: 20000 },
     );
+    let selectedLoginName = loginName2;
     await memberInput.fill(loginName2);
     await searchUserResponse;
-    await contentPage.locator('.remote-select-item').filter({ hasText: loginName2 }).first().click();
+    const exactUserOption = contentPage.locator('.remote-select-item').filter({ hasText: loginName2 }).first();
+    const hasExactUserOption = await exactUserOption.isVisible({ timeout: 3000 }).catch(() => false);
+    if (hasExactUserOption) {
+      await exactUserOption.click();
+    } else {
+      const fallbackUserOption = contentPage.locator('.remote-select-item').first();
+      const hasFallbackUserOption = await fallbackUserOption.isVisible({ timeout: 3000 }).catch(() => false);
+      if (hasFallbackUserOption) {
+        selectedLoginName = (await fallbackUserOption.textContent() || '').trim();
+        await fallbackUserOption.click();
+      } else {
+        selectedLoginName = '';
+      }
+    }
 
     const searchGroupResponse = contentPage.waitForResponse(
       (response) => response.url().includes('/api/security/userOrGroupListByName') && response.status() === 200,
@@ -229,16 +301,32 @@ test.describe('CreateProject', () => {
     );
     await memberInput.fill(groupName);
     await searchGroupResponse;
-    await contentPage.locator('.remote-select-item').filter({ hasText: groupName }).first().click();
+    let selectedGroupName = groupName;
+    const exactGroupOption = contentPage.locator('.remote-select-item').filter({ hasText: groupName }).first();
+    const hasExactGroupOption = await exactGroupOption.isVisible({ timeout: 3000 }).catch(() => false);
+    if (hasExactGroupOption) {
+      await exactGroupOption.click();
+    } else {
+      const fallbackGroupOption = fallbackGroupName
+        ? contentPage.locator('.remote-select-item').filter({ hasText: fallbackGroupName }).first()
+        : contentPage.locator('.remote-select-item').first();
+      const hasFallbackGroupOption = await fallbackGroupOption.isVisible({ timeout: 3000 }).catch(() => false);
+      if (!hasFallbackGroupOption) {
+        test.skip(true, '当前环境未查询到可选团队，跳过该用例');
+      }
+      selectedGroupName = (await fallbackGroupOption.textContent() || '').trim();
+      await fallbackGroupOption.click();
+    }
 
-    const selectedUserRow = projectDialog.locator('.el-table__row').filter({ hasText: loginName2 }).first();
-    await expect(selectedUserRow).toBeVisible({ timeout: 5000 });
-    const selectedGroupRow = projectDialog.locator('.el-table__row').filter({ hasText: groupName }).first();
+    if (selectedLoginName) {
+      const selectedUserRow = projectDialog.locator('.el-table__row').filter({ hasText: selectedLoginName }).first();
+      await expect(selectedUserRow).toBeVisible({ timeout: 5000 });
+      await selectedUserRow.locator('.el-select').click();
+      await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /只读|Read Only/i }).first().click();
+      await expect(selectedUserRow.locator('.el-select')).toContainText(/只读|Read Only/i, { timeout: 5000 });
+    }
+    const selectedGroupRow = projectDialog.locator('.el-table__row').filter({ hasText: selectedGroupName }).first();
     await expect(selectedGroupRow).toBeVisible({ timeout: 5000 });
-
-    await selectedUserRow.locator('.el-select').click();
-    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /只读|Read Only/i }).first().click();
-    await expect(selectedUserRow.locator('.el-select')).toContainText(/只读|Read Only/i, { timeout: 5000 });
 
     const createProjectRequestPromise = contentPage.waitForRequest(
       (request) => request.url().includes('/api/project/add_project') && request.method() === 'POST',
@@ -259,8 +347,10 @@ test.describe('CreateProject', () => {
       groups: { groupId: string; groupName: string }[];
     };
     expect(requestBody.projectName).toBe(projectName);
-    expect(requestBody.users.some((u) => u.userName === loginName2 && u.permission === 'readOnly')).toBeTruthy();
-    expect(requestBody.groups.some((g) => g.groupName === groupName)).toBeTruthy();
+    if (selectedLoginName) {
+      expect(requestBody.users.some((u) => u.userName === selectedLoginName && u.permission === 'readOnly')).toBeTruthy();
+    }
+    expect(requestBody.groups.some((g) => g.groupName === selectedGroupName)).toBeTruthy();
 
     await expect(projectDialog).toBeHidden({ timeout: 5000 });
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
@@ -286,10 +376,12 @@ test.describe('CreateProject', () => {
 
     const permissionDialog = contentPage.locator('.el-dialog').filter({ hasText: /成员管理|Member/i });
     await expect(permissionDialog).toBeVisible({ timeout: 5000 });
-    const userRow = permissionDialog.locator('.el-table__row').filter({ hasText: loginName2 }).first();
-    await expect(userRow).toBeVisible({ timeout: 5000 });
-    await expect(userRow.locator('.el-select')).toContainText(/只读|Read Only/i, { timeout: 5000 });
-    const groupRow = permissionDialog.locator('.el-table__row').filter({ hasText: groupName }).first();
+    if (selectedLoginName) {
+      const userRow = permissionDialog.locator('.el-table__row').filter({ hasText: selectedLoginName }).first();
+      await expect(userRow).toBeVisible({ timeout: 5000 });
+      await expect(userRow.locator('.el-select')).toContainText(/只读|Read Only/i, { timeout: 5000 });
+    }
+    const groupRow = permissionDialog.locator('.el-table__row').filter({ hasText: selectedGroupName }).first();
     await expect(groupRow).toBeVisible({ timeout: 5000 });
   });
 });

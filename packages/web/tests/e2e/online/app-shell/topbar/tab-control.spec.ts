@@ -143,10 +143,6 @@ test.describe('Navigation', () => {
 
   test('tab默认排序:项目在前,设置在后', async ({ topBarPage, contentPage, createProject, loginAccount, jumpToSettings }) => {
     await loginAccount();
-    // 验证后台管理按钮存在（online模式下管理员登录）
-    const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
-    const hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    test.skip(!hasAdminBtn, '当前账号非管理员');
     const projectAName = await createProject(`排序项目A-${Date.now()}`);
     await jumpToSettings();
     await topBarPage.waitForTimeout(500);
@@ -166,8 +162,12 @@ test.describe('Navigation', () => {
     const settingsIndex = tabTexts.findIndex((t) => t.includes('设置') || t.includes('Settings'));
     expect(projectAIndex).toBeLessThan(settingsIndex);
     expect(projectBIndex).toBeLessThan(settingsIndex);
-    // 验证后台管理按钮依然存在（不影响tab排序）
-    await expect(adminBtn).toBeVisible();
+    // 管理员账号下补充验证后台管理按钮存在，不阻塞非管理员账号执行
+    const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
+    const hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
+    if (hasAdminBtn) {
+      await expect(adminBtn).toBeVisible();
+    }
   });
 
   test('可以拖拽tab改变顺序', async ({ topBarPage, contentPage, createProject, loginAccount, jumpToSettings }) => {
@@ -291,21 +291,25 @@ test.describe('Navigation', () => {
     await expect(settingsTab).toBeHidden();
     activeTab = topBarPage.locator('[data-test-id^="header-tab-item-"].active');
     await expect(activeTab).toContainText(projectCName);
-    // 场景3：激活Admin按钮，关闭最右侧的项目Tab，验证Admin保持active
+    // 场景3：管理员账号下补充验证Admin激活态保持，非管理员账号只验证核心高亮逻辑
     const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
     const hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    test.skip(!hasAdminBtn, '当前账号非管理员');
-    await adminBtn.click();
-    await topBarPage.waitForTimeout(500);
-    await expect(contentPage).toHaveURL(/.*#\/admin/, { timeout: 5000 });
-    await expect(adminBtn).toHaveClass(/active/);
-    const projectCTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectCName });
-    closeBtn = projectCTab.locator('[data-test-id^="header-tab-close-btn-"]');
-    await closeBtn.click();
-    await topBarPage.waitForTimeout(500);
-    await expect(projectCTab).toBeHidden();
-    await expect(adminBtn).toHaveClass(/active/);
-    await expect(contentPage).toHaveURL(/.*#\/admin/, { timeout: 5000 });
+    if (hasAdminBtn) {
+      await adminBtn.click();
+      await topBarPage.waitForTimeout(500);
+      await expect(contentPage).toHaveURL(/.*#\/admin/, { timeout: 5000 });
+      await expect(adminBtn).toHaveClass(/active/);
+      const projectCTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectCName });
+      closeBtn = projectCTab.locator('[data-test-id^="header-tab-close-btn-"]');
+      await closeBtn.click();
+      await topBarPage.waitForTimeout(500);
+      await expect(projectCTab).toBeHidden();
+      await expect(adminBtn).toHaveClass(/active/);
+      await expect(contentPage).toHaveURL(/.*#\/admin/, { timeout: 5000 });
+    } else {
+      activeTab = topBarPage.locator('[data-test-id^="header-tab-item-"].active');
+      await expect(activeTab).toContainText(projectCName);
+    }
   });
 
   test('关闭非高亮Tab不影响当前高亮状态', async ({ topBarPage, contentPage, createProject, loginAccount, jumpToSettings }) => {
@@ -349,20 +353,24 @@ test.describe('Navigation', () => {
     await expect(settingsTab).toBeHidden();
     activeTab = topBarPage.locator('[data-test-id^="header-tab-item-"].active');
     await expect(activeTab).toContainText(projectCName);
-    // 场景4：激活Admin按钮，关闭项目C tab，验证Admin保持active
+    // 场景4：管理员账号下补充验证Admin激活态保持，非管理员账号只验证核心高亮逻辑
     const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
     const hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    test.skip(!hasAdminBtn, '当前账号非管理员');
-    await adminBtn.click();
-    await topBarPage.waitForTimeout(500);
-    await expect(contentPage).toHaveURL(/.*#\/admin/, { timeout: 5000 });
-    await expect(adminBtn).toHaveClass(/active/);
-    closeBtn = projectCTab.locator('[data-test-id^="header-tab-close-btn-"]');
-    await closeBtn.click();
-    await topBarPage.waitForTimeout(500);
-    await expect(projectCTab).toBeHidden();
-    await expect(adminBtn).toHaveClass(/active/);
-    await expect(contentPage).toHaveURL(/.*#\/admin/, { timeout: 5000 });
+    if (hasAdminBtn) {
+      await adminBtn.click();
+      await topBarPage.waitForTimeout(500);
+      await expect(contentPage).toHaveURL(/.*#\/admin/, { timeout: 5000 });
+      await expect(adminBtn).toHaveClass(/active/);
+      closeBtn = projectCTab.locator('[data-test-id^="header-tab-close-btn-"]');
+      await closeBtn.click();
+      await topBarPage.waitForTimeout(500);
+      await expect(projectCTab).toBeHidden();
+      await expect(adminBtn).toHaveClass(/active/);
+      await expect(contentPage).toHaveURL(/.*#\/admin/, { timeout: 5000 });
+    } else {
+      activeTab = topBarPage.locator('[data-test-id^="header-tab-item-"].active');
+      await expect(activeTab).toContainText(projectCName);
+    }
   });
 
   test('更新项目名称后tab页签名称同步更新', async ({ topBarPage, contentPage, createProject, loginAccount }) => {
@@ -467,8 +475,16 @@ test.describe('Navigation', () => {
   test('管理员登录后显示后台管理按钮', async ({ topBarPage, loginAccount }) => {
     await loginAccount();
     const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
-    const hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    test.skip(!hasAdminBtn, '当前账号非管理员');
+    let hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
+    if (!hasAdminBtn) {
+      const loginName2 = process.env.TEST_LOGIN_NAME2;
+      const loginPassword2 = process.env.TEST_LOGIN_PASSWORD2;
+      if (loginName2 && loginPassword2) {
+        await loginAccount({ loginName: loginName2, password: loginPassword2 });
+        hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
+      }
+    }
+    test.skip(!hasAdminBtn, '当前环境无管理员账号，跳过管理员能力验证');
     await expect(adminBtn).toBeVisible({ timeout: 5000 });
     await expect(adminBtn).toContainText(/后台管理|Admin/);
   });
@@ -476,8 +492,16 @@ test.describe('Navigation', () => {
   test('点击后台管理按钮跳转并高亮', async ({ topBarPage, contentPage, loginAccount }) => {
     await loginAccount();
     const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
-    const hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    test.skip(!hasAdminBtn, '当前账号非管理员');
+    let hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
+    if (!hasAdminBtn) {
+      const loginName2 = process.env.TEST_LOGIN_NAME2;
+      const loginPassword2 = process.env.TEST_LOGIN_PASSWORD2;
+      if (loginName2 && loginPassword2) {
+        await loginAccount({ loginName: loginName2, password: loginPassword2 });
+        hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
+      }
+    }
+    test.skip(!hasAdminBtn, '当前环境无管理员账号，跳过管理员能力验证');
     await expect(adminBtn).toBeVisible({ timeout: 5000 });
     await adminBtn.click();
     await topBarPage.waitForTimeout(500);
@@ -488,8 +512,16 @@ test.describe('Navigation', () => {
   test('后台管理页面刷新后状态保持', async ({ topBarPage, contentPage, loginAccount }) => {
     await loginAccount();
     const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
-    const hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    test.skip(!hasAdminBtn, '当前账号非管理员');
+    let hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
+    if (!hasAdminBtn) {
+      const loginName2 = process.env.TEST_LOGIN_NAME2;
+      const loginPassword2 = process.env.TEST_LOGIN_PASSWORD2;
+      if (loginName2 && loginPassword2) {
+        await loginAccount({ loginName: loginName2, password: loginPassword2 });
+        hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
+      }
+    }
+    test.skip(!hasAdminBtn, '当前环境无管理员账号，跳过管理员能力验证');
     await expect(adminBtn).toBeVisible({ timeout: 5000 });
     await adminBtn.click();
     await topBarPage.waitForTimeout(500);
@@ -507,8 +539,16 @@ test.describe('Navigation', () => {
   test('后台管理按钮与主页按钮切换', async ({ topBarPage, contentPage, loginAccount }) => {
     await loginAccount();
     const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
-    const hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    test.skip(!hasAdminBtn, '当前账号非管理员');
+    let hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
+    if (!hasAdminBtn) {
+      const loginName2 = process.env.TEST_LOGIN_NAME2;
+      const loginPassword2 = process.env.TEST_LOGIN_PASSWORD2;
+      if (loginName2 && loginPassword2) {
+        await loginAccount({ loginName: loginName2, password: loginPassword2 });
+        hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
+      }
+    }
+    test.skip(!hasAdminBtn, '当前环境无管理员账号，跳过管理员能力验证');
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
     await expect(adminBtn).toBeVisible({ timeout: 5000 });
     await adminBtn.click();
@@ -532,8 +572,16 @@ test.describe('Navigation', () => {
     await loginAccount();
     const projectName = await createProject(`后台管理切换-${Date.now()}`);
     const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
-    const hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    test.skip(!hasAdminBtn, '当前账号非管理员');
+    let hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
+    if (!hasAdminBtn) {
+      const loginName2 = process.env.TEST_LOGIN_NAME2;
+      const loginPassword2 = process.env.TEST_LOGIN_PASSWORD2;
+      if (loginName2 && loginPassword2) {
+        await loginAccount({ loginName: loginName2, password: loginPassword2 });
+        hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
+      }
+    }
+    test.skip(!hasAdminBtn, '当前环境无管理员账号，跳过管理员能力验证');
     await expect(adminBtn).toBeVisible({ timeout: 5000 });
     const projectTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: projectName });
     await expect(projectTab).toBeVisible();
@@ -552,8 +600,16 @@ test.describe('Navigation', () => {
   test('切换到离线模式后后台管理按钮消失', async ({ topBarPage, loginAccount }) => {
     await loginAccount();
     const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
-    const hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    test.skip(!hasAdminBtn, '当前账号非管理员');
+    let hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
+    if (!hasAdminBtn) {
+      const loginName2 = process.env.TEST_LOGIN_NAME2;
+      const loginPassword2 = process.env.TEST_LOGIN_PASSWORD2;
+      if (loginName2 && loginPassword2) {
+        await loginAccount({ loginName: loginName2, password: loginPassword2 });
+        hasAdminBtn = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
+      }
+    }
+    test.skip(!hasAdminBtn, '当前环境无管理员账号，跳过管理员能力验证');
     await expect(adminBtn).toBeVisible({ timeout: 5000 });
     const networkToggle = topBarPage.locator('[data-testid="header-network-toggle"]');
     await expect(networkToggle).toBeVisible({ timeout: 5000 });

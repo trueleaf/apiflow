@@ -169,18 +169,40 @@ test.describe('BannerOtherFeatures', () => {
     }
   });
 
-  // ========================= Mo=====
-  // 测试用例8: httpMockNode存在时可以创建Mock节点
-  test.skip('httpMockNode启动后显示呼吸动画', async ({ contentPage, clearCache, createProject, loginAccount }) => {
-    // 此测试需要先创建httpMockNode并启动Mock服务
-    // 由于离线模式下创建Mock节点流程较复杂,暂时跳过
+  // ========================= Mock呼吸动画测试 =========================
+  // 测试用例8: httpMockNode启动后显示呼吸动画
+  test('httpMockNode启动后显示呼吸动画', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    test.setTimeout(120000);
     await clearCache();
+
+    await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
-    // TODO: 创建httpMockNode
-    // TODO: 启动Mock服务
-    // TODO: 验证banner区域显示呼吸动画指示器
+    await createNode(contentPage, { nodeType: 'httpMock', name: '呼吸Mock' });
+
+    const bannerTree = contentPage.getByTestId('banner-doc-tree');
+    await expect(bannerTree).toBeVisible({ timeout: 10000 });
+    const mockNode = bannerTree.locator('.el-tree-node__content', { hasText: '呼吸Mock' }).first();
+    await expect(mockNode).toBeVisible({ timeout: 10000 });
+
+    // 启动 Mock 服务
+    await mockNode.click({ button: 'right' });
+    const startMockItem = contentPage.locator('.s-contextmenu .s-contextmenu-item').filter({ hasText: /启动mock/ }).first();
+    await expect(startMockItem).toBeVisible({ timeout: 10000 });
+    await startMockItem.click();
+
+    // 验证呼吸动画圆点出现
+    const runningDot = mockNode.locator('.mock-status .status-dot.running');
+    await expect(runningDot).toBeVisible({ timeout: 30000 });
+    await expect(runningDot).toHaveClass(/running/);
+
+    // 停止 Mock 服务，避免影响后续用例
+    await mockNode.click({ button: 'right' });
+    const stopMockItem = contentPage.locator('.s-contextmenu .s-contextmenu-item').filter({ hasText: /停止mock/ }).first();
+    await expect(stopMockItem).toBeVisible({ timeout: 10000 });
+    await stopMockItem.click();
+    await expect(runningDot).toBeHidden({ timeout: 30000 });
   });
 });
 
