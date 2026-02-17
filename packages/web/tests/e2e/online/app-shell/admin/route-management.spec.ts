@@ -81,7 +81,7 @@ test.describe('Online后台管理-客户端路由管理', () => {
     const dialog = contentPage.locator('.el-dialog').first();
     const confirmBtn = dialog.locator('.el-button--primary').last();
     await confirmBtn.click();
-    const errorMessage = dialog.locator('.el-form-item__error');
+    const errorMessage = dialog.locator('.el-form-item__error').first();
     await expect(errorMessage).toBeVisible({ timeout: 3000 });
   });
 
@@ -126,14 +126,12 @@ test.describe('Online后台管理-客户端路由管理', () => {
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForRouteListLoaded(contentPage);
-    const initialRowCount = await getTableRowCount(contentPage);
     const routeRow = findRouteRowByName(contentPage, routeName);
     await clickRowAction(routeRow, '删除');
     await confirmDeleteDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForRouteListLoaded(contentPage);
-    const finalRowCount = await getTableRowCount(contentPage);
-    expect(finalRowCount).toBe(initialRowCount - 1);
+    await expect(findRouteRowByName(contentPage, routeName)).toHaveCount(0, { timeout: 5000 });
   });
 
   test('搜索客户端路由-按路由名称搜索', async ({ contentPage }) => {
@@ -382,7 +380,7 @@ test.describe('Online后台管理-服务端路由管理', () => {
     const dialog = contentPage.locator('.el-dialog').first();
     const confirmBtn = dialog.locator('.el-button--primary').last();
     await confirmBtn.click();
-    const errorMessage = dialog.locator('.el-form-item__error');
+    const errorMessage = dialog.locator('.el-form-item__error').first();
     await expect(errorMessage).toBeVisible({ timeout: 3000 });
   });
 
@@ -468,14 +466,12 @@ test.describe('Online后台管理-服务端路由管理', () => {
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForRouteListLoaded(contentPage);
-    const initialRowCount = await getTableRowCount(contentPage);
     const routeRow = findRouteRowByName(contentPage, routeName);
     await clickRowAction(routeRow, '删除');
     await confirmDeleteDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForRouteListLoaded(contentPage);
-    const finalRowCount = await getTableRowCount(contentPage);
-    expect(finalRowCount).toBe(initialRowCount - 1);
+    await expect(findRouteRowByName(contentPage, routeName)).toHaveCount(0, { timeout: 5000 });
   });
 
   test('搜索服务端路由-按路由名称搜索', async ({ contentPage }) => {

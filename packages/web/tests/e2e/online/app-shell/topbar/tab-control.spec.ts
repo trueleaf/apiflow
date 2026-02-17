@@ -468,11 +468,12 @@ test.describe('Navigation', () => {
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     await settingsBtn.click();
     await expect(contentPage).toHaveURL(/.*#\/settings/, { timeout: 5000 });
-    await expect(settingsBtn).toHaveClass(/active/);
+    const activeSettingsTab = topBarPage.locator('[data-test-id^="header-tab-item-"].active').filter({ hasText: /设置|Settings/ }).first();
+    await expect(activeSettingsTab).toBeVisible({ timeout: 5000 });
     await homeBtn.click();
     await expect(contentPage).toHaveURL(/.*#\/home/, { timeout: 5000 });
     await expect(homeBtn).toHaveClass(/active/);
-    await expect(settingsBtn).not.toHaveClass(/active/);
+    await expect(activeSettingsTab).toHaveCount(0);
   });
 
   test('设置页与项目tab切换', async ({ topBarPage, contentPage, createProject, loginAccount }) => {

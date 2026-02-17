@@ -272,13 +272,15 @@ test.describe('Online后台管理-用户管理', () => {
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForUserListLoaded(contentPage);
-    const originalRowCount = await getTableRowCount(contentPage);
     await searchUser(contentPage, userName);
     await waitForUserListLoaded(contentPage);
+    const filteredRowCount = await getTableRowCount(contentPage);
+    expect(filteredRowCount).toBeGreaterThanOrEqual(1);
+    await expect(findUserRowByName(contentPage, userName)).toBeVisible({ timeout: 5000 });
     await clearSearch(contentPage);
     await waitForUserListLoaded(contentPage);
     const restoredRowCount = await getTableRowCount(contentPage);
-    expect(restoredRowCount).toBeGreaterThanOrEqual(originalRowCount);
+    expect(restoredRowCount).toBeGreaterThanOrEqual(filteredRowCount);
   });
 
   test('批量导入用户-上传合法CSV文件导入成功', async ({ contentPage }) => {

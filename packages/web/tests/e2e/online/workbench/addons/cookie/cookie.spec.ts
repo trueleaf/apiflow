@@ -199,7 +199,9 @@ test.describe('CookieBusiness', () => {
     const fileNameInput = addFileDialog.locator('input').first();
     await fileNameInput.fill('Cookie 删除测试');
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await expect(confirmAddBtn).toBeEnabled({ timeout: 5000 });
     await confirmAddBtn.click();
+    await expect(addFileDialog).toBeHidden({ timeout: 10000 });
     await contentPage.waitForTimeout(500);
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');

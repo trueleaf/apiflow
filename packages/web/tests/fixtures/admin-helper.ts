@@ -1,6 +1,22 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect } from './electron-online.fixture';
 
+const escapeRegExp = (value: string) => {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+const fieldLabelAliasMap: Record<string, string[]> = {
+  路由名称: ['名称', 'Route Name', 'Name'],
+  路由地址: ['路径', 'Route Address', 'Path'],
+  登录名: ['登录名称', 'Login Name'],
+  角色名: ['角色名称', 'Role Name'],
+};
+
+const getFieldCandidates = (label: string) => {
+  const aliases = fieldLabelAliasMap[label] || [];
+  return [label, ...aliases];
+};
+
 const getSettingsContentArea = (contentPage: Page) => {
   return contentPage.locator('.settings .content-area');
 };
@@ -102,8 +118,36 @@ export const fillDialogForm = async (contentPage: Page, fields: Record<string, s
   const dialog = contentPage.locator('.el-dialog:visible').filter({ has: contentPage.locator('.el-form') }).first();
   await expect(dialog).toBeVisible({ timeout: 5000 });
   for (const [label, value] of Object.entries(fields)) {
-    const formItem = dialog.locator('.el-form-item').filter({ hasText: new RegExp(label) });
-    const input = formItem.locator('input, textarea').first();
+    const fieldCandidates = getFieldCandidates(label);
+    let input = dialog.locator('input.__not_found__, textarea.__not_found__').first();
+    let matched = false;
+    for (let i = 0; i < fieldCandidates.length; i += 1) {
+      const currentLabel = fieldCandidates[i];
+      const formItem = dialog.locator('.el-form-item').filter({ hasText: new RegExp(escapeRegExp(currentLabel), 'i') }).first();
+      const formItemVisible = await formItem.isVisible({ timeout: 500 }).catch(() => false);
+      if (!formItemVisible) {
+        continue;
+      }
+      input = formItem.locator('input:not([type="hidden"]), textarea').first();
+      const inputVisible = await input.isVisible({ timeout: 500 }).catch(() => false);
+      if (inputVisible) {
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) {
+      for (let i = 0; i < fieldCandidates.length; i += 1) {
+        const currentLabel = fieldCandidates[i];
+        const byPlaceholder = dialog.locator(`input[placeholder*="${currentLabel}"], textarea[placeholder*="${currentLabel}"]`).first();
+        const visible = await byPlaceholder.isVisible({ timeout: 500 }).catch(() => false);
+        if (!visible) {
+          continue;
+        }
+        input = byPlaceholder;
+        matched = true;
+        break;
+      }
+    }
     await expect(input).toBeVisible({ timeout: 5000 });
     await input.fill(value);
   }

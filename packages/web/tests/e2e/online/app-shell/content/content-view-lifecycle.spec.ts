@@ -65,6 +65,23 @@ test('contentViewLifecycle 错误页 state 保持 failed', async ({ contentPage,
   await contentPage.getByRole('button', { name: 'Use Local Version' }).click();
   await contentPage.waitForURL(/app:\/\/index\.html/i, { timeout: 20000 });
 
+  await expect.poll(async () => {
+    return await contentPage.evaluate(async () => {
+      const api = (window as unknown as {
+        electronAPI?: {
+          contentViewGetLoadState?: () => Promise<{
+            state: 'idle' | 'loading' | 'loaded' | 'failed';
+          }>;
+        };
+      }).electronAPI;
+      if (!api?.contentViewGetLoadState) {
+        return 'idle';
+      }
+      const state = await api.contentViewGetLoadState();
+      return state.state;
+    });
+  }, { timeout: 20000 }).toBe('loaded');
+
   const loadStateAfterFallback = await contentPage.evaluate(async () => {
     const api = (window as unknown as {
       electronAPI?: {

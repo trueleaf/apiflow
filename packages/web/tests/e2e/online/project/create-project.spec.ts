@@ -21,13 +21,9 @@ test.describe('CreateProject', () => {
     await loginAccount();
     // 点击顶部栏首页按钮进入首页
     const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
-    const projectListPromise = contentPage.waitForResponse(
-      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
-      { timeout: 20000 },
-    );
     await homeBtn.click();
     await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
-    await projectListPromise;
+    await expect(contentPage.locator('[data-testid="home-add-project-btn"]')).toBeVisible({ timeout: 10000 });
     await contentPage.waitForTimeout(500);
     // 点击首页内容区新建项目按钮
     const addProjectBtn = contentPage.locator('[data-testid="home-add-project-btn"]');

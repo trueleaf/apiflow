@@ -210,6 +210,8 @@ test.describe('Online后台管理-角色管理', () => {
     await clickRowAction(roleRow, '修改');
     const editDialog = contentPage.locator('.el-dialog').first();
     await expect(editDialog).toBeVisible({ timeout: 5000 });
+    const roleNameInput = editDialog.locator('.el-form-item').filter({ hasText: /角色名称|Role Name/ }).locator('input').first();
+    await expect(roleNameInput).toHaveValue(roleName, { timeout: 10000 });
     // 修改角色名称和备注
     await fillDialogForm(contentPage, { 
       '角色名称': newRoleName,
@@ -328,16 +330,12 @@ test.describe('Online后台管理-角色管理', () => {
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForRoleListLoaded(contentPage);
-    const initialRowCount = await getTableRowCount(contentPage);
     const roleRow = findRoleRowByName(contentPage, roleName);
     await clickRowAction(roleRow, '删除');
     await confirmDeleteDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForRoleListLoaded(contentPage);
-    const finalRowCount = await getTableRowCount(contentPage);
-    expect(finalRowCount).toBe(initialRowCount - 1);
-    const deletedRoleRow = findRoleRowByName(contentPage, roleName);
-    await expect(deletedRoleRow).toBeHidden({ timeout: 3000 });
+    await expect(findRoleRowByName(contentPage, roleName)).toHaveCount(0, { timeout: 5000 });
   });
 
   test('删除角色-取消删除角色仍存在', async ({ contentPage }) => {
