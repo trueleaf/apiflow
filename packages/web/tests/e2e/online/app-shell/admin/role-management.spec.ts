@@ -24,15 +24,21 @@ test.describe('Online后台管理-角色管理', () => {
     const password2 = process.env.TEST_LOGIN_PASSWORD2;
     if (!loginName1 || !password1) throw new Error('缺少环境变量');
     await loginAccount({ loginName: loginName1, password: password1 });
-    const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
-    const adminBtnVisible = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    if (!adminBtnVisible) {
+    let adminReady = false;
+    try {
+      await navigateToAdmin(topBarPage, contentPage);
+      adminReady = true;
+    } catch {
       if (!loginName2 || !password2) test.skip(true, '未配置第二账号，且当前账号不是管理员');
       await loginAccount({ loginName: loginName2, password: password2 });
+      try {
+        await navigateToAdmin(topBarPage, contentPage);
+        adminReady = true;
+      } catch {
+        adminReady = false;
+      }
     }
-    const finalAdminBtnVisible = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    test.skip(!finalAdminBtnVisible, '当前测试环境没有管理员账号');
-    await navigateToAdmin(topBarPage, contentPage);
+    test.skip(!adminReady, '当前测试环境没有管理员账号');
     await switchAdminTab(contentPage, '角色管理');
     await waitForRoleListLoaded(contentPage);
     createdRoles = [];
@@ -128,6 +134,29 @@ test.describe('Online后台管理-角色管理', () => {
     await waitForRoleListLoaded(contentPage);
     const roleRow = findRoleRowByName(contentPage, roleName);
     await expect(roleRow).toBeVisible({ timeout: 5000 });
+  });
+
+  test('新增角色-选择前端菜单权限', async ({ contentPage }) => {
+    const roleName = `测试角色_前端菜单_${Date.now()}`;
+    createdRoles.push(roleName);
+    const addBtn = contentPage.locator('.el-button').filter({ hasText: /新增角色/ });
+    await addBtn.click();
+    await fillDialogForm(contentPage, {
+      '角色名称': roleName,
+      '备注': '前端菜单权限测试',
+    });
+    const dialog = contentPage.locator('.el-dialog').first();
+    // 切换到前端菜单权限页签并选择一项菜单权限
+    const clientMenuTab = dialog.locator('.el-tabs__item').filter({ hasText: /前端菜单/ }).first();
+    await clientMenuTab.click();
+    const clientMenuCheckbox = dialog.locator('.client-menus .el-checkbox').first();
+    const hasClientMenu = await clientMenuCheckbox.isVisible({ timeout: 5000 }).catch(() => false);
+    test.skip(!hasClientMenu, '当前环境缺少前端菜单数据');
+    await clientMenuCheckbox.click();
+    await confirmDialog(contentPage);
+    await expectSuccessMessage(contentPage);
+    await waitForRoleListLoaded(contentPage);
+    await expect(findRoleRowByName(contentPage, roleName)).toBeVisible({ timeout: 5000 });
   });
 
   test('新增角色-同时选择多种权限', async ({ contentPage }) => {
@@ -255,6 +284,35 @@ test.describe('Online后台管理-角色管理', () => {
     const checkedCheckbox = editClientRoutes.locator('.el-checkbox.is-checked').first();
     await expect(checkedCheckbox).toBeVisible({ timeout: 10000 });
     await checkedCheckbox.click();
+    await confirmDialog(contentPage);
+    await expectSuccessMessage(contentPage);
+  });
+
+  test('修改角色-修改前端菜单权限后保存', async ({ contentPage }) => {
+    const roleName = `测试角色_菜单修改_${Date.now()}`;
+    createdRoles.push(roleName);
+    // 先创建基础角色
+    const addBtn = contentPage.locator('.el-button').filter({ hasText: /新增角色/ });
+    await addBtn.click();
+    await fillDialogForm(contentPage, {
+      '角色名称': roleName,
+      '备注': '前端菜单编辑测试',
+    });
+    await confirmDialog(contentPage);
+    await expectSuccessMessage(contentPage);
+    await waitForRoleListLoaded(contentPage);
+    // 进入编辑弹窗并切换前端菜单页签
+    const roleRow = findRoleRowByName(contentPage, roleName);
+    await clickRowAction(roleRow, '修改');
+    const editDialog = contentPage.locator('.el-dialog').first();
+    await expect(editDialog).toBeVisible({ timeout: 5000 });
+    const clientMenuTab = editDialog.locator('.el-tabs__item').filter({ hasText: /前端菜单/ }).first();
+    await clientMenuTab.click();
+    // 勾选一项菜单权限并保存
+    const clientMenuCheckbox = editDialog.locator('.client-menus .el-checkbox').first();
+    const hasClientMenu = await clientMenuCheckbox.isVisible({ timeout: 5000 }).catch(() => false);
+    test.skip(!hasClientMenu, '当前环境缺少前端菜单数据');
+    await clientMenuCheckbox.click();
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
   });

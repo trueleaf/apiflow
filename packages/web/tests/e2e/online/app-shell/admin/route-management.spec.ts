@@ -23,15 +23,21 @@ test.describe('Online后台管理-客户端路由管理', () => {
     const password2 = process.env.TEST_LOGIN_PASSWORD2;
     if (!loginName1 || !password1) throw new Error('缺少环境变量');
     await loginAccount({ loginName: loginName1, password: password1 });
-    const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
-    const adminBtnVisible = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    if (!adminBtnVisible) {
+    let adminReady = false;
+    try {
+      await navigateToAdmin(topBarPage, contentPage);
+      adminReady = true;
+    } catch {
       if (!loginName2 || !password2) test.skip(true, '未配置第二账号，且当前账号不是管理员');
       await loginAccount({ loginName: loginName2, password: password2 });
+      try {
+        await navigateToAdmin(topBarPage, contentPage);
+        adminReady = true;
+      } catch {
+        adminReady = false;
+      }
     }
-    const finalAdminBtnVisible = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    test.skip(!finalAdminBtnVisible, '当前测试环境没有管理员账号');
-    await navigateToAdmin(topBarPage, contentPage);
+    test.skip(!adminReady, '当前测试环境没有管理员账号');
     await switchAdminTab(contentPage, '客户端路由');
     await waitForRouteListLoaded(contentPage);
     createdRoutes = [];
@@ -145,9 +151,84 @@ test.describe('Online后台管理-客户端路由管理', () => {
     await waitForRouteListLoaded(contentPage);
     const searchInput = contentPage.locator('input[placeholder*="路由名称"], input[placeholder*="搜索"]').first();
     await searchInput.fill(routeName);
-    await contentPage.waitForTimeout(500);
     const routeRow = findRouteRowByName(contentPage, routeName);
     await expect(routeRow).toBeVisible({ timeout: 5000 });
+  });
+
+  test('搜索客户端路由-按分组名称筛选', async ({ contentPage }) => {
+    const groupA = `客户端分组A_${Date.now()}`;
+    const groupB = `客户端分组B_${Date.now()}`;
+    const routeA = `客户端分组筛选A_${Date.now()}`;
+    const routeB = `客户端分组筛选B_${Date.now()}`;
+    createdRoutes.push(routeA, routeB);
+    // 创建两条不同分组的客户端路由
+    const addBtn = contentPage.locator('.el-button').filter({ hasText: /新增路由/ });
+    await addBtn.click();
+    await fillDialogForm(contentPage, {
+      '路由名称': routeA,
+      '路由地址': `/test/client/route/group-a/${Date.now()}`,
+      '分组名称': groupA,
+    });
+    await confirmDialog(contentPage);
+    await expectSuccessMessage(contentPage);
+    await waitForRouteListLoaded(contentPage);
+    await addBtn.click();
+    await fillDialogForm(contentPage, {
+      '路由名称': routeB,
+      '路由地址': `/test/client/route/group-b/${Date.now()}`,
+      '分组名称': groupB,
+    });
+    await confirmDialog(contentPage);
+    await expectSuccessMessage(contentPage);
+    await waitForRouteListLoaded(contentPage);
+    // 通过分组下拉筛选，仅显示分组A的数据
+    const groupSelect = contentPage.locator('.el-select').first();
+    await groupSelect.click();
+    const groupOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: groupA }).first();
+    await groupOption.click();
+    await expect(findRouteRowByName(contentPage, routeA)).toBeVisible({ timeout: 5000 });
+    await expect(findRouteRowByName(contentPage, routeB)).toBeHidden({ timeout: 5000 });
+  });
+
+  test('客户端路由-批量修改类型后分组更新', async ({ contentPage }) => {
+    const routeA = `客户端批量路由A_${Date.now()}`;
+    const routeB = `客户端批量路由B_${Date.now()}`;
+    const sourceGroup = `客户端原分组_${Date.now()}`;
+    const targetGroup = `客户端新分组_${Date.now()}`;
+    createdRoutes.push(routeA, routeB);
+    // 创建两条同分组路由，作为批量修改目标
+    const addBtn = contentPage.locator('.el-button').filter({ hasText: /新增路由/ });
+    await addBtn.click();
+    await fillDialogForm(contentPage, {
+      '路由名称': routeA,
+      '路由地址': `/test/client/batch/a/${Date.now()}`,
+      '分组名称': sourceGroup,
+    });
+    await confirmDialog(contentPage);
+    await expectSuccessMessage(contentPage);
+    await waitForRouteListLoaded(contentPage);
+    await addBtn.click();
+    await fillDialogForm(contentPage, {
+      '路由名称': routeB,
+      '路由地址': `/test/client/batch/b/${Date.now()}`,
+      '分组名称': sourceGroup,
+    });
+    await confirmDialog(contentPage);
+    await expectSuccessMessage(contentPage);
+    await waitForRouteListLoaded(contentPage);
+    // 勾选两条记录并打开批量修改弹窗
+    await contentPage.locator('.el-table__body-wrapper .el-checkbox').nth(0).click();
+    await contentPage.locator('.el-table__body-wrapper .el-checkbox').nth(1).click();
+    const batchBtn = contentPage.locator('.el-button').filter({ hasText: /批量修改类型/ }).first();
+    await batchBtn.click();
+    const batchDialog = contentPage.locator('.el-dialog:visible').filter({ hasText: /批量修改前端路由类型/ }).first();
+    await expect(batchDialog).toBeVisible({ timeout: 5000 });
+    await batchDialog.locator('input').first().fill(targetGroup);
+    await batchDialog.locator('.el-button--primary').last().click();
+    await expect(batchDialog).toBeHidden({ timeout: 5000 });
+    await waitForRouteListLoaded(contentPage);
+    await expect(findRouteRowByName(contentPage, routeA)).toContainText(targetGroup, { timeout: 5000 });
+    await expect(findRouteRowByName(contentPage, routeB)).toContainText(targetGroup, { timeout: 5000 });
   });
 
   test('客户端路由列表展示-列表正常加载', async ({ contentPage }) => {
@@ -169,15 +250,21 @@ test.describe('Online后台管理-服务端路由管理', () => {
     const password2 = process.env.TEST_LOGIN_PASSWORD2;
     if (!loginName1 || !password1) throw new Error('缺少环境变量');
     await loginAccount({ loginName: loginName1, password: password1 });
-    const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
-    const adminBtnVisible = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    if (!adminBtnVisible) {
+    let adminReady = false;
+    try {
+      await navigateToAdmin(topBarPage, contentPage);
+      adminReady = true;
+    } catch {
       if (!loginName2 || !password2) test.skip(true, '未配置第二账号，且当前账号不是管理员');
       await loginAccount({ loginName: loginName2, password: password2 });
+      try {
+        await navigateToAdmin(topBarPage, contentPage);
+        adminReady = true;
+      } catch {
+        adminReady = false;
+      }
     }
-    const finalAdminBtnVisible = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    test.skip(!finalAdminBtnVisible, '当前测试环境没有管理员账号');
-    await navigateToAdmin(topBarPage, contentPage);
+    test.skip(!adminReady, '当前测试环境没有管理员账号');
     await switchAdminTab(contentPage, '服务端路由');
     await waitForRouteListLoaded(contentPage);
     createdRoutes = [];
@@ -333,7 +420,7 @@ test.describe('Online后台管理-服务端路由管理', () => {
     await expect(newRouteRow).toBeVisible({ timeout: 5000 });
   });
 
-  test('修改服务端路由-修改请求方法', async ({ contentPage }) => {
+  test('修改服务端路由-请求方法和路径不可编辑', async ({ contentPage }) => {
     const routeName = `测试服务端路由_${Date.now()}`;
     createdRoutes.push(routeName);
     const addBtn = contentPage.locator('.el-button').filter({ hasText: /新增路由/ });
@@ -355,15 +442,13 @@ test.describe('Online后台管理-服务端路由管理', () => {
     await clickRowAction(routeRow, '修改');
     const editDialog = contentPage.locator('.el-dialog').first();
     await expect(editDialog).toBeVisible({ timeout: 5000 });
-    const editMethodSelect = editDialog.locator('.el-select').first();
-    await editMethodSelect.click();
-    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^POST$/ });
-    await postOption.click();
-    await confirmDialog(contentPage);
-    await expectSuccessMessage(contentPage);
-    await waitForRouteListLoaded(contentPage);
-    const updatedRouteRow = findRouteRowByName(contentPage, routeName);
-    await expect(updatedRouteRow).toContainText('POST');
+    // 校验服务端路由编辑时 method/path 为只读，避免误改路由主键
+    const methodInput = editDialog.locator('input[disabled]').first();
+    const pathInput = editDialog.locator('input[disabled]').nth(1);
+    await expect(methodInput).toBeVisible({ timeout: 5000 });
+    await expect(pathInput).toBeVisible({ timeout: 5000 });
+    await expect(methodInput).toHaveValue(/GET|POST|PUT|DELETE/i);
+    await expect(pathInput).toHaveValue(/\/api\/test\/server\/route\//);
   });
 
   test('删除服务端路由-确认删除后从列表移除', async ({ contentPage }) => {
@@ -413,9 +498,95 @@ test.describe('Online后台管理-服务端路由管理', () => {
     await waitForRouteListLoaded(contentPage);
     const searchInput = contentPage.locator('input[placeholder*="路由名称"], input[placeholder*="搜索"]').first();
     await searchInput.fill(routeName);
-    await contentPage.waitForTimeout(500);
     const routeRow = findRouteRowByName(contentPage, routeName);
     await expect(routeRow).toBeVisible({ timeout: 5000 });
+  });
+
+  test('搜索服务端路由-按分组名称筛选', async ({ contentPage }) => {
+    const groupA = `服务端分组A_${Date.now()}`;
+    const groupB = `服务端分组B_${Date.now()}`;
+    const routeA = `服务端分组筛选A_${Date.now()}`;
+    const routeB = `服务端分组筛选B_${Date.now()}`;
+    createdRoutes.push(routeA, routeB);
+    // 创建两条不同分组路由
+    const addBtn = contentPage.locator('.el-button').filter({ hasText: /新增路由/ });
+    await addBtn.click();
+    await fillDialogForm(contentPage, {
+      '路由名称': routeA,
+      '路由地址': `/api/test/server/group-a/${Date.now()}`,
+      '分组名称': groupA,
+    });
+    const dialog = contentPage.locator('.el-dialog').first();
+    await dialog.locator('.el-select').first().click();
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^GET$/ }).click();
+    await confirmDialog(contentPage);
+    await expectSuccessMessage(contentPage);
+    await waitForRouteListLoaded(contentPage);
+    await addBtn.click();
+    await fillDialogForm(contentPage, {
+      '路由名称': routeB,
+      '路由地址': `/api/test/server/group-b/${Date.now()}`,
+      '分组名称': groupB,
+    });
+    const dialog2 = contentPage.locator('.el-dialog').first();
+    await dialog2.locator('.el-select').first().click();
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^GET$/ }).click();
+    await confirmDialog(contentPage);
+    await expectSuccessMessage(contentPage);
+    await waitForRouteListLoaded(contentPage);
+    // 通过分组下拉筛选，仅显示分组A
+    const groupSelect = contentPage.locator('.el-select').first();
+    await groupSelect.click();
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: groupA }).first().click();
+    await expect(findRouteRowByName(contentPage, routeA)).toBeVisible({ timeout: 5000 });
+    await expect(findRouteRowByName(contentPage, routeB)).toBeHidden({ timeout: 5000 });
+  });
+
+  test('服务端路由-批量修改类型后分组更新', async ({ contentPage }) => {
+    const routeA = `服务端批量路由A_${Date.now()}`;
+    const routeB = `服务端批量路由B_${Date.now()}`;
+    const sourceGroup = `服务端原分组_${Date.now()}`;
+    const targetGroup = `服务端新分组_${Date.now()}`;
+    createdRoutes.push(routeA, routeB);
+    // 创建两条待批量修改的服务端路由
+    const addBtn = contentPage.locator('.el-button').filter({ hasText: /新增路由/ });
+    await addBtn.click();
+    await fillDialogForm(contentPage, {
+      '路由名称': routeA,
+      '路由地址': `/api/test/server/batch/a/${Date.now()}`,
+      '分组名称': sourceGroup,
+    });
+    const dialog = contentPage.locator('.el-dialog').first();
+    await dialog.locator('.el-select').first().click();
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^GET$/ }).click();
+    await confirmDialog(contentPage);
+    await expectSuccessMessage(contentPage);
+    await waitForRouteListLoaded(contentPage);
+    await addBtn.click();
+    await fillDialogForm(contentPage, {
+      '路由名称': routeB,
+      '路由地址': `/api/test/server/batch/b/${Date.now()}`,
+      '分组名称': sourceGroup,
+    });
+    const dialog2 = contentPage.locator('.el-dialog').first();
+    await dialog2.locator('.el-select').first().click();
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^GET$/ }).click();
+    await confirmDialog(contentPage);
+    await expectSuccessMessage(contentPage);
+    await waitForRouteListLoaded(contentPage);
+    // 勾选记录并批量更新分组
+    await contentPage.locator('.el-table__body-wrapper .el-checkbox').nth(0).click();
+    await contentPage.locator('.el-table__body-wrapper .el-checkbox').nth(1).click();
+    const batchBtn = contentPage.locator('.el-button').filter({ hasText: /批量修改类型/ }).first();
+    await batchBtn.click();
+    const batchDialog = contentPage.locator('.el-dialog:visible').filter({ hasText: /批量修改服务端路由类型/ }).first();
+    await expect(batchDialog).toBeVisible({ timeout: 5000 });
+    await batchDialog.locator('input').first().fill(targetGroup);
+    await batchDialog.locator('.el-button--primary').last().click();
+    await expect(batchDialog).toBeHidden({ timeout: 5000 });
+    await waitForRouteListLoaded(contentPage);
+    await expect(findRouteRowByName(contentPage, routeA)).toContainText(targetGroup, { timeout: 5000 });
+    await expect(findRouteRowByName(contentPage, routeB)).toContainText(targetGroup, { timeout: 5000 });
   });
 
   test('服务端路由列表展示-列表正常加载', async ({ contentPage }) => {

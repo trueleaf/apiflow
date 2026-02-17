@@ -28,15 +28,21 @@ test.describe('Online后台管理-用户管理', () => {
     const password2 = process.env.TEST_LOGIN_PASSWORD2;
     if (!loginName1 || !password1) throw new Error('缺少环境变量');
     await loginAccount({ loginName: loginName1, password: password1 });
-    const adminBtn = topBarPage.locator('[data-testid="header-admin-btn"]');
-    const adminBtnVisible = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    if (!adminBtnVisible) {
+    let adminReady = false;
+    try {
+      await navigateToAdmin(topBarPage, contentPage);
+      adminReady = true;
+    } catch {
       if (!loginName2 || !password2) test.skip(true, '未配置第二账号，且当前账号不是管理员');
       await loginAccount({ loginName: loginName2, password: password2 });
+      try {
+        await navigateToAdmin(topBarPage, contentPage);
+        adminReady = true;
+      } catch {
+        adminReady = false;
+      }
     }
-    const finalAdminBtnVisible = await adminBtn.isVisible({ timeout: 1000 }).catch(() => false);
-    test.skip(!finalAdminBtnVisible, '当前测试环境没有管理员账号');
-    await navigateToAdmin(topBarPage, contentPage);
+    test.skip(!adminReady, '当前测试环境没有管理员账号');
     await switchAdminTab(contentPage, '用户管理');
     await waitForUserListLoaded(contentPage);
     createdUsers = [];
