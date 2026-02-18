@@ -170,6 +170,32 @@ test.describe('Json', () => {
     await expect(responseTabs).toContainText('9007199254740992', { timeout: 10000 });
     await expect(responseTabs).toContainText('big_number', { timeout: 10000 });
   });
+  // 测试用例4: 点击格式化按钮后json内容格式化展示
+  test('点击格式化按钮后json内容格式化展示', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: 'JSON格式化测试' });
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+    await bodyTab.click();
+    await contentPage.waitForTimeout(300);
+    const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: /json/i });
+    await jsonRadio.click();
+    await contentPage.waitForTimeout(300);
+    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor textarea, .s-json-editor textarea, .s-json-editor .monaco-editor, .s-json-editor').first();
+    await editorTarget.click({ force: true });
+    await contentPage.keyboard.press('ControlOrMeta+a');
+    await contentPage.keyboard.type('{"name":"format","age":18}');
+    await contentPage.waitForTimeout(300);
+    const beforeFormat = await contentPage.locator('.s-json-editor .view-lines').first().innerText();
+    const formatBtn = contentPage.locator('.body-op .btn').filter({ hasText: /格式化|Format/ }).first();
+    await formatBtn.click();
+    await contentPage.waitForTimeout(500);
+    const afterFormat = await contentPage.locator('.s-json-editor .view-lines').first().innerText();
+    expect(afterFormat.length).toBeGreaterThan(beforeFormat.length);
+  });
 });
 
 

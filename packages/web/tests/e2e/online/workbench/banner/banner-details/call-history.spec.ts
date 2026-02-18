@@ -400,6 +400,156 @@ test.describe('CallHistory', () => {
     // 清理按钮应消失（没有可清理的已删除历史）
     await expect(cleanDeletedBtn).toBeHidden({ timeout: 5000 });
   });
+  // 测试用例9: 调用历史搜索输入后按关键字过滤列表
+  test('调用历史搜索关键字过滤列表生效', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    const addHttpBtn = contentPage.getByTitle('新增文件', { exact: true });
+    await addHttpBtn.click();
+    let addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
+    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
+    await addApiDialog.locator('input').first().fill('搜索目标接口');
+    await addApiDialog.locator('.el-button--primary').last().click();
+    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
+    await contentPage.waitForTimeout(300);
+    await addHttpBtn.click();
+    addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
+    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
+    await addApiDialog.locator('input').first().fill('其他接口');
+    await addApiDialog.locator('.el-button--primary').last().click();
+    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
+    await contentPage.waitForTimeout(300);
+    const bannerTree = contentPage.locator('[data-testid="banner-doc-tree"]');
+    const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    const otherNode = bannerTree.locator('.el-tree-node__content', { hasText: '其他接口' }).first();
+    await otherNode.click();
+    await expect(urlEditor).toBeVisible({ timeout: 5000 });
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.type('http://localhost:3456/echo?target=other');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(800);
+    const targetNode = bannerTree.locator('.el-tree-node__content', { hasText: '搜索目标接口' }).first();
+    await targetNode.click();
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.type('http://localhost:3456/echo?target=search');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(800);
+    const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
+    await bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ }).click();
+    await contentPage.waitForTimeout(500);
+    const searchInput = contentPage.locator('.send-history-search .el-input input');
+    await searchInput.fill('搜索目标');
+    await contentPage.waitForTimeout(500);
+    await expect(contentPage.locator('.send-history-list .history-item .item-name').filter({ hasText: '搜索目标接口' })).toHaveCount(1, { timeout: 5000 });
+    await expect(contentPage.locator('.send-history-list .history-item .item-name').filter({ hasText: '其他接口' })).toHaveCount(0, { timeout: 5000 });
+  });
+  // 测试用例10: 历史记录项展示method、名称、url和时间
+  test('历史记录项展示method名称url和时间', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '历史字段展示接口' });
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    await methodSelect.click();
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^POST$/ }).first().click();
+    const urlEditor = contentPage.locator('[data-testid="url-input"] .ProseMirror');
+    await urlEditor.click();
+    await contentPage.keyboard.press('Control+A');
+    await contentPage.keyboard.type('http://localhost:3456/echo?from=historyItem');
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(1000);
+    const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
+    await bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ }).click();
+    await contentPage.waitForTimeout(500);
+    const firstItem = contentPage.locator('.send-history-list .history-item').first();
+    await expect(firstItem).toBeVisible({ timeout: 5000 });
+    await expect(firstItem.locator('.method-tag')).toContainText('POST');
+    await expect(firstItem.locator('.item-name')).toContainText('历史字段展示接口');
+    await expect(firstItem.locator('.item-url')).toContainText('/echo');
+    await expect(firstItem.locator('.item-time')).not.toHaveText('', { timeout: 5000 });
+  });
+  // 测试用例11: 高级筛选按节点类型过滤历史列表
+  test('高级筛选按节点类型过滤历史列表', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await contentPage.evaluate(async () => {
+      const dbName = 'sendHistoryCache';
+      const version = 2;
+      const storeName = 'histories';
+      const openRequest = indexedDB.open(dbName, version);
+      const db: IDBDatabase = await new Promise((resolve, reject) => {
+        openRequest.onupgradeneeded = () => {
+          const upgradeDb = openRequest.result;
+          if (!upgradeDb.objectStoreNames.contains(storeName)) {
+            const store = upgradeDb.createObjectStore(storeName, { keyPath: '_id' });
+            store.createIndex('nodeId', 'nodeId', { unique: false });
+            store.createIndex('timestamp', 'timestamp', { unique: false });
+            store.createIndex('networkType', 'networkType', { unique: false });
+          }
+        };
+        openRequest.onsuccess = () => resolve(openRequest.result);
+        openRequest.onerror = () => reject(openRequest.error);
+      });
+      const tx = db.transaction(storeName, 'readwrite');
+      const store = tx.objectStore(storeName);
+      const now = Date.now();
+      store.put({
+        _id: `filter-http-${now}`,
+        nodeId: 'filter-http-node',
+        nodeName: '筛选HTTP节点',
+        nodeType: 'http',
+        method: 'GET',
+        url: 'http://localhost:3456/echo?node=http',
+        timestamp: now,
+        operatorName: 'e2e',
+        networkType: 'online'
+      });
+      store.put({
+        _id: `filter-ws-${now}`,
+        nodeId: 'filter-ws-node',
+        nodeName: '筛选WS节点',
+        nodeType: 'websocket',
+        protocol: 'WS',
+        url: 'ws://localhost:3456/ws',
+        timestamp: now - 1,
+        operatorName: 'e2e',
+        networkType: 'online'
+      });
+      await new Promise<void>((resolve, reject) => {
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error);
+      });
+      db.close();
+    });
+    const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
+    await bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ }).click();
+    await contentPage.waitForTimeout(500);
+    await expect(contentPage.locator('.send-history-list .history-item .item-name').filter({ hasText: '筛选HTTP节点' })).toHaveCount(1);
+    await expect(contentPage.locator('.send-history-list .history-item .item-name').filter({ hasText: '筛选WS节点' })).toHaveCount(1);
+    await contentPage.locator('.send-history-search .filter-history-icon').click();
+    await contentPage.waitForTimeout(200);
+    const websocketFilter = contentPage.locator('.send-history-advanced-filter .el-checkbox').filter({ hasText: /WebSocket节点|WebSocket/ }).first();
+    await websocketFilter.click();
+    await contentPage.waitForTimeout(300);
+    await expect(contentPage.locator('.send-history-list .history-item .item-name').filter({ hasText: '筛选HTTP节点' })).toHaveCount(1);
+    await expect(contentPage.locator('.send-history-list .history-item .item-name').filter({ hasText: '筛选WS节点' })).toHaveCount(0);
+  });
 });
 
 

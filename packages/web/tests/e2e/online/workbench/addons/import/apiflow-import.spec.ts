@@ -147,6 +147,82 @@ test.describe('ApiflowImport', () => {
     // 验证粘贴内容选项被选中
     await expect(pasteSource).toHaveClass(/active/);
   });
+  // 测试用例7: 粘贴apiflow内容后预览树与导入按钮状态正确
+  test('粘贴apiflow格式内容后预览树展示节点且可导入', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
+    await expect(importItem).toBeVisible({ timeout: 5000 });
+    await importItem.click();
+    await contentPage.waitForTimeout(500);
+
+    const importPage = contentPage.locator('.doc-import');
+    await expect(importPage).toBeVisible({ timeout: 5000 });
+    const pasteSource = contentPage.locator('.source-item').filter({ hasText: /粘贴内容|Paste/ });
+    await pasteSource.click();
+    await expect(pasteSource).toHaveClass(/active/);
+
+    const pasteTextarea = importPage.locator('.paste-import textarea');
+    await expect(pasteTextarea).toBeVisible({ timeout: 5000 });
+    const now = new Date().toISOString();
+    const apiflowJson = JSON.stringify({
+      type: 'apiflow',
+      info: { projectName: '在线导入测试' },
+      docs: [
+        {
+          _id: 'online_import_http_1',
+          pid: '',
+          projectId: '',
+          sort: 0,
+          info: {
+            name: '在线导入接口A',
+            description: '',
+            version: '',
+            type: 'http',
+            creator: '',
+            maintainer: '',
+            deletePerson: '',
+          },
+          item: {
+            method: 'get',
+            url: { prefix: '', path: '/echo' },
+            paths: [],
+            queryParams: [],
+            requestBody: {
+              mode: 'none',
+              rawJson: '',
+              formdata: [],
+              urlencoded: [],
+              raw: { data: '', dataType: 'text/plain' },
+              binary: { mode: 'file', varValue: '', binaryValue: { path: '', raw: '', id: '' } },
+            },
+            responseParams: [],
+            headers: [],
+            contentType: '',
+          },
+          preRequest: { raw: '' },
+          afterRequest: { raw: '' },
+          createdAt: now,
+          updatedAt: now,
+          isDeleted: false,
+        },
+      ],
+    });
+    await pasteTextarea.fill(apiflowJson);
+    const parseBtn = importPage.locator('.paste-actions .el-button--primary').filter({ hasText: /解析内容|Parse/ });
+    await expect(parseBtn).toBeEnabled();
+    await parseBtn.click();
+
+    const previewNode = importPage.locator('.el-tree .custom-tree-node').filter({ hasText: '在线导入接口A' });
+    await expect(previewNode).toBeVisible({ timeout: 5000 });
+    const submitBtn = importPage.locator('.submit-wrap .el-button--primary').filter({ hasText: /确定导入|Import/ });
+    await expect(submitBtn).toBeEnabled();
+  });
 });
 
 

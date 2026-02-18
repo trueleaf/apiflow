@@ -555,7 +555,7 @@ test.describe('ContextMenu', () => {
       const forkItem = nodeContextMenu.locator('.s-contextmenu-item', { hasText: /生成副本/ });
       await expect(forkItem).toBeVisible();
       const renameItem = nodeContextMenu.locator('.s-contextmenu-item', { hasText: /重命名/ });
-      await expect(renameItem).toBe
+      await expect(renameItem).toBeVisible();
       const deleteItem = nodeContextMenu.locator('.s-contextmenu-item', { hasText: /删除/ });
       await expect(deleteItem).toBeVisible();
       // 验证不显示新建接口、新建文件夹、粘贴选项
@@ -696,6 +696,41 @@ test.describe('ContextMenu', () => {
       // 验证出现两个源HTTP节点
       const allSourceNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '源HTTP节点' });
       await expect(allSourceNodes).toHaveCount(2, { timeout: 5000 });
+    });
+    // 鼠标右键websocket节点,点击生成副本,可以在当前节点后面生成副本节点
+    test('鼠标右键websocket节点,点击生成副本,可以在当前节点后面生成副本节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+      await clearCache();
+
+      await loginAccount();
+      await createProject();
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForTimeout(500);
+      const treeWrap = contentPage.locator('.tree-wrap');
+      await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
+      await contentPage.waitForTimeout(300);
+      const contextMenu = contentPage.locator('.s-contextmenu');
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
+      await newInterfaceItem.click();
+      await contentPage.waitForTimeout(300);
+      const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const nameInput = addFileDialog.locator('input').first();
+      await nameInput.fill('源WebSocket节点');
+      const websocketTypeRadio = addFileDialog.locator('.el-radio').filter({ hasText: /WebSocket/ }).first();
+      await websocketTypeRadio.click();
+      await contentPage.waitForTimeout(200);
+      const confirmBtn = addFileDialog.locator('.el-button--primary').last();
+      await confirmBtn.click();
+      await contentPage.waitForTimeout(500);
+      const websocketNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '源WebSocket节点' }).first();
+      await websocketNode.click({ button: 'right' });
+      await contentPage.waitForTimeout(300);
+      const forkItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /生成副本/ });
+      await expect(forkItem).toBeVisible({ timeout: 5000 });
+      await forkItem.click();
+      await contentPage.waitForTimeout(500);
+      const duplicatedNodes = contentPage.locator('.el-tree-node__content').filter({ hasText: '源WebSocket节点' });
+      await expect(duplicatedNodes).toHaveCount(2, { timeout: 5000 });
     });
     // 鼠标右键非folder节点,点击重命名(或f2),可以正常重命名
     test('鼠标右键非folder节点,点击重命名,可以正常重命名', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {

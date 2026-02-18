@@ -193,6 +193,26 @@ test.describe('RequestUrlInput', () => {
     const responseBody = contentPage.locator('[data-testid="response-tab-body"]');
     await expect(responseBody).toBeVisible({ timeout: 10000 });
   });
+  // 测试用例8: URL包含中文路径时可以正常发送请求
+  test('URL包含中文路径时可以正常发送请求', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '中文URL测试' });
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/中文路径?关键词=中文`);
+    await contentPage.waitForTimeout(300);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(3000);
+    const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseTabs).toBeVisible({ timeout: 10000 });
+    const responseBody = contentPage.locator('[data-testid="response-tab-body"]');
+    await expect(responseBody).toBeVisible({ timeout: 10000 });
+    await expect(responseBody).toContainText(/中文|%E4%B8%AD%E6%96%87/, { timeout: 10000 });
+  });
 });
 
 

@@ -138,6 +138,38 @@ test.describe('VariableCrud', () => {
     await contentPage.waitForTimeout(500);
     await expect(variablePage.locator('.right')).not.toContainText('toDelete', { timeout: 5000 });
   });
+  // 测试用例5: 新增boolean类型变量保存成功
+  test('新增boolean类型变量保存成功', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '布尔变量测试接口' });
+    const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
+    await variableBtn.click();
+    await contentPage.waitForTimeout(300);
+    const variableTab = contentPage.locator('[data-testid="project-nav-tab-variable"]');
+    await expect(variableTab).toHaveClass(/active/, { timeout: 5000 });
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    const addPanel = variablePage.locator('.left');
+    const typeFormItem = addPanel.locator('.el-form-item').filter({ hasText: /值类型|Type/ });
+    await typeFormItem.locator('.el-select').first().click();
+    await contentPage.waitForTimeout(200);
+    const booleanOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'boolean' }).first();
+    await booleanOption.click();
+    await contentPage.waitForTimeout(200);
+    const nameFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ });
+    await nameFormItem.locator('input').first().fill('testBoolean');
+    const falseRadio = addPanel.locator('.el-radio').filter({ hasText: /false/i }).first();
+    await falseRadio.click();
+    const confirmAddBtn2 = addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first();
+    await confirmAddBtn2.click();
+    await contentPage.waitForTimeout(500);
+    await expect(variablePage.locator('.right')).toContainText('testBoolean', { timeout: 5000 });
+    await expect(variablePage.locator('.right')).toContainText('false', { timeout: 5000 });
+  });
 });
 
 

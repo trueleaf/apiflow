@@ -114,6 +114,29 @@ test.describe('RequestMethodInput', () => {
     await contentPage.waitForTimeout(2000);
     await expect(responseCode).toContainText('PUT', { timeout: 10000 });
   });
+  // 测试用例4: 发送请求后出现取消请求按钮,点击后恢复发送按钮
+  test('发送请求后出现取消请求按钮点击后恢复发送按钮', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '方法取消按钮测试' });
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    await methodSelect.click();
+    const getOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^GET$/ }).first();
+    await getOption.click();
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/delay/10000`);
+    await contentPage.waitForTimeout(200);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    const cancelBtn = contentPage.locator('[data-testid="operation-cancel-btn"]');
+    await expect(cancelBtn).toBeVisible({ timeout: 5000 });
+    await cancelBtn.click();
+    await contentPage.waitForTimeout(500);
+    await expect(contentPage.locator('[data-testid="operation-send-btn"]')).toBeVisible({ timeout: 5000 });
+  });
 });
 
 

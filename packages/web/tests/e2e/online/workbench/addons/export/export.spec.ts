@@ -71,6 +71,71 @@ test.describe('Export', () => {
     await expect(tree).toBeVisible({ timeout: 5000 });
     await expect(tree.locator('.el-tree-node').first()).toBeVisible();
   });
+  test('开启选择导出但不勾选节点时点击导出显示告警', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '导出告警测试接口' });
+
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const exportItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导出文档/ });
+    await exportItem.click();
+    await contentPage.waitForTimeout(500);
+
+    const exportPage = contentPage.locator('.doc-export');
+    await expect(exportPage).toBeVisible({ timeout: 5000 });
+
+    const selectExportCheckbox = exportPage.locator('.config-item').filter({ hasText: /选择导出/ }).locator('.el-checkbox');
+    await selectExportCheckbox.click();
+    await contentPage.waitForTimeout(300);
+
+    const exportBtn = exportPage.locator('.el-button--primary').filter({ hasText: /确定导出/ });
+    await exportBtn.click();
+    await expect(contentPage.getByText(/请至少选择一个文档导出/)).toBeVisible({ timeout: 5000 });
+  });
+  test('开启选择导出并勾选单个节点时仅提交该节点ID', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '仅导出节点A' });
+    await createNode(contentPage, { nodeType: 'http', name: '不导出节点B' });
+
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const exportItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导出文档/ });
+    await exportItem.click();
+    await contentPage.waitForTimeout(500);
+
+    const exportPage = contentPage.locator('.doc-export');
+    await expect(exportPage).toBeVisible({ timeout: 5000 });
+
+    const jsonOption = exportPage.locator('.item').filter({ hasText: /JSON文档/ });
+    await jsonOption.click();
+
+    const selectExportCheckbox = exportPage.locator('.config-item').filter({ hasText: /选择导出/ }).locator('.el-checkbox');
+    await selectExportCheckbox.click();
+    await contentPage.waitForTimeout(500);
+
+    const nodeToExport = exportPage.locator('.el-tree-node').filter({ hasText: '仅导出节点A' }).first();
+    await expect(nodeToExport).toBeVisible({ timeout: 5000 });
+    await nodeToExport.locator('.el-checkbox').first().click();
+    await contentPage.waitForTimeout(300);
+
+    const exportRequestPromise = contentPage.waitForRequest(
+      (request) => request.url().includes('/api/project/export/json') && request.method() === 'POST',
+      { timeout: 15000 },
+    );
+    const exportBtn = exportPage.locator('.el-button--primary').filter({ hasText: /确定导出/ });
+    await exportBtn.click();
+    const exportRequest = await exportRequestPromise;
+
+    const body = exportRequest.postDataJSON() as { selectedNodes?: string[] };
+    expect(body.selectedNodes).toBeTruthy();
+    expect(body.selectedNodes?.length).toBe(1);
+  });
   test('在线模式创建全类型节点与参数组合,导出JSON并校验内容', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {
     test.setTimeout(120000);
     await clearCache();

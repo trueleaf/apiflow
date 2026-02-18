@@ -41,8 +41,8 @@ test.describe('NodeHistory', () => {
     const historyItems = historyPanel.locator('.history-item');
     await expect.poll(async () => historyItems.count(), { timeout: 20000 }).toBeGreaterThanOrEqual(3);
   });
-  // 测试用例2: 点击历史记录项可以查看该次请求的详细信息
-  test('点击历史记录项可以查看该次请求的详细信息', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+  // 测试用例2: 悬停历史记录项可以查看该次请求的详细信息
+  test('悬停历史记录项展示该次请求的详细信息', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -99,6 +99,71 @@ test.describe('NodeHistory', () => {
     // 验证显示空状态提示
     const emptyState = contentPage.locator('.history-empty');
     await expect(emptyState).toBeVisible({ timeout: 5000 });
+  });
+  // 测试用例4: 每次保存后当前节点历史条数增加
+  test('每次保存后当前节点历史条数增加', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '历史条数增长测试' });
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?count=1`);
+    await saveBtn.click();
+    await expect(saveBtn).toBeEnabled({ timeout: 10000 });
+    const historyBtn = contentPage.locator('[data-testid="http-params-history-btn"]');
+    await historyBtn.click();
+    const historyPanel = contentPage.locator('.history-dropdown');
+    await expect(historyPanel).toBeVisible({ timeout: 5000 });
+    const historyItems = historyPanel.locator('.history-item');
+    const firstCount = await historyItems.count();
+    if (await historyPanel.isVisible()) {
+      await historyBtn.click();
+      await contentPage.waitForTimeout(200);
+    }
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?count=2`);
+    await saveBtn.click();
+    await expect(saveBtn).toBeEnabled({ timeout: 10000 });
+    await historyBtn.click();
+    if (!(await historyPanel.isVisible())) {
+      await historyBtn.click();
+    }
+    await expect(historyPanel).toBeVisible({ timeout: 5000 });
+    const secondCount = await historyItems.count();
+    expect(secondCount).toBeGreaterThan(firstCount);
+  });
+  // 测试用例5: 历史记录按时间倒序显示最新记录在顶部
+  test('历史记录按时间倒序显示最新记录在顶部', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '历史倒序测试' });
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?seq=first`);
+    await saveBtn.click();
+    await expect(saveBtn).toBeEnabled({ timeout: 10000 });
+    await contentPage.waitForTimeout(120);
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?seq=second`);
+    await saveBtn.click();
+    await expect(saveBtn).toBeEnabled({ timeout: 10000 });
+    await contentPage.waitForTimeout(120);
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?seq=third`);
+    await saveBtn.click();
+    await expect(saveBtn).toBeEnabled({ timeout: 10000 });
+    const historyBtn = contentPage.locator('[data-testid="http-params-history-btn"]');
+    await historyBtn.click();
+    const historyPanel = contentPage.locator('.history-dropdown');
+    await expect(historyPanel).toBeVisible({ timeout: 5000 });
+    const firstHistoryItem = historyPanel.locator('.history-item').first();
+    await firstHistoryItem.hover();
+    const historyDetail = contentPage.locator('.history-detail-panel');
+    await expect(historyDetail).toBeVisible({ timeout: 7000 });
+    await expect(historyDetail).toContainText('seq:third', { timeout: 5000 });
   });
 });
 

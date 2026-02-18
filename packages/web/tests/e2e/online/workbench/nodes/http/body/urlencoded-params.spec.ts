@@ -310,6 +310,53 @@ test.describe('UrlencodedParams', () => {
     const responseText = await responseBody.textContent();
     expect(responseText).not.toContain('token');
   });
+  // 测试用例7: urlencoded参数key支持变量,调用echo接口返回结果正确
+  test('urlencoded参数key支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
+    await variableOption.click();
+    await contentPage.waitForTimeout(500);
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    const nameInput = variablePage.locator('.left input').first();
+    await nameInput.fill('dynamicKey');
+    const valueTextarea = variablePage.locator('.left textarea');
+    await valueTextarea.fill('username');
+    const addBtn = variablePage.locator('.left .el-button--primary');
+    await addBtn.click();
+    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'UrlencodedKey变量测试' });
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    const methodSelect = contentPage.locator('[data-testid="method-select"]');
+    await methodSelect.click();
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
+    await postOption.click();
+    const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
+    await bodyTab.click();
+    await contentPage.waitForTimeout(300);
+    const urlencodedRadio = contentPage.locator('.el-radio').filter({ hasText: 'urlencoded' });
+    await urlencodedRadio.click();
+    await contentPage.waitForTimeout(300);
+    const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
+    const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
+    await keyInputs.first().fill('{{dynamicKey}}');
+    await valueInputs.first().click();
+    await contentPage.keyboard.type('admin');
+    await contentPage.waitForTimeout(300);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    await contentPage.waitForTimeout(2000);
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('username', { timeout: 10000 });
+    await expect(responseBody).toContainText('admin', { timeout: 10000 });
+  });
 });
 
 

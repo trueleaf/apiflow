@@ -48,6 +48,24 @@ test.describe('SendButton', () => {
     // 验证按钮恢复为发送请求状态
     await expect(sendBtn).toBeVisible({ timeout: 5000 });
   });
+  // 测试用例3: 延迟请求过程中点击取消请求后恢复发送按钮
+  test('延迟请求过程中点击取消请求后恢复发送按钮', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '延迟请求取消测试' });
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/delay/10000`);
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    const cancelBtn = contentPage.locator('[data-testid="operation-cancel-btn"]');
+    await expect(cancelBtn).toBeVisible({ timeout: 5000 });
+    await cancelBtn.click();
+    await contentPage.waitForTimeout(500);
+    await expect(contentPage.locator('[data-testid="operation-send-btn"]')).toBeVisible({ timeout: 5000 });
+  });
 });
 
 

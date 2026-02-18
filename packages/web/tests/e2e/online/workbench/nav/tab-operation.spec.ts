@@ -206,6 +206,57 @@ test.describe('TabOperation', () => {
     // 验证变为固定状态
     await expect(itemText).not.toHaveClass(/unfixed/);
   });
+  // 测试用例10: 鼠标中键点击tab关闭当前tab
+  test('鼠标中键点击tab关闭当前tab', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '中键关闭测试' });
+    const tab = contentPage.locator('.nav .item').filter({ hasText: '中键关闭测试' }).first();
+    await expect(tab).toBeVisible({ timeout: 5000 });
+    await tab.click({ button: 'middle' });
+    await contentPage.waitForTimeout(300);
+    await expect(contentPage.locator('.nav .item').filter({ hasText: '中键关闭测试' })).toHaveCount(0);
+  });
+  // 测试用例11: 关闭当前激活tab后自动激活其他tab
+  test('关闭当前激活tab后自动激活其他tab', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '关闭后切换A' });
+    await createNode(contentPage, { nodeType: 'http', name: '关闭后切换B' });
+    const tabA = contentPage.locator('.nav .item').filter({ hasText: '关闭后切换A' }).first();
+    const tabB = contentPage.locator('.nav .item').filter({ hasText: '关闭后切换B' }).first();
+    await expect(tabB).toHaveClass(/active/, { timeout: 5000 });
+    const closeBtn = tabB.locator('[data-testid="project-nav-tab-close-btn"]');
+    await closeBtn.click();
+    await contentPage.waitForTimeout(300);
+    await expect(contentPage.locator('.nav .item').filter({ hasText: '关闭后切换B' })).toHaveCount(0);
+    await expect(tabA).toHaveClass(/active/, { timeout: 5000 });
+  });
+  // 测试用例12: 右键菜单强制全部关闭
+  test('右键菜单强制全部关闭', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '强制关闭1' });
+    await createNode(contentPage, { nodeType: 'http', name: '强制关闭2' });
+    const anyTab = contentPage.locator('.nav .item').filter({ hasText: '强制关闭2' }).first();
+    await anyTab.click({ button: 'right' });
+    await contentPage.waitForTimeout(300);
+    const forceCloseAllMenuItem = contentPage.locator('.s-contextmenu-item').filter({ hasText: /强制全部关闭|Force Close All/ }).first();
+    await expect(forceCloseAllMenuItem).toBeVisible({ timeout: 5000 });
+    await forceCloseAllMenuItem.click();
+    await contentPage.waitForTimeout(500);
+    const tabCount = await contentPage.locator('.nav .drag-wrap .item').count();
+    expect(tabCount).toBe(0);
+  });
 });
 
 

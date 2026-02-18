@@ -82,6 +82,40 @@ test.describe('DeleteNode', () => {
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除HTTP节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
+    test('选中httpNode节点按Ctrl+D可删除节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+      await clearCache();
+
+      await loginAccount();
+      await createProject();
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForTimeout(500);
+      const treeWrap = contentPage.locator('.tree-wrap');
+      await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
+      await contentPage.waitForTimeout(300);
+      const contextMenu = contentPage.locator('.s-contextmenu');
+      const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
+      await newInterfaceItem.click();
+      await contentPage.waitForTimeout(300);
+      const addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+      await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+      const nameInput = addFileDialog.locator('input').first();
+      await nameInput.fill('快捷键删除HTTP节点');
+      const confirmBtn = addFileDialog.locator('.el-button--primary').last();
+      await confirmBtn.click();
+      await contentPage.waitForTimeout(500);
+      const httpNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '快捷键删除HTTP节点' });
+      await expect(httpNode).toBeVisible({ timeout: 5000 });
+      await httpNode.click();
+      await contentPage.keyboard.press('Control+d');
+      await contentPage.waitForTimeout(300);
+      const confirmDialog = contentPage.locator('.cl-confirm-container');
+      await expect(confirmDialog).toBeVisible({ timeout: 5000 });
+      const dialogConfirmBtn = confirmDialog.locator('.el-button--primary');
+      await dialogConfirmBtn.click();
+      await contentPage.waitForTimeout(500);
+      const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '快捷键删除HTTP节点' });
+      await expect(deletedNode).toBeHidden({ timeout: 5000 });
+    });
     test('按住ctrl鼠标左键批量选择httpNode节点,鼠标右键批量删除', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
@@ -180,7 +214,7 @@ test.describe('DeleteNode', () => {
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除Websocket节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
-    test('鼠标移动到websocketNode节点,点击更多按钮', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    test('鼠标移动到websocketNode节点,点击更多操作删除节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();

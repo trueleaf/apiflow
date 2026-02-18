@@ -204,6 +204,21 @@ test.describe('BannerOtherFeatures', () => {
     await stopMockItem.click();
     await expect(runningDot).toBeHidden({ timeout: 30000 });
   });
+  // 测试用例9: 切换到调用历史标签后显示历史区域
+  test('切换到调用历史标签页后显示历史列表', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+
+    const historyTab = contentPage.getByTestId('banner-tab-history');
+    await expect(historyTab).toBeVisible({ timeout: 5000 });
+    await historyTab.click();
+    await expect(contentPage.getByTestId('banner-tab-history')).toHaveClass(/is-active/);
+    await expect(contentPage.locator('.send-history')).toBeVisible({ timeout: 5000 });
+  });
 });
 
 

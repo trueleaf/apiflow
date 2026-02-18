@@ -128,6 +128,26 @@ test.describe('Search', () => {
     const filterBtn = contentPage.locator('[data-testid="banner-filter-btn"]');
     await expect(filterBtn).toBeVisible({ timeout: 5000 });
   });
+  test('清空搜索内容后恢复显示所有节点', async ({ contentPage, clearCache, createProject, loginAccount, createNode }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: '清空搜索测试接口' });
+
+    const searchInput = contentPage.locator('[data-testid="banner-search-input"] input');
+    await searchInput.fill('不存在内容XYZ');
+    await contentPage.waitForTimeout(500);
+
+    await searchInput.fill('');
+    await searchInput.blur();
+    await contentPage.waitForTimeout(500);
+
+    const restoredNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '清空搜索测试接口' }).first();
+    await expect(restoredNode).toBeVisible({ timeout: 5000 });
+  });
 });
 
 

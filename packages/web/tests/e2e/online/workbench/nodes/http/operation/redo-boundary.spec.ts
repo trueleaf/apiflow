@@ -59,6 +59,22 @@ test.describe('RedoBoundary', () => {
     // 观察重做按钮状态,进行新操作后重做历史栈被清空
     await expect(redoBtn).toHaveClass(/disabled/, { timeout: 5000 });
   });
+  // 测试用例3: 没有可撤销的操作时撤销按钮置灰不可点击
+  test('没有可撤销的操作时撤销按钮置灰不可点击', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '撤销边界测试' });
+    const undoBtn = contentPage.locator('[data-testid="http-params-undo-btn"]');
+    await expect(undoBtn).toHaveClass(/disabled/, { timeout: 5000 });
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    const originalUrl = (await urlInput.innerText()).trim();
+    await contentPage.keyboard.press('Control+z');
+    await contentPage.waitForTimeout(300);
+    await expect(urlInput).toHaveText(originalUrl === '' ? /^\s*$/ : originalUrl, { timeout: 5000 });
+  });
 });
 
 

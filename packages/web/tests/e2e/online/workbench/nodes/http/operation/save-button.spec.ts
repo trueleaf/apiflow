@@ -80,6 +80,27 @@ test.describe('SaveButton', () => {
     const methodText = await methodSelectAfterReload.textContent();
     expect(methodText).toContain('POST');
   });
+  // 测试用例4: Ctrl+S保存后刷新数据保持不变
+  test('Ctrl+S保存后刷新数据保持不变', async ({ contentPage, clearCache, createProject, createNode, loginAccount, reload }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '快捷键保存测试' });
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    const shortcutUrl = `http://127.0.0.1:${MOCK_SERVER_PORT}/shortcut-save`;
+    await urlInput.fill(shortcutUrl);
+    await contentPage.waitForTimeout(300);
+    await contentPage.keyboard.press('Control+s');
+    await contentPage.waitForTimeout(800);
+    await reload();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    const urlInputAfterReload = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    const savedUrlValue = (await urlInputAfterReload.innerText()).trim();
+    expect(savedUrlValue).toBe(shortcutUrl);
+  });
 });
 
 

@@ -198,6 +198,61 @@ test.describe('OtherCases', () => {
     const minHttpIndex = Math.min(...httpIndexes);
     expect(maxFolderIndex).toBeLessThan(minHttpIndex);
   });
+  // 新增节点后刷新页面节点顺序保持不变
+  test('新增节点后刷新页面节点顺序保持不变', async ({ contentPage, clearCache, createProject, createNode, loginAccount, reload }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    const treeWrap = contentPage.locator('.tree-wrap');
+    await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
+    await contentPage.waitForTimeout(300);
+    let contextMenu = contentPage.locator('.s-contextmenu');
+    let newFolderItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建文件夹/ });
+    await newFolderItem.click();
+    await contentPage.waitForTimeout(300);
+    let folderDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建文件夹|新增文件夹/ });
+    await expect(folderDialog).toBeVisible({ timeout: 5000 });
+    await folderDialog.locator('input').first().fill('刷新顺序文件夹');
+    await folderDialog.locator('.el-button--primary').last().click();
+    await contentPage.waitForTimeout(500);
+    await treeWrap.click({ button: 'right', position: { x: 100, y: 220 } });
+    await contentPage.waitForTimeout(300);
+    contextMenu = contentPage.locator('.s-contextmenu');
+    const newInterfaceItem = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
+    await newInterfaceItem.click();
+    await contentPage.waitForTimeout(300);
+    let addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('刷新顺序HTTP1');
+    await addFileDialog.locator('.el-button--primary').last().click();
+    await contentPage.waitForTimeout(500);
+    await treeWrap.click({ button: 'right', position: { x: 100, y: 240 } });
+    await contentPage.waitForTimeout(300);
+    contextMenu = contentPage.locator('.s-contextmenu');
+    const newInterfaceItem2 = contextMenu.locator('.s-contextmenu-item', { hasText: /新建接口/ });
+    await newInterfaceItem2.click();
+    await contentPage.waitForTimeout(300);
+    addFileDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口/ });
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    await addFileDialog.locator('input').first().fill('刷新顺序HTTP2');
+    await addFileDialog.locator('.el-button--primary').last().click();
+    await contentPage.waitForTimeout(500);
+    const beforeReloadTexts = await contentPage.locator('.el-tree > .el-tree-node').evaluateAll((els) => {
+      return els.map((el) => (el.textContent ?? '').replace(/\s+/g, ' ').trim());
+    });
+    await reload();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(800);
+    const afterReloadTexts = await contentPage.locator('.el-tree > .el-tree-node').evaluateAll((els) => {
+      return els.map((el) => (el.textContent ?? '').replace(/\s+/g, ' ').trim());
+    });
+    const beforeFiltered = beforeReloadTexts.filter((item) => item.includes('刷新顺序文件夹') || item.includes('刷新顺序HTTP1') || item.includes('刷新顺序HTTP2'));
+    const afterFiltered = afterReloadTexts.filter((item) => item.includes('刷新顺序文件夹') || item.includes('刷新顺序HTTP1') || item.includes('刷新顺序HTTP2'));
+    expect(beforeFiltered).toEqual(afterFiltered);
+  });
 });
 
 

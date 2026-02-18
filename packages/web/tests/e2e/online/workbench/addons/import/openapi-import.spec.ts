@@ -88,6 +88,46 @@ test.describe('OpenapiImport', () => {
     const importPage = contentPage.locator('.doc-import');
     await expect(importPage).toBeVisible({ timeout: 5000 });
   });
+  // 测试用例5: 粘贴OpenAPI内容后自动识别并展示预览统计
+  test('粘贴OpenAPI内容后预览统计显示文档数量', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const importItem = contentPage.locator('.tool-panel .dropdown-item').filter({ hasText: /导入文档/ });
+    await importItem.click();
+    const importPage = contentPage.locator('.doc-import');
+    await expect(importPage).toBeVisible({ timeout: 5000 });
+
+    const pasteSource = contentPage.locator('.source-item').filter({ hasText: /粘贴内容|Paste/ });
+    await pasteSource.click();
+    await expect(pasteSource).toHaveClass(/active/);
+
+    const pasteTextarea = importPage.locator('.paste-import textarea');
+    await expect(pasteTextarea).toBeVisible({ timeout: 5000 });
+    const openapiJson = JSON.stringify({
+      openapi: '3.0.0',
+      info: { title: '在线OpenAPI', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: { tags: ['用户'], summary: '查询用户', responses: { '200': { description: 'OK' } } },
+        },
+        '/orders': {
+          post: { tags: ['订单'], summary: '创建订单', responses: { '200': { description: 'OK' } } },
+        },
+      },
+    });
+    await pasteTextarea.fill(openapiJson);
+    const parseBtn = importPage.locator('.paste-actions .el-button--primary').filter({ hasText: /解析内容|Parse/ });
+    await parseBtn.click();
+
+    const previewTreeFirstNode = importPage.locator('.el-tree .custom-tree-node').first();
+    await expect(previewTreeFirstNode).toBeVisible({ timeout: 5000 });
+    await expect(importPage.locator('.preview-stats')).toContainText('2');
+  });
 });
 
 
