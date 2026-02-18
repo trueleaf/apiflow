@@ -44,13 +44,29 @@ test.describe('Online后台管理-客户端路由管理', () => {
   });
 
   test.afterEach(async ({ contentPage }) => {
-    for (const routeName of createdRoutes) {
+    const routesToCleanup = Array.from(new Set(createdRoutes.filter((routeName) => /^(测试客户端路由_|测试搜索客户端_|客户端分组筛选|客户端批量路由)/.test(routeName)))).sort((a, b) => b.length - a.length);
+    for (const routeName of routesToCleanup) {
       try {
         const routeRow = findRouteRowByName(contentPage, routeName);
-        const rowVisible = await routeRow.isVisible({ timeout: 2000 }).catch(() => false);
-        if (rowVisible) {
-          await clickRowAction(routeRow, '删除');
-          await confirmDeleteDialog(contentPage);
+        const rowVisible = await routeRow.isVisible({ timeout: 800 }).catch(() => false);
+        if (!rowVisible) {
+          continue;
+        }
+        const deleteBtn = routeRow.locator('.el-button').filter({ hasText: /删除/ }).first();
+        const btnVisible = await deleteBtn.isVisible({ timeout: 500 }).catch(() => false);
+        if (!btnVisible) {
+          continue;
+        }
+        const btnDisabled = await deleteBtn.isDisabled().catch(() => true);
+        if (btnDisabled) {
+          continue;
+        }
+        await deleteBtn.click();
+        const fastConfirmBtn = contentPage.locator('.cl-confirm-wrapper .el-button--primary, .el-message-box .el-button--primary').first();
+        const hasConfirm = await fastConfirmBtn.isVisible({ timeout: 1000 }).catch(() => false);
+        if (hasConfirm) {
+          await fastConfirmBtn.click();
+          await contentPage.waitForTimeout(200);
         }
       } catch {
       }
@@ -214,9 +230,13 @@ test.describe('Online后台管理-客户端路由管理', () => {
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForRouteListLoaded(contentPage);
-    // 勾选两条记录并打开批量修改弹窗
-    await contentPage.locator('.el-table__body-wrapper .el-checkbox').nth(0).click();
-    await contentPage.locator('.el-table__body-wrapper .el-checkbox').nth(1).click();
+    // 按路由名精确勾选两条记录并打开批量修改弹窗
+    const routeARow = findRouteRowByName(contentPage, routeA);
+    const routeBRow = findRouteRowByName(contentPage, routeB);
+    await expect(routeARow).toBeVisible({ timeout: 5000 });
+    await expect(routeBRow).toBeVisible({ timeout: 5000 });
+    await routeARow.locator('.el-checkbox').first().click();
+    await routeBRow.locator('.el-checkbox').first().click();
     const batchBtn = contentPage.locator('.el-button').filter({ hasText: /批量修改类型/ }).first();
     await batchBtn.click();
     const batchDialog = contentPage.locator('.el-dialog:visible').filter({ hasText: /批量修改前端路由类型/ }).first();
@@ -269,13 +289,29 @@ test.describe('Online后台管理-服务端路由管理', () => {
   });
 
   test.afterEach(async ({ contentPage }) => {
-    for (const routeName of createdRoutes) {
+    const routesToCleanup = Array.from(new Set(createdRoutes.filter((routeName) => /^(测试服务端路由_|测试搜索服务端_|服务端分组筛选|服务端批量路由|测试GET_|测试POST_|测试PUT_|测试DELETE_)/.test(routeName)))).sort((a, b) => b.length - a.length);
+    for (const routeName of routesToCleanup) {
       try {
         const routeRow = findRouteRowByName(contentPage, routeName);
-        const rowVisible = await routeRow.isVisible({ timeout: 2000 }).catch(() => false);
-        if (rowVisible) {
-          await clickRowAction(routeRow, '删除');
-          await confirmDeleteDialog(contentPage);
+        const rowVisible = await routeRow.isVisible({ timeout: 800 }).catch(() => false);
+        if (!rowVisible) {
+          continue;
+        }
+        const deleteBtn = routeRow.locator('.el-button').filter({ hasText: /删除/ }).first();
+        const btnVisible = await deleteBtn.isVisible({ timeout: 500 }).catch(() => false);
+        if (!btnVisible) {
+          continue;
+        }
+        const btnDisabled = await deleteBtn.isDisabled().catch(() => true);
+        if (btnDisabled) {
+          continue;
+        }
+        await deleteBtn.click();
+        const fastConfirmBtn = contentPage.locator('.cl-confirm-wrapper .el-button--primary, .el-message-box .el-button--primary').first();
+        const hasConfirm = await fastConfirmBtn.isVisible({ timeout: 1000 }).catch(() => false);
+        if (hasConfirm) {
+          await fastConfirmBtn.click();
+          await contentPage.waitForTimeout(200);
         }
       } catch {
       }
@@ -570,9 +606,13 @@ test.describe('Online后台管理-服务端路由管理', () => {
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForRouteListLoaded(contentPage);
-    // 勾选记录并批量更新分组
-    await contentPage.locator('.el-table__body-wrapper .el-checkbox').nth(0).click();
-    await contentPage.locator('.el-table__body-wrapper .el-checkbox').nth(1).click();
+    // 按路由名精确勾选记录并批量更新分组
+    const routeARow = findRouteRowByName(contentPage, routeA);
+    const routeBRow = findRouteRowByName(contentPage, routeB);
+    await expect(routeARow).toBeVisible({ timeout: 5000 });
+    await expect(routeBRow).toBeVisible({ timeout: 5000 });
+    await routeARow.locator('.el-checkbox').first().click();
+    await routeBRow.locator('.el-checkbox').first().click();
     const batchBtn = contentPage.locator('.el-button').filter({ hasText: /批量修改类型/ }).first();
     await batchBtn.click();
     const batchDialog = contentPage.locator('.el-dialog:visible').filter({ hasText: /批量修改服务端路由类型/ }).first();

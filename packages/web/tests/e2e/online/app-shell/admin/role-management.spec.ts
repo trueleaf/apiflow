@@ -45,13 +45,29 @@ test.describe('Online后台管理-角色管理', () => {
   });
 
   test.afterEach(async ({ contentPage }) => {
-    for (const roleName of createdRoles) {
+    const rolesToCleanup = Array.from(new Set(createdRoles.filter((roleName) => roleName.startsWith('测试角色_')))).sort((a, b) => b.length - a.length);
+    for (const roleName of rolesToCleanup) {
       try {
         const roleRow = findRoleRowByName(contentPage, roleName);
-        const rowVisible = await roleRow.isVisible({ timeout: 2000 }).catch(() => false);
-        if (rowVisible) {
-          await clickRowAction(roleRow, '删除');
-          await confirmDeleteDialog(contentPage);
+        const rowVisible = await roleRow.isVisible({ timeout: 800 }).catch(() => false);
+        if (!rowVisible) {
+          continue;
+        }
+        const deleteBtn = roleRow.locator('.el-button').filter({ hasText: /删除/ }).first();
+        const btnVisible = await deleteBtn.isVisible({ timeout: 500 }).catch(() => false);
+        if (!btnVisible) {
+          continue;
+        }
+        const btnDisabled = await deleteBtn.isDisabled().catch(() => true);
+        if (btnDisabled) {
+          continue;
+        }
+        await deleteBtn.click();
+        const fastConfirmBtn = contentPage.locator('.cl-confirm-wrapper .el-button--primary, .el-message-box .el-button--primary').first();
+        const hasConfirm = await fastConfirmBtn.isVisible({ timeout: 1000 }).catch(() => false);
+        if (hasConfirm) {
+          await fastConfirmBtn.click();
+          await contentPage.waitForTimeout(200);
         }
       } catch {
       }
@@ -381,5 +397,23 @@ test.describe('Online后台管理-角色管理', () => {
     const datePattern = /\d{4}-\d{2}-\d{2}/;
     const rowText = await roleRow.innerText();
     expect(datePattern.test(rowText)).toBeTruthy();
+  });
+
+  test('内置角色-管理员的修改和删除按钮处于禁用状态', async ({ contentPage }) => {
+    const adminRow = findRoleRowByName(contentPage, '管理员');
+    await expect(adminRow).toBeVisible({ timeout: 5000 });
+    const editBtn = adminRow.locator('.el-button').filter({ hasText: /修改/ });
+    const deleteBtn = adminRow.locator('.el-button').filter({ hasText: /删除/ });
+    await expect(editBtn).toBeDisabled({ timeout: 3000 });
+    await expect(deleteBtn).toBeDisabled({ timeout: 3000 });
+  });
+
+  test('内置角色-普通用户的修改和删除按钮处于禁用状态', async ({ contentPage }) => {
+    const normalUserRow = findRoleRowByName(contentPage, '普通用户');
+    await expect(normalUserRow).toBeVisible({ timeout: 5000 });
+    const editBtn = normalUserRow.locator('.el-button').filter({ hasText: /修改/ });
+    const deleteBtn = normalUserRow.locator('.el-button').filter({ hasText: /删除/ });
+    await expect(editBtn).toBeDisabled({ timeout: 3000 });
+    await expect(deleteBtn).toBeDisabled({ timeout: 3000 });
   });
 });

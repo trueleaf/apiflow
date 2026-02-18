@@ -19,6 +19,8 @@ import { join } from 'path';
 
 test.describe('Online后台管理-用户管理', () => {
   let createdUsers: string[] = [];
+  let elevatedUsers: string[] = [];
+  let disabledUsers: string[] = [];
 
   test.beforeEach(async ({ topBarPage, contentPage, clearCache, loginAccount }) => {
     await clearCache();
@@ -46,6 +48,71 @@ test.describe('Online后台管理-用户管理', () => {
     await switchAdminTab(contentPage, '用户管理');
     await waitForUserListLoaded(contentPage);
     createdUsers = [];
+    elevatedUsers = [];
+    disabledUsers = [];
+  });
+  test.afterEach(async ({ contentPage }) => {
+    const openDialog = contentPage.locator('.el-dialog:visible').first();
+    const hasOpenDialog = await openDialog.isVisible({ timeout: 300 }).catch(() => false);
+    if (hasOpenDialog) {
+      const cancelBtn = openDialog.locator('.el-button').filter({ hasText: /取消|Cancel/ }).first();
+      const hasCancel = await cancelBtn.isVisible({ timeout: 300 }).catch(() => false);
+      if (hasCancel) {
+        await cancelBtn.click().catch(() => undefined);
+      }
+    }
+    for (const userName of Array.from(new Set(disabledUsers))) {
+      try {
+        await searchUser(contentPage, userName);
+        await waitForUserListLoaded(contentPage);
+        const userRow = findUserRowByName(contentPage, userName);
+        const rowVisible = await userRow.isVisible({ timeout: 800 }).catch(() => false);
+        if (!rowVisible) {
+          continue;
+        }
+        const disabledTag = userRow.locator('.el-tag').filter({ hasText: /禁用|Disabled/i }).first();
+        const isDisabled = await disabledTag.isVisible({ timeout: 300 }).catch(() => false);
+        if (!isDisabled) {
+          continue;
+        }
+        await clickRowAction(userRow, '启用');
+        await confirmDeleteDialog(contentPage);
+        await waitForUserListLoaded(contentPage);
+      } catch {
+      }
+    }
+    for (const userName of Array.from(new Set(elevatedUsers))) {
+      try {
+        await searchUser(contentPage, userName);
+        await waitForUserListLoaded(contentPage);
+        const userRow = findUserRowByName(contentPage, userName);
+        const rowVisible = await userRow.isVisible({ timeout: 800 }).catch(() => false);
+        if (!rowVisible) {
+          continue;
+        }
+        const adminTag = userRow.locator('.el-tag').filter({ hasText: /管理员|Admin/i }).first();
+        const isAdmin = await adminTag.isVisible({ timeout: 300 }).catch(() => false);
+        if (!isAdmin) {
+          continue;
+        }
+        await clickRowAction(userRow, '修改');
+        const editDialog = contentPage.locator('.el-dialog:visible').first();
+        await expect(editDialog).toBeVisible({ timeout: 3000 });
+        const adminCheckbox = editDialog.locator('.el-checkbox').filter({ hasText: /是否为管理员/ }).first();
+        await expect(adminCheckbox).toBeVisible({ timeout: 3000 });
+        const checkedCount = await adminCheckbox.locator('.el-checkbox__input.is-checked').count();
+        if (checkedCount > 0) {
+          await adminCheckbox.click();
+          await confirmDialog(contentPage);
+          await waitForUserListLoaded(contentPage);
+        }
+      } catch {
+      }
+    }
+    if (createdUsers.length > 0) {
+      await clearSearch(contentPage);
+      await waitForUserListLoaded(contentPage);
+    }
   });
 
   test('新增用户-输入合法登录名创建普通用户成功', async ({ contentPage }) => {
@@ -66,7 +133,9 @@ test.describe('Online后台管理-用户管理', () => {
 
   test('新增用户-选择管理员角色创建成功', async ({ contentPage }) => {
     const userName = `test_admin_${Date.now()}`;
+    expect(userName.startsWith('test_admin_')).toBeTruthy();
     createdUsers.push(userName);
+    elevatedUsers.push(userName);
     const addBtn = contentPage.locator('.el-button').filter({ hasText: /新增用户/ });
     await addBtn.click();
     await fillDialogForm(contentPage, { '登录名': userName });
@@ -129,7 +198,9 @@ test.describe('Online后台管理-用户管理', () => {
 
   test('修改用户-从普通用户改为管理员', async ({ contentPage }) => {
     const userName = `test_user_${Date.now()}`;
+    expect(userName.startsWith('test_user_')).toBeTruthy();
     createdUsers.push(userName);
+    elevatedUsers.push(userName);
     const addBtn = contentPage.locator('.el-button').filter({ hasText: /新增用户/ });
     await addBtn.click();
     await fillDialogForm(contentPage, { '登录名': userName });
@@ -202,7 +273,9 @@ test.describe('Online后台管理-用户管理', () => {
 
   test('启用禁用用户-禁用已启用的用户', async ({ contentPage }) => {
     const userName = `test_user_${Date.now()}`;
+    expect(userName.startsWith('test_user_')).toBeTruthy();
     createdUsers.push(userName);
+    disabledUsers.push(userName);
     const addBtn = contentPage.locator('.el-button').filter({ hasText: /新增用户/ });
     await addBtn.click();
     await fillDialogForm(contentPage, { '登录名': userName });
@@ -223,6 +296,7 @@ test.describe('Online后台管理-用户管理', () => {
 
   test('启用禁用用户-启用已禁用的用户', async ({ contentPage }) => {
     const userName = `test_user_${Date.now()}`;
+    expect(userName.startsWith('test_user_')).toBeTruthy();
     createdUsers.push(userName);
     const addBtn = contentPage.locator('.el-button').filter({ hasText: /新增用户/ });
     await addBtn.click();
@@ -293,11 +367,12 @@ test.describe('Online后台管理-用户管理', () => {
     const user1 = `import_user_${suffix}_1`;
     const user2 = `import_user_${suffix}_2`;
     const user3 = `import_user_${suffix}_3`;
+    createdUsers.push(user1, user2, user3);
     const csvPath = join(tmpdir(), `apiflow-user-import-${suffix}.csv`);
     const csvContent = [
       'loginName,role',
       `${user1},user`,
-      `${user2},admin`,
+      `${user2},user`,
       `${user3},user`,
       '',
     ].join('\n');

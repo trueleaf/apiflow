@@ -271,12 +271,12 @@ test.describe('ProjectList', () => {
     // 创建两个项目
     const projectName1 = await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn, `第一个项目-${Date.now()}`);
     const projectName2 = await createProjectAndGoHome(topBarPage, contentPage, createProject, homeBtn, `第二个项目-${Date.now()}`);
-    // 确认两个项目都存在
+    // 确认两个项目都存在(项目列表按创建时间正序排列:card0=projectName1最早创建,card1=projectName2最新创建)
     const card0 = contentPage.locator('[data-testid="home-project-card-0"]');
     const card1 = contentPage.locator('[data-testid="home-project-card-1"]');
     await expect(card0).toBeVisible({ timeout: 5000 });
     await expect(card1).toBeVisible({ timeout: 5000 });
-    // 删除排在第一位的项目(最新创建的projectName2)
+    // 删除排在第一位的项目(最早创建的projectName1)
     const deleteBtn0 = card0.locator('[data-testid="home-project-delete-btn"]');
     await deleteBtn0.click();
     const confirmDialog = contentPage.locator('.cl-confirm-container');
@@ -285,23 +285,23 @@ test.describe('ProjectList', () => {
     await expect(confirmDialog).toBeHidden({ timeout: 5000 });
     const undoNotification = contentPage.locator('.undo-notification');
     await expect(undoNotification).toBeVisible({ timeout: 5000 });
-    // 紧接着删除剩余的项目(projectName1),新删除覆盖旧的deletedProjectData
+    // 紧接着删除剩余的项目(projectName2),新删除覆盖旧的deletedProjectData
     const remainingCard = contentPage.locator('[data-testid="home-project-card-0"]');
-    await expect(remainingCard).toContainText(projectName1);
+    await expect(remainingCard).toContainText(projectName2);
     const deleteBtn1 = remainingCard.locator('[data-testid="home-project-delete-btn"]');
     await deleteBtn1.click();
     await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     await confirmDialog.locator('.el-button--primary').click();
     await expect(confirmDialog).toBeHidden({ timeout: 5000 });
     await expect(undoNotification).toBeVisible({ timeout: 5000 });
-    // 点击撤回,验证只恢复最后删除的项目(projectName1)
+    // 点击撤回,验证只恢复最后删除的项目(projectName2)
     const undoBtn = undoNotification.locator('.btn-undo');
     await undoBtn.click();
     await expect(undoNotification).toBeHidden({ timeout: 5000 });
     const restoredCard = contentPage.locator('[data-testid="home-project-card-0"]');
     await expect(restoredCard).toBeVisible({ timeout: 5000 });
-    await expect(restoredCard).toContainText(projectName1);
-    // 验证projectName2没有恢复(列表中只有一个项目)
+    await expect(restoredCard).toContainText(projectName2);
+    // 验证projectName1没有恢复(列表中只有一个项目)
     const secondCard = contentPage.locator('[data-testid="home-project-card-1"]');
     await expect(secondCard).toBeHidden({ timeout: 3000 });
   });
