@@ -7,6 +7,8 @@ import { AddRoleDto, DeleteRoleDto, EditRoleDto, GetRoleInfoDto, GetRoleListDto 
 import { TableResponseWrapper } from '../../types/response/common/common.js';
 
 
+const BUILTIN_ROLE_IDS = ['5ede0ba06f76185204584700', '5edf71f2193c7d5fa0ec9b98'];
+
 @Provide()
 export class RoleService {
   @InjectEntityModel(Role)
@@ -34,6 +36,9 @@ export class RoleService {
    */
   async editRole(params: EditRoleDto) {
     const { _id, roleName, clientRoutes, clientBanner, serverRoutes, remark } = params;
+    if (BUILTIN_ROLE_IDS.includes(_id)) {
+      throwError(1003, '内置角色不允许修改');
+    }
     const updateDoc: Partial<Role> = {};
     updateDoc.roleName = roleName;
     updateDoc.clientRoutes = clientRoutes;
@@ -48,6 +53,9 @@ export class RoleService {
    */
   async deleteRole(params: DeleteRoleDto) {
     const { ids } = params;
+    if (ids.some(id => BUILTIN_ROLE_IDS.includes(id))) {
+      throwError(1003, '内置角色不允许删除');
+    }
     const result = await this.roleModel.updateMany({ _id: { $in: ids }}, { $set: { isEnabled: false }});
     return result;
   }

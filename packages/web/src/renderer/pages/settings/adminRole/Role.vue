@@ -9,8 +9,8 @@
     </el-table-column>
     <el-table-column :label="t('操作')" align="center">
       <template #default="scope">
-        <el-button link type="primary" text @click="handleOpenEditRole(scope.row._id)">{{ t("修改") }}</el-button>
-        <el-button link type="primary" text @click="handleDeleteRole(scope.row._id)">{{ t("删除") }}</el-button>
+        <el-button link type="primary" text :disabled="isBuiltinRole(scope.row._id)" @click="handleOpenEditRole(scope.row._id)">{{ t("修改") }}</el-button>
+        <el-button link type="primary" text :disabled="isBuiltinRole(scope.row._id)" @click="handleDeleteRole(scope.row._id)">{{ t("删除") }}</el-button>
       </template>
     </el-table-column>
     <template #operation>
@@ -34,6 +34,7 @@ import { formatDate } from '@/helper'
 
 const { t } = useI18n()
 
+const BUILTIN_ROLE_IDS = ['5ede0ba06f76185204584700', '5edf71f2193c7d5fa0ec9b98'];
 const userId = ref('');
 const addRoleDialog = ref(false);
 const editRoleDialog = ref(false);
@@ -43,6 +44,8 @@ const table = ref<{ getData: () => void}>()
 | 方法定义
 |--------------------------------------------------------------------------
 */
+//判断是否为内置角色
+const isBuiltinRole = (id: string) => BUILTIN_ROLE_IDS.includes(id);
 //获取数据
 const getData = () => {
   table.value?.getData();
