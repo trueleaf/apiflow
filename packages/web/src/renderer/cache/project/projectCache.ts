@@ -60,6 +60,7 @@ export class ProjectCache {
         projects.push(project);
       }
     }
+    projects.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
     return projects;
   }
   async setProjectList(projectList: ApidocProjectInfo[]): Promise<boolean> {

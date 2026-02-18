@@ -73,7 +73,7 @@ export const useProjectManagerStore = defineStore('projectManager', () => {
   const updateProject = async (projectId: string, projectName: string): Promise<boolean> => {
     try {
       if (isStandalone.value) {
-        await projectCache.updateProject(projectId, { projectName });
+        await projectCache.updateProject(projectId, { projectName, updatedAt: new Date().toISOString() });
         await getProjectList();
         return true;
       }

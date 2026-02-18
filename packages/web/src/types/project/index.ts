@@ -209,6 +209,10 @@ export type ApidocProjectInfo = {
    */
   remark: string;
   /**
+   * 创建日期
+   */
+  createdAt: string;
+  /**
    * 最近一次更新日期
    */
   updatedAt: string;

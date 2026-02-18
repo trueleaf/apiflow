@@ -1401,6 +1401,7 @@ export const extractPathParams = (urlPath: string): ApidocProperty<'string'>[] =
  * 生成一份空的项目默认值
  */
 export const generateEmptyProject = (_id: string): ApidocProjectInfo => {
+  const now = new Date().toISOString();
   return {
     _id,
     docNum: 0,
@@ -1411,7 +1412,8 @@ export const generateEmptyProject = (_id: string): ApidocProjectInfo => {
     members: [],
     projectName: '',
     remark: '',
-    updatedAt: new Date().toISOString(),
+    createdAt: now,
+    updatedAt: now,
     isStared: false,
     isDeleted: false,
   }
