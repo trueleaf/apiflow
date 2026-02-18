@@ -325,15 +325,26 @@ export class DocService {
     const { _id, projectId } = params;
     await this.commonControl.checkDocOperationPermissions(projectId);
     const doc = await this.docModel.findOne({ _id }).lean();
-    doc.item.method = doc.item.method.toUpperCase() as RequestMethod;
-    doc.info.name = '副本-' + doc.info.name;
-    doc._id = new Types.ObjectId();
-    doc.sort += 1;
-    const result = await this.docModel.create(doc);
+    if (!doc) {
+      throwError(4001, '文档不存在');
+    }
+    const copyDoc = {
+      ...doc,
+      _id: new Types.ObjectId(),
+      sort: (doc.sort || Date.now()) + 1,
+      info: {
+        ...doc.info,
+        name: `副本-${doc.info.name}`,
+      }
+    };
+    if (copyDoc.info.type === 'http' && copyDoc.item?.method) {
+      copyDoc.item.method = copyDoc.item.method.toUpperCase() as RequestMethod;
+    }
+    const result = await this.docModel.create(copyDoc);
     if (!doc.isFolder) {
       await this.projectModel.findByIdAndUpdate({ _id: doc.projectId }, { $inc: { docNum: 1 }});
     }
-    return {
+    const baseReturn = {
       _id: result._id,
       pid: result.pid,
       sort: result.sort,
@@ -342,8 +353,38 @@ export class DocService {
       type: result.info.type,
       name: result.info.name,
       maintainer: result.info.maintainer,
-      method: result.item.method,
-      url: result.item.url.path,
+    };
+    if (result.info.type === 'websocket') {
+      return {
+        ...baseReturn,
+        protocol: result.websocketItem?.item?.protocol || 'ws',
+        url: {
+          path: result.websocketItem?.item?.url?.path || '',
+          prefix: result.websocketItem?.item?.url?.prefix || '',
+        },
+      };
+    }
+    if (result.info.type === 'httpMock') {
+      return {
+        ...baseReturn,
+        method: result.httpMockItem?.requestCondition?.method?.[0] || 'ALL',
+        url: result.httpMockItem?.requestCondition?.url || '',
+        port: result.httpMockItem?.requestCondition?.port || 3000,
+        state: 'stopped',
+      };
+    }
+    if (result.info.type === 'websocketMock') {
+      return {
+        ...baseReturn,
+        path: result.websocketMockItem?.requestCondition?.path || '',
+        port: result.websocketMockItem?.requestCondition?.port || 4001,
+        state: 'stopped',
+      };
+    }
+    return {
+      ...baseReturn,
+      method: result.item?.method || 'GET',
+      url: result.item?.url?.path || '',
     };
   }
   /**
