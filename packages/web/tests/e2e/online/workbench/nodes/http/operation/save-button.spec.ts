@@ -35,10 +35,13 @@ test.describe('SaveButton', () => {
     const newUrl = `http://127.0.0.1:${MOCK_SERVER_PORT}/saved-url`;
     await urlInput.fill(newUrl);
     await contentPage.waitForTimeout(300);
+    const unsavedDotBeforeSave = contentPage.locator('.nav .item.active [data-testid="project-nav-tab-unsaved"]');
+    await expect(unsavedDotBeforeSave).toBeVisible({ timeout: 5000 });
     // 点击保存按钮
     const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
+    await expect(unsavedDotBeforeSave).toBeHidden();
     await reload();
     await contentPage.waitForTimeout(500);
     // 验证URL保持修改后的值
@@ -65,10 +68,13 @@ test.describe('SaveButton', () => {
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
     await postOption.click();
     await contentPage.waitForTimeout(300);
+    const unsavedDotBeforeSave = contentPage.locator('.nav .item.active [data-testid="project-nav-tab-unsaved"]');
+    await expect(unsavedDotBeforeSave).toBeVisible({ timeout: 5000 });
     // 点击保存按钮
     const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
     await saveBtn.click();
     await contentPage.waitForTimeout(500);
+    await expect(unsavedDotBeforeSave).toBeHidden();
     await reload();
     await contentPage.waitForTimeout(500);
     // 验证URL保持
@@ -92,8 +98,11 @@ test.describe('SaveButton', () => {
     const shortcutUrl = `http://127.0.0.1:${MOCK_SERVER_PORT}/shortcut-save`;
     await urlInput.fill(shortcutUrl);
     await contentPage.waitForTimeout(300);
+    const unsavedDotBeforeSave = contentPage.locator('.nav .item.active [data-testid="project-nav-tab-unsaved"]');
+    await expect(unsavedDotBeforeSave).toBeVisible({ timeout: 5000 });
     await contentPage.keyboard.press('Control+s');
     await contentPage.waitForTimeout(800);
+    await expect(unsavedDotBeforeSave).toBeHidden();
     await reload();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);

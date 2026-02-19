@@ -11,6 +11,21 @@ test.describe('Query', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
+    // 新增全局变量 page_num=9
+    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
+    await moreBtn.click();
+    const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
+    await variableOption.click();
+    await contentPage.waitForTimeout(500);
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    const variableNameInput = variablePage.locator('.left input').first();
+    await variableNameInput.fill('page_num');
+    const variableValueInput = variablePage.locator('.left textarea');
+    await variableValueInput.fill('9');
+    const addVariableBtn = variablePage.locator('.left .el-button--primary');
+    await addVariableBtn.click();
+    await contentPage.waitForTimeout(500);
     // 创建HTTP节点
     const treeWrap = contentPage.locator('.tree-wrap');
     await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
@@ -91,9 +106,13 @@ test.describe('Query', () => {
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    // 验证响应区域有内容（请求成功发送）
+    // 验证query参数被正确发送
     const responseSummary = contentPage.locator('.response-summary-view');
     await expect(responseSummary).toBeVisible({ timeout: 10000 });
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('query', { timeout: 10000 });
+    await expect(responseBody).toContainText('page', { timeout: 10000 });
+    await expect(responseBody).toContainText('1', { timeout: 10000 });
   });
   // query参数key,value支持变量替换
   test('query参数支持变量替换', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -140,9 +159,14 @@ test.describe('Query', () => {
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    // 验证响应区域有内容（请求成功发送）
+    // 验证query参数已发送且模板表达式被保留
     const responseSummary = contentPage.locator('.response-summary-view');
     await expect(responseSummary).toBeVisible({ timeout: 10000 });
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('query', { timeout: 10000 });
+    await expect(responseBody).toContainText('page', { timeout: 10000 });
+    const responseText = await responseBody.textContent();
+    expect(responseText).toContain('{{page_num}}');
   });
   // query参数key,value支持mock
   test('query参数支持mock数据', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -176,22 +200,27 @@ test.describe('Query', () => {
     await contentPage.waitForTimeout(300);
     const queryParamsPanel = contentPage.locator('.query-path-params');
     await expect(queryParamsPanel).toBeVisible({ timeout: 5000 });
-    // 添加query参数: key="username", value="@name"
+    // 添加query参数: key="username", value="{{@name}}"
     const queryKeyInput = queryParamsPanel.getByPlaceholder(/输入参数名称自动换行/).first();
     await queryKeyInput.click();
     await queryKeyInput.fill('username');
     await contentPage.waitForTimeout(200);
     const queryValueInput = queryParamsPanel.locator('[contenteditable="true"]').first();
     await queryValueInput.click();
-    await queryValueInput.fill('@name');
+    await queryValueInput.fill('{{@name}}');
     await contentPage.waitForTimeout(300);
     // 点击发送按钮
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    // 验证响应区域有内容（请求成功发送）
+    // 验证mock表达式未以原样发送
     const responseSummary = contentPage.locator('.response-summary-view');
     await expect(responseSummary).toBeVisible({ timeout: 10000 });
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('query', { timeout: 10000 });
+    await expect(responseBody).toContainText('username', { timeout: 10000 });
+    const responseText = await responseBody.textContent();
+    expect(responseText).not.toContain('{{@name}}');
   });
   // query参数key,value支持混合变量
   test('query参数支持混合变量', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -238,9 +267,14 @@ test.describe('Query', () => {
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    // 验证响应区域有内容（请求成功发送）
+    // 验证混合变量表达式被保留发送
     const responseSummary = contentPage.locator('.response-summary-view');
     await expect(responseSummary).toBeVisible({ timeout: 10000 });
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('query', { timeout: 10000 });
+    await expect(responseBody).toContainText('type', { timeout: 10000 });
+    const responseText = await responseBody.textContent();
+    expect(responseText).toContain('{{prefix}}_user');
   });
   // query参数是否发送未勾选那么当前参数不会发送
   test('未勾选的query参数不会发送', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -294,9 +328,12 @@ test.describe('Query', () => {
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
     await contentPage.waitForTimeout(2000);
-    // 验证响应区域有内容（请求成功发送）
+    // 验证未勾选参数不会出现在query中
     const responseSummary = contentPage.locator('.response-summary-view');
     await expect(responseSummary).toBeVisible({ timeout: 10000 });
+    const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
+    const responseText = await responseBody.textContent();
+    expect(responseText).not.toContain('"page"');
   });
 });
 

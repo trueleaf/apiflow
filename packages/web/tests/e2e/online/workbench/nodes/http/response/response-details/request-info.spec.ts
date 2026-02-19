@@ -22,13 +22,17 @@ test.describe('RequestInfo', () => {
     // 验证响应区域存在
     const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
-    // 切换到请求信息标签页
-    const requestInfoTab = contentPage.locator('[data-testid="response-tabs"]').getByRole('tab', { name: /请求信息|Request Info|Request/i }).first();
-    const requestInfoTabVisible = await requestInfoTab.isVisible().catch(() => false);
-    if (requestInfoTabVisible) {
-      await requestInfoTab.click();
-      await contentPage.waitForTimeout(300);
-    }
+    // 切换到请求信息标签页并验证基础信息
+    const requestInfoTab = contentPage.locator('[data-testid="response-tabs"]').getByRole('tab', { name: /请求信息|Request/i }).first();
+    await expect(requestInfoTab).toBeVisible({ timeout: 5000 });
+    await requestInfoTab.click();
+    await contentPage.waitForTimeout(300);
+    const requestInfoPanel = contentPage.locator('.request-info');
+    await expect(requestInfoPanel).toBeVisible({ timeout: 5000 });
+    await expect(requestInfoPanel).toContainText('URL:');
+    await expect(requestInfoPanel).toContainText('/echo');
+    await expect(requestInfoPanel).toContainText('Method:');
+    await expect(requestInfoPanel).toContainText('GET');
   });
   // 测试用例2: 请求头和请求body正确展示
   test('POST请求的请求头和请求body正确展示', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -58,14 +62,18 @@ test.describe('RequestInfo', () => {
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入数据
-    const jsonEditor = contentPage.locator('.json-editor .s-monaco-editor, .body-json .s-monaco-editor').first();
-    const jsonEditorVisible = await jsonEditor.isVisible().catch(() => false);
-    if (jsonEditorVisible) {
-      await jsonEditor.click();
-      await contentPage.waitForTimeout(300);
-      await contentPage.keyboard.type('{"name": "test", "value": 123}');
-      await contentPage.waitForTimeout(300);
+    const hideTipBtn = contentPage.locator('.json-tip .no-tip');
+    if (await hideTipBtn.isVisible({ timeout: 500 }).catch(() => false)) {
+      await hideTipBtn.click();
+      await contentPage.waitForTimeout(200);
     }
+    const jsonEditor = contentPage.locator('.s-json-editor').first();
+    await expect(jsonEditor).toBeVisible({ timeout: 5000 });
+    await jsonEditor.click();
+    await contentPage.waitForTimeout(300);
+    await contentPage.keyboard.press('ControlOrMeta+a');
+    await contentPage.keyboard.type('{"name":"test","value":123}');
+    await contentPage.waitForTimeout(500);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
@@ -73,10 +81,19 @@ test.describe('RequestInfo', () => {
     // 验证响应区域存在
     const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
-    // 验证响应中包含发送的数据
-    const responseBody = contentPage.locator('[data-testid="response-tab-body"]');
-    const responseText = await responseBody.textContent();
-    expect(responseText).toContain('POST');
+    // 切换到请求信息标签页并验证请求头和请求体
+    const requestInfoTab = responseTabs.getByRole('tab', { name: /请求信息|Request/i }).first();
+    await expect(requestInfoTab).toBeVisible({ timeout: 5000 });
+    await requestInfoTab.click();
+    await contentPage.waitForTimeout(300);
+    const requestInfoPanel = contentPage.locator('.request-info');
+    await expect(requestInfoPanel).toBeVisible({ timeout: 5000 });
+    await expect(requestInfoPanel).toContainText('Method:');
+    await expect(requestInfoPanel).toContainText('POST');
+    await expect(requestInfoPanel).toContainText('Content-Type');
+    await expect(requestInfoPanel).toContainText('application/json');
+    await expect(requestInfoPanel).toContainText('"name"');
+    await expect(requestInfoPanel).toContainText('"test"');
   });
 });
 

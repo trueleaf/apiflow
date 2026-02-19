@@ -12,16 +12,17 @@ test.describe('SendButton', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     // 新增HTTP节点
     await createNode(contentPage, { nodeType: 'http', name: '取消请求测试' });
-    // 设置请求URL（使用一个会延迟响应的地址或不存在的地址来模拟长时间请求）
+    // 设置请求URL为延迟接口，确保进入可取消状态
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/delay/10000`);
     // 点击发送请求按钮
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    // 等待请求完成或超时
-    await contentPage.waitForTimeout(3000);
-    // 验证按钮恢复为发送请求状态
-    await expect(sendBtn).toBeVisible({ timeout: 5000 });
+    const cancelBtn = contentPage.locator('[data-testid="operation-cancel-btn"]');
+    await expect(cancelBtn).toBeVisible({ timeout: 5000 });
+    await cancelBtn.click();
+    await expect(contentPage.locator('[data-testid="operation-send-btn"]')).toBeVisible({ timeout: 5000 });
+    await expect(cancelBtn).toBeHidden({ timeout: 5000 });
   });
   // 测试用例2: 发送请求按钮点击后变成取消请求按钮,请求完成后恢复
   test('发送请求按钮请求完成后恢复为发送请求按钮', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -40,11 +41,11 @@ test.describe('SendButton', () => {
     await expect(sendBtn).toBeVisible({ timeout: 5000 });
     // 点击发送请求按钮
     await sendBtn.click();
-    // 等待请求完成
-    await contentPage.waitForTimeout(3000);
-    // 验证响应区域显示响应数据
-    const responseSummary = contentPage.locator('.response-summary-view');
-    await expect(responseSummary).toBeVisible({ timeout: 10000 });
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 10000 });
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('"method": "GET"', { timeout: 10000 });
     // 验证按钮恢复为发送请求状态
     await expect(sendBtn).toBeVisible({ timeout: 5000 });
   });
@@ -65,6 +66,11 @@ test.describe('SendButton', () => {
     await cancelBtn.click();
     await contentPage.waitForTimeout(500);
     await expect(contentPage.locator('[data-testid="operation-send-btn"]')).toBeVisible({ timeout: 5000 });
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?afterCancel=1`);
+    await contentPage.locator('[data-testid="operation-send-btn"]').click();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    await expect(responseArea.locator('.s-json-editor').first()).toContainText('afterCancel', { timeout: 10000 });
   });
 });
 

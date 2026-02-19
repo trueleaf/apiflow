@@ -3,109 +3,99 @@ import { test, expect } from '../../../../../../../fixtures/electron-online.fixt
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('EnvVariableAccess', () => {
-  // 测试用例1: 使用af.envs获取所有环境变量列表
+  // 使用af.envs读取变量并写入请求头
   test('使用af.envs获取所有环境变量列表', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
-
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // 打开变量管理页面并创建变量
-    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
-    await moreBtn.click();
-    const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
-    await variableOption.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'af.envs测试' });
+    const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
+    await variableBtn.click();
+    await contentPage.waitForTimeout(300);
+    const variableTab = contentPage.locator('[data-testid="project-nav-tab-variable"]');
+    await expect(variableTab).toHaveClass(/active/, { timeout: 5000 });
     const variablePage = contentPage.locator('.s-variable');
     await expect(variablePage).toBeVisible({ timeout: 5000 });
-    // 创建变量 testEnvVar=test_value
-    const nameInput = variablePage.locator('.left input').first();
-    await nameInput.fill('testEnvVar');
-    const valueTextarea = variablePage.locator('.left textarea');
-    await valueTextarea.fill('test_value');
-    const addBtn = variablePage.locator('.left .el-button--primary');
-    await addBtn.click();
+    const addPanel = variablePage.locator('.left');
+    const nameFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ });
+    await nameFormItem.locator('input').first().fill('testEnvVar');
+    const valueFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ });
+    await valueFormItem.locator('textarea').first().fill('test_value');
+    const confirmAddBtn = addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first();
+    await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
-    // 创建变量 anotherVar=another_value
-    await nameInput.fill('anotherVar');
-    await valueTextarea.fill('another_value');
-    await addBtn.click();
+    await expect(variablePage.locator('.right')).toContainText('testEnvVar', { timeout: 5000 });
+    await nameFormItem.locator('input').first().fill('anotherVar');
+    await valueFormItem.locator('textarea').first().fill('another_value');
+    await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
-    // 新增HTTP节点
-    await createNode(contentPage, { nodeType: 'http', name: 'af.envs测试' });
-    // 设置请求URL
+    await expect(variablePage.locator('.right')).toContainText('anotherVar', { timeout: 5000 });
+    const httpTab = contentPage.locator('.nav .item').filter({ hasText: 'af.envs测试' }).first();
+    await httpTab.click();
+    await contentPage.waitForTimeout(3000);
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
-    // 点击前置脚本标签页
     const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
     await preScriptTab.click();
     await contentPage.waitForTimeout(500);
-    // 在前置脚本编辑器中输入代码
     const editor = contentPage.locator('.s-monaco-editor');
     await expect(editor).toBeVisible({ timeout: 5000 });
     await editor.click();
     await contentPage.waitForTimeout(300);
-    // 输入前置脚本代码: 获取所有环境变量并打印
-    const scriptCode = `console.log("所有环境变量:", JSON.stringify(af.envs));`;
+    const scriptCode = `af.request.headers["X-Pre-Envs-TestEnvVar"] = String((af.envs && af.envs.testEnvVar) || "");
+af.request.headers["X-Pre-Envs-AnotherVar"] = String((af.envs && af.envs.anotherVar) || "");`;
     await contentPage.keyboard.type(scriptCode);
     await contentPage.waitForTimeout(300);
-    // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(3000);
-    // 验证响应区域存在
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
+    await expect(responseBody).toContainText('x-pre-envs-testenvvar', { timeout: 10000 });
+    await expect(responseBody).toContainText('x-pre-envs-anothervar', { timeout: 10000 });
   });
-  // 测试用例2: 使用af.currentEnv获取当前激活的环境变量
+  // 使用af.currentEnv读取变量并写入请求头
   test('使用af.currentEnv获取当前激活的环境变量', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
-
     await loginAccount();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // 打开变量管理页面并创建变量
-    const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
-    await moreBtn.click();
-    const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
-    await variableOption.click();
-    await contentPage.waitForTimeout(500);
+    await createNode(contentPage, { nodeType: 'http', name: 'af.currentEnv测试' });
+    const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
+    await variableBtn.click();
+    await contentPage.waitForTimeout(300);
+    const variableTab = contentPage.locator('[data-testid="project-nav-tab-variable"]');
+    await expect(variableTab).toHaveClass(/active/, { timeout: 5000 });
     const variablePage = contentPage.locator('.s-variable');
     await expect(variablePage).toBeVisible({ timeout: 5000 });
-    // 创建变量 currentEnvVar=current_value
-    const nameInput = variablePage.locator('.left input').first();
-    await nameInput.fill('currentEnvVar');
-    const valueTextarea = variablePage.locator('.left textarea');
-    await valueTextarea.fill('current_value');
-    const addBtn = variablePage.locator('.left .el-button--primary');
-    await addBtn.click();
+    const addPanel = variablePage.locator('.left');
+    const nameFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ });
+    await nameFormItem.locator('input').first().fill('currentEnvVar');
+    const valueFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ });
+    await valueFormItem.locator('textarea').first().fill('current_value');
+    const confirmAddBtn = addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first();
+    await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
-    // 新增HTTP节点
-    await createNode(contentPage, { nodeType: 'http', name: 'af.currentEnv测试' });
-    // 设置请求URL
+    await expect(variablePage.locator('.right')).toContainText('currentEnvVar', { timeout: 5000 });
+    const httpTab = contentPage.locator('.nav .item').filter({ hasText: 'af.currentEnv测试' }).first();
+    await httpTab.click();
+    await contentPage.waitForTimeout(3000);
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
-    // 点击前置脚本标签页
     const preScriptTab = contentPage.locator('[data-testid="http-params-tab-prescript"]');
     await preScriptTab.click();
     await contentPage.waitForTimeout(500);
-    // 在前置脚本编辑器中输入代码
     const editor = contentPage.locator('.s-monaco-editor');
     await expect(editor).toBeVisible({ timeout: 5000 });
     await editor.click();
     await contentPage.waitForTimeout(300);
-    // 输入前置脚本代码: 获取当前激活的环境变量并打印
-    const scriptCode = `console.log("当前环境变量:", JSON.stringify(af.currentEnv));`;
+    const scriptCode = `af.request.headers["X-Pre-CurrentEnv-Var"] = String((af.currentEnv && af.currentEnv.currentEnvVar) || "");`;
     await contentPage.keyboard.type(scriptCode);
     await contentPage.waitForTimeout(300);
-    // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(3000);
-    // 验证响应区域存在
     const responseBody = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
+    await expect(responseBody).toContainText('x-pre-currentenv-var', { timeout: 10000 });
   });
 });
-
-

@@ -25,6 +25,8 @@ test.describe('RequestUrlInput', () => {
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
     const responseBody = contentPage.locator('[data-testid="response-tab-body"]');
     await expect(responseBody).toBeVisible({ timeout: 10000 });
+    await expect(responseBody).toContainText('/echo', { timeout: 10000 });
+    await expect(responseBody).toContainText(/localhost|127.0.0.1/, { timeout: 10000 });
   });
   // 测试用例2: 输入127.0.0.1地址调用echo接口成功返回
   test('输入127.0.0.1地址调用echo接口成功返回', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -48,6 +50,8 @@ test.describe('RequestUrlInput', () => {
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
     const responseBody = contentPage.locator('[data-testid="response-tab-body"]');
     await expect(responseBody).toBeVisible({ timeout: 10000 });
+    await expect(responseBody).toContainText('/echo', { timeout: 10000 });
+    await expect(responseBody).toContainText('127.0.0.1', { timeout: 10000 });
   });
   // 测试用例3: 使用变量调用echo接口成功返回
   test('使用变量调用echo接口成功返回', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -87,6 +91,7 @@ test.describe('RequestUrlInput', () => {
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
     const responseBody = contentPage.locator('[data-testid="response-tab-body"]');
     await expect(responseBody).toBeVisible({ timeout: 10000 });
+    await expect(responseBody).toContainText('127.0.0.1', { timeout: 10000 });
   });
   // 测试用例4: 不带协议的URL自动添加http://后成功请求
   test('不带协议的URL自动添加http后成功请求', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -104,6 +109,8 @@ test.describe('RequestUrlInput', () => {
     // 点击其他区域失焦
     await contentPage.locator('[data-testid="method-select"]').click();
     await contentPage.waitForTimeout(300);
+    const formattedUrl = (await urlInput.innerText()).trim();
+    expect(formattedUrl).toBe(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
@@ -113,6 +120,7 @@ test.describe('RequestUrlInput', () => {
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
     const responseBody = contentPage.locator('[data-testid="response-tab-body"]');
     await expect(responseBody).toBeVisible({ timeout: 10000 });
+    await expect(responseBody).toContainText('/echo', { timeout: 10000 });
   });
   // 测试用例5: URL中的query参数自动解析到参数列表
   test('URL中的query参数自动解析到参数列表', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -135,6 +143,8 @@ test.describe('RequestUrlInput', () => {
     const keyCount = await keyInputs.count();
     // 应该有至少2个参数（id和name）
     expect(keyCount).toBeGreaterThanOrEqual(2);
+    await expect(contentPage.locator('.query-path-params')).toContainText('3', { timeout: 5000 });
+    await expect(contentPage.locator('.query-path-params')).toContainText('lee', { timeout: 5000 });
   });
   // 测试用例6: URL中带query参数发送请求返回结果正
   test('URL中带query参数发送请求返回结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -163,6 +173,8 @@ test.describe('RequestUrlInput', () => {
     await expect(responseBody).toBeVisible({ timeout: 10000 });
     await expect(responseBody).toContainText('id', { timeout: 10000 });
     await expect(responseBody).toContainText('name', { timeout: 10000 });
+    await expect(responseBody).toContainText('3', { timeout: 10000 });
+    await expect(responseBody).toContainText('lee', { timeout: 10000 });
   });
   // 测试用例7: 粘贴的URL去除前后空格
   test('粘贴的URL去除前后空格', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -183,6 +195,8 @@ test.describe('RequestUrlInput', () => {
     // 点击其他区域失焦
     await contentPage.locator('[data-testid="method-select"]').click();
     await contentPage.waitForTimeout(300);
+    const trimmedUrl = (await urlInput.innerText()).trim();
+    expect(trimmedUrl).toContain(`127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     // 发送请求验证URL被正确处理
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
@@ -211,6 +225,7 @@ test.describe('RequestUrlInput', () => {
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
     const responseBody = contentPage.locator('[data-testid="response-tab-body"]');
     await expect(responseBody).toBeVisible({ timeout: 10000 });
+    await expect(responseBody).toContainText('/echo/', { timeout: 10000 });
     await expect(responseBody).toContainText(/中文|%E4%B8%AD%E6%96%87/, { timeout: 10000 });
   });
 });

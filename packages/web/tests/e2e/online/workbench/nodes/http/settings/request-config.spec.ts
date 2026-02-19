@@ -27,6 +27,7 @@ test.describe('RequestConfig', () => {
     await expect(maxBodySizeInput).toBeVisible({ timeout: 5000 });
     await maxBodySizeInput.click();
     await maxBodySizeInput.fill('1');
+    await expect(maxBodySizeInput).toHaveValue('1');
   });
   // 修改最大原始Body大小配置,验证超过限制时的处理
   test('修改最大原始Body大小配置', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -51,6 +52,7 @@ test.describe('RequestConfig', () => {
     await expect(maxRawBodySizeInput).toBeVisible({ timeout: 5000 });
     await maxRawBodySizeInput.click();
     await maxRawBodySizeInput.fill('1');
+    await expect(maxRawBodySizeInput).toHaveValue('1');
   });
   // 修改自定义User-Agent配置,发送请求后验证User-Agent已更改
   test('修改自定义User-Agent配置', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -90,6 +92,9 @@ test.describe('RequestConfig', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.getByTestId('status-code');
     await expect(statusCode).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('user-agent', { timeout: 10000 });
+    await expect(responseBody).toContainText('CustomTestAgent/1.0', { timeout: 10000 });
   });
   // 修改请求头值最大展示长度配置,验证请求头展示截断正确
   test('修改请求头值最大展示长度配置', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -119,6 +124,7 @@ test.describe('RequestConfig', () => {
     await expect(maxHeaderValueDisplayLengthInput).toBeVisible({ timeout: 5000 });
     await maxHeaderValueDisplayLengthInput.click();
     await maxHeaderValueDisplayLengthInput.fill('50');
+    await expect(maxHeaderValueDisplayLengthInput).toHaveValue('50');
 
     // 切换到Headers标签添加长请求头
     const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
@@ -142,6 +148,9 @@ test.describe('RequestConfig', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.getByTestId('status-code');
     await expect(statusCode).toContainText('200', { timeout: 10000 });
+    const responseBody = responseArea.locator('.s-json-editor').first();
+    await expect(responseBody).toContainText('x-long-header', { timeout: 10000 });
+    await expect(responseBody).toContainText('This is a very long header value that should be truncated based on the max display length configuration setting', { timeout: 10000 });
   });
 });
 

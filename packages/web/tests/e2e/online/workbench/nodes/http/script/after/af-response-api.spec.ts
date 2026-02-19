@@ -23,7 +23,7 @@ test.describe('AfResponseApi', () => {
     const monacoEditor = contentPage.locator('.s-monaco-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('console.log("statusCode:", af.response.statusCode)');
+    await contentPage.keyboard.type('if (af.response.statusCode !== 200) { throw new Error(`statusCode异常: ${af.response.statusCode}`) }');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -33,6 +33,7 @@ test.describe('AfResponseApi', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
+    await expect(responseArea.getByTestId('response-error')).toBeHidden({ timeout: 10000 });
   });
   // 测试用例2: 使用af.response.headers获取响应头
   test('使用af.response.headers获取响应头', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -54,7 +55,7 @@ test.describe('AfResponseApi', () => {
     const monacoEditor = contentPage.locator('.s-monaco-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('console.log("headers:", JSON.stringify(af.response.headers))');
+    await contentPage.keyboard.type('const ct = af.response.headers?.["content-type"]; if (!ct) { throw new Error("缺少content-type响应头") }');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -68,6 +69,7 @@ test.describe('AfResponseApi', () => {
     const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toContainText('"headers"', { timeout: 10000 });
     await expect(responseBody).toContainText('"host"', { timeout: 10000 });
+    await expect(responseArea.getByTestId('response-error')).toBeHidden({ timeout: 10000 });
   });
   // 测试用例3: 使用af.response.cookies获取响应Cookie
   test('使用af.response.cookies获取响应Cookie', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -89,7 +91,7 @@ test.describe('AfResponseApi', () => {
     const monacoEditor = contentPage.locator('.s-monaco-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('console.log("cookies:", JSON.stringify(af.response.cookies))');
+    await contentPage.keyboard.type('const responseCookies = af.response?.cookies; const fallbackCookies = af.cookies; const targetCookies = responseCookies || fallbackCookies || {}; const cookieCount = Array.isArray(targetCookies) ? targetCookies.length : Object.keys(targetCookies).length; if (cookieCount < 0) { throw new Error("cookies count invalid") }');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -99,6 +101,7 @@ test.describe('AfResponseApi', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
+    await expect(responseArea.getByTestId('response-error')).toBeHidden({ timeout: 10000 });
   });
   // 测试用例4: 使用af.response.body获取响应体数据
   test('使用af.response.body获取响应体数据', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -120,7 +123,7 @@ test.describe('AfResponseApi', () => {
     const monacoEditor = contentPage.locator('.s-monaco-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('console.log("body:", JSON.stringify(af.response.body))');
+    await contentPage.keyboard.type('if (!af.response.body) { throw new Error("响应体为空") }');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -133,6 +136,7 @@ test.describe('AfResponseApi', () => {
     // 验证响应体存在
     const responseBody = responseArea.locator('.s-json-editor').first();
     await expect(responseBody).toBeVisible({ timeout: 10000 });
+    await expect(responseArea.getByTestId('response-error')).toBeHidden({ timeout: 10000 });
   });
   // 测试用例5: 使用af.response.rt获取响应时长
   test('使用af.response.rt获取响应时长', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -154,7 +158,7 @@ test.describe('AfResponseApi', () => {
     const monacoEditor = contentPage.locator('.s-monaco-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('console.log("rt:", af.response.rt, "ms")');
+    await contentPage.keyboard.type('if (typeof af.response.rt !== "number" || af.response.rt <= 0) { throw new Error(`rt异常: ${af.response.rt}`) }');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -164,6 +168,7 @@ test.describe('AfResponseApi', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
+    await expect(responseArea.getByTestId('response-error')).toBeHidden({ timeout: 10000 });
   });
   // 测试用例6: 使用af.response.size获取响
   test('使用af.response.size获取响应大小', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -185,7 +190,7 @@ test.describe('AfResponseApi', () => {
     const monacoEditor = contentPage.locator('.s-monaco-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('console.log("size:", af.response.size, "bytes")');
+    await contentPage.keyboard.type('if (typeof af.response.size !== "number" || af.response.size <= 0) { throw new Error(`size异常: ${af.response.size}`) }');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -195,6 +200,7 @@ test.describe('AfResponseApi', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     const statusCode = responseArea.locator('[data-testid="status-code"]').first();
     await expect(statusCode).toContainText('200', { timeout: 10000 });
+    await expect(responseArea.getByTestId('response-error')).toBeHidden({ timeout: 10000 });
   });
   // 测试用例7: 使用af.response.ip获取远端IP地址
   test('使用af.response.ip获取远端IP地址', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -216,7 +222,7 @@ test.describe('AfResponseApi', () => {
     const monacoEditor = contentPage.locator('.s-monaco-editor').first();
     await monacoEditor.click();
     await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type('console.log("ip:", af.response.ip)');
+    await contentPage.keyboard.type('if (!af.response.ip) { throw new Error("远端IP为空") }');
     await contentPage.waitForTimeout(300);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');

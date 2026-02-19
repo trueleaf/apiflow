@@ -58,9 +58,12 @@ test.describe('RefreshButton', () => {
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' });
     await postOption.click();
     await contentPage.waitForTimeout(300);
+    await expect(methodSelect).toContainText('POST');
     // 修改URL
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/changed`);
     await contentPage.waitForTimeout(300);
+    const unsavedDotBeforeRefresh = contentPage.locator('.nav .item.active [data-testid="project-nav-tab-unsaved"]');
+    await expect(unsavedDotBeforeRefresh).toBeVisible({ timeout: 5000 });
     // 点击刷新按钮
     const refreshBtn = contentPage.locator('[data-testid="operation-refresh-btn"]');
     await refreshBtn.click();
@@ -68,6 +71,8 @@ test.describe('RefreshButton', () => {
     // 验证URL恢复
     const restoredUrl = (await urlInput.innerText()).trim();
     expect(restoredUrl).toBe(initialUrl);
+    await expect(methodSelect).toContainText('GET');
+    await expect(unsavedDotBeforeRefresh).toBeHidden();
   });
 });
 
