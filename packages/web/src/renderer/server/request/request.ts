@@ -2,7 +2,7 @@ import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 import { ref, toRaw } from 'vue';
 import json5 from 'json5'
 import { HttpNode, ApidocProperty } from '@src/types';
-import { getFormDataFromFormDataParams, getObjectPathParams, getStringFromParams, safeDecodeURIComponent } from '@/helper'
+import { getFormDataFromFormDataParams, getObjectPathParams, getStringFromParams, safeDecodeURIComponent, getObjectVariable } from '@/helper'
 import { getCompiledTemplate } from '@/helper';
 import { useVariable } from '@/store/projectWorkbench/variablesStore';
 import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/index.ts';
@@ -451,7 +451,6 @@ export const sendRequest = async () => {
   const worker = new preRequestWorker();
   const redirectList = ref<ResponseInfo['redirectList']>([]);
   const projectWorkbenchStore = useProjectWorkbench();
-  const { objectVariable } = useVariable();
   const httpNodeResponseStore = useHttpNodeResponse();
   const projectId = projectWorkbenchStore.projectId;
   const runtimeStore = useRuntime();
@@ -784,7 +783,7 @@ export const sendRequest = async () => {
                 json: responseJson,
                 body: responseBody,
               },
-              toRaw(objectVariable),
+              await getObjectVariable(variableStore.variables),
               afterScriptCookies,
               afterRequestLocalStorage,
               afterRequestSessionStorage,
@@ -824,6 +823,7 @@ export const sendRequest = async () => {
     return;
   }
   // console.log(JSONbig.parse(preSendBody.value))
+  const currentScriptVariables = await getObjectVariable(variableStore.variables);
   const initDataMessage: InitDataMessage = {
     type: 'initData',
     reqeustInfo: {
@@ -850,7 +850,7 @@ export const sendRequest = async () => {
         bodyType: copiedApidoc.item.requestBody.mode
       }
     },
-    variables: toRaw(objectVariable),
+    variables: currentScriptVariables,
     cookies: objCookies,
     localStorage: preRequestLocalStorage,
     sessionStorage: preRequestSessionStorage

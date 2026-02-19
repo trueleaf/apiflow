@@ -276,6 +276,8 @@ export type AF = {
     };
     bodyType: 'json' | 'urlencoded' | 'formdata' | 'raw' | 'binary' | 'none';
   };
+  envs: Record<string, BasicJSON>;
+  currentEnv: Record<string, BasicJSON>;
   variables: { [key: string]: BasicJSON };
   sessionStorage: Record<string, unknown>;
   localStorage: Record<string, unknown>;

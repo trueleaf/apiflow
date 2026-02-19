@@ -164,6 +164,7 @@ const af: HttpAfter = new Proxy({
   response: {
     statusCode: 0,
     headers: {},
+    cookies: {},
     rt: 0,
     size: 0,
     ip: '',

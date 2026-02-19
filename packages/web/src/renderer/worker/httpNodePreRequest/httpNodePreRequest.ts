@@ -75,6 +75,8 @@ const af: AF = new Proxy({
   projectId: '',
   nodeId: '',
   request: createRequestProxy(),
+  envs: variables,
+  currentEnv: variables,
   variables,
   sessionStorage,
   localStorage,
@@ -88,7 +90,7 @@ const af: AF = new Proxy({
   }
 }, {
   deleteProperty(target, key) {
-    if (key === 'nodeId' || key === 'request' || key === 'variables' || key === 'sessionStorage' || key === 'localStorage' || key === 'cookies' || key === 'http') {
+    if (key === 'nodeId' || key === 'request' || key === 'envs' || key === 'currentEnv' || key === 'variables' || key === 'sessionStorage' || key === 'localStorage' || key === 'cookies' || key === 'http') {
       return true;
     }
     return Reflect.deleteProperty(target, key);
