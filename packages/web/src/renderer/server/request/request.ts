@@ -23,6 +23,7 @@ import { i18n } from '@/i18n';
 import { useCookies } from '@/store/projectWorkbench/cookiesStore';
 import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/httpNodePreRequest/types/types.ts';
 import { Method } from 'got';
+import { parse } from 'set-cookie-parser';
 import preRequestWorker from '@/worker/httpNodePreRequest/httpNodePreRequest.ts?worker&inline';
 import { WebSocketNode } from '@src/types/websocketNode';
 import { useRuntime } from '@/store/runtime/runtimeStore';
@@ -739,6 +740,19 @@ export const sendRequest = async () => {
             const latestUrlencoded = await convertPropertyToObject(copiedApidoc.item.requestBody.urlencoded);
             const latestPaths = await convertPropertyToObject(copiedApidoc.item.paths);
             const latestQueryParams = await convertPropertyToObject(copiedApidoc.item.queryParams);
+            const latestMatchedCookies = getMachtedCookies(url);
+            const afterScriptCookies = await convertPropertyToObject(latestMatchedCookies.map(cookie => ({
+              key: safeDecodeURIComponent(cookie.name),
+              value: safeDecodeURIComponent(cookie.value),
+              select: true
+            })) as ApidocProperty<"string">[]);
+            const responseCookies = setCookieStrList.reduce((acc, cookieStr) => {
+              const parsedCookie = parse([cookieStr], { map: false })[0];
+              if (parsedCookie?.name) {
+                acc[safeDecodeURIComponent(parsedCookie.name)] = safeDecodeURIComponent(parsedCookie.value || '');
+              }
+              return acc;
+            }, {} as Record<string, string>);
             const afterScriptResult = await executeHttpAfterScript(
               {
                 _id: copiedApidoc._id,
@@ -762,6 +776,7 @@ export const sendRequest = async () => {
               {
                 statusCode: responseInfo.statusCode,
                 headers: responseInfo.headers,
+                cookies: Object.keys(responseCookies).length > 0 ? responseCookies : afterScriptCookies,
                 rt: responseInfo.rt,
                 size: responseInfo.bodyByteLength,
                 ip: responseInfo.ip,
@@ -770,7 +785,7 @@ export const sendRequest = async () => {
                 body: responseBody,
               },
               toRaw(objectVariable),
-              objCookies,
+              afterScriptCookies,
               afterRequestLocalStorage,
               afterRequestSessionStorage,
               projectId,

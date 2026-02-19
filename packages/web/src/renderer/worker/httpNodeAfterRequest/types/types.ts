@@ -48,6 +48,7 @@ export type AfterRequestInfo = {
 export type AfterResponseInfo = {
   statusCode: number;
   headers: Record<string, string | string[] | undefined>;
+  cookies: Record<string, string>;
   rt: number;
   size: number;
   ip: string;
