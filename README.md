@@ -15,14 +15,14 @@
 [Download](https://github.com/trueleaf/apiflow/releases)  | [Online Demo](https://apiflow.cn/)
 
 
-<!-- 🚀 [Download](https://github.com/trueleaf/apiflow/releases) ·
-✨ [Online Demo](https://apiflow.cn) -->
-<!-- 📖 [Documentation](https://www.yuque.com/apiflow) · -->
+<!-- [Download](https://github.com/trueleaf/apiflow/releases) ·
+[Online Demo](https://apiflow.cn) -->
+<!-- [Documentation](https://www.yuque.com/apiflow) · -->
 
 </div>
 
 ---
-## 🖥️ Preview
+## Preview
 
 ### AI Agent
 ![AI Agent](./docs/en/agent.gif)
@@ -31,7 +31,7 @@
 ![SSE](./docs/en/sse.gif)
 
 ---
-## 🚀 What is Apiflow?
+## What is Apiflow?
 
 **Apiflow** is a **completely free**, **AI-powered API development platform** designed as a modern alternative to **Postman**, **Hoppscotch**, and **Insomnia**.
 
@@ -39,18 +39,18 @@ It supports **API testing**, **mocking**, **WebSocket**, **AI agents**, **team c
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### ✅ 100% Free
+### 100% Free
 - All features are free to use
 - No paid plans, no feature limits
 
-### 🤖 AI Agent Built-In
+### AI Agent Built-In
 - Built-in AI Agent for API design, testing and debugging
 - Configure your own Large Language Model
 - Works in offline or intranet environments
 
-### 👥 Team Collaboration
+### Team Collaboration
 
 - Built-in team and workspace management
 - **Unlimited teams and members**
@@ -61,7 +61,7 @@ It supports **API testing**, **mocking**, **WebSocket**, **AI agents**, **team c
 - Operation history and change tracking
 - Designed for teams of any size
 
-### 📴 Offline & Online
+### Offline & Online
 
 - Local-first by design, online when you need it
 - Full offline capability with local persistence
@@ -70,12 +70,12 @@ It supports **API testing**, **mocking**, **WebSocket**, **AI agents**, **team c
 - Ideal for private networks and restricted environments
 
 
-### 🏠 Self-Hosted & Local Deployment
+### Self-Hosted & Local Deployment
 - One-click Docker deployment
 - Data fully controlled by yourself
 - Suitable for enterprises and private networks
 
-### 🔄 OpenAPI Friendly
+### OpenAPI Friendly
 - Import & export **OpenAPI 3.x**
 - Seamlessly migrate data to:
   - Postman
@@ -85,7 +85,7 @@ It supports **API testing**, **mocking**, **WebSocket**, **AI agents**, **team c
 
 ---
 
-## 🧩 Core Capabilities
+## Core Capabilities
 
 - HTTP API testing (RESTful)
 - WebSocket testing
@@ -100,20 +100,20 @@ It supports **API testing**, **mocking**, **WebSocket**, **AI agents**, **team c
 
 
 
-## ⬇️ Download
+## Download
 
 Download the latest version for your platform:
 
 | Platform | Download |
 |---------|----------|
-| 🪟 Windows | https://github.com/trueleaf/apiflow/releases |
-| 🍎 macOS | https://github.com/trueleaf/apiflow/releases |
-| 🐧 Linux | https://github.com/trueleaf/apiflow/releases |
+| Windows | https://github.com/trueleaf/apiflow/releases |
+| macOS | https://github.com/trueleaf/apiflow/releases |
+| Linux | https://github.com/trueleaf/apiflow/releases |
 
 
 ---
 
-## 🐳 Local Deployment (Docker)
+## Local Deployment (Docker)
 
 ### Requirements
 - Docker
@@ -147,14 +147,14 @@ After successfully deploying Apiflow, follow these steps to add users:
 2. **Login with Default Admin Account**
    - Username: `admin`
    - Default Password: `111111`
-   - ⚠️ **Important**: Change the default password after first login for security
+   - **Important**: Change the default password after first login for security
 
 3. **Add New Users**
    - Navigate to the admin panel/backend management
    - Find the user management section
    - Click "Add User" to create new accounts for your team members
 
-### 🚀 Code Update
+### Code Update
 
 If you are running Apiflow with Docker, updating the code does not require rebuilding locally.
 
@@ -188,14 +188,11 @@ docker compose up -d
 # Option 3: compatibility mode, rollback by tag/sha (not guaranteed to be exact)
 ./rollback.sh v1.2.3
 # ./rollback.sh 7f3a2b1c4d5e
-
-# CN registry compose overlay (if needed)
-./rollback.sh --previous --cn
 ```
 
 ---
 
-## 💻 Local Development
+## Local Development
 
 ### Prerequisites
 - **Node.js**: >= 20.0.0
@@ -250,7 +247,34 @@ This is a multi-package monorepo:
 - Backend auto-restarts when files change
 - You can develop packages independently by running their specific dev commands
 
-## 📜 License
+---
+
+## Local Packaging (Electron)
+
+To package the application as a desktop installer, run the following commands from the project root.
+
+### Prerequisites
+- **Node.js**: >= 20.0.0
+- **macOS**: Xcode Command Line Tools required (`xcode-select --install`)
+- **Linux**: `fakeroot` and `dpkg` for `.deb`; `rpm` for `.rpm` packages
+- Each platform's installer can only be built on its native OS (no cross-platform compilation)
+
+### Build Commands
+
+| Command | Description |
+|---------|-------------|
+| `npm run web:build:local:pack` | Quick verification: extract to directory only, no installer, fastest option |
+| `npm run web:build:local:win` | Build Windows installer (`.exe` NSIS) |
+| `npm run web:build:local:mac` | Build macOS installer (`.dmg` + `.zip`, x64/arm64) |
+| `npm run web:build:local:linux` | Build Linux packages (`.AppImage` + `.deb`, x64/arm64) |
+
+### Output Directory
+
+Build artifacts are located in `packages/web/release/`.
+
+---
+
+## License
 
 This project is licensed under the **MIT License**.  
 See the [LICENSE](./LICENSE) file for details.
