@@ -213,10 +213,34 @@ test.describe('BannerOtherFeatures', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await contentPage.waitForTimeout(500);
 
-    const historyTab = contentPage.getByTestId('banner-tab-history');
+    const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
+    const historyTab = bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史|History/ });
     await expect(historyTab).toBeVisible({ timeout: 5000 });
     await historyTab.click();
-    await expect(contentPage.getByTestId('banner-tab-history')).toHaveClass(/is-active/);
+    await expect(historyTab).toHaveClass(/is-active/);
+    await expect(contentPage.locator('.send-history')).toBeVisible({ timeout: 5000 });
+  });
+  // 测试用例10: 调用历史视图刷新后保持选中状态
+  test('调用历史视图刷新页面后保持历史列表展示', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+
+    const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
+    const historyTab = bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史|History/ });
+    await expect(historyTab).toBeVisible({ timeout: 5000 });
+    await historyTab.click();
+    await expect(historyTab).toHaveClass(/is-active/);
+    await expect(contentPage.locator('.send-history')).toBeVisible({ timeout: 5000 });
+
+    await contentPage.reload();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
+    await contentPage.waitForTimeout(500);
+
+    await expect(bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史|History/ })).toHaveClass(/is-active/);
     await expect(contentPage.locator('.send-history')).toBeVisible({ timeout: 5000 });
   });
 });

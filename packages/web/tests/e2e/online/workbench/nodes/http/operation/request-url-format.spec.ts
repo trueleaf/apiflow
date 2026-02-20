@@ -1,5 +1,7 @@
 import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
 
+const MOCK_SERVER_PORT = 3456;
+
 test.describe('RequestUrlFormat', () => {
   // 输入URL后blur自动添加http://前缀，验证格式化操作不进入撤销栈
   test('输入URL后blur自动添加http://前缀，撤销不会回到格式化前', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -120,5 +122,24 @@ test.describe('RequestUrlFormat', () => {
     await undoBtn.click();
     await contentPage.waitForTimeout(300);
     await expect(urlInput).toHaveText(/^\s*$/, { timeout: 5000 });
+  });
+  // 输入前后空格URL，格式化后去除空格并自动补全协议
+  test('输入前后空格URL后格式化结果正确', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: 'URL空格格式化测试' });
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.click();
+    await contentPage.keyboard.type(`  127.0.0.1:${MOCK_SERVER_PORT}/echo  `);
+    await contentPage.waitForTimeout(200);
+    await urlInput.evaluate((el) => (el as HTMLElement).blur());
+    await contentPage.waitForTimeout(300);
+    await expect(urlInput).toHaveText(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`, { timeout: 5000 });
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
   });
 });

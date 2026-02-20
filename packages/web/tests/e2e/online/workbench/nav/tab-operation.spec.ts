@@ -180,7 +180,28 @@ test.describe('TabOperation', () => {
     const activeTab = contentPage.locator('.nav .item.active');
     await expect(activeTab).toContainText(/未命名接口|Untitled/);
   });
-  // 测试用例9: 双击tab固定非固定页签
+  // 测试用例9: 双击tab空白区域打开新建接口并创建成功
+  test('双击tab空白区域新增接口', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const initialCount = await contentPage.locator('.nav .drag-wrap .item').count();
+    const tabList = contentPage.locator('.nav .tab-list');
+    await expect(tabList).toBeVisible({ timeout: 5000 });
+    await tabList.dblclick();
+    const addApiDialog = contentPage.locator('.el-dialog').filter({ hasText: /新建接口|Create/ });
+    await expect(addApiDialog).toBeVisible({ timeout: 5000 });
+    await addApiDialog.locator('input').first().fill('双击空白新增接口');
+    await addApiDialog.locator('.el-button--primary').last().click();
+    await expect(addApiDialog).toBeHidden({ timeout: 5000 });
+    await contentPage.waitForTimeout(300);
+    const newCount = await contentPage.locator('.nav .drag-wrap .item').count();
+    expect(newCount).toBe(initialCount + 1);
+    await expect(contentPage.locator('.nav .item').filter({ hasText: '双击空白新增接口' }).first()).toBeVisible({ timeout: 5000 });
+  });
+  // 测试用例10: 双击tab固定非固定页签
   test('双击tab固定非固定页签', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
@@ -206,7 +227,7 @@ test.describe('TabOperation', () => {
     // 验证变为固定状态
     await expect(itemText).not.toHaveClass(/unfixed/);
   });
-  // 测试用例10: 鼠标中键点击tab关闭当前tab
+  // 测试用例11: 鼠标中键点击tab关闭当前tab
   test('鼠标中键点击tab关闭当前tab', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
@@ -220,7 +241,7 @@ test.describe('TabOperation', () => {
     await contentPage.waitForTimeout(300);
     await expect(contentPage.locator('.nav .item').filter({ hasText: '中键关闭测试' })).toHaveCount(0);
   });
-  // 测试用例11: 关闭当前激活tab后自动激活其他tab
+  // 测试用例12: 关闭当前激活tab后自动激活其他tab
   test('关闭当前激活tab后自动激活其他tab', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
@@ -238,7 +259,7 @@ test.describe('TabOperation', () => {
     await expect(contentPage.locator('.nav .item').filter({ hasText: '关闭后切换B' })).toHaveCount(0);
     await expect(tabA).toHaveClass(/active/, { timeout: 5000 });
   });
-  // 测试用例12: 右键菜单强制全部关闭
+  // 测试用例13: 右键菜单强制全部关闭
   test('右键菜单强制全部关闭', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
@@ -256,6 +277,47 @@ test.describe('TabOperation', () => {
     await contentPage.waitForTimeout(500);
     const tabCount = await contentPage.locator('.nav .drag-wrap .item').count();
     expect(tabCount).toBe(0);
+  });
+  // 测试用例14: 关闭进行中的请求tab后请求被取消
+  test('关闭发送中的tab会取消请求并恢复发送按钮', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: '关闭取消请求A' });
+    await createNode(contentPage, { nodeType: 'http', name: '关闭取消请求B' });
+    const tabA = contentPage.locator('.nav .item').filter({ hasText: '关闭取消请求A' }).first();
+    const tabB = contentPage.locator('.nav .item').filter({ hasText: '关闭取消请求B' }).first();
+    await expect(tabB).toHaveClass(/active/, { timeout: 5000 });
+
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill('http://127.0.0.1:3456/delay/10000');
+    await contentPage.locator('[data-testid="operation-send-btn"]').click();
+    const cancelBtn = contentPage.locator('[data-testid="operation-cancel-btn"]');
+    await expect(cancelBtn).toBeVisible({ timeout: 5000 });
+
+    await tabB.click({ button: 'right' });
+    await contentPage.waitForTimeout(200);
+    const closeMenuItem = contentPage.locator('[data-testid="contextmenu-item-关闭"], [data-testid="contextmenu-item-Close"]');
+    await expect(closeMenuItem).toBeVisible({ timeout: 5000 });
+    await closeMenuItem.click();
+    const discardBtn = contentPage.locator('.cl-confirm-footer-right button').filter({ hasText: /不保存|Don't Save/ }).first();
+    try {
+      await discardBtn.waitFor({ state: 'visible', timeout: 2000 });
+      await discardBtn.click();
+    } catch {}
+    await contentPage.waitForTimeout(300);
+    await expect(contentPage.locator('.nav .item').filter({ hasText: '关闭取消请求B' })).toHaveCount(0);
+    await expect(cancelBtn).toBeHidden({ timeout: 5000 });
+    await expect(contentPage.locator('[data-testid="operation-send-btn"]')).toBeVisible({ timeout: 5000 });
+
+    await tabA.click();
+    await urlInput.fill('http://127.0.0.1:3456/echo?from=closeTabCancel');
+    await contentPage.locator('[data-testid="operation-send-btn"]').click();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
+    await expect(responseArea.locator('.s-json-editor').first()).toContainText('closeTabCancel', { timeout: 10000 });
   });
 });
 

@@ -32,6 +32,8 @@ test.describe('RequestMethodInput', () => {
     await contentPage.waitForTimeout(300);
     // 验证下拉菜单关闭,显示选中值
     await expect(methodSelect).toContainText('POST', { timeout: 5000 });
+    const unsavedDot = contentPage.locator('.nav .item.active [data-testid="project-nav-tab-unsaved"]');
+    await expect(unsavedDot).toBeVisible({ timeout: 5000 });
     // 再次点击下拉框
     await methodSelect.click();
     await contentPage.waitForTimeout(300);
@@ -40,8 +42,8 @@ test.describe('RequestMethodInput', () => {
     await urlInput.click();
     await contentPage.waitForTimeout(300);
     // 验证下拉菜单已关闭
-    const closedDropdown = contentPage.locator('.el-select-dropdown').filter({ hasText: 'GET' });
-    await expect(closedDropdown).toBeHidden({ timeout: 5000 });
+    const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
+    await expect(visibleDropdown).toHaveCount(0, { timeout: 5000 });
   });
   // 测试用例2: 切换请求方法不会改变banner节点中的请求方法,只有保存后才会生效
   test('切换请求方法不会改变banner节点中的请求方法,只有保存后才会生效', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
@@ -73,7 +75,7 @@ test.describe('RequestMethodInput', () => {
     // 验证保存后banner节点图标变为POST
     await expect(bannerNode).toContainText('POST', { timeout: 5000 });
   });
-  // 测试用例3: 切换所有请求方法,点击发送请求,调用测试服务器/echo接口,返回method为选中的method
+  // 测试用例3: 切换请求方法并发送请求,响应method与选中方法一致
   test('切换请求方法后发送请求,响应中method字段与选中的方法一致', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
     await clearCache();
 
@@ -89,10 +91,9 @@ test.describe('RequestMethodInput', () => {
     const methodSelect = contentPage.locator('[data-testid="method-select"]');
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     const responseCode = contentPage.getByTestId('response-tab-body').locator('.s-json-editor').first();
     await expect(responseCode).toBeVisible({ timeout: 10000 });
-    await expect(responseCode).toContainText('GET', { timeout: 10000 });
+    await expect(responseCode).toContainText('"method": "GET"', { timeout: 10000 });
     // 测试POST方法
     await methodSelect.click();
     const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^POST$/ });
@@ -101,8 +102,7 @@ test.describe('RequestMethodInput', () => {
     await contentPage.waitForTimeout(300);
     await expect(methodSelect).toContainText('POST', { timeout: 5000 });
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
-    await expect(responseCode).toContainText('POST', { timeout: 10000 });
+    await expect(responseCode).toContainText('"method": "POST"', { timeout: 10000 });
     // 测试PUT方法
     await methodSelect.click();
     const putOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^PUT$/ });
@@ -111,8 +111,34 @@ test.describe('RequestMethodInput', () => {
     await contentPage.waitForTimeout(300);
     await expect(methodSelect).toContainText('PUT', { timeout: 5000 });
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
-    await expect(responseCode).toContainText('PUT', { timeout: 10000 });
+    await expect(responseCode).toContainText('"method": "PUT"', { timeout: 10000 });
+    // 测试DELETE方法
+    await methodSelect.click();
+    const delOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^DEL$/ });
+    await expect(delOption).toBeVisible({ timeout: 5000 });
+    await delOption.click();
+    await contentPage.waitForTimeout(300);
+    await expect(methodSelect).toContainText(/DEL/, { timeout: 5000 });
+    await sendBtn.click();
+    await expect(responseCode).toContainText('"method": "DELETE"', { timeout: 10000 });
+    // 测试PATCH方法
+    await methodSelect.click();
+    const patchOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^PATCH$/ });
+    await expect(patchOption).toBeVisible({ timeout: 5000 });
+    await patchOption.click();
+    await contentPage.waitForTimeout(300);
+    await expect(methodSelect).toContainText('PATCH', { timeout: 5000 });
+    await sendBtn.click();
+    await expect(responseCode).toContainText('"method": "PATCH"', { timeout: 10000 });
+    // 测试OPTIONS方法
+    await methodSelect.click();
+    const optionsOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^OPTIONS$/ });
+    await expect(optionsOption).toBeVisible({ timeout: 5000 });
+    await optionsOption.click();
+    await contentPage.waitForTimeout(300);
+    await expect(methodSelect).toContainText('OPTIONS', { timeout: 5000 });
+    await sendBtn.click();
+    await expect(responseCode).toContainText('"method": "OPTIONS"', { timeout: 10000 });
   });
   // 测试用例4: 发送请求后出现取消请求按钮,点击后恢复发送按钮
   test('发送请求后出现取消请求按钮点击后恢复发送按钮', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {

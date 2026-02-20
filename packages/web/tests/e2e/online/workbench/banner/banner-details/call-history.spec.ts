@@ -247,6 +247,12 @@ test.describe('CallHistory', () => {
     await expect(deletedTag).toContainText(/已删除/);
     const cleanDeletedBtn = contentPage.locator('.clean-deleted-btn');
     await expect(cleanDeletedBtn).toBeVisible({ timeout: 5000 });
+    const tabCountBeforeClickDeletedItem = await contentPage.locator('.nav .drag-wrap .item').count();
+    await deletedItem.click();
+    await contentPage.waitForTimeout(300);
+    const tabCountAfterClickDeletedItem = await contentPage.locator('.nav .drag-wrap .item').count();
+    expect(tabCountAfterClickDeletedItem).toBe(tabCountBeforeClickDeletedItem);
+    await expect(contentPage.locator('.nav .item').filter({ hasText: httpName })).toHaveCount(0);
   });
 
   // 测试用例7: 历史记录滚动加载更多功能验证
@@ -549,6 +555,81 @@ test.describe('CallHistory', () => {
     await contentPage.waitForTimeout(300);
     await expect(contentPage.locator('.send-history-list .history-item .item-name').filter({ hasText: '筛选HTTP节点' })).toHaveCount(1);
     await expect(contentPage.locator('.send-history-list .history-item .item-name').filter({ hasText: '筛选WS节点' })).toHaveCount(0);
+  });
+  // 测试用例12: 高级筛选全不选时显示空状态
+  test('高级筛选全不选后历史列表为空,重新勾选后恢复', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await contentPage.waitForTimeout(500);
+    await contentPage.evaluate(async () => {
+      const dbName = 'sendHistoryCache';
+      const version = 2;
+      const storeName = 'histories';
+      const openRequest = indexedDB.open(dbName, version);
+      const db: IDBDatabase = await new Promise((resolve, reject) => {
+        openRequest.onupgradeneeded = () => {
+          const upgradeDb = openRequest.result;
+          if (!upgradeDb.objectStoreNames.contains(storeName)) {
+            const store = upgradeDb.createObjectStore(storeName, { keyPath: '_id' });
+            store.createIndex('nodeId', 'nodeId', { unique: false });
+            store.createIndex('timestamp', 'timestamp', { unique: false });
+            store.createIndex('networkType', 'networkType', { unique: false });
+          }
+        };
+        openRequest.onsuccess = () => resolve(openRequest.result);
+        openRequest.onerror = () => reject(openRequest.error);
+      });
+      const tx = db.transaction(storeName, 'readwrite');
+      const store = tx.objectStore(storeName);
+      const now = Date.now();
+      store.put({
+        _id: `filter-empty-http-${now}`,
+        nodeId: 'filter-empty-http-node',
+        nodeName: '全不选HTTP节点',
+        nodeType: 'http',
+        method: 'GET',
+        url: 'http://localhost:3456/echo?node=http',
+        timestamp: now,
+        operatorName: 'e2e',
+        networkType: 'online'
+      });
+      store.put({
+        _id: `filter-empty-ws-${now}`,
+        nodeId: 'filter-empty-ws-node',
+        nodeName: '全不选WS节点',
+        nodeType: 'websocket',
+        protocol: 'WS',
+        url: 'ws://localhost:3456/ws',
+        timestamp: now - 1,
+        operatorName: 'e2e',
+        networkType: 'online'
+      });
+      await new Promise<void>((resolve, reject) => {
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error);
+      });
+      db.close();
+    });
+    const bannerTabs = contentPage.locator('[data-testid="banner-tabs"]');
+    await bannerTabs.locator('.clean-tabs__item').filter({ hasText: /调用历史/ }).click();
+    await contentPage.waitForTimeout(500);
+    await contentPage.locator('.send-history-search .filter-history-icon').click();
+    await contentPage.waitForTimeout(200);
+    const httpFilter = contentPage.locator('.send-history-advanced-filter .el-checkbox').filter({ hasText: /HTTP节点|HTTP/ }).first();
+    const websocketFilter = contentPage.locator('.send-history-advanced-filter .el-checkbox').filter({ hasText: /WebSocket节点|WebSocket/ }).first();
+    await httpFilter.click();
+    await websocketFilter.click();
+    await contentPage.waitForTimeout(400);
+    await expect(contentPage.locator('.send-history-list .history-item')).toHaveCount(0);
+    await expect(contentPage.locator('.send-history-list .empty')).toBeVisible({ timeout: 5000 });
+    await httpFilter.click();
+    await contentPage.waitForTimeout(400);
+    await expect(contentPage.locator('.send-history-list .history-item .item-name').filter({ hasText: '全不选HTTP节点' })).toHaveCount(1);
+    await expect(contentPage.locator('.send-history-list .history-item .item-name').filter({ hasText: '全不选WS节点' })).toHaveCount(0);
   });
 });
 
