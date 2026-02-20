@@ -20,9 +20,9 @@ export class SystemConfigService {
     }
     return { enableGuest: config.enableGuest, enableRegister: config.enableRegister };
   }
-  // 更新系统配置（仅 DEPLOYMENT_TYPE=user 时允许）
+  // 更新系统配置（DEPLOYMENT_TYPE=user 或本地启动时允许）
   async updateSystemConfig(params: { enableGuest?: boolean; enableRegister?: boolean }) {
-    if (!this.permissionConfig.isFree) {
+    if (!this.permissionConfig.isFree && process.env.NODE_ENV === 'production') {
       throwError(4003, '当前部署模式不支持此操作');
     }
     const existing = await this.systemConfigModel.findOne({});
