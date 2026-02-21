@@ -83,6 +83,7 @@ const handleSaveServerRoute = () => {
      loading.value = true;
      request.post('/api/security/server_routes', params).then(() => {
        emits('success');
+       handleClose();
       }).catch((err) => {
         console.error(err);
       }).finally(() => {
