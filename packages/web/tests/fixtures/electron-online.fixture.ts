@@ -184,8 +184,15 @@ export const test = base.extend<ElectronFixtures>({
       await expect(projectDialog).toBeVisible({ timeout: 5000 });
       const projectNameInput = projectDialog.locator('input').first();
       await projectNameInput.fill(projectName);
+      const blockingDialog = contentPage.locator('.el-overlay-message-box:visible');
+      const hasBlockingDialog = await blockingDialog.isVisible({ timeout: 500 }).catch(() => false);
+      if (hasBlockingDialog) {
+        const blockingDialogConfirmBtn = blockingDialog.locator('.el-button--primary').last();
+        await blockingDialogConfirmBtn.click({ force: true }).catch(() => undefined);
+        await expect(blockingDialog).toBeHidden({ timeout: 3000 }).catch(() => undefined);
+      }
       const confirmBtn = projectDialog.locator('.el-button--primary').last();
-      await confirmBtn.click();
+      await confirmBtn.click({ force: true });
       await expect(projectDialog).toBeHidden({ timeout: 5000 });
       await topBarPage.waitForTimeout(500);
       return projectName;

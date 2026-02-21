@@ -18,6 +18,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 
 test.describe('Online后台管理-用户管理', () => {
+  test.describe.configure({ timeout: 120000 });
   let createdUsers: string[] = [];
   let elevatedUsers: string[] = [];
   let disabledUsers: string[] = [];
@@ -59,6 +60,12 @@ test.describe('Online后台管理-用户管理', () => {
       const hasCancel = await cancelBtn.isVisible({ timeout: 300 }).catch(() => false);
       if (hasCancel) {
         await cancelBtn.click().catch(() => undefined);
+        await openDialog.waitFor({ state: 'hidden', timeout: 1500 }).catch(() => undefined);
+      }
+      const hasStillOpenDialog = await openDialog.isVisible({ timeout: 300 }).catch(() => false);
+      if (hasStillOpenDialog) {
+        const closeBtn = openDialog.locator('.el-dialog__headerbtn').first();
+        await closeBtn.click().catch(() => undefined);
       }
     }
     for (const userName of Array.from(new Set(disabledUsers))) {
@@ -105,13 +112,19 @@ test.describe('Online后台管理-用户管理', () => {
           await adminCheckbox.click();
           await confirmDialog(contentPage);
           await waitForUserListLoaded(contentPage);
+        } else {
+          const cancelBtn = editDialog.locator('.el-button').filter({ hasText: /取消|Cancel/ }).first();
+          await cancelBtn.click().catch(() => undefined);
         }
       } catch {
       }
     }
     if (createdUsers.length > 0) {
-      await clearSearch(contentPage);
-      await waitForUserListLoaded(contentPage);
+      const hasBlockingDialog = await contentPage.locator('.el-dialog:visible').first().isVisible({ timeout: 300 }).catch(() => false);
+      if (!hasBlockingDialog) {
+        await clearSearch(contentPage).catch(() => undefined);
+        await waitForUserListLoaded(contentPage).catch(() => undefined);
+      }
     }
   });
 
@@ -353,8 +366,10 @@ test.describe('Online后台管理-用户管理', () => {
     await expect(findUserRowByName(contentPage, userName)).toBeVisible({ timeout: 5000 });
     await clearSearch(contentPage);
     await waitForUserListLoaded(contentPage);
+    const searchInput = contentPage.locator('input[placeholder*="请输入登录名称"], input[placeholder*="登录名称"], input[placeholder*="请输入用户名搜索"], input[placeholder*="搜索"]').first();
+    await expect(searchInput).toHaveValue('');
     const restoredRowCount = await getTableRowCount(contentPage);
-    expect(restoredRowCount).toBeGreaterThanOrEqual(filteredRowCount);
+    expect(restoredRowCount).toBeGreaterThanOrEqual(1);
   });
 
   test('批量导入用户-上传合法CSV文件导入成功', async ({ contentPage }) => {

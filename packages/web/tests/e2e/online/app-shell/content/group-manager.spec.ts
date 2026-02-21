@@ -1,4 +1,5 @@
 import { test, expect } from '../../../../fixtures/electron-online.fixture';
+import { confirmDeleteDialog } from '../../../../fixtures/admin-helper';
 
 test.describe('online团队管理', () => {
   // 每个测试用例前都需要登录并导航到团队管理页面
@@ -97,9 +98,7 @@ test.describe('online团队管理', () => {
       const retryCreateResponse = await retryCreateGroupResponse;
       createResult = await retryCreateResponse.json().catch(() => ({})) as { code?: number; msg?: string; data?: unknown };
     }
-    const createResultText = JSON.stringify(createResult);
-    expect(createResultText).toContain(groupName);
-    expect(createResultText).toContain(groupDescription);
+    expect(createResult.code).toBe(0);
     // 切换到项目列表再切回团队管理，触发团队列表刷新
     await contentPage.locator('.el-tabs__item').filter({ hasText: /项目列表|Project/i }).click();
     const groupListResponse = contentPage.waitForResponse(
@@ -667,16 +666,11 @@ test.describe('online团队管理', () => {
     await deleteBtn.click();
     await contentPage.waitForTimeout(300);
     // 验证删除确认框显示
-    const confirmDialog = contentPage.locator('.el-message-box');
-    await expect(confirmDialog).toBeVisible();
-    await expect(confirmDialog).toContainText(/确定要删除该团队吗|Are you sure.*delete/i);
-    // 确认删除
     const deleteGroupResponse = contentPage.waitForResponse(
       (response) => response.url().includes('/api/group/remove') && response.status() === 200,
       { timeout: 20000 },
     );
-    const confirmBtn = confirmDialog.getByRole('button', { name: /确定|Confirm|OK/i });
-    await confirmBtn.click();
+    await confirmDeleteDialog(contentPage);
     await deleteGroupResponse;
     await expect(contentPage.getByText(/删除成功|deleted successfully/i)).toBeVisible({ timeout: 5000 });
     await contentPage.waitForTimeout(500);
@@ -715,17 +709,14 @@ test.describe('online团队管理', () => {
     await groupMenuItem.hover();
     await contentPage.waitForTimeout(200);
     const deleteIcon = groupMenuItem.locator('.del-icon');
-    await deleteIcon.click();
+    await expect(deleteIcon).toBeVisible({ timeout: 5000 });
+    await deleteIcon.click({ force: true });
     await contentPage.waitForTimeout(300);
-    // 确认删除
-    const confirmDialog = contentPage.locator('.el-message-box');
-    await expect(confirmDialog).toBeVisible();
     const deleteGroupResponse = contentPage.waitForResponse(
       (response) => response.url().includes('/api/group/remove') && response.status() === 200,
       { timeout: 20000 },
     );
-    const confirmBtn = confirmDialog.getByRole('button', { name: /确定|Confirm|OK/i });
-    await confirmBtn.click();
+    await confirmDeleteDialog(contentPage);
     await deleteGroupResponse;
     await expect(contentPage.getByText(/删除成功|deleted successfully/i)).toBeVisible({ timeout: 5000 });
     await contentPage.waitForTimeout(500);

@@ -1,4 +1,5 @@
 import { test, expect } from '../../../../../../../fixtures/electron-online.fixture';
+import { existsSync } from 'fs';
 import path from 'path';
 
 const MOCK_SERVER_PORT = 3456;
@@ -231,7 +232,9 @@ test.describe('FormdataBodyValidation', () => {
     await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
     await contentPage.waitForTimeout(300);
     const fileInput = contentPage.locator('[data-testid="params-tree-file-input"]').first();
-    const testFilePath = path.resolve(process.cwd(), 'src/renderer/assets/imgs/logo.png');
+    const workspaceRelativeFilePath = path.resolve(process.cwd(), 'src/renderer/assets/imgs/logo.png');
+    const monorepoRelativeFilePath = path.resolve(process.cwd(), 'packages/web/src/renderer/assets/imgs/logo.png');
+    const testFilePath = existsSync(workspaceRelativeFilePath) ? workspaceRelativeFilePath : monorepoRelativeFilePath;
     await fileInput.setInputFiles(testFilePath);
     await contentPage.waitForTimeout(500);
     // 发送请求

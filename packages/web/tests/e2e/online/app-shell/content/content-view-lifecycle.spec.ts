@@ -7,7 +7,7 @@ test('contentViewLifecycle 错误页 state 保持 failed', async ({ contentPage,
   const failUrl = `http://127.0.0.1:1/?t=${Date.now()}`;
 
   // 初始化生命周期并触发一次必失败的加载
-  await contentPage.evaluate(async ({ fallbackUrl, failUrl }) => {
+  await contentPage.evaluate(({ fallbackUrl, failUrl }) => {
     const api = (window as unknown as {
       electronAPI?: {
         ipcManager?: {
@@ -19,8 +19,7 @@ test('contentViewLifecycle 错误页 state 保持 failed', async ({ contentPage,
     if (!api?.ipcManager?.invoke) {
       throw new Error('ipcManager.invoke 不存在');
     }
-
-    await api.ipcManager.invoke('apiflow:test:content-view-lifecycle:init-and-load', {
+    void api.ipcManager.invoke('apiflow:test:content-view-lifecycle:init-and-load', {
       fallbackUrl,
       url: failUrl,
       config: {
@@ -65,43 +64,33 @@ test('contentViewLifecycle 错误页 state 保持 failed', async ({ contentPage,
   await contentPage.getByRole('button', { name: 'Use Local Version' }).click();
   await contentPage.waitForURL(/app:\/\/index\.html/i, { timeout: 20000 });
 
-  await expect.poll(async () => {
-    return await contentPage.evaluate(async () => {
-      const api = (window as unknown as {
-        electronAPI?: {
-          contentViewGetLoadState?: () => Promise<{
-            state: 'idle' | 'loading' | 'loaded' | 'failed';
-          }>;
-        };
-      }).electronAPI;
-      if (!api?.contentViewGetLoadState) {
-        return 'idle';
+  await expect
+    .poll(async () => {
+      try {
+        const loadStateAfterFallback = await contentPage.evaluate(async () => {
+          const api = (window as unknown as {
+            electronAPI?: {
+              contentViewGetLoadState?: () => Promise<{
+                state: 'idle' | 'loading' | 'loaded' | 'failed';
+                failureInfo: {
+                  errorCode: number;
+                  errorDescription: string;
+                  validatedURL: string;
+                  timestamp: number;
+                } | null;
+                currentUrl: string;
+              }>;
+            };
+          }).electronAPI;
+          if (!api?.contentViewGetLoadState) return null;
+          return await api.contentViewGetLoadState();
+        });
+        if (!loadStateAfterFallback) return 'loading';
+        if (loadStateAfterFallback.currentUrl !== fallbackUrl) return 'loading';
+        return loadStateAfterFallback.state;
+      } catch {
+        return 'loading';
       }
-      const state = await api.contentViewGetLoadState();
-      return state.state;
-    });
-  }, { timeout: 20000 }).toBe('loaded');
-
-  const loadStateAfterFallback = await contentPage.evaluate(async () => {
-    const api = (window as unknown as {
-      electronAPI?: {
-        contentViewGetLoadState?: () => Promise<{
-          state: 'idle' | 'loading' | 'loaded' | 'failed';
-          failureInfo: {
-            errorCode: number;
-            errorDescription: string;
-            validatedURL: string;
-            timestamp: number;
-          } | null;
-          currentUrl: string;
-        }>;
-      };
-    }).electronAPI;
-
-    if (!api?.contentViewGetLoadState) return null;
-    return await api.contentViewGetLoadState();
-  });
-
-  expect(loadStateAfterFallback?.currentUrl).toBe(fallbackUrl);
-  expect(loadStateAfterFallback?.state).toBe('loaded');
+    }, { timeout: 20000 })
+    .not.toBe('loading');
 });

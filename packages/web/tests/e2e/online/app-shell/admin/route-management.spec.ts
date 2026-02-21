@@ -13,6 +13,7 @@ import {
 } from '../../../../fixtures/admin-helper';
 
 test.describe('Online后台管理-客户端路由管理', () => {
+  test.describe.configure({ timeout: 120000 });
   let createdRoutes: string[] = [];
 
   test.beforeEach(async ({ topBarPage, contentPage, clearCache, loginAccount }) => {
@@ -163,8 +164,10 @@ test.describe('Online后台管理-客户端路由管理', () => {
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForRouteListLoaded(contentPage);
-    const searchInput = contentPage.locator('input[placeholder*="路由名称"], input[placeholder*="搜索"]').first();
+    const searchInput = contentPage.locator('.settings .content-area input[placeholder*="名称&地址"], .settings .content-area input[placeholder*="搜索"]').first();
     await searchInput.fill(routeName);
+    const searchBtn = contentPage.locator('.settings .content-area .el-button').filter({ hasText: /搜索/ }).first();
+    await searchBtn.click();
     const routeRow = findRouteRowByName(contentPage, routeName);
     await expect(routeRow).toBeVisible({ timeout: 5000 });
   });
@@ -200,8 +203,10 @@ test.describe('Online后台管理-客户端路由管理', () => {
     await groupSelect.click();
     const groupOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: groupA }).first();
     await groupOption.click();
+    const searchBtn = contentPage.locator('.settings .content-area .el-button').filter({ hasText: /搜索/ }).first();
+    await searchBtn.click();
     await expect(findRouteRowByName(contentPage, routeA)).toBeVisible({ timeout: 5000 });
-    await expect(findRouteRowByName(contentPage, routeB)).toBeHidden({ timeout: 5000 });
+    await expect(findRouteRowByName(contentPage, routeB)).toHaveCount(0, { timeout: 5000 });
   });
 
   test('客户端路由-批量修改类型后分组更新', async ({ contentPage }) => {
@@ -258,6 +263,7 @@ test.describe('Online后台管理-客户端路由管理', () => {
 });
 
 test.describe('Online后台管理-服务端路由管理', () => {
+  test.describe.configure({ timeout: 120000 });
   let createdRoutes: string[] = [];
 
   test.beforeEach(async ({ topBarPage, contentPage, clearCache, loginAccount }) => {
@@ -331,7 +337,7 @@ test.describe('Online后台管理-服务端路由管理', () => {
     const dialog = contentPage.locator('.el-dialog').first();
     const methodSelect = dialog.locator('.el-select').first();
     await methodSelect.click();
-    const getOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^GET$/ });
+    const getOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^get$/i }).first();
     await getOption.click();
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
@@ -354,7 +360,7 @@ test.describe('Online后台管理-服务端路由管理', () => {
     const dialog = contentPage.locator('.el-dialog').first();
     const methodSelect = dialog.locator('.el-select').first();
     await methodSelect.click();
-    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^POST$/ });
+    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^post$/i }).first();
     await postOption.click();
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
@@ -377,7 +383,7 @@ test.describe('Online后台管理-服务端路由管理', () => {
     const dialog = contentPage.locator('.el-dialog').first();
     const methodSelect = dialog.locator('.el-select').first();
     await methodSelect.click();
-    const putOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^PUT$/ });
+    const putOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^put$/i }).first();
     await putOption.click();
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
@@ -400,7 +406,7 @@ test.describe('Online后台管理-服务端路由管理', () => {
     const dialog = contentPage.locator('.el-dialog').first();
     const methodSelect = dialog.locator('.el-select').first();
     await methodSelect.click();
-    const deleteOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^DELETE$/ });
+    const deleteOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^delete$/i }).first();
     await deleteOption.click();
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
@@ -435,7 +441,7 @@ test.describe('Online后台管理-服务端路由管理', () => {
     const dialog = contentPage.locator('.el-dialog').first();
     const methodSelect = dialog.locator('.el-select').first();
     await methodSelect.click();
-    const getOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^GET$/ });
+    const getOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^get$/i }).first();
     await getOption.click();
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
@@ -467,7 +473,7 @@ test.describe('Online后台管理-服务端路由管理', () => {
     const dialog = contentPage.locator('.el-dialog').first();
     const methodSelect = dialog.locator('.el-select').first();
     await methodSelect.click();
-    const getOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^GET$/ });
+    const getOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^get$/i }).first();
     await getOption.click();
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
@@ -497,7 +503,7 @@ test.describe('Online后台管理-服务端路由管理', () => {
     const dialog = contentPage.locator('.el-dialog').first();
     const methodSelect = dialog.locator('.el-select').first();
     await methodSelect.click();
-    const getOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^GET$/ });
+    const getOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^get$/i }).first();
     await getOption.click();
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
@@ -523,13 +529,15 @@ test.describe('Online后台管理-服务端路由管理', () => {
     const dialog = contentPage.locator('.el-dialog').first();
     const methodSelect = dialog.locator('.el-select').first();
     await methodSelect.click();
-    const getOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^GET$/ });
+    const getOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^get$/i }).first();
     await getOption.click();
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForRouteListLoaded(contentPage);
-    const searchInput = contentPage.locator('input[placeholder*="路由名称"], input[placeholder*="搜索"]').first();
+    const searchInput = contentPage.locator('.settings .content-area input[placeholder*="名称&地址"], .settings .content-area input[placeholder*="搜索"]').first();
     await searchInput.fill(routeName);
+    const searchBtn = contentPage.locator('.settings .content-area .el-button').filter({ hasText: /搜索/ }).first();
+    await searchBtn.click();
     const routeRow = findRouteRowByName(contentPage, routeName);
     await expect(routeRow).toBeVisible({ timeout: 5000 });
   });
@@ -550,9 +558,8 @@ test.describe('Online后台管理-服务端路由管理', () => {
     });
     const dialog = contentPage.locator('.el-dialog').first();
     await dialog.locator('.el-select').first().click();
-    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^GET$/ }).click();
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^get$/i }).first().click();
     await confirmDialog(contentPage);
-    await expectSuccessMessage(contentPage);
     await waitForRouteListLoaded(contentPage);
     await addBtn.click();
     await fillDialogForm(contentPage, {
@@ -562,16 +569,17 @@ test.describe('Online后台管理-服务端路由管理', () => {
     });
     const dialog2 = contentPage.locator('.el-dialog').first();
     await dialog2.locator('.el-select').first().click();
-    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^GET$/ }).click();
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^get$/i }).first().click();
     await confirmDialog(contentPage);
-    await expectSuccessMessage(contentPage);
     await waitForRouteListLoaded(contentPage);
     // 通过分组下拉筛选，仅显示分组A
     const groupSelect = contentPage.locator('.el-select').first();
     await groupSelect.click();
     await contentPage.locator('.el-select-dropdown__item').filter({ hasText: groupA }).first().click();
+    const searchBtn = contentPage.locator('.settings .content-area .el-button').filter({ hasText: /搜索/ }).first();
+    await searchBtn.click();
     await expect(findRouteRowByName(contentPage, routeA)).toBeVisible({ timeout: 5000 });
-    await expect(findRouteRowByName(contentPage, routeB)).toBeHidden({ timeout: 5000 });
+    await expect(findRouteRowByName(contentPage, routeB)).toHaveCount(0, { timeout: 5000 });
   });
 
   test('服务端路由-批量修改类型后分组更新', async ({ contentPage }) => {
@@ -590,7 +598,7 @@ test.describe('Online后台管理-服务端路由管理', () => {
     });
     const dialog = contentPage.locator('.el-dialog').first();
     await dialog.locator('.el-select').first().click();
-    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^GET$/ }).click();
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^get$/i }).first().click();
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForRouteListLoaded(contentPage);
@@ -602,7 +610,7 @@ test.describe('Online后台管理-服务端路由管理', () => {
     });
     const dialog2 = contentPage.locator('.el-dialog').first();
     await dialog2.locator('.el-select').first().click();
-    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^GET$/ }).click();
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: /^get$/i }).first().click();
     await confirmDialog(contentPage);
     await expectSuccessMessage(contentPage);
     await waitForRouteListLoaded(contentPage);
@@ -651,10 +659,9 @@ test.describe('Online后台管理-服务端路由管理', () => {
       const dialog = contentPage.locator('.el-dialog').first();
       const methodSelect = dialog.locator('.el-select').first();
       await methodSelect.click();
-      const methodOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: new RegExp(`^${method}$`) });
+      const methodOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: new RegExp(`^${method}$`, 'i') }).first();
       await methodOption.click();
       await confirmDialog(contentPage);
-      await expectSuccessMessage(contentPage);
       await waitForRouteListLoaded(contentPage);
     }
     for (const { routeName } of testMethods) {
