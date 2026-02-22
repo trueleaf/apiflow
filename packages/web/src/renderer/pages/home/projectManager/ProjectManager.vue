@@ -507,8 +507,8 @@ const handleJumpToProject = (item: ApidocProjectInfo) => {
 const handleAddSuccess = async (data: { projectId: string, projectName: string }) => {
   if (isStandalone.value) {
     await getProjectList();
-    dialogVisible.value = false;
   }
+  dialogVisible.value = false;
   router.push({
     path: '/workbench',
     query: {
