@@ -197,6 +197,8 @@ test.describe('Online后台管理-用户管理', () => {
     const editDialog = contentPage.locator('.el-dialog:visible').first();
     await expect(editDialog).toBeVisible({ timeout: 5000 });
     const nameInput = editDialog.locator('input').first();
+    // 等待用户信息异步加载完成（原登录名填入后再修改，避免覆盖竞争）
+    await expect(nameInput).not.toHaveValue('', { timeout: 5000 });
     await nameInput.clear();
     await nameInput.fill(newUserName);
     await confirmDialog(contentPage);
