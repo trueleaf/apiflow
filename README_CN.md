@@ -228,10 +228,6 @@ curl -i localhost
 ## 环境要求
 - 2核心2G内存
 
-
-
-
-
 # 本地开发
 
 ## 环境要求
@@ -313,6 +309,61 @@ npm run dev
 - **Linux**：如需构建 `.deb` 包需安装 `fakeroot`、`dpkg`；构建 `.rpm` 需安装 `rpm`
 - Windows / macOS / Linux 安装包只能在对应平台上构建（不支持跨平台交叉编译）
 
+## 快速开始
+
+
+1. **将下载源切换为国内镜像（可选）**
+
+
+编辑项目根目录的 `.npmrc` 文件，取消以下三行的注释（删除行首的 `#` 符号）：
+```properties
+ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
+ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/
+registry=https://registry.npmmirror.com
+```
+
+
+2. **克隆代码仓库并安装依赖**（如果尚未完成）
+
+```bash
+git clone https://gitee.com/wildsell/apiflow.git
+cd apiflow
+npm install
+```
+
+
+3. **修改配置（按需调整）**
+
+编辑 `packages/web/src/config/config.ts`，根据实际情况修改以下配置项：
+
+```typescript
+// 修改后端服务地址（默认指向官方服务器，自部署时改为自己的服务器地址）
+httpRequest: {
+  url: isDev ? 'http://127.0.0.1:7001' : 'https://your-server.example.com',
+  // ...
+},
+```
+
+> **说明：** 打包完成后，上述配置也可在应用内的 **设置 → 应用配置 → 接口调用地址** 中随时修改，无需重新打包。
+
+4. **执行打包命令**
+
+根据目标平台选择对应命令：
+
+```bash
+# Windows
+npm run web:build:local:win
+
+# macOS
+npm run web:build:local:mac
+
+# Linux
+npm run web:build:local:linux
+
+# 仅解压验证（不生成安装包，速度最快）
+npm run web:build:local:pack
+```
+
 ## 打包命令
 
 | 命令 | 说明 |
@@ -325,15 +376,6 @@ npm run dev
 ## 输出目录
 
 打包产物位于 `packages/web/release/` 目录下。
-
-## 国内加速
-
-如在国内环境下下载 Electron 相关二进制文件缓慢，可在项目根目录 `.npmrc` 文件中取消以下两行的注释：
-
-```properties
-ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
-ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/
-```
 
 ---
 

@@ -259,6 +259,55 @@ To package the application as a desktop installer, run the following commands fr
 - **Linux**: `fakeroot` and `dpkg` for `.deb`; `rpm` for `.rpm` packages
 - Each platform's installer can only be built on its native OS (no cross-platform compilation)
 
+## Getting Started
+
+1. **Speed up Electron binary downloads (optional)**
+
+If downloading Electron binaries is slow in your region, edit the `.npmrc` file in the project root and uncomment the following lines (remove the leading `#`):
+```properties
+ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
+ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/
+```
+
+2. **Clone the repository and install dependencies** (if not already done)
+
+```bash
+git clone https://github.com/trueleaf/apiflow.git
+cd apiflow
+npm install
+```
+
+3. **Modify configuration (as needed)**
+
+Edit `packages/web/src/config/config.ts` and adjust the following settings as required:
+
+```typescript
+// Change the backend server URL
+// Default points to the official server; replace with your own when self-hosting
+httpRequest: {
+  url: isDev ? 'http://127.0.0.1:7001' : 'https://your-server.example.com',
+  // ...
+},
+```
+
+> **Note:** After packaging, the server URL can also be updated at any time in the app via **Settings → App Config → API Endpoint**, without needing to repackage.
+
+4. **Run the build command for your platform**
+
+```bash
+# Windows
+npm run web:build:local:win
+
+# macOS
+npm run web:build:local:mac
+
+# Linux
+npm run web:build:local:linux
+
+# Quick verification only (extract to directory, no installer, fastest)
+npm run web:build:local:pack
+```
+
 ## Build Commands
 
 | Command | Description |
