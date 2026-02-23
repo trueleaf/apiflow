@@ -231,7 +231,7 @@ curl -i localhost
 # 本地开发
 
 ## 环境要求
-- **Node.js**: >= 20.0.0
+- **Node.js**: >= 22.0.0
 - **MongoDB**: 本地运行或远程可访问
 - **Git**: 用于克隆代码仓库
 
@@ -304,7 +304,7 @@ npm run dev
 如需将应用打包为桌面安装包，可在项目根目录执行以下命令。
 
 ## 环境要求
-- **Node.js**: >= 20.0.0
+- **Node.js**: >= 22.0.0
 - **macOS**：需安装 Xcode Command Line Tools（`xcode-select --install`）
 - **Linux**：如需构建 `.deb` 包需安装 `fakeroot`、`dpkg`；构建 `.rpm` 需安装 `rpm`
 - Windows / macOS / Linux 安装包只能在对应平台上构建（不支持跨平台交叉编译）

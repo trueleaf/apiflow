@@ -195,7 +195,7 @@ docker compose up -d
 # Local Development
 
 ## Prerequisites
-- **Node.js**: >= 20.0.0
+- **Node.js**: >= 22.0.0
 - **MongoDB**: Running locally or accessible remotely
 - **Git**: For cloning the repository
 
@@ -254,7 +254,7 @@ This is a multi-package monorepo:
 To package the application as a desktop installer, run the following commands from the project root.
 
 ## Prerequisites
-- **Node.js**: >= 20.0.0
+- **Node.js**: >= 22.0.0
 - **macOS**: Xcode Command Line Tools required (`xcode-select --install`)
 - **Linux**: `fakeroot` and `dpkg` for `.deb`; `rpm` for `.rpm` packages
 - Each platform's installer can only be built on its native OS (no cross-platform compilation)
