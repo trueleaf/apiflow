@@ -308,6 +308,8 @@ npm run web:build:local:linux
 npm run web:build:local:pack
 ```
 
+> **Tip (Windows):** If the build command fails on Windows, try running the terminal as Administrator and execute the command again.
+
 ## Build Commands
 
 | Command | Description |

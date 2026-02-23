@@ -364,6 +364,8 @@ npm run web:build:local:linux
 npm run web:build:local:pack
 ```
 
+> **提示（Windows）**：如果在 Windows 上执行打包命令失败，可尝试使用管理员权限打开终端后再次执行。
+
 ## 打包命令
 
 | 命令 | 说明 |
