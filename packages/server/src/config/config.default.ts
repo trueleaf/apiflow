@@ -130,11 +130,11 @@ export default (): MidwayConfig => {
     },
     llmConfig: {
       apiKey: process.env.DEEPSEEK_API_KEY || '',
-      baseUrl: process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com/chat/completions',
+      baseUrl: process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1/chat/completions',
       model: process.env.DEEPSEEK_MODEL || 'deepseek-chat',
     },
     permission: {
-      isFree: process.env.DEPLOYMENT_TYPE === 'user',
+      isFree: (process.env.DEPLOYMENT_TYPE || 'user') === 'user',
       whiteList: [
         '/api/health',
         '/mock/image',
