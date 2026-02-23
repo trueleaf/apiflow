@@ -4,8 +4,9 @@ import { request } from '@/api/api'
 import type { CommonResponse, SystemFeatureConfig } from '@src/types'
 
 export const useSystemConfig = defineStore('systemConfig', () => {
-  const enableGuest = ref(true)
-  const enableRegister = ref(true)
+  const enableGuest = ref(false)
+  const enableRegister = ref(false)
+  const enableForgotPassword = ref(false)
   const loaded = ref(false)
   // 从服务端获取系统功能开关配置
   const fetchConfig = async () => {
@@ -13,6 +14,7 @@ export const useSystemConfig = defineStore('systemConfig', () => {
       const res = await request.get<CommonResponse<SystemFeatureConfig>, CommonResponse<SystemFeatureConfig>>('/api/system/config')
       enableGuest.value = res.data.enableGuest
       enableRegister.value = res.data.enableRegister
+      enableForgotPassword.value = res.data.enableForgotPassword
       loaded.value = true
     } catch {
       // 请求失败时保持默认值
@@ -23,7 +25,8 @@ export const useSystemConfig = defineStore('systemConfig', () => {
     const res = await request.put<CommonResponse<SystemFeatureConfig>, CommonResponse<SystemFeatureConfig>>('/api/system/config', params)
     enableGuest.value = res.data.enableGuest
     enableRegister.value = res.data.enableRegister
+    enableForgotPassword.value = res.data.enableForgotPassword
     return res.data
   }
-  return { enableGuest, enableRegister, loaded, fetchConfig, updateConfig }
+  return { enableGuest, enableRegister, enableForgotPassword, loaded, fetchConfig, updateConfig }
 })

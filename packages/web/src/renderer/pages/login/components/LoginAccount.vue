@@ -7,7 +7,7 @@
     <el-form-item prop="password" class="password-form-item">
       <el-input v-model="userInfo.password" :prefix-icon="Lock" name="password" type="password"
         :placeholder="`${t('请输入密码')}...`" show-password data-testid="login-password-input"></el-input>
-      <a class="forgot-password-link" @click="handleJumpToResetPassword">{{ t('忘记密码？') }}</a>
+      <a v-if="systemConfigStore.enableForgotPassword" class="forgot-password-link" @click="handleJumpToResetPassword">{{ t('忘记密码？') }}</a>
     </el-form-item>
     <el-form-item v-if="isShowCapture" prop="captcha">
       <div class="captcha">

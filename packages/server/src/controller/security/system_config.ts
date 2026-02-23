@@ -12,7 +12,7 @@ export class SystemConfigController {
   }
   // 更新系统配置（仅管理员+自部署模式）
   @Put('/system/config')
-  async updateSystemConfig(@Body() params: { enableGuest?: boolean; enableRegister?: boolean }) {
+  async updateSystemConfig(@Body() params: { enableGuest?: boolean; enableRegister?: boolean; enableForgotPassword?: boolean }) {
     const data = await this.systemConfigService.updateSystemConfig(params);
     return data;
   }

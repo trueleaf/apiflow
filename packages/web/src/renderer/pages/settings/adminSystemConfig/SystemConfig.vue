@@ -12,6 +12,10 @@
         <el-switch v-model="form.enableRegister" :loading="saving" @change="handleSave" />
         <span class="form-item-desc">{{ t('关闭后登录页将隐藏注册入口') }}</span>
       </el-form-item>
+      <el-form-item :label="t('忘记密码')">
+        <el-switch v-model="form.enableForgotPassword" :loading="saving" @change="handleSave" />
+        <span class="form-item-desc">{{ t('开启后登录页展示忘记密码入口') }}</span>
+      </el-form-item>
     </el-form>
   </div>
 </template>
@@ -27,13 +31,15 @@ const systemConfigStore = useSystemConfig()
 const loading = ref(true)
 const saving = ref(false)
 const form = reactive({
-  enableGuest: true,
-  enableRegister: true,
+  enableGuest: false,
+  enableRegister: false,
+  enableForgotPassword: false,
 })
 onMounted(async () => {
   await systemConfigStore.fetchConfig()
   form.enableGuest = systemConfigStore.enableGuest
   form.enableRegister = systemConfigStore.enableRegister
+  form.enableForgotPassword = systemConfigStore.enableForgotPassword
   loading.value = false
 })
 // 保存配置
@@ -43,11 +49,13 @@ const handleSave = async () => {
     await systemConfigStore.updateConfig({
       enableGuest: form.enableGuest,
       enableRegister: form.enableRegister,
+      enableForgotPassword: form.enableForgotPassword,
     })
     message.success(t('保存成功'))
   } catch {
     form.enableGuest = systemConfigStore.enableGuest
     form.enableRegister = systemConfigStore.enableRegister
+    form.enableForgotPassword = systemConfigStore.enableForgotPassword
     message.error(t('保存失败'))
   } finally {
     saving.value = false

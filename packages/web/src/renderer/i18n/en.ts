@@ -62,6 +62,7 @@ export default {
   '关闭后登录页将隐藏一键创建账号按钮': 'When disabled, the quick login button will be hidden on the login page',
   邮箱注册: 'Email Registration',
   '关闭后登录页将隐藏注册入口': 'When disabled, the registration tab will be hidden on the login page',
+  '开启后登录页展示忘记密码入口': 'When enabled, the forgot password link will be shown on the login page',
   保存失败: 'Save failed',
   '收起': 'Collapse',
   '选择节点': 'Select Nodes',
