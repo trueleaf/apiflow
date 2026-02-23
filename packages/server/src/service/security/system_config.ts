@@ -11,18 +11,19 @@ export class SystemConfigService {
   @Config('permission') permissionConfig: GlobalConfig['permission'];
   // 获取系统配置（单例，不存在则自动创建默认值）
   async getSystemConfig() {
-    if (!this.permissionConfig.isFree) {
-      return { enableGuest: true, enableRegister: false, enableForgotPassword: false };
+    const isOfficial = !this.permissionConfig.isFree;
+    if (!isOfficial) {
+      return { enableGuest: false, enableRegister: false, enableForgotPassword: false, isOfficial: false };
     }
     let config = await this.systemConfigModel.findOne({}, { enableGuest: 1, enableRegister: 1, enableForgotPassword: 1 }).lean();
     if (!config) {
       config = await this.systemConfigModel.create({ enableGuest: false, enableRegister: false, enableForgotPassword: false });
     }
-    return { enableGuest: config.enableGuest, enableRegister: config.enableRegister, enableForgotPassword: config.enableForgotPassword ?? false };
+    return { enableGuest: config.enableGuest, enableRegister: config.enableRegister, enableForgotPassword: config.enableForgotPassword ?? false, isOfficial: true };
   }
-  // 更新系统配置（DEPLOYMENT_TYPE=user 或本地启动时允许）
+  // 更新系统配置（仅 DEPLOYMENT_TYPE=official 时允许）
   async updateSystemConfig(params: { enableGuest?: boolean; enableRegister?: boolean; enableForgotPassword?: boolean }) {
-    if (!this.permissionConfig.isFree && process.env.NODE_ENV === 'production') {
+    if (this.permissionConfig.isFree) {
       throwError(4003, '当前部署模式不支持此操作');
     }
     const existing = await this.systemConfigModel.findOne({});

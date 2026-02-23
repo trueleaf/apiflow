@@ -472,4 +472,5 @@ export type SystemFeatureConfig = {
   enableGuest: boolean;
   enableRegister: boolean;
   enableForgotPassword: boolean;
+  isOfficial: boolean;
 };

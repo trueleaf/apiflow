@@ -4,7 +4,7 @@
     <p class="config-desc">{{ t('管理登录页面功能开关，仅在自部署模式下可用') }}</p>
     <el-skeleton v-if="loading" :rows="3" animated />
     <el-form v-else label-position="left" label-width="200px" class="config-form">
-      <el-form-item :label="t('一键创建账号并登录')">
+      <el-form-item v-if="systemConfigStore.isOfficial" :label="t('一键创建账号并登录')">
         <el-switch v-model="form.enableGuest" :loading="saving" @change="handleSave" />
         <span class="form-item-desc">{{ t('关闭后登录页将隐藏一键创建账号按钮') }}</span>
       </el-form-item>

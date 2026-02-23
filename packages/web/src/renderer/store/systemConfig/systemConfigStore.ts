@@ -7,6 +7,7 @@ export const useSystemConfig = defineStore('systemConfig', () => {
   const enableGuest = ref(false)
   const enableRegister = ref(false)
   const enableForgotPassword = ref(false)
+  const isOfficial = ref(false)
   const loaded = ref(false)
   // 从服务端获取系统功能开关配置
   const fetchConfig = async () => {
@@ -15,6 +16,7 @@ export const useSystemConfig = defineStore('systemConfig', () => {
       enableGuest.value = res.data.enableGuest
       enableRegister.value = res.data.enableRegister
       enableForgotPassword.value = res.data.enableForgotPassword
+      isOfficial.value = res.data.isOfficial
       loaded.value = true
     } catch {
       // 请求失败时保持默认值
@@ -26,7 +28,8 @@ export const useSystemConfig = defineStore('systemConfig', () => {
     enableGuest.value = res.data.enableGuest
     enableRegister.value = res.data.enableRegister
     enableForgotPassword.value = res.data.enableForgotPassword
+    isOfficial.value = res.data.isOfficial
     return res.data
   }
-  return { enableGuest, enableRegister, enableForgotPassword, loaded, fetchConfig, updateConfig }
+  return { enableGuest, enableRegister, enableForgotPassword, isOfficial, loaded, fetchConfig, updateConfig }
 })
