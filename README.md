@@ -4,7 +4,7 @@
 
 # Apiflow
 
-### A Free, AI-Powered API Tool like Postman
+## A Free, AI-Powered API Tool like Postman
 
 [中文](./README_CN.md) | English
 
@@ -22,16 +22,16 @@
 </div>
 
 ---
-## Preview
+# Preview
 
-### AI Agent
+## AI Agent
 ![AI Agent](./docs/en/agent.gif)
 
-### Server-Sent Events (SSE)
+## Server-Sent Events (SSE)
 ![SSE](./docs/en/sse.gif)
 
 ---
-## What is Apiflow?
+# What is Apiflow?
 
 **Apiflow** is a **completely free**, **AI-powered API development platform** designed as a modern alternative to **Postman**, **Hoppscotch**, and **Insomnia**.
 
@@ -39,18 +39,18 @@ It supports **API testing**, **mocking**, **WebSocket**, **AI agents**, **team c
 
 ---
 
-## Key Features
+# Key Features
 
-### 100% Free
+## 100% Free
 - All features are free to use
 - No paid plans, no feature limits
 
-### AI Agent Built-In
+## AI Agent Built-In
 - Built-in AI Agent for API design, testing and debugging
 - Configure your own Large Language Model
 - Works in offline or intranet environments
 
-### Team Collaboration
+## Team Collaboration
 
 - Built-in team and workspace management
 - **Unlimited teams and members**
@@ -61,7 +61,7 @@ It supports **API testing**, **mocking**, **WebSocket**, **AI agents**, **team c
 - Operation history and change tracking
 - Designed for teams of any size
 
-### Offline & Online
+## Offline & Online
 
 - Local-first by design, online when you need it
 - Full offline capability with local persistence
@@ -70,12 +70,12 @@ It supports **API testing**, **mocking**, **WebSocket**, **AI agents**, **team c
 - Ideal for private networks and restricted environments
 
 
-### Self-Hosted & Local Deployment
+## Self-Hosted & Local Deployment
 - One-click Docker deployment
 - Data fully controlled by yourself
 - Suitable for enterprises and private networks
 
-### OpenAPI Friendly
+## OpenAPI Friendly
 - Import & export **OpenAPI 3.x**
 - Seamlessly migrate data to:
   - Postman
@@ -85,7 +85,7 @@ It supports **API testing**, **mocking**, **WebSocket**, **AI agents**, **team c
 
 ---
 
-## Core Capabilities
+# Core Capabilities
 
 - HTTP API testing (RESTful)
 - WebSocket testing
@@ -100,7 +100,7 @@ It supports **API testing**, **mocking**, **WebSocket**, **AI agents**, **team c
 
 
 
-## Download
+# Download
 
 Download the latest version for your platform:
 
@@ -113,13 +113,13 @@ Download the latest version for your platform:
 
 ---
 
-## Local Deployment (Docker)
+# Local Deployment (Docker)
 
-### Requirements
+## Requirements
 - Docker
 - Docker Compose
 
-### First Deployment
+## First Deployment
 
 ```bash
 git clone https://github.com/trueleaf/apiflow
@@ -136,7 +136,7 @@ curl http://localhost
 curl http://localhost/api/health
 ```
 
-### Adding Users After Deployment
+## Adding Users After Deployment
 
 After successfully deploying Apiflow, follow these steps to add users:
 
@@ -154,7 +154,7 @@ After successfully deploying Apiflow, follow these steps to add users:
    - Find the user management section
    - Click "Add User" to create new accounts for your team members
 
-### Code Update
+## Code Update
 
 If you are running Apiflow with Docker, updating the code does not require rebuilding locally.
 
@@ -192,14 +192,14 @@ docker compose up -d
 
 ---
 
-## Local Development
+# Local Development
 
-### Prerequisites
+## Prerequisites
 - **Node.js**: >= 20.0.0
 - **MongoDB**: Running locally or accessible remotely
 - **Git**: For cloning the repository
 
-### Getting Started
+## Getting Started
 
 1. **Clone the repository**
 
@@ -219,7 +219,7 @@ This command will start both the frontend and backend servers concurrently:
 - **Frontend (Web)**: http://localhost:4000
 - **Backend (Server)**: http://localhost:7001
 
-### Available Commands
+## Available Commands
 
 | Command | Description |
 |---------|-------------|
@@ -232,7 +232,7 @@ This command will start both the frontend and backend servers concurrently:
 | `npm run server:test` | Run server unit tests |
 | `npm run bootstrap` | Install all dependencies |
 
-### Project Structure
+## Project Structure
 
 This is a multi-package monorepo:
 
@@ -240,7 +240,7 @@ This is a multi-package monorepo:
 - `packages/server` - Backend application (Midway.js + MongoDB)
 - `packages/website` - Marketing website (Next.js)
 
-### Development Tips
+## Development Tips
 
 - Ensure MongoDB is running before starting the server
 - The frontend supports hot module replacement (HMR) for fast development
@@ -249,17 +249,17 @@ This is a multi-package monorepo:
 
 ---
 
-## Local Packaging (Electron)
+# Local Packaging (Electron)
 
 To package the application as a desktop installer, run the following commands from the project root.
 
-### Prerequisites
+## Prerequisites
 - **Node.js**: >= 20.0.0
 - **macOS**: Xcode Command Line Tools required (`xcode-select --install`)
 - **Linux**: `fakeroot` and `dpkg` for `.deb`; `rpm` for `.rpm` packages
 - Each platform's installer can only be built on its native OS (no cross-platform compilation)
 
-### Build Commands
+## Build Commands
 
 | Command | Description |
 |---------|-------------|
@@ -268,13 +268,13 @@ To package the application as a desktop installer, run the following commands fr
 | `npm run web:build:local:mac` | Build macOS installer (`.dmg` + `.zip`, x64/arm64) |
 | `npm run web:build:local:linux` | Build Linux packages (`.AppImage` + `.deb`, x64/arm64) |
 
-### Output Directory
+## Output Directory
 
 Build artifacts are located in `packages/web/release/`.
 
 ---
 
-## License
+# License
 
 This project is licensed under the **MIT License**.  
 See the [LICENSE](./LICENSE) file for details.

@@ -4,7 +4,7 @@
 
 # Apiflow
 
-### Postman / Apifox 开源替代方案
+Postman / Apifox 开源替代方案
 
 [English](./README.md) | 中文
 
@@ -19,17 +19,17 @@
 
 ---
 
-## 界面预览
+# 界面预览
 
-### Agent展示
+## Agent展示
 ![AI 代理](./docs/zh/agent_zh.gif)
 
-### SSE与MOCK展示
+## SSE与MOCK展示
 ![SSE](./docs/zh/sse_zh.gif)
 
 ---
 
-## Apiflow 是什么？
+# Apiflow 是什么？
 
 **Apiflow** 是一个 **完全免费**、**内置 AI 能力** 的 API 接口工具，致力于成为**Postman、Apifox 的现代化开源替代方案**。
 
@@ -37,20 +37,20 @@
 
 ---
 
-## 核心特性
+# 核心特性
 
-### 完全免费
+## 完全免费
 - 所有功能永久免费
 - 无付费计划
 - 无功能限制
 - 一键导出到postman、apifox等工具
 
-### 内置 AI Agent
+## 内置 AI Agent
 - 内置 AI Agent，辅助 API 设计、测试与调试
 - 支持配置你自己的大语言模型（LLM）
 - 支持 **离线 / 内网环境** 使用
 
-### 团队协作
+## 团队协作
 - 内置团队与工作区管理
 - **团队数量、成员数量不限**
 - 细粒度权限控制：
@@ -60,19 +60,19 @@
 - 操作记录与变更历史追踪
 - 适用于任何规模的团队
 
-### 离线 & 在线
+## 离线 & 在线
 - Local-First 设计理念
 - 完整离线能力，本地数据持久化
 - 离线 / 在线数据双向转换
 - 从个人使用平滑过渡到团队协作
 - 非常适合内网或受限网络环境
 
-### 自托管 & 本地部署
+## 自托管 & 本地部署
 - Docker 一键部署
 - 数据完全由自己掌控
 - 适用于企业私有化部署场景
 
-### OpenAPI 友好
+## OpenAPI 友好
 - 支持 **OpenAPI 3.x** 导入 / 导出
 - 可无缝迁移到：
   - Postman
@@ -82,7 +82,7 @@
 
 ---
 
-## 核心能力一览
+# 核心能力一览
 
 - HTTP API 测试（RESTful）
 - WebSocket 测试
@@ -95,7 +95,7 @@
 
 ---
 
-## ⬇️ 下载
+# 下载
 
 获取适用于你平台的最新版本：
 
@@ -107,13 +107,13 @@
 
 ---
 
-## 本地部署（Docker）
+# 本地部署（Docker）
 
-### 环境要求
+## 环境要求
 - Docker
 - Docker Compose
 
-### 首次部署
+## 首次部署
 
 ```bash
 git clone https://gitee.com/wildsell/apiflow
@@ -130,7 +130,7 @@ curl http://localhost
 curl http://localhost/api/health
 ```
 
-### 部署后添加用户
+## 部署后添加用户
 
 部署成功后,按照以下步骤添加用户:
 
@@ -148,7 +148,7 @@ curl http://localhost/api/health
    - 找到用户管理模块
    - 点击"添加用户"为团队成员创建新账号
 
-### 代码更新
+## 代码更新
 
 如果你是通过 Docker 运行 Apiflow，更新代码时无需在本地重新构建。
 
@@ -189,12 +189,12 @@ docker compose -f docker-compose.yml -f docker-compose.cn.yml up -d
 
 ---
 
-## 阿里云部署(2026-01-22更新)
+# 阿里云部署(2026-01-22更新)
 
-### 购买服务器
+## 购买服务器
 ![阿里云购买](./docs/aliyun/aliyun_buy.gif)
 
-### linux部署
+## linux部署
 直接在服务器运行以下命令,完成后浏览器通过ip直接访问。注意：mongodb密码需要你自行修改
 ```bash
 #添加Docker软件包源
@@ -225,43 +225,43 @@ curl -i localhost
 ```
 ![阿里云部署](./docs/aliyun/aliyun_linux.gif)
 
-### 环境要求
+## 环境要求
 - 2核心2G内存
 
 
 
 
 
-## 本地开发
+# 本地开发
 
-### 环境要求
+## 环境要求
 - **Node.js**: >= 20.0.0
 - **MongoDB**: 本地运行或远程可访问
 - **Git**: 用于克隆代码仓库
 
-### 快速开始
+## 快速开始
 
-1. **克隆代码仓库**
 
-```bash
-git clone https://gitee.com/wildsell/apiflow.git
-cd apiflow
-#安装依赖
-npm install
-```
-**国内用户加速安装**
+1. **将下载源切换为国内镜像（可选）**
 
-如果你在国内环境下遇到依赖安装缓慢的问题，可以启用国内镜像源：
 
 编辑项目根目录的 `.npmrc` 文件，取消以下三行的注释（删除行首的 `#` 符号）：
-
 ```properties
+
 ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
 ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/
 registry=https://registry.npmmirror.com
 ```
 
-然后重新运行 `npm install`。
+
+2. **克隆代码仓库并安装依赖**
+
+```bash
+git clone https://gitee.com/wildsell/apiflow.git
+cd apiflow
+npm install
+```
+
 
 2. **启动开发服务器**
 
@@ -273,7 +273,7 @@ npm run dev
 - **前端 (Web)**: http://localhost:4000
 - **后端 (Server)**: http://localhost:7001
 
-### 可用命令
+## 可用命令
 
 | 命令 | 说明 |
 |------|------|
@@ -286,7 +286,7 @@ npm run dev
 | `npm run server:test` | 运行后端单元测试 |
 | `npm run bootstrap` | 安装所有依赖 |
 
-### 项目结构
+## 项目结构
 
 这是一个多包项目（monorepo）：
 
@@ -294,7 +294,7 @@ npm run dev
 - `packages/server` - 后端应用（Midway.js + MongoDB）
 - `packages/website` - 官网（Next.js）
 
-### 开发提示
+## 开发提示
 
 - 启动 Server 前请确保 MongoDB 已运行
 - 前端支持热模块替换（HMR），可快速开发调试
@@ -303,17 +303,17 @@ npm run dev
 
 ---
 
-## 本地打包（Electron）
+# 本地打包（Electron）
 
 如需将应用打包为桌面安装包，可在项目根目录执行以下命令。
 
-### 环境要求
+## 环境要求
 - **Node.js**: >= 20.0.0
 - **macOS**：需安装 Xcode Command Line Tools（`xcode-select --install`）
 - **Linux**：如需构建 `.deb` 包需安装 `fakeroot`、`dpkg`；构建 `.rpm` 需安装 `rpm`
 - Windows / macOS / Linux 安装包只能在对应平台上构建（不支持跨平台交叉编译）
 
-### 打包命令
+## 打包命令
 
 | 命令 | 说明 |
 |------|------|
@@ -322,11 +322,11 @@ npm run dev
 | `npm run web:build:local:mac` | 构建 macOS 安装包（`.dmg` + `.zip`，支持 x64/arm64） |
 | `npm run web:build:local:linux` | 构建 Linux 安装包（`.AppImage` + `.deb`，支持 x64/arm64） |
 
-### 输出目录
+## 输出目录
 
 打包产物位于 `packages/web/release/` 目录下。
 
-### 国内加速
+## 国内加速
 
 如在国内环境下下载 Electron 相关二进制文件缓慢，可在项目根目录 `.npmrc` 文件中取消以下两行的注释：
 
@@ -337,7 +337,7 @@ ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-
 
 ---
 
-## 许可证
+# 许可证
 
 本项目采用 **MIT** 许可证进行许可
 
