@@ -20,7 +20,7 @@
       <el-button :loading="quickLoginLoading" type="primary" class="w-100" data-testid="login-quick-login-btn" @click="handleQuickLogin">{{ t('一键创建账号并登录') }}</el-button>
     </el-form-item>
     <el-form-item class="mb-1">
-      <el-button :loading="loading" native-type="submit" class="w-100" data-testid="login-submit-btn">{{ t("登录") }}</el-button>
+      <el-button :loading="loading" :type="systemConfigStore.enableGuest ? undefined : 'primary'" native-type="submit" class="w-100" data-testid="login-submit-btn">{{ t("登录") }}</el-button>
     </el-form-item>
     <div class="mt-2 d-flex j-around">
       <a href="https://github.com/trueleaf/apiflow" target="_blank" class="d-flex flex-column j-center a-center">
