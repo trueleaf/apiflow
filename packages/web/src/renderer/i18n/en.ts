@@ -80,6 +80,7 @@ export default {
   GitHub地址: 'GitHub',
   Gitee地址: 'Gitee',
   最近一次更新: 'Last updated',
+  部署模式: 'Deployment mode',
   // Mock related
   '配置与响应': "Config {'&'} response",
   日志: 'Logs',

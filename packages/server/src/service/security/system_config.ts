@@ -17,7 +17,7 @@ export class SystemConfigService {
     }
     let config = await this.systemConfigModel.findOne({}, { enableGuest: 1, enableRegister: 1, enableForgotPassword: 1 }).lean();
     if (!config) {
-      config = await this.systemConfigModel.create({ enableGuest: false, enableRegister: false, enableForgotPassword: false });
+      config = await this.systemConfigModel.create({ enableGuest: true, enableRegister: true, enableForgotPassword: true });
     }
     return { enableGuest: config.enableGuest, enableRegister: config.enableRegister, enableForgotPassword: config.enableForgotPassword ?? false, isOfficial: true };
   }

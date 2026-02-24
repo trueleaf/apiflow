@@ -8,6 +8,7 @@ export default {
   GitHub地址: 'GitHub',
   Gitee地址: 'Gitee',
   最近一次更新: '最終更新',
+  部署模式: 'デプロイモード',
   // Mock関連
   '配置与响应': '設定とレスポンス',
   日志: 'ログ',

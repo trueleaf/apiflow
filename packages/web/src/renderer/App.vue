@@ -64,6 +64,7 @@ import { useAppSettings } from '@/store/appSettings/appSettingsStore';
 import { shortcutManager } from '@/shortcut/index.ts';
 import { useAgentViewStore } from '@/store/ai/agentView';
 import { useLLMClientStore } from '@/store/ai/llmClientStore';
+import { useSystemConfig } from '@/store/systemConfig/systemConfigStore';
 import { storeToRefs } from 'pinia';
 import { useTheme } from '@/hooks/useTheme';
 import { isElectron } from '@/helper';
@@ -76,6 +77,7 @@ const runtimeStore = useRuntime();
 const appSettingsStore = useAppSettings();
 const agentViewStore = useAgentViewStore();
 const llmClientStore = useLLMClientStore();
+const systemConfigStore = useSystemConfig();
 const { agentViewDialogVisible } = storeToRefs(agentViewStore);
 const { t } = useI18n()
 // 平台环境检测
@@ -347,8 +349,9 @@ const initAppHeaderTabs = async () => {
   }
 };
 
-const initWelcom = () => {
+const initWelcom = async () => {
   if (!config.isDev) {
+    await systemConfigStore.fetchConfig()
     console.log(
       '%cApiflow',
       `
@@ -369,6 +372,8 @@ ${t('GitHub地址')}：https://github.com/trueleaf/apiflow
 ${t('Gitee地址')}：https://gitee.com/wildsell/apiflow
 
 ${t('最近一次更新')}：${__APP_BUILD_TIME__}
+
+${t('部署模式')}：${systemConfigStore.isOfficial ? 'official' : 'user'}
     `)
   }
 }
