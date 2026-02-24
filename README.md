@@ -113,13 +113,17 @@ Download the latest version for your platform:
 
 ---
 
-# Local Deployment (Docker)
+# Local Deployment
 
-## Requirements
+## Server Deployment
+
+### Docker Deployment
+
+#### Requirements
 - Docker
 - Docker Compose
 
-## First Deployment
+#### First Deployment
 
 ```bash
 git clone https://github.com/trueleaf/apiflow
@@ -136,7 +140,7 @@ curl http://localhost
 curl http://localhost/api/health
 ```
 
-## Adding Users After Deployment
+#### Adding Users After Deployment
 
 After successfully deploying Apiflow, follow these steps to add users:
 
@@ -154,7 +158,7 @@ After successfully deploying Apiflow, follow these steps to add users:
    - Find the user management section
    - Click "Add User" to create new accounts for your team members
 
-## Code Update
+#### Code Update
 
 If you are running Apiflow with Docker, updating the code does not require rebuilding locally.
 
@@ -171,8 +175,8 @@ chmod +x update.sh rollback.sh
 **Option 2: Manual Update**
 
 ```bash
-docker compose pull
 docker compose down
+docker compose pull
 docker compose up -d
 ```
 
@@ -185,10 +189,83 @@ docker compose up -d
 # Option 2: rollback to a specified snapshot file (recommended)
 ./rollback.sh --file current_versions_20260122_120000.txt
 
-# Option 3: compatibility mode, rollback by tag/sha (not guaranteed to be exact)
+# Option 3: compatibility mode, rollback by tag/sha (not guaranteed to be exact, for emergencies)
 ./rollback.sh v1.2.3
 # ./rollback.sh 7f3a2b1c4d5e
 ```
+
+## Client Build
+
+After deploying with Docker you can access the system directly via browser. If you want to use the full desktop experience, follow the steps below to build the client.
+
+### Prerequisites
+- **Node.js**: >= 22.0.0
+- **macOS**: Xcode Command Line Tools required (`xcode-select --install`)
+- **Linux**: `fakeroot` and `dpkg` for `.deb`; `rpm` for `.rpm` packages
+- Each platform's installer can only be built on its native OS (no cross-platform compilation)
+
+#### Step 1: Speed up downloads (optional)
+
+Edit the `.npmrc` file in the project root and uncomment the following lines (remove the leading `#`):
+
+```properties
+ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
+ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/
+```
+
+#### Step 2: Clone the repository and install dependencies
+
+```bash
+git clone https://github.com/trueleaf/apiflow.git
+cd apiflow
+npm install
+```
+
+#### Step 3: Modify configuration (as needed)
+
+Edit `packages/web/src/config/config.ts` and adjust the following settings as required:
+
+```typescript
+// Change the backend server URL
+// Default points to the official server; replace with your own when self-hosting
+httpRequest: {
+  url: isDev ? 'http://127.0.0.1:7001' : 'https://your-server.example.com',
+  // ...
+},
+```
+
+> **Note:** After packaging, the server URL can also be updated at any time in the app via **Settings → App Config → API Endpoint**, without needing to repackage.
+
+#### Step 4: Run the build command for your platform
+
+```bash
+# Windows
+npm run web:build:local:win
+
+# macOS
+npm run web:build:local:mac
+
+# Linux
+npm run web:build:local:linux
+
+# Quick verification only (extract to directory, no installer, fastest)
+npm run web:build:local:pack
+```
+
+> **Tip (Windows):** If the build command fails on Windows, try running the terminal as Administrator and execute the command again.
+
+### Build Commands
+
+| Command | Description |
+|---------|-------------|
+| `npm run web:build:local:pack` | Quick verification: extract to directory only, no installer, fastest option |
+| `npm run web:build:local:win` | Build Windows installer (`.exe` NSIS) |
+| `npm run web:build:local:mac` | Build macOS installer (`.dmg` + `.zip`, x64/arm64) |
+| `npm run web:build:local:linux` | Build Linux packages (`.AppImage` + `.deb`, x64/arm64) |
+
+### Output Directory
+
+Build artifacts are located in `packages/web/release/`.
 
 ---
 
@@ -246,82 +323,6 @@ This is a multi-package monorepo:
 - The frontend supports hot module replacement (HMR) for fast development
 - Backend auto-restarts when files change
 - You can develop packages independently by running their specific dev commands
-
----
-
-# Local Packaging (Electron)
-
-To package the application as a desktop installer, run the following commands from the project root.
-
-## Prerequisites
-- **Node.js**: >= 22.0.0
-- **macOS**: Xcode Command Line Tools required (`xcode-select --install`)
-- **Linux**: `fakeroot` and `dpkg` for `.deb`; `rpm` for `.rpm` packages
-- Each platform's installer can only be built on its native OS (no cross-platform compilation)
-
-## Getting Started
-
-1. **Speed up Electron binary downloads (optional)**
-
-If downloading Electron binaries is slow in your region, edit the `.npmrc` file in the project root and uncomment the following lines (remove the leading `#`):
-```properties
-ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
-ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/
-```
-
-2. **Clone the repository and install dependencies** (if not already done)
-
-```bash
-git clone https://github.com/trueleaf/apiflow.git
-cd apiflow
-npm install
-```
-
-3. **Modify configuration (as needed)**
-
-Edit `packages/web/src/config/config.ts` and adjust the following settings as required:
-
-```typescript
-// Change the backend server URL
-// Default points to the official server; replace with your own when self-hosting
-httpRequest: {
-  url: isDev ? 'http://127.0.0.1:7001' : 'https://your-server.example.com',
-  // ...
-},
-```
-
-> **Note:** After packaging, the server URL can also be updated at any time in the app via **Settings → App Config → API Endpoint**, without needing to repackage.
-
-4. **Run the build command for your platform**
-
-```bash
-# Windows
-npm run web:build:local:win
-
-# macOS
-npm run web:build:local:mac
-
-# Linux
-npm run web:build:local:linux
-
-# Quick verification only (extract to directory, no installer, fastest)
-npm run web:build:local:pack
-```
-
-> **Tip (Windows):** If the build command fails on Windows, try running the terminal as Administrator and execute the command again.
-
-## Build Commands
-
-| Command | Description |
-|---------|-------------|
-| `npm run web:build:local:pack` | Quick verification: extract to directory only, no installer, fastest option |
-| `npm run web:build:local:win` | Build Windows installer (`.exe` NSIS) |
-| `npm run web:build:local:mac` | Build macOS installer (`.dmg` + `.zip`, x64/arm64) |
-| `npm run web:build:local:linux` | Build Linux packages (`.AppImage` + `.deb`, x64/arm64) |
-
-## Output Directory
-
-Build artifacts are located in `packages/web/release/`.
 
 ---
 

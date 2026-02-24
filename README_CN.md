@@ -107,13 +107,17 @@ Postman / Apifox 开源替代方案
 
 ---
 
-# 本地部署（Docker）
+# 本地部署
 
-## 环境要求
+## 服务端部署
+
+### Docker 部署
+
+#### 环境要求
 - Docker
 - Docker Compose
 
-## 首次部署
+#### 首次部署
 
 ```bash
 git clone https://gitee.com/wildsell/apiflow
@@ -130,7 +134,7 @@ curl http://localhost
 curl http://localhost/api/health
 ```
 
-## 部署后添加用户
+#### 部署后添加用户
 
 部署成功后,按照以下步骤添加用户:
 
@@ -148,7 +152,7 @@ curl http://localhost/api/health
    - 找到用户管理模块
    - 点击"添加用户"为团队成员创建新账号
 
-## 代码更新
+#### 代码更新
 
 如果你是通过 Docker 运行 Apiflow，更新代码时无需在本地重新构建。
 
@@ -187,14 +191,12 @@ docker compose -f docker-compose.yml -f docker-compose.cn.yml up -d
 ./rollback.sh --previous --cn
 ```
 
----
+### 阿里云部署(2026-01-22更新)
 
-# 阿里云部署(2026-01-22更新)
-
-## 购买服务器
+#### 购买服务器
 ![阿里云购买](./docs/aliyun/aliyun_buy.gif)
 
-## linux部署
+
 直接在服务器运行以下命令,完成后浏览器通过ip直接访问。注意：mongodb密码需要你自行修改
 ```bash
 #添加Docker软件包源
@@ -225,8 +227,85 @@ curl -i localhost
 ```
 ![阿里云部署](./docs/aliyun/aliyun_linux.gif)
 
-## 环境要求
+#### 环境要求
 - 2核心2G内存
+
+## 客户端构建
+通过docker部署后你可以直接通过浏览器访问系统，如果你希望使用完整功能，可以按照以下步骤进行构建：
+
+
+### 环境要求
+- **Node.js**: >= 22.0.0
+- **macOS**：需安装 Xcode Command Line Tools（`xcode-select --install`）
+- **Linux**：如需构建 `.deb` 包需安装 `fakeroot`、`dpkg`；构建 `.rpm` 需安装 `rpm`
+- Windows / macOS / Linux 安装包只能在对应平台上构建（不支持跨平台交叉编译）
+
+#### 第一步：切换下载源（可选）
+
+
+编辑项目根目录的 `.npmrc` 文件，取消以下三行的注释（删除行首的 `#` 符号）：
+```properties
+ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
+ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/
+registry=https://registry.npmmirror.com
+```
+#### 第二步：克隆代码仓库并安装依赖
+
+```bash
+git clone https://gitee.com/wildsell/apiflow.git
+cd apiflow
+npm install
+```
+
+
+#### 第三步：修改配置（按需调整）
+
+编辑 `packages/web/src/config/config.ts`，根据实际情况修改以下配置项：
+
+```typescript
+// 修改后端服务地址（默认指向官方服务器，自部署时改为自己的服务器地址）
+httpRequest: {
+  url: isDev ? 'http://127.0.0.1:7001' : 'https://your-server.example.com',
+  // ...
+},
+```
+
+> **说明：** 打包完成后，上述配置也可在应用内的 **设置 → 应用配置 → 接口调用地址** 中随时修改，无需重新打包。
+
+#### 第四步：执行打包命令
+
+根据目标平台选择对应命令：
+
+```bash
+# Windows
+npm run web:build:local:win
+
+# macOS
+npm run web:build:local:mac
+
+# Linux
+npm run web:build:local:linux
+
+# 仅解压验证（不生成安装包，速度最快）
+npm run web:build:local:pack
+```
+
+> **提示（Windows）**：如果在 Windows 上执行打包命令失败，可尝试使用管理员权限打开终端后再次执行。
+
+### 打包命令
+
+| 命令 | 说明 |
+|------|------|
+| `npm run web:build:local:pack` | 快速验证：仅解压到目录，不生成安装包，速度最快 |
+| `npm run web:build:local:win` | 构建 Windows 安装包（`.exe` NSIS 安装程序） |
+| `npm run web:build:local:mac` | 构建 macOS 安装包（`.dmg` + `.zip`，支持 x64/arm64） |
+| `npm run web:build:local:linux` | 构建 Linux 安装包（`.AppImage` + `.deb`，支持 x64/arm64） |
+
+### 输出目录
+
+打包产物位于 `packages/web/release/` 目录下。
+
+---
 
 # 本地开发
 
@@ -296,88 +375,6 @@ npm run dev
 - 前端支持热模块替换（HMR），可快速开发调试
 - 后端文件变更时会自动重启
 - 可以通过运行特定命令独立开发各个包
-
----
-
-# 本地打包（Electron）
-
-如需将应用打包为桌面安装包，可在项目根目录执行以下命令。
-
-## 环境要求
-- **Node.js**: >= 22.0.0
-- **macOS**：需安装 Xcode Command Line Tools（`xcode-select --install`）
-- **Linux**：如需构建 `.deb` 包需安装 `fakeroot`、`dpkg`；构建 `.rpm` 需安装 `rpm`
-- Windows / macOS / Linux 安装包只能在对应平台上构建（不支持跨平台交叉编译）
-
-## 快速开始
-
-
-1. **将下载源切换为国内镜像（可选）**
-
-
-编辑项目根目录的 `.npmrc` 文件，取消以下三行的注释（删除行首的 `#` 符号）：
-```properties
-ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
-ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/
-registry=https://registry.npmmirror.com
-```
-
-
-2. **克隆代码仓库并安装依赖**（如果尚未完成）
-
-```bash
-git clone https://gitee.com/wildsell/apiflow.git
-cd apiflow
-npm install
-```
-
-
-3. **修改配置（按需调整）**
-
-编辑 `packages/web/src/config/config.ts`，根据实际情况修改以下配置项：
-
-```typescript
-// 修改后端服务地址（默认指向官方服务器，自部署时改为自己的服务器地址）
-httpRequest: {
-  url: isDev ? 'http://127.0.0.1:7001' : 'https://your-server.example.com',
-  // ...
-},
-```
-
-> **说明：** 打包完成后，上述配置也可在应用内的 **设置 → 应用配置 → 接口调用地址** 中随时修改，无需重新打包。
-
-4. **执行打包命令**
-
-根据目标平台选择对应命令：
-
-```bash
-# Windows
-npm run web:build:local:win
-
-# macOS
-npm run web:build:local:mac
-
-# Linux
-npm run web:build:local:linux
-
-# 仅解压验证（不生成安装包，速度最快）
-npm run web:build:local:pack
-```
-
-> **提示（Windows）**：如果在 Windows 上执行打包命令失败，可尝试使用管理员权限打开终端后再次执行。
-
-## 打包命令
-
-| 命令 | 说明 |
-|------|------|
-| `npm run web:build:local:pack` | 快速验证：仅解压到目录，不生成安装包，速度最快 |
-| `npm run web:build:local:win` | 构建 Windows 安装包（`.exe` NSIS 安装程序） |
-| `npm run web:build:local:mac` | 构建 macOS 安装包（`.dmg` + `.zip`，支持 x64/arm64） |
-| `npm run web:build:local:linux` | 构建 Linux 安装包（`.AppImage` + `.deb`，支持 x64/arm64） |
-
-## 输出目录
-
-打包产物位于 `packages/web/release/` 目录下。
 
 ---
 
