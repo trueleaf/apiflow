@@ -61,7 +61,6 @@
         <Shortcuts v-if="activeTab === 'shortcuts'" />
         <ComponentLibrary v-if="activeTab === 'components'" />
         <AiSettings v-if="activeTab === 'ai-settings'" />
-        <TestCase v-if="activeTab === 'test-case'" />
         <About v-if="activeTab === 'about'" @update-badge="handleUpdateBadge" />
         <AdminUser v-if="activeTab === 'admin-user'" />
         <AdminRole v-if="activeTab === 'admin-role'" />
@@ -84,14 +83,13 @@ import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
 import AiSettings from './aiSettings/AiSettings.vue'
 import ProjectRecovery from './projectRecovery/ProjectRecovery.vue'
 import Shortcuts from './shortcuts/Shortcuts.vue'
-import TestCase from './testCase/TestCase.vue'
 import About from './about/About.vue'
 import AdminUser from './adminUser/User.vue'
 import AdminRole from './adminRole/Role.vue'
 import AdminClientRoutes from './adminClientRoutes/ClientRoutes.vue'
 import AdminServerRoutes from './adminServerRoutes/ServerRoutes.vue'
 import AdminSystemConfig from './adminSystemConfig/SystemConfig.vue'
-import { UserCircle, HardDrive, Command, Box, BrainCircuit, Trash2, FlaskConical, Info, Users, ShieldCheck, Route, Globe, Settings } from 'lucide-vue-next'
+import { UserCircle, HardDrive, Command, Box, BrainCircuit, Trash2, Info, Users, ShieldCheck, Route, Globe, Settings } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const runtimeStore = useRuntime()
@@ -116,7 +114,6 @@ const settingTabs = computed<TabItem[]>(() => [
   { name: t('快捷键'), icon: Command, action: 'shortcuts' },
   { name: t('组件库'), icon: Box, action: 'components' },
   { name: t('AI 设置'), icon: BrainCircuit, action: 'ai-settings' },
-  { name: t('测试案例'), icon: FlaskConical, action: 'test-case' },
   { name: t('关于'), icon: Info, action: 'about' }
 ])
 const adminTabs = computed<TabItem[]>(() => [
