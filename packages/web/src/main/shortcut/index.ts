@@ -10,11 +10,13 @@ class ShortcutManager {
   private topBarView: WebContentsView;
   private contentView: WebContentsView;
   private isShortcutRegistered = false;
+  private resetHandshake: () => void;
 
-  constructor(mainWindow: BrowserWindow, topBarView: WebContentsView, contentView: WebContentsView) {
+  constructor(mainWindow: BrowserWindow, topBarView: WebContentsView, contentView: WebContentsView, resetHandshake: () => void) {
     this.mainWindow = mainWindow;
     this.topBarView = topBarView;
     this.contentView = contentView;
+    this.resetHandshake = resetHandshake;
 
     this.setupEventListeners();
     this.setupAppExitHandler();
@@ -126,6 +128,7 @@ class ShortcutManager {
    */
   private handleReload(forceRecreate: boolean = false) {
     webSocketManager.clearAllConnections()
+    this.resetHandshake()
     if (forceRecreate) {
       // 在开发模式下，不使用 app.relaunch() 避免终止 Vite 服务器
       // 而是通过强制重新加载所有 WebContents 来实现类似效果
@@ -245,7 +248,8 @@ let shortcutManager: ShortcutManager | null = null;
 export const bindMainProcessGlobalShortCut = (
   mainWindow: BrowserWindow,
   topBarView: WebContentsView,
-  contentView: WebContentsView
+  contentView: WebContentsView,
+  resetHandshake: () => void
 ) => {
   // 如果已经存在管理器，先清理
   if (shortcutManager) {
@@ -253,7 +257,7 @@ export const bindMainProcessGlobalShortCut = (
   }
 
   // 创建新的快捷键管理器
-  shortcutManager = new ShortcutManager(mainWindow, topBarView, contentView);
+  shortcutManager = new ShortcutManager(mainWindow, topBarView, contentView, resetHandshake);
 
   return shortcutManager;
 };

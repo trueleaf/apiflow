@@ -110,6 +110,14 @@ const createHandshakeManager = (contentView: WebContentsView, topBarView: WebCon
     if (!cachedTabsData) return;
     cachedTabsData = { ...cachedTabsData, networkMode };
   };
+  const updateCachedTabs = (tabs: any[]) => {
+    if (!cachedTabsData) return;
+    cachedTabsData = { ...cachedTabsData, tabs };
+  };
+  const updateCachedActiveTabId = (activeTabId: string) => {
+    if (!cachedTabsData) return;
+    cachedTabsData = { ...cachedTabsData, activeTabId };
+  };
   return {
     setTopBarReady,
     setContentViewReady,
@@ -118,6 +126,8 @@ const createHandshakeManager = (contentView: WebContentsView, topBarView: WebCon
     clearHandshakeTimeout,
     setCachedTabsData,
     updateCachedTabsNetworkMode,
+    updateCachedTabs,
+    updateCachedActiveTabId,
   };
 };
 
@@ -501,11 +511,13 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
 
   // Header Tabs 更新通知 - 转发给 contentView 进行缓存
   ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.tabsUpdated, (_, tabs: any[]) => {
+    handshakeManager.updateCachedTabs(tabs)
     contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.tabsUpdated, tabs)
   })
 
   // Header 激活 Tab 更新通知 - 转发给 contentView 进行缓存
   ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.activeTabUpdated, (_, activeTabId: string) => {
+    handshakeManager.updateCachedActiveTabId(activeTabId)
     contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.activeTabUpdated, activeTabId)
   })
 
@@ -783,5 +795,6 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   return {
     broadcastWindowState,
     handshakeManager,
+    resetHandshake: handshakeManager.resetHandshake,
   };
 }

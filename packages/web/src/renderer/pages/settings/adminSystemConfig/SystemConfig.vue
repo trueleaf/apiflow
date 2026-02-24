@@ -24,7 +24,6 @@
 import { onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useSystemConfig } from '@/store/systemConfig/systemConfigStore'
-import { message } from '@/helper'
 
 const { t } = useI18n()
 const systemConfigStore = useSystemConfig()
@@ -51,12 +50,10 @@ const handleSave = async () => {
       enableRegister: form.enableRegister,
       enableForgotPassword: form.enableForgotPassword,
     })
-    message.success(t('保存成功'))
   } catch {
     form.enableGuest = systemConfigStore.enableGuest
     form.enableRegister = systemConfigStore.enableRegister
     form.enableForgotPassword = systemConfigStore.enableForgotPassword
-    message.error(t('保存失败'))
   } finally {
     saving.value = false
   }

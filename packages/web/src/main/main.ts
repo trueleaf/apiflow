@@ -230,8 +230,8 @@ if (!gotTheLock) {
     // 保存 contentView 引用供其他模块使用
     contentViewInstance = contentView;
 
-    const { broadcastWindowState } = useIpcEvent(mainWindow, topBarView, contentView);
-    bindMainProcessGlobalShortCut(mainWindow, topBarView, contentView);
+    const { broadcastWindowState, resetHandshake } = useIpcEvent(mainWindow, topBarView, contentView);
+    bindMainProcessGlobalShortCut(mainWindow, topBarView, contentView, resetHandshake);
     // 窗口状态变化时的视图布局调整
     const updateViewLayout = () => {
       const windowBounds = mainWindow.getContentBounds();
