@@ -16,6 +16,10 @@
         <el-switch v-model="form.enableForgotPassword" :loading="saving" @change="handleSave" />
         <span class="form-item-desc">{{ t('开启后登录页展示忘记密码入口') }}</span>
       </el-form-item>
+      <el-form-item :label="t('外部链接图标')">
+        <el-switch v-model="form.enableExternalLinks" :loading="saving" @change="handleSave" />
+        <span class="form-item-desc">{{ t('关闭后登录页将隐藏GitHub、码云、官网、微软商城图标') }}</span>
+      </el-form-item>
     </el-form>
   </div>
 </template>
@@ -33,12 +37,14 @@ const form = reactive({
   enableGuest: false,
   enableRegister: false,
   enableForgotPassword: false,
+  enableExternalLinks: true,
 })
 onMounted(async () => {
   await systemConfigStore.fetchConfig()
   form.enableGuest = systemConfigStore.enableGuest
   form.enableRegister = systemConfigStore.enableRegister
   form.enableForgotPassword = systemConfigStore.enableForgotPassword
+  form.enableExternalLinks = systemConfigStore.enableExternalLinks
   loading.value = false
 })
 // 保存配置
@@ -49,11 +55,13 @@ const handleSave = async () => {
       enableGuest: form.enableGuest,
       enableRegister: form.enableRegister,
       enableForgotPassword: form.enableForgotPassword,
+      enableExternalLinks: form.enableExternalLinks,
     })
   } catch {
     form.enableGuest = systemConfigStore.enableGuest
     form.enableRegister = systemConfigStore.enableRegister
     form.enableForgotPassword = systemConfigStore.enableForgotPassword
+    form.enableExternalLinks = systemConfigStore.enableExternalLinks
   } finally {
     saving.value = false
   }

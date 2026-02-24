@@ -7,6 +7,7 @@ export const useSystemConfig = defineStore('systemConfig', () => {
   const enableGuest = ref(false)
   const enableRegister = ref(false)
   const enableForgotPassword = ref(false)
+  const enableExternalLinks = ref(true)
   const isOfficial = ref(false)
   const loaded = ref(false)
   // 从服务端获取系统功能开关配置
@@ -16,6 +17,7 @@ export const useSystemConfig = defineStore('systemConfig', () => {
       enableGuest.value = res.data.enableGuest
       enableRegister.value = res.data.enableRegister
       enableForgotPassword.value = res.data.enableForgotPassword
+      enableExternalLinks.value = res.data.enableExternalLinks
       isOfficial.value = res.data.isOfficial
       loaded.value = true
     } catch {
@@ -28,8 +30,9 @@ export const useSystemConfig = defineStore('systemConfig', () => {
     enableGuest.value = res.data.enableGuest
     enableRegister.value = res.data.enableRegister
     enableForgotPassword.value = res.data.enableForgotPassword
+    enableExternalLinks.value = res.data.enableExternalLinks
     isOfficial.value = res.data.isOfficial
     return res.data
   }
-  return { enableGuest, enableRegister, enableForgotPassword, isOfficial, loaded, fetchConfig, updateConfig }
+  return { enableGuest, enableRegister, enableForgotPassword, enableExternalLinks, isOfficial, loaded, fetchConfig, updateConfig }
 })

@@ -22,7 +22,7 @@
     <el-form-item class="mb-1">
       <el-button :loading="loading" :type="systemConfigStore.enableGuest ? undefined : 'primary'" native-type="submit" class="w-100" data-testid="login-submit-btn">{{ t("登录") }}</el-button>
     </el-form-item>
-    <div class="mt-2 d-flex j-around">
+    <div v-if="systemConfigStore.enableExternalLinks" class="mt-2 d-flex j-around">
       <a href="https://github.com/trueleaf/apiflow" target="_blank" class="d-flex flex-column j-center a-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('跳转github')">
           <use xlink:href="#icongithub"></use>

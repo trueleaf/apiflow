@@ -63,6 +63,8 @@ export default {
   邮箱注册: 'Email Registration',
   '关闭后登录页将隐藏注册入口': 'When disabled, the registration tab will be hidden on the login page',
   '开启后登录页展示忘记密码入口': 'When enabled, the forgot password link will be shown on the login page',
+  外部链接图标: 'External Link Icons',
+  '关闭后登录页将隐藏GitHub、码云、官网、微软商城图标': 'When disabled, the GitHub, Gitee, website, and Microsoft Store icons will be hidden on the login page',
   保存失败: 'Save failed',
   '收起': 'Collapse',
   '选择节点': 'Select Nodes',
