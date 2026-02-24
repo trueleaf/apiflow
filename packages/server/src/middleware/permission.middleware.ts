@@ -21,6 +21,17 @@ export class PermissionMiddleware implements IMiddleware<Context, NextFunction> 
     serverRoutesModel: ReturnModelType<typeof ServerRoutes>;
   resolve() {
     return async (ctx: Context, next: NextFunction) => {
+      // isFree 模式下仍需解析 JWT 以设置 ctx.tokenInfo，仅跳过权限表校验
+      if (this.config.permission.isFree) {
+        if (ctx.headers.authorization) {
+          const tokenInfo = jwt.default.verify(
+            ctx.headers.authorization,
+            this.config.jwtConfig.secretOrPrivateKey
+          ) as LoginTokenInfo;
+          ctx.tokenInfo = tokenInfo;
+        }
+        return await next();
+      }
       if (!ctx.headers.authorization) {
         return throwError(4100, '缺少Authorization认证头');
       }
@@ -74,9 +85,6 @@ export class PermissionMiddleware implements IMiddleware<Context, NextFunction> 
     };
   }
   ignore(ctx: Context): boolean {
-    if (this.config.permission.isFree) {
-      return true;
-    }
     return !!this.config.permission.whiteList.find(freeUrl => {
       // 支持通配符匹配
       if (freeUrl.endsWith('/**')) {
