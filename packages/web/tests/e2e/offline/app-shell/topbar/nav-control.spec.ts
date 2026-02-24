@@ -109,6 +109,47 @@ test.describe('NavControl', () => {
     // 验证回到主页面
     await contentPage.waitForURL(/.*#\/(home)?$/, { timeout: 5000 });
   });
+
+  test('在设置页面刷新后设置Tab保留且仍高亮', async ({ topBarPage, contentPage, clearCache, reload, jumpToSettings }) => {
+    await clearCache();
+    await reload();
+    await jumpToSettings();
+    const settingsTab = topBarPage.locator('[data-test-id^="header-tab-item-"][data-id^="settings-"]').first();
+    await expect(settingsTab).toBeVisible();
+    await expect(settingsTab).toHaveClass(/active/);
+    await expect(contentPage).toHaveURL(/.*#\/settings/, { timeout: 5000 });
+    // 刷新（等同于 Ctrl+R：resetHandshake + 两视图 reloadIgnoringCache）
+    await reload();
+    // 刷新后设置 Tab 仍保留
+    await expect(settingsTab).toBeVisible({ timeout: 10000 });
+    // 设置 Tab 仍高亮
+    await expect(settingsTab).toHaveClass(/active/, { timeout: 10000 });
+    // 内容区域仍展示设置页面
+    await expect(contentPage).toHaveURL(/.*#\/settings/, { timeout: 10000 });
+  });
+
+  test('关闭设置Tab后刷新设置Tab不出现', async ({ topBarPage, contentPage, clearCache, reload, jumpToSettings }) => {
+    await clearCache();
+    await reload();
+    await jumpToSettings();
+    const settingsTab = topBarPage.locator('[data-test-id^="header-tab-item-"][data-id^="settings-"]').first();
+    const settingsTabId = await settingsTab.getAttribute('data-id');
+    await expect(settingsTab).toBeVisible();
+    // 关闭设置 Tab
+    const closeBtn = topBarPage.locator(`[data-test-id="header-tab-close-btn-${settingsTabId}"]`);
+    await closeBtn.click();
+    // 设置 Tab 已移除
+    await expect(settingsTab).toBeHidden({ timeout: 5000 });
+    // 已跳转到主页面，主页面按钮高亮
+    await contentPage.waitForURL(/.*#\/(home)?$/, { timeout: 5000 });
+    await expect(topBarPage.locator('[data-testid="header-home-btn"]')).toHaveClass(/active/, { timeout: 5000 });
+    // 刷新（等同于 Ctrl+R）
+    await reload();
+    // 刷新后设置 Tab 不应出现
+    await expect(topBarPage.locator('[data-test-id^="header-tab-item-"][data-id^="settings-"]')).toBeHidden({ timeout: 10000 });
+    // 主页面按钮高亮
+    await expect(topBarPage.locator('[data-testid="header-home-btn"]')).toHaveClass(/active/, { timeout: 5000 });
+  });
 });
 
 
