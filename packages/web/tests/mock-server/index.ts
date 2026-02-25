@@ -421,6 +421,139 @@ export const createMockServer = (): Koa => {
         return;
       }
     }
+    // SSE分块响应路由 - 用于测试增量渲染与完成态
+    if (ctx.path === '/sse/chunked') {
+      ctx.status = 200;
+      ctx.set('Content-Type', 'text/event-stream; charset=utf-8');
+      ctx.set('Cache-Control', 'no-cache');
+      ctx.set('Connection', 'keep-alive');
+      ctx.respond = false;
+      let isClosed = false;
+      ctx.req.on('close', () => {
+        isClosed = true;
+      });
+      const payloadList = [
+        'id: 1\nevent: message\ndata: {"step":1,"chunk":"alpha"}\n\n',
+        'id: 2\nevent: message\ndata: {"step":2,"chunk":"beta"}\n\n',
+        'id: 3\nevent: message\ndata: {"step":3,"chunk":"gamma"}\n\n',
+        'id: 4\nevent: message\ndata: {"step":4,"chunk":"delta"}\n\n',
+        'id: 5\nevent: message\ndata: {"step":5,"chunk":"omega"}\n\n',
+      ];
+      for (let i = 0; i < payloadList.length; i += 1) {
+        if (isClosed || ctx.res.writableEnded) {
+          break;
+        }
+        ctx.res.write(payloadList[i]);
+        await sleep(260);
+      }
+      if (!isClosed && !ctx.res.writableEnded) {
+        ctx.res.end();
+      }
+      return;
+    }
+    // SSE慢速响应路由 - 用于测试中断场景
+    if (ctx.path === '/sse/abort') {
+      ctx.status = 200;
+      ctx.set('Content-Type', 'text/event-stream; charset=utf-8');
+      ctx.set('Cache-Control', 'no-cache');
+      ctx.set('Connection', 'keep-alive');
+      ctx.respond = false;
+      let isClosed = false;
+      ctx.req.on('close', () => {
+        isClosed = true;
+      });
+      for (let i = 1; i <= 30; i += 1) {
+        if (isClosed || ctx.res.writableEnded) {
+          break;
+        }
+        ctx.res.write(`id: ${String(i)}\nevent: progress\ndata: {"step":${String(i)},"state":"streaming"}\n\n`);
+        await sleep(180);
+      }
+      if (!isClosed && !ctx.res.writableEnded) {
+        ctx.res.end();
+      }
+      return;
+    }
+    // 图片文件响应路由 - 用于测试image分支
+    if (ctx.path === '/file/image') {
+      const imageContent = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4////fwAJ+wP9K8t2WQAAAABJRU5ErkJggg==', 'base64');
+      ctx.set('Content-Type', 'image/png');
+      ctx.set('Content-Disposition', 'attachment; filename="mock-image.png"');
+      ctx.body = imageContent;
+      return;
+    }
+    // 视频文件响应路由 - 用于测试video分支
+    if (ctx.path === '/file/video') {
+      const videoContent = Buffer.from('mock-video-content', 'utf-8');
+      ctx.set('Content-Type', 'video/mp4');
+      ctx.set('Content-Disposition', 'attachment; filename="mock-video.mp4"');
+      ctx.body = videoContent;
+      return;
+    }
+    // 音频文件响应路由 - 用于测试audio分支
+    if (ctx.path === '/file/audio') {
+      const audioContent = Buffer.from('mock-audio-content', 'utf-8');
+      ctx.set('Content-Type', 'audio/mpeg');
+      ctx.set('Content-Disposition', 'attachment; filename="mock-audio.mp3"');
+      ctx.body = audioContent;
+      return;
+    }
+    // 压缩包文件响应路由 - 用于测试archive分支
+    if (ctx.path === '/file/archive') {
+      const archiveContent = Buffer.from('PK\u0003\u0004mock-archive-content', 'utf-8');
+      ctx.set('Content-Type', 'application/zip');
+      ctx.set('Content-Disposition', 'attachment; filename="mock-archive.zip"');
+      ctx.body = archiveContent;
+      return;
+    }
+    // 可执行文件响应路由 - 用于测试exe分支
+    if (ctx.path === '/file/exe') {
+      const exeContent = Buffer.from('MZmock-exe-content', 'utf-8');
+      ctx.set('Content-Type', 'application/x-msdownload');
+      ctx.set('Content-Disposition', 'attachment; filename="mock-installer.exe"');
+      ctx.body = exeContent;
+      return;
+    }
+    // EPUB文件响应路由 - 用于测试epub分支
+    if (ctx.path === '/file/epub') {
+      const epubContent = Buffer.from('mock-epub-content', 'utf-8');
+      ctx.set('Content-Type', 'application/epub+zip');
+      ctx.set('Content-Disposition', 'attachment; filename="mock-book.epub"');
+      ctx.body = epubContent;
+      return;
+    }
+    // PDF 文件响应路由 - 用于测试文件预览分支
+    if (ctx.path === '/file/pdf') {
+      const pdfContent = Buffer.from('%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF', 'utf-8');
+      ctx.set('Content-Type', 'application/pdf');
+      ctx.set('Content-Disposition', 'attachment; filename="mock-file.pdf"');
+      ctx.body = pdfContent;
+      return;
+    }
+    // 强制下载响应路由 - 用于测试 forceDownload 分支
+    if (ctx.path === '/file/force-download') {
+      const content = Buffer.from('mock-force-download-content', 'utf-8');
+      ctx.set('Content-Type', 'application/force-download');
+      ctx.set('Content-Disposition', 'attachment; filename="mock-download.bin"');
+      ctx.body = content;
+      return;
+    }
+    // 未知类型分块响应路由 - 用于测试传输进度与 unknown 分支
+    if (ctx.path === '/file/unknown-stream') {
+      const chunkCount = 20;
+      const chunkSize = 8 * 1024;
+      const totalSize = chunkCount * chunkSize;
+      ctx.status = 200;
+      ctx.set('Content-Type', 'application/x-custom-binary');
+      ctx.set('Content-Length', String(totalSize));
+      ctx.respond = false;
+      for (let i = 0; i < chunkCount; i += 1) {
+        ctx.res.write(Buffer.alloc(chunkSize, i));
+        await sleep(80);
+      }
+      ctx.res.end();
+      return;
+    }
     // 检查是否匹配 /echo 或 /echo/* 路径
     if (ctx.path === '/echo' || ctx.path.startsWith('/echo/')) {
       // 尝试匹配带 path 参数的路由模式
