@@ -184,6 +184,92 @@ test.describe('NodeHistory', () => {
     const historyItems = historyPanel.locator('.history-item');
     await expect.poll(async () => historyItems.count(), { timeout: 10000 }).toBeGreaterThanOrEqual(2);
   });
+  test('历史记录支持单条删除与清除全部历史记录', async ({ contentPage, clearCache, createProject, createNode }) => {
+    test.setTimeout(60000);
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 创建HTTP节点并准备历史记录数据
+    await createNode(contentPage, { nodeType: 'http', name: '历史删除清空测试' });
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
+    await expect(urlInput).toBeVisible({ timeout: 5000 });
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?history=one`);
+    await saveBtn.click();
+    await expect(saveBtn).not.toHaveClass(/is-loading/);
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?history=two`);
+    await saveBtn.click();
+    await expect(saveBtn).not.toHaveClass(/is-loading/);
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?history=three`);
+    await saveBtn.click();
+    await expect(saveBtn).not.toHaveClass(/is-loading/);
+    // 打开历史记录并删除第一条记录
+    const historyBtn = contentPage.locator('[data-testid="http-params-history-btn"]');
+    await historyBtn.click();
+    const historyPanel = contentPage.locator('.history-dropdown');
+    await expect(historyPanel).toBeVisible({ timeout: 5000 });
+    const historyItems = historyPanel.locator('.history-item');
+    await expect.poll(async () => historyItems.count(), { timeout: 10000 }).toBeGreaterThanOrEqual(3);
+    const initialCount = await historyItems.count();
+    await historyItems.first().hover();
+    await historyItems.first().locator('.delete-icon').click();
+    const deleteConfirm = contentPage.locator('.cl-confirm-container').first();
+    await expect(deleteConfirm).toBeVisible({ timeout: 5000 });
+    await deleteConfirm.locator('.cl-confirm-footer-right .el-button--primary').first().click();
+    // 删除确认后历史下拉可能被关闭，必要时重新展开再校验条目数
+    if (!(await historyPanel.isVisible())) {
+      await historyBtn.click();
+      await expect(historyPanel).toBeVisible({ timeout: 5000 });
+    }
+    await expect.poll(async () => historyPanel.locator('.history-item').count(), { timeout: 10000 }).toBe(initialCount - 1);
+    // 继续执行清空全部历史记录并验证空状态
+    const clearAllBtn = historyPanel.locator('.clear-all-btn');
+    await expect(clearAllBtn).toBeVisible({ timeout: 5000 });
+    await clearAllBtn.click();
+    const clearConfirm = contentPage.locator('.cl-confirm-container').first();
+    await expect(clearConfirm).toBeVisible({ timeout: 5000 });
+    await clearConfirm.locator('.cl-confirm-footer-right .el-button--primary').first().click();
+    await expect(historyPanel).toBeHidden({ timeout: 10000 });
+    await historyBtn.click();
+    await expect(historyPanel).toBeVisible({ timeout: 5000 });
+    await expect(historyPanel.locator('.history-empty')).toBeVisible({ timeout: 5000 });
+  });
+  test('历史详情支持手动关闭与移出延迟隐藏', async ({ contentPage, clearCache, createProject, createNode }) => {
+    test.setTimeout(60000);
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 创建HTTP节点并保存一条历史记录
+    await createNode(contentPage, { nodeType: 'http', name: '历史详情关闭测试' });
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    const saveBtn = contentPage.locator('[data-testid="operation-save-btn"]');
+    await expect(urlInput).toBeVisible({ timeout: 5000 });
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?detail=close`);
+    await saveBtn.click();
+    await expect(saveBtn).not.toHaveClass(/is-loading/);
+    // 悬停历史记录项触发详情面板展示
+    const historyBtn = contentPage.locator('[data-testid="http-params-history-btn"]');
+    await historyBtn.click();
+    const historyPanel = contentPage.locator('.history-dropdown');
+    await expect(historyPanel).toBeVisible({ timeout: 5000 });
+    const historyItems = historyPanel.locator('.history-item');
+    await expect.poll(async () => historyItems.count(), { timeout: 10000 }).toBeGreaterThan(0);
+    await historyItems.first().hover();
+    const historyDetail = contentPage.locator('.history-detail-panel');
+    await expect(historyDetail).toBeVisible({ timeout: 5000 });
+    // 点击关闭按钮，详情面板应立即关闭
+    await historyDetail.locator('.close-icon').click();
+    await expect(historyDetail).toBeHidden({ timeout: 5000 });
+    // 再次悬停打开详情后移出记录项，验证延迟隐藏边界
+    if (!(await historyPanel.isVisible())) {
+      await historyBtn.click();
+      await expect(historyPanel).toBeVisible({ timeout: 5000 });
+    }
+    await historyItems.first().hover();
+    await expect(historyDetail).toBeVisible({ timeout: 5000 });
+    await contentPage.mouse.move(1, 1);
+    await expect(historyDetail).toBeHidden({ timeout: 3000 });
+  });
 });
 
 
