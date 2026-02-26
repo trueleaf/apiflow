@@ -299,6 +299,33 @@
   --ai-history-delete-hover-bg: #fee2e2;
   --ai-history-delete-hover-text: #dc2626;
 
+  /* Dialog 全局样式变量 */
+  --dialog-mask-bg: rgba(15, 23, 42, 0.34);
+  --dialog-mask-blur: 1px;
+  --dialog-bg: #ffffff;
+  --dialog-border-color: #e5e7eb;
+  --dialog-radius: 12px;
+  --dialog-shadow: 0 24px 48px rgba(15, 23, 42, 0.16);
+  --dialog-header-bg: #fafbfc;
+  --dialog-header-border: #ebeef5;
+  --dialog-header-padding: 13px 16px;
+  --dialog-title-color: #1f2937;
+  --dialog-title-font-size: 15px;
+  --dialog-title-font-weight: 600;
+  --dialog-body-bg: #f7f8fa;
+  --dialog-body-padding: 12px 14px 15px;
+  --dialog-footer-border: #ebeef5;
+  --dialog-footer-padding: 12px 16px;
+  --dialog-close-size: 24px;
+  --dialog-close-top: 11px;
+  --dialog-close-right: 12px;
+  --dialog-close-radius: 6px;
+  --dialog-close-color: #6b7280;
+  --dialog-close-hover-color: #111827;
+  --dialog-close-hover-bg: #eef2f7;
+  --dialog-close-hover-border: #e2e8f0;
+  --dialog-transition-duration: 0.2s;
+
   /* ========== ProjectWorkbench 专用颜色 ========== */
   /* HTTP方法标签 - 语义化颜色 */
   --method-get-bg: #e1f5fe;
@@ -458,6 +485,71 @@
 
   --gray-750: #3f454b;
   --shadow-light: var(--shadow-sm);
+}
+
+.el-overlay.el-overlay-dialog {
+  background: var(--dialog-mask-bg) !important;
+  backdrop-filter: blur(var(--dialog-mask-blur));
+  -webkit-backdrop-filter: blur(var(--dialog-mask-blur));
+}
+
+.el-overlay.el-overlay-dialog .el-dialog {
+  border-radius: var(--dialog-radius);
+  border: 1px solid var(--dialog-border-color);
+  box-shadow: var(--dialog-shadow);
+  background: var(--dialog-bg);
+  overflow: hidden;
+}
+
+.el-overlay.el-overlay-dialog .el-dialog__header {
+  margin: 0;
+  padding: var(--dialog-header-padding);
+  border-bottom: 1px solid var(--dialog-header-border);
+  background: var(--dialog-header-bg);
+}
+
+.el-overlay.el-overlay-dialog .el-dialog__title {
+  color: var(--dialog-title-color);
+  font-size: var(--dialog-title-font-size);
+  font-weight: var(--dialog-title-font-weight);
+}
+
+.el-overlay.el-overlay-dialog .el-dialog__body {
+  padding: var(--dialog-body-padding);
+  background: var(--dialog-body-bg);
+}
+
+.el-overlay.el-overlay-dialog .el-dialog__footer {
+  border-top: 1px solid var(--dialog-footer-border);
+  padding: var(--dialog-footer-padding);
+}
+
+.el-overlay.el-overlay-dialog .el-dialog__headerbtn {
+  top: var(--dialog-close-top);
+  right: var(--dialog-close-right);
+  width: var(--dialog-close-size);
+  height: var(--dialog-close-size);
+  border-radius: var(--dialog-close-radius);
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--dialog-transition-duration), border-color var(--dialog-transition-duration);
+}
+
+.el-overlay.el-overlay-dialog .el-dialog__headerbtn .el-dialog__close {
+  color: var(--dialog-close-color);
+  font-size: 14px;
+  transition: color var(--dialog-transition-duration);
+}
+
+.el-overlay.el-overlay-dialog .el-dialog__headerbtn:hover {
+  background: var(--dialog-close-hover-bg);
+  border-color: var(--dialog-close-hover-border);
+}
+
+.el-overlay.el-overlay-dialog .el-dialog__headerbtn:hover .el-dialog__close {
+  color: var(--dialog-close-hover-color);
 }
 
 /* 颜色工具类 */

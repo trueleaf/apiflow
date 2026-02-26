@@ -6,7 +6,6 @@
     :close-on-click-modal="false"
     :show-close="false"
     class="env-manage-dialog"
-    modal-class="env-manage-dialog-mask"
     @close="handleClose"
     @update:model-value="handleUpdateModelValue"
   >
@@ -228,30 +227,6 @@ const handleUpdateModelValue = (value: boolean) => {
 }
 </script>
 <style lang="scss" scoped>
-:global(.env-manage-dialog-mask) {
-  background: rgba(15, 23, 42, 0.34);
-  backdrop-filter: blur(1px);
-  -webkit-backdrop-filter: blur(1px);
-}
-:deep(.env-manage-dialog) {
-  .el-dialog {
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.16);
-    overflow: hidden;
-    background: #ffffff;
-  }
-  .el-dialog__header {
-    margin: 0;
-    padding: 13px 16px;
-    border-bottom: 1px solid #ebeef5;
-    background: #fafbfc;
-  }
-  .el-dialog__body {
-    padding: 12px 14px 15px;
-    background: #f7f8fa;
-  }
-}
 .env-dialog-header {
   display: flex;
   align-items: center;
