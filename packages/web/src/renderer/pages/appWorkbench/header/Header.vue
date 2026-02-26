@@ -554,11 +554,12 @@ const bindEvent = () => {
 
 // 处理document点击事件以关闭语言菜单
 const handleDocumentClick = (event: MouseEvent) => {
+  const clickedNode = event.target as Node
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideHeaderTabContextmenu)
-  if (languageButtonRef.value && !languageButtonRef.value.contains(event.target as Node)) {
+  if (languageButtonRef.value && !languageButtonRef.value.contains(clickedNode)) {
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu)
   }
-  if (userAvatarButtonRef.value && !userAvatarButtonRef.value.contains(event.target as Node)) {
+  if (userAvatarButtonRef.value && !userAvatarButtonRef.value.contains(clickedNode)) {
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu)
   }
 }

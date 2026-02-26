@@ -108,7 +108,36 @@
         </el-icon>
       </div>
     </div>
-    <div class="d-flex a-center pl-1 ip-address">{{ ipAddress }}</div>
+    <div class="env-selector" @click.stop>
+      <button
+        class="env-trigger"
+        data-testid="project-nav-env-trigger"
+        @click="showEnvDropdown = !showEnvDropdown"
+      >
+        <span class="env-dot" :class="selectedEnvironment"></span>
+        <span class="env-name">{{ selectedEnvironmentLabel }}</span>
+        <ChevronDown :size="12" class="env-arrow" :class="{ open: showEnvDropdown }" />
+      </button>
+      <div v-if="showEnvDropdown" class="env-dropdown">
+        <div class="env-dropdown-head">{{ t('环境切换') }}</div>
+        <div class="env-dropdown-list">
+          <button
+            v-for="item in environmentOptions"
+            :key="item.key"
+            class="env-item"
+            :class="{ active: item.key === selectedEnvironment }"
+            @click="selectEnvironment(item.key)"
+          >
+            <span>{{ item.label }}</span>
+            <Check v-if="item.key === selectedEnvironment" :size="12" />
+          </button>
+        </div>
+        <div class="env-dropdown-footer">
+          <button class="env-action">{{ t('新建环境') }}</button>
+          <button class="env-action">{{ t('环境管理') }}</button>
+        </div>
+      </div>
+    </div>
   </div>
   <teleport to="body">
     <!-- 单个节点操作 -->
@@ -149,7 +178,7 @@ import {
   ArrowRight as IconArrowRight,
   ArrowLeft as IconArrowLeft
 } from '@element-plus/icons-vue';
-import { Variable, ListTree, ArrowDownToLine, ArrowUpToLine } from 'lucide-vue-next'
+import { Variable, ListTree, ArrowDownToLine, ArrowUpToLine, ChevronDown, Check } from 'lucide-vue-next'
 import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { router } from '@/router';
@@ -195,7 +224,21 @@ const tabs = computed({
     })
   }
 })
-const ipAddress = computed(() => window.electronAPI?.ip)
+const showEnvDropdown = ref(false)
+const selectedEnvironment = ref<'none' | 'dev' | 'test' | 'prod'>('none')
+const environmentOptions = computed(() => [
+  { key: 'none' as const, label: t('无环境') },
+  { key: 'dev' as const, label: t('开发环境 dev') },
+  { key: 'test' as const, label: t('测试环境 test') },
+  { key: 'prod' as const, label: t('生产环境 prod') }
+])
+const selectedEnvironmentLabel = computed(() =>
+  environmentOptions.value.find(item => item.key === selectedEnvironment.value)?.label ?? t('无环境')
+)
+const selectEnvironment = (envKey: 'none' | 'dev' | 'test' | 'prod') => {
+  selectedEnvironment.value = envKey
+  showEnvDropdown.value = false
+}
 const currentSelectedTab = computed(() => tabs.value?.find(tab => tab.selected))
 const httpMockNodeStore = useHttpMockNode()
 const websocketMockNodeStore = useWebSocketMockNode()
@@ -224,6 +267,7 @@ const initViewTab = () => {
 }
 const bindGlobalClick = () => {
   showContextmenu.value = false;
+  showEnvDropdown.value = false;
 }
 const handleMoveLeft = () => {
   console.log('left')
@@ -839,8 +883,113 @@ onUnmounted(() => {
   .el-scrollbar__bar {
     bottom: 0;
   }
-  .ip-address {
+  .env-selector {
+    position: relative;
     border-left: 1px solid var(--project-nav-border);
+    flex-shrink: 0;
+    .env-trigger {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      height: var(--apiflow-doc-nav-height);
+      padding: 0 10px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 12px;
+      white-space: nowrap;
+      &:hover {
+        color: var(--text-primary);
+        background: var(--bg-hover);
+      }
+    }
+    .env-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background-color: var(--text-secondary);
+      &.dev { background-color: var(--el-color-success); }
+      &.test { background-color: var(--el-color-warning); }
+      &.prod { background-color: var(--el-color-danger); }
+    }
+    .env-arrow {
+      flex-shrink: 0;
+      transition: transform 0.2s;
+      &.open { transform: rotate(180deg); }
+    }
+    .env-dropdown {
+      position: absolute;
+      top: calc(100% + 2px);
+      right: 0;
+      width: 220px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-base);
+      border-radius: 6px;
+      box-shadow: var(--box-shadow-base);
+      z-index: 100;
+    }
+    .env-dropdown-head {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-base);
+    }
+    .env-dropdown-list {
+      padding: 5px;
+    }
+    .env-item {
+      width: 100%;
+      height: 28px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 8px;
+      font-size: 12px;
+      cursor: pointer;
+      &:not(:last-child) { margin-bottom: 2px; }
+      &:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+      }
+      &.active {
+        color: var(--text-primary);
+        background: var(--bg-active);
+        border-color: var(--border-base);
+      }
+      span:first-child {
+        flex: 1;
+        text-align: left;
+      }
+    }
+    .env-dropdown-footer {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 6px;
+      border-top: 1px solid var(--border-base);
+    }
+    .env-action {
+      height: 26px;
+      border: 1px solid var(--border-base);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      &:hover {
+        color: var(--text-primary);
+        background: var(--bg-hover);
+      }
+    }
   }
 }
 </style>

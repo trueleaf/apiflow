@@ -114,6 +114,15 @@ export interface IPCEventMap {
     request: { targetTab?: string } | void;
     response: void;
   };
+  [IPC_EVENTS.apiflow.topBarToContent.appSettingsChanged]: {
+    request: {
+      appTitle: string;
+      appLogo: string;
+      appTheme: string;
+      serverUrl?: string;
+    } | undefined;
+    response: void;
+  };
 
   // 内容窗口 -> 顶栏
   [IPC_EVENTS.apiflow.contentToTopBar.contentReady]: {
@@ -208,6 +217,15 @@ export interface IPCEventMap {
     request: string;
     response: void;
   };
+  [IPC_EVENTS.apiflow.contentToTopBar.appSettingsChanged]: {
+    request: {
+      appTitle: string;
+      appLogo: string;
+      appTheme: string;
+      serverUrl?: string;
+    } | undefined;
+    response: void;
+  };
 
   // 渲染进程 -> 主进程 (请求-响应)
   [IPC_EVENTS.apiflow.rendererToMain.topBarIsReady]: {
@@ -273,6 +291,10 @@ export interface IPCEventMap {
   [IPC_EVENTS.apiflow.rendererToMain.readFileAsBlob]: {
     request: { filePath: string };
     response: Blob | null;
+  };
+  [IPC_EVENTS.apiflow.rendererToMain.setWindowIcon]: {
+    request: string;
+    response: void;
   };
 
   [IPC_EVENTS.apiflow.rendererToMain.setOnlineUrl]: {
@@ -608,6 +630,53 @@ export interface IPCEventMap {
   [IPC_EVENTS.import.rendererNotifyMain.reset]: {
     request: void;
     response: void;
+  };
+  // ==================== CONTENT VIEW LIFECYCLE ====================
+  [IPC_EVENTS.contentViewLifecycle.rendererToMain.retry]: {
+    request: void;
+    response: void;
+  };
+  [IPC_EVENTS.contentViewLifecycle.rendererToMain.fallback]: {
+    request: void;
+    response: void;
+  };
+  [IPC_EVENTS.contentViewLifecycle.rendererToMain.getLoadState]: {
+    request: void;
+    response: {
+      state: string;
+      failureInfo: unknown;
+      currentUrl: string;
+    };
+  };
+  // ==================== TEMP FILE ====================
+  [IPC_EVENTS.tempFile.rendererToMain.create]: {
+    request: string;
+    response: {
+      code: number;
+      msg: string;
+      data: {
+        path: string;
+        size: number;
+      } | null;
+    };
+  };
+  [IPC_EVENTS.tempFile.rendererToMain.delete]: {
+    request: string;
+    response: {
+      code: number;
+      msg: string;
+      data: null;
+    };
+  };
+  [IPC_EVENTS.tempFile.rendererToMain.read]: {
+    request: string;
+    response: {
+      code: number;
+      msg: string;
+      data: {
+        content: string;
+      } | null;
+    };
   };
 
   // ==================== UTIL ====================
