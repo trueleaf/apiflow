@@ -134,7 +134,7 @@
         </div>
         <div class="env-dropdown-footer">
           <button class="env-action">{{ t('新建环境') }}</button>
-          <button class="env-action">{{ t('环境管理') }}</button>
+          <button class="env-action" @click="handleOpenEnvironmentManageDialog">{{ t('环境管理') }}</button>
         </div>
       </div>
     </div>
@@ -164,6 +164,7 @@
     </SContextmenu>
   </teleport>
   <SAddFileDialog v-if="addFileDialogVisible" v-model="addFileDialogVisible" @success="handleAddFileSuccess" />
+  <SEnvironmentManageDialog v-if="environmentManageDialogVisible" v-model="environmentManageDialogVisible" />
 </template>
 
 <script lang="ts" setup>
@@ -195,6 +196,7 @@ import { useHttpMockNode } from '@/store/httpMockNode/httpMockNodeStore';
 import { useWebSocketMockNode } from '@/store/websocketMockNode/websocketMockNodeStore';
 import { ElMessage } from 'element-plus';
 import SAddFileDialog from '../../dialog/addFile/AddFile.vue';
+import SEnvironmentManageDialog from './dialog/EnvironmentManageDialog.vue';
 import type { ApidocBanner } from '@src/types';
 
 
@@ -225,6 +227,7 @@ const tabs = computed({
   }
 })
 const showEnvDropdown = ref(false)
+const environmentManageDialogVisible = ref(false)
 const selectedEnvironment = ref<'none' | 'dev' | 'test' | 'prod'>('none')
 const environmentOptions = computed(() => [
   { key: 'none' as const, label: t('无环境') },
@@ -238,6 +241,10 @@ const selectedEnvironmentLabel = computed(() =>
 const selectEnvironment = (envKey: 'none' | 'dev' | 'test' | 'prod') => {
   selectedEnvironment.value = envKey
   showEnvDropdown.value = false
+}
+const handleOpenEnvironmentManageDialog = () => {
+  showEnvDropdown.value = false
+  environmentManageDialogVisible.value = true
 }
 const currentSelectedTab = computed(() => tabs.value?.find(tab => tab.selected))
 const httpMockNodeStore = useHttpMockNode()
@@ -920,11 +927,11 @@ onUnmounted(() => {
       &.open { transform: rotate(180deg); }
     }
     .env-dropdown {
+      background-color: #fff;
       position: absolute;
       top: calc(100% + 2px);
       right: 0;
       width: 220px;
-      background: var(--bg-secondary);
       border: 1px solid var(--border-base);
       border-radius: 6px;
       box-shadow: var(--box-shadow-base);

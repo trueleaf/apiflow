@@ -42,3 +42,6 @@ CLAUDE.md
 temp/
 dev-app-update.yml
 ui-screenshots/**
+
+# Terminal Paste Image folder
+.cp-images/
