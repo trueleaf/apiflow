@@ -1,290 +1,179 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture'
+import { test, expect } from '../../../../../../fixtures/electron.fixture';
 
 test.describe('WebSocketQueryParamsUndo', () => {
-  // 添加Query参数后点击撤销恢复
+  // 添加 Query 参数后点击撤销按钮应回退 URL 拼接
   test('添加Query参数后点击撤销恢复', async ({ contentPage, clearCache, createProject, createNode }) => {
-    await clearCache()
-    await createProject()
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 })
-    await contentPage.waitForTimeout(500)
-
-    const nodeId = await createNode(contentPage, { nodeType: 'websocket', name: 'Query参数-撤销按钮' })
-
-    // 点击节点，确保 currentSelectNav 已同步（影响撤销/重做记录）
-    const createdNode = contentPage.locator(`[data-test-node-id="${nodeId}"]`).first()
-    await expect(createdNode).toBeVisible({ timeout: 5000 })
-    await createdNode.click()
-    await expect(contentPage.locator('.ws-operation')).toBeVisible({ timeout: 5000 })
-
-    // 输入连接地址，用于通过状态栏验证Query拼接
-    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first()
-    await urlEditor.fill('ws://127.0.0.1:8080/ws')
-    await contentPage.keyboard.press('Enter')
-    await contentPage.waitForTimeout(300)
-
-    // 切换到Params标签页
-    const paramsTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /Params/ })
-    await paramsTab.click()
-    await contentPage.waitForTimeout(300)
-
-    // 添加Query参数
-    const queryParamsPanel = contentPage.locator('.ws-query-params')
-    await expect(queryParamsPanel).toBeVisible({ timeout: 5000 })
-    const firstRow = queryParamsPanel.locator('[data-testid="params-tree-row"]').first()
-    await expect(firstRow).toBeVisible({ timeout: 5000 })
-
-    // 确保该行已勾选，否则不会拼接到URL上
-    const rowCheckbox = firstRow.locator('.el-checkbox').first()
-    const checkboxClass = (await rowCheckbox.getAttribute('class')) || ''
-    if (!checkboxClass.includes('is-checked')) {
-      await rowCheckbox.click()
-      await contentPage.waitForTimeout(200)
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'websocket', name: 'Query参数-撤销按钮' });
+    const paramsTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /^Params$/ });
+    await paramsTab.click();
+    const queryPanel = contentPage.locator('.ws-query-params');
+    await expect(queryPanel).toBeVisible({ timeout: 5000 });
+    // 先设置基础地址，再录入 Query 参数
+    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
+    await urlEditor.fill('ws://127.0.0.1:8080/ws');
+    await contentPage.keyboard.press('Enter');
+    const row = queryPanel.locator('[data-testid="params-tree-row"]').first();
+    await expect(row).toBeVisible({ timeout: 5000 });
+    const checkbox = row.locator('.el-checkbox').first();
+    if (!((await checkbox.getAttribute('class')) || '').includes('is-checked')) {
+      await checkbox.click();
     }
-
-    const queryKeyInput = firstRow.getByPlaceholder(/参数名称/).first()
-    await expect(queryKeyInput).toBeVisible({ timeout: 5000 })
-    await queryKeyInput.click()
-    await queryKeyInput.fill('testKey')
-    await contentPage.waitForTimeout(200)
-
-    const valueInputWrap = firstRow.locator('[data-testid="params-tree-value-input"]').first()
-    const valueEditor = valueInputWrap.locator('[contenteditable], textarea, input').first()
-    await expect(valueEditor).toBeVisible({ timeout: 5000 })
-    await valueEditor.click()
-    await contentPage.keyboard.type('testValue')
-    await contentPage.waitForTimeout(300)
-
-    const statusUrl = contentPage.locator('.ws-operation .status-wrap .url')
-    await expect(statusUrl).toContainText('testKey=testValue', { timeout: 5000 })
-
-    // 点击空白区域让输入框失焦，避免撤销仅影响输入内容
-    await paramsTab.click()
-    await contentPage.waitForTimeout(200)
-
-    // 撤销后应移除Query参数拼接 - 使用 Ctrl+Z 模拟撤销功能
-    // 注意：由于点击撤销按钮存在 E2E 测试的兼容性问题，这里改用快捷键验证功能
-    await contentPage.keyboard.press('Control+z')
-    await contentPage.waitForTimeout(300)
-    await expect(statusUrl).not.toContainText('testKey=testValue', { timeout: 5000 })
-  })
-
-  // 使用Ctrl+Z撤销Query参数编辑
+    await row.getByPlaceholder(/参数名称/).first().fill('undoKey');
+    const valueEditor = row.locator('[data-testid="params-tree-value-input"]').first().locator('[contenteditable], textarea, input').first();
+    await valueEditor.click();
+    await contentPage.keyboard.type('undoValue');
+    const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
+    await expect.poll(async () => {
+      return (await statusUrl.textContent()) || '';
+    }, { timeout: 5000 }).toContain('undoKey=undoValue');
+    // 失焦后触发撤销按钮，验证 Query 拼接回退
+    await paramsTab.click();
+    const undoBtn = contentPage.locator('[data-testid="ws-params-undo-btn"]');
+    await expect(undoBtn).toBeVisible({ timeout: 5000 });
+    await undoBtn.click();
+    await expect.poll(async () => {
+      return (await statusUrl.textContent()) || '';
+    }, { timeout: 5000 }).not.toContain('undoKey=undoValue');
+  });
+  // 使用 Ctrl+Z 触发撤销应与撤销按钮行为一致
   test('使用Ctrl+Z撤销Query参数编辑', async ({ contentPage, clearCache, createProject, createNode }) => {
-    await clearCache()
-    await createProject()
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 })
-    await contentPage.waitForTimeout(500)
-
-    const nodeId = await createNode(contentPage, { nodeType: 'websocket', name: 'Query参数-快捷键撤销' })
-
-    // 点击节点，确保 currentSelectNav 已同步（影响撤销/重做记录）
-    const createdNode = contentPage.locator(`[data-test-node-id="${nodeId}"]`).first()
-    await expect(createdNode).toBeVisible({ timeout: 5000 })
-    await createdNode.click()
-    await expect(contentPage.locator('.ws-operation')).toBeVisible({ timeout: 5000 })
-
-    // 输入连接地址，用于通过状态栏验证Query拼接
-    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first()
-    await urlEditor.fill('ws://127.0.0.1:8080/ws')
-    await contentPage.keyboard.press('Enter')
-    await contentPage.waitForTimeout(300)
-
-    // 切换到Params标签页
-    const paramsTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /Params/ })
-    await paramsTab.click()
-    await contentPage.waitForTimeout(300)
-
-    // 添加Query参数
-    const queryParamsPanel = contentPage.locator('.ws-query-params')
-    await expect(queryParamsPanel).toBeVisible({ timeout: 5000 })
-    const firstRow = queryParamsPanel.locator('[data-testid="params-tree-row"]').first()
-    await expect(firstRow).toBeVisible({ timeout: 5000 })
-
-    // 确保该行已勾选，否则不会拼接到URL上
-    const rowCheckbox = firstRow.locator('.el-checkbox').first()
-    const checkboxClass = (await rowCheckbox.getAttribute('class')) || ''
-    if (!checkboxClass.includes('is-checked')) {
-      await rowCheckbox.click()
-      await contentPage.waitForTimeout(200)
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'websocket', name: 'Query参数-快捷键撤销' });
+    const paramsTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /^Params$/ });
+    await paramsTab.click();
+    const queryPanel = contentPage.locator('.ws-query-params');
+    await expect(queryPanel).toBeVisible({ timeout: 5000 });
+    // 录入 Query 参数并确认已拼接到 URL
+    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
+    await urlEditor.fill('ws://127.0.0.1:8080/ws');
+    await contentPage.keyboard.press('Enter');
+    const row = queryPanel.locator('[data-testid="params-tree-row"]').first();
+    const checkbox = row.locator('.el-checkbox').first();
+    if (!((await checkbox.getAttribute('class')) || '').includes('is-checked')) {
+      await checkbox.click();
     }
-
-    const queryKeyInput = firstRow.getByPlaceholder(/参数名称/).first()
-    await expect(queryKeyInput).toBeVisible({ timeout: 5000 })
-    await queryKeyInput.click()
-    await queryKeyInput.fill('paramKey')
-    await contentPage.waitForTimeout(200)
-
-    const valueInputWrap = firstRow.locator('[data-testid="params-tree-value-input"]').first()
-    const valueEditor = valueInputWrap.locator('[contenteditable], textarea, input').first()
-    await expect(valueEditor).toBeVisible({ timeout: 5000 })
-    await valueEditor.click()
-    await contentPage.keyboard.type('paramValue')
-    await contentPage.waitForTimeout(300)
-
-    const statusUrl = contentPage.locator('.ws-operation .status-wrap .url')
-    await expect(statusUrl).toContainText('paramKey=paramValue', { timeout: 5000 })
-
-    // 点击空白区域让输入框失焦，避免撤销仅影响输入内容
-    await paramsTab.click()
-    await contentPage.waitForTimeout(200)
-
-    // Ctrl+Z撤销后应移除Query参数拼接
-    await contentPage.keyboard.press('Control+z')
-    await contentPage.waitForTimeout(300)
-    await expect(statusUrl).not.toContainText('paramKey=paramValue', { timeout: 5000 })
-  })
-
-  // 删除Query参数后撤销恢复
-  // 由于删除操作的撤销涉及复杂的数据同步（删除后自动添加空行），暂时跳过此测试
-  // 核心的 Ctrl+Z 撤销功能已在 "使用Ctrl+Z撤销Query参数编辑" 测试中验证
+    await row.getByPlaceholder(/参数名称/).first().fill('hotkeyKey');
+    const valueEditor = row.locator('[data-testid="params-tree-value-input"]').first().locator('[contenteditable], textarea, input').first();
+    await valueEditor.click();
+    await contentPage.keyboard.type('hotkeyValue');
+    const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
+    await expect.poll(async () => {
+      return (await statusUrl.textContent()) || '';
+    }, { timeout: 5000 }).toContain('hotkeyKey=hotkeyValue');
+    // 将焦点切回非输入区，避免 Ctrl+Z 仅影响富文本输入框
+    await paramsTab.click();
+    await contentPage.keyboard.press('Control+z');
+    await expect.poll(async () => {
+      return (await statusUrl.textContent()) || '';
+    }, { timeout: 5000 }).not.toContain('hotkeyKey=hotkeyValue');
+  });
+  // 删除参数后撤销应恢复被删除的 Query 行与 URL 拼接
   test('删除Query参数后撤销恢复', async ({ contentPage, clearCache, createProject, createNode }) => {
-    await clearCache()
-    await createProject()
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 })
-    await contentPage.waitForTimeout(500)
-
-    const nodeId = await createNode(contentPage, { nodeType: 'websocket', name: 'Query参数-删除撤销' })
-
-    // 点击节点，确保 currentSelectNav 已同步（影响撤销/重做记录）
-    const createdNode = contentPage.locator(`[data-test-node-id="${nodeId}"]`).first()
-    await expect(createdNode).toBeVisible({ timeout: 5000 })
-    await createdNode.click()
-    await expect(contentPage.locator('.ws-operation')).toBeVisible({ timeout: 5000 })
-
-    // 输入连接地址，用于通过状态栏验证Query拼接
-    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first()
-    await urlEditor.fill('ws://127.0.0.1:8080/ws')
-    await contentPage.keyboard.press('Enter')
-    await contentPage.waitForTimeout(300)
-
-    // 切换到Params标签页
-    const paramsTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /Params/ })
-    await paramsTab.click()
-    await contentPage.waitForTimeout(300)
-
-    // 添加Query参数
-    const queryParamsPanel = contentPage.locator('.ws-query-params')
-    await expect(queryParamsPanel).toBeVisible({ timeout: 5000 })
-    const firstRow = queryParamsPanel.locator('[data-testid="params-tree-row"]').first()
-    await expect(firstRow).toBeVisible({ timeout: 5000 })
-
-    // 确保该行已勾选，否则不会拼接到URL上
-    const rowCheckbox = firstRow.locator('.el-checkbox').first()
-    const checkboxClass = (await rowCheckbox.getAttribute('class')) || ''
-    if (!checkboxClass.includes('is-checked')) {
-      await rowCheckbox.click()
-      await contentPage.waitForTimeout(200)
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'websocket', name: 'Query参数-删除撤销' });
+    const paramsTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /^Params$/ });
+    await paramsTab.click();
+    const queryPanel = contentPage.locator('.ws-query-params');
+    await expect(queryPanel).toBeVisible({ timeout: 5000 });
+    // 先创建一条可识别的 Query 记录
+    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
+    await urlEditor.fill('ws://127.0.0.1:8080/ws');
+    await contentPage.keyboard.press('Enter');
+    const firstRow = queryPanel.locator('[data-testid="params-tree-row"]').first();
+    const checkbox = firstRow.locator('.el-checkbox').first();
+    if (!((await checkbox.getAttribute('class')) || '').includes('is-checked')) {
+      await checkbox.click();
     }
-
-    const queryKeyInput = firstRow.getByPlaceholder(/参数名称/).first()
-    await expect(queryKeyInput).toBeVisible({ timeout: 5000 })
-    await queryKeyInput.click()
-    await queryKeyInput.fill('deleteKey')
-    await contentPage.waitForTimeout(200)
-
-    const valueInputWrap = firstRow.locator('[data-testid="params-tree-value-input"]').first()
-    const valueEditor = valueInputWrap.locator('[contenteditable], textarea, input').first()
-    await expect(valueEditor).toBeVisible({ timeout: 5000 })
-    await valueEditor.click()
-    await contentPage.keyboard.type('deleteValue')
-    await contentPage.waitForTimeout(300)
-
-    const statusUrl = contentPage.locator('.ws-operation .status-wrap .url')
-    await expect(statusUrl).toContainText('deleteKey=deleteValue', { timeout: 5000 })
-
-    // 删除该行
-    const rows = queryParamsPanel.locator('[data-testid="params-tree-row"]')
-    const rowCount = await rows.count()
-    let targetRowIndex = -1
+    await firstRow.getByPlaceholder(/参数名称/).first().fill('deleteKey');
+    const valueEditor = firstRow.locator('[data-testid="params-tree-value-input"]').first().locator('[contenteditable], textarea, input').first();
+    await valueEditor.click();
+    await contentPage.keyboard.type('deleteValue');
+    const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
+    await expect.poll(async () => {
+      return (await statusUrl.textContent()) || '';
+    }, { timeout: 5000 }).toContain('deleteKey=deleteValue');
+    // 删除该记录后 URL 应立即移除对应参数
+    const rows = queryPanel.locator('[data-testid="params-tree-row"]');
+    const rowCount = await rows.count();
+    let matchedIndex = -1;
     for (let index = 0; index < rowCount; index += 1) {
-      const row = rows.nth(index)
-      const keyInput = row.getByPlaceholder(/参数名称/).first()
-      const keyValue = await keyInput.inputValue()
+      const keyValue = await rows.nth(index).getByPlaceholder(/参数名称/).first().inputValue();
       if (keyValue === 'deleteKey') {
-        targetRowIndex = index
-        break
+        matchedIndex = index;
+        break;
       }
     }
-    expect(targetRowIndex).toBeGreaterThanOrEqual(0)
-    const deleteRow = rows.nth(targetRowIndex)
-    const deleteBtn = deleteRow.locator('[data-testid="params-tree-delete-btn"]').first()
-    await expect(deleteBtn).toBeVisible({ timeout: 5000 })
-    await deleteBtn.click()
-    await expect(statusUrl).not.toContainText('deleteKey=deleteValue', { timeout: 5000 })
-
-    // 点击标题区域确保焦点不在任何输入框内（这样 Ctrl+Z 才会触发全局快捷键）
-    const titleArea = queryParamsPanel.locator('.title').first()
-    await titleArea.click()
-    await contentPage.waitForTimeout(300)
-
-    // 撤销删除后应恢复Query参数 - 首先验证参数行恢复
-    await contentPage.keyboard.press('Control+z')
-    await expect(statusUrl).toContainText('deleteKey=deleteValue', { timeout: 5000 })
-    const restoredRows = queryParamsPanel.locator('[data-testid="params-tree-row"]')
-    const restoredRowCount = await restoredRows.count()
-    let restored = false
-    for (let index = 0; index < restoredRowCount; index += 1) {
-      const row = restoredRows.nth(index)
-      const keyInput = row.getByPlaceholder(/参数名称/).first()
-      const keyValue = await keyInput.inputValue()
+    expect(matchedIndex).toBeGreaterThanOrEqual(0);
+    await rows.nth(matchedIndex).locator('[data-testid="params-tree-delete-btn"]').first().click();
+    await expect.poll(async () => {
+      return (await statusUrl.textContent()) || '';
+    }, { timeout: 5000 }).not.toContain('deleteKey=deleteValue');
+    // Ctrl+Z 撤销删除后，参数应恢复
+    await queryPanel.locator('.title').first().click();
+    await contentPage.keyboard.press('Control+z');
+    await expect.poll(async () => {
+      return (await statusUrl.textContent()) || '';
+    }, { timeout: 5000 }).toContain('deleteKey=deleteValue');
+    const restoredRows = queryPanel.locator('[data-testid="params-tree-row"]');
+    const restoredCount = await restoredRows.count();
+    let restored = false;
+    for (let index = 0; index < restoredCount; index += 1) {
+      const keyValue = await restoredRows.nth(index).getByPlaceholder(/参数名称/).first().inputValue();
       if (keyValue === 'deleteKey') {
-        restored = true
-        break
+        restored = true;
+        break;
       }
     }
-    expect(restored).toBe(true)
-  })
-  // 撤销Query参数值编辑后参数值恢复为编辑前
-  test('撤销Query参数值编辑后参数值恢复为编辑前', async ({ contentPage, clearCache, createProject, createNode }) => {
-    test.setTimeout(60000)
-    await clearCache()
-    await createProject()
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 })
-    await contentPage.waitForTimeout(500)
-    const nodeId = await createNode(contentPage, { nodeType: 'websocket', name: 'Query参数值撤销测试' })
-    // 点击节点确保状态同步
-    const createdNode = contentPage.locator(`[data-test-node-id="${nodeId}"]`).first()
-    await expect(createdNode).toBeVisible({ timeout: 5000 })
-    await createdNode.click()
-    await expect(contentPage.locator('.ws-operation')).toBeVisible({ timeout: 5000 })
-    // 输入连接地址
-    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first()
-    await urlEditor.fill('ws://127.0.0.1:8080/ws')
-    await contentPage.keyboard.press('Enter')
-    await contentPage.waitForTimeout(300)
-    // 切换到Params标签页
-    const paramsTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /Params/ })
-    await paramsTab.click()
-    await contentPage.waitForTimeout(300)
-    // 添加Query参数
-    const queryParamsPanel = contentPage.locator('.ws-query-params')
-    await expect(queryParamsPanel).toBeVisible({ timeout: 5000 })
-    const firstRow = queryParamsPanel.locator('[data-testid="params-tree-row"]').first()
-    await expect(firstRow).toBeVisible({ timeout: 5000 })
-    const rowCheckbox = firstRow.locator('.el-checkbox').first()
-    const checkboxClass = (await rowCheckbox.getAttribute('class')) || ''
-    if (!checkboxClass.includes('is-checked')) {
-      await rowCheckbox.click()
-      await contentPage.waitForTimeout(200)
+    expect(restored).toBe(true);
+  });
+  // 修改 Query 值后撤销应使值回退，不再保持最新输入
+  test('撤销Query参数值编辑后参数值回退', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'websocket', name: 'Query参数值撤销测试' });
+    const paramsTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /^Params$/ });
+    await paramsTab.click();
+    const queryPanel = contentPage.locator('.ws-query-params');
+    await expect(queryPanel).toBeVisible({ timeout: 5000 });
+    // 先写入原始值，再修改为新值
+    const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
+    await urlEditor.fill('ws://127.0.0.1:8080/ws');
+    await contentPage.keyboard.press('Enter');
+    const row = queryPanel.locator('[data-testid="params-tree-row"]').first();
+    const checkbox = row.locator('.el-checkbox').first();
+    if (!((await checkbox.getAttribute('class')) || '').includes('is-checked')) {
+      await checkbox.click();
     }
-    const queryKeyInput = firstRow.getByPlaceholder(/参数名称/).first()
-    await queryKeyInput.click()
-    await queryKeyInput.fill('testKey')
-    await contentPage.waitForTimeout(200)
-    const valueInputWrap = firstRow.locator('[data-testid="params-tree-value-input"]').first()
-    const valueEditor = valueInputWrap.locator('[contenteditable], textarea, input').first()
-    await valueEditor.click()
-    await contentPage.keyboard.type('originalVal')
-    await contentPage.waitForTimeout(300)
-    const statusUrl = contentPage.locator('.ws-operation .status-wrap .url')
-    await expect(statusUrl).toContainText('testKey=originalVal', { timeout: 5000 })
-    // 点击空白区域失焦
-    await contentPage.locator('.ws-operation .status-wrap').click()
-    await contentPage.waitForTimeout(200)
-    // 撤销后参数应被移除
-    const undoBtn = contentPage.locator('[data-testid="ws-params-undo-btn"]')
-    await undoBtn.click()
-    await contentPage.waitForTimeout(300)
-    await expect(statusUrl).not.toContainText('testKey=originalVal', { timeout: 5000 })
-  })
-})
+    await row.getByPlaceholder(/参数名称/).first().fill('valueKey');
+    const valueEditor = row.locator('[data-testid="params-tree-value-input"]').first().locator('[contenteditable], textarea, input').first();
+    await valueEditor.click();
+    await contentPage.keyboard.type('originalVal');
+    const statusUrl = contentPage.locator('.ws-operation .status-wrap .url');
+    await expect.poll(async () => {
+      return (await statusUrl.textContent()) || '';
+    }, { timeout: 5000 }).toContain('valueKey=originalVal');
+    await valueEditor.click();
+    await contentPage.keyboard.press('Control+a');
+    await contentPage.keyboard.type('changedVal', { delay: 30 });
+    await expect.poll(async () => {
+      return (await statusUrl.textContent()) || '';
+    }, { timeout: 5000 }).toContain('valueKey=changedVal');
+    // 将焦点切出编辑器后撤销，验证值发生回退
+    await queryPanel.locator('.title').first().click();
+    await contentPage.keyboard.press('Control+z');
+    await expect.poll(async () => {
+      return (await statusUrl.textContent()) || '';
+    }, { timeout: 5000 }).not.toContain('valueKey=changedVal');
+    await expect.poll(async () => {
+      return (await statusUrl.textContent()) || '';
+    }, { timeout: 5000 }).toContain('valueKey=');
+  });
+});

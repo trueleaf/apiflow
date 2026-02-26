@@ -1,193 +1,58 @@
 import { test, expect } from '../../../../../../../fixtures/electron.fixture';
 
 test.describe('WebSocketMessageType', () => {
-  // 切换消息类型为JSON,编辑器语言切换为JSON
-  test('切换消息类型为JSON编辑器语言切换为JSON', async ({ contentPage, clearCache, createProject, createNode }) => {
+  // 消息块类型切换后，下拉框应反映当前类型，覆盖 JSON/XML/HTML/文本/Base64/Hex
+  test('消息块类型切换后类型显示正确', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
-    await createNode(contentPage, { nodeType: 'websocket', name: 'JSON类型测试' });
-    // 切换到消息内容标签
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
+    await createNode(contentPage, { nodeType: 'websocket', name: '消息类型切换测试' });
+    // 进入消息内容标签并创建一个消息块
     const messageTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /消息内容/ });
     await messageTab.click();
-    await contentPage.waitForTimeout(300);
-    // 添加消息块
     const addBlockBtn = contentPage.locator('.message-content .add-block-button').first();
+    await expect(addBlockBtn).toBeVisible({ timeout: 5000 });
     await addBlockBtn.click();
-    await contentPage.waitForTimeout(300);
-    // 选择JSON类型
     const messageBlock = contentPage.locator('.message-content .message-block').first();
+    await expect(messageBlock).toBeVisible({ timeout: 5000 });
     const typeSelector = messageBlock.locator('.type-selector');
-    await typeSelector.click();
-    await contentPage.waitForTimeout(300);
-    const jsonOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /^JSON$/ }).first();
-    await jsonOption.click();
-    await contentPage.waitForTimeout(300);
-    // 验证类型选择器显示JSON
-    const selectedType = typeSelector.locator('.el-select__selected-item:not(.is-hidden)').first();
-    await expect(selectedType).toContainText('JSON');
+    // 顺序切换所有核心类型并校验选中值
+    const typeCases = [
+      { option: /^JSON$/, expectText: 'JSON' },
+      { option: /^XML$/, expectText: 'XML' },
+      { option: /^HTML$/, expectText: 'HTML' },
+      { option: /文本/, expectText: '文本' },
+      { option: /Base64/, expectText: 'Base64' },
+      { option: /Hex/, expectText: 'Hex' },
+    ];
+    for (let i = 0; i < typeCases.length; i += 1) {
+      await typeSelector.click();
+      const option = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: typeCases[i].option }).first();
+      await expect(option).toBeVisible({ timeout: 5000 });
+      await option.click();
+      const selectedType = typeSelector.locator('.el-select__selected-item:not(.is-hidden)').first();
+      await expect(selectedType).toContainText(typeCases[i].expectText, { timeout: 5000 });
+    }
   });
-  // 切换消息类型为XML,编辑器语言切换为XML
-  test('切换消息类型为XML编辑器语言切换为XML', async ({ contentPage, clearCache, createProject, createNode }) => {
+  // JSON 类型应展示格式化操作入口，保证 JSON 编辑体验可用
+  test('JSON 类型显示格式化按钮', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
-    await createNode(contentPage, { nodeType: 'websocket', name: 'XML类型测试' });
-    // 切换到消息内容标签
-    const messageTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /消息内容/ });
-    await messageTab.click();
-    await contentPage.waitForTimeout(300);
-    // 添加消息块
-    const addBlockBtn = contentPage.locator('.message-content .add-block-button').first();
-    await addBlockBtn.click();
-    await contentPage.waitForTimeout(300);
-    // 选择XML类型
-    const messageBlock = contentPage.locator('.message-content .message-block').first();
-    const typeSelector = messageBlock.locator('.type-selector');
-    await typeSelector.click();
-    await contentPage.waitForTimeout(300);
-    const xmlOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /^XML$/ }).first();
-    await xmlOption.click();
-    await contentPage.waitForTimeout(300);
-    // 验证类型选择器显示XML
-    const selectedType = typeSelector.locator('.el-select__selected-item:not(.is-hidden)').first();
-    await expect(selectedType).toContainText('XML');
-  });
-  // 切换消息类型为HTML,编辑器语言切换为HTML
-  test('切换消息类型为HTML编辑器语言切换为HTML', async ({ contentPage, clearCache, createProject, createNode }) => {
-    await clearCache();
-    await createProject();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
-    await createNode(contentPage, { nodeType: 'websocket', name: 'HTML类型测试' });
-    // 切换到消息内容标签
-    const messageTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /消息内容/ });
-    await messageTab.click();
-    await contentPage.waitForTimeout(300);
-    // 添加消息块
-    const addBlockBtn = contentPage.locator('.message-content .add-block-button').first();
-    await addBlockBtn.click();
-    await contentPage.waitForTimeout(300);
-    // 选择HTML类型
-    const messageBlock = contentPage.locator('.message-content .message-block').first();
-    const typeSelector = messageBlock.locator('.type-selector');
-    await typeSelector.click();
-    await contentPage.waitForTimeout(300);
-    const htmlOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /^HTML$/ }).first();
-    await htmlOption.click();
-    await contentPage.waitForTimeout(300);
-    // 验证类型选择器显示HTML
-    const selectedType = typeSelector.locator('.el-select__selected-item:not(.is-hidden)').first();
-    await expect(selectedType).toContainText('HTML');
-  });
-  // 切换消息类型为文本,编辑器语言切换为纯文本
-  test('切换消息类型为文本编辑器语言切换为纯文本', async ({ contentPage, clearCache, createProject, createNode }) => {
-    await clearCache();
-    await createProject();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
-    await createNode(contentPage, { nodeType: 'websocket', name: '文本类型测试' });
-    // 切换到消息内容标签
-    const messageTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /消息内容/ });
-    await messageTab.click();
-    await contentPage.waitForTimeout(300);
-    // 添加消息块
-    const addBlockBtn = contentPage.locator('.message-content .add-block-button').first();
-    await addBlockBtn.click();
-    await contentPage.waitForTimeout(300);
-    // 选择文本类型
-    const messageBlock = contentPage.locator('.message-content .message-block').first();
-    const typeSelector = messageBlock.locator('.type-selector');
-    await typeSelector.click();
-    await contentPage.waitForTimeout(300);
-    const textOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /文本/ }).first();
-    await textOption.click();
-    await contentPage.waitForTimeout(300);
-    // 验证类型选择器显示文本
-    const selectedType = typeSelector.locator('.el-select__selected-item:not(.is-hidden)').first();
-    await expect(selectedType).toContainText(/文本/);
-  });
-  // 切换消息类型为二进制(Base64),编辑器支持Base64输入
-  test('切换消息类型为二进制Base64编辑器支持Base64输入', async ({ contentPage, clearCache, createProject, createNode }) => {
-    await clearCache();
-    await createProject();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
-    await createNode(contentPage, { nodeType: 'websocket', name: 'Base64类型测试' });
-    // 切换到消息内容标签
-    const messageTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /消息内容/ });
-    await messageTab.click();
-    await contentPage.waitForTimeout(300);
-    // 添加消息块
-    const addBlockBtn = contentPage.locator('.message-content .add-block-button').first();
-    await addBlockBtn.click();
-    await contentPage.waitForTimeout(300);
-    // 选择二进制(Base64)类型
-    const messageBlock = contentPage.locator('.message-content .message-block').first();
-    const typeSelector = messageBlock.locator('.type-selector');
-    await typeSelector.click();
-    await contentPage.waitForTimeout(300);
-    const base64Option = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /Base64/ }).first();
-    await base64Option.click();
-    await contentPage.waitForTimeout(300);
-    // 验证类型选择器显示二进制(Base64)
-    const selectedType = typeSelector.locator('.el-select__selected-item:not(.is-hidden)').first();
-    await expect(selectedType).toContainText(/Base64/);
-  });
-  // 切换消息类型为二进制(Hex),编辑器支持Hex输入
-  test('切换消息类型为二进制Hex编辑器支持Hex输入', async ({ contentPage, clearCache, createProject, createNode }) => {
-    await clearCache();
-    await createProject();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
-    await createNode(contentPage, { nodeType: 'websocket', name: 'Hex类型测试' });
-    // 切换到消息内容标签
-    const messageTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /消息内容/ });
-    await messageTab.click();
-    await contentPage.waitForTimeout(300);
-    // 添加消息块
-    const addBlockBtn = contentPage.locator('.message-content .add-block-button').first();
-    await addBlockBtn.click();
-    await contentPage.waitForTimeout(300);
-    // 选择二进制(Hex)类型
-    const messageBlock = contentPage.locator('.message-content .message-block').first();
-    const typeSelector = messageBlock.locator('.type-selector');
-    await typeSelector.click();
-    await contentPage.waitForTimeout(300);
-    const hexOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /Hex/ }).first();
-    await hexOption.click();
-    await contentPage.waitForTimeout(300);
-    // 验证类型选择器显示二进制(Hex)
-    const selectedType = typeSelector.locator('.el-select__selected-item:not(.is-hidden)').first();
-    await expect(selectedType).toContainText(/Hex/);
-  });
-  // JSON类型消息块显示格式化按钮
-  test('JSON类型消息块显示格式化按钮', async ({ contentPage, clearCache, createProject, createNode }) => {
-    await clearCache();
-    await createProject();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await contentPage.waitForTimeout(500);
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
     await createNode(contentPage, { nodeType: 'websocket', name: 'JSON格式化按钮测试' });
-    // 切换到消息内容标签
+    // 创建消息块并切换到 JSON 类型
     const messageTab = contentPage.locator('.ws-params .el-tabs__item').filter({ hasText: /消息内容/ });
     await messageTab.click();
-    await contentPage.waitForTimeout(300);
-    // 添加消息块
     const addBlockBtn = contentPage.locator('.message-content .add-block-button').first();
     await addBlockBtn.click();
-    await contentPage.waitForTimeout(300);
-    // 选择JSON类型
     const messageBlock = contentPage.locator('.message-content .message-block').first();
     const typeSelector = messageBlock.locator('.type-selector');
     await typeSelector.click();
-    await contentPage.waitForTimeout(300);
     const jsonOption = contentPage.locator('.el-select-dropdown__item:visible').filter({ hasText: /^JSON$/ }).first();
     await jsonOption.click();
-    await contentPage.waitForTimeout(300);
-    // 验证格式化按钮可见
+    // 校验格式化按钮可见
     const formatBtn = messageBlock.locator('.format-op .btn');
     await expect(formatBtn).toBeVisible({ timeout: 5000 });
   });
 });
+
