@@ -636,3 +636,43 @@
 .gray-800 {
   color: var(--gray-800);
 }
+
+.env-visibility-popper .el-dropdown-menu__item {
+  height: auto;
+  line-height: 1.4;
+  white-space: normal;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.env-visibility-popper .value-mode-option {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.env-visibility-popper .value-mode-option svg {
+  margin-top: 1px;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.env-visibility-popper .value-mode-option-text {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.env-visibility-popper .value-mode-option-main {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 16px;
+}
+
+.env-visibility-popper .value-mode-option-sub {
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 14px;
+}
