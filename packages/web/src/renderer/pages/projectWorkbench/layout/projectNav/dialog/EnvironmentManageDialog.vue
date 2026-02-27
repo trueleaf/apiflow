@@ -143,43 +143,61 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
+                <tr v-for="item in variableRows" :key="item.id">
                   <td class="switch-col">
-                    <input type="checkbox" checked />
+                    <input type="checkbox" :checked="item.enabled" @change="handleUpdateVariableEnabled(item.id, $event)" />
                   </td>
-                  <td><input type="text" value="base_url" /></td>
-                  <td><input type="text" value="https://api-test.apiflow.dev" /></td>
-                  <td v-if="showSharedColumn"><input type="text" value="https://api.apiflow.dev" /></td>
                   <td>
-                    <select>
-                      <option selected>text</option>
-                      <option>secret</option>
-                    </select>
+                    <input type="text" :value="item.key" @input="handleUpdateVariableKey(item.id, $event)" />
                   </td>
-                  <td class="operation-col">
-                    <button class="icon-btn" type="button">
-                      <Trash2 :size="14" />
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="switch-col">
-                    <input type="checkbox" checked />
-                  </td>
-                  <td><input type="text" value="token" /></td>
                   <td>
-                    <div class="secret-cell">
-                      <span class="secret-mask">••••••••••••</span>
-                      <button class="icon-btn" type="button">
-                        <Eye :size="14" />
-                      </button>
-                    </div>
+                    <template v-if="item.valueType === 'secret'">
+                      <div class="secret-cell">
+                        <input
+                          :type="item.showLocalSecret ? 'text' : 'password'"
+                          :value="item.localValue"
+                          @input="handleUpdateVariableValue(item.id, 'local', $event)"
+                        />
+                        <button class="icon-btn" type="button" @click="handleToggleVariableSecret(item.id, 'local')">
+                          <Eye v-if="!item.showLocalSecret" :size="14" />
+                          <EyeOff v-else :size="14" />
+                        </button>
+                      </div>
+                    </template>
+                    <input
+                      v-else
+                      type="text"
+                      :value="item.localValue"
+                      @input="handleUpdateVariableValue(item.id, 'local', $event)"
+                    />
                   </td>
-                  <td v-if="showSharedColumn"><input type="text" :placeholder="t('无环境')" /></td>
+                  <td v-if="showSharedColumn">
+                    <template v-if="item.valueType === 'secret'">
+                      <div class="secret-cell">
+                        <input
+                          :type="item.showSharedSecret ? 'text' : 'password'"
+                          :value="item.sharedValue"
+                          :placeholder="t('无环境')"
+                          @input="handleUpdateVariableValue(item.id, 'shared', $event)"
+                        />
+                        <button class="icon-btn" type="button" @click="handleToggleVariableSecret(item.id, 'shared')">
+                          <Eye v-if="!item.showSharedSecret" :size="14" />
+                          <EyeOff v-else :size="14" />
+                        </button>
+                      </div>
+                    </template>
+                    <input
+                      v-else
+                      type="text"
+                      :value="item.sharedValue"
+                      :placeholder="t('无环境')"
+                      @input="handleUpdateVariableValue(item.id, 'shared', $event)"
+                    />
+                  </td>
                   <td>
-                    <select>
-                      <option>text</option>
-                      <option selected>secret</option>
+                    <select :value="item.valueType" @change="handleUpdateVariableType(item.id, $event)">
+                      <option value="text">text</option>
+                      <option value="secret">secret</option>
                     </select>
                   </td>
                   <td class="operation-col">
@@ -217,6 +235,7 @@ import {
   Copy,
   CircleHelp,
   Eye,
+  EyeOff,
   Trash2,
   ShieldAlert,
   Users,
@@ -262,6 +281,37 @@ const environmentList = ref<Array<{ id: string; name: string; baseUrl: string; d
 const selectedEnvironmentId = ref('env_2')
 const editingEnvironmentId = ref('')
 const variableValueMode = ref<'shared' | 'private'>('shared')
+const variableRows = ref<Array<{
+  id: string
+  enabled: boolean
+  key: string
+  localValue: string
+  sharedValue: string
+  valueType: 'text' | 'secret'
+  showLocalSecret: boolean
+  showSharedSecret: boolean
+}>>([
+  {
+    id: 'var_1',
+    enabled: true,
+    key: 'base_url',
+    localValue: 'https://api-test.apiflow.dev',
+    sharedValue: 'https://api.apiflow.dev',
+    valueType: 'text',
+    showLocalSecret: false,
+    showSharedSecret: false
+  },
+  {
+    id: 'var_2',
+    enabled: true,
+    key: 'token',
+    localValue: 'apitoken-demo-123',
+    sharedValue: '',
+    valueType: 'secret',
+    showLocalSecret: false,
+    showSharedSecret: false
+  }
+])
 const showSharedColumn = computed(() => !isStandalone.value)
 const selectedEnvironment = computed(() => environmentList.value.find(item => item.id === selectedEnvironmentId.value) ?? null)
 
@@ -353,6 +403,53 @@ const handleChangeVariableValueMode = (mode: string | number | object) => {
     return
   }
   variableValueMode.value = mode
+}
+const handleUpdateVariableEnabled = (id: string, event: Event) => {
+  const target = event.target as HTMLInputElement
+  const currentVariable = variableRows.value.find(item => item.id === id)
+  if (!currentVariable) {
+    return
+  }
+  currentVariable.enabled = target.checked
+}
+const handleUpdateVariableKey = (id: string, event: Event) => {
+  const target = event.target as HTMLInputElement
+  const currentVariable = variableRows.value.find(item => item.id === id)
+  if (!currentVariable) {
+    return
+  }
+  currentVariable.key = target.value
+}
+const handleUpdateVariableValue = (id: string, field: 'local' | 'shared', event: Event) => {
+  const target = event.target as HTMLInputElement
+  const currentVariable = variableRows.value.find(item => item.id === id)
+  if (!currentVariable) {
+    return
+  }
+  if (field === 'local') {
+    currentVariable.localValue = target.value
+    return
+  }
+  currentVariable.sharedValue = target.value
+}
+const handleUpdateVariableType = (id: string, event: Event) => {
+  const target = event.target as HTMLSelectElement
+  const currentVariable = variableRows.value.find(item => item.id === id)
+  if (!currentVariable) {
+    return
+  }
+  currentVariable.valueType = target.value === 'secret' ? 'secret' : 'text'
+}
+const handleToggleVariableSecret = (id: string, field: 'local' | 'shared') => {
+  const currentVariable = variableRows.value.find(item => item.id === id)
+  if (!currentVariable || currentVariable.valueType !== 'secret') {
+    return
+  }
+  if (field === 'local') {
+    currentVariable.showLocalSecret = !currentVariable.showLocalSecret
+    return
+  }
+  currentVariable.showSharedSecret = !currentVariable.showSharedSecret
 }
 </script>
 <style lang="scss" scoped>
@@ -721,10 +818,13 @@ const handleChangeVariableValueMode = (mode: string | number | object) => {
     display: flex;
     align-items: center;
     gap: 6px;
-  }
-  .secret-mask {
-    color: #6b7280;
-    letter-spacing: 2px;
+    input {
+      flex: 1;
+      min-width: 0;
+    }
+    .icon-btn {
+      flex-shrink: 0;
+    }
   }
   .icon-btn {
     width: 30px;

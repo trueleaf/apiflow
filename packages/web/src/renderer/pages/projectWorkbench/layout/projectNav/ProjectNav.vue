@@ -133,7 +133,6 @@
           </button>
         </div>
         <div class="env-dropdown-footer">
-          <button class="env-action">{{ t('新建环境') }}</button>
           <button class="env-action" @click="handleOpenEnvironmentManageDialog">{{ t('环境管理') }}</button>
         </div>
       </div>
@@ -979,12 +978,13 @@ onUnmounted(() => {
     }
     .env-dropdown-footer {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: 6px;
       padding: 6px;
       border-top: 1px solid var(--border-base);
     }
     .env-action {
+      width: 100%;
       height: 26px;
       border: 1px solid var(--border-base);
       border-radius: 4px;
