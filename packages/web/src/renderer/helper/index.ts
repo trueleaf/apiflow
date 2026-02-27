@@ -1816,8 +1816,8 @@ export const buildAiSystemPromptForNode = (nodeType: 'http' | 'websocket' | 'htt
   "name": "接口名称(必填,简洁明了)",
   "description": "接口的详细描述,说明功能、用途、注意事项",
   "method": "HTTP方法(GET/POST/PUT/DELETE/PATCH/HEAD/OPTIONS/TRACE之一)",
-  "urlPrefix": "URL前缀(通常留空字符串)",
-  "urlPath": "请求路径或完整URL(如: /api/users, /api/users/{id}, https://api.example.com/data)",
+  "urlPrefix": "URL前缀(当urlPath为完整URL时通常留空字符串)",
+  "urlPath": "请求完整URL(默认使用https://开头,如: https://api.example.com/api/users；仅在用户明确要求时可用相对路径)",
   "queryParams": [
     {
       "key": "参数名",
@@ -1858,11 +1858,12 @@ export const buildAiSystemPromptForNode = (nodeType: 'http' | 'websocket' | 'htt
 ## 字段详细说明
 
 ### 1. URL 字段
-- **urlPrefix**: 通常为空字符串 ""
+- **urlPrefix**: 当 urlPath 为完整URL时通常为空字符串 ""
 - **urlPath**:
-  - 可以是相对路径: /api/users
-  - 可以是完整URL: https://api.example.com/users
-  - 支持RESTful路径参数: /api/users/{id}, /api/posts/{postId}/comments/{commentId}
+  - 默认返回完整URL: https://api.example.com/api/users
+  - 用户只提供路径时,自动补全为: https://api.example.com + 路径
+  - 仅当用户明确要求相对路径时,才返回: /api/users
+  - 支持RESTful路径参数: https://api.example.com/api/users/{id}, https://api.example.com/api/posts/{postId}/comments/{commentId}
   - 路径参数保持 {param} 格式,不需要额外提取
 
 ### 2. queryParams 结构
