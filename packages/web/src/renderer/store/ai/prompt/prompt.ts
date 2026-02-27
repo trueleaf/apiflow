@@ -143,7 +143,7 @@ Return ONLY valid JSON format, no other content.
 {
   "name": "API name (required, 1-50 characters)",
   "method": "GET|POST|PUT|DELETE|PATCH (required, default POST for data submission)",
-  "urlPath": "API path (required, must start with /, supports RESTful params like /users/:id)",
+  "urlPath": "Full request URL (required, prefer https://..., supports RESTful params like https://api.example.com/users/:id; relative path is allowed only when user explicitly requests)",
   "description": "API description (optional, clear explanation of functionality)",
   "bodyMode": "json|formdata|urlencoded|none (required for POST/PUT/PATCH, default none for GET/DELETE)",
   "rawJson": "JSON string (required when bodyMode=json, must be valid JSON with 4-space indentation)",
@@ -159,11 +159,13 @@ Return ONLY valid JSON format, no other content.
    - Delete/Remove → DELETE
    - Partial Update → PATCH
 
-2. URL Path Standards:
-   - Format: /api/module/resource (e.g., /api/users, /api/products)
-   - RESTful params: use :paramName (e.g., /api/users/:id, /api/orders/:orderId)
+2. URL Standards:
+   - Default format: https://domain/path (e.g., https://api.example.com/api/users)
+   - If user provides a domain, keep that domain
+   - If user does not provide a domain, use https://api.example.com as default host
+   - RESTful params: use :paramName (e.g., https://api.example.com/api/users/:id, https://api.example.com/api/orders/:orderId)
    - Avoid spaces and special characters
-   - Use lowercase with hyphens for multi-word (e.g., /api/user-profiles)
+   - Use lowercase with hyphens for multi-word (e.g., https://api.example.com/api/user-profiles)
 
 3. Body Mode Selection:
    - Complex objects/nested data → json
@@ -189,7 +191,7 @@ Output:
 {
   "name": "User Login",
   "method": "POST",
-  "urlPath": "/api/auth/login",
+  "urlPath": "https://api.example.com/api/auth/login",
   "description": "User authentication endpoint",
   "bodyMode": "json",
   "rawJson": "{\n    \"username\": \"admin\",\n    \"password\": \"123456\"\n}",
@@ -203,7 +205,7 @@ Output:
 {
   "name": "Get User List",
   "method": "GET",
-  "urlPath": "/api/users",
+  "urlPath": "https://api.example.com/api/users",
   "description": "Fetch paginated user list",
   "bodyMode": "none",
   "queryParams": [
@@ -219,7 +221,7 @@ Output:
 {
   "name": "Update User",
   "method": "PUT",
-  "urlPath": "/api/users/:id",
+  "urlPath": "https://api.example.com/api/users/:id",
   "description": "Update user profile information",
   "bodyMode": "json",
   "rawJson": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"avatar\": \"https://example.com/avatar.jpg\"\n}",
@@ -229,7 +231,8 @@ Output:
 
 【PROHIBITIONS】
 ❌ DO NOT set bodyMode to json/formdata/urlencoded for GET/DELETE methods
-❌ DO NOT create urlPath without leading slash (/) or containing spaces
+❌ DO NOT output urlPath without http:// or https:// unless user explicitly requests a relative path
+❌ DO NOT create urlPath containing spaces
 ❌ DO NOT provide rawJson that is not valid JSON format
 ❌ DO NOT return anything other than pure JSON (no comments, explanations, or markdown)
 ❌ DO NOT use method values outside of [GET, POST, PUT, DELETE, PATCH]
@@ -240,6 +243,8 @@ Output:
 - If method not specified, use POST for data submission, GET for data retrieval
 - If no authentication mentioned but likely needed (login, user data), include Authorization header placeholder
 - If file upload mentioned anywhere, use bodyMode: "formdata"
+- If user only gives a path idea, prepend https://api.example.com automatically
+- Only output relative path (e.g., /api/users) when user explicitly requires it
 - Empty arrays for queryParams/headers are valid when not needed`
 
 export const simpleCreateHttpMockNodePrompt = `你是一个HTTP Mock服务配置专家。根据用户的自然语言描述，推断出Mock服务的配置参数。
@@ -454,8 +459,8 @@ export const buildAiSystemPromptForNode = (nodeType: AiNodeType): string => {
   "name": "接口名称(必填,简洁明了)",
   "description": "接口的详细描述,说明功能、用途、注意事项",
   "method": "HTTP方法(GET/POST/PUT/DELETE/PATCH/HEAD/OPTIONS/TRACE之一)",
-  "urlPrefix": "URL前缀(通常留空字符串)",
-  "urlPath": "请求路径或完整URL(如: /api/users, /api/users/{id}, https://api.example.com/data)",
+  "urlPrefix": "URL前缀(当urlPath为完整URL时通常留空字符串)",
+  "urlPath": "请求完整URL(默认使用https://开头,如: https://api.example.com/api/users；仅在用户明确要求时可用相对路径)",
   "queryParams": [
     {
       "key": "参数名",
@@ -496,11 +501,12 @@ export const buildAiSystemPromptForNode = (nodeType: AiNodeType): string => {
 ## 字段详细说明
 
 ### 1. URL 字段
-- **urlPrefix**: 通常为空字符串 ""
+- **urlPrefix**: 当 urlPath 为完整URL时通常为空字符串 ""
 - **urlPath**:
-  - 可以是相对路径: /api/users
-  - 可以是完整URL: https://api.example.com/users
-  - 支持RESTful路径参数: /api/users/{id}, /api/posts/{postId}/comments/{commentId}
+  - 默认返回完整URL: https://api.example.com/api/users
+  - 用户只提供路径时,自动补全为: https://api.example.com + 路径
+  - 仅当用户明确要求相对路径时,才返回: /api/users
+  - 支持RESTful路径参数: https://api.example.com/api/users/{id}, https://api.example.com/api/posts/{postId}/comments/{commentId}
   - 路径参数保持 {param} 格式,不需要额外提取
 
 ### 2. queryParams 结构
