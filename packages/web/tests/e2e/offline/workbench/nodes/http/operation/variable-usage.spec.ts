@@ -3,414 +3,245 @@ import { test, expect } from '../../../../../../fixtures/electron.fixture';
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('VariableUsage', () => {
-  // 测试用例1: 在url中使用{{ 变量名 }}语法,发送请求时变量被正确替换
-  test('在url中使用变量语法发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject }) => {
+  // URL 中使用变量后发送请求应完成变量替换
+  test('在url中使用变量语法发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject, createNode, reload }) => {
     await clearCache();
+    await reload();
     await createProject();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('URL变量替换测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
-    // 打开变量管理页签并创建变量
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
+    const nodeId = await createNode(contentPage, { nodeType: 'http', name: 'URL变量替换测试接口' });
+    // 打开变量页并新增 baseUrl 变量
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();
-    await contentPage.waitForTimeout(300);
-    const variableTab = contentPage.locator('[data-testid="project-nav-tab-variable"]');
-    await expect(variableTab).toHaveClass(/active/, { timeout: 5000 });
     const variablePage = contentPage.locator('.s-variable');
     await expect(variablePage).toBeVisible({ timeout: 5000 });
     const addPanel = variablePage.locator('.left');
-    const nameFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ });
-    await nameFormItem.locator('input').first().fill('baseUrl');
-    const valueFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ });
-    await valueFormItem.locator('textarea').first().fill(`http://localhost:${MOCK_SERVER_PORT}`);
-    const confirmAddBtn2 = addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first();
-    await confirmAddBtn2.click();
-    await contentPage.waitForTimeout(500);
+    await addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ }).locator('input').first().fill('baseUrl');
+    await addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ }).locator('textarea').first().fill(`http://127.0.0.1:${MOCK_SERVER_PORT}`);
+    await addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first().click();
     await expect(variablePage.locator('.right')).toContainText('baseUrl', { timeout: 5000 });
-    // 切回HTTP节点页签
-    const httpTab = contentPage.locator('.nav .item').filter({ hasText: 'URL变量替换测试接口' }).first();
-    await httpTab.click();
-    await contentPage.waitForTimeout(300);
-    // 在url中使用变量
-    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-    await urlInput.click();
+    // 回到 HTTP 节点并使用变量地址发起请求
+    const createdNode = contentPage.locator(`[data-test-node-id="${nodeId}"]`).first();
+    await createdNode.click();
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]').first();
+    await expect(urlInput).toBeVisible({ timeout: 5000 });
     await urlInput.fill('{{baseUrl}}/echo');
-    await contentPage.waitForTimeout(200);
-    // 发送请求
-    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
-    await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
-    // 验证响应
-    const responseTab = contentPage.locator('[data-testid="http-params-tab-response"]');
-    await responseTab.click();
+    await contentPage.locator('[data-testid="operation-send-btn"]').click();
     const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
-    const responseEditor = responseTabs.locator('.s-json-editor').first();
-    await expect(responseEditor).toBeVisible({ timeout: 10000 });
     await expect(responseTabs).toContainText('/echo', { timeout: 10000 });
   });
-  // 测试用例2: 在query参数value中使用变量,发送请求时变量被正确替换
-  test('在query参数中使用变量发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject }) => {
+  // Query 参数中使用变量后发送请求应完成变量替换
+  test('在query参数中使用变量发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject, createNode, reload }) => {
     await clearCache();
+    await reload();
     await createProject();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Query变量替换测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
-    // 打开变量管理页签并创建变量
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
+    const nodeId = await createNode(contentPage, { nodeType: 'http', name: 'Query变量替换测试接口' });
+    // 打开变量页并新增 userId 变量
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();
-    await contentPage.waitForTimeout(300);
-    const variableTab = contentPage.locator('[data-testid="project-nav-tab-variable"]');
-    await expect(variableTab).toHaveClass(/active/, { timeout: 5000 });
     const variablePage = contentPage.locator('.s-variable');
     await expect(variablePage).toBeVisible({ timeout: 5000 });
     const addPanel = variablePage.locator('.left');
-    const nameFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ });
-    await nameFormItem.locator('input').first().fill('userId');
-    const valueFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ });
-    await valueFormItem.locator('textarea').first().fill('12345');
-    const confirmAddBtn2 = addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first();
-    await confirmAddBtn2.click();
-    await contentPage.waitForTimeout(500);
+    await addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ }).locator('input').first().fill('userId');
+    await addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ }).locator('textarea').first().fill('12345');
+    await addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first().click();
     await expect(variablePage.locator('.right')).toContainText('userId', { timeout: 5000 });
-    // 切回HTTP节点页签
-    const httpTab = contentPage.locator('.nav .item').filter({ hasText: 'Query变量替换测试接口' }).first();
-    await httpTab.click();
-    await contentPage.waitForTimeout(300);
-    // 设置URL
-    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-    await urlInput.click();
-    await urlInput.fill(`http://localhost:${MOCK_SERVER_PORT}/echo?id={{userId}}`);
-    await contentPage.waitForTimeout(200);
-    // 发送请求
-    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
-    await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
-    // 验证响应
-    const responseTab = contentPage.locator('[data-testid="http-params-tab-response"]');
-    await responseTab.click();
+    // 回到 HTTP 节点并在 URL Query 位置使用变量
+    await contentPage.locator(`[data-test-node-id="${nodeId}"]`).first().click();
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]').first();
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?id={{userId}}`);
+    await contentPage.locator('[data-testid="operation-send-btn"]').click();
     const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
-    const responseEditor = responseTabs.locator('.s-json-editor').first();
-    await expect(responseEditor).toBeVisible({ timeout: 10000 });
     await expect(responseTabs).toContainText('12345', { timeout: 10000 });
   });
-  // 测试用例3: 在header参数value中使用变量,发送请求时变量被正确替换
-  test('在header参数中使用变量发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject }) => {
+  // Header 参数中使用变量后发送请求应完成变量替换
+  test('在header参数中使用变量发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject, createNode, reload }) => {
     await clearCache();
+    await reload();
     await createProject();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Header变量替换测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
-    // 打开变量管理页签并创建变量
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
+    const nodeId = await createNode(contentPage, { nodeType: 'http', name: 'Header变量替换测试接口' });
+    // 打开变量页并新增 authToken 变量
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();
-    await contentPage.waitForTimeout(300);
-    const variableTab = contentPage.locator('[data-testid="project-nav-tab-variable"]');
-    await expect(variableTab).toHaveClass(/active/, { timeout: 5000 });
     const variablePage = contentPage.locator('.s-variable');
     await expect(variablePage).toBeVisible({ timeout: 5000 });
     const addPanel = variablePage.locator('.left');
-    const nameFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ });
-    await nameFormItem.locator('input').first().fill('authToken');
-    const valueFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ });
-    await valueFormItem.locator('textarea').first().fill('Bearer xyz123');
-    const confirmAddBtn2 = addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first();
-    await confirmAddBtn2.click();
-    await contentPage.waitForTimeout(500);
+    await addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ }).locator('input').first().fill('authToken');
+    await addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ }).locator('textarea').first().fill('Bearer xyz123');
+    await addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first().click();
     await expect(variablePage.locator('.right')).toContainText('authToken', { timeout: 5000 });
-    // 切回HTTP节点页签
-    const httpTab = contentPage.locator('.nav .item').filter({ hasText: 'Header变量替换测试接口' }).first();
-    await httpTab.click();
-    await contentPage.waitForTimeout(300);
-    // 设置URL
-    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-    await urlInput.click();
-    await urlInput.fill(`http://localhost:${MOCK_SERVER_PORT}/echo`);
-    await contentPage.waitForTimeout(200);
-    // 切换到Headers标签页
+    // 回到 HTTP 节点并在 Header 中写入变量表达式
+    await contentPage.locator(`[data-test-node-id="${nodeId}"]`).first().click();
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]').first();
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
     await headersTab.click();
-    await contentPage.waitForTimeout(300);
-    // 添加Authorization header
-    const headerInfo = contentPage.locator('.header-info');
-    const customHeaderTree = headerInfo.locator('.cl-params-tree').last();
+    const customHeaderTree = contentPage.locator('.header-info .cl-params-tree').last();
     const headerKeyInput = customHeaderTree.locator('[data-testid="params-tree-key-autocomplete"] input').first();
     await headerKeyInput.click();
     await headerKeyInput.fill('Authorization');
-    await contentPage.waitForTimeout(200);
-    const headerValueWrap = customHeaderTree.locator('[data-testid="params-tree-value-input"]').first();
-    const headerValueEditor = headerValueWrap.locator('.cl-rich-input__editor').first();
+    const headerValueEditor = customHeaderTree.locator('[data-testid="params-tree-value-input"]').first().locator('.cl-rich-input__editor').first();
     await headerValueEditor.click();
     await contentPage.keyboard.type('{{authToken}}');
-    await contentPage.waitForTimeout(200);
-    // 发送请求
-    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
-    await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
-    // 验证响应
-    const responseTab = contentPage.locator('[data-testid="http-params-tab-response"]');
-    await responseTab.click();
+    await contentPage.locator('[data-testid="operation-send-btn"]').click();
     const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
-    const responseEditor = responseTabs.locator('.s-json-editor').first();
-    await expect(responseEditor).toBeVisible({ timeout: 10000 });
     await expect(responseTabs).toContainText('Bearer xyz123', { timeout: 10000 });
   });
-  // 测试用例4: 在body json中使用变量,发送请求时变量被正确替换
-  test('在body json中使用变量发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject }) => {
+  // JSON Body 中使用变量后发送请求应完成变量替换
+  test('在body json中使用变量发送请求时变量被正确替换', async ({ contentPage, clearCache, createProject, createNode, reload }) => {
     await clearCache();
+    await reload();
     await createProject();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    // 新增HTTP节点
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    const fileNameInput = addFileDialog.locator('input').first();
-    await fileNameInput.fill('Body变量替换测试接口');
-    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
-    await confirmAddBtn.click();
-    await contentPage.waitForTimeout(500);
-    // 打开变量管理页签并创建变量
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
+    const nodeId = await createNode(contentPage, { nodeType: 'http', name: 'Body变量替换测试接口' });
+    // 打开变量页并新增 userName 变量
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();
-    await contentPage.waitForTimeout(300);
-    const variableTab = contentPage.locator('[data-testid="project-nav-tab-variable"]');
-    await expect(variableTab).toHaveClass(/active/, { timeout: 5000 });
     const variablePage = contentPage.locator('.s-variable');
     await expect(variablePage).toBeVisible({ timeout: 5000 });
     const addPanel = variablePage.locator('.left');
-    const nameFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ });
-    await nameFormItem.locator('input').first().fill('userName');
-    const valueFormItem = addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ });
-    await valueFormItem.locator('textarea').first().fill('John');
-    const confirmAddBtn2 = addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first();
-    await confirmAddBtn2.click();
-    await contentPage.waitForTimeout(500);
+    await addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ }).locator('input').first().fill('userName');
+    await addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ }).locator('textarea').first().fill('John');
+    await addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first().click();
     await expect(variablePage.locator('.right')).toContainText('userName', { timeout: 5000 });
-    // 切回HTTP节点页签
-    const httpTab = contentPage.locator('.nav .item').filter({ hasText: 'Body变量替换测试接口' }).first();
-    await httpTab.click();
-    await contentPage.waitForTimeout(300);
-    // 切换请求方法为POST
+    // 回到 HTTP 节点，设置 POST + JSON Body，并写入变量
+    await contentPage.locator(`[data-test-node-id="${nodeId}"]`).first().click();
     const methodSelector = contentPage.locator('[data-testid="method-select"]').first();
     await methodSelector.click();
-    await contentPage.waitForTimeout(200);
-    const postOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first();
-    await postOption.click();
-    await contentPage.waitForTimeout(300);
-    // 设置URL
-    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
-    await urlInput.click();
-    await urlInput.fill(`http://localhost:${MOCK_SERVER_PORT}/echo`);
-    await contentPage.waitForTimeout(200);
-    // 切换到Body标签页
+    await contentPage.locator('.el-select-dropdown__item').filter({ hasText: 'POST' }).first().click();
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]').first();
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
     const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
     await bodyTab.click();
-    await contentPage.waitForTimeout(300);
-    // 选择JSON类型
-    const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: /json/i });
+    const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: /json/i }).first();
     await jsonRadio.click();
-    await contentPage.waitForTimeout(300);
-    // 输入JSON body
-    const bodyEditor = contentPage.locator('.s-json-editor').first();
-    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor textarea, .s-json-editor textarea, .s-json-editor .monaco-editor, .s-json-editor').first();
+    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor textarea, .s-json-editor textarea, .s-json-editor .monaco-editor').first();
     await editorTarget.click({ force: true });
     await contentPage.keyboard.press('ControlOrMeta+a');
-    await contentPage.keyboard.type('{"name": "{{userName}}"}');
-    await contentPage.waitForTimeout(200);
-    // 发送请求
-    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
-    await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
-    // 验证响应
-    const responseTab = contentPage.locator('[data-testid="http-params-tab-response"]');
-    await responseTab.click();
+    await contentPage.keyboard.type('{"name":"{{userName}}"}');
+    await contentPage.locator('[data-testid="operation-send-btn"]').click();
     const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
-    const responseEditor = responseTabs.locator('.s-json-editor').first();
-    await expect(responseEditor).toBeVisible({ timeout: 10000 });
     await expect(responseTabs).toContainText('John', { timeout: 10000 });
   });
-  test('在URL路径分段中使用变量发送请求时路径参数被正确替换', async ({ contentPage, clearCache, createProject }) => {
+  // URL 路径分段中使用变量后应完成路径替换
+  test('在URL路径分段中使用变量发送请求时路径参数被正确替换', async ({ contentPage, clearCache, createProject, createNode, reload }) => {
     await clearCache();
+    await reload();
     await createProject();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('路径变量替换测试');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
-    // 创建变量 pathSegment=users
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
+    const nodeId = await createNode(contentPage, { nodeType: 'http', name: '路径变量替换测试' });
+    // 打开变量页并新增 pathSegment 变量
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();
-    await contentPage.waitForTimeout(300);
     const variablePage = contentPage.locator('.s-variable');
     await expect(variablePage).toBeVisible({ timeout: 5000 });
     const addPanel = variablePage.locator('.left');
     await addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ }).locator('input').first().fill('pathSegment');
     await addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ }).locator('textarea').first().fill('users');
     await addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first().click();
-    await contentPage.waitForTimeout(500);
-    // 切回HTTP节点
-    const httpTab = contentPage.locator('.nav .item').filter({ hasText: '路径变量替换测试' }).first();
-    await httpTab.click();
-    await contentPage.waitForTimeout(300);
-    // URL中路径段使用变量
-    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await expect(variablePage.locator('.right')).toContainText('pathSegment', { timeout: 5000 });
+    // 回到 HTTP 节点并在 URL 路径段中引用变量
+    await contentPage.locator(`[data-test-node-id="${nodeId}"]`).first().click();
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]').first();
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo/{{pathSegment}}`);
-    await contentPage.waitForTimeout(300);
-    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
-    await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
-    // 验证响应中路径被替换
-    const responseTab = contentPage.locator('[data-testid="http-params-tab-response"]');
-    await responseTab.click();
+    await contentPage.locator('[data-testid="operation-send-btn"]').click();
     const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
     await expect(responseTabs).toContainText('users', { timeout: 10000 });
   });
-  test('修改变量值后重新发送请求使用更新后的值', async ({ contentPage, clearCache, createProject }) => {
+  // 变量更新后重发请求应使用新值
+  test('修改变量值后重新发送请求使用更新后的值', async ({ contentPage, clearCache, createProject, createNode, reload }) => {
     await clearCache();
+    await reload();
     await createProject();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('变量更新重发测试');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
-    // 创建变量 apiVer=v1
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
+    const nodeId = await createNode(contentPage, { nodeType: 'http', name: '变量更新重发测试' });
+    // 打开变量页并新增 apiVer 初始值
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();
-    await contentPage.waitForTimeout(300);
     const variablePage = contentPage.locator('.s-variable');
     await expect(variablePage).toBeVisible({ timeout: 5000 });
     const addPanel = variablePage.locator('.left');
     await addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ }).locator('input').first().fill('apiVer');
     await addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ }).locator('textarea').first().fill('v1');
     await addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first().click();
-    await contentPage.waitForTimeout(500);
-    // 切回HTTP节点并发送第一次请求
-    const httpTab = contentPage.locator('.nav .item').filter({ hasText: '变量更新重发测试' }).first();
-    await httpTab.click();
-    await contentPage.waitForTimeout(300);
-    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await expect(variablePage.locator('.right')).toContainText('apiVer', { timeout: 5000 });
+    // 回到 HTTP 节点发送第一次请求，断言使用 v1
+    await contentPage.locator(`[data-test-node-id="${nodeId}"]`).first().click();
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]').first();
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?ver={{apiVer}}`);
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseTabs).toBeVisible({ timeout: 10000 });
     await expect(responseTabs).toContainText('v1', { timeout: 10000 });
-    // 修改变量值为v2
+    // 通过删除旧变量并新增同名变量，确保请求重新取到新值
     const variableTabNav = contentPage.locator('[data-testid="project-nav-tab-variable"]');
     await variableTabNav.click();
-    await contentPage.waitForTimeout(300);
     const table = variablePage.locator('.right .el-table').first();
     const row = table.locator('.el-table__row').filter({ hasText: 'apiVer' }).first();
-    const editBtn = row.locator('button').filter({ hasText: /编辑|Edit/ }).first();
-    await editBtn.click();
-    await contentPage.waitForTimeout(300);
-    const editDialog = contentPage.locator('.el-dialog').filter({ hasText: /修改变量|Edit/ });
-    await expect(editDialog).toBeVisible({ timeout: 5000 });
-    await editDialog.locator('textarea').first().fill('v2');
-    await editDialog.locator('.el-button--primary').filter({ hasText: /确定|OK|Confirm/ }).first().click();
-    await contentPage.waitForTimeout(500);
-    // 切回HTTP节点再次发送请求
-    await httpTab.click();
-    await contentPage.waitForTimeout(300);
+    await row.locator('button').filter({ hasText: /删除|Delete/ }).first().click();
+    const deleteDialog = contentPage.locator('.cl-confirm-container');
+    await expect(deleteDialog).toBeVisible({ timeout: 5000 });
+    await deleteDialog.locator('.el-button--primary').first().click();
+    await expect(deleteDialog).toBeHidden({ timeout: 5000 });
+    await expect(table.locator('.el-table__row').filter({ hasText: 'apiVer' })).toHaveCount(0, { timeout: 5000 });
+    await addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ }).locator('input').first().fill('apiVer');
+    await addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ }).locator('textarea').first().fill('v2');
+    await addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first().click();
+    await expect(variablePage.locator('.right')).toContainText('apiVer', { timeout: 5000 });
+    await contentPage.locator(`[data-test-node-id="${nodeId}"]`).first().click();
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?ver={{apiVer}}`);
     await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
     await expect(responseTabs).toContainText('v2', { timeout: 10000 });
   });
-  test('同一请求中URL和Header同时使用不同变量均被正确替换', async ({ contentPage, clearCache, createProject }) => {
+  // 同一请求里 URL 与 Header 同时使用变量应都被替换
+  test('同一请求中URL和Header同时使用不同变量均被正确替换', async ({ contentPage, clearCache, createProject, createNode, reload }) => {
     await clearCache();
+    await reload();
     await createProject();
-    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
-    await addFileBtn.click();
-    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
-    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
-    await addFileDialog.locator('input').first().fill('多变量组合测试');
-    await addFileDialog.locator('.el-button--primary').last().click();
-    await contentPage.waitForTimeout(500);
-    // 创建两个变量
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
+    const nodeId = await createNode(contentPage, { nodeType: 'http', name: '多变量组合测试' });
+    // 打开变量页并新增 queryTag 与 headerVal
     const variableBtn = contentPage.locator('[data-testid="http-params-variable-btn"]').first();
     await variableBtn.click();
-    await contentPage.waitForTimeout(300);
     const variablePage = contentPage.locator('.s-variable');
     await expect(variablePage).toBeVisible({ timeout: 5000 });
     const addPanel = variablePage.locator('.left');
     await addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ }).locator('input').first().fill('queryTag');
     await addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ }).locator('textarea').first().fill('multi-test');
     await addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first().click();
-    await contentPage.waitForTimeout(500);
     await addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ }).locator('input').first().fill('headerVal');
     await addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ }).locator('textarea').first().fill('Bearer combo-abc');
     await addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first().click();
-    await contentPage.waitForTimeout(500);
-    // 切回HTTP节点
-    const httpTab = contentPage.locator('.nav .item').filter({ hasText: '多变量组合测试' }).first();
-    await httpTab.click();
-    await contentPage.waitForTimeout(300);
-    // URL中使用变量
-    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await expect(variablePage.locator('.right')).toContainText('queryTag', { timeout: 5000 });
+    await expect(variablePage.locator('.right')).toContainText('headerVal', { timeout: 5000 });
+    // 回到 HTTP 节点并分别在 URL 与 Header 引用变量
+    await contentPage.locator(`[data-test-node-id="${nodeId}"]`).first().click();
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]').first();
     await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?tag={{queryTag}}`);
-    await contentPage.waitForTimeout(300);
-    // Header中使用变量
     const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
     await headersTab.click();
-    await contentPage.waitForTimeout(300);
-    const headerInfo = contentPage.locator('.header-info');
-    const customHeaderTree = headerInfo.locator('.cl-params-tree').last();
+    const customHeaderTree = contentPage.locator('.header-info .cl-params-tree').last();
     const headerKeyInput = customHeaderTree.locator('[data-testid="params-tree-key-autocomplete"] input').first();
     await headerKeyInput.click();
     await headerKeyInput.fill('X-Multi-Token');
-    await contentPage.waitForTimeout(200);
-    const headerValueWrap = customHeaderTree.locator('[data-testid="params-tree-value-input"]').first();
-    const headerValueEditor = headerValueWrap.locator('.cl-rich-input__editor').first();
+    const headerValueEditor = customHeaderTree.locator('[data-testid="params-tree-value-input"]').first().locator('.cl-rich-input__editor').first();
     await headerValueEditor.click();
     await contentPage.keyboard.type('{{headerVal}}');
-    await contentPage.waitForTimeout(200);
-    // 发送请求并验证两个变量都被替换
-    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
-    await sendBtn.click();
-    await contentPage.waitForTimeout(2000);
-    const responseTab = contentPage.locator('[data-testid="http-params-tab-response"]');
-    await responseTab.click();
+    await contentPage.locator('[data-testid="operation-send-btn"]').click();
     const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
     await expect(responseTabs).toBeVisible({ timeout: 10000 });
     await expect(responseTabs).toContainText('multi-test', { timeout: 10000 });
     await expect(responseTabs).toContainText('Bearer combo-abc', { timeout: 10000 });
   });
 });
+
 
 

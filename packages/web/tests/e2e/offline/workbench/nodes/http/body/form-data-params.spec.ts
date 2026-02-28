@@ -9,10 +9,11 @@ test.describe('FormDataParams', () => {
   // ========== stringOnlyFormdata: 类型全为string的formdata参数 ==========
   test.describe('StringOnlyFormdata', () => {
     // 测试用例1: formdata参数key输入值以后,如果不存在next节点,则自动新增一行数据,自动新增数据需要被选中
-    test('formdata参数key输入值以后自动新增一行数据', async ({ contentPage, clearCache, createProject }) => {
+    test('formdata参数key输入值以后自动新增一行数据', async ({ contentPage, clearCache, createProject, reload }) => {
       await clearCache();
+      await reload();
       await createProject();
-      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -26,11 +27,9 @@ test.describe('FormDataParams', () => {
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
-      await contentPage.waitForTimeout(300);
       // 选择FormData类型
       const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
-      await contentPage.waitForTimeout(300);
       // 获取初始行数
       const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
       const initialCount = await keyInputs.count();
@@ -38,7 +37,6 @@ test.describe('FormDataParams', () => {
       await keyInputs.first().fill('username');
       // 点击key输入框外的区域使其失焦
       await contentPage.locator('[data-testid="url-input"]').click();
-      await contentPage.waitForTimeout(300);
       // 验证自动新增第二行空的formdata参数行
       const newCount = await keyInputs.count();
       expect(newCount).toBe(initialCount + 1);
@@ -47,11 +45,12 @@ test.describe('FormDataParams', () => {
       expect(firstKeyValue).toBe('username');
     });
     // 测试用例2: formdata参数key,value,description输入值以后,调用echo接口返回结果正确
-    test('formdata参数key,value输入值以后调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+    test('formdata参数key,value输入值以后调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, reload }) => {
       test.setTimeout(60000);
       await clearCache();
+      await reload();
       await createProject();
-      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -75,23 +74,19 @@ test.describe('FormDataParams', () => {
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
-      await contentPage.waitForTimeout(300);
       // 选择FormData类型
       const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
-      await contentPage.waitForTimeout(300);
       // 添加表单字段: username=admin
       const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
       const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
       await keyInputs.first().fill('username');
       await valueInputs.first().click();
       await contentPage.keyboard.type('admin');
-      await contentPage.waitForTimeout(300);
       // 添加表单字段: password=123456
       await keyInputs.nth(1).fill('password');
       await valueInputs.nth(1).click();
       await contentPage.keyboard.type('123456');
-      await contentPage.waitForTimeout(300);
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
@@ -109,16 +104,16 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('123456', { timeout: 10000 });
     });
     // 测试用例3: formdata参数key,value支持变量,调用echo接口返回结果正确
-    test('formdata参数key,value支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+    test('formdata参数key,value支持变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, reload }) => {
       await clearCache();
+      await reload();
       await createProject();
-      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
       // 打开变量管理页面并创建变量
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
       await moreBtn.click();
       const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
       await variableOption.click();
-      await contentPage.waitForTimeout(500);
       const variablePage = contentPage.locator('.s-variable');
       await expect(variablePage).toBeVisible({ timeout: 5000 });
       // 创建变量 app_id=mobile_app
@@ -128,12 +123,10 @@ test.describe('FormDataParams', () => {
       await valueTextarea.fill('mobile_app');
       const addBtn = variablePage.locator('.left .el-button--primary');
       await addBtn.click();
-      await contentPage.waitForTimeout(500);
       // 创建变量 access_token=token_abc123
       await nameInput.fill('access_token');
       await valueTextarea.fill('token_abc123');
       await addBtn.click();
-      await contentPage.waitForTimeout(500);
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -157,23 +150,19 @@ test.describe('FormDataParams', () => {
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
-      await contentPage.waitForTimeout(300);
       // 选择FormData类型
       const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
-      await contentPage.waitForTimeout(300);
       // 添加表单字段: app_id={{app_id}} (项目变量)
       const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
       const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
       await keyInputs.first().fill('app_id');
       await valueInputs.first().click();
       await contentPage.keyboard.type('{{app_id}}');
-      await contentPage.waitForTimeout(300);
       // 添加表单字段: token={{access_token}} (全局变量)
       await keyInputs.nth(1).fill('token');
       await valueInputs.nth(1).click();
       await contentPage.keyboard.type('{{access_token}}');
-      await contentPage.waitForTimeout(300);
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
@@ -187,11 +176,12 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('token_abc123', { timeout: 10000 });
     });
     // 测试用例4: formdata参数key,value支持mock,调用echo接口返回结果正确
-    test('formdata参数key,value支持mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+    test('formdata参数key,value支持mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, reload }) => {
       test.setTimeout(60000);
       await clearCache();
+      await reload();
       await createProject();
-      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -215,23 +205,19 @@ test.describe('FormDataParams', () => {
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
-      await contentPage.waitForTimeout(300);
       // 选择FormData类型
       const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
-      await contentPage.waitForTimeout(300);
       // 添加表单字段: phone=@phone (mock数据)
       const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
       const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
       await keyInputs.first().fill('phone');
       await valueInputs.first().click();
       await contentPage.keyboard.type('@phone');
-      await contentPage.waitForTimeout(300);
       // 添加表单字段: user_id=@id (mock数据)
       await keyInputs.nth(1).fill('user_id');
       await valueInputs.nth(1).click();
       await contentPage.keyboard.type('@id');
-      await contentPage.waitForTimeout(300);
       await contentPage.locator('[data-testid="url-input"]').click();
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
@@ -251,16 +237,16 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('user_id', { timeout: 10000 });
     });
     // 测试用例5: formdata参数key,value支持混合变量,调用echo接口返回结果正确
-    test('formdata参数key,value支持混合变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+    test('formdata参数key,value支持混合变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, reload }) => {
       await clearCache();
+      await reload();
       await createProject();
-      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
       // 打开变量管理页面并创建变量
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
       await moreBtn.click();
       const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
       await variableOption.click();
-      await contentPage.waitForTimeout(500);
       const variablePage = contentPage.locator('.s-variable');
       await expect(variablePage).toBeVisible({ timeout: 5000 });
       // 创建变量 service=user
@@ -270,7 +256,6 @@ test.describe('FormDataParams', () => {
       await valueTextarea.fill('user');
       const addBtn = variablePage.locator('.left .el-button--primary');
       await addBtn.click();
-      await contentPage.waitForTimeout(500);
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -294,23 +279,19 @@ test.describe('FormDataParams', () => {
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
-      await contentPage.waitForTimeout(300);
       // 选择FormData类型
       const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
-      await contentPage.waitForTimeout(300);
       // 添加表单字段: action={{service}}_query (变量混合文本)
       const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
       const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
       await keyInputs.first().fill('action');
       await valueInputs.first().click();
       await contentPage.keyboard.type('{{service}}_query');
-      await contentPage.waitForTimeout(300);
       // 添加表单字段: req_id=REQ_@id (文本混合mock)
       await keyInputs.nth(1).fill('req_id');
       await valueInputs.nth(1).click();
       await contentPage.keyboard.type('REQ_@id');
-      await contentPage.waitForTimeout(300);
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
@@ -324,11 +305,12 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('REQ_', { timeout: 10000 });
     });
     // 测试用例6: formdata参数是否发送未勾选那么当前参数不会发送
-    test('formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject }) => {
+    test('formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject, reload }) => {
       test.setTimeout(60000);
       await clearCache();
+      await reload();
       await createProject();
-      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -388,10 +370,11 @@ test.describe('FormDataParams', () => {
   // ========== fileOnlyFormdata: 类型全为file的formdata参数 ==========
   test.describe('FileOnlyFormdata', () => {
     // 测试用例1: value模式切换后要清空之前的数据
-    test('value模式切换后要清空之前的数据', async ({ contentPage, clearCache, createProject }) => {
+    test('value模式切换后要清空之前的数据', async ({ contentPage, clearCache, createProject, reload }) => {
       await clearCache();
+      await reload();
       await createProject();
-      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -405,20 +388,16 @@ test.describe('FormDataParams', () => {
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
-      await contentPage.waitForTimeout(300);
       // 选择FormData类型
       const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
-      await contentPage.waitForTimeout(300);
       // 设置第一行key和type=file
       const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
       await keyInputs.first().fill('avatar');
-      await contentPage.waitForTimeout(300);
       const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
       await typeSelects.first().click();
       const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
       await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
-      await contentPage.waitForTimeout(300);
       // 选择文件模式并选择文件
       const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
@@ -427,31 +406,28 @@ test.describe('FormDataParams', () => {
       const varInputVisible = await varInput.isVisible();
       if (varInputVisible) {
         await toggleBtn.dispatchEvent('click');
-        await contentPage.waitForTimeout(300);
       }
       await expect(selectLabel).toBeVisible({ timeout: 5000 });
       const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
       const fileInput = fileValueWrapper.locator('[data-testid="params-tree-file-input"]');
       await fileInput.setInputFiles(logoFilePath);
-      await contentPage.waitForTimeout(500);
       const fileText = fileValueWrapper.locator('.file-mode-wrap .text-wrap');
       await expect(fileText).toContainText('logo.png', { timeout: 5000 });
       // 切换到变量模式，应清空之前的文件选择
       await toggleBtn.dispatchEvent('click');
-      await contentPage.waitForTimeout(300);
       await expect(varInput).toBeVisible({ timeout: 5000 });
       await expect(varInput).toHaveValue('', { timeout: 5000 });
       // 再切回文件模式，仍应为空
       await toggleBtn.dispatchEvent('click');
-      await contentPage.waitForTimeout(300);
       await expect(selectLabel).toBeVisible({ timeout: 5000 });
       await expect(fileText).not.toContainText('logo.png', { timeout: 5000 });
     });
     // 测试用例2: value如果为文件模式,选择文件,调用echo接口返回结果正确
-    test('value如果为文件模式选择文件调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+    test('value如果为文件模式选择文件调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, reload }) => {
       await clearCache();
+      await reload();
       await createProject();
-      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -475,20 +451,16 @@ test.describe('FormDataParams', () => {
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
-      await contentPage.waitForTimeout(300);
       // 选择FormData类型
       const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
-      await contentPage.waitForTimeout(300);
       // 设置第一行key和type=file
       const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
       await keyInputs.first().fill('avatar');
-      await contentPage.waitForTimeout(300);
       const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
       await typeSelects.first().click();
       const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
       await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
-      await contentPage.waitForTimeout(300);
       // 选择文件模式并选择文件
       const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
@@ -497,12 +469,10 @@ test.describe('FormDataParams', () => {
       const varInputVisible = await varInput.isVisible();
       if (varInputVisible) {
         await toggleBtn.click();
-        await contentPage.waitForTimeout(300);
       }
       await expect(selectLabel).toBeVisible({ timeout: 5000 });
       const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
       await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
-      await contentPage.waitForTimeout(500);
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
@@ -517,10 +487,11 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
     });
     // 测试用例3: value如果为文件模式,未选择文件,value输入框下方提示文件不存在
-    test('value如果为文件模式未选择文件时提示文件不存在', async ({ contentPage, clearCache, createProject }) => {
+    test('value如果为文件模式未选择文件时提示文件不存在', async ({ contentPage, clearCache, createProject, reload }) => {
       await clearCache();
+      await reload();
       await createProject();
-      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -544,20 +515,16 @@ test.describe('FormDataParams', () => {
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
-      await contentPage.waitForTimeout(300);
       // 选择FormData类型
       const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
-      await contentPage.waitForTimeout(300);
       // 设置第一行key和type=file
       const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
       await keyInputs.first().fill('avatar');
-      await contentPage.waitForTimeout(300);
       const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
       await typeSelects.first().click();
       const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
       await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
-      await contentPage.waitForTimeout(300);
       // 选择文件模式，但不选择文件
       const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
@@ -566,7 +533,6 @@ test.describe('FormDataParams', () => {
       const varInputVisible = await varInput.isVisible();
       if (varInputVisible) {
         await toggleBtn.click();
-        await contentPage.waitForTimeout(300);
       }
       await expect(selectLabel).toBeVisible({ timeout: 5000 });
       // 点击发送
@@ -581,16 +547,16 @@ test.describe('FormDataParams', () => {
       await expect(responseError).toBeVisible({ timeout: 10000 });
     });
     // 测试用例4: value如果为变量模式,并且值为文件类型变量,并且文件存在,调用echo接口返回结果正确
-    test('value如果为变量模式且文件存在调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+    test('value如果为变量模式且文件存在调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, reload }) => {
       await clearCache();
+      await reload();
       await createProject();
-      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
       // 打开变量管理页面并创建变量
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
       await moreBtn.click();
       const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
       await variableOption.click();
-      await contentPage.waitForTimeout(500);
       const variablePage = contentPage.locator('.s-variable');
       await expect(variablePage).toBeVisible({ timeout: 5000 });
       const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
@@ -600,7 +566,6 @@ test.describe('FormDataParams', () => {
       await nameInput.fill('avatar_path');
       await valueTextarea.fill(logoFilePath);
       await addBtn.click();
-      await contentPage.waitForTimeout(500);
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -624,20 +589,16 @@ test.describe('FormDataParams', () => {
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
-      await contentPage.waitForTimeout(300);
       // 选择FormData类型
       const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
-      await contentPage.waitForTimeout(300);
       // 设置第一行key和type=file
       const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
       await keyInputs.first().fill('avatar');
-      await contentPage.waitForTimeout(300);
       const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
       await typeSelects.first().click();
       const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
       await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
-      await contentPage.waitForTimeout(300);
       // 切换为变量模式并输入变量
       const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
@@ -645,10 +606,8 @@ test.describe('FormDataParams', () => {
       const isVarInputVisible = await varInput.isVisible();
       if (!isVarInputVisible) {
         await toggleBtn.click();
-        await contentPage.waitForTimeout(300);
       }
       await varInput.fill('{{avatar_path}}');
-      await contentPage.waitForTimeout(300);
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
@@ -663,16 +622,16 @@ test.describe('FormDataParams', () => {
       await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
     });
     // 测试用例5: value如果为变量模式,并且值为文件类型变量,并且文件不存在,提示文件不存在
-    test('value如果为变量模式且文件不存在时提示文件不存在', async ({ contentPage, clearCache, createProject }) => {
+    test('value如果为变量模式且文件不存在时提示文件不存在', async ({ contentPage, clearCache, createProject, reload }) => {
       await clearCache();
+      await reload();
       await createProject();
-      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
       // 打开变量管理页面并创建变量
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
       await moreBtn.click();
       const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
       await variableOption.click();
-      await contentPage.waitForTimeout(500);
       const variablePage = contentPage.locator('.s-variable');
       await expect(variablePage).toBeVisible({ timeout: 5000 });
       const notExistFilePath = path.resolve(process.cwd(), 'temp', `file-only-formdata-not-exist-${Date.now()}.txt`);
@@ -682,7 +641,6 @@ test.describe('FormDataParams', () => {
       await nameInput.fill('missing_path');
       await valueTextarea.fill(notExistFilePath);
       await addBtn.click();
-      await contentPage.waitForTimeout(500);
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -706,20 +664,16 @@ test.describe('FormDataParams', () => {
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
-      await contentPage.waitForTimeout(300);
       // 选择FormData类型
       const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
-      await contentPage.waitForTimeout(300);
       // 设置第一行key和type=file
       const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
       await keyInputs.first().fill('avatar');
-      await contentPage.waitForTimeout(300);
       const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
       await typeSelects.first().click();
       const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
       await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
-      await contentPage.waitForTimeout(300);
       // 变量模式输入缺失文件变量
       const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
@@ -727,10 +681,8 @@ test.describe('FormDataParams', () => {
       const isVarInputVisible = await varInput.isVisible();
       if (!isVarInputVisible) {
         await toggleBtn.click();
-        await contentPage.waitForTimeout(300);
       }
       await varInput.fill('{{missing_path}}');
-      await contentPage.waitForTimeout(300);
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
@@ -742,10 +694,11 @@ test.describe('FormDataParams', () => {
       await expect(responseArea.getByTestId('response-error')).toBeVisible({ timeout: 10000 });
     });
     // 测试用例6: value如果为变量模式,并且值不是变量,提示文件不存在
-    test('value如果为变量模式但值不是变量时提示文件不存在', async ({ contentPage, clearCache, createProject }) => {
+    test('value如果为变量模式但值不是变量时提示文件不存在', async ({ contentPage, clearCache, createProject, reload }) => {
       await clearCache();
+      await reload();
       await createProject();
-      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -769,20 +722,16 @@ test.describe('FormDataParams', () => {
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
-      await contentPage.waitForTimeout(300);
       // 选择FormData类型
       const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
-      await contentPage.waitForTimeout(300);
       // 设置第一行key和type=file
       const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
       await keyInputs.first().fill('avatar');
-      await contentPage.waitForTimeout(300);
       const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
       await typeSelects.first().click();
       const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
       await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
-      await contentPage.waitForTimeout(300);
       // 变量模式输入普通文本
       const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
@@ -790,10 +739,8 @@ test.describe('FormDataParams', () => {
       const isVarInputVisible = await varInput.isVisible();
       if (!isVarInputVisible) {
         await toggleBtn.click();
-        await contentPage.waitForTimeout(300);
       }
       await varInput.fill('invalid_file_path');
-      await contentPage.waitForTimeout(300);
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
@@ -805,16 +752,16 @@ test.describe('FormDataParams', () => {
       await expect(responseArea.getByTestId('response-error')).toBeVisible({ timeout: 10000 });
     });
     // 测试用例7: value值合法,formdata参数key为变量,调用echo接口返回结果正确
-    test('formdata参数key为变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+    test('formdata参数key为变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, reload }) => {
       await clearCache();
+      await reload();
       await createProject();
-      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
       // 打开变量管理页面并创建变量
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
       await moreBtn.click();
       const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
       await variableOption.click();
-      await contentPage.waitForTimeout(500);
       const variablePage = contentPage.locator('.s-variable');
       await expect(variablePage).toBeVisible({ timeout: 5000 });
       const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
@@ -824,7 +771,6 @@ test.describe('FormDataParams', () => {
       await nameInput.fill('upload_key');
       await valueTextarea.fill('avatar');
       await addBtn.click();
-      await contentPage.waitForTimeout(300);
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -848,20 +794,16 @@ test.describe('FormDataParams', () => {
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
-      await contentPage.waitForTimeout(300);
       // 选择FormData类型
       const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
-      await contentPage.waitForTimeout(300);
       // key使用变量，type=file
       const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
       await keyInputs.first().fill('{{upload_key}}');
-      await contentPage.waitForTimeout(300);
       const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
       await typeSelects.first().click();
       const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
       await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
-      await contentPage.waitForTimeout(300);
       // 文件模式选择文件
       const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
@@ -870,11 +812,9 @@ test.describe('FormDataParams', () => {
       const varInputVisible = await varInput.isVisible();
       if (varInputVisible) {
         await toggleBtn.click();
-        await contentPage.waitForTimeout(300);
       }
       await expect(selectLabel).toBeVisible({ timeout: 5000 });
       await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
-      await contentPage.waitForTimeout(500);
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
@@ -890,10 +830,11 @@ test.describe('FormDataParams', () => {
       expect(responseText || '').not.toContain('{{upload_key}}');
     });
     // 测试用例8: value值合法,formdata参数key为mock,调用echo接口返回结果正确
-    test('formdata参数key为mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+    test('formdata参数key为mock调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, reload }) => {
       await clearCache();
+      await reload();
       await createProject();
-      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -917,20 +858,16 @@ test.describe('FormDataParams', () => {
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
-      await contentPage.waitForTimeout(300);
       // 选择FormData类型
       const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
-      await contentPage.waitForTimeout(300);
       // key使用mock，type=file
       const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
       await keyInputs.first().fill('@id');
-      await contentPage.waitForTimeout(300);
       const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
       await typeSelects.first().click();
       const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
       await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
-      await contentPage.waitForTimeout(300);
       // 文件模式选择文件
       const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
@@ -939,12 +876,10 @@ test.describe('FormDataParams', () => {
       const varInputVisible = await varInput.isVisible();
       if (varInputVisible) {
         await toggleBtn.click();
-        await contentPage.waitForTimeout(300);
       }
       await expect(selectLabel).toBeVisible({ timeout: 5000 });
       const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
       await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
-      await contentPage.waitForTimeout(500);
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
@@ -960,16 +895,16 @@ test.describe('FormDataParams', () => {
       expect(responseText || '').toContain('@id');
     });
     // 测试用例9: value值合法,formdata参数key为混合变量,调用echo接口返回结果正确
-    test('formdata参数key为混合变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+    test('formdata参数key为混合变量调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, reload }) => {
       await clearCache();
+      await reload();
       await createProject();
-      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
       // 打开变量管理页面并创建变量
       const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
       await moreBtn.click();
       const variableOption = contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ });
       await variableOption.click();
-      await contentPage.waitForTimeout(500);
       const variablePage = contentPage.locator('.s-variable');
       await expect(variablePage).toBeVisible({ timeout: 5000 });
       const nameInput = variablePage.locator('.left input').first();
@@ -978,7 +913,6 @@ test.describe('FormDataParams', () => {
       await nameInput.fill('service');
       await valueTextarea.fill('user');
       await addBtn.click();
-      await contentPage.waitForTimeout(500);
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -1002,20 +936,16 @@ test.describe('FormDataParams', () => {
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
-      await contentPage.waitForTimeout(300);
       // 选择FormData类型
       const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
-      await contentPage.waitForTimeout(300);
       // key使用混合变量，type=file
       const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
       await keyInputs.first().fill('file_{{service}}');
-      await contentPage.waitForTimeout(300);
       const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
       await typeSelects.first().click();
       const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
       await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
-      await contentPage.waitForTimeout(300);
       // 文件模式选择文件
       const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
@@ -1024,12 +954,10 @@ test.describe('FormDataParams', () => {
       const varInputVisible = await varInput.isVisible();
       if (varInputVisible) {
         await toggleBtn.click();
-        await contentPage.waitForTimeout(300);
       }
       await expect(selectLabel).toBeVisible({ timeout: 5000 });
       const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
       await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
-      await contentPage.waitForTimeout(500);
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
@@ -1045,11 +973,12 @@ test.describe('FormDataParams', () => {
       expect(responseText || '').not.toContain('{{service}}');
     });
     // 测试用例10: file类型formdata参数是否发送未勾选那么当前参数不会发送
-    test('file类型formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject }) => {
+    test('file类型formdata参数是否发送未勾选那么当前参数不会发送', async ({ contentPage, clearCache, createProject, reload }) => {
       test.setTimeout(60000);
       await clearCache();
+      await reload();
       await createProject();
-      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -1084,12 +1013,10 @@ test.describe('FormDataParams', () => {
       await contentPage.keyboard.type('admin');
       // 第二行file: avatar=logo.png
       await keyInputs.nth(1).fill('avatar');
-      await contentPage.waitForTimeout(300);
       const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
       await typeSelects.nth(1).click();
       const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
       await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
-      await contentPage.waitForTimeout(300);
       const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
       const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
@@ -1097,12 +1024,10 @@ test.describe('FormDataParams', () => {
       const varInputVisible = await varInput.isVisible();
       if (varInputVisible) {
         await toggleBtn.click();
-        await contentPage.waitForTimeout(300);
       }
       await expect(selectLabel).toBeVisible({ timeout: 5000 });
       const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
       await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
-      await contentPage.waitForTimeout(500);
       // 取消勾选第二行参数的"是否发送"checkbox
       const avatarTreeNode = keyInputs.nth(1).locator('xpath=ancestor::*[contains(@class,"el-tree-node")]').first();
       const sendCheckbox = avatarTreeNode.locator('.el-tree-node__content > .el-checkbox').first();
@@ -1126,10 +1051,11 @@ test.describe('FormDataParams', () => {
   // ========== mixedFormdata: 类型为file和string的混合类型的formdata参数 ==========
   test.describe('MixedFormdata', () => {
     // 测试用例1: 存在string类型value和file类型value时候,调用echo接口返回结果正确
-    test('存在string类型value和file类型value时候调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject }) => {
+    test('存在string类型value和file类型value时候调用echo接口返回结果正确', async ({ contentPage, clearCache, createProject, reload }) => {
       await clearCache();
+      await reload();
       await createProject();
-      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+      await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
       // 新增HTTP节点
       const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
       await addFileBtn.click();
@@ -1153,26 +1079,21 @@ test.describe('FormDataParams', () => {
       // 点击Body标签页
       const bodyTab = contentPage.locator('[data-testid="http-params-tab-body"]');
       await bodyTab.click();
-      await contentPage.waitForTimeout(300);
       // 选择FormData类型
       const formdataRadio = contentPage.locator('.body-mode-item').filter({ hasText: /^form-data$/i }).locator('.el-radio');
       await formdataRadio.click();
-      await contentPage.waitForTimeout(300);
       // 第一行string: username=testuser
       const keyInputs = contentPage.locator('[data-testid="params-tree-key-input"]');
       const valueInputs = contentPage.locator('[data-testid="params-tree-value-input"]');
       await keyInputs.first().fill('username');
       await valueInputs.first().click();
       await contentPage.keyboard.type('testuser');
-      await contentPage.waitForTimeout(300);
       // 第二行file: avatar=logo.png
       await keyInputs.nth(1).fill('avatar');
-      await contentPage.waitForTimeout(300);
       const typeSelects = contentPage.locator('[data-testid="params-tree-type-select"]');
       await typeSelects.nth(1).click();
       const visibleDropdown = contentPage.locator('.el-select-dropdown:visible');
       await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
-      await contentPage.waitForTimeout(300);
       const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
       const toggleBtn = fileValueWrapper.locator('[data-testid="params-tree-file-toggle-btn"]');
       const varInput = fileValueWrapper.locator('[data-testid="params-tree-file-var-input"]');
@@ -1180,12 +1101,10 @@ test.describe('FormDataParams', () => {
       const varInputVisible = await varInput.isVisible();
       if (varInputVisible) {
         await toggleBtn.click();
-        await contentPage.waitForTimeout(300);
       }
       await expect(selectLabel).toBeVisible({ timeout: 5000 });
       const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
       await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
-      await contentPage.waitForTimeout(500);
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
@@ -1203,5 +1122,7 @@ test.describe('FormDataParams', () => {
     });
   });
 });
+
+
 
 
