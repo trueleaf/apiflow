@@ -22,6 +22,9 @@
         <aside class="env-manage-side">
           <div class="side-head">
             <span class="side-title">{{ t('环境列表') }}</span>
+            <button class="side-add-btn" type="button" :title="t('新建环境')" @click="handleCreateEnvironment">
+              <Plus :size="14" />
+            </button>
           </div>
           <div v-if="environmentList.length > 0" class="env-list">
             <button
@@ -32,7 +35,7 @@
               type="button"
               @click="handleSelectEnvironment(item.id)"
             >
-              <span class="env-item-name">
+              <span class="env-item-name" @dblclick.stop="handleStartEditEnvironmentName(item.id)">
                 <input
                   v-if="editingEnvironmentId === item.id"
                   :data-env-edit-id="item.id"
@@ -43,10 +46,10 @@
                   @keydown.enter="handleFinishEditEnvironmentName(item.id)"
                   @click.stop
                 />
-                <span v-else>{{ item.name }}</span>
+                  <span v-else>{{ item.name || t('未命名环境') }}</span>
               </span>
               <div class="env-item-actions">
-                <span v-if="selectedEnvironmentId === item.id" class="env-item-tag">{{ t('当前使用') }}</span>
+                <span v-if="draftActiveEnvironmentId === item.id" class="env-item-tag">{{ t('当前使用') }}</span>
                 <button class="env-action-btn" type="button" :title="t('生成副本')" @click.stop="handleDuplicateEnvironment(item.id)">
                   <Copy :size="14" />
                 </button>
@@ -80,9 +83,9 @@
               <div v-if="!isStandalone" class="value-mode-dropdown">
                 <el-dropdown trigger="click" popper-class="env-visibility-popper" @command="handleChangeVariableValueMode">
                   <button class="value-mode-trigger" type="button">
-                    <Users v-if="variableValueMode === 'shared'" :size="14" />
+                    <Users v-if="selectedEnvironment.visibilityMode === 'shared'" :size="14" />
                     <Lock v-else :size="14" />
-                    <span class="value-mode-main">{{ variableValueMode === 'shared' ? t('团队可见') : t('仅自己可见') }}</span>
+                    <span class="value-mode-main">{{ selectedEnvironment.visibilityMode === 'shared' ? t('团队可见') : t('仅自己可见') }}</span>
                     <ChevronDown :size="14" />
                   </button>
                   <template #dropdown>
@@ -109,7 +112,7 @@
                   </template>
                 </el-dropdown>
               </div>
-              <button class="table-add-btn" type="button">
+              <button class="table-add-btn" type="button" @click="handleAddVariable">
                 <Plus :size="14" />
                 <span>{{ t('新增变量') }}</span>
               </button>
@@ -154,12 +157,12 @@
                     <template v-if="item.valueType === 'secret'">
                       <div class="secret-cell">
                         <input
-                          :type="item.showLocalSecret ? 'text' : 'password'"
+                          :type="isLocalSecretVisible(item.id) ? 'text' : 'password'"
                           :value="item.localValue"
                           @input="handleUpdateVariableValue(item.id, 'local', $event)"
                         />
                         <button class="icon-btn" type="button" @click="handleToggleVariableSecret(item.id, 'local')">
-                          <Eye v-if="!item.showLocalSecret" :size="14" />
+                          <Eye v-if="!isLocalSecretVisible(item.id)" :size="14" />
                           <EyeOff v-else :size="14" />
                         </button>
                       </div>
@@ -175,13 +178,13 @@
                     <template v-if="item.valueType === 'secret'">
                       <div class="secret-cell">
                         <input
-                          :type="item.showSharedSecret ? 'text' : 'password'"
+                          :type="isSharedSecretVisible(item.id) ? 'text' : 'password'"
                           :value="item.sharedValue"
                           :placeholder="t('无环境')"
                           @input="handleUpdateVariableValue(item.id, 'shared', $event)"
                         />
                         <button class="icon-btn" type="button" @click="handleToggleVariableSecret(item.id, 'shared')">
-                          <Eye v-if="!item.showSharedSecret" :size="14" />
+                          <Eye v-if="!isSharedSecretVisible(item.id)" :size="14" />
                           <EyeOff v-else :size="14" />
                         </button>
                       </div>
@@ -201,7 +204,7 @@
                     </select>
                   </td>
                   <td class="operation-col">
-                    <button class="icon-btn" type="button">
+                    <button class="icon-btn" type="button" @click="handleDeleteVariable(item.id)">
                       <Trash2 :size="14" />
                     </button>
                   </td>
@@ -219,10 +222,10 @@
         </section>
       </div>
       <div class="env-manage-footer">
-        <span class="footer-dirty">{{ t('当前环境有未保存改动') }}</span>
+        <span v-if="dirty" class="footer-dirty">{{ t('当前环境有未保存改动') }}</span>
         <div class="footer-actions">
           <button type="button" @click="handleClose">{{ t('取消') }}</button>
-          <button type="button" class="primary">{{ t('保存') }}</button>
+          <button type="button" class="primary" @click="handleSave">{{ t('保存') }}</button>
         </div>
       </div>
     </div>
@@ -243,10 +246,13 @@ import {
   ChevronDown,
   X
 } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { ElMessage } from 'element-plus'
 import { useRuntime } from '@/store/runtime/runtimeStore'
+import { useEnvironment } from '@/store/projectWorkbench/environmentStore'
 
-defineProps<{
+const props = defineProps<{
   modelValue: boolean
 }>()
 
@@ -256,122 +262,70 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const runtimeStore = useRuntime()
+const environmentStore = useEnvironment()
+const {
+  draftEnvironmentList: environmentList,
+  draftSelectedEnvironmentId: selectedEnvironmentId,
+  draftActiveEnvironmentId,
+  draftSelectedEnvironment: selectedEnvironment,
+  draftSelectedEnvironmentVariables: variableRows,
+  draftVisible,
+  dirty,
+} = storeToRefs(environmentStore)
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
-const environmentIdCounter = ref(4)
-const environmentList = ref<Array<{ id: string; name: string; baseUrl: string; description: string }>>([
-  {
-    id: 'env_1',
-    name: t('开发环境 dev'),
-    baseUrl: 'https://api-dev.apiflow.dev',
-    description: t('用于联调和回归验证，默认不影响生产数据。')
-  },
-  {
-    id: 'env_2',
-    name: t('测试环境 test'),
-    baseUrl: 'https://api-test.apiflow.dev',
-    description: t('用于联调和回归验证，默认不影响生产数据。')
-  },
-  {
-    id: 'env_3',
-    name: t('生产环境 prod'),
-    baseUrl: 'https://api.apiflow.dev',
-    description: t('用于联调和回归验证，默认不影响生产数据。')
-  }
-])
-const selectedEnvironmentId = ref('env_2')
 const editingEnvironmentId = ref('')
-const variableValueMode = ref<'shared' | 'private'>('shared')
-const variableRows = ref<Array<{
-  id: string
-  enabled: boolean
-  key: string
-  localValue: string
-  sharedValue: string
-  valueType: 'text' | 'secret'
-  showLocalSecret: boolean
-  showSharedSecret: boolean
-}>>([
-  {
-    id: 'var_1',
-    enabled: true,
-    key: 'base_url',
-    localValue: 'https://api-test.apiflow.dev',
-    sharedValue: 'https://api.apiflow.dev',
-    valueType: 'text',
-    showLocalSecret: false,
-    showSharedSecret: false
-  },
-  {
-    id: 'var_2',
-    enabled: true,
-    key: 'token',
-    localValue: 'apitoken-demo-123',
-    sharedValue: '',
-    valueType: 'secret',
-    showLocalSecret: false,
-    showSharedSecret: false
-  }
-])
+const localSecretVisibleMap = ref<Record<string, boolean>>({})
+const sharedSecretVisibleMap = ref<Record<string, boolean>>({})
 const showSharedColumn = computed(() => !isStandalone.value)
-const selectedEnvironment = computed(() => environmentList.value.find(item => item.id === selectedEnvironmentId.value) ?? null)
 
 const handleClose = () => {
+  environmentStore.closeDraft()
   emit('update:modelValue', false)
 }
+const handleCreateEnvironment = () => {
+  const createdEnvironmentId = environmentStore.createDraftEnvironment(t('未命名环境'))
+  editingEnvironmentId.value = createdEnvironmentId
+  nextTick(() => {
+    const input = document.querySelector(`[data-env-edit-id="${createdEnvironmentId}"]`) as HTMLInputElement | null
+    input?.focus()
+    input?.select()
+  })
+}
+const handleStartEditEnvironmentName = (id: string) => {
+  editingEnvironmentId.value = id
+  nextTick(() => {
+    const input = document.querySelector(`[data-env-edit-id="${id}"]`) as HTMLInputElement | null
+    input?.focus()
+    input?.select()
+  })
+}
 const handleSelectEnvironment = (id: string) => {
-  selectedEnvironmentId.value = id
+  environmentStore.setDraftSelectedEnvironment(id)
+  environmentStore.setDraftActiveEnvironment(id)
   editingEnvironmentId.value = ''
 }
 const handleUpdateEnvironmentName = (id: string, event: Event) => {
   const target = event.target as HTMLInputElement
-  const currentEnvironment = environmentList.value.find(item => item.id === id)
-  if (!currentEnvironment) {
-    return
-  }
-  currentEnvironment.name = target.value
+  environmentStore.updateDraftEnvironment(id, { name: target.value })
 }
 const handleFinishEditEnvironmentName = (id: string) => {
   const currentEnvironment = environmentList.value.find(item => item.id === id)
-  if (!currentEnvironment) {
-    editingEnvironmentId.value = ''
-    return
-  }
-  const trimmedName = currentEnvironment.name.trim()
-  currentEnvironment.name = trimmedName === '' ? t('未命名环境') : trimmedName
+  const nextName = currentEnvironment?.name?.trim() || t('未命名环境')
+  environmentStore.updateDraftEnvironment(id, { name: nextName })
   editingEnvironmentId.value = ''
 }
 const handleDuplicateEnvironment = (id: string) => {
-  const currentIndex = environmentList.value.findIndex(item => item.id === id)
-  if (currentIndex < 0) {
+  const duplicateEnvironmentId = environmentStore.duplicateDraftEnvironment(id, t('生成副本'))
+  if (!duplicateEnvironmentId) {
     return
   }
-  const currentEnvironment = environmentList.value[currentIndex]
-  const duplicateEnvironmentId = `env_${environmentIdCounter.value}`
-  environmentIdCounter.value += 1
-  const duplicateEnvironment = {
-    id: duplicateEnvironmentId,
-    name: `${currentEnvironment.name} ${t('生成副本')}`,
-    baseUrl: currentEnvironment.baseUrl,
-    description: currentEnvironment.description
-  }
-  environmentList.value.splice(currentIndex + 1, 0, duplicateEnvironment)
-  selectedEnvironmentId.value = duplicateEnvironmentId
+  environmentStore.setDraftSelectedEnvironment(duplicateEnvironmentId)
   editingEnvironmentId.value = ''
 }
 const handleDeleteEnvironment = (id: string) => {
-  const currentIndex = environmentList.value.findIndex(item => item.id === id)
-  if (currentIndex < 0) {
-    return
-  }
-  environmentList.value.splice(currentIndex, 1)
-  if (environmentList.value.length === 0) {
-    selectedEnvironmentId.value = ''
+  environmentStore.deleteDraftEnvironment(id)
+  if (editingEnvironmentId.value === id) {
     editingEnvironmentId.value = ''
-    return
-  }
-  if (selectedEnvironmentId.value === id) {
-    const nextIndex = currentIndex >= environmentList.value.length ? environmentList.value.length - 1 : currentIndex
-    selectedEnvironmentId.value = environmentList.value[nextIndex].id
   }
 }
 const handleUpdateSelectedEnvironmentName = (event: Event) => {
@@ -379,78 +333,143 @@ const handleUpdateSelectedEnvironmentName = (event: Event) => {
   if (!selectedEnvironment.value) {
     return
   }
-  selectedEnvironment.value.name = target.value
+  environmentStore.updateDraftEnvironment(selectedEnvironment.value.id, { name: target.value })
 }
 const handleUpdateSelectedEnvironmentBaseUrl = (event: Event) => {
   const target = event.target as HTMLInputElement
   if (!selectedEnvironment.value) {
     return
   }
-  selectedEnvironment.value.baseUrl = target.value
+  environmentStore.updateDraftEnvironment(selectedEnvironment.value.id, { baseUrl: target.value })
 }
 const handleUpdateSelectedEnvironmentDescription = (event: Event) => {
   const target = event.target as HTMLTextAreaElement
   if (!selectedEnvironment.value) {
     return
   }
-  selectedEnvironment.value.description = target.value
+  environmentStore.updateDraftEnvironment(selectedEnvironment.value.id, { description: target.value })
 }
 const handleUpdateModelValue = (value: boolean) => {
+  if (!value) {
+    environmentStore.closeDraft()
+  }
   emit('update:modelValue', value)
 }
 const handleChangeVariableValueMode = (mode: string | number | object) => {
   if (mode !== 'shared' && mode !== 'private') {
     return
   }
-  variableValueMode.value = mode
+  if (!selectedEnvironment.value) {
+    return
+  }
+  environmentStore.updateDraftEnvironment(selectedEnvironment.value.id, { visibilityMode: mode })
 }
 const handleUpdateVariableEnabled = (id: string, event: Event) => {
   const target = event.target as HTMLInputElement
-  const currentVariable = variableRows.value.find(item => item.id === id)
-  if (!currentVariable) {
+  if (!selectedEnvironment.value) {
     return
   }
-  currentVariable.enabled = target.checked
+  environmentStore.updateDraftVariable(selectedEnvironment.value.id, id, { enabled: target.checked })
 }
 const handleUpdateVariableKey = (id: string, event: Event) => {
   const target = event.target as HTMLInputElement
-  const currentVariable = variableRows.value.find(item => item.id === id)
-  if (!currentVariable) {
+  if (!selectedEnvironment.value) {
     return
   }
-  currentVariable.key = target.value
+  environmentStore.updateDraftVariable(selectedEnvironment.value.id, id, { key: target.value })
 }
 const handleUpdateVariableValue = (id: string, field: 'local' | 'shared', event: Event) => {
   const target = event.target as HTMLInputElement
-  const currentVariable = variableRows.value.find(item => item.id === id)
-  if (!currentVariable) {
+  if (!selectedEnvironment.value) {
     return
   }
   if (field === 'local') {
-    currentVariable.localValue = target.value
+    environmentStore.updateDraftVariable(selectedEnvironment.value.id, id, { localValue: target.value })
     return
   }
-  currentVariable.sharedValue = target.value
+  environmentStore.updateDraftVariable(selectedEnvironment.value.id, id, { sharedValue: target.value })
 }
 const handleUpdateVariableType = (id: string, event: Event) => {
   const target = event.target as HTMLSelectElement
-  const currentVariable = variableRows.value.find(item => item.id === id)
-  if (!currentVariable) {
+  if (!selectedEnvironment.value) {
     return
   }
-  currentVariable.valueType = target.value === 'secret' ? 'secret' : 'text'
+  const valueType = target.value === 'secret' ? 'secret' : 'text'
+  environmentStore.updateDraftVariable(selectedEnvironment.value.id, id, { valueType })
+  if (valueType === 'text') {
+    localSecretVisibleMap.value[id] = false
+    sharedSecretVisibleMap.value[id] = false
+  }
 }
 const handleToggleVariableSecret = (id: string, field: 'local' | 'shared') => {
-  const currentVariable = variableRows.value.find(item => item.id === id)
-  if (!currentVariable || currentVariable.valueType !== 'secret') {
-    return
-  }
   if (field === 'local') {
-    currentVariable.showLocalSecret = !currentVariable.showLocalSecret
+    localSecretVisibleMap.value[id] = !localSecretVisibleMap.value[id]
     return
   }
-  currentVariable.showSharedSecret = !currentVariable.showSharedSecret
+  sharedSecretVisibleMap.value[id] = !sharedSecretVisibleMap.value[id]
 }
+const isLocalSecretVisible = (id: string): boolean => {
+  return localSecretVisibleMap.value[id] === true
+}
+const isSharedSecretVisible = (id: string): boolean => {
+  return sharedSecretVisibleMap.value[id] === true
+}
+const handleAddVariable = () => {
+  if (!selectedEnvironment.value) {
+    return
+  }
+  environmentStore.addDraftVariable(selectedEnvironment.value.id)
+}
+const handleDeleteVariable = (id: string) => {
+  if (!selectedEnvironment.value) {
+    return
+  }
+  environmentStore.deleteDraftVariable(selectedEnvironment.value.id, id)
+}
+const handleSave = async () => {
+  const validationResult = environmentStore.validateDraftBeforeCommit(t('未命名环境'))
+  if (!validationResult.valid) {
+    ElMessage.warning(t('操作失败'))
+    return
+  }
+  const saved = await environmentStore.commitDraft({ applyActiveEnvironment: true })
+  if (!saved) {
+    ElMessage.error(t('保存失败'))
+    return
+  }
+  ElMessage.success(t('保存成功'))
+  emit('update:modelValue', false)
+}
+watch(
+  () => props.modelValue,
+  (visible) => {
+    if (visible && !draftVisible.value) {
+      environmentStore.openDraft()
+      return
+    }
+    if (!visible) {
+      environmentStore.closeDraft()
+    }
+  },
+  { immediate: true }
+)
+watch(
+  () => variableRows.value.map(item => `${item.id}:${item.valueType}`).join('|'),
+  () => {
+    const variableIdSet = new Set(variableRows.value.map(item => item.id))
+    Object.keys(localSecretVisibleMap.value).forEach(id => {
+      if (!variableIdSet.has(id)) {
+        delete localSecretVisibleMap.value[id]
+      }
+    })
+    Object.keys(sharedSecretVisibleMap.value).forEach(id => {
+      if (!variableIdSet.has(id)) {
+        delete sharedSecretVisibleMap.value[id]
+      }
+    })
+  },
+  { immediate: true }
+)
 </script>
 <style lang="scss" scoped>
 .env-dialog-header {
@@ -504,14 +523,33 @@ const handleToggleVariableSecret = (id: string, field: 'local' | 'shared') => {
   }
   .side-head {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     min-height: 28px;
+    gap: 8px;
   }
   .side-title {
     font-size: 12px;
     font-weight: 600;
     color: #6b7280;
+  }
+  .side-add-btn {
+    width: 24px;
+    height: 24px;
+    border: 1px solid #d9dee8;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #4b5563;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    &:hover {
+      color: #111827;
+      border-color: #cfd6e3;
+      background: #f8fafc;
+    }
   }
   .env-list {
     display: grid;

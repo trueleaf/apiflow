@@ -70,13 +70,19 @@ const createHttpClient = () => {
 
 const httpClient = createHttpClient();
 
+const replaceRecord = <T extends Record<string, unknown>>(target: T, source: Record<string, unknown>): void => {
+  Object.keys(target).forEach((key) => {
+    delete target[key];
+  });
+  Object.assign(target, source);
+}
 
 const af: AF = new Proxy({
   projectId: '',
   nodeId: '',
   request: createRequestProxy(),
-  envs: variables,
-  currentEnv: variables,
+  envs: {},
+  currentEnv: {},
   variables,
   sessionStorage,
   localStorage,
@@ -119,10 +125,12 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
     Object.assign(af.request.queryParams, reqeustInfo.item.queryParams)
     Object.assign(af.request.pathParams, reqeustInfo.item.paths);
     Object.assign(af.request.body.urlencoded, reqeustInfo.item.requestBody.urlencoded);
-    Object.assign(af.variables, e.data.variables);
-    Object.assign(af.cookies, e.data.cookies);
-    Object.assign(af.localStorage, e.data.localStorage);
-    Object.assign(af.sessionStorage, e.data.sessionStorage);
+    replaceRecord(af.variables, e.data.variables);
+    replaceRecord(af.envs, e.data.envs);
+    replaceRecord(af.currentEnv, e.data.currentEnv);
+    replaceRecord(af.cookies, e.data.cookies);
+    replaceRecord(af.localStorage, e.data.localStorage);
+    replaceRecord(af.sessionStorage, e.data.sessionStorage);
     reqeustInfo.item.requestBody.formdata.forEach(formdata => {
       af.request.body.formdata[formdata.key] = {
         type: formdata.type,

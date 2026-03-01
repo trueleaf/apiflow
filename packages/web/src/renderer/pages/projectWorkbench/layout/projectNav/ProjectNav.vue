@@ -114,7 +114,7 @@
         data-testid="project-nav-env-trigger"
         @click="showEnvDropdown = !showEnvDropdown"
       >
-        <span class="env-dot" :class="selectedEnvironment"></span>
+        <span class="env-dot" :class="{ active: activeEnvironmentId !== '' }"></span>
         <span class="env-name">{{ selectedEnvironmentLabel }}</span>
         <ChevronDown :size="12" class="env-arrow" :class="{ open: showEnvDropdown }" />
       </button>
@@ -125,11 +125,11 @@
             v-for="item in environmentOptions"
             :key="item.key"
             class="env-item"
-            :class="{ active: item.key === selectedEnvironment }"
+            :class="{ active: item.key === activeEnvironmentId }"
             @click="selectEnvironment(item.key)"
           >
             <span>{{ item.label }}</span>
-            <Check v-if="item.key === selectedEnvironment" :size="12" />
+            <Check v-if="item.key === activeEnvironmentId" :size="12" />
           </button>
         </div>
         <div class="env-dropdown-footer">
@@ -179,7 +179,7 @@ import {
   ArrowLeft as IconArrowLeft
 } from '@element-plus/icons-vue';
 import { Variable, ListTree, ArrowDownToLine, ArrowUpToLine, ChevronDown, Check } from 'lucide-vue-next'
-import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
+import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { router } from '@/router';
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
@@ -197,6 +197,8 @@ import { ElMessage } from 'element-plus';
 import SAddFileDialog from '../../dialog/addFile/AddFile.vue';
 import SEnvironmentManageDialog from './dialog/EnvironmentManageDialog.vue';
 import type { ApidocBanner } from '@src/types';
+import { useEnvironment } from '@/store/projectWorkbench/environmentStore';
+import { storeToRefs } from 'pinia';
 
 
 /*
@@ -213,6 +215,8 @@ const contextmenuTop = ref(0); //鼠标右键y值
 const currentOperationNode = ref<ApidocTab | null>(null); //当前被操作的节点信息
 const projectNavStore = useProjectNav();
 const tabListWrap = ref<ComponentPublicInstance | null>(null)
+const environmentStore = useEnvironment()
+const { activeEnvironmentId, environmentList } = storeToRefs(environmentStore)
 const tabs = computed({
   get() {
     const projectId = router.currentRoute.value.query.id as string;
@@ -227,21 +231,24 @@ const tabs = computed({
 })
 const showEnvDropdown = ref(false)
 const environmentManageDialogVisible = ref(false)
-const selectedEnvironment = ref<'none' | 'dev' | 'test' | 'prod'>('none')
-const environmentOptions = computed(() => [
-  { key: 'none' as const, label: t('无环境') },
-  { key: 'dev' as const, label: t('开发环境 dev') },
-  { key: 'test' as const, label: t('测试环境 test') },
-  { key: 'prod' as const, label: t('生产环境 prod') }
-])
+const environmentOptions = computed(() => {
+  const options = environmentList.value.map(item => ({
+    key: item.id,
+    label: item.name.trim() ? item.name : t('未命名环境'),
+  }))
+  return [{ key: '', label: t('无环境') }, ...options]
+})
 const selectedEnvironmentLabel = computed(() =>
-  environmentOptions.value.find(item => item.key === selectedEnvironment.value)?.label ?? t('无环境')
+  environmentOptions.value.find(item => item.key === activeEnvironmentId.value)?.label ?? t('无环境')
 )
-const selectEnvironment = (envKey: 'none' | 'dev' | 'test' | 'prod') => {
-  selectedEnvironment.value = envKey
+const selectEnvironment = (envKey: string) => {
+  environmentStore.setActiveEnvironment(envKey)
   showEnvDropdown.value = false
 }
-const handleOpenEnvironmentManageDialog = () => {
+const handleOpenEnvironmentManageDialog = async () => {
+  const projectId = router.currentRoute.value.query.id as string
+  await environmentStore.ensureProjectLoaded(projectId)
+  environmentStore.openDraft()
   showEnvDropdown.value = false
   environmentManageDialogVisible.value = true
 }
@@ -670,8 +677,18 @@ onMounted(() => {
   projectNavStore.initLocalNavs({
     projectId: router.currentRoute.value.query.id as string
   })
+  void environmentStore.ensureProjectLoaded(router.currentRoute.value.query.id as string)
   initViewTab();
 })
+watch(
+  () => router.currentRoute.value.query.id as string,
+  (projectId) => {
+    if (!projectId) {
+      return
+    }
+    void environmentStore.ensureProjectLoaded(projectId)
+  }
+)
 onUnmounted(() => {
   document.body.removeEventListener('click', bindGlobalClick);
   document.body.removeEventListener('contextmenu', bindGlobalClick);
@@ -916,6 +933,7 @@ onUnmounted(() => {
       border-radius: 50%;
       flex-shrink: 0;
       background-color: var(--text-secondary);
+      &.active { background-color: var(--el-color-primary); }
       &.dev { background-color: var(--el-color-success); }
       &.test { background-color: var(--el-color-warning); }
       &.prod { background-color: var(--el-color-danger); }

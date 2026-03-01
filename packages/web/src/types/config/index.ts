@@ -210,6 +210,19 @@ export type Config = {
       version: number,
       storeName: string,
       projectIdIndex: string
+    },
+    environmentCache: {
+      dbName: string,
+      version: number,
+      storeName: string,
+      projectIdIndex: string
+    },
+    environmentVariableCache: {
+      dbName: string,
+      version: number,
+      storeName: string,
+      projectIdIndex: string,
+      environmentIdIndex: string
     }
   }
 }

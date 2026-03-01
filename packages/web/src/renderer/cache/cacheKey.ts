@@ -66,6 +66,11 @@ export const cacheKey = {
     pinToolbarOperations: 'projectWorkbench/pinToolbarOperations',
     layout: 'projectWorkbench/layout',
     responseHeight: 'projectWorkbench/responseHeight',
+    environment: {
+      list: 'projectWorkbench/environment/list',
+      activeId: 'projectWorkbench/environment/activeId',
+      variables: 'projectWorkbench/environment/variables',
+    },
   },
   websocketNode: {
     websocket: 'websocketNode/websocket',

@@ -8,6 +8,7 @@ import { useVariable } from './variablesStore';
 import { projectCache } from '@/cache/project/projectCache';
 import { nodeVariableCache } from '@/cache/variable/nodeVariableCache';
 import { useRuntime } from '../runtime/runtimeStore';
+import { useEnvironment } from './environmentStore';
 
 export const useProjectWorkbench = defineStore('projectWorkbench', () => {
   const projectId = ref('');
@@ -61,8 +62,10 @@ export const useProjectWorkbench = defineStore('projectWorkbench', () => {
   //初始化项目基本信息
   const initProjectBaseInfo = async (payload: { projectId: string }): Promise<void> => {
     const runtimeStore = useRuntime();
+    const environmentStore = useEnvironment();
     const isOffline = runtimeStore.networkMode === 'offline';
     changeProjectId(payload.projectId);
+    await environmentStore.ensureProjectLoaded(payload.projectId);
     const { replaceVariables } = useVariable();
     if (isOffline) {
       const projectInfo = await projectCache.getProjectInfo(payload.projectId);

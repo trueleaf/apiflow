@@ -135,6 +135,19 @@ export const config: Config = {
       version: 1,
       storeName: 'variables',
       projectIdIndex: 'projectId'
+    },
+    environmentCache: {
+      dbName: 'environmentCache',
+      version: 1,
+      storeName: 'environments',
+      projectIdIndex: 'projectId'
+    },
+    environmentVariableCache: {
+      dbName: 'environmentVariableCache',
+      version: 1,
+      storeName: 'environmentVariables',
+      projectIdIndex: 'projectId',
+      environmentIdIndex: 'environmentId'
     }
   }
 }

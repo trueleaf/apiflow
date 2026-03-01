@@ -10,6 +10,8 @@ export type BasicJSON = JsonObject;
 export type InitDataMessage = {
   type: 'initData';
   variables: Record<string, unknown>;
+  envs: Record<string, unknown>;
+  currentEnv: Record<string, unknown>;
   sessionStorage: Record<string, unknown>;
   localStorage: Record<string, unknown>;
   cookies: Record<string, string>;
@@ -276,8 +278,8 @@ export type AF = {
     };
     bodyType: 'json' | 'urlencoded' | 'formdata' | 'raw' | 'binary' | 'none';
   };
-  envs: Record<string, BasicJSON>;
-  currentEnv: Record<string, BasicJSON>;
+  envs: Record<string, unknown>;
+  currentEnv: Record<string, unknown>;
   variables: { [key: string]: BasicJSON };
   sessionStorage: Record<string, unknown>;
   localStorage: Record<string, unknown>;

@@ -179,6 +179,18 @@ const getManagedDbSchemas = (): ManagedDbSchema[] => {
       stores: [{ storeName: config.cacheConfig.variablesCache.storeName, keyPath: null, indexes: [{ name: config.cacheConfig.variablesCache.projectIdIndex, keyPath: config.cacheConfig.variablesCache.projectIdIndex, unique: false }] }],
       isResponseCache: false,
     },
+    {
+      dbName: config.cacheConfig.environmentCache.dbName,
+      version: config.cacheConfig.environmentCache.version,
+      stores: [{ storeName: config.cacheConfig.environmentCache.storeName, keyPath: 'id', indexes: [{ name: config.cacheConfig.environmentCache.projectIdIndex, keyPath: config.cacheConfig.environmentCache.projectIdIndex, unique: false }] }],
+      isResponseCache: false,
+    },
+    {
+      dbName: config.cacheConfig.environmentVariableCache.dbName,
+      version: config.cacheConfig.environmentVariableCache.version,
+      stores: [{ storeName: config.cacheConfig.environmentVariableCache.storeName, keyPath: 'id', indexes: [{ name: config.cacheConfig.environmentVariableCache.projectIdIndex, keyPath: config.cacheConfig.environmentVariableCache.projectIdIndex, unique: false }, { name: config.cacheConfig.environmentVariableCache.environmentIdIndex, keyPath: config.cacheConfig.environmentVariableCache.environmentIdIndex, unique: false }] }],
+      isResponseCache: false,
+    },
   ]
 }
 const getExistingDbVersionMap = async (): Promise<Map<string, number>> => {
