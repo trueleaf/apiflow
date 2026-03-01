@@ -274,4 +274,54 @@ test.describe('AfRequestApi', () => {
     await expect(responseTabs).toContainText('true', { timeout: 15000 });
     await expect(responseTabs).toContainText('123', { timeout: 15000 });
   });
+  // 前置脚本临时变量应覆盖环境变量与全局变量
+  test('前置脚本临时变量优先级高于环境变量和全局变量', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    await clearCache();
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
+    // 新增同名全局变量
+    await contentPage.locator('[data-testid="banner-tool-more-btn"]').click();
+    await contentPage.locator('.dropdown-item').filter({ hasText: /全局变量|变量/ }).click();
+    const variablePage = contentPage.locator('.s-variable');
+    await expect(variablePage).toBeVisible({ timeout: 5000 });
+    await variablePage.locator('.left input').first().fill('priorityVar');
+    await variablePage.locator('.left textarea').fill('global-value');
+    await variablePage.locator('.left .el-button--primary').click();
+    await expect(variablePage.locator('.right .el-table')).toContainText('priorityVar', { timeout: 5000 });
+    // 新增同名环境变量并设为当前环境
+    await contentPage.locator('[data-testid="project-nav-env-trigger"]').click();
+    await contentPage.locator('.env-action').filter({ hasText: /环境管理|Environment/ }).click();
+    const envDialog = contentPage.locator('.env-manage-dialog');
+    await expect(envDialog).toBeVisible({ timeout: 5000 });
+    await envDialog.locator('.side-add-btn').click();
+    const environmentItem = envDialog.locator('.env-list .env-item').first();
+    await expect(environmentItem).toBeVisible({ timeout: 5000 });
+    await environmentItem.click();
+    await envDialog.locator('.table-add-btn').click();
+    const firstVariableRow = envDialog.locator('.table-wrap tbody tr').first();
+    await expect(firstVariableRow).toBeVisible({ timeout: 5000 });
+    await firstVariableRow.locator('td').nth(1).locator('input').fill('priorityVar');
+    await firstVariableRow.locator('td').nth(2).locator('input').fill('env-value');
+    await envDialog.locator('.env-manage-footer .primary').click();
+    await expect(envDialog).toBeHidden({ timeout: 10000 });
+    // 前置脚本设置同名临时变量并发送请求
+    await createNode(contentPage, { nodeType: 'http', name: '前置脚本变量优先级测试' });
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]').first();
+    await expect(urlInput).toBeVisible({ timeout: 5000 });
+    await urlInput.click();
+    await contentPage.keyboard.press('ControlOrMeta+a');
+    await contentPage.keyboard.type(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo?priority={{priorityVar}}`);
+    await contentPage.locator('[data-testid="http-params-tab-prescript"]').click();
+    const editor = contentPage.locator('.s-monaco-editor .monaco-editor textarea, .s-monaco-editor textarea, .s-monaco-editor').first();
+    await expect(editor).toBeVisible({ timeout: 5000 });
+    await editor.click({ force: true });
+    await contentPage.keyboard.press('ControlOrMeta+a');
+    await contentPage.keyboard.type('af.variables.priorityVar = "request-value";');
+    await contentPage.locator('[data-testid="operation-send-btn"]').click();
+    const responseArea = contentPage.getByTestId('response-area');
+    await expect(responseArea).toBeVisible({ timeout: 15000 });
+    await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 15000 });
+    await expect(contentPage.locator('[data-testid="response-tabs"]')).toContainText('request-value', { timeout: 15000 });
+  });
 });

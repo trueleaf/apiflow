@@ -421,6 +421,79 @@ export const createMockServer = (): Koa => {
         return;
       }
     }
+    // AI 成功响应路由 - 用于测试 AI 导入成功链路
+    if (ctx.path === '/ai/mock/success') {
+      ctx.status = 200;
+      ctx.body = {
+        id: 'chatcmpl-mock-success',
+        object: 'chat.completion',
+        created: Date.now(),
+        model: 'mock-model',
+        choices: [
+          {
+            index: 0,
+            message: {
+              role: 'assistant',
+              content: JSON.stringify({
+                apis: [
+                  { name: 'AI导入-成功接口', method: 'GET', url: '/ai/mock/success' },
+                ],
+                folders: [],
+              }),
+            },
+            finish_reason: 'stop',
+          },
+        ],
+        usage: {
+          prompt_tokens: 10,
+          completion_tokens: 10,
+          total_tokens: 20,
+        },
+      };
+      return;
+    }
+    // AI 建节点成功路由 - 用于测试 AddFile AI 生成链路
+    if (ctx.path === '/ai/mock/node-success') {
+      ctx.status = 200;
+      ctx.body = {
+        id: 'chatcmpl-mock-node-success',
+        object: 'chat.completion',
+        created: Date.now(),
+        model: 'mock-model',
+        choices: [
+          {
+            index: 0,
+            message: {
+              role: 'assistant',
+              content: JSON.stringify({
+                description: 'AI 自动生成的接口描述',
+                method: 'post',
+                urlPrefix: 'http://127.0.0.1:3456',
+                urlPath: '/ai/mock/node-success',
+                queryParams: [{ key: 'id', value: '1' }],
+              }),
+            },
+            finish_reason: 'stop',
+          },
+        ],
+        usage: {
+          prompt_tokens: 10,
+          completion_tokens: 10,
+          total_tokens: 20,
+        },
+      };
+      return;
+    }
+    // AI 失败响应路由 - 用于测试 AI 导入失败提示
+    if (ctx.path === '/ai/mock/fail') {
+      ctx.status = 200;
+      ctx.body = {
+        success: false,
+        code: 'AI_MOCK_FAIL',
+        message: 'AI mock failure',
+      };
+      return;
+    }
     // SSE分块响应路由 - 用于测试增量渲染与完成态
     if (ctx.path === '/sse/chunked') {
       ctx.status = 200;
