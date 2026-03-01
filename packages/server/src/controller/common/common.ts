@@ -79,6 +79,14 @@ const ReadOnlyUrl = [
     url: '/api/project/project_variable_enum',
     method: 'get',
   },
+  {
+    url: '/api/project/environment/list',
+    method: 'get',
+  },
+  {
+    url: '/api/project/environment/variable/list',
+    method: 'get',
+  },
 ];
 
 @Provide()
