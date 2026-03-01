@@ -10,6 +10,8 @@ import { EmailVerifyCode } from '../entity/security/email_verify_code.js';
 import { Project } from '../entity/project/project.js';
 import { ProjectVariable } from '../entity/project/project_variable.js';
 import { ProjectCode } from '../entity/project/project_code.js';
+import { ProjectEnvironment } from '../entity/project/project_environment.js';
+import { ProjectEnvironmentVariable } from '../entity/project/project_environment_variable.js';
 import { Doc } from '../entity/doc/doc.js';
 import { DocPrefix } from '../entity/doc/doc_prefix.js';
 import { DocMindParams } from '../entity/doc/doc_mind_params.js';
@@ -89,6 +91,8 @@ export default (): MidwayConfig => {
             Project,
             ProjectVariable,
             ProjectCode,
+            ProjectEnvironment,
+            ProjectEnvironmentVariable,
             ProjectShare,
             Doc,
             DocPrefix,

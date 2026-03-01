@@ -189,6 +189,9 @@ axiosInstance.interceptors.response.use(
           runtimeCache.clearUserInfo();
           message.warning(i18n.global.t(res.data.msg || '暂无权限'));
           return Promise.reject(new Error(i18n.global.t(res.data.msg || '暂无权限')));
+        case 4004: //暂无当前接口权限
+          message.warning(i18n.global.t(res.data.msg || '暂无当前接口权限'));
+          return Promise.reject(new Error(i18n.global.t(res.data.msg || '暂无当前接口权限')));
         default:
           ElMessageBox.confirm(i18n.global.t(res.data.msg ? res.data.msg : '操作失败'), i18n.global.t('提示'), {
             confirmButtonText: i18n.global.t('确定/ApiErrorDialog'),

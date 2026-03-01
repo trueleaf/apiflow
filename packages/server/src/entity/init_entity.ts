@@ -1115,20 +1115,24 @@ export async function initRoles(roleModel: ReturnModelType<typeof Role>) {
   const roleInfo = await roleModel.findOne();
   if (!roleInfo) {
     await roleModel.insertMany(INITIAL_ROLE);
-  } else {
-    const projectRecycleRouteIds = [
-      '67f0a9b1c2d3e4f5a6b7c8d9',
-      '67f0a9b1c2d3e4f5a6b7c8da',
-    ];
-    await roleModel.updateOne(
-      { _id: '5ede0ba06f76185204584700' },
-      { $addToSet: { serverRoutes: { $each: projectRecycleRouteIds } } }
-    );
-    await roleModel.updateOne(
-      { _id: '5edf71f2193c7d5fa0ec9b98' },
-      { $addToSet: { serverRoutes: { $each: projectRecycleRouteIds } } }
-    );
   }
+  const roleIds = ['5ede0ba06f76185204584700', '5edf71f2193c7d5fa0ec9b98'];
+  const incrementalRouteIds = [
+    '67f0a9b1c2d3e4f5a6b7c8d9',
+    '67f0a9b1c2d3e4f5a6b7c8da',
+    '6f1e85a991093c38a013c401',
+    '6f1e85a991093c38a013c402',
+    '6f1e85a991093c38a013c403',
+    '6f1e85a991093c38a013c404',
+    '6f1e85a991093c38a013c405',
+    '6f1e85a991093c38a013c406',
+  ];
+  await Promise.all(
+    roleIds.map(roleId => roleModel.updateOne(
+      { _id: roleId },
+      { $addToSet: { serverRoutes: { $each: incrementalRouteIds } } }
+    ))
+  );
   return;
 }
 
