@@ -9,15 +9,13 @@ test.describe('SettingsNavigation', () => {
     // 记录点击前的Tab数量
     const tabCountBefore = await topBarPage.locator('[data-test-id^="header-tab-item-"]').count();
     await settingsBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(contentPage).toHaveURL(/.*#\/settings/, { timeout: 5000 });
     // 验证设置Tab已创建
     const tabCountAfter = await topBarPage.locator('[data-test-id^="header-tab-item-"]').count();
     expect(tabCountAfter).toBeGreaterThan(tabCountBefore);
     // 验证设置Tab被高亮
     const settingsTab = topBarPage.locator('[data-test-id^="header-tab-item-"].active').filter({ hasText: /设置|Settings/ });
     await expect(settingsTab).toBeVisible();
-    // 验证页面跳转到设置页
-    await expect(contentPage).toHaveURL(/.*#\/settings/, { timeout: 5000 });
     // 验证设置页面内容可见
     const settingsMenu = contentPage.locator('[data-testid="settings-menu-common-settings"]');
     await expect(settingsMenu).toBeVisible({ timeout: 5000 });
@@ -29,11 +27,11 @@ test.describe('SettingsNavigation', () => {
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     // 第一次点击
     await settingsBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(contentPage).toHaveURL(/.*#\/settings/, { timeout: 5000 });
     const tabCountAfterFirst = await topBarPage.locator('[data-test-id^="header-tab-item-"]').count();
     // 第二次点击
     await settingsBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(contentPage).toHaveURL(/.*#\/settings/, { timeout: 5000 });
     const tabCountAfterSecond = await topBarPage.locator('[data-test-id^="header-tab-item-"]').count();
     // 验证Tab数量没有增加
     expect(tabCountAfterSecond).toBe(tabCountAfterFirst);
@@ -52,7 +50,6 @@ test.describe('SettingsNavigation', () => {
     // 点击设置按钮
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     await settingsBtn.click();
-    await contentPage.waitForTimeout(500);
     // 验证跳转到设置页面
     await expect(contentPage).toHaveURL(/.*#\/settings/, { timeout: 5000 });
     // 验证设置Tab被高亮
@@ -68,17 +65,16 @@ test.describe('SettingsNavigation', () => {
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     // 打开设置
     await settingsBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(contentPage).toHaveURL(/.*#\/settings/, { timeout: 5000 });
     const settingsTab = topBarPage.locator('[data-test-id^="header-tab-item-"]').filter({ hasText: /设置|Settings/ });
     await expect(settingsTab).toBeVisible();
     // 关闭设置Tab
     const closeBtn = settingsTab.locator('[data-test-id^="header-tab-close-btn-"]');
     await closeBtn.click();
-    await topBarPage.waitForTimeout(300);
-    await expect(settingsTab).toBeHidden();
+    await expect(settingsTab).toBeHidden({ timeout: 5000 });
     // 再次点击设置按钮
     await settingsBtn.click();
-    await contentPage.waitForTimeout(500);
+    await expect(contentPage).toHaveURL(/.*#\/settings/, { timeout: 5000 });
     // 验证设置Tab重新出现并高亮
     const newSettingsTab = topBarPage.locator('[data-test-id^="header-tab-item-"].active').filter({ hasText: /设置|Settings/ });
     await expect(newSettingsTab).toBeVisible();

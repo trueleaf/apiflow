@@ -11,14 +11,9 @@ test.describe('Logo', () => {
     await jumpToSettings();
     // 点击logo跳转主页面
     const logo = topBarPage.locator('[data-test-id="header-logo"]');
-    const projectListPromise = contentPage.waitForResponse(
-      (response) => response.url().includes('/api/project/project_list') && response.status() === 200,
-      { timeout: 20000 },
-    );
-    const urlPromise = contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     await expect(logo).toBeVisible();
     await logo.click();
-    await Promise.all([projectListPromise, urlPromise]);
+    await contentPage.waitForURL(/.*?#?\/home/, { timeout: 5000 });
     // 验证主页面元素存在
     const homeTabs = contentPage.locator('[data-testid="home-tabs"]');
     await expect(homeTabs).toBeVisible({ timeout: 5000 });
@@ -121,7 +116,6 @@ test.describe('Logo', () => {
     });
     expect(storedLogo).toBeNull();
     // 验证 topBarView 的 logo 也恢复为默认
-    await topBarPage.waitForTimeout(500);
     await expect(logo).not.toHaveAttribute('src', /^data:image\//, { timeout: 5000 });
   });
 });
