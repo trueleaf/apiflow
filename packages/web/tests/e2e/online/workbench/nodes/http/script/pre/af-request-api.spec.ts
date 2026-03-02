@@ -303,7 +303,7 @@ test.describe('AfRequestApi', () => {
     await expect(firstVariableRow).toBeVisible({ timeout: 5000 });
     await firstVariableRow.locator('td').nth(1).locator('input').fill('priorityVar');
     await firstVariableRow.locator('td').nth(2).locator('input').fill('env-value');
-    await envDialog.locator('.env-manage-footer .primary').click();
+    await envDialog.locator('.env-dialog-close').click();
     await expect(envDialog).toBeHidden({ timeout: 10000 });
     // 前置脚本设置同名临时变量并发送请求
     await createNode(contentPage, { nodeType: 'http', name: '前置脚本变量优先级测试' });
