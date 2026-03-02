@@ -248,7 +248,6 @@ const selectEnvironment = (envKey: string) => {
 const handleOpenEnvironmentManageDialog = async () => {
   const projectId = router.currentRoute.value.query.id as string
   await environmentStore.ensureProjectLoaded(projectId)
-  environmentStore.openDraft()
   showEnvDropdown.value = false
   environmentManageDialogVisible.value = true
 }

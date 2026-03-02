@@ -93,12 +93,6 @@ const toClientEnvironmentVariable = (item: ServerEnvironmentVariable): Environme
     updatedAt: toTimestamp(item.updatedAt),
   }
 }
-const cloneEnvironmentList = (data: EnvironmentEntity[]): EnvironmentEntity[] => {
-  return JSON.parse(JSON.stringify(data)) as EnvironmentEntity[]
-}
-const cloneEnvironmentVariableMap = (data: Record<string, EnvironmentVariableEntity[]>): Record<string, EnvironmentVariableEntity[]> => {
-  return JSON.parse(JSON.stringify(data)) as Record<string, EnvironmentVariableEntity[]>
-}
 const sortAndReorderEnvironments = (data: EnvironmentEntity[]): EnvironmentEntity[] => {
   return data
     .slice()
@@ -156,12 +150,6 @@ export const useEnvironment = defineStore('projectEnvironment', () => {
   const environmentList = ref<EnvironmentEntity[]>([])
   const environmentVariableMap = ref<Record<string, EnvironmentVariableEntity[]>>({})
   const activeEnvironmentId = ref('')
-  const draftEnvironmentList = ref<EnvironmentEntity[]>([])
-  const draftEnvironmentVariableMap = ref<Record<string, EnvironmentVariableEntity[]>>({})
-  const draftSelectedEnvironmentId = ref('')
-  const draftActiveEnvironmentId = ref('')
-  const draftVisible = ref(false)
-  const dirty = ref(false)
   const loading = ref(false)
   const saving = ref(false)
   const setEnvironmentList = (list: EnvironmentEntity[]): void => {
@@ -170,6 +158,12 @@ export const useEnvironment = defineStore('projectEnvironment', () => {
       ...item,
       isActive: item.id === activeEnvironmentId.value,
     }))
+  }
+  const setEnvironmentVariables = (environmentId: string, variables: EnvironmentVariableEntity[]): void => {
+    environmentVariableMap.value = {
+      ...environmentVariableMap.value,
+      [environmentId]: sortAndReorderVariables(variables),
+    }
   }
   const setEnvironmentVariableMap = (variableMap: Record<string, EnvironmentVariableEntity[]>): void => {
     const nextMap: Record<string, EnvironmentVariableEntity[]> = {}
@@ -293,8 +287,6 @@ export const useEnvironment = defineStore('projectEnvironment', () => {
       } else {
         await loadOnlineProjectData(projectId)
       }
-      draftVisible.value = false
-      dirty.value = false
     } catch (error) {
       logger.error('加载环境数据失败', { error })
       setEnvironmentList([])
@@ -302,299 +294,6 @@ export const useEnvironment = defineStore('projectEnvironment', () => {
       activeEnvironmentId.value = ''
     } finally {
       loading.value = false
-    }
-  }
-  const openDraft = (): void => {
-    draftVisible.value = true
-    dirty.value = false
-    draftEnvironmentList.value = cloneEnvironmentList(environmentList.value)
-    draftEnvironmentVariableMap.value = cloneEnvironmentVariableMap(environmentVariableMap.value)
-    draftSelectedEnvironmentId.value = activeEnvironmentId.value || draftEnvironmentList.value[0]?.id || ''
-    draftActiveEnvironmentId.value = activeEnvironmentId.value
-  }
-  const closeDraft = (): void => {
-    draftVisible.value = false
-    dirty.value = false
-    draftEnvironmentList.value = []
-    draftEnvironmentVariableMap.value = {}
-    draftSelectedEnvironmentId.value = ''
-    draftActiveEnvironmentId.value = ''
-  }
-  const markDirty = (): void => {
-    dirty.value = true
-  }
-  const createDraftEnvironment = (defaultName: string): string => {
-    const now = Date.now()
-    const newEnvironment: EnvironmentEntity = {
-      id: `local_${nanoid()}`,
-      projectId: loadedProjectId.value,
-      name: defaultName,
-      baseUrl: '',
-      description: '',
-      order: draftEnvironmentList.value.length,
-      isActive: false,
-      visibilityMode: 'shared',
-      createdAt: now,
-      updatedAt: now,
-    }
-    draftEnvironmentList.value = sortAndReorderEnvironments(draftEnvironmentList.value.concat(newEnvironment))
-    draftEnvironmentVariableMap.value[newEnvironment.id] = []
-    draftSelectedEnvironmentId.value = newEnvironment.id
-    markDirty()
-    return newEnvironment.id
-  }
-  const duplicateDraftEnvironment = (environmentId: string, duplicateSuffix: string): string => {
-    const targetIndex = draftEnvironmentList.value.findIndex(item => item.id === environmentId)
-    if (targetIndex < 0) {
-      return ''
-    }
-    const targetEnvironment = draftEnvironmentList.value[targetIndex]
-    const now = Date.now()
-    const duplicatedEnvironmentId = `local_${nanoid()}`
-    const duplicatedEnvironment: EnvironmentEntity = {
-      ...targetEnvironment,
-      id: duplicatedEnvironmentId,
-      name: `${targetEnvironment.name} ${duplicateSuffix}`.trim(),
-      isActive: false,
-      createdAt: now,
-      updatedAt: now,
-    }
-    const nextList = draftEnvironmentList.value.slice()
-    nextList.splice(targetIndex + 1, 0, duplicatedEnvironment)
-    draftEnvironmentList.value = sortAndReorderEnvironments(nextList)
-    const originVariables = draftEnvironmentVariableMap.value[environmentId] || []
-    draftEnvironmentVariableMap.value[duplicatedEnvironmentId] = originVariables.map((item, index) => ({
-      ...item,
-      id: `local_${nanoid()}`,
-      projectId: loadedProjectId.value,
-      environmentId: duplicatedEnvironmentId,
-      order: index,
-      createdAt: now,
-      updatedAt: now,
-    }))
-    draftSelectedEnvironmentId.value = duplicatedEnvironmentId
-    markDirty()
-    return duplicatedEnvironmentId
-  }
-  const deleteDraftEnvironment = (environmentId: string): void => {
-    const targetIndex = draftEnvironmentList.value.findIndex(item => item.id === environmentId)
-    if (targetIndex < 0) {
-      return
-    }
-    const nextList = draftEnvironmentList.value.slice()
-    nextList.splice(targetIndex, 1)
-    draftEnvironmentList.value = sortAndReorderEnvironments(nextList)
-    delete draftEnvironmentVariableMap.value[environmentId]
-    if (draftSelectedEnvironmentId.value === environmentId) {
-      const fallbackIndex = targetIndex >= draftEnvironmentList.value.length ? draftEnvironmentList.value.length - 1 : targetIndex
-      draftSelectedEnvironmentId.value = draftEnvironmentList.value[fallbackIndex]?.id || ''
-    }
-    if (draftActiveEnvironmentId.value === environmentId) {
-      draftActiveEnvironmentId.value = draftEnvironmentList.value[0]?.id || ''
-    }
-    markDirty()
-  }
-  const updateDraftEnvironment = (environmentId: string, patch: Partial<Pick<EnvironmentEntity, 'name' | 'baseUrl' | 'description' | 'visibilityMode'>>): void => {
-    const matchedIndex = draftEnvironmentList.value.findIndex(item => item.id === environmentId)
-    if (matchedIndex < 0) {
-      return
-    }
-    const current = draftEnvironmentList.value[matchedIndex]
-    draftEnvironmentList.value[matchedIndex] = {
-      ...current,
-      ...patch,
-      updatedAt: Date.now(),
-    }
-    markDirty()
-  }
-  const setDraftSelectedEnvironment = (environmentId: string): void => {
-    draftSelectedEnvironmentId.value = environmentId
-  }
-  const setDraftActiveEnvironment = (environmentId: string): void => {
-    draftActiveEnvironmentId.value = environmentId
-    markDirty()
-  }
-  const addDraftVariable = (environmentId: string): string => {
-    const now = Date.now()
-    const currentVariables = draftEnvironmentVariableMap.value[environmentId] || []
-    const newVariable: EnvironmentVariableEntity = {
-      id: `local_${nanoid()}`,
-      projectId: loadedProjectId.value,
-      environmentId,
-      key: '',
-      localValue: '',
-      sharedValue: '',
-      valueType: 'text',
-      enabled: true,
-      order: currentVariables.length,
-      createdAt: now,
-      updatedAt: now,
-    }
-    draftEnvironmentVariableMap.value[environmentId] = sortAndReorderVariables(currentVariables.concat(newVariable))
-    markDirty()
-    return newVariable.id
-  }
-  const deleteDraftVariable = (environmentId: string, variableId: string): void => {
-    const currentVariables = draftEnvironmentVariableMap.value[environmentId] || []
-    draftEnvironmentVariableMap.value[environmentId] = sortAndReorderVariables(currentVariables.filter(item => item.id !== variableId))
-    markDirty()
-  }
-  const updateDraftVariable = (environmentId: string, variableId: string, patch: Partial<Pick<EnvironmentVariableEntity, 'key' | 'localValue' | 'sharedValue' | 'valueType' | 'enabled'>>): void => {
-    const currentVariables = draftEnvironmentVariableMap.value[environmentId] || []
-    const targetIndex = currentVariables.findIndex(item => item.id === variableId)
-    if (targetIndex < 0) {
-      return
-    }
-    const target = currentVariables[targetIndex]
-    const nextVariables = currentVariables.slice()
-    nextVariables[targetIndex] = {
-      ...target,
-      ...patch,
-      updatedAt: Date.now(),
-    }
-    draftEnvironmentVariableMap.value[environmentId] = sortAndReorderVariables(nextVariables)
-    markDirty()
-  }
-  const validateDraftBeforeCommit = (fallbackName: string): { valid: boolean; duplicatedName: string } => {
-    const nameSet = new Set<string>()
-    for (let i = 0; i < draftEnvironmentList.value.length; i += 1) {
-      const environment = draftEnvironmentList.value[i]
-      const normalizedName = sanitizeEnvironmentName(environment.name, fallbackName)
-      draftEnvironmentList.value[i] = {
-        ...environment,
-        name: normalizedName,
-      }
-      const variableList = draftEnvironmentVariableMap.value[environment.id] || []
-      const variableNameSet = new Set<string>()
-      for (let j = 0; j < variableList.length; j += 1) {
-        const key = variableList[j].key.trim()
-        if (!key) {
-          return { valid: false, duplicatedName: '' }
-        }
-        const lowerCaseKey = key.toLowerCase()
-        if (variableNameSet.has(lowerCaseKey)) {
-          return { valid: false, duplicatedName: key }
-        }
-        variableNameSet.add(lowerCaseKey)
-        variableList[j] = {
-          ...variableList[j],
-          key,
-        }
-      }
-      draftEnvironmentVariableMap.value[environment.id] = variableList
-      const lowerCaseEnvironmentName = normalizedName.toLowerCase()
-      if (nameSet.has(lowerCaseEnvironmentName)) {
-        return { valid: false, duplicatedName: normalizedName }
-      }
-      nameSet.add(lowerCaseEnvironmentName)
-    }
-    return { valid: true, duplicatedName: '' }
-  }
-  const saveOnlineDraft = async (): Promise<Record<string, string>> => {
-    const projectId = loadedProjectId.value
-    const originalEnvironmentList = cloneEnvironmentList(environmentList.value)
-    const originalVariableMap = cloneEnvironmentVariableMap(environmentVariableMap.value)
-    const draftList = sortAndReorderEnvironments(draftEnvironmentList.value)
-    const draftVariableMap = cloneEnvironmentVariableMap(draftEnvironmentVariableMap.value)
-    const idMap: Record<string, string> = {}
-    const originalIdSet = new Set(originalEnvironmentList.map(item => item.id))
-    const draftIdSet = new Set(draftList.map(item => item.id))
-    const deleteEnvironmentIds = originalEnvironmentList
-      .filter(item => !draftIdSet.has(item.id))
-      .map(item => item.id)
-    for (let i = 0; i < draftList.length; i += 1) {
-      const item = draftList[i]
-      const payload = {
-        projectId,
-        name: item.name,
-        baseUrl: item.baseUrl,
-        description: item.description,
-        order: i,
-        visibilityMode: item.visibilityMode,
-      }
-      if (originalIdSet.has(item.id)) {
-        await request.put('/api/project/environment', {
-          _id: item.id,
-          ...payload,
-        })
-        idMap[item.id] = item.id
-      } else {
-        const createResponse = await request.post<CommonResponse<{ _id: string }>, CommonResponse<{ _id: string }>>(
-          '/api/project/environment',
-          payload
-        )
-        idMap[item.id] = createResponse.data._id
-      }
-    }
-    if (deleteEnvironmentIds.length > 0) {
-      await request.delete('/api/project/environment', {
-        data: {
-          projectId,
-          ids: deleteEnvironmentIds,
-        },
-      })
-    }
-    for (let i = 0; i < draftList.length; i += 1) {
-      const draftEnvironment = draftList[i]
-      const realEnvironmentId = idMap[draftEnvironment.id] || draftEnvironment.id
-      const draftVariables = sortAndReorderVariables(draftVariableMap[draftEnvironment.id] || [])
-      const oldVariables = originalVariableMap[realEnvironmentId] || []
-      const oldVariableIdSet = new Set(oldVariables.map(item => item.id))
-      const payloadVariables: BatchVariableInput[] = draftVariables.map((item, index) => ({
-        _id: oldVariableIdSet.has(item.id) ? item.id : undefined,
-        key: item.key,
-        localValue: item.localValue,
-        sharedValue: item.sharedValue,
-        valueType: item.valueType,
-        enabled: item.enabled,
-        order: index,
-      }))
-      await request.put('/api/project/environment/variable/batch', {
-        projectId,
-        environmentId: realEnvironmentId,
-        variables: payloadVariables,
-      })
-    }
-    return idMap
-  }
-  const commitDraft = async (options: { applyActiveEnvironment: boolean }): Promise<boolean> => {
-    const committedList = cloneEnvironmentList(draftEnvironmentList.value)
-    const committedVariableMap = cloneEnvironmentVariableMap(draftEnvironmentVariableMap.value)
-    saving.value = true
-    try {
-      if (isOfflineMode()) {
-        setEnvironmentList(committedList)
-        setEnvironmentVariableMap(committedVariableMap)
-        if (options.applyActiveEnvironment) {
-          activeEnvironmentId.value = draftActiveEnvironmentId.value || committedList[0]?.id || ''
-        } else {
-          const exists = committedList.some(item => item.id === activeEnvironmentId.value)
-          if (!exists) {
-            activeEnvironmentId.value = committedList[0]?.id || ''
-          }
-        }
-        syncActiveStatus()
-        const saved = await persistOfflineProjectData()
-        if (!saved) {
-          return false
-        }
-        closeDraft()
-        return true
-      }
-      const idMap = await saveOnlineDraft()
-      const activeIdInDraft = draftActiveEnvironmentId.value
-      await ensureProjectLoaded(loadedProjectId.value, { force: true })
-      if (options.applyActiveEnvironment) {
-        const realActiveId = idMap[activeIdInDraft] || activeIdInDraft
-        setActiveEnvironment(realActiveId)
-      }
-      closeDraft()
-      return true
-    } catch (error) {
-      logger.error('保存环境草稿失败', { error })
-      return false
-    } finally {
-      saving.value = false
     }
   }
   const setActiveEnvironment = (environmentId: string): void => {
@@ -609,6 +308,358 @@ export const useEnvironment = defineStore('projectEnvironment', () => {
     syncActiveStatus()
     persistActiveEnvironment()
   }
+  const getEnvironmentById = (environmentId: string): EnvironmentEntity | null => {
+    return environmentList.value.find(item => item.id === environmentId) || null
+  }
+  const buildBatchVariablePayload = (environmentId: string): BatchVariableInput[] => {
+    const variables = sortAndReorderVariables(environmentVariableMap.value[environmentId] || [])
+    setEnvironmentVariables(environmentId, variables)
+    return variables.map((item, index) => ({
+      _id: item.id.startsWith('local_') ? undefined : item.id,
+      key: item.key.trim(),
+      localValue: item.localValue,
+      sharedValue: item.sharedValue,
+      valueType: item.valueType,
+      enabled: item.enabled,
+      order: index,
+    }))
+  }
+  const syncEnvironmentVariables = async (environmentId: string): Promise<boolean> => {
+    if (isOfflineMode()) {
+      return persistOfflineProjectData()
+    }
+    const payloadVariables = buildBatchVariablePayload(environmentId)
+    const response = await request.put<CommonResponse<ServerEnvironmentVariable[]>, CommonResponse<ServerEnvironmentVariable[]>>(
+      '/api/project/environment/variable/batch',
+      {
+        projectId: loadedProjectId.value,
+        environmentId,
+        variables: payloadVariables,
+      }
+    )
+    setEnvironmentVariables(environmentId, response.data.map(toClientEnvironmentVariable))
+    return true
+  }
+  const createEnvironment = async (defaultName: string): Promise<string> => {
+    if (!loadedProjectId.value) {
+      return ''
+    }
+    saving.value = true
+    try {
+      const now = Date.now()
+      const name = sanitizeEnvironmentName(defaultName, defaultName)
+      const order = environmentList.value.length
+      if (isOfflineMode()) {
+        const environmentId = `local_${nanoid()}`
+        const createdEnvironment: EnvironmentEntity = {
+          id: environmentId,
+          projectId: loadedProjectId.value,
+          name,
+          baseUrl: '',
+          description: '',
+          order,
+          isActive: false,
+          visibilityMode: 'shared',
+          createdAt: now,
+          updatedAt: now,
+        }
+        setEnvironmentList(environmentList.value.concat(createdEnvironment))
+        setEnvironmentVariables(environmentId, [])
+        setActiveEnvironment(environmentId)
+        const saved = await persistOfflineProjectData()
+        return saved ? environmentId : ''
+      }
+      const response = await request.post<CommonResponse<{ _id: string }>, CommonResponse<{ _id: string }>>(
+        '/api/project/environment',
+        {
+          projectId: loadedProjectId.value,
+          name,
+          baseUrl: '',
+          description: '',
+          order,
+          visibilityMode: 'shared',
+        }
+      )
+      const environmentId = response.data._id
+      const createdEnvironment: EnvironmentEntity = {
+        id: environmentId,
+        projectId: loadedProjectId.value,
+        name,
+        baseUrl: '',
+        description: '',
+        order,
+        isActive: false,
+        visibilityMode: 'shared',
+        createdAt: now,
+        updatedAt: now,
+      }
+      setEnvironmentList(environmentList.value.concat(createdEnvironment))
+      setEnvironmentVariables(environmentId, [])
+      setActiveEnvironment(environmentId)
+      return environmentId
+    } catch (error) {
+      logger.error('创建环境失败', { error })
+      return ''
+    } finally {
+      saving.value = false
+    }
+  }
+  const duplicateEnvironment = async (environmentId: string, duplicateSuffix: string): Promise<string> => {
+    const targetEnvironment = getEnvironmentById(environmentId)
+    if (!targetEnvironment || !loadedProjectId.value) {
+      return ''
+    }
+    saving.value = true
+    try {
+      const now = Date.now()
+      const duplicatedName = `${targetEnvironment.name} ${duplicateSuffix}`.trim()
+      const name = sanitizeEnvironmentName(duplicatedName, duplicateSuffix)
+      const order = environmentList.value.length
+      if (isOfflineMode()) {
+        const duplicatedEnvironmentId = `local_${nanoid()}`
+        const duplicatedEnvironment: EnvironmentEntity = {
+          ...targetEnvironment,
+          id: duplicatedEnvironmentId,
+          name,
+          order,
+          isActive: false,
+          createdAt: now,
+          updatedAt: now,
+        }
+        const sourceVariables = environmentVariableMap.value[environmentId] || []
+        const duplicatedVariables = sourceVariables.map((item, index) => ({
+          ...item,
+          id: `local_${nanoid()}`,
+          projectId: loadedProjectId.value,
+          environmentId: duplicatedEnvironmentId,
+          order: index,
+          createdAt: now,
+          updatedAt: now,
+        }))
+        setEnvironmentList(environmentList.value.concat(duplicatedEnvironment))
+        setEnvironmentVariables(duplicatedEnvironmentId, duplicatedVariables)
+        setActiveEnvironment(duplicatedEnvironmentId)
+        const saved = await persistOfflineProjectData()
+        return saved ? duplicatedEnvironmentId : ''
+      }
+      const createResponse = await request.post<CommonResponse<{ _id: string }>, CommonResponse<{ _id: string }>>(
+        '/api/project/environment',
+        {
+          projectId: loadedProjectId.value,
+          name,
+          baseUrl: targetEnvironment.baseUrl,
+          description: targetEnvironment.description,
+          order,
+          visibilityMode: targetEnvironment.visibilityMode,
+        }
+      )
+      const duplicatedEnvironmentId = createResponse.data._id
+      const sourceVariables = environmentVariableMap.value[environmentId] || []
+      if (sourceVariables.length > 0) {
+        const variables = sortAndReorderVariables(sourceVariables).map((item, index) => ({
+          key: item.key,
+          localValue: item.localValue,
+          sharedValue: item.sharedValue,
+          valueType: item.valueType,
+          enabled: item.enabled,
+          order: index,
+        }))
+        await request.put('/api/project/environment/variable/batch', {
+          projectId: loadedProjectId.value,
+          environmentId: duplicatedEnvironmentId,
+          variables,
+        })
+      }
+      const duplicatedEnvironment: EnvironmentEntity = {
+        ...targetEnvironment,
+        id: duplicatedEnvironmentId,
+        name,
+        order,
+        isActive: false,
+        createdAt: now,
+        updatedAt: now,
+      }
+      setEnvironmentList(environmentList.value.concat(duplicatedEnvironment))
+      if (sourceVariables.length > 0) {
+        const variableResponse = await request.get<
+          CommonResponse<ServerEnvironmentVariable[]>,
+          CommonResponse<ServerEnvironmentVariable[]>
+        >('/api/project/environment/variable/list', {
+          params: {
+            projectId: loadedProjectId.value,
+            environmentId: duplicatedEnvironmentId,
+          },
+        })
+        setEnvironmentVariables(duplicatedEnvironmentId, variableResponse.data.map(toClientEnvironmentVariable))
+      } else {
+        setEnvironmentVariables(duplicatedEnvironmentId, [])
+      }
+      setActiveEnvironment(duplicatedEnvironmentId)
+      return duplicatedEnvironmentId
+    } catch (error) {
+      logger.error('复制环境失败', { error })
+      return ''
+    } finally {
+      saving.value = false
+    }
+  }
+  const deleteEnvironment = async (environmentId: string): Promise<boolean> => {
+    const targetIndex = environmentList.value.findIndex(item => item.id === environmentId)
+    if (targetIndex < 0 || !loadedProjectId.value) {
+      return false
+    }
+    saving.value = true
+    try {
+      if (!isOfflineMode()) {
+        await request.delete('/api/project/environment', {
+          data: {
+            projectId: loadedProjectId.value,
+            ids: [environmentId],
+          },
+        })
+      }
+      const nextList = environmentList.value.filter(item => item.id !== environmentId)
+      setEnvironmentList(nextList)
+      const nextMap = { ...environmentVariableMap.value }
+      delete nextMap[environmentId]
+      environmentVariableMap.value = nextMap
+      if (activeEnvironmentId.value === environmentId) {
+        const fallbackIndex = targetIndex >= nextList.length ? nextList.length - 1 : targetIndex
+        const fallbackEnvironmentId = nextList[fallbackIndex]?.id || ''
+        setActiveEnvironment(fallbackEnvironmentId)
+      } else {
+        syncActiveStatus()
+      }
+      if (isOfflineMode()) {
+        return persistOfflineProjectData()
+      }
+      return true
+    } catch (error) {
+      logger.error('删除环境失败', { error })
+      return false
+    } finally {
+      saving.value = false
+    }
+  }
+  const updateEnvironment = async (environmentId: string, patch: Partial<Pick<EnvironmentEntity, 'name' | 'baseUrl' | 'description' | 'visibilityMode'>>): Promise<boolean> => {
+    const targetIndex = environmentList.value.findIndex(item => item.id === environmentId)
+    if (targetIndex < 0 || !loadedProjectId.value) {
+      return false
+    }
+    const targetEnvironment = environmentList.value[targetIndex]
+    const nextName = patch.name === undefined ? targetEnvironment.name : sanitizeEnvironmentName(patch.name, targetEnvironment.name || patch.name)
+    const nextEnvironment: EnvironmentEntity = {
+      ...targetEnvironment,
+      ...patch,
+      name: nextName,
+      updatedAt: Date.now(),
+    }
+    const nextList = environmentList.value.slice()
+    nextList[targetIndex] = nextEnvironment
+    setEnvironmentList(nextList)
+    try {
+      if (isOfflineMode()) {
+        return persistOfflineProjectData()
+      }
+      await request.put('/api/project/environment', {
+        _id: nextEnvironment.id,
+        projectId: nextEnvironment.projectId,
+        name: nextEnvironment.name,
+        baseUrl: nextEnvironment.baseUrl,
+        description: nextEnvironment.description,
+        order: nextEnvironment.order,
+        visibilityMode: nextEnvironment.visibilityMode,
+      })
+      return true
+    } catch (error) {
+      logger.error('更新环境失败', { error })
+      await ensureProjectLoaded(loadedProjectId.value, { force: true })
+      return false
+    }
+  }
+  const addVariable = async (environmentId: string): Promise<string> => {
+    if (!loadedProjectId.value || !getEnvironmentById(environmentId)) {
+      return ''
+    }
+    const now = Date.now()
+    const currentVariables = environmentVariableMap.value[environmentId] || []
+    const newVariable: EnvironmentVariableEntity = {
+      id: `local_${nanoid()}`,
+      projectId: loadedProjectId.value,
+      environmentId,
+      key: '',
+      localValue: '',
+      sharedValue: '',
+      valueType: 'text',
+      enabled: true,
+      order: currentVariables.length,
+      createdAt: now,
+      updatedAt: now,
+    }
+    setEnvironmentVariables(environmentId, currentVariables.concat(newVariable))
+    try {
+      const saved = await syncEnvironmentVariables(environmentId)
+      if (!saved) {
+        return ''
+      }
+      const current = environmentVariableMap.value[environmentId] || []
+      return current[current.length - 1]?.id || newVariable.id
+    } catch (error) {
+      logger.error('新增环境变量失败', { error })
+      if (!isOfflineMode()) {
+        await ensureProjectLoaded(loadedProjectId.value, { force: true })
+      }
+      return ''
+    }
+  }
+  const deleteVariable = async (environmentId: string, variableId: string): Promise<boolean> => {
+    if (!loadedProjectId.value || !getEnvironmentById(environmentId)) {
+      return false
+    }
+    const currentVariables = environmentVariableMap.value[environmentId] || []
+    setEnvironmentVariables(environmentId, currentVariables.filter(item => item.id !== variableId))
+    try {
+      return await syncEnvironmentVariables(environmentId)
+    } catch (error) {
+      logger.error('删除环境变量失败', { error })
+      if (!isOfflineMode()) {
+        await ensureProjectLoaded(loadedProjectId.value, { force: true })
+      }
+      return false
+    }
+  }
+  const updateVariable = async (
+    environmentId: string,
+    variableId: string,
+    patch: Partial<Pick<EnvironmentVariableEntity, 'key' | 'localValue' | 'sharedValue' | 'valueType' | 'enabled'>>
+  ): Promise<boolean> => {
+    if (!loadedProjectId.value || !getEnvironmentById(environmentId)) {
+      return false
+    }
+    const currentVariables = environmentVariableMap.value[environmentId] || []
+    const variableIndex = currentVariables.findIndex(item => item.id === variableId)
+    if (variableIndex < 0) {
+      return false
+    }
+    const currentVariable = currentVariables[variableIndex]
+    const nextVariables = currentVariables.slice()
+    nextVariables[variableIndex] = {
+      ...currentVariable,
+      ...patch,
+      key: patch.key === undefined ? currentVariable.key : patch.key.trim(),
+      updatedAt: Date.now(),
+    }
+    setEnvironmentVariables(environmentId, nextVariables)
+    try {
+      return await syncEnvironmentVariables(environmentId)
+    } catch (error) {
+      logger.error('更新环境变量失败', { error })
+      if (!isOfflineMode()) {
+        await ensureProjectLoaded(loadedProjectId.value, { force: true })
+      }
+      return false
+    }
+  }
   const activeEnvironment = computed(() => {
     return environmentList.value.find(item => item.id === activeEnvironmentId.value) || null
   })
@@ -617,16 +668,6 @@ export const useEnvironment = defineStore('projectEnvironment', () => {
       return [] as EnvironmentVariableEntity[]
     }
     return (environmentVariableMap.value[activeEnvironmentId.value] || []).slice().sort((a, b) => a.order - b.order)
-  })
-  const draftSelectedEnvironment = computed(() => {
-    return draftEnvironmentList.value.find(item => item.id === draftSelectedEnvironmentId.value) || null
-  })
-  const draftSelectedEnvironmentVariables = computed(() => {
-    const environmentId = draftSelectedEnvironmentId.value
-    if (!environmentId) {
-      return [] as EnvironmentVariableEntity[]
-    }
-    return (draftEnvironmentVariableMap.value[environmentId] || []).slice().sort((a, b) => a.order - b.order)
   })
   const buildCurrentEnvironmentVariableObject = (): Record<string, unknown> => {
     const offlineMode = isOfflineMode()
@@ -674,32 +715,18 @@ export const useEnvironment = defineStore('projectEnvironment', () => {
     environmentList,
     environmentVariableMap,
     activeEnvironmentId,
-    draftEnvironmentList,
-    draftEnvironmentVariableMap,
-    draftSelectedEnvironmentId,
-    draftActiveEnvironmentId,
-    draftVisible,
-    dirty,
     loading,
     saving,
     activeEnvironment,
     activeEnvironmentVariables,
-    draftSelectedEnvironment,
-    draftSelectedEnvironmentVariables,
     ensureProjectLoaded,
-    openDraft,
-    closeDraft,
-    createDraftEnvironment,
-    duplicateDraftEnvironment,
-    deleteDraftEnvironment,
-    updateDraftEnvironment,
-    setDraftSelectedEnvironment,
-    setDraftActiveEnvironment,
-    addDraftVariable,
-    deleteDraftVariable,
-    updateDraftVariable,
-    validateDraftBeforeCommit,
-    commitDraft,
+    createEnvironment,
+    duplicateEnvironment,
+    deleteEnvironment,
+    updateEnvironment,
+    addVariable,
+    deleteVariable,
+    updateVariable,
     setActiveEnvironment,
     buildCurrentEnvironmentVariableObject,
     buildCurrentEnvironmentApidocVariables,

@@ -41,41 +41,48 @@
                   :data-env-edit-id="item.id"
                   class="env-item-input"
                   :value="item.name"
-                  @input="handleUpdateEnvironmentName(item.id, $event)"
-                  @blur="handleFinishEditEnvironmentName(item.id)"
-                  @keydown.enter="handleFinishEditEnvironmentName(item.id)"
+                  @blur="handleFinishEditEnvironmentName(item.id, $event)"
+                  @keydown.enter.prevent="handleSubmitEnvironmentName($event)"
                   @click.stop
                 />
-                  <span v-else>{{ item.name || t('未命名环境') }}</span>
+                <span v-else>{{ item.name || t('未命名环境') }}</span>
               </span>
               <div class="env-item-actions">
-                <span v-if="draftActiveEnvironmentId === item.id" class="env-item-tag">{{ t('当前使用') }}</span>
+                <span v-if="activeEnvironmentId === item.id" class="env-item-tag">{{ t('当前使用') }}</span>
                 <button class="env-action-btn" type="button" :title="t('生成副本')" @click.stop="handleDuplicateEnvironment(item.id)">
                   <Copy :size="14" />
                 </button>
-                <button class="env-action-btn" type="button" :title="t('删除')" @click.stop="handleDeleteEnvironment(item.id)">
+                <button
+                  class="env-action-btn"
+                  type="button"
+                  :title="t('删除')"
+                  :disabled="deletingEnvironmentId === item.id"
+                  @click.stop="handleDeleteEnvironment(item.id)"
+                >
                   <Trash2 :size="14" />
                 </button>
               </div>
             </button>
           </div>
           <div v-else class="env-list-empty">
-            <span>{{ t('暂无环境，请先新建环境') }}</span>
+            <FolderPlus :size="32" class="env-list-empty-icon" />
+            <span class="env-list-empty-title">{{ t('无可用环境') }}</span>
+            <span class="env-list-empty-desc">{{ t('请点击右上角新建') }}</span>
           </div>
         </aside>
         <section v-if="selectedEnvironment" class="env-manage-main">
           <div class="meta-grid">
             <label class="meta-field">
               <span class="meta-label">{{ t('环境名称') }}</span>
-              <input type="text" :value="selectedEnvironment.name" @input="handleUpdateSelectedEnvironmentName" />
+              <input type="text" :value="selectedEnvironment.name" @change="handleUpdateSelectedEnvironmentName" />
             </label>
             <label class="meta-field">
               <span class="meta-label">{{ t('Base URL') }}</span>
-              <input type="text" :value="selectedEnvironment.baseUrl" @input="handleUpdateSelectedEnvironmentBaseUrl" />
+              <input type="text" :value="selectedEnvironment.baseUrl" @change="handleUpdateSelectedEnvironmentBaseUrl" />
             </label>
             <label class="meta-field desc">
               <span class="meta-label">{{ t('描述') }}</span>
-              <textarea :value="selectedEnvironment.description" @input="handleUpdateSelectedEnvironmentDescription"></textarea>
+              <textarea :value="selectedEnvironment.description" @change="handleUpdateSelectedEnvironmentDescription"></textarea>
             </label>
           </div>
           <div class="table-toolbar">
@@ -151,7 +158,7 @@
                     <input type="checkbox" :checked="item.enabled" @change="handleUpdateVariableEnabled(item.id, $event)" />
                   </td>
                   <td>
-                    <input type="text" :value="item.key" @input="handleUpdateVariableKey(item.id, $event)" />
+                    <input type="text" :value="item.key" @change="handleUpdateVariableKey(item.id, $event)" />
                   </td>
                   <td>
                     <template v-if="item.valueType === 'secret'">
@@ -159,7 +166,7 @@
                         <input
                           :type="isLocalSecretVisible(item.id) ? 'text' : 'password'"
                           :value="item.localValue"
-                          @input="handleUpdateVariableValue(item.id, 'local', $event)"
+                          @change="handleUpdateVariableValue(item.id, 'local', $event)"
                         />
                         <button class="icon-btn" type="button" @click="handleToggleVariableSecret(item.id, 'local')">
                           <Eye v-if="!isLocalSecretVisible(item.id)" :size="14" />
@@ -171,7 +178,7 @@
                       v-else
                       type="text"
                       :value="item.localValue"
-                      @input="handleUpdateVariableValue(item.id, 'local', $event)"
+                      @change="handleUpdateVariableValue(item.id, 'local', $event)"
                     />
                   </td>
                   <td v-if="showSharedColumn">
@@ -181,7 +188,7 @@
                           :type="isSharedSecretVisible(item.id) ? 'text' : 'password'"
                           :value="item.sharedValue"
                           :placeholder="t('无环境')"
-                          @input="handleUpdateVariableValue(item.id, 'shared', $event)"
+                          @change="handleUpdateVariableValue(item.id, 'shared', $event)"
                         />
                         <button class="icon-btn" type="button" @click="handleToggleVariableSecret(item.id, 'shared')">
                           <Eye v-if="!isSharedSecretVisible(item.id)" :size="14" />
@@ -194,7 +201,7 @@
                       type="text"
                       :value="item.sharedValue"
                       :placeholder="t('无环境')"
-                      @input="handleUpdateVariableValue(item.id, 'shared', $event)"
+                      @change="handleUpdateVariableValue(item.id, 'shared', $event)"
                     />
                   </td>
                   <td>
@@ -218,15 +225,20 @@
           </div>
         </section>
         <section v-else class="env-manage-main no-env-main">
-          <span>{{ t('暂无环境，请先新建环境') }}</span>
+          <div class="main-empty">
+            <div class="empty-card">
+              <div class="empty-illustration">
+                <Server :size="48" />
+              </div>
+              <h3 class="empty-title">{{ t('创建第一个环境开始管理变量') }}</h3>
+              <p class="empty-desc">{{ t('创建环境后可配置 Base URL、变量与可见范围。') }}</p>
+              <button class="empty-create-btn" type="button" @click="handleCreateEnvironment">
+                <Plus :size="14" />
+                <span>{{ t('新建环境') }}</span>
+              </button>
+            </div>
+          </div>
         </section>
-      </div>
-      <div class="env-manage-footer">
-        <span v-if="dirty" class="footer-dirty">{{ t('当前环境有未保存改动') }}</span>
-        <div class="footer-actions">
-          <button type="button" @click="handleClose">{{ t('取消') }}</button>
-          <button type="button" class="primary" @click="handleSave">{{ t('保存') }}</button>
-        </div>
       </div>
     </div>
   </el-dialog>
@@ -237,6 +249,7 @@ import {
   Plus,
   Copy,
   CircleHelp,
+  FolderPlus,
   Eye,
   EyeOff,
   Trash2,
@@ -244,11 +257,12 @@ import {
   Users,
   Lock,
   ChevronDown,
+  Server,
   X
 } from 'lucide-vue-next'
 import { computed, nextTick, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { useEnvironment } from '@/store/projectWorkbench/environmentStore'
 
@@ -264,26 +278,37 @@ const { t } = useI18n()
 const runtimeStore = useRuntime()
 const environmentStore = useEnvironment()
 const {
-  draftEnvironmentList: environmentList,
-  draftSelectedEnvironmentId: selectedEnvironmentId,
-  draftActiveEnvironmentId,
-  draftSelectedEnvironment: selectedEnvironment,
-  draftSelectedEnvironmentVariables: variableRows,
-  draftVisible,
-  dirty,
+  environmentList,
+  environmentVariableMap,
+  activeEnvironmentId,
 } = storeToRefs(environmentStore)
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
 const editingEnvironmentId = ref('')
+const selectedEnvironmentId = ref('')
+const deletingEnvironmentId = ref('')
 const localSecretVisibleMap = ref<Record<string, boolean>>({})
 const sharedSecretVisibleMap = ref<Record<string, boolean>>({})
 const showSharedColumn = computed(() => !isStandalone.value)
+const selectedEnvironment = computed(() => {
+  return environmentList.value.find(item => item.id === selectedEnvironmentId.value) || null
+})
+const variableRows = computed(() => {
+  if (!selectedEnvironmentId.value) {
+    return []
+  }
+  return (environmentVariableMap.value[selectedEnvironmentId.value] || []).slice().sort((a, b) => a.order - b.order)
+})
 
 const handleClose = () => {
-  environmentStore.closeDraft()
   emit('update:modelValue', false)
 }
-const handleCreateEnvironment = () => {
-  const createdEnvironmentId = environmentStore.createDraftEnvironment(t('未命名环境'))
+const handleCreateEnvironment = async () => {
+  const createdEnvironmentId = await environmentStore.createEnvironment(t('未命名环境'))
+  if (!createdEnvironmentId) {
+    ElMessage.error(t('操作失败'))
+    return
+  }
+  selectedEnvironmentId.value = createdEnvironmentId
   editingEnvironmentId.value = createdEnvironmentId
   nextTick(() => {
     const input = document.querySelector(`[data-env-edit-id="${createdEnvironmentId}"]`) as HTMLInputElement | null
@@ -299,103 +324,161 @@ const handleStartEditEnvironmentName = (id: string) => {
     input?.select()
   })
 }
+const handleSubmitEnvironmentName = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  target.blur()
+}
 const handleSelectEnvironment = (id: string) => {
-  environmentStore.setDraftSelectedEnvironment(id)
-  environmentStore.setDraftActiveEnvironment(id)
+  selectedEnvironmentId.value = id
+  environmentStore.setActiveEnvironment(id)
   editingEnvironmentId.value = ''
 }
-const handleUpdateEnvironmentName = (id: string, event: Event) => {
+const handleFinishEditEnvironmentName = async (id: string, event: Event) => {
   const target = event.target as HTMLInputElement
-  environmentStore.updateDraftEnvironment(id, { name: target.value })
-}
-const handleFinishEditEnvironmentName = (id: string) => {
-  const currentEnvironment = environmentList.value.find(item => item.id === id)
-  const nextName = currentEnvironment?.name?.trim() || t('未命名环境')
-  environmentStore.updateDraftEnvironment(id, { name: nextName })
+  const nextName = target.value.trim() || t('未命名环境')
+  const saved = await environmentStore.updateEnvironment(id, { name: nextName })
+  if (!saved) {
+    ElMessage.error(t('保存失败'))
+  }
   editingEnvironmentId.value = ''
 }
-const handleDuplicateEnvironment = (id: string) => {
-  const duplicateEnvironmentId = environmentStore.duplicateDraftEnvironment(id, t('生成副本'))
+const handleDuplicateEnvironment = async (id: string) => {
+  const duplicateEnvironmentId = await environmentStore.duplicateEnvironment(id, t('生成副本'))
   if (!duplicateEnvironmentId) {
+    ElMessage.error(t('操作失败'))
     return
   }
-  environmentStore.setDraftSelectedEnvironment(duplicateEnvironmentId)
+  selectedEnvironmentId.value = duplicateEnvironmentId
   editingEnvironmentId.value = ''
 }
-const handleDeleteEnvironment = (id: string) => {
-  environmentStore.deleteDraftEnvironment(id)
-  if (editingEnvironmentId.value === id) {
-    editingEnvironmentId.value = ''
+const handleDeleteEnvironment = async (id: string) => {
+  if (deletingEnvironmentId.value) {
+    return
+  }
+  const matched = environmentList.value.find(item => item.id === id)
+  const environmentName = matched?.name?.trim() || t('未命名环境')
+  try {
+    await ElMessageBox.confirm(
+      t('确定删除环境 "{name}" 吗？', { name: environmentName }),
+      t('删除确认'),
+      {
+        confirmButtonText: t('删除'),
+        cancelButtonText: t('取消'),
+        type: 'warning',
+        autofocus: false,
+      }
+    )
+  } catch {
+    return
+  }
+  deletingEnvironmentId.value = id
+  try {
+    const deleted = await environmentStore.deleteEnvironment(id)
+    if (!deleted) {
+      ElMessage.error(t('操作失败'))
+      return
+    }
+    if (editingEnvironmentId.value === id) {
+      editingEnvironmentId.value = ''
+    }
+    selectedEnvironmentId.value = activeEnvironmentId.value || environmentList.value[0]?.id || ''
+  } finally {
+    deletingEnvironmentId.value = ''
   }
 }
-const handleUpdateSelectedEnvironmentName = (event: Event) => {
+const handleUpdateSelectedEnvironmentName = async (event: Event) => {
   const target = event.target as HTMLInputElement
   if (!selectedEnvironment.value) {
     return
   }
-  environmentStore.updateDraftEnvironment(selectedEnvironment.value.id, { name: target.value })
+  const saved = await environmentStore.updateEnvironment(selectedEnvironment.value.id, { name: target.value })
+  if (!saved) {
+    ElMessage.error(t('保存失败'))
+  }
 }
-const handleUpdateSelectedEnvironmentBaseUrl = (event: Event) => {
+const handleUpdateSelectedEnvironmentBaseUrl = async (event: Event) => {
   const target = event.target as HTMLInputElement
   if (!selectedEnvironment.value) {
     return
   }
-  environmentStore.updateDraftEnvironment(selectedEnvironment.value.id, { baseUrl: target.value })
+  const saved = await environmentStore.updateEnvironment(selectedEnvironment.value.id, { baseUrl: target.value })
+  if (!saved) {
+    ElMessage.error(t('保存失败'))
+  }
 }
-const handleUpdateSelectedEnvironmentDescription = (event: Event) => {
+const handleUpdateSelectedEnvironmentDescription = async (event: Event) => {
   const target = event.target as HTMLTextAreaElement
   if (!selectedEnvironment.value) {
     return
   }
-  environmentStore.updateDraftEnvironment(selectedEnvironment.value.id, { description: target.value })
+  const saved = await environmentStore.updateEnvironment(selectedEnvironment.value.id, { description: target.value })
+  if (!saved) {
+    ElMessage.error(t('保存失败'))
+  }
 }
 const handleUpdateModelValue = (value: boolean) => {
-  if (!value) {
-    environmentStore.closeDraft()
-  }
   emit('update:modelValue', value)
 }
-const handleChangeVariableValueMode = (mode: string | number | object) => {
+const handleChangeVariableValueMode = async (mode: string | number | object) => {
   if (mode !== 'shared' && mode !== 'private') {
     return
   }
   if (!selectedEnvironment.value) {
     return
   }
-  environmentStore.updateDraftEnvironment(selectedEnvironment.value.id, { visibilityMode: mode })
+  const saved = await environmentStore.updateEnvironment(selectedEnvironment.value.id, { visibilityMode: mode })
+  if (!saved) {
+    ElMessage.error(t('保存失败'))
+  }
 }
-const handleUpdateVariableEnabled = (id: string, event: Event) => {
+const handleUpdateVariableEnabled = async (id: string, event: Event) => {
   const target = event.target as HTMLInputElement
   if (!selectedEnvironment.value) {
     return
   }
-  environmentStore.updateDraftVariable(selectedEnvironment.value.id, id, { enabled: target.checked })
+  const saved = await environmentStore.updateVariable(selectedEnvironment.value.id, id, { enabled: target.checked })
+  if (!saved) {
+    ElMessage.error(t('保存失败'))
+  }
 }
-const handleUpdateVariableKey = (id: string, event: Event) => {
+const handleUpdateVariableKey = async (id: string, event: Event) => {
   const target = event.target as HTMLInputElement
   if (!selectedEnvironment.value) {
     return
   }
-  environmentStore.updateDraftVariable(selectedEnvironment.value.id, id, { key: target.value })
+  const saved = await environmentStore.updateVariable(selectedEnvironment.value.id, id, { key: target.value })
+  if (!saved) {
+    ElMessage.error(t('保存失败'))
+  }
 }
-const handleUpdateVariableValue = (id: string, field: 'local' | 'shared', event: Event) => {
+const handleUpdateVariableValue = async (id: string, field: 'local' | 'shared', event: Event) => {
   const target = event.target as HTMLInputElement
   if (!selectedEnvironment.value) {
     return
   }
   if (field === 'local') {
-    environmentStore.updateDraftVariable(selectedEnvironment.value.id, id, { localValue: target.value })
+    const saved = await environmentStore.updateVariable(selectedEnvironment.value.id, id, { localValue: target.value })
+    if (!saved) {
+      ElMessage.error(t('保存失败'))
+    }
     return
   }
-  environmentStore.updateDraftVariable(selectedEnvironment.value.id, id, { sharedValue: target.value })
+  const saved = await environmentStore.updateVariable(selectedEnvironment.value.id, id, { sharedValue: target.value })
+  if (!saved) {
+    ElMessage.error(t('保存失败'))
+  }
 }
-const handleUpdateVariableType = (id: string, event: Event) => {
+const handleUpdateVariableType = async (id: string, event: Event) => {
   const target = event.target as HTMLSelectElement
   if (!selectedEnvironment.value) {
     return
   }
   const valueType = target.value === 'secret' ? 'secret' : 'text'
-  environmentStore.updateDraftVariable(selectedEnvironment.value.id, id, { valueType })
+  const saved = await environmentStore.updateVariable(selectedEnvironment.value.id, id, { valueType })
+  if (!saved) {
+    ElMessage.error(t('保存失败'))
+    return
+  }
   if (valueType === 'text') {
     localSecretVisibleMap.value[id] = false
     sharedSecretVisibleMap.value[id] = false
@@ -414,41 +497,45 @@ const isLocalSecretVisible = (id: string): boolean => {
 const isSharedSecretVisible = (id: string): boolean => {
   return sharedSecretVisibleMap.value[id] === true
 }
-const handleAddVariable = () => {
+const handleAddVariable = async () => {
   if (!selectedEnvironment.value) {
     return
   }
-  environmentStore.addDraftVariable(selectedEnvironment.value.id)
+  const addedVariableId = await environmentStore.addVariable(selectedEnvironment.value.id)
+  if (!addedVariableId) {
+    ElMessage.error(t('操作失败'))
+  }
 }
-const handleDeleteVariable = (id: string) => {
+const handleDeleteVariable = async (id: string) => {
   if (!selectedEnvironment.value) {
     return
   }
-  environmentStore.deleteDraftVariable(selectedEnvironment.value.id, id)
-}
-const handleSave = async () => {
-  const validationResult = environmentStore.validateDraftBeforeCommit(t('未命名环境'))
-  if (!validationResult.valid) {
-    ElMessage.warning(t('操作失败'))
-    return
-  }
-  const saved = await environmentStore.commitDraft({ applyActiveEnvironment: true })
+  const saved = await environmentStore.deleteVariable(selectedEnvironment.value.id, id)
   if (!saved) {
-    ElMessage.error(t('保存失败'))
-    return
+    ElMessage.error(t('操作失败'))
   }
-  ElMessage.success(t('保存成功'))
-  emit('update:modelValue', false)
 }
 watch(
   () => props.modelValue,
   (visible) => {
-    if (visible && !draftVisible.value) {
-      environmentStore.openDraft()
+    if (!visible) {
+      editingEnvironmentId.value = ''
       return
     }
-    if (!visible) {
-      environmentStore.closeDraft()
+    selectedEnvironmentId.value = activeEnvironmentId.value || environmentList.value[0]?.id || ''
+  },
+  { immediate: true }
+)
+watch(
+  () => environmentList.value.map(item => item.id).join('|'),
+  () => {
+    if (!selectedEnvironmentId.value) {
+      selectedEnvironmentId.value = activeEnvironmentId.value || environmentList.value[0]?.id || ''
+      return
+    }
+    const exists = environmentList.value.some(item => item.id === selectedEnvironmentId.value)
+    if (!exists) {
+      selectedEnvironmentId.value = activeEnvironmentId.value || environmentList.value[0]?.id || ''
     }
   },
   { immediate: true }
@@ -472,6 +559,21 @@ watch(
 )
 </script>
 <style lang="scss" scoped>
+:deep(.env-manage-dialog) {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 10px 25px -5px rgb(0 0 0 / 0.1),
+    0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+:deep(.env-manage-dialog .el-dialog__header) {
+  margin: 0;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+:deep(.env-manage-dialog .el-dialog__body) {
+  padding: 0;
+}
 .env-dialog-header {
   display: flex;
   align-items: center;
@@ -479,76 +581,69 @@ watch(
   gap: 8px;
 }
 .env-dialog-title {
-  color: #1f2937;
-  font-size: 15px;
-  font-weight: 600;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 500;
 }
 .env-dialog-close {
   width: 24px;
   height: 24px;
   border: 1px solid transparent;
-  border-radius: 6px;
-  background: transparent;
-  color: #6b7280;
+  border-radius: 4px;
+  background: none;
+  color: #64748b;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
   &:hover {
-    color: #111827;
-    background: #eef2f7;
-    border-color: #e2e8f0;
+    color: #0f172a;
+    background: #f8fafc;
   }
 }
 .env-manage {
-  display: grid;
-  gap: 11px;
   .env-manage-content {
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    overflow: hidden;
     display: grid;
-    grid-template-columns: 280px 1fr;
-    min-height: 520px;
+    grid-template-columns: 240px 1fr;
+    min-height: 540px;
     background: #ffffff;
   }
   .env-manage-side {
-    background: #fafbfc;
-    border-right: 1px solid #ebeef5;
-    padding: 12px;
+    background: #fafafa;
+    border-right: 1px solid #e2e8f0;
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto 1fr;
     gap: 10px;
   }
   .side-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    min-height: 28px;
+    min-height: 40px;
     gap: 8px;
+    padding: 12px 16px 0;
   }
   .side-title {
-    font-size: 12px;
-    font-weight: 600;
-    color: #6b7280;
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
   }
   .side-add-btn {
-    width: 24px;
-    height: 24px;
-    border: 1px solid #d9dee8;
-    border-radius: 6px;
-    background: #ffffff;
-    color: #4b5563;
+    width: 26px;
+    height: 26px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: none;
+    color: #64748b;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s;
     &:hover {
-      color: #111827;
-      border-color: #cfd6e3;
-      background: #f8fafc;
+      color: #0f172a;
+      background: #e4e4e7;
     }
   }
   .env-list {
@@ -556,17 +651,32 @@ watch(
     gap: 6px;
     align-content: start;
     overflow-y: auto;
+    padding: 0 12px 12px;
   }
   .env-list-empty {
-    min-height: 140px;
-    border: 1px dashed #d9dee8;
-    border-radius: 6px;
-    color: #6b7280;
-    font-size: 12px;
-    display: grid;
-    place-items: center;
-    gap: 8px;
-    align-content: center;
+    height: 100%;
+    color: #64748b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 24px 16px;
+  }
+  .env-list-empty-icon {
+    color: #94a3b8;
+    opacity: 0.6;
+    margin-bottom: 6px;
+  }
+  .env-list-empty-title {
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.5;
+  }
+  .env-list-empty-desc {
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.5;
   }
   .env-item {
     min-height: 38px;
@@ -635,6 +745,13 @@ watch(
       background: #eef2f7;
       border-color: #e2e8f0;
     }
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+      color: #9ca3af;
+      background: transparent;
+      border-color: transparent;
+    }
   }
   .env-item-tag {
     height: 18px;
@@ -647,7 +764,7 @@ watch(
     align-items: center;
   }
   .env-manage-main {
-    padding: 12px;
+    padding: 14px 16px;
     display: grid;
     grid-template-rows: auto auto 1fr auto;
     gap: 10px;
@@ -756,10 +873,96 @@ watch(
     }
   }
   .no-env-main {
-    display: grid;
-    place-items: center;
-    font-size: 12px;
-    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+  }
+  .main-empty {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  .empty-card {
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .empty-illustration {
+    width: 120px;
+    height: 120px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    color: #3b82f6;
+    position: relative;
+    box-shadow:
+      inset 0 2px 4px rgb(255 255 255 / 0.5),
+      0 8px 16px -4px rgb(59 130 246 / 0.12);
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      border-radius: 999px;
+      background: #3b82f6;
+      opacity: 0.1;
+    }
+    &::before {
+      width: 24px;
+      height: 24px;
+      top: 10px;
+      right: 15px;
+    }
+    &::after {
+      width: 16px;
+      height: 16px;
+      left: 15px;
+      bottom: 20px;
+    }
+  }
+  .empty-title {
+    margin: 0 0 12px;
+    color: #0f172a;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .empty-desc {
+    margin: 0 0 32px;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .empty-create-btn {
+    height: 40px;
+    border: 1px solid #3b82f6;
+    border-radius: 8px;
+    background: #3b82f6;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 24px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgb(59 130 246 / 0.3);
+    &:hover {
+      border-color: #2563eb;
+      background: #2563eb;
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgb(59 130 246 / 0.4);
+    }
+    &:active {
+      transform: translateY(0);
+    }
   }
   .table-wrap {
     border: 1px solid #e5e7eb;
@@ -893,48 +1096,6 @@ watch(
     display: flex;
     align-items: center;
     gap: 8px;
-  }
-  .env-manage-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #ebeef5;
-  }
-  .footer-dirty {
-    font-size: 12px;
-    color: #6b7280;
-  }
-  .footer-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    button {
-      height: 32px;
-      border: 1px solid #d9dee8;
-      border-radius: 6px;
-      background: #ffffff;
-      color: #4b5563;
-      padding: 0 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-      &:hover {
-        color: #111827;
-        border-color: #cfd6e3;
-        background: #f8fafc;
-      }
-      &.primary {
-        color: #ffffff;
-        border-color: #3b82f6;
-        background: #3b82f6;
-        &:hover {
-          color: #ffffff;
-          border-color: #2563eb;
-          background: #2563eb;
-        }
-      }
-    }
   }
 }
 @media screen and (max-width: 1100px) {
