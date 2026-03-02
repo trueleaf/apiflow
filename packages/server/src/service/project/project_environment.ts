@@ -43,7 +43,7 @@ export class ProjectEnvironmentService {
   async editProjectEnvironment(params: EditProjectEnvironmentDto) {
     const { _id, projectId, name, baseUrl, description, order, visibilityMode } = params
     await this.commonControl.checkDocOperationPermissions(projectId)
-    await this.projectEnvironmentModel.findByIdAndUpdate(
+    await this.projectEnvironmentModel.findOneAndUpdate(
       { _id, projectId, isEnabled: true },
       {
         $set: {
@@ -55,7 +55,7 @@ export class ProjectEnvironmentService {
         },
       }
     )
-    return null
+    return {}
   }
   async deleteProjectEnvironment(params: DeleteProjectEnvironmentDto) {
     const { projectId, ids } = params
@@ -68,7 +68,7 @@ export class ProjectEnvironmentService {
       { environmentId: { $in: ids }, projectId, isEnabled: true },
       { $set: { isEnabled: false } }
     )
-    return null
+    return {}
   }
   async getProjectEnvironmentList(params: GetProjectEnvironmentListDto) {
     const { projectId } = params
@@ -103,7 +103,7 @@ export class ProjectEnvironmentService {
       if (item._id && existingMap.has(item._id)) {
         const matched = existingMap.get(item._id)
         if (matched) {
-          await this.projectEnvironmentVariableModel.findByIdAndUpdate(
+          await this.projectEnvironmentVariableModel.findOneAndUpdate(
             { _id: item._id, projectId, environmentId },
             {
               $set: {
