@@ -13,7 +13,7 @@
             v-model="maxTextBodySizeMB"
             :min="minBodySizeMB"
             :max="maxBodySizeMB"
-            :precision="2"
+            :precision="0"
             :controls="false"
             size="small"
             class="control-number"
@@ -40,7 +40,7 @@
             v-model="maxRawBodySizeMB"
             :min="minBodySizeMB"
             :max="maxBodySizeMB"
-            :precision="2"
+            :precision="0"
             :controls="false"
             size="small"
             class="control-number"
@@ -65,9 +65,8 @@
         <div class="config-control">
           <el-input-number
             v-model="maxSendFileSizeMB"
-            :min="minBodySizeMB"
-            :max="maxBodySizeMB"
-            :precision="2"
+            :min="0"
+            :precision="0"
             :controls="false"
             size="small"
             class="control-number"
@@ -82,6 +81,7 @@
           </el-button>
         </div>
       </div>
+
       <div class="config-item">
         <div class="config-meta">
           <div class="meta-text">
@@ -255,6 +255,7 @@ import { useI18n } from 'vue-i18n'
 import { router } from '@/router'
 import { useHttpNodeConfig } from '@/store/httpNode/httpNodeConfigStore'
 import { generateDefaultHttpNodeConfig } from '@/helper'
+import { config } from '@src/config/config'
 import { GripVertical } from 'lucide-vue-next'
 import type { HttpNodeBodyMode, HttpNodeTabName } from '@src/types'
 import { bodyModeOrderCache } from '@/cache/httpNode/bodyModeOrderCache'
@@ -266,16 +267,16 @@ const { currentHttpNodeConfig: formData } = storeToRefs(httpNodeConfigStore)
 const projectId = computed(() => router.currentRoute.value.query.id as string)
 const defaultConfig = generateDefaultHttpNodeConfig()
 const BYTES_IN_MEGABYTE = 1024 * 1024
-const MIN_BODY_BYTES = 1024
+const MIN_BODY_BYTES = 1024 * 1024
 const MAX_BODY_BYTES = 100000000
 const minBodySizeMB = MIN_BODY_BYTES / BYTES_IN_MEGABYTE
 const maxBodySizeMB = MAX_BODY_BYTES / BYTES_IN_MEGABYTE
-type BodySizeKey = 'maxTextBodySize' | 'maxRawBodySize' | 'maxSendFileSize'
+type BodySizeKey = 'maxTextBodySize' | 'maxRawBodySize'
 const formatBytesToMB = (bytes: number | undefined) => {
   if (!bytes || Number.isNaN(bytes)) {
-    return Math.round(minBodySizeMB * 100) / 100
+    return minBodySizeMB
   }
-  return Math.round((bytes / BYTES_IN_MEGABYTE) * 100) / 100
+  return Math.round(bytes / BYTES_IN_MEGABYTE)
 }
 const updateBodySize = (key: BodySizeKey, value: number) => {
   if (Number.isNaN(value)) {
@@ -297,9 +298,15 @@ const maxRawBodySizeMB = computed({
   }
 })
 const maxSendFileSizeMB = computed({
-  get: () => formatBytesToMB(formData.value.maxSendFileSize),
+  get: () => {
+    const bytes = formData.value.maxSendFileSize
+    if (bytes === 0) return 0
+    if (!bytes || Number.isNaN(bytes)) return Math.round(config.httpNodeConfig.maxSendFileSize / BYTES_IN_MEGABYTE)
+    return Math.round(bytes / BYTES_IN_MEGABYTE)
+  },
   set: (value: number) => {
-    updateBodySize('maxSendFileSize', value)
+    if (Number.isNaN(value)) return
+    httpNodeConfigStore.updateCurrentConfig('maxSendFileSize', Math.max(0, Math.round(value)) * BYTES_IN_MEGABYTE)
   }
 })
 const handleReset = (key: keyof typeof defaultConfig) => {

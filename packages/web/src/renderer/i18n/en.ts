@@ -122,7 +122,7 @@ export default {
   '最大重定向次数': 'Max Redirects',
   '超过此大小的文本响应将被截断': 'Text responses exceeding this size will be truncated',
   '超过此大小的原始响应将被截断': 'Raw responses exceeding this size will be truncated',
-  '超过此大小的文件将终止发送': 'Files exceeding this size will not be sent',
+  '超过此大小的文件将终止发送': 'Set 0 for no limit. Files exceeding this size will not be sent',
   '自定义请求的User-Agent标识': 'Custom User-Agent',
   '超过此长度的请求头值将折叠显示': 'Long header values are collapsed',
   '启用后将自动跟随3xx重定向响应': 'Automatically follow 3xx redirect responses when enabled',

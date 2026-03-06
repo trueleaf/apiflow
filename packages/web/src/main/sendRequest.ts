@@ -42,7 +42,6 @@ const getFileNameFromHeaders = (headers: Record<string, string | string[] | unde
 
 const getFormDataFromRendererFormData = async (rendererFormDataList: RendererFormDataBody, maxSendFileSize: number) => {
   const formData = new FormData();
-  const maxSendFileSizeMB = Math.round((maxSendFileSize / (1024 * 1024)) * 100) / 100
   for (let i = 0; i < rendererFormDataList.length; i++) {
     const formDataParam = rendererFormDataList[i];
     const { id, key, type, value, isTempFile } = formDataParam;
@@ -80,11 +79,12 @@ const getFormDataFromRendererFormData = async (rendererFormDataList: RendererFor
             fullMsg: `formData参数${key}对应的非文件类型文件，发送被终止`
           })
         }
-        if (fsStat.size > maxSendFileSize) {
+        if (maxSendFileSize !== 0 && fsStat.size > maxSendFileSize) {
+          const limitMB = Math.round(maxSendFileSize / (1024 * 1024))
           return Promise.resolve({
             id,
-            msg: `文件大小超过${maxSendFileSizeMB}MB(发送被终止)`,
-            fullMsg: `formData参数${key}对应的文件大小超过${maxSendFileSizeMB}MB，发送被终止，如需更改请前往HTTP节点设置`
+            msg: `文件大小超过${limitMB}MB(发送被终止)`,
+            fullMsg: `formData参数${key}对应的文件大小超过${limitMB}MB，发送被终止，如需更改请前往HTTP节点设置`
           })
         }
       } catch (error) {
@@ -112,7 +112,6 @@ const getFormDataFromRendererFormData = async (rendererFormDataList: RendererFor
   return Promise.resolve(formData);
 }
 const getFileBufferByPath = async (path: string, maxSendFileSize: number) => {
-  const maxSendFileSizeMB = Math.round((maxSendFileSize / (1024 * 1024)) * 100) / 100
   try {
     await fs.access(path, fs.constants.F_OK)
   } catch {
@@ -129,10 +128,11 @@ const getFileBufferByPath = async (path: string, maxSendFileSize: number) => {
         fullMsg: `文件${path}对应的非文件类型文件，发送被终止`
       })
     }
-    if (fsStat.size > maxSendFileSize) {
+    if (maxSendFileSize !== 0 && fsStat.size > maxSendFileSize) {
+      const limitMB = Math.round(maxSendFileSize / (1024 * 1024))
       return Promise.resolve({
-        msg: `文件大小超过${maxSendFileSizeMB}MB(发送被终止)`,
-        fullMsg: `文件${path}大小超过${maxSendFileSizeMB}MB，发送被终止，如需更改请前往HTTP节点设置`
+        msg: `文件大小超过${limitMB}MB(发送被终止)`,
+        fullMsg: `文件${path}大小超过${limitMB}MB，发送被终止，如需更改请前往HTTP节点设置`
       })
     }
     const buffer = await fs.readFile(path);
