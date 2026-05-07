@@ -20,3 +20,6 @@ AGENTS.md
 
 # Terminal Paste Image folder
 .cp-images/
+
+# Codex temporary artifacts
+.codex_tmp/
