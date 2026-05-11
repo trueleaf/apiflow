@@ -249,6 +249,7 @@ export class UserService {
     doc.salt = salt;
     doc.roleIds = roleIds || [];
     doc.roleNames = roleNames || [];
+    doc.isAllowInvite = true;
     await this.userModel.create(doc);
     return;
   }
