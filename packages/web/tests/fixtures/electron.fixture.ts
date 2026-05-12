@@ -82,7 +82,7 @@ export const test = base.extend<ElectronFixtures>({
   contentPage: async ({ electronApp }, use) => {
     // 使用辅助函数等待 index.html 窗口加载完成
     const contentPage = await waitForWindow(electronApp, (url) => {
-      return url.includes('index.html') || (!url.includes('header.html') && (url.includes('app://') || url.includes('localhost:4000')));
+      return url.includes('index.html') || (!url.includes('header.html') && !url.includes('mcp.html') && (url.includes('app://') || url.includes('localhost:4000')));
     });
     await contentPage.waitForLoadState('domcontentloaded');
     await use(contentPage);
