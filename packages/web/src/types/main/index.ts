@@ -9,6 +9,7 @@ import type { StandaloneExportHtmlParams } from '../standalone';
 import { WebsocketConnectParams } from '../websocketNode';
 import { HttpMockNode, MockLog, MockStatusChangedPayload, WebSocketMockNode, WebSocketMockStatusChangedPayload } from '../mockNode';
 import { LLMProviderSetting, ChatRequestBody, OpenAiResponseBody, ChatStreamCallbacks } from '../ai/agent.type.ts';
+import type { McpServerSettings, McpStatus } from '../mcp';
 
 // ============================================================================
 // 窗口状态类型
@@ -68,6 +69,11 @@ export type ElectronAPI = {
     onMain: <T = unknown>(channel: string, callback: (payload: T) => void) => void;
     removeListener: <T = unknown>(channel: string, callback?: (payload: T) => void) => void;
     invoke: <T = unknown, R = unknown>(channel: string, ...args: T[]) => Promise<R>;
+  };
+  mcpManager: {
+    getStatus: () => Promise<McpStatus>;
+    updateSettings: (settings: McpServerSettings) => Promise<McpStatus>;
+    restart: () => Promise<McpStatus>;
   };
   websocket: {
     connect: (params: WebsocketConnectParams) => Promise<CommonResponse<{ connectionId?: string }>>;

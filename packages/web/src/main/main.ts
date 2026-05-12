@@ -1,4 +1,4 @@
-import { app, BrowserWindow, WebContentsView, protocol, net } from 'electron'
+import { app, BrowserWindow, WebContentsView, protocol, net, Tray, Menu, nativeImage } from 'electron'
 import path from 'path'
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -25,6 +25,7 @@ import {
   flushContentViewMessageQueue,
   destroySafeIpcSend,
 } from './utils/safeIpcSend.ts';
+import { initMcpService, stopMcpService } from './mcp/mcpService.ts';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -48,6 +49,47 @@ export let websocketMockManager = new WebSocketMockManager();
 export let webSocketManager = new WebSocketManager();
 export let contentViewInstance: WebContentsView | null = null;
 export let mainWindowInstance: BrowserWindow | null = null;
+let appTray: Tray | null = null;
+let isQuitting = false;
+const showMainWindow = () => {
+  if (!mainWindowInstance) {
+    return;
+  }
+  if (mainWindowInstance.isMinimized()) {
+    mainWindowInstance.restore();
+  }
+  mainWindowInstance.show();
+  mainWindowInstance.focus();
+}
+const quitApplication = () => {
+  isQuitting = true;
+  appTray?.destroy();
+  appTray = null;
+  app.quit();
+}
+const getTrayIconPath = () => {
+  if (app.isPackaged) {
+    return process.platform === 'win32'
+      ? path.join(process.resourcesPath, 'icons', 'icon.ico')
+      : path.join(process.resourcesPath, 'icons', '256x256.png');
+  }
+  return process.platform === 'win32'
+    ? path.join(__dirname, '../../public/icons/icon.ico')
+    : path.join(__dirname, '../../public/icons/256x256.png');
+}
+const createAppTray = () => {
+  if (appTray) {
+    return;
+  }
+  const icon = nativeImage.createFromPath(getTrayIconPath());
+  appTray = new Tray(icon);
+  appTray.setToolTip('ApiFlow');
+  appTray.on('click', showMainWindow);
+  appTray.setContextMenu(Menu.buildFromTemplate([
+    { label: '显示 ApiFlow', click: showMainWindow },
+    { label: '退出 ApiFlow', click: quitApplication },
+  ]));
+}
 /*
 |--------------------------------------------------------------------------
 | 创建窗口
@@ -171,6 +213,7 @@ if (!gotTheLock) {
         if (mainWindowInstance.isMinimized()) {
           mainWindowInstance.restore();
         }
+        mainWindowInstance.show();
         mainWindowInstance.focus();
       }
     });
@@ -194,8 +237,8 @@ if (!gotTheLock) {
       if (url.endsWith('/')) {
         url = url.slice(0, -1);
       }
-      // 处理从 header.html 或 index.html 开始的路径
-      url = url.replace(/^(header|index)\.html\//, '');
+      // 处理从 header.html、index.html 或 mcp.html 开始的路径
+      url = url.replace(/^(header|index|mcp)\.html\//, '');
       
       let filePath = path.join(__dirname, '../renderer', url);
       filePath = path.normalize(filePath);
@@ -225,6 +268,7 @@ if (!gotTheLock) {
       return net.fetch(`file://${indexPath}`);
     });
     const { mainWindow, topBarView, contentView } = createWindow();
+    createAppTray();
     // 保存主窗口引用，用于单实例锁激活
     mainWindowInstance = mainWindow;
     // 保存 contentView 引用供其他模块使用
@@ -249,10 +293,18 @@ if (!gotTheLock) {
       topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: mainConfig.topbarViewHeight });
       contentView.setBounds({ x: 0, y: mainConfig.topbarViewHeight, width: windowBounds.width, height: windowBounds.height - mainConfig.topbarViewHeight });
     });
+    mainWindow.on('close', (event) => {
+      if (isQuitting) {
+        return;
+      }
+      event.preventDefault();
+      mainWindow.hide();
+    });
     mainWindow.maximize();
 
     //重写默认逻辑
     overrideBrowserWindow(mainWindow, contentView, topBarView);
+    initMcpService(path.join(__dirname, 'preload.mjs')).catch(() => undefined);
     
     // 初始化UpdateManager（商店版本由商店管理更新，跳过初始化）
     if (!isAppStore()) {
@@ -277,6 +329,10 @@ if (!gotTheLock) {
 
 // 应用退出前清理
 app.on('before-quit', () => {
+  isQuitting = true;
+  stopMcpService().catch(() => undefined);
+  appTray?.destroy();
+  appTray = null;
   // 清理 contentView 生命周期管理器
   destroyContentViewLifecycle();
   // 清理安全 IPC 发送模块
@@ -293,6 +349,9 @@ app.on('before-quit', () => {
 });
 
 app.on('window-all-closed', () => {
+  if (!isQuitting) {
+    return;
+  }
   // 清理WebSocket连接
   webSocketManager.cleanup();
   // 清理UpdateManager

@@ -11,6 +11,7 @@ import type { UpdateSettings } from '@src/types/update'
 import type { ChatRequestBody, LLMProviderSetting, OpenAiResponseBody, ChatStreamCallbacks } from '@src/types/ai/agent.type'
 import { globalLLMClient } from './ai/agent.ts'
 import type { Method } from 'got'
+import type { McpServerSettings, McpStatus } from '@src/types/mcp'
 const openDevTools = () => {
   ipcRenderer.send(IPC_EVENTS.window.rendererToMain.openDevTools)
 }
@@ -285,6 +286,15 @@ const contentViewFallback = () => {
 const contentViewGetLoadState = () => {
   return ipcRenderer.invoke(IPC_EVENTS.contentViewLifecycle.rendererToMain.getLoadState)
 }
+const mcpGetStatus = (): Promise<McpStatus> => {
+  return ipcRenderer.invoke('mcp:renderer:to:main:get-status')
+}
+const mcpUpdateSettings = (settings: McpServerSettings): Promise<McpStatus> => {
+  return ipcRenderer.invoke('mcp:renderer:to:main:update-settings', settings)
+}
+const mcpRestart = (): Promise<McpStatus> => {
+  return ipcRenderer.invoke('mcp:renderer:to:main:restart')
+}
 
 contextBridge.exposeInMainWorld('electronAPI', {
   ip: ip.address(),
@@ -369,4 +379,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   contentViewRetry,
   contentViewFallback,
   contentViewGetLoadState,
+  mcpManager: {
+    getStatus: mcpGetStatus,
+    updateSettings: mcpUpdateSettings,
+    restart: mcpRestart,
+  },
 })

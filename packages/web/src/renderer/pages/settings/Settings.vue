@@ -61,6 +61,7 @@
         <Shortcuts v-if="activeTab === 'shortcuts'" />
         <ComponentLibrary v-if="activeTab === 'components'" />
         <AiSettings v-if="activeTab === 'ai-settings'" />
+        <McpSettings v-if="activeTab === 'mcp-settings'" />
         <About v-if="activeTab === 'about'" @update-badge="handleUpdateBadge" />
         <AdminUser v-if="activeTab === 'admin-user'" />
         <AdminRole v-if="activeTab === 'admin-role'" />
@@ -81,6 +82,7 @@ import CacheManagement from './cacheManager/CacheManagement.vue'
 import CommonSettings from './commonSettings/CommonSettings.vue'
 import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
 import AiSettings from './aiSettings/AiSettings.vue'
+import McpSettings from './mcpSettings/McpSettings.vue'
 import ProjectRecovery from './projectRecovery/ProjectRecovery.vue'
 import Shortcuts from './shortcuts/Shortcuts.vue'
 import About from './about/About.vue'
@@ -89,7 +91,7 @@ import AdminRole from './adminRole/Role.vue'
 import AdminClientRoutes from './adminClientRoutes/ClientRoutes.vue'
 import AdminServerRoutes from './adminServerRoutes/ServerRoutes.vue'
 import AdminSystemConfig from './adminSystemConfig/SystemConfig.vue'
-import { UserCircle, HardDrive, Command, Box, BrainCircuit, Trash2, Info, Users, ShieldCheck, Route, Globe, Settings } from 'lucide-vue-next'
+import { UserCircle, HardDrive, Command, Box, BrainCircuit, Trash2, Info, Users, ShieldCheck, Route, Globe, Settings, Cable } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const runtimeStore = useRuntime()
@@ -114,6 +116,7 @@ const settingTabs = computed<TabItem[]>(() => [
   { name: t('快捷键'), icon: Command, action: 'shortcuts' },
   { name: t('组件库'), icon: Box, action: 'components' },
   { name: t('AI 设置'), icon: BrainCircuit, action: 'ai-settings' },
+  { name: t('MCP 服务'), icon: Cable, action: 'mcp-settings' },
   { name: t('关于'), icon: Info, action: 'about' }
 ])
 const adminTabs = computed<TabItem[]>(() => [

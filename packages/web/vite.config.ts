@@ -106,6 +106,7 @@ export default defineConfig(async ({ mode, command }) => {
           : {
               header: resolve(__dirname, './header.html'),
               index: resolve(__dirname, './index.html'),
+              mcp: resolve(__dirname, './mcp.html'),
             },
         output: {
           manualChunks(id) {
