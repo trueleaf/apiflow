@@ -233,12 +233,13 @@ export class UserService {
       return throwError(1003, '登录名称已存在')
     }
     const password = this.securityConfig.defaultUserPassword;
-    const doc: Pick<User, 'loginName' | 'password' | 'salt' | 'roleIds' | 'roleNames'> = {
+    const doc: Pick<User, 'loginName' | 'password' | 'salt' | 'roleIds' | 'roleNames' | 'isAllowInvite'> = {
       loginName: '',
       password: '',
       salt: '',
       roleIds: [],
       roleNames: [],
+      isAllowInvite: true,
     };
     const hash = createHash('md5');
     const salt = getRandomNumber(10000, 9999999).toString();
@@ -249,7 +250,6 @@ export class UserService {
     doc.salt = salt;
     doc.roleIds = roleIds || [];
     doc.roleNames = roleNames || [];
-    doc.isAllowInvite = true;
     await this.userModel.create(doc);
     return;
   }
