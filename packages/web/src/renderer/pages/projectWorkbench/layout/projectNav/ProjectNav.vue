@@ -951,7 +951,7 @@ onUnmounted(() => {
       border: 1px solid var(--border-base);
       border-radius: 6px;
       box-shadow: var(--box-shadow-base);
-      z-index: 100;
+      z-index: var(--zIndex-panel);
     }
     .env-dropdown-head {
       height: 32px;
