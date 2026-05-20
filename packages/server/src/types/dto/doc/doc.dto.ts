@@ -445,7 +445,7 @@ export class ImportedDocInfo {
   /**
    * 父元素id
    */
-  @Rule(RuleType.string())
+  @Rule(RuleType.string().allow(''))
   pid: string;
   /**
    * 项目id
