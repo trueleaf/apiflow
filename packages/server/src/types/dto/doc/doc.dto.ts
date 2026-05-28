@@ -186,7 +186,7 @@ class DocBaseInfo {
   /**
    * 创建者
    */
-  @Rule(RuleType.string())
+  @Rule(RuleType.string().allow(''))
   creator: string;
   /**
    * 维护人员，最近一次更新人员
@@ -282,6 +282,11 @@ class RequestUrl {
    */
   @Rule(RuleType.string().allow(''))
   public host: string;
+  /**
+   * url前缀
+   */
+  @Rule(RuleType.string().allow(''))
+  public prefix: string;
 }
 class RawBody {
   /**
@@ -388,8 +393,8 @@ export class DocInfo {
   /**
    * 是否为文件夹
    */
-  @Rule(RuleType.boolean().required())
-  isFolder: boolean;
+  @Rule(RuleType.boolean().default(false))
+  isFolder?: boolean;
   /**
    * 排序字段，时间戳
    */
@@ -427,9 +432,24 @@ export class DocInfo {
   responseParams: ResponseParams[];
   /**
    * mock信息
-  */
+   */
   @Rule(getSchema(MockInfo))
   mockInfo: MockInfo;
+  /**
+   * 是否删除
+   */
+  @Rule(RuleType.boolean().allow(true, false))
+  isDeleted?: boolean;
+  /**
+   * 创建时间
+   */
+  @Rule(RuleType.string().allow(''))
+  createdAt?: string;
+  /**
+   * 更新时间
+   */
+  @Rule(RuleType.string().allow(''))
+  updatedAt?: string;
 }
 export class ImportedDocInfo {
   /**
@@ -500,18 +520,38 @@ export class ImportedDocInfo {
   /**
    * 创建时间
    */
-  @Rule(RuleType.string())
+  @Rule(RuleType.string().allow(''))
   createdAt: string;
   /**
    * 更新时间
    */
-  @Rule(RuleType.string())
+  @Rule(RuleType.string().allow(''))
   updatedAt: string;
   /**
    * 是否删除
    */
   @Rule(RuleType.boolean())
   isEnabled: boolean;
+  /**
+   * 是否删除（前端兼容字段）
+   */
+  @Rule(RuleType.boolean().allow(true, false))
+  isDeleted?: boolean;
+  /**
+   * WebSocket节点数据
+   */
+  @Rule(getSchema(WebsocketItem))
+  websocketItem?: WebsocketItem;
+  /**
+   * WebSocketMock节点数据
+   */
+  @Rule(getSchema(WebsocketMockItem))
+  websocketMockItem?: WebsocketMockItem;
+  /**
+   * HttpMock节点数据
+   */
+  @Rule(getSchema(HttpMockItem))
+  httpMockItem?: HttpMockItem;
   /**
    * 子元素
    */
