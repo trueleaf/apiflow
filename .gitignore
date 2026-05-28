@@ -23,3 +23,9 @@ AGENTS.md
 
 # Codex temporary artifacts
 .codex_tmp/
+apiflow-deploy-info.md
+docker-compose.local.yml
+opencode.json
+deploy_no_proxy.sh
+update-211.sh
+deploy-to-211.sh
