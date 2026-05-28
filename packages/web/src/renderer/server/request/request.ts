@@ -143,8 +143,19 @@ export const getUrl = async (httpNode: HttpNode, temporaryVariables?: Record<str
     return objectPathParams[variableName] || ''
   }); // 替换路径参数
   const pathString = await getCompiledTemplate(replacedPathParamsString, variables);
-  const prefixString = url.prefix ? await getCompiledTemplate(url.prefix, variables) : '';
-  let fullUrl = prefixString + pathString + queryString;
+  const environmentStore = useEnvironment();
+  const activeEnvironment = environmentStore.activeEnvironment;
+  const baseUrl = activeEnvironment?.baseUrl || '';
+  let fullUrl = '';
+  if (url.prefix) {
+    const prefixString = await getCompiledTemplate(url.prefix, variables);
+    fullUrl = prefixString + pathString + queryString;
+  } else if (baseUrl && !pathString.trim().startsWith('http')) {
+    const prefixString = await getCompiledTemplate(baseUrl, variables);
+    fullUrl = prefixString + pathString + queryString;
+  } else {
+    fullUrl = pathString + queryString;
+  }
   if (!fullUrl.startsWith('http') && !fullUrl.startsWith('https')) {
     // 如果以/开头，需要去掉开头的/再添加http://，避免出现http:///
     if (fullUrl.startsWith('/')) {
@@ -164,7 +175,17 @@ export const getWebSocketUrl = async (websocketNode: WebSocketNode, temporaryVar
   const objectVariable = await getObjectVariable(variables);
   const { url, queryParams } = websocketNode.item;
   const queryString = await getStringFromParams(queryParams, objectVariable, { checkSelect: true, addQuestionMark: true });
-  let fullUrl = url.path + queryString;
+  const wsPathString = await getCompiledTemplate(url.path, variables);
+  const wsEnvironmentStore = useEnvironment();
+  const wsActiveEnvironment = wsEnvironmentStore.activeEnvironment;
+  const wsBaseUrl = wsActiveEnvironment?.baseUrl || '';
+  let fullUrl = '';
+  if (wsBaseUrl && !wsPathString.trim().startsWith('ws')) {
+    const wsPrefixString = await getCompiledTemplate(wsBaseUrl, variables);
+    fullUrl = wsPrefixString + wsPathString + queryString;
+  } else {
+    fullUrl = wsPathString + queryString;
+  }
   if (!fullUrl.startsWith('ws') && !fullUrl.startsWith('wss')) {
     // 如果以/开头，需要只添加一个/，避免出现ws:///
     if (fullUrl.startsWith('/')) {
