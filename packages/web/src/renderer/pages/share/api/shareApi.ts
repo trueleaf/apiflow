@@ -11,7 +11,11 @@ import { config } from '@src/config/config';
 const getServerUrl = (): string => {
   try {
     const serverUrl = localStorage.getItem('apiflow/appSettings/serverUrl');
-    return serverUrl || config.renderConfig.httpRequest.url;
+    if (serverUrl) return serverUrl;
+    if (!config.isDev && typeof window !== 'undefined') {
+      return window.location.origin;
+    }
+    return config.renderConfig.httpRequest.url;
   } catch {
     return config.renderConfig.httpRequest.url;
   }

@@ -62,10 +62,8 @@ import { useI18n } from 'vue-i18n';
 */
 const { t } = useI18n()
 
-const shareId = (() => {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('share_id') || 'local_share';
-})();
+const route = useRoute();
+const shareId = (route.query.share_id as string) || 'local_share';
 const showContextmenu = ref(false); //是否显示contextmenu
 const contextmenuLeft = ref(0); //鼠标右键x值
 const contextmenuTop = ref(0); //鼠标右键y值
