@@ -29,3 +29,5 @@ opencode.json
 deploy_no_proxy.sh
 update-211.sh
 deploy-to-211.sh
+upd-server.sh
+upd-web.sh

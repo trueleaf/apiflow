@@ -534,6 +534,7 @@ export const sendRequest = async () => {
   const projectWorkbenchStore = useProjectWorkbench();
   const httpNodeResponseStore = useHttpNodeResponse();
   const projectId = projectWorkbenchStore.projectId;
+  const environmentStore = useEnvironment();
   const runtimeStore = useRuntime();
   const projectNavStore = useProjectNav();
   const selectedNav = projectNavStore.getSelectedNav(projectWorkbenchStore.projectId);
@@ -695,6 +696,8 @@ export const sendRequest = async () => {
       followRedirect: httpNodeConfigData.followRedirect,
       maxRedirects: httpNodeConfigData.maxRedirects,
       maxSendFileSize: httpNodeConfigData.maxSendFileSize,
+      projectId,
+      environmentId: environmentStore.activeEnvironmentId,
       signal(cancelRequest) {
         changeCancelRequestRef(cancelRequest);
       },
@@ -918,7 +921,6 @@ export const sendRequest = async () => {
     return;
   }
   // console.log(JSONbig.parse(preSendBody.value))
-  const environmentStore = useEnvironment();
   const globalVariables = await getObjectVariable(variableStore.variables);
   const currentEnvironmentVariables = environmentStore.buildCurrentEnvironmentVariableObject();
   const currentScriptVariables = {

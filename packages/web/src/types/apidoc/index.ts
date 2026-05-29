@@ -19,4 +19,6 @@ export type SharedProjectInfo = {
   shareName: string;
   expire: number | null;
   needPassword: boolean;
+  projectId?: string;
+  selectedDocs?: string[];
 }

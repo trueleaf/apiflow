@@ -166,4 +166,6 @@ export type GotRequestOptions = {
   beforeRedirect: (options: RedirectOptions) => void,
   beforeRequest?: (options: Options) => void,
   beforeRetry?: (error: RequestError, retryCount: number) => void,
+  projectId?: string;
+  environmentId?: string;
 }
