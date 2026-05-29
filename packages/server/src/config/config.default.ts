@@ -22,6 +22,7 @@ import { Attachment } from '../entity/attachment/attachment.js';
 import { Group } from '../entity/security/group.js';
 import { GlobalCommonHeader } from '../entity/project/project_common_headers.js';
 import { SystemConfig } from '../entity/security/system_config.js';
+import { ProxyHostMapping } from '../entity/proxy/proxy_host_mapping.js';
 
 export default (): MidwayConfig => {
   const mongooseOptions: Record<string, unknown> = {};
@@ -102,6 +103,7 @@ export default (): MidwayConfig => {
             Group,
             GlobalCommonHeader,
             SystemConfig,
+            ProxyHostMapping,
           ],
         },
       },
