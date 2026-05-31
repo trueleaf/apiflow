@@ -172,12 +172,10 @@ onMounted(() => {
 });
 
 watchEffect(async () => {
-  if (!websocketInfo.value) return;
-  const urlInfo = websocketInfo.value.item.url || { prefix: '', path: '' };
-  const env = shareStore.activeEnvironment;
-  const effectivePrefix = env?.baseUrl || urlInfo.prefix || '';
-  const rawUrl = `${effectivePrefix}${urlInfo.path}`;
-  const compiledUrl = await getCompiledTemplate(rawUrl, shareStore.mergedVariables);
+  if (!websocketInfo.value) return '';
+  const { prefix, path } = websocketInfo.value.item.url || { prefix: '', path: '' };
+  const rawUrl = `${prefix}${path}`;
+  const compiledUrl = await getCompiledTemplate(rawUrl, shareStore.varibles);
   fullUrl.value = typeof compiledUrl === 'string' ? compiledUrl : String(compiledUrl ?? '');
 });
 

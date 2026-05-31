@@ -113,13 +113,6 @@
             <el-radio :value="true">{{ t('覆盖方式') }}</el-radio>
           </el-radio-group>
         </SConfig>
-        <SConfig v-if="!formInfo.cover" :has-check="false" :label="t('URL重复处理')" :description="t('追加模式下遇到URL重复时的处理方式')">
-          <el-radio-group v-model="duplicateStrategy">
-            <el-radio value="skip">{{ t('跳过') }}</el-radio>
-            <el-radio value="overwrite">{{ t('覆盖') }}</el-radio>
-            <el-radio value="add">{{ t('新增') }}</el-radio>
-          </el-radio-group>
-        </SConfig>
         <SConfig
           :label="t('目标目录')"
           :description="t('选择需要挂载的节点，不选择则默认挂载到根目录')"
@@ -227,114 +220,6 @@ const loading = ref(false)
 const loading2 = ref(false)
 // OpenAPI 文件夹命名方式
 const openapiFolderNamedType: Ref<OpenApiFolderNamedType> = ref('tag')
-// URL 重复处理策略
-const duplicateStrategy: Ref<'skip' | 'overwrite' | 'add'> = ref('skip')
-// URL 规范化（用于去重比较）
-const normalizeUrl = (prefix: string, path: string): string => {
-  const p = (prefix || '').replace(/\/+$/, '').toLowerCase()
-  const q = (path || '').replace(/^\/+|\/+$/g, '').toLowerCase()
-  return `${p}/${q}`
-}
-// URL 去重预处理（获取已有节点，按策略处理）
-const dedupDocs = async (docs: (HttpNode | FolderNode)[]): Promise<{
-  filteredDocs: (HttpNode | FolderNode)[]
-  deleteIds: string[]
-}> => {
-  const strategy = duplicateStrategy.value
-  if (strategy === 'add') return { filteredDocs: docs, deleteIds: [] }
-
-  const importHttp = docs.filter((d): d is HttpNode => 'item' in d && !d.info?.type?.startsWith('folder'))
-  const importFolders = docs.filter((d) => d.info?.type === 'folder' || (d as any).isFolder)
-  if (importHttp.length === 0 && importFolders.length === 0) return { filteredDocs: docs, deleteIds: [] }
-
-  let existingNodes: Record<string, unknown>[] = []
-  if (isStandalone.value) {
-    existingNodes = await apiNodesCache.getNodesByProjectId(projectId)
-  } else {
-    const res = await request.get('/api/project/doc_tree_node', { params: { projectId } })
-    existingNodes = (res as any).data || []
-  }
-  console.log('[dedupDocs] projectId:', projectId, 'isStandalone:', isStandalone.value, 'existingNodes count:', existingNodes.length)
-
-  // 构建已有接口 URL → _id 映射（递归遍历树结构）
-  const urlMap = new Map<string, string>()
-  const walkTree = (nodes: Record<string, unknown>[]) => {
-    for (const n of nodes) {
-      const isFolder = (n as any).isFolder || (n as any).type === 'folder'
-      if (isFolder) {
-        const children = (n as any).children as Record<string, unknown>[] | undefined
-        if (children) walkTree(children)
-        continue
-      }
-      const method = ((n as any).method || '').toUpperCase()
-      let path = ''
-      if (typeof (n as any).url === 'string') {
-        path = (n as any).url as string
-      } else if ((n as any).item?.url) {
-        path = (n as any).item.url.path || ''
-      }
-      const key = normalizeUrl('', path)
-      urlMap.set(`${method}:${key}`, (n as any)._id)
-    }
-  }
-  walkTree(existingNodes)
-  console.log('[dedupDocs] existingNodeCount:', existingNodes.length, 'urlMap size:', urlMap.size, 'keys:', [...urlMap.keys()])
-
-  // 构建已有文件夹名称 → _id 映射（递归遍历树结构）
-  const folderNameMap = new Map<string, string>()
-  const walkFolders = (nodes: Record<string, unknown>[]) => {
-    for (const n of nodes) {
-      const isFolder = (n as any).isFolder || (n as any).type === 'folder'
-      if (!isFolder) continue
-      const name = ((n as any).name || '').trim()
-      if (name) folderNameMap.set(name, (n as any)._id)
-      const children = (n as any).children as Record<string, unknown>[] | undefined
-      if (children) walkFolders(children)
-    }
-  }
-  walkFolders(existingNodes)
-
-  const deleteIds: string[] = []
-  const filteredDocs: (HttpNode | FolderNode)[] = []
-  // 记录被跳过的文件夹 oldId → 已存在的 _id
-  const skippedFolderPidMap = new Map<string, string>()
-  for (const doc of docs) {
-    const isFolder = doc.info?.type === 'folder' || (doc as any).isFolder
-    if (isFolder) {
-      const name = (doc.info?.name || '').trim()
-      const existingId = folderNameMap.get(name)
-      if (existingId) {
-        if (strategy === 'skip') {
-          skippedFolderPidMap.set(doc._id, existingId)
-          continue
-        }
-        if (strategy === 'overwrite') deleteIds.push(existingId)
-      }
-      filteredDocs.push(doc)
-      continue
-    }
-    if (!('item' in doc)) {
-      filteredDocs.push(doc)
-      continue
-    }
-    const httpDoc = doc as HttpNode
-    const key = normalizeUrl(httpDoc.item.url.prefix || '', httpDoc.item.url.path)
-    const mapKey = `${httpDoc.item.method.toUpperCase()}:${key}`
-    const pathOnlyKey = `${httpDoc.item.method.toUpperCase()}:${normalizeUrl('', httpDoc.item.url.path)}`
-    const existingId = urlMap.get(mapKey) || urlMap.get(pathOnlyKey)
-    if (existingId) {
-      if (strategy === 'skip') continue
-      if (strategy === 'overwrite') deleteIds.push(existingId)
-    }
-    // 如果子接口的 pid 指向被跳过的文件夹，更新为已存在的文件夹 _id
-    if (httpDoc.pid && skippedFolderPidMap.has(httpDoc.pid)) {
-      httpDoc.pid = skippedFolderPidMap.get(httpDoc.pid)!
-    }
-    filteredDocs.push(doc)
-  }
-  console.log('[dedupDocs] filteredDocCount:', filteredDocs.length, 'deleteIdCount:', deleteIds.length)
-  return { filteredDocs, deleteIds }
-}
 // 表单信息
 const formInfo: Ref<FormInfo> = ref({
   moyuData: { docs: [] },
@@ -518,22 +403,8 @@ const handleSubmit = async () => {
       message.warning(t('请选择需要导入的文件'))
       return
     }
-
-    // URL 去重预处理（追加模式下）
-    let deleteIds: string[] = []
-    let submitDocs = formInfo.value.moyuData.docs
-    if (!formInfo.value.cover && duplicateStrategy.value !== 'add') {
-      const result = await dedupDocs(submitDocs)
-      submitDocs = result.filteredDocs
-      deleteIds = result.deleteIds
-      if (submitDocs.length === 0) {
-        message.info(t('没有需要导入的新接口'))
-        return
-      }
-    }
-
     const mountedId = currentMountedNode.value?._id
-    const docs = submitDocs.map(val => {
+    const docs = formInfo.value.moyuData.docs.map(val => {
       const normalizedDoc = {
         ...val,
         pid: !val.pid && mountedId ? mountedId : val.pid,
@@ -560,9 +431,6 @@ const handleSubmit = async () => {
       message.success(t('导入成功'))
       return
     } else if (isStandalone.value && !formInfo.value.cover) {
-      if (deleteIds.length > 0) {
-        await apiNodesCache.deleteNodes(deleteIds)
-      }
       const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[]
       await apiNodesCache.appendNodes(copiedDocs, projectId)
       bannerStore.getDocBanner({ projectId })
@@ -570,21 +438,21 @@ const handleSubmit = async () => {
       return
     }
     loading.value = true
-    const params: Record<string, unknown> = {
+    const params = {
       projectId,
       cover: formInfo.value.cover,
       moyuData: { ...formInfo.value.moyuData, docs },
     }
-    if (deleteIds.length > 0) {
-      params.deleteIds = deleteIds
-    }
-    try {
-      await request.post('/api/project/import/moyu', params)
-      bannerStore.getDocBanner({ projectId })
-      message.success(t('导入成功'))
-    } finally {
-      loading.value = false
-    }
+    request
+      .post('/api/project/import/moyu', params)
+      .then(() => {
+        bannerStore.getDocBanner({ projectId })
+        message.success(t('导入成功'))
+      })
+      .catch(() => {})
+      .finally(() => {
+        loading.value = false
+      })
   } catch (error) {
     message.warning((error as Error).message)
     loading.value = false

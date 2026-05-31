@@ -24,14 +24,13 @@ export class ProjectEnvironmentService {
   @Inject()
     ctx: Context & { tokenInfo: LoginTokenInfo }
   async addProjectEnvironment(params: AddProjectEnvironmentDto) {
-    const { projectId, name, baseUrl, description, hostMappings, order, visibilityMode } = params
+    const { projectId, name, baseUrl, description, order, visibilityMode } = params
     await this.commonControl.checkDocOperationPermissions(projectId)
     const created = await this.projectEnvironmentModel.create({
       projectId,
       name,
       baseUrl,
       description,
-      hostMappings: hostMappings || [],
       order,
       visibilityMode,
       creator: this.ctx.tokenInfo.loginName,
@@ -42,7 +41,7 @@ export class ProjectEnvironmentService {
     }
   }
   async editProjectEnvironment(params: EditProjectEnvironmentDto) {
-    const { _id, projectId, name, baseUrl, description, hostMappings, order, visibilityMode } = params
+    const { _id, projectId, name, baseUrl, description, order, visibilityMode } = params
     await this.commonControl.checkDocOperationPermissions(projectId)
     await this.projectEnvironmentModel.findOneAndUpdate(
       { _id, projectId, isEnabled: true },
@@ -51,7 +50,6 @@ export class ProjectEnvironmentService {
           name,
           baseUrl,
           description,
-          hostMappings: hostMappings || [],
           order,
           visibilityMode,
         },

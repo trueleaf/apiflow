@@ -242,11 +242,6 @@ class RequestUrl {
   @prop({ default: '' })
   public host: string;
   /**
-   * 接口前缀（兼容前端 prefix 字段）
-   */
-  @prop({ default: '' })
-  public prefix: string;
-  /**
    * 请求路径
    */
   @prop({ default: '' })

@@ -15,12 +15,6 @@ class EnvironmentVariableItemDto {
   @Rule(RuleType.number().required())
     order: number
 }
-class EnvironmentHostMappingDto {
-  @Rule(RuleType.string().required().allow(''))
-    hostname: string
-  @Rule(RuleType.string().required().allow(''))
-    ip: string
-}
 export class AddProjectEnvironmentDto {
   @Rule(RuleType.string().required())
     projectId: string
@@ -30,8 +24,6 @@ export class AddProjectEnvironmentDto {
     baseUrl: string
   @Rule(RuleType.string().required().allow(''))
     description: string
-  @Rule(RuleType.array().items(getSchema(EnvironmentHostMappingDto)).default([]))
-    hostMappings: EnvironmentHostMappingDto[]
   @Rule(RuleType.number().required())
     order: number
   @Rule(RuleType.string().valid('shared', 'private').required())
@@ -48,8 +40,6 @@ export class EditProjectEnvironmentDto {
     baseUrl: string
   @Rule(RuleType.string().required().allow(''))
     description: string
-  @Rule(RuleType.array().items(getSchema(EnvironmentHostMappingDto)).default([]))
-    hostMappings: EnvironmentHostMappingDto[]
   @Rule(RuleType.number().required())
     order: number
   @Rule(RuleType.string().valid('shared', 'private').required())

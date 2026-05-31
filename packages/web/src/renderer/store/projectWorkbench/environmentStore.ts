@@ -21,7 +21,6 @@ type ServerEnvironment = {
   name: string
   baseUrl: string
   description: string
-  hostMappings?: Array<{ hostname: string; ip: string }>
   order: number
   visibilityMode: EnvironmentVisibilityMode
   createdAt?: string | number
@@ -72,7 +71,6 @@ const toClientEnvironment = (item: ServerEnvironment): EnvironmentEntity => {
     name: item.name || '',
     baseUrl: item.baseUrl || '',
     description: item.description || '',
-    hostMappings: item.hostMappings || [],
     order: item.order ?? 0,
     isActive: false,
     visibilityMode: item.visibilityMode || 'shared',
@@ -359,7 +357,6 @@ export const useEnvironment = defineStore('projectEnvironment', () => {
           name,
           baseUrl: '',
           description: '',
-          hostMappings: [],
           order,
           isActive: false,
           visibilityMode: 'shared',
@@ -390,7 +387,6 @@ export const useEnvironment = defineStore('projectEnvironment', () => {
         name,
         baseUrl: '',
         description: '',
-        hostMappings: [],
         order,
         isActive: false,
         visibilityMode: 'shared',
@@ -453,7 +449,6 @@ export const useEnvironment = defineStore('projectEnvironment', () => {
           name,
           baseUrl: targetEnvironment.baseUrl,
           description: targetEnvironment.description,
-          hostMappings: targetEnvironment.hostMappings,
           order,
           visibilityMode: targetEnvironment.visibilityMode,
         }
@@ -546,7 +541,7 @@ export const useEnvironment = defineStore('projectEnvironment', () => {
       saving.value = false
     }
   }
-  const updateEnvironment = async (environmentId: string, patch: Partial<Pick<EnvironmentEntity, 'name' | 'baseUrl' | 'description' | 'hostMappings' | 'visibilityMode'>>): Promise<boolean> => {
+  const updateEnvironment = async (environmentId: string, patch: Partial<Pick<EnvironmentEntity, 'name' | 'baseUrl' | 'description' | 'visibilityMode'>>): Promise<boolean> => {
     const targetIndex = environmentList.value.findIndex(item => item.id === environmentId)
     if (targetIndex < 0 || !loadedProjectId.value) {
       return false
@@ -572,7 +567,6 @@ export const useEnvironment = defineStore('projectEnvironment', () => {
         name: nextEnvironment.name,
         baseUrl: nextEnvironment.baseUrl,
         description: nextEnvironment.description,
-        hostMappings: nextEnvironment.hostMappings,
         order: nextEnvironment.order,
         visibilityMode: nextEnvironment.visibilityMode,
       })

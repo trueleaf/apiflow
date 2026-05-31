@@ -36,9 +36,7 @@ const convertToProxyParams = (options: GotRequestOptions) => {
     followRedirect: options.followRedirect,
     maxRedirects: options.maxRedirects,
     bodyType: 'none',
-    enableStream: false,
-    projectId: options.projectId,
-    environmentId: options.environmentId,
+    enableStream: false
   };
 
   //处理body类型

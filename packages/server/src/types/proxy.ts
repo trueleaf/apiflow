@@ -26,10 +26,6 @@ export type ProxyRequestParams = {
   };
   //是否启用流式响应（SSE）
   enableStream?: boolean;
-  //项目ID（用于获取环境配置）
-  projectId?: string;
-  //环境ID（用于获取环境级别的host映射）
-  environmentId?: string;
 }
 
 //响应数据类型

@@ -122,9 +122,4 @@ export class ImportApiflowDto {
    */
   @Rule(getSchema(ApiflowDocInfo))
     moyuData: ApiflowDocInfo;
-  /**
-   * 需要覆盖删除的节点ID列表
-   */
-  @Rule(RuleType.array().items(RuleType.string()).optional())
-    deleteIds: string[];
 }

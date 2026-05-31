@@ -46,7 +46,6 @@
       <el-button v-if="requestState === 'sending' || requestState === 'response'" type="danger" data-testid="operation-cancel-btn" @click="handleStopRequest">{{ t("取消请求") }}</el-button>
       <el-button :loading="loading2" type="primary" data-testid="operation-save-btn" @click="handleSaveHttpNode">{{ t("保存接口") }}</el-button>
       <el-button :loading="loading3" type="primary" :icon="Refresh" data-testid="operation-refresh-btn" @click="handleFreshApidoc">{{ t("刷新") }}</el-button>
-      <el-button type="warning" :icon="Share" data-testid="operation-share-btn" @click="shareDialogVisible = true">{{ t("分享") }}</el-button>
     </div>
     <div class="pre-url-wrap">
       <span class="label">{{ t("请求地址") }}：</span>
@@ -59,21 +58,19 @@
     </div>
   </div>
   <SSaveDocDialog v-if="saveDocDialogVisible" v-model="saveDocDialogVisible"></SSaveDocDialog>
-  <SShareDocDialog v-if="shareDialogVisible" v-model="shareDialogVisible" :doc-id="currentSelectNav?._id || ''" :doc-name="currentSelectNav?.label || ''" />
 </template>
 
 <script lang="ts" setup>
 import { computed, ref, watch, reactive } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
-import { Refresh, Share, Warning } from '@element-plus/icons-vue'
+import { Refresh, Warning } from '@element-plus/icons-vue'
 import { Effect, ElMessage } from 'element-plus'
 import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 import { config } from '@src/config/config'
 import { validateUrl, type UrlValidationResult } from '@/helper'
 import { router } from '@/router/index'
 import SSaveDocDialog from '@/pages/projectWorkbench/dialog/saveDoc/SaveDoc.vue'
-import SShareDocDialog from '@/pages/projectWorkbench/dialog/shareDoc/ShareDoc.vue'
 import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue'
 import { handleFormatUrl, handleChangeUrl } from './composables/url'
 import getMethodPart from './composables/method'
@@ -92,11 +89,10 @@ const httpNodeStore = useHttpNode()
 const httpNodeResponseStore = useHttpNodeResponse()
 const httpNodeRequestStore = useHttpNodeRequest()
 const httpRedoUndoStore = useHttpRedoUndo()
+const projectId = router.currentRoute.value.query.id as string;
 const { t } = useI18n()
 const urlRichInputRef = ref<InstanceType<typeof ClRichInput> | null>(null)
-const shareDialogVisible = ref(false)
 const currentSelectNav = computed(() => {
-  const projectId = router.currentRoute.value.query.id as string;
   const navs = projectNavStore.navs[projectId];
   return navs?.find((nav) => nav.selected) || null;
 })
@@ -110,7 +106,6 @@ const getVariableValue = (label: string) => {
 }
 const handleGoToVariableManage = () => {
   urlRichInputRef.value?.hideVariablePopover()
-  const projectId = router.currentRoute.value.query.id as string;
   projectNavStore.addNav({
     _id: 'variable',
     projectId,
