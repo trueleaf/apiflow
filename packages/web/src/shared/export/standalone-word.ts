@@ -71,7 +71,7 @@ export const buildStandaloneWordDocument = (exportHtmlParams: StandaloneExportHt
     HeadingLevel,
     AlignmentType,
   }
-  const nestDocs = arrayToTree(nodes as ExportNode[])
+  const nestDocs = sortTreeNodes(arrayToTree(nodes as ExportNode[]))
   dfsForest(nestDocs, (item, level) => {
     const data = item as unknown as ExportNode
     let content: (ParagraphType | TableType)[] = []
@@ -114,6 +114,22 @@ const arrayToTree = <T extends { _id: string; pid: string }>(list: T[]): TreeNod
     }
   })
   return roots
+}
+// 按接口列表规则递归排序节点
+const sortTreeNodes = <T extends { sort: number; info: { type: string }; children: T[] }>(nodes: T[]): T[] => {
+  const sortedNodes = [...nodes].sort((a, b) => {
+    if (a.info.type === 'folder' && b.info.type !== 'folder') {
+      return -1
+    }
+    if (a.info.type !== 'folder' && b.info.type === 'folder') {
+      return 1
+    }
+    return (a.sort || 0) - (b.sort || 0)
+  })
+  sortedNodes.forEach((node) => {
+    node.children = sortTreeNodes(node.children)
+  })
+  return sortedNodes
 }
 // 遍历树形数据
 const dfsForest = <T extends { children: T[] }>(forestData: T[], fn: (item: T, level: number) => void): void => {
@@ -803,4 +819,3 @@ const generateWebSocketMockNodeContent = (
   }
   return result
 }
-
