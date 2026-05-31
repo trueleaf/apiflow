@@ -118,6 +118,8 @@ export default {
   '返回原始Body最大大小': 'Response raw body limit',
   '发送文件最大大小': 'Max file size to send',
   '请求头值最大展示长度': 'Header value display limit',
+  '自动转换localhost为127.0.0.1': 'Auto-convert localhost to 127.0.0.1',
+  '关闭后将保留localhost用于本地开发调试': 'Keep localhost unchanged for local development debugging when disabled',
   '自动跟随重定向': 'Follow Redirects',
   '最大重定向次数': 'Max Redirects',
   '超过此大小的文本响应将被截断': 'Text responses exceeding this size will be truncated',

@@ -83,6 +83,36 @@ const getMergedTemplateVariables = (temporaryVariables?: Record<string, unknown>
   const temporaryApidocVariables = buildTemporaryApidocVariables(temporaryVariables)
   return variableStore.variables.concat(environmentVariables, temporaryApidocVariables);
 }
+const normalizeHeaderKey = (key: string): string => key.trim().toLowerCase()
+const findHeaderKey = <T extends string | null>(headers: Record<string, T>, key: string): string | undefined => {
+  const normalizedKey = normalizeHeaderKey(key);
+  return Object.keys(headers).find(headerKey => normalizeHeaderKey(headerKey) === normalizedKey);
+}
+const setHeaderValue = <T extends string | null>(headers: Record<string, T>, key: string, value: T): void => {
+  const realKey = key.trim();
+  if (!realKey) {
+    return;
+  }
+  const existedKey = findHeaderKey(headers, realKey);
+  if (existedKey && existedKey !== realKey) {
+    delete headers[existedKey];
+  }
+  headers[realKey] = value;
+}
+const getHeaderValue = <T extends string | null>(headers: Record<string, T>, key: string): T | undefined => {
+  const existedKey = findHeaderKey(headers, key);
+  return existedKey ? headers[existedKey] : undefined;
+}
+const deleteHeaderValue = <T extends string | null>(headers: Record<string, T>, key: string): void => {
+  const existedKey = findHeaderKey(headers, key);
+  if (existedKey) {
+    delete headers[existedKey];
+  }
+}
+const shouldAutoConvertLocalhostToIp = (): boolean => {
+  const httpNodeConfigStore = useHttpNodeConfig();
+  return httpNodeConfigStore.currentHttpNodeConfig.autoConvertLocalhostToIp;
+}
 const convertStringValueAsync = (data: JsonData, temporaryVariables?: Record<string, unknown> | null) => {
   const needConvertList: Promise<void>[] = [];
   const variables = getMergedTemplateVariables(temporaryVariables);
@@ -153,7 +183,7 @@ export const getUrl = async (httpNode: HttpNode, temporaryVariables?: Record<str
       fullUrl = `http://${fullUrl}`
     }
   }
-  if (fullUrl.includes('localhost')) {
+  if (shouldAutoConvertLocalhostToIp() && fullUrl.includes('localhost')) {
     fullUrl = fullUrl.replace('localhost', '127.0.0.1')
   }
   fullUrl = await getCompiledTemplate(fullUrl, variables);
@@ -173,7 +203,7 @@ export const getWebSocketUrl = async (websocketNode: WebSocketNode, temporaryVar
       fullUrl = `ws://${fullUrl}`
     }
   }
-  if (fullUrl.includes('localhost')) {
+  if (shouldAutoConvertLocalhostToIp() && fullUrl.includes('localhost')) {
     fullUrl = fullUrl.replace('localhost', '127.0.0.1')
   }
   fullUrl = await getCompiledTemplate(fullUrl, variables);
@@ -236,23 +266,21 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
       continue; // 跳过未选中的可选请求头
     }
 
-    const headerKey = header.key.toLowerCase();
-
     // 特殊处理必需的请求头
     if (header.key === 'Host') {
-      headersObject[headerKey] = getHostFromUrl(fullUrl);
+      setHeaderValue(headersObject, header.key, getHostFromUrl(fullUrl));
     } else if (header.key === 'Upgrade') {
-      headersObject[headerKey] = header.value || 'websocket';
+      setHeaderValue(headersObject, header.key, header.value || 'websocket');
     } else if (header.key === 'Connection') {
-      headersObject[headerKey] = header.value || 'Upgrade';
+      setHeaderValue(headersObject, header.key, header.value || 'Upgrade');
     } else if (header.key === 'Sec-WebSocket-Key') {
-      headersObject[headerKey] = generateWebSocketKey();
+      setHeaderValue(headersObject, header.key, generateWebSocketKey());
     } else if (header.key === 'Sec-WebSocket-Version') {
-      headersObject[headerKey] = '13';
+      setHeaderValue(headersObject, header.key, '13');
     } else if (header.value) {
       // 处理其他默认请求头
       const realValue = await getCompiledTemplate(header.value, variables);
-      headersObject[headerKey] = realValue;
+      setHeaderValue(headersObject, header.key, realValue);
     }
   }
 
@@ -271,7 +299,7 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
     }
 
     const realValue = await getCompiledTemplate(header.value, variables);
-    headersObject[headerKeyLower] = realValue;
+    setHeaderValue(headersObject, realKey, realValue);
   }
 
   // 处理用户填写的请求头 (会覆盖公共请求头)
@@ -292,14 +320,14 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
     }
 
     const realValue = await getCompiledTemplate(header.value, variables);
-    headersObject[headerKeyLower] = realValue;
+    setHeaderValue(headersObject, realKey, realValue);
   }
 
   // 处理Cookie
   const matchedCookies = getMachtedCookies(fullUrl);
   if (matchedCookies.length > 0) {
     const cookieHeader = matchedCookies.map(c => `${c.name}=${c.value}`).join('; ');
-    headersObject['cookie'] = cookieHeader;
+    setHeaderValue(headersObject, 'Cookie', cookieHeader);
   }
   // console.log('最终WebSocket请求头', headersObject);
   return headersObject;
@@ -431,10 +459,10 @@ const getHeaders = async (apidoc: HttpNode, temporaryVariables?: Record<string, 
   for (let i = 0; i < defaultHeaders.length; i++) {
     const header = defaultHeaders[i];
     if (!header.disabled && !header.select) { //当前请求头可以被取消
-      headersObject[header.key.toLowerCase()] = null;
+      setHeaderValue(headersObject, header.key, null);
     } else if (!header._disableValue && header.value) {
       const realValue = await getCompiledTemplate(header.value, variables);
-      headersObject[header.key.toLowerCase()] = realValue;
+      setHeaderValue(headersObject, header.key, realValue);
     }
   }
   for (let i = 0; i < commonHeaders.length; i++) {
@@ -444,7 +472,7 @@ const getHeaders = async (apidoc: HttpNode, temporaryVariables?: Record<string, 
       continue;
     }
     const realValue = await getCompiledTemplate(header.value, variables);
-    headersObject[realKey.trim().toLowerCase()] = realValue
+    setHeaderValue(headersObject, realKey, realValue)
   }
   // const matchedCookies = getMachtedCookies(url);
   // if (matchedCookies.length > 0) {
@@ -462,7 +490,7 @@ const getHeaders = async (apidoc: HttpNode, temporaryVariables?: Record<string, 
       continue;
     }
     const realValue = await getCompiledTemplate(header.value, variables);
-    headersObject[realKey.trim().toLowerCase()] = realValue
+    setHeaderValue(headersObject, realKey, realValue)
   }
   return headersObject;
 }
@@ -641,27 +669,29 @@ export const sendRequest = async () => {
         select: true
       })) as ApidocProperty<'string'>[], requestTemporaryVariables);
     }
-    if (typeof finalSendHeaders.cookie === 'string') {
-      const normalizedCookieHeader = normalizeCookieHeader(finalSendHeaders.cookie);
+    const currentCookieHeader = getHeaderValue(finalSendHeaders, 'cookie');
+    if (typeof currentCookieHeader === 'string') {
+      const normalizedCookieHeader = normalizeCookieHeader(currentCookieHeader);
       if (normalizedCookieHeader === '') {
-        delete finalSendHeaders.cookie;
+        deleteHeaderValue(finalSendHeaders, 'cookie');
       } else {
-        finalSendHeaders.cookie = normalizedCookieHeader;
+        setHeaderValue(finalSendHeaders, findHeaderKey(finalSendHeaders, 'cookie') || 'Cookie', normalizedCookieHeader);
       }
     }
     // 只有当用户未在 headers 中配置 cookie 时，才使用 cookie store 的值
-    if (finalSendHeaders.cookie === undefined || finalSendHeaders.cookie === null) {
+    const nextCookieHeader = getHeaderValue(finalSendHeaders, 'cookie');
+    if (nextCookieHeader === undefined || nextCookieHeader === null) {
       if (Object.values(finalCookies).length > 0) {
-        finalSendHeaders.cookie = Object.entries(finalCookies)
+        setHeaderValue(finalSendHeaders, 'Cookie', Object.entries(finalCookies)
           .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
-          .join('; ');
+          .join('; '));
       } else {
-        delete finalSendHeaders.cookie;
+        deleteHeaderValue(finalSendHeaders, 'cookie');
       }
     }
     // 注入 User-Agent 配置
-    if (!finalSendHeaders['user-agent'] && httpNodeConfigData.userAgent) {
-      finalSendHeaders['user-agent'] = httpNodeConfigData.userAgent;
+    if (!getHeaderValue(finalSendHeaders, 'user-agent') && httpNodeConfigData.userAgent) {
+      setHeaderValue(finalSendHeaders, 'User-Agent', httpNodeConfigData.userAgent);
     }
 
     //构建请求参数

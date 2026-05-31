@@ -11,6 +11,7 @@ import { fileTypeFromBuffer, type FileTypeResult } from 'file-type';
 import mime from "mime";
 import fs from 'fs/promises';
 import http, { ClientRequest } from 'node:http';
+import type { OutgoingHttpHeaders } from 'node:http';
 import http2 from 'node:http';
 import { basename } from 'path';
 import { generateEmptyResponse } from './utils';
@@ -39,7 +40,32 @@ const getFileNameFromHeaders = (headers: Record<string, string | string[] | unde
   const ext = fileTypeInfo?.ext || defaultExt;
   return `download_${timestamp}.${ext}`;
 };
-
+const normalizeHeaderKey = (key: string): string => key.trim().toLowerCase()
+const findHeaderKey = <T extends string | null | undefined>(headers: Record<string, T>, key: string): string | undefined => {
+  const normalizedKey = normalizeHeaderKey(key);
+  return Object.keys(headers).find(headerKey => normalizeHeaderKey(headerKey) === normalizedKey);
+}
+const getHeaderValue = <T extends string | null | undefined>(headers: Record<string, T>, key: string): T | undefined => {
+  const existedKey = findHeaderKey(headers, key);
+  return existedKey ? headers[existedKey] : undefined;
+}
+const setHeaderValue = <T extends string | null | undefined>(headers: Record<string, T>, key: string, value: T): void => {
+  const realKey = key.trim();
+  if (!realKey) {
+    return;
+  }
+  const existedKey = findHeaderKey(headers, realKey);
+  if (existedKey && existedKey !== realKey) {
+    delete headers[existedKey];
+  }
+  headers[realKey] = value;
+}
+const deleteHeaderValue = <T extends string | null | undefined>(headers: Record<string, T>, key: string): void => {
+  const existedKey = findHeaderKey(headers, key);
+  if (existedKey) {
+    delete headers[existedKey];
+  }
+}
 const getFormDataFromRendererFormData = async (rendererFormDataList: RendererFormDataBody, maxSendFileSize: number) => {
   const formData = new FormData();
   for (let i = 0; i < rendererFormDataList.length; i++) {
@@ -179,29 +205,30 @@ export const gotRequest = async (options: GotRequestOptions) => {
     }
 
     //更user-agent,accept-encoding和accept，不能放在for循环后面，否则参数勾选将无效
-    headers['user-agent'] = options.headers['user-agent'] ?? config.httpNodeConfig.userAgent;
-    headers['accept'] = options.headers['accept'] ?? '*/*';
-    headers['accept-encoding'] = options.headers['accept-encoding'] ?? 'gzip, deflate, br';
+    setHeaderValue(headers, 'user-agent', getHeaderValue(options.headers, 'user-agent') ?? config.httpNodeConfig.userAgent);
+    setHeaderValue(headers, 'accept', getHeaderValue(options.headers, 'accept') ?? '*/*');
+    setHeaderValue(headers, 'accept-encoding', getHeaderValue(options.headers, 'accept-encoding') ?? 'gzip, deflate, br');
     //更新请求头信息
     for (const key in options.headers) {
       const headerValue = options.headers[key];
       if (headerValue === null) { //undefined代表未设置值，null代表取消发送
-        headers[key.toLowerCase()] = undefined
+        deleteHeaderValue(headers, key)
       } else if (isFormDataBody && key.toLowerCase() === 'content-type') {
-        headers[key.toLowerCase()] = (reqeustBody as FormData)?.getHeaders()['content-type'];
+        setHeaderValue(headers, key, (reqeustBody as FormData)?.getHeaders()['content-type']);
       } else if (isBinaryBody && key.toLowerCase() === 'content-type') {
         const fileTypeInfo = await fileTypeFromBuffer(reqeustBody as Buffer);
         if (fileTypeInfo?.mime) {
-          headers[key.toLowerCase()] = fileTypeInfo.mime;
+          setHeaderValue(headers, key, fileTypeInfo.mime);
         } else {
-          headers[key.toLowerCase()] = headerValue!;
+          setHeaderValue(headers, key, headerValue!);
         }
       } else {
-        headers[key.toLowerCase()] = headerValue!;
+        setHeaderValue(headers, key, headerValue!);
       }
     }
     // undefined代表未设置值，null代表取消发送
-    const isConnectionKeepAlive = options.headers['Connection'] == undefined || options.headers['Connection'] === 'keep-alive';
+    const connectionHeader = getHeaderValue(options.headers, 'Connection');
+    const isConnectionKeepAlive = connectionHeader == undefined || connectionHeader === 'keep-alive';
     const hasFormData = isFormDataBody && (options.body!.value as RendererFormDataBody).some(item => (item.key));
     let willSendBody: undefined | string | FormData | Buffer = '';
     if (options.method.toLowerCase() === 'head') { //只有head请求body值为undefined,head请求不挟带body
@@ -262,9 +289,13 @@ export const gotRequest = async (options: GotRequestOptions) => {
       const host = req.getHeader('host');
       const path = req.path;
       const fullUrl = `${req.protocol}//${host}${path === '/' ? '' : path}`;
+      const requestHeaders: OutgoingHttpHeaders = {};
+      req.getRawHeaderNames().forEach((headerKey) => {
+        requestHeaders[headerKey] = req.getHeader(headerKey);
+      });
       responseInfo.requestData.url = fullUrl;
       responseInfo.requestData.method = req.method;
-      responseInfo.requestData.headers = req.getHeaders();
+      responseInfo.requestData.headers = requestHeaders;
       responseInfo.requestData.host = req.host;
     })
     requestStream.on("response", (response: PlainResponse) => {

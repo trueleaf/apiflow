@@ -167,4 +167,5 @@ export type HttpNodeConfig = {
   maxHeaderValueDisplayLength: number;
   bodyModeOrder: HttpNodeBodyMode[];
   tempFileSizeThreshold: number;
+  autoConvertLocalhostToIp: boolean;
 }

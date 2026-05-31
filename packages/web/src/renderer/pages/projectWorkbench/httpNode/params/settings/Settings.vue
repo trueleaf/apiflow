@@ -134,6 +134,25 @@
       <div class="config-item">
         <div class="config-meta">
           <div class="meta-text">
+            <div class="meta-title">{{ t('自动转换localhost为127.0.0.1') }}</div>
+            <div class="meta-hint">{{ t('关闭后将保留localhost用于本地开发调试') }}</div>
+          </div>
+        </div>
+        <div class="config-control">
+          <el-switch v-model="formData.autoConvertLocalhostToIp" size="small" />
+          <el-button
+            link
+            size="small"
+            class="reset-btn"
+            @click="handleReset('autoConvertLocalhostToIp')"
+          >
+            {{ t('恢复') }}
+          </el-button>
+        </div>
+      </div>
+      <div class="config-item">
+        <div class="config-meta">
+          <div class="meta-text">
             <div class="meta-title">{{ t('自动跟随重定向') }}</div>
             <div class="meta-hint">{{ t('启用后将自动跟随3xx重定向响应') }}</div>
           </div>

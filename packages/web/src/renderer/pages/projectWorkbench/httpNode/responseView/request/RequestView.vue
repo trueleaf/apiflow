@@ -29,7 +29,7 @@
       </div>
       <div v-show="collapseStates.headers" class="collapse-content">
         <div v-for="(value, key) in headers" :key="key" class="pl-1 mt-1 d-flex a-top">
-          <div class="flex0 mr-1 text-bold">{{ upperHeaderKey(key) }}:</div>
+          <div class="flex0 mr-1 text-bold">{{ key }}:</div>
           <div>{{ value }}</div>
         </div>
       </div>
@@ -120,7 +120,6 @@ const headers = computed(() => {
 
 const contentType = computed(() => httpNodeStore.httpNodeInfo.item.contentType); //contentType
 const formatJsonStr = (code: string) => beautify(code, { indent_size: 4 });
-const upperHeaderKey = (key: string) => key.replace(/(^\w)|(-\w)/g, ($1) => $1.toUpperCase());
 const safedMultipart = (strBody: string) => {
   const boundary = contentType.value.match(/boundary=(.*?);/)?.[1] as string;
   const arrBody = strBody.split(boundary);

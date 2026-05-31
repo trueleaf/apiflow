@@ -127,7 +127,8 @@ export const generateDefaultHttpNodeConfig = (): HttpNodeConfig => ({
   maxRedirects: config.httpNodeConfig.maxRedirects,
   maxHeaderValueDisplayLength: config.httpNodeConfig.maxHeaderValueDisplayLength,
   bodyModeOrder: bodyModeOrderCache.getBodyModeOrder(),
-  tempFileSizeThreshold: config.httpNodeConfig.tempFileSizeThreshold
+  tempFileSizeThreshold: config.httpNodeConfig.tempFileSizeThreshold,
+  autoConvertLocalhostToIp: config.httpNodeConfig.autoConvertLocalhostToIp
 })
 // 生成 DeepSeek Provider 默认配置
 export const generateDeepSeekProvider = (): LLMProviderSetting => ({
