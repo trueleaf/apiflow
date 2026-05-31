@@ -97,7 +97,7 @@ export const createMcpExecutor = async (preloadPath: string): Promise<void> => {
   executorWindow.on('unresponsive', () => {
     handleExecutorCrash('unresponsive')
   })
-  executorWindow.on('render-process-gone', (_event, details) => {
+  executorWindow.webContents.on('render-process-gone', (_event, details) => {
     handleExecutorCrash(`render-process-gone: ${details.reason}`)
   })
   await executorWindow.loadURL(getExecutorUrl())
