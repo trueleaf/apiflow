@@ -112,6 +112,9 @@ const resolveSchema = (
 ): Schema | undefined => {
   const resolvedSchema = resolveReference<Schema>(schema, document, visitedRefs)
   if (!resolvedSchema) return undefined
+  if (isReferenceObject(schema)) {
+    visitedRefs.add(schema.$ref)
+  }
   if (resolvedSchema.allOf && resolvedSchema.allOf.length > 0) {
     return mergeAllOfSchema(resolvedSchema, document, visitedRefs)
   }
@@ -356,8 +359,7 @@ const parseOpenAPI3RequestBody = (
   if (contentType === 'application/json') {
     node.item.requestBody.mode = 'json'
     if (schema) {
-      const jsonData = schemaToJson(schema, document)
-      node.item.requestBody.rawJson = jsonData ? JSON.stringify(jsonData, null, 2) : ''
+      node.item.requestBody.rawJson = schemaToCommentedJson(schema, document)
     }
   } else if (contentType === 'multipart/form-data') {
     node.item.requestBody.mode = 'formdata'

@@ -80,6 +80,21 @@
               <span class="meta-label">{{ t('Base URL') }}</span>
               <input type="text" :value="selectedEnvironment.baseUrl" @change="handleUpdateSelectedEnvironmentBaseUrl" />
             </label>
+            <label class="meta-field hosts-field">
+              <span class="meta-label">{{ t('Hosts 映射') }}</span>
+              <div class="hosts-config">
+                <div v-for="(mapping, index) in selectedEnvironment?.hostMappings || []" :key="index" class="host-item">
+                  <input type="text" :value="mapping.hostname" @change="(e) => handleUpdateHostMapping(index, 'hostname', e)" :placeholder="t('域名')" />
+                  <span class="host-arrow">→</span>
+                  <input type="text" :value="mapping.ip" @change="(e) => handleUpdateHostMapping(index, 'ip', e)" :placeholder="t('IP地址')" />
+                  <button class="host-remove-btn" type="button" @click="handleRemoveHostMapping(index)">×</button>
+                </div>
+                <button class="host-add-btn" type="button" @click="handleAddHostMapping">
+                  <Plus :size="14" />
+                  <span>{{ t('添加映射') }}</span>
+                </button>
+              </div>
+            </label>
             <label class="meta-field desc">
               <span class="meta-label">{{ t('描述') }}</span>
               <textarea :value="selectedEnvironment.description" @change="handleUpdateSelectedEnvironmentDescription"></textarea>
@@ -414,6 +429,43 @@ const handleUpdateSelectedEnvironmentDescription = async (event: Event) => {
   const saved = await environmentStore.updateEnvironment(selectedEnvironment.value.id, { description: target.value })
   if (!saved) {
     ElMessage.error(t('保存失败'))
+  }
+}
+const handleAddHostMapping = async () => {
+  if (!selectedEnvironment.value) {
+    return
+  }
+  const currentHostMappings = selectedEnvironment.value.hostMappings || []
+  const newMappings = [...currentHostMappings, { hostname: '', ip: '' }]
+  const saved = await environmentStore.updateEnvironment(selectedEnvironment.value.id, { hostMappings: newMappings })
+  if (!saved) {
+    ElMessage.error(t('添加失败'))
+  }
+}
+const handleUpdateHostMapping = async (index: number, field: 'hostname' | 'ip', event: Event) => {
+  if (!selectedEnvironment.value) {
+    return
+  }
+  const target = event.target as HTMLInputElement
+  const currentHostMappings = [...(selectedEnvironment.value.hostMappings || [])]
+  currentHostMappings[index] = {
+    ...currentHostMappings[index],
+    [field]: target.value
+  }
+  const saved = await environmentStore.updateEnvironment(selectedEnvironment.value.id, { hostMappings: currentHostMappings })
+  if (!saved) {
+    ElMessage.error(t('保存失败'))
+  }
+}
+const handleRemoveHostMapping = async (index: number) => {
+  if (!selectedEnvironment.value) {
+    return
+  }
+  const currentHostMappings = [...(selectedEnvironment.value.hostMappings || [])]
+  currentHostMappings.splice(index, 1)
+  const saved = await environmentStore.updateEnvironment(selectedEnvironment.value.id, { hostMappings: currentHostMappings })
+  if (!saved) {
+    ElMessage.error(t('删除失败'))
   }
 }
 const handleUpdateModelValue = (value: boolean) => {
@@ -781,6 +833,9 @@ watch(
     &.desc {
       grid-column: 1 / -1;
     }
+    &.hosts-field {
+      grid-column: 1 / -1;
+    }
     input,
     textarea {
       border: 1px solid #d9dee8;
@@ -804,6 +859,64 @@ watch(
       min-height: 58px;
       resize: vertical;
       padding-top: 8px;
+    }
+    .hosts-config {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      .host-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        input {
+          flex: 1;
+          min-width: 100px;
+        }
+        .host-arrow {
+          color: #94a3b8;
+          font-weight: bold;
+          flex-shrink: 0;
+        }
+        .host-remove-btn {
+          width: 28px;
+          height: 28px;
+          border: 1px solid #d9dee8;
+          border-radius: 6px;
+          background: #fef2f2;
+          color: #dc2626;
+          font-size: 16px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s;
+          flex-shrink: 0;
+          &:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+          }
+        }
+      }
+      .host-add-btn {
+        height: 32px;
+        border: 1px dashed #d9dee8;
+        border-radius: 6px;
+        background: #fafafa;
+        color: #64748b;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 0 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 12px;
+        &:hover {
+          background: #f1f5f9;
+          border-color: #cbd5e1;
+          color: #334155;
+        }
+      }
     }
   }
   .meta-label {

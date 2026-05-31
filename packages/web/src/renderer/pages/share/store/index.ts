@@ -1,16 +1,33 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { ApiNode, ApidocVariable, ApidocBanner } from '@src/types';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { SharedProjectInfo } from '@src/types/index.ts';
 import { getObjectVariable } from '../helper';
 import { setProjectWorkbenchTabs } from '../cache/shareCache';
 
-/*
-|--------------------------------------------------------------------------
-| 变量定义
-|--------------------------------------------------------------------------
-*/
+export type ShareEnvironment = {
+  _id: string;
+  name: string;
+  baseUrl: string;
+  description: string;
+  order: number;
+  variables: {
+    _id: string;
+    environmentId: string;
+    key: string;
+    sharedValue: string;
+    enabled: boolean;
+    order: number;
+  }[];
+}
+
+export type ShareHost = {
+  _id: string;
+  name: string;
+  url: string;
+}
+
 const docs = ref<ApiNode[]>([]);
 const project = ref<SharedProjectInfo>({
   projectName: '',
@@ -25,6 +42,9 @@ const objectVariable = ref<Record<string, any>>({});
 const defaultExpandedKeys = ref<string[]>([]);
 const activeDocInfo = ref<ApiNode | null>(null);
 const contentLoading = ref(false);
+const environments = ref<ShareEnvironment[]>([]);
+const hosts = ref<ShareHost[]>([]);
+const activeEnvironmentId = ref<string>('');
 /*
 |--------------------------------------------------------------------------
 | 逻辑处理函数
@@ -168,6 +188,48 @@ const setContentLoading = (loading: boolean) => {
   contentLoading.value = loading;
 };
 
+const setEnvironments = (envList: ShareEnvironment[]) => {
+  environments.value.splice(0, environments.value.length, ...envList);
+  if (envList.length > 0 && !activeEnvironmentId.value) {
+    activeEnvironmentId.value = envList[0]._id;
+  }
+};
+
+const setHosts = (hostList: ShareHost[]) => {
+  hosts.value.splice(0, hosts.value.length, ...hostList);
+};
+
+const setActiveEnvironmentId = (id: string) => {
+  activeEnvironmentId.value = id;
+};
+
+const activeEnvironment = computed(() => {
+  return environments.value.find(e => e._id === activeEnvironmentId.value) || null;
+});
+
+const activeEnvironmentVariables = computed<ApidocVariable[]>(() => {
+  const env = activeEnvironment.value;
+  if (!env) return [];
+  return env.variables
+    .filter(v => v.enabled)
+    .map(v => ({
+      _id: v._id,
+      projectId: '',
+      name: v.key,
+      value: v.sharedValue,
+      type: 'string' as const,
+      fileValue: { name: '', path: '', fileType: '' },
+    }));
+});
+
+const mergedVariables = computed<ApidocVariable[]>(() => {
+  const envVars = activeEnvironmentVariables.value;
+  const projectVars = varibles.value;
+  const envVarNames = new Set(envVars.map(v => v.name));
+  const uniqueProjectVars = projectVars.filter(v => !envVarNames.has(v.name));
+  return [...envVars, ...uniqueProjectVars];
+});
+
 export const useShareStore = defineStore('shareStore', () => ({
   docs,
   project,
@@ -178,6 +240,12 @@ export const useShareStore = defineStore('shareStore', () => ({
   defaultExpandedKeys,
   activeDocInfo,
   contentLoading,
+  environments,
+  hosts,
+  activeEnvironmentId,
+  activeEnvironment,
+  activeEnvironmentVariables,
+  mergedVariables,
   addTab,
   updateAllTabs,
   fixedTab,
@@ -194,4 +262,7 @@ export const useShareStore = defineStore('shareStore', () => ({
   setDefaultExpandedKeys,
   setActiveDocInfo,
   setContentLoading,
+  setEnvironments,
+  setHosts,
+  setActiveEnvironmentId,
 }));

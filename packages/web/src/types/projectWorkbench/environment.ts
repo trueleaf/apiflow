@@ -1,12 +1,18 @@
 export type EnvironmentVisibilityMode = 'shared' | 'private'
 export type EnvironmentVariableValueType = 'text' | 'secret'
 export type EnvironmentVariableScope = 'local' | 'shared'
+export type EnvironmentHostMapping = {
+  hostname: string
+  ip: string
+}
+
 export type EnvironmentEntity = {
   id: string
   projectId: string
   name: string
   baseUrl: string
   description: string
+  hostMappings: EnvironmentHostMapping[]
   order: number
   isActive: boolean
   visibilityMode: EnvironmentVisibilityMode

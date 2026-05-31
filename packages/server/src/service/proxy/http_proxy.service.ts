@@ -1,17 +1,70 @@
 import { Provide, Inject } from '@midwayjs/core';
 import { Context } from '@midwayjs/koa';
 import { got } from 'got';
-import type { OptionsInit, PlainResponse, RequestError } from 'got';
+import type { RequestError, PlainResponse } from 'got';
 import FormData from 'form-data';
-import http, { ClientRequest } from 'node:http';
+import http from 'node:http';
+import https from 'node:https';
 import http2 from 'node:http';
+import dns from 'node:dns';
+import type { LookupFunction } from 'node:net';
 import { ProxyRequestParams, ProxyResponse, ProxyErrorResponse } from '../../types/proxy.js';
 import { PassThrough } from 'stream';
+import { ProxyHostService } from './proxy_host.service.js';
+import { ProjectEnvironment } from '../../entity/project/project_environment.js';
+import { InjectEntityModel } from '@midwayjs/typegoose';
+import { ReturnModelType } from '@typegoose/typegoose';
 
 @Provide()
 export class HttpProxyService {
   @Inject()
   ctx: Context;
+
+  @Inject()
+  proxyHostService: ProxyHostService;
+
+  @InjectEntityModel(ProjectEnvironment)
+  projectEnvironmentModel: ReturnModelType<typeof ProjectEnvironment>;
+
+  private async getEffectiveHostsMap(projectId?: string, environmentId?: string): Promise<Record<string, string>> {
+    const globalHosts = await this.proxyHostService.getHostsMap();
+    if (!projectId || !environmentId) {
+      return globalHosts;
+    }
+    try {
+      const environment = await this.projectEnvironmentModel.findOne(
+        { _id: environmentId, projectId, isEnabled: true },
+        { hostMappings: 1 }
+      );
+      if (environment?.hostMappings) {
+        const environmentHosts: Record<string, string> = {};
+        for (const mapping of environment.hostMappings) {
+          if (mapping.hostname && mapping.ip) {
+            environmentHosts[mapping.hostname] = mapping.ip;
+          }
+        }
+        return { ...globalHosts, ...environmentHosts };
+      }
+    } catch (error) {
+      console.warn('Failed to get environment host mappings:', error);
+    }
+    return globalHosts;
+  }
+
+  private createLookupFunction(hostsMap: Record<string, string>): LookupFunction {
+    return (hostname, options, callback) => {
+      if (hostsMap[hostname]) {
+        const ip = hostsMap[hostname];
+        if (options.all) {
+          (callback as (err: NodeJS.ErrnoException | null, address: string | { address: string; family: number }[], family: number) => void)(null, [{ address: ip, family: 4 }], 4);
+        } else {
+          callback(null, ip, 4);
+        }
+      } else {
+        dns.lookup(hostname, options, callback);
+      }
+    };
+  }
 
   //验证URL安全性，禁止请求内网IP和特殊协议
   private validateUrlSecurity(url: string): { valid: boolean; error?: string } {
@@ -106,15 +159,16 @@ export class HttpProxyService {
 
     try {
       //准备请求头
+      const reqHeaders = params.headers || {};
       const headers: Record<string, string | undefined> = {
-        'user-agent': params.headers['user-agent'] || 'https://github.com/trueleaf/apiflow',
-        'accept': params.headers['accept'] || '*/*',
-        'accept-encoding': params.headers['accept-encoding'] || 'gzip, deflate, br',
+        'user-agent': reqHeaders['user-agent'] || 'https://github.com/trueleaf/apiflow',
+        'accept': reqHeaders['accept'] || '*/*',
+        'accept-encoding': reqHeaders['accept-encoding'] || 'gzip, deflate, br',
       };
 
       //处理自定义headers
-      for (const key in params.headers) {
-        const value = params.headers[key];
+      for (const key in reqHeaders) {
+        const value = reqHeaders[key];
         if (value === null) {
           headers[key.toLowerCase()] = undefined;
         } else {
@@ -136,8 +190,12 @@ export class HttpProxyService {
         willSendBody = undefined;
       }
       //注意：FormData和Binary类型需要在Controller层处理文件上传
-      //准备got选项
-      const gotOptions: Omit<OptionsInit, 'isStream'> = {
+      //发送请求
+      const hostsMap = await this.getEffectiveHostsMap(params.projectId, params.environmentId);
+      const lookupFn = this.createLookupFunction(hostsMap);
+      const gotResponse = await got({
+        isStream: false,
+        responseType: 'buffer',
         url: params.url,
         method: params.method,
         body: willSendBody,
@@ -149,85 +207,45 @@ export class HttpProxyService {
         },
         throwHttpErrors: false,
         agent: {
-          http: new http.Agent({ keepAlive: true }),
+          http: new http.Agent({ keepAlive: true, lookup: lookupFn }),
+          https: new https.Agent({ keepAlive: true, lookup: lookupFn }),
           http2: new http2.Agent({ keepAlive: true }),
         },
+      });
+
+      //构建响应
+      const respHeaders = gotResponse.headers as Record<string, string | string[] | undefined>;
+      const contentLengthVal = respHeaders['content-length'];
+      const contentLength = typeof contentLengthVal === 'string'
+        ? parseInt(contentLengthVal) : 0;
+      const bodyBuffer = Buffer.isBuffer(gotResponse.body)
+        ? gotResponse.body
+        : Buffer.from(gotResponse.body as string);
+
+      const responseInfo: ProxyResponse = {
+        statusCode: gotResponse.statusCode,
+        headers: respHeaders,
+        contentType: (respHeaders['content-type'] as string) ?? '',
+        contentLength,
+        finalRequestUrl: gotResponse.url,
+        ip: gotResponse.ip || '',
+        timings: gotResponse.timings,
+        rt: (gotResponse.timings?.end ?? 0) - (gotResponse.timings?.start ?? 0),
+        requestData: {
+          url: params.url,
+          method: params.method,
+          headers,
+          host: new URL(params.url).hostname
+        },
+        bodyByteLength: bodyBuffer.byteLength,
+        body: bodyBuffer.toString('base64'),
+        cookies: respHeaders['set-cookie']
+          ? this.parseCookies(respHeaders['set-cookie'] as string | string[])
+          : [],
+        redirectList: [],
       };
 
-      //发送请求并收集数据
-      const requestStream = got.stream(gotOptions);
-      const bufferList: Buffer[] = [];
-      const redirectList: ProxyResponse['redirectList'] = [];
-
-      let responseInfo: Partial<ProxyResponse> = {};
-      let requestData: ProxyResponse['requestData'] = {
-        url: '',
-        method: '',
-        headers: {},
-        host: ''
-      };
-
-      //监听request事件
-      requestStream.on('request', (req: ClientRequest) => {
-        const host = req.getHeader('host') as string;
-        const path = req.path;
-        const fullUrl = `${req.protocol}//${host}${path === '/' ? '' : path}`;
-        requestData = {
-          url: fullUrl,
-          method: req.method,
-          headers: req.getHeaders(),
-          host: req.host
-        };
-      });
-
-      //监听response事件
-      requestStream.on('response', (response: PlainResponse) => {
-        const contentLengthStr = response.headers['content-length'] ?? '0';
-        const contentLength = isNaN(parseInt(contentLengthStr)) ? 0 : parseInt(contentLengthStr);
-
-        responseInfo = {
-          statusCode: response.statusCode,
-          headers: response.headers,
-          contentType: response.headers['content-type'] ?? '',
-          contentLength,
-          finalRequestUrl: response.url,
-          ip: response.ip || '',
-          timings: response.timings,
-          rt: 0,
-          requestData
-        };
-      });
-
-      //收集数据块
-      requestStream.on('data', (chunk: Buffer) => {
-        bufferList.push(chunk);
-      });
-
-      //等待请求完成
-      await new Promise<void>((resolve, reject) => {
-        requestStream.on('end', () => resolve());
-        requestStream.on('error', (error) => reject(error));
-      });
-
-      //计算响应时间
-      const endTime = responseInfo.timings?.end ?? 0;
-      const startTime = responseInfo.timings?.start ?? 0;
-      responseInfo.rt = endTime - startTime;
-
-      //合并Buffer
-      const bufferData = Buffer.concat(bufferList);
-      responseInfo.bodyByteLength = bufferData.byteLength;
-      responseInfo.body = bufferData.toString('base64');
-
-      //提取Cookie
-      const setCookieHeader = responseInfo.headers?.['set-cookie'];
-      responseInfo.cookies = setCookieHeader 
-        ? this.parseCookies(setCookieHeader) 
-        : [];
-
-      responseInfo.redirectList = redirectList;
-
-      return responseInfo as ProxyResponse;
+      return responseInfo;
     } catch (error) {
       const err = error as RequestError | Error;
       return {
@@ -253,14 +271,15 @@ export class HttpProxyService {
 
     try {
       //准备请求头
+      const reqHeaders = params.headers || {};
       const headers: Record<string, string | undefined> = {
-        'user-agent': params.headers['user-agent'] || 'https://github.com/trueleaf/apiflow',
-        'accept': params.headers['accept'] || '*/*',
-        'accept-encoding': params.headers['accept-encoding'] || 'gzip, deflate, br',
+        'user-agent': reqHeaders['user-agent'] || 'https://github.com/trueleaf/apiflow',
+        'accept': reqHeaders['accept'] || '*/*',
+        'accept-encoding': reqHeaders['accept-encoding'] || 'gzip, deflate, br',
       };
 
-      for (const key in params.headers) {
-        const value = params.headers[key];
+      for (const key in reqHeaders) {
+        const value = reqHeaders[key];
         if (value === null) {
           headers[key.toLowerCase()] = undefined;
         } else {
@@ -282,9 +301,20 @@ export class HttpProxyService {
         willSendBody = undefined;
       }
 
-      //创建got流
+      //解析主机名映射（got.stream 不支持自定义 agent.lookup，需重写 URL）
+      const hostsMap = await this.getEffectiveHostsMap(params.projectId, params.environmentId);
+      const parsedUrl = new URL(params.url);
+      const originalHostname = parsedUrl.hostname;
+      const mappedIp = hostsMap[originalHostname];
+      let requestUrl = params.url;
+      if (mappedIp) {
+        parsedUrl.hostname = mappedIp;
+        requestUrl = parsedUrl.toString();
+        headers['host'] = originalHostname;
+      }
+
       const requestStream = got.stream({
-        url: params.url,
+        url: requestUrl,
         method: params.method,
         body: willSendBody,
         headers,

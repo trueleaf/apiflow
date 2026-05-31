@@ -31,7 +31,7 @@ export class GenerateSharedProjectLinkDto {
   /**
    * 被选中的节点
    */
-  @Rule(RuleType.array().items(RuleType.string()))
+  @Rule(RuleType.array().items(RuleType.string().allow('')))
     selectedDocs: string[];
 }
 
@@ -70,7 +70,7 @@ export class EditSharedProjectLinkDto {
   /**
    * 被选中的节点
    */
-  @Rule(RuleType.array().items(RuleType.string()))
+  @Rule(RuleType.array().items(RuleType.string().allow('')))
     selectedDocs: string[];
 }
 
@@ -163,7 +163,7 @@ export class GetSharedDocDetailDto {
   /**
    * 密码
    */
-  @Rule(RuleType.string())
+  @Rule(RuleType.string().allow(''))
     password?: string;
 }
 
@@ -177,6 +177,6 @@ export class VerifySharePasswordDto {
   /**
    * 密码
    */
-  @Rule(RuleType.string().required())
+  @Rule(RuleType.string().allow(''))
     password: string;
 }

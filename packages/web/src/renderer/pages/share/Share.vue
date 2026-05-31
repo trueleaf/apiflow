@@ -66,6 +66,7 @@ import { useShareStore } from './store'
 import localShareDataTest from './testData'
 import { useI18n } from 'vue-i18n'
 import { useShareAppSettings } from './store/appSettingsStore'
+import { useRoute } from 'vue-router'
 /*
 |--------------------------------------------------------------------------
 | 变量定义
@@ -75,10 +76,9 @@ const { t } = useI18n()
 const appSettingsStore = useShareAppSettings()
 
 const isForHtml = ref(import.meta.env.VITE_USE_FOR_HTML === 'true');
-const shareId = (() => {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('share_id') || 'local_share';
-})();
+const route = useRoute();
+const shareId = (route.query.share_id as string) || 'local_share';
+const docIdFromUrl = (route.query.docId as string) || '';
 const hasPermission = ref(false);
 const loading = ref(false); //获取分享信息loading
 const expireCountdown = ref('')
@@ -94,7 +94,7 @@ const passwordRules = ref({
   ]
 })
 const shareStore = useShareStore();
-const { project: shareProjectInfo, docs, tabs } = storeToRefs(shareStore);
+const { project: shareProjectInfo, docs, tabs, banner } = storeToRefs(shareStore);
 /*
 |--------------------------------------------------------------------------
 | 初始化数据获取逻辑
@@ -137,31 +137,50 @@ const initShareData = () => {
   }
 }
 
+const verifyPassword = async (password: string) => {
+  try {
+    passwordLoading.value = true;
+    const response = await request.post<{ data: { variables: ApidocVariable[], banner: ApidocBanner[], hosts: any[], environments: any[] } }, { data: { variables: ApidocVariable[], banner: ApidocBanner[], hosts: any[], environments: any[] } }>('/api/project/verify_share_password', {
+      shareId: shareId,
+      password: password
+    })
+    shareStore.replaceVaribles(response.data.variables);
+    shareStore.setBanner(response.data.banner);
+    if (response.data.hosts) {
+      shareStore.setHosts(response.data.hosts);
+    }
+    if (response.data.environments) {
+      shareStore.setEnvironments(response.data.environments);
+    }
+    setProjectSharePassword(shareId, password);
+    hasPermission.value = true;
+  } catch (error) {
+    console.error('缓存密码验证失败:', error);
+    clearProjectSharePassword(shareId);
+    hasPermission.value = false;
+  } finally {
+    passwordLoading.value = false;
+  }
+};
+
 const getSharedProjectInfo = async () => {
   loading.value = true;
   try {
-    const params = {
-      shareId: shareId,
-    };
-    const res = await request.get<CommonResponse<SharedProjectInfo>, CommonResponse<SharedProjectInfo>>('/api/project/share_info', { params });
+    const res = await request.get<CommonResponse<SharedProjectInfo>, CommonResponse<SharedProjectInfo>>('/api/project/share_info', { params: { shareId } });
     shareStore.setProject(res.data);
     expireCountdown.value = getCountdown(res.data.expire ?? 0);
     if (res.data.needPassword) {
-      // 检查是否有缓存的密码
       const cachedPassword = getProjectSharePassword(shareId);
       if (cachedPassword) {
-        // 自动使用缓存的密码进行验证
         await verifyPassword(cachedPassword);
       } else {
         hasPermission.value = false;
       }
     } else {
-      hasPermission.value = true;
+      await verifyPassword('');
     }
-    loading.value = false;
   } catch (error) {
     console.error(error)
-    // 发生异常时清空密码缓存
     clearProjectSharePassword(shareId);
   } finally {
     loading.value = false;
@@ -183,27 +202,6 @@ const getDocDetail = async (docId: string) => {
     shareStore.setContentLoading(false);
   }
 }
-// 验证密码
-const verifyPassword = async (password: string) => {
-  try {
-    passwordLoading.value = true;
-    const response = await request.post<{ data: { variables: ApidocVariable[], banner: ApidocBanner[] } }, { data: { variables: ApidocVariable[], banner: ApidocBanner[] } }>('/api/project/verify_share_password', {
-      shareId: shareId,
-      password: password
-    })
-    shareStore.replaceVaribles(response.data.variables);
-    shareStore.setBanner(response.data.banner);
-    setProjectSharePassword(shareId, password);
-    hasPermission.value = true;
-  } catch (error) {
-    console.error('缓存密码验证失败:', error);
-    // 缓存密码验证失败，清空缓存
-    clearProjectSharePassword(shareId);
-    hasPermission.value = false;
-  } finally {
-    passwordLoading.value = false;
-  }
-};
 
 const handlePasswordSubmit = async () => {
   if (!passwordFormRef.value) return;
@@ -234,6 +232,41 @@ watch([() => tabs.value[shareId], () => hasPermission.value],
   },
   { immediate: true, deep: true }
 );
+
+// 监听 banner 加载完成，自动选中 URL 中的 docId
+watch(() => banner.value.length, () => {
+  if (!docIdFromUrl || banner.value.length === 0) return
+  autoSelectDocFromUrl()
+})
+// 从 banner 中递归查找节点
+const findNodeInTree = (tree: ApidocBanner[], id: string): ApidocBanner | null => {
+  for (const node of tree) {
+    if (node._id === id) return node
+    if (node.children?.length) {
+      const found = findNodeInTree(node.children, id)
+      if (found) return found
+    }
+  }
+  return null
+}
+// 自动选中 URL 中的 docId
+const autoSelectDocFromUrl = () => {
+  const node = findNodeInTree(banner.value, docIdFromUrl)
+  if (!node) return
+  shareStore.addTab({
+    _id: node._id,
+    projectId: shareId,
+    tabType: node.type || 'http',
+    label: node.name,
+    saved: true,
+    fixed: false,
+    selected: true,
+    head: {
+      icon: (node as any).method || node.type || '',
+      color: '',
+    },
+  })
+}
 
 /*
 |--------------------------------------------------------------------------

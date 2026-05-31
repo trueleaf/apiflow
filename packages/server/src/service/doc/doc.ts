@@ -625,6 +625,9 @@ export class DocService {
       return websocketMockData;
     }
 
+    if (result.item?.url && !(result.item.url as { prefix?: string }).prefix) {
+      (result.item.url as { prefix: string }).prefix = result.item.url.host;
+    }
     return result;
   }
   /**

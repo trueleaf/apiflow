@@ -13,6 +13,8 @@ import { ProjectService } from '../project/project.js';
 import { Doc } from '../../entity/doc/doc.js';
 import { DocPrefix } from '../../entity/doc/doc_prefix.js';
 import { ProjectVariable } from '../../entity/project/project_variable.js';
+import { ProjectEnvironment } from '../../entity/project/project_environment.js';
+import { ProjectEnvironmentVariable } from '../../entity/project/project_environment_variable.js';
 
 @Provide()
 export class ProjectShareService {
@@ -26,6 +28,10 @@ export class ProjectShareService {
     projectModel: ReturnModelType<typeof Project>;
   @InjectEntityModel(ProjectVariable)
     projectVariableModel: ReturnModelType<typeof ProjectVariable>;
+  @InjectEntityModel(ProjectEnvironment)
+    projectEnvironmentModel: ReturnModelType<typeof ProjectEnvironment>;
+  @InjectEntityModel(ProjectEnvironmentVariable)
+    projectEnvironmentVariableModel: ReturnModelType<typeof ProjectEnvironmentVariable>;
   @Inject()
     docService: DocService;
   @Inject()
@@ -110,7 +116,7 @@ export class ProjectShareService {
    */
   async getSharedLinkInfo(params: GetSharedLinkInfoDto) {
     const { shareId } = params;
-    const result = await this.projectShareModel.findOne({ shareId, isEnabled: true }, { projectName: 1, shareName: 1, expire: 1, password: 1 }).lean();
+    const result = await this.projectShareModel.findOne({ shareId, isEnabled: true }, { projectName: 1, shareName: 1, expire: 1, password: 1, projectId: 1, selectedDocs: 1 }).lean();
     if (!result) {
       throwError(1020, '文档不存在')
     }
@@ -119,6 +125,8 @@ export class ProjectShareService {
       shareName: result.shareName,
       expire: result.expire,
       needPassword: !!result.password,
+      projectId: result.projectId,
+      selectedDocs: result.selectedDocs || [],
     };
   }
   /**
@@ -174,7 +182,11 @@ export class ProjectShareService {
     if (!valid) {
       throwError(1023, '无效的的id和密码')
     }
-    const result = await this.docService.getDocsAsTree({ projectId: sharedProjectInfo.projectId }, true);
+    let result = await this.docService.getDocsAsTree({ projectId: sharedProjectInfo.projectId }, true);
+    const selectedDocs = sharedProjectInfo.selectedDocs || [];
+    if (selectedDocs.length > 0) {
+      result = this.filterTreeByDocIds(result, selectedDocs);
+    }
     return result;
   }
   /**
@@ -190,7 +202,7 @@ export class ProjectShareService {
       password:  params.password,
       projectPassword: sharedProjectInfo.password,
     };
-    const valid = await this.checkPassword(checkParams);
+    const valid = this.checkPassword(checkParams);
     if (!valid) {
       throwError(1023, '无效的的id和密码')
     }
@@ -226,9 +238,13 @@ export class ProjectShareService {
       password:  params.password,
       projectPassword: sharedProjectInfo.password,
     };
-    const valid = await this.checkPassword(checkParams);
+    const valid = this.checkPassword(checkParams);
     if (!valid) {
       throwError(1023, '无效的的id和密码')
+    }
+    const selectedDocs = sharedProjectInfo.selectedDocs || [];
+    if (selectedDocs.length > 0 && !selectedDocs.includes(params.docId)) {
+      throwError(1023, '无权访问该文档')
     }
     const result = await this.docModel.findOne({ _id: params.docId }, { pid: 0, isFolder: 0, sort: 0, isEnabled: 0 });
     if (!result) {
@@ -239,6 +255,21 @@ export class ProjectShareService {
   /**
    * 验证分享密码
    */
+  filterTreeByDocIds(tree: any[], docIds: string[]): any[] {
+    const docIdSet = new Set(docIds);
+    const filter = (nodes: any[]): any[] => {
+      return nodes
+        .map(node => {
+          const filteredChildren = filter(node.children || []);
+          if (docIdSet.has(node._id.toString()) || filteredChildren.length > 0) {
+            return { ...node, children: filteredChildren };
+          }
+          return null;
+        })
+        .filter(Boolean);
+    };
+    return filter(tree);
+  }
   async verifySharePassword(params: VerifySharePasswordDto) {
     const { shareId, password } = params;
     const projectShare = await this.projectShareModel.findOne({ shareId, isEnabled: true }).lean();
@@ -256,13 +287,10 @@ export class ProjectShareService {
     }
     
     const hasPassword = projectPassword != null && projectPassword !== '';
-    if (!hasPassword) {
-      throwError(1022, '该分享链接无需密码');
-    }
-    
-    const passwordIsEqual = password === projectPassword;
-    if (!passwordIsEqual) {
-      throwError(1023, '密码错误');
+    if (hasPassword) {
+      if (password !== projectPassword) {
+        throwError(1023, '密码错误');
+      }
     }
     
     // 密码校验通过，返回变量信息
@@ -270,10 +298,33 @@ export class ProjectShareService {
       { projectId: projectShare.projectId, isEnabled: true },
       { name: 1, type: 1, value: 1, fileValue: 1 }
     );
-    const banner = await this.docService.getDocsAsTree({ projectId: projectShare.projectId }, true);
+    let banner = await this.docService.getDocsAsTree({ projectId: projectShare.projectId }, true);
+    const selectedDocs = projectShare.selectedDocs || [];
+    if (selectedDocs.length > 0) {
+      banner = this.filterTreeByDocIds(banner, selectedDocs);
+    }
+    const hosts = await this.docPrefixModel.find(
+      { projectId: projectShare.projectId, isEnabled: true },
+      { name: 1, url: 1 }
+    ).lean();
+    const environments = await this.projectEnvironmentModel.find(
+      { projectId: projectShare.projectId, isEnabled: true, visibilityMode: 'shared' },
+      { name: 1, baseUrl: 1, description: 1, order: 1 }
+    ).sort({ order: 1, updatedAt: 1 }).lean();
+    const environmentVariables = await this.projectEnvironmentVariableModel.find(
+      { projectId: projectShare.projectId, isEnabled: true, valueType: 'text' },
+      { environmentId: 1, key: 1, sharedValue: 1, enabled: 1, order: 1 }
+    ).sort({ order: 1, updatedAt: 1 }).lean();
+    const environmentsWithVars = environments.map(env => ({
+      ...env,
+      variables: environmentVariables.filter(v => v.environmentId === env._id.toString() && v.enabled),
+    }));
+
     return {
       variables,
-      banner
+      banner,
+      hosts,
+      environments: environmentsWithVars,
     };
   }
 }
