@@ -116,6 +116,9 @@ export class DocImportAndExportService {
         preRequest: 0,
         afterRequest: 0,
         isEnabled: 0,
+      }).sort({
+        isFolder: -1,
+        sort: 1
       }).lean();
     } else { //直接导出
       docs = await this.docModel.find({
@@ -125,6 +128,9 @@ export class DocImportAndExportService {
         preRequest: 0,
         afterRequest: 0,
         isEnabled: 0,
+      }).sort({
+        isFolder: -1,
+        sort: 1
       }).lean();
     }
     //=========================================================================//
