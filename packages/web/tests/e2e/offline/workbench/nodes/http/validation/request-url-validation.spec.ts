@@ -36,6 +36,49 @@ test.describe('RequestUrlValidation', () => {
     // 验证响应中包含请求的URL信息
     await expect(responseBody).toContainText('/echo', { timeout: 10000 });
   });
+  // 关闭自动转换localhost配置后,请求信息中保留localhost
+  test('关闭自动转换localhost后请求地址保留localhost', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 新增HTTP节点
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('localhost保留测试接口');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 关闭localhost自动转换配置
+    const settingsTab = contentPage.locator('[data-testid="http-params-tab-settings"]');
+    await expect(settingsTab).toBeVisible({ timeout: 10000 });
+    await settingsTab.click();
+    const localhostConfigItem = contentPage.locator('.config-item').filter({ hasText: /自动转换localhost为127\.0\.0\.1|Auto-convert localhost to 127\.0\.0\.1/ });
+    await expect(localhostConfigItem).toBeVisible({ timeout: 5000 });
+    const localhostSwitch = localhostConfigItem.locator('.el-switch').first();
+    await expect(localhostSwitch).toHaveClass(/is-checked/);
+    await localhostSwitch.click();
+    await expect(localhostSwitch).not.toHaveClass(/is-checked/);
+    await contentPage.waitForTimeout(700);
+    // 设置请求URL为localhost格式
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://localhost:${MOCK_SERVER_PORT}/echo`);
+    // 发送请求
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseTabs).toBeVisible({ timeout: 10000 });
+    // 切换到请求信息标签页并验证请求地址
+    const requestInfoTab = responseTabs.getByRole('tab', { name: /请求信息|Request/i }).first();
+    await expect(requestInfoTab).toBeVisible({ timeout: 5000 });
+    await requestInfoTab.click();
+    const requestInfoPanel = contentPage.locator('.request-info');
+    await expect(requestInfoPanel).toBeVisible({ timeout: 5000 });
+    await expect(requestInfoPanel).toContainText(`http://localhost:${MOCK_SERVER_PORT}/echo`, { timeout: 10000 });
+    await expect(requestInfoPanel).not.toContainText(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+  });
   // 测试用例2: 验证127.0.0.1这样的ip url,调用echo接口,能正确请求,并且显示正确的url地址
   test('验证127.0.0.1格式的ip url能正确请求并显示正确的url地址', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();

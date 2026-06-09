@@ -90,6 +90,55 @@ test.describe('RequestInfo', () => {
     const responseText = await responseBody.textContent();
     expect(responseText).toContain('POST');
   });
+  // 自定义请求头在请求信息中保留用户输入的大小写
+  test('自定义请求头在请求信息中保留原始大小写', async ({ contentPage, clearCache, createProject }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    // 新增HTTP节点
+    const addFileBtn = contentPage.locator('[data-testid="banner-add-http-btn"]');
+    await addFileBtn.click();
+    const addFileDialog = contentPage.locator('[data-testid="add-file-dialog"]');
+    await expect(addFileDialog).toBeVisible({ timeout: 5000 });
+    const fileNameInput = addFileDialog.locator('input').first();
+    await fileNameInput.fill('请求头大小写测试');
+    const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
+    await confirmAddBtn.click();
+    await contentPage.waitForTimeout(500);
+    // 设置请求URL
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
+    await urlInput.fill(`http://127.0.0.1:${MOCK_SERVER_PORT}/echo`);
+    // 添加自定义请求头
+    const headersTab = contentPage.locator('[data-testid="http-params-tab-headers"]');
+    await expect(headersTab).toBeVisible({ timeout: 10000 });
+    await headersTab.click();
+    const headersTree = contentPage.locator('.header-info .cl-params-tree').first();
+    const headerKeyInput = headersTree.locator('[data-testid="params-tree-key-autocomplete"] input').first();
+    const headerValueInput = headersTree
+      .locator('[data-testid="params-tree-value-input"]')
+      .first()
+      .locator('[contenteditable="true"]');
+    await expect(headerKeyInput).toBeVisible({ timeout: 10000 });
+    await headerKeyInput.click();
+    await headerKeyInput.fill('UserCode');
+    await headerValueInput.click();
+    await contentPage.keyboard.type('case-sensitive-value');
+    // 发送请求
+    const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
+    await sendBtn.click();
+    const responseTabs = contentPage.locator('[data-testid="response-tabs"]');
+    await expect(responseTabs).toBeVisible({ timeout: 10000 });
+    // 切换到请求信息标签页并验证请求头名称
+    const requestInfoTab = responseTabs.getByRole('tab', { name: /请求信息|Request/i }).first();
+    await expect(requestInfoTab).toBeVisible({ timeout: 5000 });
+    await requestInfoTab.click();
+    const requestInfoPanel = contentPage.locator('.request-info');
+    await expect(requestInfoPanel).toBeVisible({ timeout: 5000 });
+    await expect(requestInfoPanel).toContainText('UserCode:', { timeout: 10000 });
+    await expect(requestInfoPanel).toContainText('case-sensitive-value', { timeout: 10000 });
+    await expect(requestInfoPanel).not.toContainText('Usercode:');
+    await expect(requestInfoPanel).not.toContainText('usercode:');
+  });
 });
 
 
