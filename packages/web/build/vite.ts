@@ -17,6 +17,9 @@ const processWithElectron: NodeJS.Process & {
 
 let isKilling = false;
 const buildElectron = async (mode: string, command: 'build' | 'serve') => {
+  if (command === 'build') {
+    await fs.promises.rm(path.resolve(process.cwd(), 'dist/main'), { recursive: true, force: true });
+  }
   const entryPoints = await glob(['./src/main/**'], {
     cwd: process.cwd(),
     ignore: ['**/*.d.ts'],

@@ -41,15 +41,15 @@ const getFileNameFromHeaders = (headers: Record<string, string | string[] | unde
   return `download_${timestamp}.${ext}`;
 };
 const normalizeHeaderKey = (key: string): string => key.trim().toLowerCase()
-const findHeaderKey = <T extends string | null | undefined>(headers: Record<string, T>, key: string): string | undefined => {
+const findHeaderKey = <T>(headers: Record<string, T>, key: string): string | undefined => {
   const normalizedKey = normalizeHeaderKey(key);
   return Object.keys(headers).find(headerKey => normalizeHeaderKey(headerKey) === normalizedKey);
 }
-const getHeaderValue = <T extends string | null | undefined>(headers: Record<string, T>, key: string): T | undefined => {
+const getHeaderValue = <T>(headers: Record<string, T>, key: string): T | undefined => {
   const existedKey = findHeaderKey(headers, key);
   return existedKey ? headers[existedKey] : undefined;
 }
-const setHeaderValue = <T extends string | null | undefined>(headers: Record<string, T>, key: string, value: T): void => {
+const setHeaderValue = <T>(headers: Record<string, T>, key: string, value: T): void => {
   const realKey = key.trim();
   if (!realKey) {
     return;
@@ -60,11 +60,24 @@ const setHeaderValue = <T extends string | null | undefined>(headers: Record<str
   }
   headers[realKey] = value;
 }
-const deleteHeaderValue = <T extends string | null | undefined>(headers: Record<string, T>, key: string): void => {
+const deleteHeaderValue = <T>(headers: Record<string, T>, key: string): void => {
   const existedKey = findHeaderKey(headers, key);
   if (existedKey) {
     delete headers[existedKey];
   }
+}
+const restoreHeaderNameCasing = (targetHeaders: Record<string, string | string[] | undefined>, sourceHeaders: Record<string, string | undefined>): void => {
+  Object.keys(sourceHeaders).forEach((sourceKey) => {
+    const targetKey = findHeaderKey(targetHeaders, sourceKey);
+    if (!targetKey) {
+      return;
+    }
+    const targetValue = targetHeaders[targetKey];
+    if (targetKey !== sourceKey) {
+      delete targetHeaders[targetKey];
+    }
+    targetHeaders[sourceKey] = targetValue;
+  });
 }
 const getFormDataFromRendererFormData = async (rendererFormDataList: RendererFormDataBody, maxSendFileSize: number) => {
   const formData = new FormData();
@@ -264,6 +277,9 @@ export const gotRequest = async (options: GotRequestOptions) => {
         }],
         beforeRedirect: [(updatedOptions, plainResponse) => {
           const u = updatedOptions as unknown as { headers?: Record<string, string | string[] | undefined>; method?: string };
+          if (u.headers) {
+            restoreHeaderNameCasing(u.headers, headers);
+          }
           options.beforeRedirect({
             plainResponse,
             requestHeaders: u.headers ?? {},
@@ -271,6 +287,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
           })
         }],
         beforeRequest: [(reqeustOptions) => {
+          restoreHeaderNameCasing(reqeustOptions.headers, headers);
           options.beforeRequest?.(JSON.parse(JSON.stringify(reqeustOptions)))
         }],
         beforeRetry: [(error: RequestError, retryCount: number) => {
