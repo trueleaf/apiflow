@@ -96,11 +96,16 @@
             </div>
           </template>
         </SDraggable>
-      </div>
-      <div class="add-tab">
-        <el-icon :size="16" :title="t('新增一个空白接口')" data-testid="project-nav-add-tab-btn" @click="handleAddNewTab">
-          <IconPlus />
-        </el-icon>
+        <button
+          class="add-tab"
+          type="button"
+          :title="t('新增一个空白接口')"
+          data-testid="project-nav-add-tab-btn"
+          @click="handleAddNewTab"
+          @dblclick.stop
+        >
+          <IconPlus :size="16" />
+        </button>
       </div>
       <div v-if="0" class="btn right" @click="handleMoveRight">
         <el-icon :size="16">
@@ -170,7 +175,6 @@
 import * as SDraggable from 'vuedraggable'
 import { useI18n } from 'vue-i18n'
 import {
-  Plus as IconPlus,
   Link as IconLink,
   Timer as IconTimer,
   DeleteFilled as IconDeleteFilled,
@@ -178,7 +182,7 @@ import {
   ArrowRight as IconArrowRight,
   ArrowLeft as IconArrowLeft
 } from '@element-plus/icons-vue';
-import { Variable, ListTree, ArrowDownToLine, ArrowUpToLine, ChevronDown, Check } from 'lucide-vue-next'
+import { Variable, ListTree, ArrowDownToLine, ArrowUpToLine, ChevronDown, Check, Plus as IconPlus } from 'lucide-vue-next'
 import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { router } from '@/router';
@@ -733,7 +737,7 @@ onUnmounted(() => {
   .tab-list {
     flex: 1;
     min-width: 0;
-    max-width: calc(100% - var(--apiflow-doc-nav-height));
+    max-width: none;
     line-height: var(--apiflow-doc-nav-height);
     display: flex;
     height: var(--apiflow-doc-nav-height);
@@ -744,7 +748,7 @@ onUnmounted(() => {
     overflow-y: hidden;
 
     .drag-wrap {
-      flex: 1;
+      flex: 0 0 auto;
       min-width: 0;
     }
 
@@ -882,22 +886,21 @@ onUnmounted(() => {
   }
 
   .add-tab {
-    display: flex;
+    flex: 0 0 var(--apiflow-doc-nav-height);
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     width: var(--apiflow-doc-nav-height);
     height: var(--apiflow-doc-nav-height);
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--project-nav-icon-color);
+    cursor: pointer;
+    transition: background .3s;
 
-    .el-icon {
-      width: 30px;
-      height: 30px;
-      transition: background .3s;
-      border-radius: 50%;
-      color: var(--project-nav-icon-color);
-
-      &:hover {
-        background-color: var(--project-nav-add-hover-bg);
-      }
+    &:hover {
+      background-color: var(--project-nav-add-hover-bg);
     }
   }
 

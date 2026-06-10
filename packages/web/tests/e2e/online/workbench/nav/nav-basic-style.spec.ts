@@ -118,6 +118,28 @@ test.describe('NavBasicStyle', () => {
     const clientWidth = await itemText.evaluate((el) => el.clientWidth);
     expect(scrollWidth).toBeGreaterThanOrEqual(clientWidth);
   });
+  // 测试用例8: 新增空白接口按钮紧跟最后一个tab
+  test('新增空白接口按钮紧跟最后一个tab', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+    await clearCache();
+
+    await loginAccount();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    const addTabBtn = contentPage.locator('[data-testid="project-nav-add-tab-btn"]');
+    await addTabBtn.click();
+    await contentPage.waitForTimeout(300);
+    const activeTab = contentPage.locator('.nav .item.active');
+    await expect(activeTab).toBeVisible({ timeout: 3000 });
+    await expect(addTabBtn).toBeVisible({ timeout: 3000 });
+    const activeTabBox = await activeTab.boundingBox();
+    const addTabBtnBox = await addTabBtn.boundingBox();
+    if (!activeTabBox || !addTabBtnBox) {
+      throw new Error('无法获取tab或新增按钮位置信息');
+    }
+    const distance = addTabBtnBox.x - (activeTabBox.x + activeTabBox.width);
+    expect(distance).toBeGreaterThanOrEqual(-1);
+    expect(distance).toBeLessThan(8);
+  });
 });
 
 
