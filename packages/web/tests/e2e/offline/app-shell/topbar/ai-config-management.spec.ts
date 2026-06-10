@@ -37,11 +37,10 @@ test.describe('AiConfigManagement', () => {
     await expect(configView.locator('input[placeholder="请输入 API Base URL"]').first()).toHaveValue('https://api.openai-compatible.local/v1/chat/completions');
     await expect(configView.locator('input[placeholder="请输入 API Key"]').first()).toHaveValue('sk-offline-config-case');
     await expect(configView.locator('input[placeholder="请输入模型 ID"]').first()).toHaveValue('gpt-4o-mini-test');
-    // 校验缓存层同步写入 provider 与 useFreeLLM
+    // 校验缓存层同步写入 provider
     await expect.poll(async () => {
       return await contentPage.evaluate(() => {
         const providerRaw = localStorage.getItem('apiflow/ai/llmProvider') || '{}';
-        const useFree = localStorage.getItem('apiflow/ai/useFreeLLM') || '';
         const provider = JSON.parse(providerRaw) as {
           provider?: string
           baseURL?: string
@@ -53,7 +52,6 @@ test.describe('AiConfigManagement', () => {
           baseURL: provider.baseURL || '',
           apiKey: provider.apiKey || '',
           model: provider.model || '',
-          useFreeLLM: useFree,
         });
       });
     }, { timeout: 5000 }).toBe(JSON.stringify({
@@ -61,7 +59,6 @@ test.describe('AiConfigManagement', () => {
       baseURL: 'https://api.openai-compatible.local/v1/chat/completions',
       apiKey: 'sk-offline-config-case',
       model: 'gpt-4o-mini-test',
-      useFreeLLM: 'false',
     }));
   });
   // 无效配置保存后聊天页应进入引导态且发送按钮禁用，重置后恢复 DeepSeek 表单
@@ -71,7 +68,7 @@ test.describe('AiConfigManagement', () => {
     await aiBtn.click();
     const aiDialog = contentPage.locator('.ai-dialog');
     await expect(aiDialog).toBeVisible({ timeout: 5000 });
-    // 进入配置视图并先保存一组有效 OpenAI 配置，确保 useFreeLLM 置为 false
+    // 进入配置视图并先保存一组有效 OpenAI 配置
     const settingsBtn = aiDialog.getByRole('button', { name: /设置|Settings/ }).first();
     await settingsBtn.click();
     const configView = aiDialog.locator('.ai-config-view');

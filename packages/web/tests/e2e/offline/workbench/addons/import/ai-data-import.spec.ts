@@ -29,7 +29,6 @@ test.describe('AiDataImport', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
     // 配置自定义 AI 地址到 mock 失败路由，触发稳定失败分支
     await contentPage.evaluate(() => {
-      localStorage.setItem('apiflow/ai/useFreeLLM', 'false');
       localStorage.setItem('apiflow/ai/llmProvider', JSON.stringify({
         id: 'mock-ai-fail',
         name: 'mock-ai-fail',
@@ -71,7 +70,6 @@ test.describe('AiDataImport', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
     // 配置自定义 AI 地址到 mock 成功路由，覆盖识别成功与导入落地链路
     await contentPage.evaluate(() => {
-      localStorage.setItem('apiflow/ai/useFreeLLM', 'false');
       localStorage.setItem('apiflow/ai/llmProvider', JSON.stringify({
         id: 'mock-ai-success',
         name: 'mock-ai-success',

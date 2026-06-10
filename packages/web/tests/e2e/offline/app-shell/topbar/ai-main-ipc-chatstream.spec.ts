@@ -26,8 +26,7 @@ test.describe('AiMainIpcChatStream', () => {
                 onData: (chunk: Uint8Array) => void;
                 onEnd: () => void;
                 onError: (error: Error | string) => void;
-              },
-              useFreeLLM: boolean
+              }
             ) => { abort: () => void };
           };
         };
@@ -69,7 +68,7 @@ test.describe('AiMainIpcChatStream', () => {
         onError: (error) => {
           callbackState.errorMessage = typeof error === 'string' ? error : error.message;
         },
-      }, false);
+      });
 
       await new Promise<void>((resolve) => {
         const timeoutId = window.setTimeout(() => {
@@ -119,8 +118,7 @@ test.describe('AiMainIpcChatStream', () => {
                 onData: (chunk: Uint8Array) => void;
                 onEnd: () => void;
                 onError: (error: Error | string) => void;
-              },
-              useFreeLLM: boolean
+              }
             ) => { abort: () => void };
           };
         };
@@ -157,7 +155,7 @@ test.describe('AiMainIpcChatStream', () => {
         onError: (error) => {
           errorMessage = typeof error === 'string' ? error : error.message;
         },
-      }, false);
+      });
 
       await new Promise<void>((resolve) => {
         const timeoutId = window.setTimeout(() => {

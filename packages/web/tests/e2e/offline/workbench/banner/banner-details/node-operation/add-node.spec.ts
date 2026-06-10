@@ -152,7 +152,6 @@ test.describe('AddNode', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
     // 设置 AI 配置到 mock 路由，验证 AI 提示词输入与创建流程
     await contentPage.evaluate(() => {
-      localStorage.setItem('apiflow/ai/useFreeLLM', 'false');
       localStorage.setItem('apiflow/ai/llmProvider', JSON.stringify({
         id: 'mock-add-node-ai',
         name: 'mock-add-node-ai',

@@ -37,7 +37,6 @@ test.describe('CodeRepoImport', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
     // 指向 mock 失败路由，稳定覆盖失败分支
     await contentPage.evaluate(() => {
-      localStorage.setItem('apiflow/ai/useFreeLLM', 'false');
       localStorage.setItem('apiflow/ai/llmProvider', JSON.stringify({
         id: 'mock-ai-fail',
         name: 'mock-ai-fail',
@@ -79,7 +78,6 @@ test.describe('CodeRepoImport', () => {
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 });
     // 指向 mock 成功路由，覆盖识别成功和导入落地链路
     await contentPage.evaluate(() => {
-      localStorage.setItem('apiflow/ai/useFreeLLM', 'false');
       localStorage.setItem('apiflow/ai/llmProvider', JSON.stringify({
         id: 'mock-ai-success',
         name: 'mock-ai-success',
