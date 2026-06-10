@@ -22,20 +22,20 @@
     <el-form-item class="mb-1">
       <el-button :loading="loading" :type="systemConfigStore.enableGuest ? undefined : 'primary'" native-type="submit" class="w-100" data-testid="login-submit-btn">{{ t("登录") }}</el-button>
     </el-form-item>
-    <div v-if="systemConfigStore.enableExternalLinks" class="mt-2 d-flex j-around">
-      <a href="https://github.com/trueleaf/apiflow" target="_blank" class="d-flex flex-column j-center a-center">
+    <div v-if="systemConfigStore.enableExternalLinks && brandConfig.officialLinksEnabled" class="mt-2 d-flex j-around">
+      <a :href="brandConfig.githubUrl" target="_blank" class="d-flex flex-column j-center a-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('跳转github')">
           <use xlink:href="#icongithub"></use>
         </svg>
         <div class="mt-1">GitHub</div>
       </a>
-      <a href="https://gitee.com/wildsell/apiflow" target="_blank" class="d-flex flex-column j-center a-center">
+      <a :href="brandConfig.giteeUrl" target="_blank" class="d-flex flex-column j-center a-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('跳转码云')">
           <use xlink:href="#icongitee"></use>
         </svg>
         <div class="mt-1">{{ t('码云') }}</div>
       </a>
-      <a href="https://apiflow.cn" target="_blank" class="d-flex flex-column j-center a-center">
+      <a :href="brandConfig.officialUrl" target="_blank" class="d-flex flex-column j-center a-center">
         <img :src="logoImg" class="svg-icon" :title="t('跳转官网')" />
         <div class="mt-1">{{ t('官网') }}</div>
       </a>
@@ -67,6 +67,7 @@ import logoImg from '@/assets/imgs/logo.png'
 import { message } from '@/helper'
 import { trackEvent } from '@/utils/analytics';
 import { useSystemConfig } from '@/store/systemConfig/systemConfigStore';
+import { brandConfig } from '@src/config/brand';
 const emits = defineEmits(['jumpToRegister', 'jumpToResetPassword'])
 const systemConfigStore = useSystemConfig()
 const { t } = useI18n()

@@ -11,6 +11,16 @@ import { builtinModules } from 'module';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 
+const cleanBuildName = process.env.APIFLOW_BUILD_NAME?.trim() || 'ApiFlow'
+const isCleanBuild = process.env.APIFLOW_CLEAN_BUILD === 'true'
+const brandName = isCleanBuild ? cleanBuildName : 'ApiFlow'
+const defaultServerUrl = isCleanBuild ? 'http://127.0.0.1:7001' : 'https://app.apiflow.cn'
+const officialUrl = isCleanBuild ? '' : 'https://apiflow.cn'
+const githubUrl = isCleanBuild ? '' : 'https://github.com/trueleaf/apiflow'
+const giteeUrl = isCleanBuild ? '' : 'https://gitee.com/wildsell/apiflow'
+const releaseUrl = isCleanBuild ? '' : 'https://github.com/trueleaf/apiflow/releases'
+const licenseUrl = isCleanBuild ? '' : 'https://github.com/trueleaf/apiflow/blob/main/LICENSE'
+const copyright = isCleanBuild ? `Copyright © 2026 ${brandName}` : 'Copyright © 2026 TrueLeaf Team'
 const processWithElectron: NodeJS.Process & {
   electronProcess?: ChildProcess
 } = process;
@@ -46,6 +56,15 @@ const buildElectron = async (mode: string, command: 'build' | 'serve') => {
       replacePlugin({
         __MODE__: JSON.stringify(mode),
         __COMMAND__: JSON.stringify(command),
+        __APP_CLEAN_MODE__: JSON.stringify(isCleanBuild),
+        __APP_BRAND_NAME__: JSON.stringify(brandName),
+        __APP_DEFAULT_SERVER_URL__: JSON.stringify(defaultServerUrl),
+        __APP_OFFICIAL_URL__: JSON.stringify(officialUrl),
+        __APP_GITHUB_URL__: JSON.stringify(githubUrl),
+        __APP_GITEE_URL__: JSON.stringify(giteeUrl),
+        __APP_RELEASE_URL__: JSON.stringify(releaseUrl),
+        __APP_LICENSE_URL__: JSON.stringify(licenseUrl),
+        __APP_COPYRIGHT__: JSON.stringify(copyright),
       }),
     ],
   });

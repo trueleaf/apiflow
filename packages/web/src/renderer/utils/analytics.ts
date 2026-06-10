@@ -1,3 +1,5 @@
+import { brandConfig } from '@src/config/brand';
+
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
@@ -9,6 +11,9 @@ const MEASUREMENT_ID = 'G-TNRXB0EX9H';
 
 // 检查是否满足加载条件：生产环境 + 在线模式 + 用户同意
 const shouldLoadAnalytics = (): boolean => {
+  if (brandConfig.isCleanMode) {
+    return false;
+  }
   if (import.meta.env.DEV) {
     return false;
   }

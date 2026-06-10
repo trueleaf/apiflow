@@ -8,11 +8,11 @@
       <div class="app-identity-card">
         <div class="card-body">
           <div class="logo-wrapper">
-            <img :src="logoImg" alt="ApiFlow" class="app-logo" />
+            <img :src="logoImg" :alt="brandConfig.appName" class="app-logo" />
           </div>
           
           <div class="app-info">
-            <h1 class="app-name">ApiFlow</h1>
+            <h1 class="app-name">{{ brandConfig.appName }}</h1>
             <div class="version-tag">v{{ appVersion }}</div>
           </div>
           
@@ -21,34 +21,34 @@
             <span class="build-value">{{ formatDate(buildTime) }}</span>
           </div>
           
-          <div class="divider"></div>
+          <div v-if="brandConfig.officialLinksEnabled" class="divider"></div>
           
-          <div class="links-buttons">
-            <a class="link-item" role="button" tabindex="0" @click.prevent="openLink('https://github.com/trueleaf/apiflow')">
+          <div v-if="brandConfig.officialLinksEnabled" class="links-buttons">
+            <a class="link-item" role="button" tabindex="0" @click.prevent="openLink(brandConfig.githubUrl)">
               <Github :size="16" />
               <span class="link-text">GitHub</span>
             </a>
-            <a class="link-item" role="button" tabindex="0" @click.prevent="openLink('https://apiflow.cn')">
+            <a class="link-item" role="button" tabindex="0" @click.prevent="openLink(brandConfig.officialUrl)">
               <Globe :size="16" />
               <span class="link-text">{{ t('官网') }}</span>
             </a>
-            <a class="link-item" role="button" tabindex="0" @click.prevent="openLink('https://github.com/trueleaf/apiflow/blob/main/LICENSE')">
+            <a class="link-item" role="button" tabindex="0" @click.prevent="openLink(brandConfig.licenseUrl)">
               <FileText :size="14" />
               <span class="link-text">License(MIT)</span>
             </a>
-            <a class="link-item" role="button" tabindex="0" @click.prevent="openLink('https://github.com/trueleaf/apiflow/releases')">
+            <a class="link-item" role="button" tabindex="0" @click.prevent="openLink(brandConfig.releaseUrl)">
               <FileText :size="14" />
               <span class="link-text">{{ t('更新日志') }}</span>
             </a>
           </div>
           
-          <div class="copyright">
-            © 2026 TrueLeaf Team
+          <div v-if="brandConfig.officialLinksEnabled" class="copyright">
+            {{ brandConfig.copyright }}
           </div>
         </div>
       </div>
 
-      <UpdateCard class="update-card-wrapper" />
+      <UpdateCard v-if="!brandConfig.isCleanMode" class="update-card-wrapper" />
     </div>
   </div>
 </template>
@@ -59,6 +59,7 @@ import { Github, FileText, Globe } from 'lucide-vue-next'
 import { formatDate } from '@/helper'
 import logoImg from '@/assets/imgs/logo.png'
 import UpdateCard from './components/UpdateCard.vue'
+import { brandConfig } from '@src/config/brand'
 const { t } = useI18n()
 
 const appVersion = __APP_VERSION__

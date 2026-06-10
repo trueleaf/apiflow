@@ -14,6 +14,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js'
 import type { McpResourceReadResult, McpToolCallResult, McpToolDefinition } from '@src/types/mcp'
 
+const appName = __APP_BRAND_NAME__
 type McpProtocolOptions = {
   listTools: () => Promise<McpToolDefinition[]>
   callTool: (name: string, args: Record<string, unknown>) => Promise<McpToolCallResult>
@@ -78,7 +79,7 @@ const createResourceResult = (uri: string, result: McpResourceReadResult): ReadR
 export const createMcpProtocolServer = (options: McpProtocolOptions): Server => {
   const server = new Server(
     {
-      name: 'apiflow',
+      name: appName,
       version: '1.0.0',
     },
     {
@@ -86,7 +87,7 @@ export const createMcpProtocolServer = (options: McpProtocolOptions): Server => 
         tools: {},
         resources: {},
       },
-      instructions: 'ApiFlow local offline MCP server. Tools operate on local IndexedDB data only.',
+      instructions: `${appName} local offline MCP server. Tools operate on local IndexedDB data only.`,
     }
   )
   server.setRequestHandler(ListToolsRequestSchema, async (): Promise<ListToolsResult> => {
@@ -111,7 +112,7 @@ export const createMcpProtocolServer = (options: McpProtocolOptions): Server => 
           uri: 'apiflow://projects',
           name: 'projects',
           title: 'Projects',
-          description: 'All offline ApiFlow projects',
+          description: `All offline ${appName} projects`,
           mimeType: 'application/json',
         },
       ],

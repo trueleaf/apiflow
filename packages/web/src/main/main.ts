@@ -12,6 +12,7 @@ import { HttpMockManager } from './mock/httpMock/httpMockManager.ts';
 import { WebSocketMockManager } from './mock/websocketMock/websocketMockManager.ts';
 import { updateManager } from './update/updateManager.ts';
 import { mainConfig } from '@src/config/mainConfig';
+import { brandConfig } from '@src/config/brand';
 import { getOnlineUrl } from './store/appStore.ts';
 import {
   initContentViewLifecycle,
@@ -29,6 +30,7 @@ import { initMcpService, stopMcpService } from './mcp/mcpService.ts';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+app.setName(brandConfig.appName);
 
 // 注册自定义协议的 scheme privileges（必须在 app.ready 之前）
 protocol.registerSchemesAsPrivileged([
@@ -83,11 +85,11 @@ const createAppTray = () => {
   }
   const icon = nativeImage.createFromPath(getTrayIconPath());
   appTray = new Tray(icon);
-  appTray.setToolTip('ApiFlow');
+  appTray.setToolTip(brandConfig.appName);
   appTray.on('click', showMainWindow);
   appTray.setContextMenu(Menu.buildFromTemplate([
-    { label: '显示 ApiFlow', click: showMainWindow },
-    { label: '退出 ApiFlow', click: quitApplication },
+    { label: `显示 ${brandConfig.appName}`, click: showMainWindow },
+    { label: `退出 ${brandConfig.appName}`, click: quitApplication },
   ]));
 }
 /*
@@ -307,7 +309,7 @@ if (!gotTheLock) {
     initMcpService(path.join(__dirname, 'preload.mjs')).catch(() => undefined);
     
     // 初始化UpdateManager（商店版本由商店管理更新，跳过初始化）
-    if (!isAppStore()) {
+    if (!isAppStore() && !brandConfig.isCleanMode) {
       const updateSettings = {
         autoCheck: false,
         source: 'github' as const,

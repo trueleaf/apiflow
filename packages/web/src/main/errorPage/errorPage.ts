@@ -6,6 +6,7 @@ type ErrorPageParams = {
   retryCount: number;
   maxRetries: number;
 };
+const appName = __APP_BRAND_NAME__;
 // 获取错误码对应的友好描述
 const getErrorMessage = (errorCode: number): { title: string; description: string } => {
   const errorMessages: Record<number, { title: string; description: string }> = {
@@ -92,7 +93,7 @@ export const generateErrorPageHtml = (params: ErrorPageParams): string => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Page Load Error - Apiflow</title>
+  <title>Page Load Error - ${appName}</title>
   <style>
     * {
       margin: 0;

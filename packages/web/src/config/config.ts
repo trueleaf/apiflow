@@ -1,6 +1,7 @@
 import { Config } from '@src/types';
 import { mainConfig } from './mainConfig';
 import webPackageJson from '../../package.json';
+import { brandConfig } from './brand';
 const isDev = process.env.NODE_ENV === 'development';
 const appVersion = (webPackageJson as { version?: string }).version ?? '0.0.0';
 
@@ -28,7 +29,7 @@ export const config: Config = {
     },
     //http请求相关
     httpRequest: {
-      url: isDev ? 'http://127.0.0.1:7001' : 'https://app.apiflow.cn',
+      url: isDev ? 'http://127.0.0.1:7001' : brandConfig.defaultServerUrl,
       timeout: 20000,
       withCredentials: true,
     },
@@ -43,7 +44,7 @@ export const config: Config = {
   //应用相关配置
   appConfig: {
     version: appVersion, //当前项目版本
-    appTitle: 'ApiFlow', //应用标题
+    appTitle: brandConfig.appName, //应用标题
     appLogo: '', //应用Logo
     appTheme: 'light', //应用主题
   },
@@ -51,7 +52,7 @@ export const config: Config = {
     maxTextBodySize: 1024 * 1024 * 50, //最大可展示文本格式数大小
     maxRawBodySize: 1024 * 1024 * 50, //最大可以显示原始值类型
     maxSendFileSize: 1024 * 1024 * 10, //发送文件大小限制（binary/form-data），0表示不限制
-    userAgent: "https://github.com/trueleaf/apiflow",
+    userAgent: brandConfig.githubUrl || brandConfig.appName,
     followRedirect: true, //是否允许重定向
     maxRedirects: 10, //最大重定向次数
     maxHeaderValueDisplayLength: 1024,

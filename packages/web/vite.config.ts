@@ -14,6 +14,24 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
+const cleanBuildName = process.env.APIFLOW_BUILD_NAME?.trim() || 'ApiFlow'
+const isCleanBuild = process.env.APIFLOW_CLEAN_BUILD === 'true'
+const brandName = isCleanBuild ? cleanBuildName : 'ApiFlow'
+const defaultServerUrl = isCleanBuild ? 'http://127.0.0.1:7001' : 'https://app.apiflow.cn'
+const officialUrl = isCleanBuild ? '' : 'https://apiflow.cn'
+const githubUrl = isCleanBuild ? '' : 'https://github.com/trueleaf/apiflow'
+const giteeUrl = isCleanBuild ? '' : 'https://gitee.com/wildsell/apiflow'
+const releaseUrl = isCleanBuild ? '' : 'https://github.com/trueleaf/apiflow/releases'
+const licenseUrl = isCleanBuild ? '' : 'https://github.com/trueleaf/apiflow/blob/main/LICENSE'
+const copyright = isCleanBuild ? `Copyright © 2026 ${brandName}` : 'Copyright © 2026 TrueLeaf Team'
+const brandHtmlTitlePlugin = {
+  name: 'brand-html-title',
+  transformIndexHtml(html: string, context: { path: string }) {
+    const title = context.path.endsWith('mcp.html') ? `${brandName} MCP Executor` : brandName
+    return html.replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
+  },
+}
+
 export default defineConfig(async ({ mode, command }) => {
   // 检测是否为纯 Web 构建模式
   const isWebOnly = process.env.BUILD_TARGET === 'web'
@@ -34,6 +52,7 @@ export default defineConfig(async ({ mode, command }) => {
       // 仅在非 Web 模式下加载 Electron 插件
       viteElectronPlugin,
       vue(),
+      brandHtmlTitlePlugin,
       vueJsx({
         // 配置JSX选项
         transformOn: true,
@@ -67,6 +86,15 @@ export default defineConfig(async ({ mode, command }) => {
     define: {
       __APP_VERSION__: JSON.stringify(pkg.version),
       __APP_BUILD_TIME__: JSON.stringify(dayjs().tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss')),
+      __APP_CLEAN_MODE__: JSON.stringify(isCleanBuild),
+      __APP_BRAND_NAME__: JSON.stringify(brandName),
+      __APP_DEFAULT_SERVER_URL__: JSON.stringify(defaultServerUrl),
+      __APP_OFFICIAL_URL__: JSON.stringify(officialUrl),
+      __APP_GITHUB_URL__: JSON.stringify(githubUrl),
+      __APP_GITEE_URL__: JSON.stringify(giteeUrl),
+      __APP_RELEASE_URL__: JSON.stringify(releaseUrl),
+      __APP_LICENSE_URL__: JSON.stringify(licenseUrl),
+      __APP_COPYRIGHT__: JSON.stringify(copyright),
       __COMMAND__: JSON.stringify(command),
     },
     optimizeDeps: {

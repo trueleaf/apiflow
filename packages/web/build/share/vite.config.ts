@@ -39,6 +39,15 @@ export default defineConfig({
     // 注入构建时间和环境变量标记是否为HTML模式
     __APP_VERSION__: JSON.stringify('0.9.8'),
     __APP_BUILD_TIME__: JSON.stringify(dayjs().tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss')),
+    __APP_CLEAN_MODE__: JSON.stringify(false),
+    __APP_BRAND_NAME__: JSON.stringify('ApiFlow'),
+    __APP_DEFAULT_SERVER_URL__: JSON.stringify('https://app.apiflow.cn'),
+    __APP_OFFICIAL_URL__: JSON.stringify('https://apiflow.cn'),
+    __APP_GITHUB_URL__: JSON.stringify('https://github.com/trueleaf/apiflow'),
+    __APP_GITEE_URL__: JSON.stringify('https://gitee.com/wildsell/apiflow'),
+    __APP_RELEASE_URL__: JSON.stringify('https://github.com/trueleaf/apiflow/releases'),
+    __APP_LICENSE_URL__: JSON.stringify('https://github.com/trueleaf/apiflow/blob/main/LICENSE'),
+    __APP_COPYRIGHT__: JSON.stringify('Copyright © 2026 TrueLeaf Team'),
     __COMMAND__: JSON.stringify('serve'),
     'import.meta.env.VITE_USE_FOR_HTML': JSON.stringify('true')
   },

@@ -69,6 +69,7 @@ import { storeToRefs } from 'pinia';
 import { useTheme } from '@/hooks/useTheme';
 import { isElectron } from '@/helper';
 import { trackEvent } from '@/utils/analytics';
+import { brandConfig } from '@src/config/brand';
 
 const router = useRouter();
 const dialogVisible = ref(false);
@@ -350,10 +351,10 @@ const initAppHeaderTabs = async () => {
 };
 
 const initWelcom = async () => {
-  if (!config.isDev) {
+  if (!config.isDev && !brandConfig.isCleanMode) {
     await systemConfigStore.fetchConfig()
     console.log(
-      '%cApiflow',
+      `%c${brandConfig.appName}`,
       `
   color: #00c6ff;
   font-size: 48px;
@@ -365,11 +366,11 @@ const initWelcom = async () => {
   `
     );
     console.log(`
-${t('官网地址')}：https://apiflow.cn
+${t('官网地址')}：${brandConfig.officialUrl}
 
-${t('GitHub地址')}：https://github.com/trueleaf/apiflow
+${t('GitHub地址')}：${brandConfig.githubUrl}
 
-${t('Gitee地址')}：https://gitee.com/wildsell/apiflow
+${t('Gitee地址')}：${brandConfig.giteeUrl}
 
 ${t('最近一次更新')}：${__APP_BUILD_TIME__}
 
