@@ -132,11 +132,6 @@ export default (): MidwayConfig => {
       secretOrPrivateKey: 'apiflow', //私钥
       expiresIn: `${1000 * 60 * 60 * 24 * 7}`, //过期时间
     },
-    llmConfig: {
-      apiKey: process.env.DEEPSEEK_API_KEY || '',
-      baseUrl: process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1/chat/completions',
-      model: process.env.DEEPSEEK_MODEL || 'deepseek-chat',
-    },
     permission: {
       isFree: (process.env.DEPLOYMENT_TYPE || 'user') === 'user',
       whiteList: [
@@ -155,8 +150,6 @@ export default (): MidwayConfig => {
         '/api/project/export/share_banner',
         '/api/project/share_doc_detail',
         '/api/project/verify_share_password',
-        '/api/llm/chat',
-        '/api/llm/chat/stream',
         '/api/proxy/http',
         '/api/system/config',
       ],

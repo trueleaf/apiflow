@@ -19,10 +19,6 @@ export class ResponseWrapperMiddleware implements IMiddleware<Context, NextFunct
       if (result?.isCustomError) {
         return result;
       }
-      // 跳过 LLM 接口的包装（直接返回原始数据）
-      if (ctx.path === '/api/llm/chat' || ctx.path === '/api/llm/chat/stream') {
-        return result;
-      }
       return {
         code: 0,
         msg: '操作成功',
