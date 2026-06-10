@@ -21,12 +21,6 @@ export default async function DeploymentGuidePage() {
     { key: 'MONGO_DATABASE', desc: t('部署教程_章节_环境变量_必需_3'), default: 'apiflow' }
   ];
 
-  const envVarsAI = [
-    { key: 'DEEPSEEK_API_KEY', desc: t('部署教程_章节_环境变量_AI_1') },
-    { key: 'DEEPSEEK_BASE_URL', desc: t('部署教程_章节_环境变量_AI_2'), default: 'https://api.deepseek.com/v1/chat/completions' },
-    { key: 'DEEPSEEK_MODEL', desc: t('部署教程_章节_环境变量_AI_3'), default: 'deepseek-chat' }
-  ];
-
   const envVarsMail = [
     { key: 'EMAIL_REGISTER_ENABLE', desc: t('部署教程_章节_环境变量_邮件_1'), default: 'false' },
     { key: 'ALI_ACCESS_KEY_ID', desc: t('部署教程_章节_环境变量_邮件_2') },
@@ -135,32 +129,6 @@ export default async function DeploymentGuidePage() {
                         <td className="px-4 py-2 text-sm font-mono text-gray-900 border-b">{item.key}</td>
                         <td className="px-4 py-2 text-sm text-gray-600 border-b">{item.desc}</td>
                         <td className="px-4 py-2 text-sm font-mono text-gray-500 border-b">{item.default}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">
-                {t('部署教程_章节_环境变量_AI_标题')}
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full border border-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 border-b">{t('部署教程_表格_变量名')}</th>
-                      <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 border-b">{t('部署教程_表格_说明')}</th>
-                      <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 border-b">{t('部署教程_表格_默认值')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {envVarsAI.map((item, index) => (
-                      <tr key={item.key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                        <td className="px-4 py-2 text-sm font-mono text-gray-900 border-b">{item.key}</td>
-                        <td className="px-4 py-2 text-sm text-gray-600 border-b">{item.desc}</td>
-                        <td className="px-4 py-2 text-sm font-mono text-gray-500 border-b">{item.default || '-'}</td>
                       </tr>
                     ))}
                   </tbody>
