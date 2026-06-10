@@ -58,7 +58,7 @@ export const config: Config = {
     maxHeaderValueDisplayLength: 1024,
     bodyModeOrder: ['json', 'formdata', 'urlencoded', 'raw', 'binary', 'none'],
     tempFileSizeThreshold: 1024 * 50, //粘贴大值自动转临时文件的阈值，默认50KB
-    autoConvertLocalhostToIp: true, //是否自动将localhost转换为127.0.0.1
+    autoConvertLocalhostToIp: false, //是否自动将localhost转换为127.0.0.1
   },
   mockNodeConfig: {
     imageBase64Limit: 1024 * 1024 * 2,
