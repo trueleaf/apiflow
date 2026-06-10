@@ -1,4 +1,5 @@
 import Store from 'electron-store';
+import { brandConfig } from '@src/config/brand';
 
 type StoreSchema = {
   onlineUrl: string;
@@ -21,10 +22,17 @@ const store = new Store<StoreSchema>({
 
 //获取在线URL配置
 export const getOnlineUrl = (): string => {
+  if (brandConfig.offlineOnly) {
+    return '';
+  }
   return store.get('onlineUrl', '');
 }
 //设置在线URL配置
 export const setOnlineUrl = (url: string): void => {
+  if (brandConfig.offlineOnly) {
+    store.delete('onlineUrl');
+    return;
+  }
   store.set('onlineUrl', url);
 }
 //获取MCP服务配置

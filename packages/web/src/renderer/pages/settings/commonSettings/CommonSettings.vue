@@ -1,24 +1,24 @@
 <template>
   <div class="common-settings-container">
     <div class="page-header">
-      <h2>{{ $t('通用配置') }}</h2>
+      <h2>{{ t('通用配置') }}</h2>
     </div>
 
     <CleanTabs v-model="activeTab" type="card" class="settings-tabs">
-      <template #label-user>
+      <template v-if="showUserConfig" #label-user>
         <div class="tab-label">
           <User :size="16" class="tab-label__icon" />
-          <span>{{ $t('用户配置') }}</span>
+          <span>{{ t('用户配置') }}</span>
         </div>
       </template>
       <template #label-app>
         <div class="tab-label">
           <AppWindow :size="16" class="tab-label__icon" />
-          <span>{{ $t('应用配置') }}</span>
+          <span>{{ t('应用配置') }}</span>
         </div>
       </template>
 
-      <CleanTabPane name="user">
+      <CleanTabPane v-if="showUserConfig" name="user">
         <UserConfigPanel />
       </CleanTabPane>
       <CleanTabPane name="app">
@@ -29,13 +29,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { User, AppWindow } from 'lucide-vue-next'
 import { CleanTabs, CleanTabPane } from '@/components/ui/cleanDesign/tabs'
 import UserConfigPanel from './userConfig/UserConfigPanel.vue'
 import AppConfigPanel from './appConfig/AppConfigPanel.vue'
+import { useI18n } from 'vue-i18n'
+import { brandConfig } from '@src/config/brand'
 
-const activeTab = ref<'user' | 'app'>('user')
+const { t } = useI18n()
+const showUserConfig = computed(() => !brandConfig.offlineOnly)
+const activeTab = ref<'user' | 'app'>(brandConfig.offlineOnly ? 'app' : 'user')
 </script>
 
 <style lang="scss" scoped>

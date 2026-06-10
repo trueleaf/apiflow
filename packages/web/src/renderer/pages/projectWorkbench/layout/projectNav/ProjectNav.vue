@@ -203,6 +203,7 @@ import SEnvironmentManageDialog from './dialog/EnvironmentManageDialog.vue';
 import type { ApidocBanner } from '@src/types';
 import { useEnvironment } from '@/store/projectWorkbench/environmentStore';
 import { storeToRefs } from 'pinia';
+import { brandConfig } from '@src/config/brand';
 
 
 /*
@@ -224,12 +225,14 @@ const { activeEnvironmentId, environmentList } = storeToRefs(environmentStore)
 const tabs = computed({
   get() {
     const projectId = router.currentRoute.value.query.id as string;
-    return projectNavStore.navs[projectId]
+    const navs = projectNavStore.navs[projectId] || []
+    return brandConfig.offlineOnly ? navs.filter(tab => tab.tabType !== 'onlineLink') : navs
   },
   set(tabs: ApidocTab[]) { //拖拻tabs会导致数据写入
+    const nextTabs = brandConfig.offlineOnly ? tabs.filter(tab => tab.tabType !== 'onlineLink') : tabs
     projectNavStore.updateAllNavs({
       projectId: router.currentRoute.value.query.id as string,
-      navs: tabs,
+      navs: nextTabs,
     })
   }
 })
@@ -562,6 +565,9 @@ const handleForceCloseAllTab = () => {
 }
 //选中当前tab
 const selectCurrentTab = (element: ApidocTab) => {
+  if (brandConfig.offlineOnly && element.tabType === 'onlineLink') {
+    return;
+  }
   // 切换tab时取消当前正在发送的请求
   const { cancelRequest } = useHttpNodeRequest();
   const { changeRequestState, requestState } = useHttpNodeResponse();

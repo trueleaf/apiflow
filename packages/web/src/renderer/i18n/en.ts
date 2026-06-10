@@ -907,6 +907,7 @@ export default {
   '用户名不能为空': 'Username cannot be empty',
   // SSE Filter Configuration
   '过滤配置': 'Filter Configuration',
+  'Markdown展示': 'Markdown View',
 
   // ==================== Log Messages ====================
   log: {

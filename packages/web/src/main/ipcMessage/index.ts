@@ -7,6 +7,7 @@ import os from 'os';
 import { fileURLToPath } from 'url';
 import { exportHtml, exportWord, setMainWindow, setContentView, startExport, receiveRendererData, finishRendererData, getExportStatus, resetExport, selectExportPath } from './export/export.ts';
 import * as appStore from '../store/appStore.ts';
+import { brandConfig } from '@src/config/brand';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -448,9 +449,10 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   })
 
   ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, (_, mode: RuntimeNetworkMode) => {
-    handshakeManager.updateCachedTabsNetworkMode(mode);
-    contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, mode)
-    topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, mode)
+    const nextMode = brandConfig.offlineOnly ? 'offline' : mode;
+    handshakeManager.updateCachedTabsNetworkMode(nextMode);
+    contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, nextMode)
+    topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, nextMode)
   })
 
   // 网络模式切换后重新加载页面
@@ -620,6 +622,10 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   })
   //设置在线URL并刷新contentView
   ipcMain.handle(IPC_EVENTS.apiflow.rendererToMain.setOnlineUrl, async (_: IpcMainInvokeEvent, url: string) => {
+    if (brandConfig.offlineOnly) {
+      appStore.clearOnlineUrl();
+      return { code: 0, msg: 'success' };
+    }
     appStore.setOnlineUrl(url);
     // 刷新应用以加载新URL
     if (app.isPackaged) {

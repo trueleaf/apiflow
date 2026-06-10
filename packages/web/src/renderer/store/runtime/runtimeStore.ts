@@ -4,6 +4,7 @@ import { runtimeCache } from '@/cache/runtime/runtimeCache'
 import type { RuntimeNetworkMode } from '@src/types/runtime'
 import type { PermissionUserInfo } from '@src/types'
 import type { Language } from '@src/types/common'
+import { brandConfig } from '@src/config/brand'
 
 export const useRuntime = defineStore('runtime', () => {
   const networkMode = ref<RuntimeNetworkMode>(runtimeCache.getNetworkMode())
@@ -18,8 +19,9 @@ export const useRuntime = defineStore('runtime', () => {
   const language = ref<Language>(runtimeCache.getLanguage());
   const analyticsEnabled = ref<boolean>(runtimeCache.getAnalyticsEnabled());
   const setNetworkMode = (mode: RuntimeNetworkMode): void => {
-    networkMode.value = mode;
-    runtimeCache.setNetworkMode(mode);
+    const nextMode = brandConfig.offlineOnly ? 'offline' : mode;
+    networkMode.value = nextMode;
+    runtimeCache.setNetworkMode(nextMode);
   }
   // 更新用户信息
   const updateUserInfo = (payload: Partial<PermissionUserInfo>): void => {

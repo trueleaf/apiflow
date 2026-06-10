@@ -23,6 +23,7 @@
             </div>
           </div>
           <div
+            v-if="!brandConfig.offlineOnly"
             class="source-option"
             :class="{ 
               'is-checked': importSource === 'online',
@@ -54,7 +55,7 @@
       </div>
 
       <!-- 从在线账号导入 -->
-      <div v-if="importSource === 'online' && isOfflineMode" class="online-import-section">
+      <div v-if="importSource === 'online' && isOfflineMode && !brandConfig.offlineOnly" class="online-import-section">
         <!-- 导入模式选择 -->
         <div class="section-label">{{ t('导入模式') }}</div>
         <div class="import-mode-section">
@@ -211,7 +212,7 @@
       <div class="dialog-footer">
         <el-button @click="handleClose">{{ t('取消') }}</el-button>
         <el-button
-          v-if="importSource === 'online' && isOfflineMode"
+          v-if="importSource === 'online' && isOfflineMode && !brandConfig.offlineOnly"
           type="primary"
           :disabled="!canImport"
           :loading="importLoading"
@@ -240,6 +241,7 @@ import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 import { requestMethods } from '@/data/data'
 import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
 import type { Method } from 'got'
+import { brandConfig } from '@src/config/brand'
 
 type ProjectItem = {
   id: string
@@ -267,7 +269,7 @@ const { t } = useI18n()
 const modelValue = defineModel<boolean>({ required: true })
 const runtimeStore = useRuntime()
 const isOfflineMode = computed(() => runtimeStore.networkMode === 'offline')
-const importSource = ref<'file' | 'online'>('online')
+const importSource = ref<'file' | 'online'>(brandConfig.offlineOnly ? 'file' : 'online')
 const importMode = ref<'append' | 'overwrite'>('append')
 const loginVisible = ref(false)
 const isLoggedIn = ref(false)
@@ -525,7 +527,7 @@ const handleClose = () => {
 }
 //初始化
 onMounted(async () => {
-  if (isOfflineMode.value) {
+  if (!brandConfig.offlineOnly && isOfflineMode.value) {
     isLoggedIn.value = await verifyLogin()
     if (isLoggedIn.value) {
       await getOnlineProjects()

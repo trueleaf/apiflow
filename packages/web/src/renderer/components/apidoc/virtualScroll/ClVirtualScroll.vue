@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onBeforeUnmount, watchEffect, nextTick } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { useWindowEvent } from '@/hooks/useWindowEvent';
 import type { ClVirtualScrollProps } from '@src/types/components/components';
 
@@ -55,14 +55,15 @@ defineOptions({
 
 type VirtualScrollItem = {
   index: number;
-  data: any;
+  data: unknown;
   top: number;
 };
 const props = withDefaults(defineProps<ClVirtualScrollProps>(), {
   items: () => [],
   itemHeight: 40,
   bufferSize: 0,
-  virtual: true
+  virtual: true,
+  autoScroll: false
 });
 
 /*
@@ -74,6 +75,7 @@ const containerRef = ref<HTMLElement | null>(null);
 const scrollTop = ref(0);
 const containerHeight = ref(0);
 const rafId = ref<number | null>(null);
+const isPinnedToBottom = ref(true);
 const totalHeight = computed(() => props.items.length * props.itemHeight);
 //实际显示item数量
 const visibleCount = computed(() => {
@@ -112,18 +114,16 @@ const visibleItems = computed((): VirtualScrollItem[] => {
 */
 // 处理滚动事件 - 使用 requestAnimationFrame 节流优化
 const handleScroll = (event: Event) => {
-  // 只有在开启虚拟滚动时才处理滚动事件
-  if (!props.virtual) {
-    return;
-  }
-  
   if (rafId.value !== null) {
     cancelAnimationFrame(rafId.value);
   }
   // 使用 requestAnimationFrame 节流
   rafId.value = requestAnimationFrame(() => {
     const target = event.target as HTMLElement;
-    scrollTop.value = target.scrollTop;
+    if (props.virtual) {
+      scrollTop.value = target.scrollTop;
+    }
+    updatePinnedToBottom();
     rafId.value = null;
   });
 };
@@ -133,7 +133,6 @@ const updateContainerHeight = () => {
     containerHeight.value = containerRef.value.clientHeight;
   }
 };
-
 // 滚动到底部
 const scrollToBottom = () => {
   if (!containerRef.value) return;
@@ -145,15 +144,33 @@ const scrollToBottom = () => {
   } else {
     containerRef.value.scrollTop = containerRef.value.scrollHeight;
   }
+  updatePinnedToBottom();
+};
+// 更新是否停留在底部
+const updatePinnedToBottom = () => {
+  if (!containerRef.value) {
+    isPinnedToBottom.value = true;
+    return;
+  }
+  const { scrollTop: currentScrollTop, scrollHeight, clientHeight } = containerRef.value;
+  isPinnedToBottom.value = scrollHeight - currentScrollTop - clientHeight < 24;
 };
 
-watchEffect(() => {
-  if (props.virtual) {
-    updateContainerHeight();
-    nextTick(() => {
-      scrollToBottom();
-    })
+watch(() => props.virtual, async () => {
+  updateContainerHeight();
+  await nextTick();
+  updatePinnedToBottom();
+});
+watch(() => props.items.length, async (newLength, oldLength) => {
+  const shouldAutoScroll = props.autoScroll && newLength > oldLength && isPinnedToBottom.value;
+  updateContainerHeight();
+  if (!shouldAutoScroll) {
+    await nextTick();
+    updatePinnedToBottom();
+    return;
   }
+  await nextTick();
+  scrollToBottom();
 });
 /*
 |--------------------------------------------------------------------------

@@ -46,6 +46,8 @@ import LoginEmail from './components/LoginEmail.vue';
 import ServerConfig from './components/ServerConfig.vue';
 import ForgotPassword from './components/ForgotPassword.vue';
 import { useSystemConfig } from '@/store/systemConfig/systemConfigStore';
+import { router } from '@/router';
+import { brandConfig } from '@src/config/brand';
 
 const { t } = useI18n();
 const config = ref(globalConfig);
@@ -53,6 +55,10 @@ const activeName = ref('loginAccount');
 const showForgotPassword = ref(false);
 const systemConfigStore = useSystemConfig();
 onMounted(() => {
+  if (brandConfig.offlineOnly) {
+    router.replace('/home');
+    return;
+  }
   systemConfigStore.fetchConfig();
 });
 //显示忘记密码界面

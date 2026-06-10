@@ -253,6 +253,7 @@ import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import { useProjectManagerStore } from '@/store/projectManager/projectManagerStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { IPC_EVENTS } from '@src/types/ipc'
+import { brandConfig } from '@src/config/brand'
 
 
 type Operation = {
@@ -318,7 +319,7 @@ const { projectName } = storeToRefs(projectWorkbenchStore)
 const initCacheOperation = () => {
   const localPinToolbarOperations = projectWorkbenchCache.getProjectWorkbenchPinToolbarOperations();
   const availableOperations = originOperaions.filter((v) => {
-    if (isStandalone.value && v.op === 'generateLink') {
+    if ((isStandalone.value || brandConfig.offlineOnly) && v.op === 'generateLink') {
       return false;
     }
     return true;
@@ -380,6 +381,9 @@ const handleEmit = (op: ApidocOperations) => {
       emits('fresh');
       break;
     case 'generateLink': //项目分享
+      if (brandConfig.offlineOnly) {
+        break;
+      }
       projectNavStore.addNav({
         _id: 'onlineLink',
         projectId,

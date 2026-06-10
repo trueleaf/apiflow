@@ -1,5 +1,6 @@
 import type { AppTheme } from '@src/types';
 import { config } from '@src/config/config';
+import { brandConfig } from '@src/config/brand';
 import { logger } from '@/helper/logger';
 import { cacheKey } from '../cacheKey';
 class AppSettingsCache {
@@ -202,6 +203,10 @@ class AppSettingsCache {
   // 是否配置了在线页面地址
   hasOnlineUrl(): boolean {
     try {
+      if (brandConfig.offlineOnly) {
+        localStorage.removeItem(cacheKey.settings.app.onlineUrl);
+        return false;
+      }
       return !!localStorage.getItem(cacheKey.settings.app.onlineUrl);
     } catch (error) {
       logger.error('获取在线页面地址配置状态失败', { error });
@@ -211,6 +216,10 @@ class AppSettingsCache {
   // 获取在线页面地址
   getOnlineUrl(): string {
     try {
+      if (brandConfig.offlineOnly) {
+        localStorage.removeItem(cacheKey.settings.app.onlineUrl);
+        return '';
+      }
       const onlineUrl = localStorage.getItem(cacheKey.settings.app.onlineUrl);
       return onlineUrl || '';
     } catch (error) {
@@ -221,6 +230,10 @@ class AppSettingsCache {
   // 设置在线页面地址
   setOnlineUrl(onlineUrl: string) {
     try {
+      if (brandConfig.offlineOnly) {
+        localStorage.removeItem(cacheKey.settings.app.onlineUrl);
+        return;
+      }
       localStorage.setItem(cacheKey.settings.app.onlineUrl, onlineUrl);
     } catch (error) {
       logger.error('设置在线页面地址失败', { error });

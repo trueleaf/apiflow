@@ -224,6 +224,10 @@ const initAppHeaderEvent = () => {
     router.push(path)
   })
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, (mode: RuntimeNetworkMode) => {
+    if (brandConfig.offlineOnly) {
+      runtimeStore.setNetworkMode('offline')
+      return
+    }
     if (runtimeStore.networkMode !== mode) {
       runtimeStore.setNetworkMode(mode)
     }
@@ -331,9 +335,10 @@ const initAppHeaderEvent = () => {
 */
 const initAppHeaderTabs = async () => {
   // 从缓存读取 tabs 和 activeTabId，如果不存在则使用空值
-  const tabs = appWorkbenchCache.getAppWorkbenchHeaderTabs() || [];
+  const cachedTabs = appWorkbenchCache.getAppWorkbenchHeaderTabs() || [];
+  const tabs = brandConfig.offlineOnly ? cachedTabs.filter(tab => tab.network === 'offline') : cachedTabs;
   const cachedActiveTabId = appWorkbenchCache.getAppWorkbenchHeaderActiveTab() || ''
-  const activeTabId = cachedActiveTabId
+  const activeTabId = tabs.some(tab => tab.id === cachedActiveTabId) ? cachedActiveTabId : ''
   // 发送给 header.vue，包含当前的语言和网络模式
   window.electronAPI?.ipcManager.sendToMain(
     IPC_EVENTS.apiflow.contentToTopBar.initTabs,
@@ -341,7 +346,7 @@ const initAppHeaderTabs = async () => {
       tabs,
       activeTabId,
       language: runtimeStore.language,
-      networkMode: runtimeStore.networkMode
+      networkMode: brandConfig.offlineOnly ? 'offline' : runtimeStore.networkMode
     }
   );
   // 如果没有 activeTabId，跳转到主页
@@ -461,7 +466,7 @@ const initAppHeader = () => {
         } else if (newRoute.path === '/home') {
           window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToHome)
         } else if (newRoute.path === '/login') {
-          if (runtimeStore.networkMode === 'online') {
+          if (!brandConfig.offlineOnly && runtimeStore.networkMode === 'online') {
             window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToLogin)
           }
         } else if (newRoute.path === '/settings') {
@@ -496,6 +501,9 @@ watch(
 )
 
 onMounted(() => {
+  if (brandConfig.offlineOnly) {
+    runtimeStore.setNetworkMode('offline');
+  }
   initWelcom();
   initLanguage();
   initTheme();

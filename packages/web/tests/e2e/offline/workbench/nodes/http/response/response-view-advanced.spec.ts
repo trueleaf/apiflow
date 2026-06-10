@@ -128,6 +128,18 @@ test.describe('ResponseViewAdvanced-Offline', () => {
     await expect.poll(async () => sseMessages.count(), { timeout: 15000 }).toBeGreaterThanOrEqual(5);
     await expect(responseBody.locator('.sse-view .filter-container')).toBeVisible({ timeout: 10000 });
     await expect(responseBody).toContainText('omega');
+    const sseScrollContainer = responseBody.locator('.sse-content.virtual-scroll-container');
+    await sseScrollContainer.evaluate((element) => {
+      element.scrollTop = 0;
+      element.dispatchEvent(new Event('scroll'));
+    });
+    await expect(sseMessages.first()).toBeVisible({ timeout: 5000 });
+    const scrollTopBeforeClick = await sseScrollContainer.evaluate((element) => element.scrollTop);
+    await sseMessages.first().click();
+    await expect(contentPage.locator('.sse-message-detail')).toBeVisible({ timeout: 5000 });
+    await contentPage.waitForTimeout(300);
+    const scrollTopAfterClick = await sseScrollContainer.evaluate((element) => element.scrollTop);
+    expect(scrollTopAfterClick).toBeLessThanOrEqual(scrollTopBeforeClick + 24);
     // 创建第二个节点并验证中断场景下界面状态
     await createNode(contentPage, { nodeType: 'http', name: '离线-SSE中断专项' });
     await expect(urlInput).toBeVisible({ timeout: 5000 });

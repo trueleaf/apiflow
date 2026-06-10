@@ -4,7 +4,7 @@
     <SVariable v-else-if="currentSelectNav.tabType === 'variable'"></SVariable>
     <SExportDoc v-else-if="currentSelectNav.tabType === 'exportDoc'"></SExportDoc>
     <SImportDoc v-else-if="currentSelectNav.tabType === 'importDoc'"></SImportDoc>
-    <SOnlineLink v-else-if="currentSelectNav.tabType === 'onlineLink'"></SOnlineLink>
+    <SOnlineLink v-else-if="currentSelectNav.tabType === 'onlineLink' && !brandConfig.offlineOnly"></SOnlineLink>
     <SRecycler v-else-if="currentSelectNav.tabType === 'recycler'" :key="recyclerKey.toString()"></SRecycler>
     <SHistory v-else-if="currentSelectNav.tabType === 'history'"></SHistory>
     <SCommonHeader v-else-if="currentSelectNav.tabType === 'commonHeader'"></SCommonHeader>
@@ -36,6 +36,7 @@ import SRecycler from './recycler/Recycler.vue'
 import SHistory from '../../audit/Audit.vue'
 import SCommonHeader from '../../commonHeader/CommonHeader.vue'
 import SWebsocket from '../../websocketNode/WebsocketNode.vue'
+import { brandConfig } from '@src/config/brand'
 
 const route = useRoute();
 const projectNavStore = useProjectNav()

@@ -12,10 +12,12 @@ const rawArgs = process.argv.slice(2)
 const target = allowedTargets.includes(rawArgs[0] ?? '') ? rawArgs[0] : ''
 const args = target ? rawArgs.slice(1) : rawArgs
 const nameIndex = args.indexOf('--name')
-const appName = nameIndex >= 0 ? args[nameIndex + 1]?.trim() : ''
+const flagName = nameIndex >= 0 ? args[nameIndex + 1]?.trim() : ''
+const positionalName = args.find((arg) => !arg.startsWith('-'))?.trim() ?? ''
+const appName = flagName || positionalName
 
 if (!appName) {
-  process.stderr.write('纯净构建需要传入应用名称，例如：npm run build:clean:win -- --name MyTool\n')
+  process.stderr.write('纯净构建需要传入应用名称，例如：npm run build:clean:win -- --name MyTool 或 npm run build:clean:win -- MyTool\n')
   process.exit(1)
 }
 

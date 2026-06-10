@@ -1,5 +1,5 @@
 <template>
-  <div class="server-config-container">
+  <div v-if="!brandConfig.offlineOnly" class="server-config-container">
     <div class="form-item">
       <div class="form-label">
         {{ t('接口调用地址') }}
@@ -69,6 +69,7 @@ import { message } from '@/helper'
 import { updateAxiosBaseURL } from '@/api/api'
 import { isElectron } from '@/helper'
 import { IPC_EVENTS } from '@src/types/ipc'
+import { brandConfig } from '@src/config/brand'
 
 const { t } = useI18n()
 const appSettingsStore = useAppSettings()
@@ -137,6 +138,9 @@ const fetchCurrentOnlineUrl = async () => {
 }
 
 const handleSave = async () => {
+  if (brandConfig.offlineOnly) {
+    return
+  }
   const trimmedUrl = localServerUrl.value.trim()
   const trimmedProxyUrl = localProxyServerUrl.value.trim()
   const trimmedOnlineUrl = localOnlineUrl.value.trim()
@@ -176,6 +180,9 @@ const handleSave = async () => {
 }
 
 const handleReset = async () => {
+  if (brandConfig.offlineOnly) {
+    return
+  }
   try {
     await ClConfirm({
       content: t('确认将所有配置恢复为默认值吗？'),
@@ -206,7 +213,9 @@ const handleReset = async () => {
 }
 
 onMounted(() => {
-  fetchCurrentOnlineUrl()
+  if (!brandConfig.offlineOnly) {
+    fetchCurrentOnlineUrl()
+  }
 })
 </script>
 

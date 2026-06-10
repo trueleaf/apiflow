@@ -38,6 +38,7 @@
           <span class="language-text">{{ currentLanguageDisplay }}</span>
         </div>
         <div 
+          v-if="!brandConfig.offlineOnly"
           :title="networkMode === 'online' ? t('联网模式') : t('离线模式')" 
           data-testid="header-network-toggle"
           @click="toggleNetworkMode" 
@@ -96,6 +97,7 @@ import type { AppWorkbenchHeaderTab } from '@src/types/appWorkbench/appWorkbench
 import { useAgentViewStore } from '@/store/ai/agentView'
 import LanguageMenu from '@/components/common/language/Language.vue'
 import UserMenu from '@/components/common/userMenu/UserMenu.vue'
+import { brandConfig } from '@src/config/brand'
 
 const emit = defineEmits<{
   (e: 'createProject'): void
@@ -278,6 +280,9 @@ const jumpToSettings = () => {
   switchTab(settingsTabId)
 }
 const toggleNetworkMode = () => {
+  if (brandConfig.offlineOnly) {
+    return
+  }
   const newMode = networkMode.value === 'online' ? 'offline' : 'online'
   networkMode.value = newMode
   runtimeStore.setNetworkMode(newMode)
@@ -327,10 +332,10 @@ const switchToProject = (projectId: string, projectName: string) => {
 const initTabs = () => {
   const cachedTabs = appWorkbenchCache.getAppWorkbenchHeaderTabs() || []
   const cachedActiveTabId = appWorkbenchCache.getAppWorkbenchHeaderActiveTab() || ''
-  tabs.value = cachedTabs
-  activeTabId.value = cachedActiveTabId
+  tabs.value = brandConfig.offlineOnly ? cachedTabs.filter(tab => tab.network === 'offline') : cachedTabs
+  activeTabId.value = tabs.value.some(tab => tab.id === cachedActiveTabId) ? cachedActiveTabId : ''
   language.value = runtimeStore.language
-  networkMode.value = runtimeStore.networkMode
+  networkMode.value = brandConfig.offlineOnly ? 'offline' : runtimeStore.networkMode
   scrollToActiveTab()
 }
 // 监听路由变化

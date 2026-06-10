@@ -36,16 +36,13 @@
     </DraggableDialog>
   </div>
 </template>
-
 <script lang="ts" setup>
 import { ref, watch, onMounted, computed, defineAsyncComponent } from 'vue';
 import DraggableDialog from '@/components/ui/cleanDesign/draggableDialog/DraggableDialog.vue';
 import { Filter } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 import type { FilterConfigDialogProps, FilterConfigDialogEmits, FilteredDataPayload } from '@src/types/components/components';
-
 const CodeEditor = defineAsyncComponent(() => import('@/components/ui/cleanDesign/codeEditor/CodeEditor.vue'));
-
 const DEFAULT_FILTER_CODE = `const buffer = [];
 function filter(chunk) {
   // chunk代表当前行的原始数据，例如：{ event: string, data: string, timestamp: number }
@@ -63,23 +60,17 @@ function filter(chunk) {
     return null;
   }
 }`;
-
 type FilterConfigState = {
   enabled: boolean;
   code: string;
 };
-
 type FilterExecutor = (chunk: unknown) => unknown;
-
 const FILTER_STORAGE_KEY = 'sseFilterConfig';
-
 const props = withDefaults(defineProps<FilterConfigDialogProps>(), {
   modelValue: false,
   sourceData: () => [],
 });
-
 const emit = defineEmits<FilterConfigDialogEmits>();
-
 const { t } = useI18n();
 const isDialogVisible = ref(false);
 const localFilterConfig = ref<FilterConfigState>({
@@ -154,7 +145,7 @@ onMounted(() => {
   const savedConfig = localStorage.getItem(FILTER_STORAGE_KEY);
   if (savedConfig) {
     try {
-      const parsed = JSON.parse(savedConfig);
+      const parsed = JSON.parse(savedConfig) as Partial<FilterConfigState>;
       localFilterConfig.value = {
         enabled: parsed.enabled ?? false,
         code: parsed.code || DEFAULT_FILTER_CODE,
@@ -164,7 +155,6 @@ onMounted(() => {
   }
 });
 </script>
-
 <style lang="scss" scoped>
 .filter-config-wrapper {
   display: inline-flex;

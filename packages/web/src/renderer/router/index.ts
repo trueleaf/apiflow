@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { useRuntime } from "@/store/runtime/runtimeStore.ts";
+import { brandConfig } from "@src/config/brand";
 import { trackPageView } from '@/utils/analytics';
 import { projectCache } from '@/cache/project/projectCache';
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
@@ -150,6 +151,10 @@ router.beforeEach(async (to, _, next) => {
   const runtimeStore = useRuntime();
   if (!runtimeStore.userInfo.id) {
     runtimeStore.initUserInfo()
+  }
+  if (brandConfig.offlineOnly && to.path === '/login') {
+    next('/home');
+    return;
   }
   // 需要数据库的页面路径
   const dbRequiredPaths = ['/workbench', '/home'];

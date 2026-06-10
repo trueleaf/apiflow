@@ -1,5 +1,6 @@
 export const brandConfig = {
   isCleanMode: __APP_CLEAN_MODE__,
+  offlineOnly: __APP_CLEAN_MODE__,
   appName: __APP_BRAND_NAME__,
   officialLinksEnabled: !__APP_CLEAN_MODE__,
   defaultServerUrl: __APP_DEFAULT_SERVER_URL__,

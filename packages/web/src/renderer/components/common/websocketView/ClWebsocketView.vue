@@ -22,7 +22,8 @@
       :virtual="false"
       :item-height="28">
       <template #default="{ item }">
-        <div 
+        <div
+          v-if="isWebsocketDisplayItem(item)"
           class="websocket-message" 
           @click="handleMessageClick(item.originalIndex, $event)"
           @contextmenu.stop.prevent="handleContextmenu($event, item.originalIndex)"
@@ -107,6 +108,7 @@ const props = withDefaults(defineProps<ClWebsocketViewProps>(), {
   dataList: () => [],
 });
 const emit = defineEmits<ClWebsocketViewEmits>();
+type WebsocketDisplayItem = WebsocketResponse & { originalIndex: number };
 
 const filterText = ref('');
 const isRegexMode = ref(false);
@@ -119,6 +121,9 @@ const showContextmenu = ref(false);
 const contextmenuLeft = ref(0);
 const contextmenuTop = ref(0);
 const currentRightClickIndex = ref(-1);
+const isWebsocketDisplayItem = (item: unknown): item is WebsocketDisplayItem => {
+  return typeof item === 'object' && item !== null && 'originalIndex' in item;
+};
 
 // 计算是否显示统计信息并需要添加margin-top
 const shouldAddMarginTop = computed(() => filterText.value && isSearchInputVisible.value);

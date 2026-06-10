@@ -1,7 +1,7 @@
 <template>
   <div ref="sseViewContainerRef" class="sse-view">
     <!-- 筛选框 -->
-    <div v-if="dataList && dataList.length > 0 && props.isDataComplete" class="filter-container">
+    <div v-if="dataList && dataList.length > 0" class="filter-container">
       <!-- 收起状态：只显示搜索图标 -->
       <div class="filter-collapsed">
         <div v-if="isSearchInputVisible" class="compact-search-row">
@@ -25,6 +25,16 @@
             :source-data="formattedData"
             @filtered-data-change="handleFilteredDataChange"
           />
+          <button
+            type="button"
+            class="icon markdown-view-icon"
+            :class="{ active: activeViewMode === 'markdown' }"
+            :title="t('Markdown展示')"
+            @click="switchViewMode('markdown')"
+          >
+            <FileText :size="16" />
+            <span class="md-icon-text">MD</span>
+          </button>
           <el-icon class="icon raw-view-icon" :class="{ active: isRawView }" @click="toggleRawView"
             :title="t('切换原始数据视图')">
             <Document />
@@ -58,6 +68,9 @@
     <div v-else-if="isRawView" class="raw-content">
       <pre class="raw-data" v-html="rawDataContent"></pre>
     </div>
+    <div v-else-if="activeViewMode === 'markdown'" class="markdown-content">
+      <VueMarkdownRender class="markdown-render" :source="markdownDataContent" :options="markdownOptions" />
+    </div>
     <div v-else-if="overrideDisplayText" class="filtered-result-block">
       <pre class="filtered-result-text" v-html="highlightText(overrideDisplayText)"></pre>
     </div>
@@ -65,7 +78,7 @@
     <GVirtualScroll v-else class="sse-content" :items="displayData" :auto-scroll="true" :virtual="isVirtualEnabled"
       :item-height="25">
       <template #default="{ item }">
-        <div :ref="el => setMessageRef(el, item.originalIndex)" class="sse-message"
+        <div v-if="isSseDisplayItem(item)" :ref="el => setMessageRef(el, item.originalIndex)" class="sse-message"
           :class="{ 'sse-message-hex': item.dataType === 'binary' }"
           @click="handleMessageClick(item.originalIndex, $event)">
           <div class="message-index">{{ item.originalIndex + 1 }}</div>
@@ -77,7 +90,7 @@
       </template>
     </GVirtualScroll>
     <!-- SSE 消息详情弹窗 -->
-    <SsePopover v-if="!isRawView" :visible="activePopoverIndex !== -1" :message="currentMessage"
+    <SsePopover v-if="activeViewMode === 'event'" :visible="activePopoverIndex !== -1" :message="currentMessage"
       :message-index="activePopoverIndex" :virtual-ref="popoverVirtualRef" @hide="handlePopoverHide"
       @close="handleClosePopover" />
   </div>
@@ -89,6 +102,7 @@ import { parseChunkList } from '@/helper';
 import { debounce } from "lodash-es";
 import { computed, ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
 import type { ComponentPublicInstance } from 'vue';
+import VueMarkdownRender from 'vue-markdown-render';
 
 import dayjs from 'dayjs';
 import type { ChunkWithTimestampe, ParsedSSeData } from '@src/types/index.ts';
@@ -96,6 +110,7 @@ import GVirtualScroll from '@/components/apidoc/virtualScroll/ClVirtualScroll.vu
 import SsePopover from './components/popover/SsePopover.vue';
 import FilterConfigDialog from './components/filter/FilterConfigDialog.vue';
 import { Loading, Search, Download, Document } from '@element-plus/icons-vue';
+import { FileText } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { router } from '@/router';
@@ -127,18 +142,28 @@ const isRegexMode = ref(false);
 const filterError = ref('');
 const filterInputRef = ref<HTMLInputElement | null>(null);
 const isSearchInputVisible = ref(false);
-const isRawView = ref(false);
 const popoverVirtualRef = ref<HTMLElement | null>(null);
 const activePopoverIndex = ref(-1);
 const messageRefs = ref<Record<number, HTMLElement>>({});
-
+const SSE_VIEW_MODE_STORAGE_KEY = 'sseViewMode';
+type SseViewMode = 'event' | 'raw' | 'markdown';
 type FilteredDataPayload = {
   list: unknown[];
   finalValue: unknown | null;
 };
-
+const resolveInitialViewMode = (): SseViewMode => {
+  const savedViewMode = localStorage.getItem(SSE_VIEW_MODE_STORAGE_KEY);
+  return savedViewMode === 'raw' || savedViewMode === 'markdown' ? savedViewMode : 'event';
+};
+const activeViewMode = ref<SseViewMode>(resolveInitialViewMode());
+const isRawView = computed(() => activeViewMode.value === 'raw');
 const isFilterDialogVisible = ref(false);
 const customFilteredDataFromChild = ref<FilteredDataPayload>({ list: [], finalValue: null });
+const markdownOptions = {
+  html: true,
+  breaks: true,
+  linkify: true
+};
 
 type SseDisplayItem = ParsedSSeData & { originalIndex: number };
 
@@ -147,7 +172,7 @@ type SseDisplayItem = ParsedSSeData & { originalIndex: number };
 | 计算属性
 |--------------------------------------------------------------------------
 */
-const isVirtualEnabled = computed(() => props.isDataComplete && activePopoverIndex.value === -1);
+const isVirtualEnabled = computed(() => props.isDataComplete);
 const currentMessage = computed<ParsedSSeData | null>(() => activePopoverIndex.value !== -1 ? formattedData.value[activePopoverIndex.value] : null);
 const formattedData = computed<ParsedSSeData[]>(() => {
   if (!props.dataList || props.dataList.length === 0) {
@@ -249,6 +274,7 @@ const displayData = computed<SseDisplayItem[]>(() => {
   }
   return customFilteredData.value.map((item, index) => ({ ...item, originalIndex: index }));
 });
+const markdownDataContent = computed(() => formattedData.value.map(item => item.data).join(''));
 const rawDataContent = computed(() => {
   if (!props.dataList || props.dataList.length === 0) {
     return '';
@@ -269,6 +295,9 @@ const rawDataContent = computed(() => {
   }
   return rawContent;
 });
+const isSseDisplayItem = (item: unknown): item is SseDisplayItem => {
+  return typeof item === 'object' && item !== null && 'originalIndex' in item;
+};
 
 /*
 |--------------------------------------------------------------------------
@@ -354,10 +383,12 @@ const highlightText = (text: string): string => {
 |--------------------------------------------------------------------------
 */
 const toggleRawView = () => {
-  isRawView.value = !isRawView.value;
-  if (isRawView.value) {
-    activePopoverIndex.value = -1;
-  }
+  switchViewMode(activeViewMode.value === 'raw' ? 'event' : 'raw');
+};
+const switchViewMode = (viewMode: SseViewMode) => {
+  activeViewMode.value = viewMode;
+  localStorage.setItem(SSE_VIEW_MODE_STORAGE_KEY, viewMode);
+  activePopoverIndex.value = -1;
 };
 
 /*
@@ -391,7 +422,6 @@ const generateRawContent = (): string => {
   });
   return lines.join('');
 };
-
 const handleFilteredDataChange = (data: FilteredDataPayload) => {
   customFilteredDataFromChild.value = data;
 };
@@ -668,6 +698,49 @@ onBeforeUnmount(() => {
         }
       }
 
+      .markdown-view-icon {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border: none;
+        border-radius: 3px;
+        color: var(--text-secondary);
+        background-color: transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        svg {
+          stroke-width: 1.7;
+        }
+
+        .md-icon-text {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -35%);
+          font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+          font-size: 8px;
+          font-weight: 700;
+          line-height: 1;
+          color: currentColor;
+          pointer-events: none;
+        }
+
+        &:hover {
+          color: var(--primary, var(--el-color-primary));
+          background-color: var(--bg-hover);
+        }
+
+        &.active {
+          color: var(--primary, var(--el-color-primary));
+          background-color: var(--bg-active);
+        }
+      }
+
       .raw-view-icon {
         width: 28px;
         height: 28px;
@@ -861,6 +934,118 @@ onBeforeUnmount(() => {
       line-height: 1.4;
       background: none;
       border: none;
+    }
+  }
+
+  .markdown-content {
+    flex: 1;
+    overflow: auto;
+    padding: 12px 16px;
+    margin: 0 12px 12px 12px;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+
+    .markdown-render {
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--text-primary);
+
+      :deep(> :first-child) {
+        margin-top: 0;
+      }
+
+      :deep(> :last-child) {
+        margin-bottom: 0;
+      }
+
+      :deep(h1),
+      :deep(h2),
+      :deep(h3),
+      :deep(h4),
+      :deep(h5),
+      :deep(h6) {
+        margin: 12px 0 8px;
+        font-weight: 600;
+        line-height: 1.35;
+        color: var(--text-primary);
+      }
+
+      :deep(h1) {
+        font-size: 18px;
+      }
+
+      :deep(h2) {
+        font-size: 16px;
+      }
+
+      :deep(h3),
+      :deep(h4),
+      :deep(h5),
+      :deep(h6) {
+        font-size: 14px;
+      }
+
+      :deep(p) {
+        margin: 8px 0;
+      }
+
+      :deep(ul),
+      :deep(ol) {
+        margin: 8px 0;
+        padding-left: 22px;
+      }
+
+      :deep(li) {
+        margin: 3px 0;
+      }
+
+      :deep(code) {
+        padding: 2px 5px;
+        border-radius: 3px;
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 12px;
+      }
+
+      :deep(pre) {
+        margin: 10px 0;
+        padding: 10px 12px;
+        overflow: auto;
+        border: 1px solid var(--border-light);
+        border-radius: 4px;
+        background-color: var(--bg-secondary);
+      }
+
+      :deep(pre code) {
+        padding: 0;
+        background-color: transparent;
+      }
+
+      :deep(blockquote) {
+        margin: 10px 0;
+        padding-left: 12px;
+        border-left: 3px solid var(--border-base);
+        color: var(--text-secondary);
+      }
+
+      :deep(table) {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0;
+      }
+
+      :deep(th),
+      :deep(td) {
+        padding: 6px 8px;
+        border: 1px solid var(--border-light);
+      }
+
+      :deep(th) {
+        background-color: var(--bg-secondary);
+        font-weight: 600;
+      }
     }
   }
 

@@ -51,6 +51,7 @@
           <span class="icon-text">{{ currentLanguageDisplay }}</span>
         </button>
         <button 
+          v-if="!brandConfig.offlineOnly"
           class="icon-btn icon-btn-with-text" 
           :title="networkMode === 'online' ? t('联网模式') : t('离线模式')" 
           data-testid="header-network-toggle"
@@ -98,6 +99,7 @@ import draggable from 'vuedraggable'
  import { useTheme } from '@/hooks/useTheme'
  import { useRuntime } from '@/store/runtime/runtimeStore'
 import type { PermissionUserInfo } from '@src/types/project'
+import { brandConfig } from '@src/config/brand'
 
 const appSettingsStore = useAppSettings()
 const tabs = ref<AppWorkbenchHeaderTab[]>([])
@@ -394,6 +396,9 @@ const jumpToSettings = () => {
   switchTab(settingsTabId);
 }
 const toggleNetworkMode = () => {
+  if (brandConfig.offlineOnly) {
+    return
+  }
   const newMode = networkMode.value === 'online' ? 'offline' : 'online'
   if (runtimeStore.networkMode !== newMode) {
     runtimeStore.setNetworkMode(newMode)
@@ -508,11 +513,11 @@ const bindEvent = () => {
 
   // 监听来自 App.vue 的初始化数据
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.initTabsData, (data: { tabs: AppWorkbenchHeaderTab[], activeTabId: string, language: Language, networkMode: RuntimeNetworkMode }) => {
-    tabs.value = data.tabs || [];
-    activeTabId.value = data.activeTabId || '';
+    tabs.value = brandConfig.offlineOnly ? (data.tabs || []).filter(tab => tab.network === 'offline') : data.tabs || [];
+    activeTabId.value = tabs.value.some(tab => tab.id === data.activeTabId) ? data.activeTabId : '';
     language.value = data.language || 'zh-cn';
     skipNextNetworkModeWatch.value = true;
-    const nextNetworkMode = data.networkMode || 'offline';
+    const nextNetworkMode = brandConfig.offlineOnly ? 'offline' : data.networkMode || 'offline';
     if (nextNetworkMode === networkMode.value) {
       skipNextNetworkModeWatch.value = false;
     }
@@ -525,7 +530,7 @@ const bindEvent = () => {
 
   // 监听网络模式变更
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, (mode: RuntimeNetworkMode) => {
-    networkMode.value = mode;
+    networkMode.value = brandConfig.offlineOnly ? 'offline' : mode;
   });
 
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.appSettingsChanged, (data?: { appTitle: string, appLogo: string, appTheme: string, serverUrl?: string }) => {

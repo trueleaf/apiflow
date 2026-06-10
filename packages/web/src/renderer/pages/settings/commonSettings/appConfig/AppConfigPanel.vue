@@ -72,7 +72,7 @@
             </div>
           </div>
 
-          <div class="form-item form-item-full">
+          <div v-if="!brandConfig.offlineOnly" class="form-item form-item-full">
             <div class="form-label">
               <Globe :size="18" class="label-icon" />
               {{ t('接口调用地址') }}
@@ -85,7 +85,7 @@
             />
           </div>
 
-          <div class="form-item">
+          <div v-if="!brandConfig.offlineOnly" class="form-item">
             <div class="form-label">
               <Server :size="18" class="label-icon" />
               {{ t('HTTP代理地址') }}
@@ -98,7 +98,7 @@
             />
           </div>
 
-          <div class="form-item">
+          <div v-if="!brandConfig.offlineOnly" class="form-item">
             <div class="form-label">
               <Link :size="18" class="label-icon" />
               {{ t('在线页面地址') }}
@@ -111,7 +111,7 @@
             />
           </div>
 
-          <div class="form-item form-item-full">
+          <div v-if="!brandConfig.offlineOnly" class="form-item form-item-full">
             <div class="form-label">
               <BarChart3 :size="18" class="label-icon" />
               {{ t('帮助改进产品') }}
@@ -151,6 +151,7 @@ import type { UploadFile } from 'element-plus'
 import type { AppTheme } from '@src/types'
 import { message } from '@/helper'
 import { updateAxiosBaseURL } from '@/api/api'
+import { brandConfig } from '@src/config/brand'
 
 const { t } = useI18n()
 const appSettingsStore = useAppSettings()
@@ -165,8 +166,12 @@ const localProxyServerUrl = ref(appSettingsStore.proxyServerUrl)
 const localOnlineUrl = ref(appSettingsStore.onlineUrl)
 const localAnalyticsEnabled = ref(runtimeStore.analyticsEnabled)
 const hasChanges = computed(() => {
-  return localAppTitle.value.trim() !== appSettingsStore.appTitle ||
-    localAppTheme.value !== appSettingsStore.appTheme ||
+  const appChanged = localAppTitle.value.trim() !== appSettingsStore.appTitle ||
+    localAppTheme.value !== appSettingsStore.appTheme
+  if (brandConfig.offlineOnly) {
+    return appChanged
+  }
+  return appChanged ||
     localServerUrl.value.trim() !== appSettingsStore.serverUrl ||
     localProxyServerUrl.value.trim() !== appSettingsStore.proxyServerUrl ||
     localOnlineUrl.value.trim() !== appSettingsStore.onlineUrl ||
@@ -232,31 +237,35 @@ const handleSave = () => {
     message.warning(t('应用名称不能为空'))
     return
   }
-  if (!validateUrl(trimmedUrl)) {
-    message.warning(t('请输入有效的接口调用地址'))
-    return
-  }
-  if (!validateUrl(trimmedProxyUrl)) {
-    message.warning(t('请输入有效的HTTP代理地址'))
-    return
-  }
-  if (trimmedOnlineUrl && !validateUrl(trimmedOnlineUrl)) {
-    message.warning(t('请输入有效的在线页面地址'))
-    return
+  if (!brandConfig.offlineOnly) {
+    if (!validateUrl(trimmedUrl)) {
+      message.warning(t('请输入有效的接口调用地址'))
+      return
+    }
+    if (!validateUrl(trimmedProxyUrl)) {
+      message.warning(t('请输入有效的HTTP代理地址'))
+      return
+    }
+    if (trimmedOnlineUrl && !validateUrl(trimmedOnlineUrl)) {
+      message.warning(t('请输入有效的在线页面地址'))
+      return
+    }
   }
   appSettingsStore.setAppTitle(trimmedTitle)
   appSettingsStore.setAppTheme(localAppTheme.value)
-  appSettingsStore.setServerUrl(trimmedUrl)
-  appSettingsStore.setProxyServerUrl(trimmedProxyUrl)
-  appSettingsStore.setOnlineUrl(trimmedOnlineUrl)
-  const previousAnalyticsEnabled = runtimeStore.analyticsEnabled
-  runtimeStore.setAnalyticsEnabled(localAnalyticsEnabled.value)
-  if (localAnalyticsEnabled.value && !previousAnalyticsEnabled) {
-    loadAnalytics()
-  } else if (!localAnalyticsEnabled.value && previousAnalyticsEnabled) {
-    unloadAnalytics()
+  if (!brandConfig.offlineOnly) {
+    appSettingsStore.setServerUrl(trimmedUrl)
+    appSettingsStore.setProxyServerUrl(trimmedProxyUrl)
+    appSettingsStore.setOnlineUrl(trimmedOnlineUrl)
+    const previousAnalyticsEnabled = runtimeStore.analyticsEnabled
+    runtimeStore.setAnalyticsEnabled(localAnalyticsEnabled.value)
+    if (localAnalyticsEnabled.value && !previousAnalyticsEnabled) {
+      loadAnalytics()
+    } else if (!localAnalyticsEnabled.value && previousAnalyticsEnabled) {
+      unloadAnalytics()
+    }
+    updateAxiosBaseURL(trimmedUrl)
   }
-  updateAxiosBaseURL(trimmedUrl)
   message.success(t('配置已保存，即将刷新应用'))
   setTimeout(() => {
     window.location.reload()

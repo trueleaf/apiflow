@@ -26,11 +26,12 @@ export type ClParamsTreeEmits = {
 | ClVirtualScroll组件
 |--------------------------------------------------------------------------
 */
-export interface ClVirtualScrollProps {
-  items: any[];
+export type ClVirtualScrollProps = {
+  items: unknown[];
   itemHeight: number;
   bufferSize?: number; //可见区域上下额外渲染多少个条目
   virtual?: boolean; // 是否开启虚拟滚动
+  autoScroll?: boolean; // 数据新增时是否自动滚动到底部
 }
 
 /*
@@ -240,17 +241,17 @@ export interface ClSseViewProps {
 | FilterConfigDialog组件
 |--------------------------------------------------------------------------
 */
-export interface FilteredDataPayload {
+export type FilteredDataPayload = {
   list: unknown[];
   finalValue: unknown | null;
 }
 
-export interface FilterConfigDialogProps {
+export type FilterConfigDialogProps = {
   modelValue: boolean;
   sourceData: unknown[];
 }
 
-export interface FilterConfigDialogEmits {
+export type FilterConfigDialogEmits = {
   (e: 'update:modelValue', value: boolean): void;
   (e: 'filteredDataChange', data: FilteredDataPayload): void;
 }

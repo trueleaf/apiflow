@@ -1,11 +1,16 @@
 import type { RuntimeNetworkMode } from '@src/types/runtime'
 import type { PermissionUserInfo } from '@src/types/project'
 import type { Language } from '@src/types/common'
+import { brandConfig } from '@src/config/brand'
 import { logger } from '@/helper/logger'
 import { cacheKey } from '../cacheKey'
 class RuntimeCache {
   getNetworkMode(): RuntimeNetworkMode {
     try {
+      if (brandConfig.offlineOnly) {
+        localStorage.setItem(cacheKey.runtime.networkMode, 'offline')
+        return 'offline'
+      }
       const v = localStorage.getItem(cacheKey.runtime.networkMode)
       if (!v) return 'offline'
       if (v === 'online' || v === 'offline') return v
@@ -17,7 +22,7 @@ class RuntimeCache {
   }
   setNetworkMode(mode: RuntimeNetworkMode): boolean {
     try {
-      localStorage.setItem(cacheKey.runtime.networkMode, mode)
+      localStorage.setItem(cacheKey.runtime.networkMode, brandConfig.offlineOnly ? 'offline' : mode)
       return true
     } catch (error) {
       logger.error('设置网络模式失败', { error })
