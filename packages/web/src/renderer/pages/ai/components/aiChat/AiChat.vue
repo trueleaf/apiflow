@@ -13,12 +13,6 @@
         <Sparkles v-if="agentViewStore.mode === 'agent'" class="ai-empty-icon" :size="48" />
         <Bot v-else class="ai-empty-icon" :size="48" />
         <p class="ai-empty-text">{{ emptyText }}</p>
-        <div v-if="llmClientStore.useFreeLLM" class="ai-free-api-tip">
-          <span class="tip-text">{{ t('目前使用免费 API 可能不稳定，建议') }}</span>
-          <button class="tip-link" type="button" @click="agentViewStore.openConfig()">
-            {{ t('配置自定义 API Key') }}
-          </button>
-        </div>
       </div>
       <template v-else>
         <div
@@ -120,12 +114,10 @@ import { Sparkles, Bot, AlertTriangle, ArrowRight, Loader2, ChevronDown, Chevron
 import VueMarkdownRender from 'vue-markdown-render'
 import type MarkdownIt from 'markdown-it'
 import { useAgentViewStore } from '@/store/ai/agentView'
-import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import type { ConversationMessage } from '@src/types/ai'
 
 const { t } = useI18n()
 const agentViewStore = useAgentViewStore()
-const llmClientStore = useLLMClientStore()
 const messagesRef = ref<HTMLElement | null>(null)
 const collapsedMessages = ref(new Set<string>())
 const processedToolCallIds = ref(new Set<string>())
@@ -243,29 +235,6 @@ watch(() => agentViewStore.agentMessages, (messages) => {
 .ai-empty-text {
   font-size: 14px;
   margin: 0;
-}
-.ai-free-api-tip {
-  margin-top: 12px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: var(--el-color-warning);
-}
-.tip-text {
-  color: var(--ai-text-secondary);
-}
-.tip-link {
-  background: none;
-  border: none;
-  color: var(--el-color-primary);
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 0;
-  font-size: 12px;
-}
-.tip-link:hover {
-  opacity: 0.8;
 }
 .ai-config-btn {
   display: flex;

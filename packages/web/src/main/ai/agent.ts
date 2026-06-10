@@ -1,15 +1,23 @@
 import { got } from 'got';
 import type { ChatRequestBody, OpenAiResponseBody, LLMProviderSetting, ChatStreamCallbacks } from '@src/types/ai/agent.type';
-import { config } from '@src/config/config';
-import { nanoid } from 'nanoid';
-import { sha256, parseUrl, getStrParams, getStrJsonBody, getStrHeader } from '../utils/sign';
 
 // AI 请求超时时间（60秒）
 const AI_REQUEST_TIMEOUT = 60 * 1000;
-// 获取服务器LLM API地址
-const getServerLLMUrl = (stream: boolean) => {
-  const baseUrl = config.renderConfig.httpRequest.url;
-  return stream ? `${baseUrl}/api/llm/chat/stream` : `${baseUrl}/api/llm/chat`;
+// 解析额外请求体
+const parseExtraBody = (extraBody?: string): Record<string, unknown> => {
+  const extraBodyText = extraBody?.trim() ?? '';
+  if (!extraBodyText) {
+    return {};
+  }
+  try {
+    const parsed: unknown = JSON.parse(extraBodyText);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+  } catch {
+    return {};
+  }
+  return {};
 };
 // LLM 客户端类
 export class LLMClient {
@@ -19,69 +27,12 @@ export class LLMClient {
     this.config = newConfig;
   }
   // 非流式聊天
-  async chat(body: ChatRequestBody, useFreeLLM = false): Promise<OpenAiResponseBody> {
-    // 使用免费LLM服务，直接调用服务器接口
-    if (useFreeLLM) {
-      const targetUrl = getServerLLMUrl(false);
-      const timestamp = Date.now();
-      const nonce = nanoid();
-      const method = 'post';
-      // 从完整 URL 中提取路径部分（服务端验签使用 ctx.url 只包含路径）
-      let urlForSign = targetUrl;
-      if (urlForSign.startsWith('http://') || urlForSign.startsWith('https://')) {
-        try {
-          const urlObj = new URL(urlForSign);
-          urlForSign = urlObj.pathname + urlObj.search;
-        } catch {
-          // URL 解析失败，使用原值
-        }
-      }
-      const parsedUrlInfo = parseUrl(urlForSign);
-      const url = parsedUrlInfo.url;
-      const strParams = getStrParams(parsedUrlInfo.queryParams);
-      const strBody = getStrJsonBody(body);
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json'
-      };
-      const { strHeader, sortedHeaderKeys } = getStrHeader(headers);
-      const signContent = `${method}\n${url}\n${strParams}\n${strBody}\n${strHeader}\n${timestamp}\n${nonce}`;
-      headers['x-sign'] = sha256(signContent);
-      headers['x-sign-headers'] = sortedHeaderKeys.join(',');
-      headers['x-sign-timestamp'] = String(timestamp);
-      headers['x-sign-nonce'] = nonce;
-      const response = await got.post<OpenAiResponseBody>(
-        targetUrl,
-        {
-          headers,
-          json: body,
-          responseType: 'json',
-          timeout: { request: AI_REQUEST_TIMEOUT }
-        }
-      );
-      const responseBody = response.body as unknown;
-      if (responseBody && typeof responseBody === 'object' && 'success' in responseBody && responseBody.success === false && 'message' in responseBody) {
-        const errorResponse = responseBody as { success: boolean; code: string; message: string };
-        throw new Error(errorResponse.message);
-      }
-      return response.body;
-    }
-    // 使用用户自己配置的LLM服务
+  async chat(body: ChatRequestBody): Promise<OpenAiResponseBody> {
     if (!this.config) {
       throw new Error('LLM 配置未初始化，请先配置 API Key 和 Base URL');
     }
     const { apiKey, baseURL, model, customHeaders, extraBody } = this.config;
-    const extraBodyText = extraBody?.trim() ?? '';
-    let resolvedExtraBody: Record<string, unknown> = {};
-    if (extraBodyText) {
-      try {
-        const parsed: unknown = JSON.parse(extraBodyText);
-        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-          resolvedExtraBody = parsed as Record<string, unknown>;
-        }
-      } catch {
-        resolvedExtraBody = {};
-      }
-    }
+    const resolvedExtraBody = parseExtraBody(extraBody);
     const requestBody = { ...resolvedExtraBody, ...body, model, stream: false };
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${apiKey}`,
@@ -110,89 +61,16 @@ export class LLMClient {
     return response.body;
   }
   // 流式聊天
-  chatStream(body: ChatRequestBody, callbacks: ChatStreamCallbacks, useFreeLLM = false) {
+  chatStream(body: ChatRequestBody, callbacks: ChatStreamCallbacks) {
     const abortController = new AbortController();
-    // 使用免费LLM服务，直接调用服务器接口
-    if (useFreeLLM) {
-      const targetUrl = getServerLLMUrl(true);
-      const timestamp = Date.now();
-      const nonce = nanoid();
-      const method = 'post';
-      // 从完整 URL 中提取路径部分（服务端验签使用 ctx.url 只包含路径）
-      let urlForSign = targetUrl;
-      if (urlForSign.startsWith('http://') || urlForSign.startsWith('https://')) {
-        try {
-          const urlObj = new URL(urlForSign);
-          urlForSign = urlObj.pathname + urlObj.search;
-        } catch {
-          // URL 解析失败，使用原值
-        }
-      }
-      const parsedUrlInfo = parseUrl(urlForSign);
-      const url = parsedUrlInfo.url;
-      const strParams = getStrParams(parsedUrlInfo.queryParams);
-      const strBody = getStrJsonBody(body);
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json'
-      };
-      const { strHeader, sortedHeaderKeys } = getStrHeader(headers);
-      const signContent = `${method}\n${url}\n${strParams}\n${strBody}\n${strHeader}\n${timestamp}\n${nonce}`;
-      headers['x-sign'] = sha256(signContent);
-      headers['x-sign-headers'] = sortedHeaderKeys.join(',');
-      headers['x-sign-timestamp'] = String(timestamp);
-      headers['x-sign-nonce'] = nonce;
-      try {
-        const stream = got.stream.post(targetUrl, {
-          headers,
-          json: body,
-          signal: abortController.signal
-        });
-        stream.on('data', (chunk: Buffer) => {
-          const chunkStr = chunk.toString();
-          const trimmed = chunkStr.trim();
-          if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
-            try {
-              const parsed: { success?: boolean; message?: string } = JSON.parse(trimmed);
-              if (parsed.success === false && parsed.message) {
-                callbacks.onError(new Error(parsed.message));
-                abortController.abort();
-                return;
-              }
-            } catch {
-              // 不是有效的JSON，继续正常处理
-            }
-          }
-          callbacks.onData(new Uint8Array(chunk));
-        });
-        stream.on('end', () => {
-          callbacks.onEnd();
-        });
-        stream.on('error', (error: Error) => {
-          if (error.name !== 'AbortError') {
-            callbacks.onError(error);
-          }
-        });
-      } catch (error) {
-        callbacks.onError(error as Error);
-      }
+    if (!this.config) {
+      callbacks.onError(new Error('LLM 配置未初始化，请先配置 API Key 和 Base URL'));
       return {
         abort: () => abortController.abort()
       };
     }
-    // 使用用户自己配置的LLM服务
     const { apiKey, baseURL, model, customHeaders, extraBody } = this.config;
-    const extraBodyText = extraBody?.trim() ?? '';
-    let resolvedExtraBody: Record<string, unknown> = {};
-    if (extraBodyText) {
-      try {
-        const parsed: unknown = JSON.parse(extraBodyText);
-        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-          resolvedExtraBody = parsed as Record<string, unknown>;
-        }
-      } catch {
-        resolvedExtraBody = {};
-      }
-    }
+    const resolvedExtraBody = parseExtraBody(extraBody);
     const requestBody = { ...resolvedExtraBody, ...body, model, stream: true };
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${apiKey}`,

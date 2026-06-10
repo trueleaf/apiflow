@@ -4,7 +4,6 @@ export const cacheKey = {
     lastSessionId: 'apiflow/ai/lastSessionId',
     conversation: 'apiflow/ai/conversation-v2',
     llmProvider: 'apiflow/ai/llmProvider',
-    useFreeLLM: 'apiflow/ai/useFreeLLM',
   },
   runtime: {
     networkMode: 'runtime/networkMode',

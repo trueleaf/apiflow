@@ -1222,8 +1222,6 @@ export default {
   '配置ApiKey': '配置ApiKey',
   'Agent模式可以自动执行工具调用': 'Agent模式可以自动执行工具调用',
   '生成中': '生成中',
-  '目前使用免费 API 可能不稳定，建议': '目前使用免费 API 可能不稳定，建议',     
-  '配置自定义 API Key': '配置自定义 API Key',
   '更多设置': '更多设置',
   '停止': '停止',
   '新建对话': '新建对话',
@@ -1359,9 +1357,6 @@ export default {
   // settings目录补全的翻译
   'API Provider 配置': 'API Provider 配置',
   '配置大语言模型服务提供商': '配置大语言模型服务提供商',
-  '使用免费API': '使用免费API',
-  '使用服务器提供的免费 LLM 服务': '使用服务器提供的免费 LLM 服务',
-  '当前使用免费API，无需配置API Key。如需使用自己的API Key，请关闭此开关。': '当前使用免费API，无需配置API Key。如需使用自己的API Key，请关闭此开关。',
   'API Provider': 'API Provider',
   'Model': 'Model',
   '请输入 DeepSeek API Key': '请输入 DeepSeek API Key',
