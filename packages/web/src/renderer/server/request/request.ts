@@ -465,16 +465,18 @@ const getHeaders = async (apidoc: HttpNode, temporaryVariables?: Record<string, 
   const commonHeaderStore = useCommonHeader();
   const { defaultHeaders } = useHttpNode();
   const projectNavStore = useProjectNav();
-  const projectId = apidoc.projectId;
+  const projectWorkbenchStore = useProjectWorkbench();
+  const projectId = apidoc.projectId || projectWorkbenchStore.projectId;
   const navs = projectNavStore.navs[projectId];
   const currentSelectNav = navs?.find((nav) => nav.selected) || null;
-  if (!currentSelectNav) {
-    console.warn('未匹配到当前选中nav')
-    return {}
-  }
-  const defaultCommonHeaders = commonHeaderStore.getCommonHeadersById(currentSelectNav?._id || "");
-  const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectNav?._id ?? "") || [];
-  const { effective: commonHeaders } = computeCommonHeaderEffect(defaultCommonHeaders, ignoreHeaderIds);
+  const commonHeaders = (() => {
+    if (!currentSelectNav) {
+      return [];
+    }
+    const defaultCommonHeaders = commonHeaderStore.getCommonHeadersById(currentSelectNav._id);
+    const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectNav._id) || [];
+    return computeCommonHeaderEffect(defaultCommonHeaders, ignoreHeaderIds).effective;
+  })();
   const headers = apidoc.item.headers;
   const headersObject: Record<string, string | null> = {};
   for (let i = 0; i < defaultHeaders.length; i++) {
