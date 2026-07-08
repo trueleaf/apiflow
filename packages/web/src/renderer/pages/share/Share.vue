@@ -60,7 +60,7 @@ import SBanner from './banner/Banner.vue'
 import SNav from './projectNav/ProjectNav.vue'
 import SContent from './content/Content.vue'
 import {  LocalShareData, SharedProjectInfo } from '@src/types/index.ts'
-import { convertNodesToBannerNodes, getCountdown } from './helper'
+import { convertNodesToBannerNodes, getCountdown, getShareIdFromLocation } from './helper'
 import { useShareStore } from './store'
 // @ts-ignore
 import localShareDataTest from './testData'
@@ -75,10 +75,7 @@ const { t } = useI18n()
 const appSettingsStore = useShareAppSettings()
 
 const isForHtml = ref(import.meta.env.VITE_USE_FOR_HTML === 'true');
-const shareId = (() => {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('share_id') || 'local_share';
-})();
+const shareId = getShareIdFromLocation() || (isForHtml.value ? 'local_share' : '');
 const hasPermission = ref(false);
 const loading = ref(false); //获取分享信息loading
 const expireCountdown = ref('')
@@ -125,8 +122,11 @@ const initShareData = () => {
     } catch (error) {
       console.error('初始化 SHARE_DATA 失败:', (error as Error).message);
     }
-  } else {
+  } else if (shareId) {
     getSharedProjectInfo();
+  } else {
+    hasPermission.value = false;
+    loading.value = false;
   }
   const tabs = getProjectWorkbenchTabs();
   if (tabs[shareId]) {

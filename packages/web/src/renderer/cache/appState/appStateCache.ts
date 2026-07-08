@@ -451,11 +451,11 @@ class AppStateCache {
     }
   }
   // 获取AI对话框模型
-  getAiDialogModel(): 'deepseek' | null {
+  getAiDialogModel(): 'custom' | null {
     try {
       const model = localStorage.getItem(cacheKey.appState.aiDialog.model);
-      if (model === 'deepseek') {
-        return model;
+      if (model === 'custom' || model === 'deepseek') {
+        return 'custom';
       }
       return null;
     } catch (error) {
@@ -464,7 +464,7 @@ class AppStateCache {
     }
   }
   // 设置AI对话框模型
-  setAiDialogModel(model: 'deepseek') {
+  setAiDialogModel(model: 'custom') {
     try {
       localStorage.setItem(cacheKey.appState.aiDialog.model, model);
     } catch (error) {

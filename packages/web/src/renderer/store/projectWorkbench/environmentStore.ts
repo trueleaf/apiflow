@@ -676,7 +676,10 @@ export const useEnvironment = defineStore('projectEnvironment', () => {
       return {}
     }
     const variableList = environmentVariableMap.value[currentEnvironment.id] || []
-    const result: Record<string, unknown> = {}
+    const result: Record<string, unknown> = {
+      baseUrl: currentEnvironment.baseUrl || '',
+      apiBaseUrl: currentEnvironment.baseUrl || '',
+    }
     variableList.forEach(item => {
       if (!item.enabled) {
         return
@@ -695,7 +698,33 @@ export const useEnvironment = defineStore('projectEnvironment', () => {
       return []
     }
     const variables = environmentVariableMap.value[currentEnvironment.id] || []
-    return variables
+    const baseUrlVariables: ApidocVariable[] = [
+      {
+        _id: `${currentEnvironment.id}_baseUrl`,
+        projectId: loadedProjectId.value,
+        name: 'baseUrl',
+        value: currentEnvironment.baseUrl || '',
+        type: 'string',
+        fileValue: {
+          name: '',
+          path: '',
+          fileType: '',
+        },
+      },
+      {
+        _id: `${currentEnvironment.id}_apiBaseUrl`,
+        projectId: loadedProjectId.value,
+        name: 'apiBaseUrl',
+        value: currentEnvironment.baseUrl || '',
+        type: 'string',
+        fileValue: {
+          name: '',
+          path: '',
+          fileType: '',
+        },
+      },
+    ]
+    return baseUrlVariables.concat(variables
       .filter(item => item.enabled && item.key.trim() !== '')
       .map(item => ({
         _id: item.id,
@@ -708,7 +737,7 @@ export const useEnvironment = defineStore('projectEnvironment', () => {
           path: '',
           fileType: '',
         },
-      }))
+      })))
   }
   return {
     loadedProjectId,

@@ -29,6 +29,7 @@
 import { computed, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useShareStore } from '../store';
+import { getShareIdFromLocation } from '../helper';
 
 const { t } = useI18n();
 const HttpContent = defineAsyncComponent(() => import('./HttpContent.vue'));
@@ -36,10 +37,7 @@ const WebsocketContent = defineAsyncComponent(() => import('./WebsocketContent.v
 const HttpMockContent = defineAsyncComponent(() => import('./HttpMockContent.vue'));
 const WebsocketMockContent = defineAsyncComponent(() => import('./WebsocketMockContent.vue'));
 
-const shareId = (() => {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('share_id') || 'local_share';
-})();
+const shareId = getShareIdFromLocation() || 'local_share';
 const shareStore = useShareStore();
 const tabs = computed(() => shareStore.tabs[shareId]);
 

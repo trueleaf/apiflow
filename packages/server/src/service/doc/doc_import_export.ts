@@ -1148,6 +1148,7 @@ export class DocImportAndExportService {
     const { projectId, cover, moyuData } = params;
     await this.commonControl.checkDocOperationPermissions(projectId);
     const { docs = [], hosts = [] } = moyuData;
+    const importUserName = this.ctx.tokenInfo?.loginName || 'imported';
     const convertDocs = docs.map((docInfo) => {
       const newId = new Types.ObjectId().toString()
       const oldId = docInfo._id.toString();
@@ -1164,6 +1165,11 @@ export class DocImportAndExportService {
       docInfo.projectId = projectId;
       docInfo._id = newId;
       docInfo.isFolder = isFolder;
+      docInfo.info = {
+        ...docInfo.info,
+        creator: docInfo.info?.creator || importUserName,
+        maintainer: docInfo.info?.maintainer || importUserName,
+      };
       if (!isFolder && docInfo.item) {
         docInfo.item.method = (docInfo.item.method?.toUpperCase() as RequestMethod) || 'GET';
       }
