@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { ChatRequestBody, OpenAiResponseBody, LLMProviderSetting, ChatStreamCallbacks } from '@src/types/ai/agent.type';
 import { logger } from '@/helper/logger';
-import { generateDeepSeekProvider, isElectron } from '@/helper';
+import { generateCustomLLMProvider, isElectron } from '@/helper';
 import { llmProviderCache } from '@/cache/ai/llmProviderCache';
 
 // 解析额外请求体
@@ -27,13 +27,15 @@ const webChat = async (body: ChatRequestBody, config: LLMProviderSetting, signal
   const requestBody = { ...body, model: config.model, stream: false };
   const requestInfo = { url: targetUrl, method: 'POST', body: requestBody };
   logger.info('llmRequestParams', { payload: JSON.stringify(requestInfo) });
-  if (!config.apiKey || !config.baseURL) {
-    throw new Error('请先配置 API Key 和 Base URL');
+  if (!config.baseURL || !config.model) {
+    throw new Error('请先配置 Base URL 和 Model');
   }
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${config.apiKey}`,
   };
+  if (config.apiKey) {
+    headers.Authorization = `Bearer ${config.apiKey}`;
+  }
   config.customHeaders?.forEach(h => {
     if (h.key) headers[h.key] = h.value;
   });
@@ -74,14 +76,16 @@ const webChatStream = (body: ChatRequestBody, config: LLMProviderSetting, callba
   
   (async () => {
     try {
-      if (!config.apiKey || !config.baseURL) {
-        callbacks.onError(new Error('请先配置 API Key 和 Base URL'));
+      if (!config.baseURL || !config.model) {
+        callbacks.onError(new Error('请先配置 Base URL 和 Model'));
         return;
       }
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.apiKey}`,
       };
+      if (config.apiKey) {
+        headers.Authorization = `Bearer ${config.apiKey}`;
+      }
       config.customHeaders?.forEach(h => {
         if (h.key) headers[h.key] = h.value;
       });
@@ -130,7 +134,7 @@ const syncConfig = (config: LLMProviderSetting) => {
   }
 };
 export const useLLMClientStore = defineStore('llmClientStore', () => {
-  const LLMConfig = ref<LLMProviderSetting>(generateDeepSeekProvider());
+  const LLMConfig = ref<LLMProviderSetting>(generateCustomLLMProvider());
   // 更新配置字段
   const updateLLMConfig = (updates: Partial<Omit<LLMProviderSetting, 'id'>>) => {
     Object.assign(LLMConfig.value, updates);
@@ -138,7 +142,7 @@ export const useLLMClientStore = defineStore('llmClientStore', () => {
   };
   // 重置配置
   const resetLLMConfig = () => {
-    LLMConfig.value = generateDeepSeekProvider();
+    LLMConfig.value = generateCustomLLMProvider();
     syncConfig(LLMConfig.value);
   };
   // 初始化（从缓存加载）
@@ -165,8 +169,8 @@ export const useLLMClientStore = defineStore('llmClientStore', () => {
   };
   // 检查 AI 功能是否可用
   const isAvailable = () => {
-    const { model, baseURL, apiKey } = LLMConfig.value;
-    return !!model && !!baseURL && !!apiKey;
+    const { model, baseURL } = LLMConfig.value;
+    return !!model && !!baseURL;
   };
   return {
     LLMConfig,

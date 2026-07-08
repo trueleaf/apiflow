@@ -3,7 +3,7 @@
     <!-- AI 不可用提示 -->
     <div v-if="!isAiAvailable" class="ai-unavailable">
       <AlertCircle :size="20" class="warning-icon" />
-      <span>{{ t('AI 功能不可用，请先配置 API Key') }}</span>
+      <span>{{ t('AI 功能不可用，请先配置 Base URL 和 Model') }}</span>
       <el-button type="primary" link @click="handleGoSettings">{{ t('前往配置') }}</el-button>
     </div>
     <!-- 输入区域 -->

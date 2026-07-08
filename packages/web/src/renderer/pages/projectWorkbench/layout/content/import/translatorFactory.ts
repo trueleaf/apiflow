@@ -152,17 +152,17 @@ class TranslatorFactory {
         }
       }
       
-      if (!config.apiKey || !config.apiKey.trim()) {
-        return {
-          available: false,
-          reason: '未配置 API Key',
-        }
-      }
-      
       if (!config.baseURL || !config.baseURL.trim()) {
         return {
           available: false,
           reason: '未配置 API 地址',
+        }
+      }
+      
+      if (!config.model || !config.model.trim()) {
+        return {
+          available: false,
+          reason: '未配置模型 ID',
         }
       }
       

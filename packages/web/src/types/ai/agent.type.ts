@@ -8,8 +8,7 @@ export type CustomHeader = {
   key: string;
   value: string;
 }
-export type LLMProviderType = 'DeepSeek' | 'OpenAICompatible';
-export type DeepSeekModel = 'deepseek-chat' | 'deepseek-reasoner';
+export type LLMProviderType = 'OpenAICompatible';
 export type LLMProviderSetting = {
   id: string;
   name: string;

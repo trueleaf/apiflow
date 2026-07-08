@@ -383,7 +383,7 @@ const aiParsing = ref(false);
 const multilineAppliedHandler = ref<(() => void) | null>(null);
 const isAiConfigValid = computed(() => {
   const provider = llmProviderCache.getLLMProvider();
-  return !!(provider?.apiKey?.trim() && provider?.baseURL?.trim());
+  return !!(provider?.baseURL?.trim() && provider?.model?.trim());
 });
 /*
 |--------------------------------------------------------------------------
