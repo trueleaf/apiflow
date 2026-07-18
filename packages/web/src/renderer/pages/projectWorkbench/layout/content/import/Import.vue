@@ -409,6 +409,10 @@ const handleSubmit = async () => {
         ...val,
         pid: !val.pid && mountedId ? mountedId : val.pid,
         isFolder: val.info.type === 'folder',
+        info: {
+          ...val.info,
+          creator: val.info.creator || runtimeStore.userInfo.loginName,
+        },
       }
       if (!('item' in val)) {
         return normalizedDoc

@@ -88,8 +88,8 @@ test.describe('OpenapiImport', () => {
     const importPage = contentPage.locator('.doc-import');
     await expect(importPage).toBeVisible({ timeout: 5000 });
   });
-  // 测试用例5: 粘贴OpenAPI内容后自动识别并展示预览统计
-  test('粘贴OpenAPI内容后预览统计显示文档数量', async ({ contentPage, clearCache, createProject, loginAccount }) => {
+  // 测试用例5: 粘贴OpenAPI内容后自动识别并成功导入
+  test('粘贴OpenAPI内容后可成功导入且创建者不为空', async ({ contentPage, clearCache, createProject, loginAccount }) => {
     await clearCache();
 
     await loginAccount();
@@ -127,6 +127,18 @@ test.describe('OpenapiImport', () => {
     const previewTreeFirstNode = importPage.locator('.el-tree .custom-tree-node').first();
     await expect(previewTreeFirstNode).toBeVisible({ timeout: 5000 });
     await expect(importPage.locator('.preview-stats')).toContainText('2');
+
+    // 提交导入并验证所有转换节点都携带当前用户作为创建者
+    const importRequestPromise = contentPage.waitForRequest(request => request.url().includes('/api/project/import/moyu') && request.method() === 'POST');
+    const importResponsePromise = contentPage.waitForResponse(response => response.url().includes('/api/project/import/moyu') && response.request().method() === 'POST');
+    const submitBtn = importPage.locator('.submit-wrap .el-button--primary').filter({ hasText: /确定导入|Import/ });
+    await submitBtn.click();
+    const importRequest = await importRequestPromise;
+    const importData = importRequest.postDataJSON() as { moyuData: { docs: { info: { creator: string } }[] } };
+    expect(importData.moyuData.docs.every(doc => doc.info.creator.length > 0)).toBeTruthy();
+    const importResponse = await importResponsePromise;
+    expect(importResponse.ok()).toBeTruthy();
+    await expect(contentPage.getByText(/导入成功|Imported/)).toBeVisible({ timeout: 5000 });
   });
 });
 
