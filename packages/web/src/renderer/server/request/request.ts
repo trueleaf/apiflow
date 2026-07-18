@@ -160,11 +160,28 @@ const convertStringValueAsync = (data: JsonData, temporaryVariables?: Record<str
 const getMethod = (apidoc: HttpNode) => {
   return apidoc.item.method;
 }
+const isAbsoluteHttpUrl = (value: string) => /^https?:\/\//i.test(value.trim());
+const joinUrlPath = (prefix: string, path: string): string => {
+  if (!prefix) {
+    return path;
+  }
+  if (!path) {
+    return prefix;
+  }
+  if (prefix.endsWith('/') && path.startsWith('/')) {
+    return prefix + path.slice(1);
+  }
+  if (!prefix.endsWith('/') && !path.startsWith('/')) {
+    return `${prefix}/${path}`;
+  }
+  return prefix + path;
+}
 export const getUrl = async (httpNode: HttpNode, temporaryVariables?: Record<string, unknown> | null) => {
   if (!httpNode.item.url.path || httpNode.item.url.path.trim() === '') {
     return '';
   }
   const variables = getMergedTemplateVariables(temporaryVariables);
+  const environmentStore = useEnvironment();
   const objectVariable = await getObjectVariable(variables);
   const { url, queryParams, paths, } = httpNode.item;
   const queryString = await getStringFromParams(queryParams, objectVariable, { checkSelect: true, addQuestionMark: true });
@@ -172,9 +189,13 @@ export const getUrl = async (httpNode: HttpNode, temporaryVariables?: Record<str
   const replacedPathParamsString = url.path.replace(/(?<!\{)\{([^{}]+)\}(?!\})/g, (_, variableName) => {
     return objectPathParams[variableName] || ''
   }); // 替换路径参数
-  const pathString = await getCompiledTemplate(replacedPathParamsString, variables);
-  const prefixString = url.prefix ? await getCompiledTemplate(url.prefix, variables) : '';
-  let fullUrl = prefixString + pathString + queryString;
+  const pathString = String(await getCompiledTemplate(replacedPathParamsString, variables));
+  const environmentBaseUrl = environmentStore.activeEnvironment?.baseUrl?.trim() || '';
+  const prefixTemplate = environmentBaseUrl || url.prefix || '';
+  const prefixString = prefixTemplate ? String(await getCompiledTemplate(prefixTemplate, variables)) : '';
+  let fullUrl = isAbsoluteHttpUrl(pathString)
+    ? pathString + queryString
+    : joinUrlPath(prefixString, pathString) + queryString;
   if (!fullUrl.startsWith('http') && !fullUrl.startsWith('https')) {
     // 如果以/开头，需要去掉开头的/再添加http://，避免出现http:///
     if (fullUrl.startsWith('/')) {

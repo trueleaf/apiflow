@@ -13,6 +13,27 @@ export class HttpProxyService {
   @Inject()
   ctx: Context;
 
+  private getAllowedPrivateHosts(): string[] {
+    const configuredHosts = process.env.AI_PROXY_ALLOWED_PRIVATE_HOSTS || process.env.PROXY_ALLOWED_PRIVATE_HOSTS || '';
+    return configuredHosts
+      .split(',')
+      .map(item => item.trim().toLowerCase())
+      .filter(Boolean);
+  }
+
+  private isPrivateHostAllowed(hostname: string): boolean {
+    const allowedHosts = this.getAllowedPrivateHosts();
+    return allowedHosts.some(item => {
+      if (item === '*') {
+        return true;
+      }
+      if (item.endsWith('*')) {
+        return hostname.startsWith(item.slice(0, -1));
+      }
+      return item === hostname;
+    });
+  }
+
   //验证URL安全性，禁止请求内网IP和特殊协议
   private validateUrlSecurity(url: string): { valid: boolean; error?: string } {
     try {
@@ -46,6 +67,9 @@ export class HttpProxyService {
 
       for (const pattern of forbiddenPatterns) {
         if (pattern.test(hostname)) {
+          if (this.isPrivateHostAllowed(hostname)) {
+            continue;
+          }
           return {
             valid: false,
             error: `禁止访问内网地址: ${hostname}`

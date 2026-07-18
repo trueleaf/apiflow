@@ -109,7 +109,7 @@ const formData = ref({
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
 const isAiConfigValid = () => {
   const provider = llmProviderCache.getLLMProvider()
-  return !!(provider?.apiKey?.trim() && provider?.baseURL?.trim())
+  return !!(provider?.baseURL?.trim() && provider?.model?.trim())
 }
 const formRules = {
   name: [

@@ -29,15 +29,20 @@ export class LLMClient {
   // 非流式聊天
   async chat(body: ChatRequestBody): Promise<OpenAiResponseBody> {
     if (!this.config) {
-      throw new Error('LLM 配置未初始化，请先配置 API Key 和 Base URL');
+      throw new Error('LLM 配置未初始化，请先配置 Base URL 和 Model');
     }
     const { apiKey, baseURL, model, customHeaders, extraBody } = this.config;
+    if (!baseURL || !model) {
+      throw new Error('请先配置 Base URL 和 Model');
+    }
     const resolvedExtraBody = parseExtraBody(extraBody);
     const requestBody = { ...resolvedExtraBody, ...body, model, stream: false };
     const headers: Record<string, string> = {
-      'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json'
     };
+    if (apiKey) {
+      headers.Authorization = `Bearer ${apiKey}`;
+    }
     customHeaders?.forEach(h => {
       if (h.key) {
         headers[h.key] = h.value;
@@ -64,18 +69,26 @@ export class LLMClient {
   chatStream(body: ChatRequestBody, callbacks: ChatStreamCallbacks) {
     const abortController = new AbortController();
     if (!this.config) {
-      callbacks.onError(new Error('LLM 配置未初始化，请先配置 API Key 和 Base URL'));
+      callbacks.onError(new Error('LLM 配置未初始化，请先配置 Base URL 和 Model'));
       return {
         abort: () => abortController.abort()
       };
     }
     const { apiKey, baseURL, model, customHeaders, extraBody } = this.config;
+    if (!baseURL || !model) {
+      callbacks.onError(new Error('请先配置 Base URL 和 Model'));
+      return {
+        abort: () => abortController.abort()
+      };
+    }
     const resolvedExtraBody = parseExtraBody(extraBody);
     const requestBody = { ...resolvedExtraBody, ...body, model, stream: true };
     const headers: Record<string, string> = {
-      'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json'
     };
+    if (apiKey) {
+      headers.Authorization = `Bearer ${apiKey}`;
+    }
     customHeaders?.forEach(h => {
       if (h.key) {
         headers[h.key] = h.value;

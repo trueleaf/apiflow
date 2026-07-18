@@ -2,8 +2,8 @@
   <section class="panel">
     <div class="panel-header">
       <div>
-        <h3>{{ t('API Provider 配置') }}</h3>
-        <p>{{ t('配置大语言模型服务提供商') }}</p>
+        <h3>{{ t('自定义大模型配置') }}</h3>
+        <p>{{ t('配置你自己的 OpenAI-compatible 大模型服务') }}</p>
       </div>
     </div>
     <div class="panel-body">
@@ -11,85 +11,48 @@
         <div class="form-grid">
           <div class="form-item full-row">
             <div class="form-label">
-              {{ t('API Provider') }}
+              {{ t('Base URL') }}
             </div>
-            <el-select v-model="providerType" class="form-input" @change="handleProviderChange">
-              <el-option label="DeepSeek" value="DeepSeek" />
-              <el-option label="OpenAI Compatible" value="OpenAICompatible" />
-            </el-select>
+            <el-input v-model="localBaseURL" :placeholder="t('请输入 API Base URL')" clearable class="form-input" />
+          </div>
+          <div class="form-item">
+            <div class="form-label">
+              {{ t('API Key') }}
+            </div>
+            <el-input v-model="localApiKey" :type="showApiKey ? 'text' : 'password'" :placeholder="t('请输入 API Key')"
+              clearable class="form-input">
+              <template #suffix>
+                <span class="password-toggle" @click="showApiKey = !showApiKey">
+                  {{ showApiKey ? t('隐藏') : t('显示') }}
+                </span>
+              </template>
+            </el-input>
+          </div>
+          <div class="form-item">
+            <div class="form-label">
+              {{ t('Model ID') }}
+            </div>
+            <el-input v-model="localModel" :placeholder="t('请输入模型 ID')" clearable class="form-input" />
           </div>
 
-          <template v-if="providerType === 'DeepSeek'">
-            <div class="form-item">
-              <div class="form-label">
-                {{ t('API Key') }}
-              </div>
-              <el-input v-model="localApiKey" :type="showApiKey ? 'text' : 'password'"
-                :placeholder="t('请输入 DeepSeek API Key')" clearable class="form-input">
-                <template #suffix>
-                  <span class="password-toggle" @click="showApiKey = !showApiKey">
-                    {{ showApiKey ? t('隐藏') : t('显示') }}
-                  </span>
-                </template>
-              </el-input>
+          <div class="form-item full-row">
+            <div class="form-label">
+              {{ t('Custom Headers') }}
+              <span class="label-hint">{{ t('(可选)') }}</span>
             </div>
-            <div class="form-item">
-              <div class="form-label">
-                {{ t('Model') }}
-              </div>
-              <el-select v-model="localModel" class="form-input">
-                <el-option label="deepseek-chat" value="deepseek-chat" />
-                <el-option label="deepseek-reasoner" value="deepseek-reasoner" />
-              </el-select>
-            </div>
-          </template>
-
-          <template v-else>
-            <div class="form-item full-row">
-              <div class="form-label">
-                {{ t('Base URL') }}
-              </div>
-              <el-input v-model="localBaseURL" :placeholder="t('请输入 API Base URL')" clearable class="form-input" />
-            </div>
-            <div class="form-item">
-              <div class="form-label">
-                {{ t('API Key') }}
-              </div>
-              <el-input v-model="localApiKey" :type="showApiKey ? 'text' : 'password'" :placeholder="t('请输入 API Key')"
-                clearable class="form-input">
-                <template #suffix>
-                  <span class="password-toggle" @click="showApiKey = !showApiKey">
-                    {{ showApiKey ? t('隐藏') : t('显示') }}
-                  </span>
-                </template>
-              </el-input>
-            </div>
-            <div class="form-item">
-              <div class="form-label">
-                {{ t('Model ID') }}
-              </div>
-              <el-input v-model="localModel" :placeholder="t('请输入模型 ID')" clearable class="form-input" />
-            </div>
-
-            <div class="form-item full-row">
-              <div class="form-label">
-                {{ t('Custom Headers') }}
-                <span class="label-hint">{{ t('(可选)') }}</span>
-              </div>
-              <div class="custom-headers">
-                <div v-for="(header, index) in localCustomHeaders" :key="index" class="header-row">
-                  <el-input v-model="header.key" :placeholder="t('Header Key')" class="header-key" />
-                  <el-input v-model="header.value" :placeholder="t('Header Value')" class="header-value" />
-                  <el-button type="danger" text class="header-remove" @click="removeHeader(index)">
-                    {{ t('删除') }}
-                  </el-button>
-                </div>
-                <el-button type="primary" text class="add-header-btn" @click="addHeader">
-                  {{ t('添加请求头') }}
+            <div class="custom-headers">
+              <div v-for="(header, index) in localCustomHeaders" :key="index" class="header-row">
+                <el-input v-model="header.key" :placeholder="t('Header Key')" class="header-key" />
+                <el-input v-model="header.value" :placeholder="t('Header Value')" class="header-value" />
+                <el-button type="danger" text class="header-remove" @click="removeHeader(index)">
+                  {{ t('删除') }}
                 </el-button>
               </div>
+              <el-button type="primary" text class="add-header-btn" @click="addHeader">
+                {{ t('添加请求头') }}
+              </el-button>
             </div>
-          </template>
+          </div>
           <div class="form-item full-row">
             <div class="form-label">
               {{ t('额外请求体') }}
@@ -131,8 +94,8 @@
 import { ref, computed, onMounted, watch, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
-import type { LLMProviderType, CustomHeader } from '@src/types/ai/agent.type'
-import { generateDeepSeekProvider } from '@/helper'
+import type { CustomHeader } from '@src/types/ai/agent.type'
+import { generateCustomLLMProvider } from '@/helper'
 const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
 defineProps<{
@@ -149,7 +112,6 @@ defineEmits<{
 const { t } = useI18n()
 const llmClientStore = useLLMClientStore()
 
-const providerType = ref<LLMProviderType>('DeepSeek')
 const localApiKey = ref('')
 const localBaseURL = ref('')
 const localModel = ref('')
@@ -160,33 +122,16 @@ const isSaving = ref(false)
 // 判断配置是否有效
 const isConfigValid = computed(() => {
   const config = llmClientStore.LLMConfig
-  const hasApiKey = config.apiKey.trim() !== ''
-  if (config.provider === 'OpenAICompatible') {
-    return hasApiKey && config.baseURL.trim() !== '' && config.model.trim() !== ''
-  }
-  return hasApiKey && config.model.trim() !== ''
+  return config.baseURL.trim() !== '' && config.model.trim() !== ''
 })
 // 从 store 同步数据到本地状态
 const syncFromStore = () => {
   const provider = llmClientStore.LLMConfig
-  providerType.value = provider.provider
   localApiKey.value = provider.apiKey
   localBaseURL.value = provider.baseURL
   localModel.value = provider.model
   localCustomHeaders.value = [...provider.customHeaders.map(h => ({ ...h }))]
   localExtraBody.value = provider.extraBody
-}
-// 处理 Provider 类型变更
-const handleProviderChange = (type: LLMProviderType) => {
-  if (type === 'DeepSeek') {
-    const defaults = generateDeepSeekProvider()
-    localBaseURL.value = defaults.baseURL
-    localModel.value = defaults.model
-    localCustomHeaders.value = []
-  } else {
-    localBaseURL.value = ''
-    localModel.value = ''
-  }
 }
 // 保存配置
 const handleSave = () => {
@@ -194,9 +139,9 @@ const handleSave = () => {
   isSaving.value = true
   const validHeaders = localCustomHeaders.value.filter(h => h.key.trim() !== '')
   llmClientStore.updateLLMConfig({
-    provider: providerType.value,
+    provider: 'OpenAICompatible',
     apiKey: localApiKey.value,
-    baseURL: providerType.value === 'DeepSeek' ? 'https://api.deepseek.com/chat/completions' : localBaseURL.value,
+    baseURL: localBaseURL.value,
     model: localModel.value,
     customHeaders: validHeaders,
     extraBody: localExtraBody.value,
@@ -216,8 +161,7 @@ const removeHeader = (index: number) => {
 }
 // 重置配置
 const handleReset = () => {
-  const defaults = generateDeepSeekProvider()
-  providerType.value = defaults.provider
+  const defaults = generateCustomLLMProvider()
   localApiKey.value = defaults.apiKey
   localBaseURL.value = defaults.baseURL
   localModel.value = defaults.model

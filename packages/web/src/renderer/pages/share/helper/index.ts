@@ -112,6 +112,17 @@ const emitter = mitt<{
 }>()
 export const eventEmitter = emitter;
 
+export const getShareIdFromLocation = (): string => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const shareIdFromSearch = urlParams.get('share_id');
+  if (shareIdFromSearch) {
+    return shareIdFromSearch;
+  }
+  const hashQuery = window.location.hash.split('?')[1] || '';
+  const hashParams = new URLSearchParams(hashQuery);
+  return hashParams.get('share_id') || '';
+};
+
 // 日志工具类
 type LogParams = {
   [key: string]: unknown;

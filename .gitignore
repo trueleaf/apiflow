@@ -1,25 +1,55 @@
-npm-debug.log
-yarn-error.log
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
 node_modules/
+
+# Build outputs and caches
 coverage/
 dist/
+out/
+.next/
+.vite/
+.turbo/
+playwright-report/
+test-results/
+
+# Editors and OS files
 .idea/
-run/
 .DS_Store
 *.sw*
 *.un~
+.vscode/
+
+# Local runtime files
+run/
 .tsbuildinfo
 .tsbuildinfo.*
+
+# Local environment files
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Local AI assistant artifacts
 .augment/
-release/
 CLAUDE.md
 .claude
-.env
 AGENTS.md
-.vscode/
 
 # Terminal Paste Image folder
 .cp-images/
 
 # Codex temporary artifacts
 .codex_tmp/
+.codex/logs/
+
+# Release artifacts
+release/

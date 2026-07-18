@@ -8,6 +8,7 @@ class LLMProviderCache {
       const cached = localStorage.getItem(cacheKey.ai.llmProvider);
       if (cached) {
         const parsed = JSON.parse(cached);
+        parsed.provider = 'OpenAICompatible';
         if (!parsed.customHeaders) {
           parsed.customHeaders = [];
         }

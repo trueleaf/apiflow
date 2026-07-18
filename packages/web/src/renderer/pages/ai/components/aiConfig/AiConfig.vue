@@ -9,75 +9,39 @@
     <div class="ai-config-content">
       <div class="config-form">
         <div class="form-item">
-          <div class="form-label">{{ t('API Provider') }}</div>
-          <el-select v-model="providerType" class="form-input" @change="handleProviderChange">
-            <el-option label="DeepSeek" value="DeepSeek" />
-            <el-option label="OpenAI Compatible" value="OpenAICompatible" />
-          </el-select>
+          <div class="form-label">{{ t('Base URL') }}</div>
+          <el-input
+            v-model="localBaseURL"
+            :placeholder="t('请输入 API Base URL')"
+            clearable
+            class="form-input"
+          />
         </div>
-
-        <template v-if="providerType === 'DeepSeek'">
-          <div class="form-item">
-            <div class="form-label">{{ t('API Key') }}</div>
-            <el-input
-              v-model="localApiKey"
-              :type="showApiKey ? 'text' : 'password'"
-              :placeholder="t('请输入 DeepSeek API Key')"
-              clearable
-              class="form-input"
-            >
-              <template #suffix>
-                <span class="password-toggle" @click="showApiKey = !showApiKey">
-                  {{ showApiKey ? t('隐藏') : t('显示') }}
-                </span>
-              </template>
-            </el-input>
-          </div>
-          <div class="form-item">
-            <div class="form-label">{{ t('Model') }}</div>
-            <el-select v-model="localModel" class="form-input">
-              <el-option label="deepseek-chat" value="deepseek-chat" />
-              <el-option label="deepseek-reasoner" value="deepseek-reasoner" />
-            </el-select>
-          </div>
-        </template>
-
-        <template v-else>
-          <div class="form-item">
-            <div class="form-label">{{ t('Base URL') }}</div>
-            <el-input
-              v-model="localBaseURL"
-              :placeholder="t('请输入 API Base URL')"
-              clearable
-              class="form-input"
-            />
-          </div>
-          <div class="form-item">
-            <div class="form-label">{{ t('API Key') }}</div>
-            <el-input
-              v-model="localApiKey"
-              :type="showApiKey ? 'text' : 'password'"
-              :placeholder="t('请输入 API Key')"
-              clearable
-              class="form-input"
-            >
-              <template #suffix>
-                <span class="password-toggle" @click="showApiKey = !showApiKey">
-                  {{ showApiKey ? t('隐藏') : t('显示') }}
-                </span>
-              </template>
-            </el-input>
-          </div>
-          <div class="form-item">
-            <div class="form-label">{{ t('Model ID') }}</div>
-            <el-input
-              v-model="localModel"
-              :placeholder="t('请输入模型 ID')"
-              clearable
-              class="form-input"
-            />
-          </div>
-        </template>
+        <div class="form-item">
+          <div class="form-label">{{ t('API Key') }}</div>
+          <el-input
+            v-model="localApiKey"
+            :type="showApiKey ? 'text' : 'password'"
+            :placeholder="t('请输入 API Key')"
+            clearable
+            class="form-input"
+          >
+            <template #suffix>
+              <span class="password-toggle" @click="showApiKey = !showApiKey">
+                {{ showApiKey ? t('隐藏') : t('显示') }}
+              </span>
+            </template>
+          </el-input>
+        </div>
+        <div class="form-item">
+          <div class="form-label">{{ t('Model ID') }}</div>
+          <el-input
+            v-model="localModel"
+            :placeholder="t('请输入模型 ID')"
+            clearable
+            class="form-input"
+          />
+        </div>
       </div>
       <div class="config-footer">
         <button class="ai-config-btn" type="button" :disabled="isSaving" @click="handleSave">
@@ -104,15 +68,13 @@ import { IPC_EVENTS } from '@src/types/ipc'
 import { appStateCache } from '@/cache/appState/appStateCache'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { useAgentViewStore } from '@/store/ai/agentView'
-import { generateDeepSeekProvider } from '@/helper'
-import type { LLMProviderType } from '@src/types/ai/agent.type'
+import { generateCustomLLMProvider } from '@/helper'
 
 const { t } = useI18n()
 const router = useRouter()
 const llmClientStore = useLLMClientStore()
 const agentViewStore = useAgentViewStore()
 
-const providerType = ref<LLMProviderType>('DeepSeek')
 const localApiKey = ref('')
 const localBaseURL = ref('')
 const localModel = ref('')
@@ -122,21 +84,9 @@ const isSaving = ref(false)
 // 从 store 同步数据到本地状态
 const syncFromStore = () => {
   const provider = llmClientStore.LLMConfig
-  providerType.value = provider.provider
   localApiKey.value = provider.apiKey
   localBaseURL.value = provider.baseURL
   localModel.value = provider.model
-}
-// 处理 Provider 类型变更
-const handleProviderChange = (type: LLMProviderType) => {
-  if (type === 'DeepSeek') {
-    const defaults = generateDeepSeekProvider()
-    localBaseURL.value = defaults.baseURL
-    localModel.value = defaults.model
-  } else {
-    localBaseURL.value = ''
-    localModel.value = ''
-  }
 }
 // 跳转完整设置页
 const handleGoToFullSettings = () => {
@@ -148,9 +98,9 @@ const handleSave = () => {
   if (isSaving.value) return
   isSaving.value = true
   llmClientStore.updateLLMConfig({
-    provider: providerType.value,
+    provider: 'OpenAICompatible',
     apiKey: localApiKey.value,
-    baseURL: providerType.value === 'DeepSeek' ? 'https://api.deepseek.com/chat/completions' : localBaseURL.value,
+    baseURL: localBaseURL.value,
     model: localModel.value,
     customHeaders: llmClientStore.LLMConfig.customHeaders,
   })
@@ -159,8 +109,7 @@ const handleSave = () => {
   }, 500)
 }
 const handleReset = () => {
-  const defaults = generateDeepSeekProvider()
-  providerType.value = defaults.provider
+  const defaults = generateCustomLLMProvider()
   localApiKey.value = defaults.apiKey
   localBaseURL.value = defaults.baseURL
   localModel.value = defaults.model

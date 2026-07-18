@@ -130,14 +130,14 @@ export const generateDefaultHttpNodeConfig = (): HttpNodeConfig => ({
   tempFileSizeThreshold: config.httpNodeConfig.tempFileSizeThreshold,
   autoConvertLocalhostToIp: config.httpNodeConfig.autoConvertLocalhostToIp
 })
-// 生成 DeepSeek Provider 默认配置
-export const generateDeepSeekProvider = (): LLMProviderSetting => ({
+// 生成用户自定义 Provider 默认配置
+export const generateCustomLLMProvider = (): LLMProviderSetting => ({
   id: nanoid(),
-  name: 'Default Provider',
-  provider: 'DeepSeek',
+  name: 'Custom Provider',
+  provider: 'OpenAICompatible',
   apiKey: '',
-  baseURL: 'https://api.deepseek.com/chat/completions',
-  model: 'deepseek-chat',
+  baseURL: '',
+  model: '',
   customHeaders: [],
   extraBody: '',
 })
@@ -930,9 +930,9 @@ export const parseChunkList = (chunkList: ChunkWithTimestampe[]): ParsedSSeData[
 */
 
 /**
- * DeepSeek 流式响应数据结构
+ * OpenAI-compatible 流式响应数据结构
  */
-export interface DeepSeekStreamDelta {
+export interface OpenAiCompatibleStreamDelta {
   choices?: Array<{
     index: number
     delta?: {
@@ -978,7 +978,7 @@ export function parseAiStream(
       try {
         // 提取 JSON 字符串（移除 "data: " 前缀）
         const jsonStr = trimmedLine.slice(6)
-        const parsedData: DeepSeekStreamDelta = JSON.parse(jsonStr)
+        const parsedData: OpenAiCompatibleStreamDelta = JSON.parse(jsonStr)
 
         // 提取 content 字段
         const content = parsedData.choices?.[0]?.delta?.content
