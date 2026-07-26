@@ -49,13 +49,12 @@
               </div>
               <input 
                 v-else 
-                :value="scope.data.name" 
+                v-model="editNodeName"
                 :placeholder="t('不能为空')" 
                 type="text" 
                 class="rename-ipt"
-                :class="{ error: scope.data.name.trim() === '' }" 
+                :class="{ error: editNodeName.trim() === '' }"
                 @blur="handleChangeNodeName($event, scope.data)"
-                @input="handleWatchNodeInput($event)" 
                 @keydown.stop.enter="handleChangeNodeName($event, scope.data)"
               >
               <div class="more" data-testid="banner-node-more-btn" @click.stop="handleShowContextmenu($event, scope.data)">
@@ -78,13 +77,12 @@
               </div>
               <input 
                 v-else 
-                :value="scope.data.name" 
+                v-model="editNodeName"
                 :placeholder="t('不能为空')" 
                 type="text" 
                 class="rename-ipt"
-                :class="{ error: scope.data.name.trim() === '' }" 
+                :class="{ error: editNodeName.trim() === '' }"
                 @blur="handleChangeNodeName($event, scope.data)"
-                @input="handleWatchNodeInput($event)" 
                 @keydown.stop.enter="handleChangeNodeName($event, scope.data)"
               >
               <!-- Mock状态指示器 -->
@@ -124,9 +122,9 @@
                 </SEmphasize>
                 <div v-show="showMoreNodeInfo" class="node-bottom">{{ scope.data.url }}</div>
               </div>
-              <input v-else :value="scope.data.name" :placeholder="t('不能为空')" type="text" class="rename-ipt"
-                :class="{ error: scope.data.name.trim() === '' }" @blur="handleChangeNodeName($event, scope.data)"
-                @input="handleWatchNodeInput($event)" @keydown.stop.enter="handleChangeNodeName($event, scope.data)">
+              <input v-else v-model="editNodeName" :placeholder="t('不能为空')" type="text" class="rename-ipt"
+                :class="{ error: editNodeName.trim() === '' }" @blur="handleChangeNodeName($event, scope.data)"
+                @keydown.stop.enter="handleChangeNodeName($event, scope.data)">
               <span 
                 v-if="foldersWithRunningMock.has(scope.data._id)" 
                 class="folder-mock-indicator"
@@ -149,13 +147,12 @@
               </div>
               <input 
                 v-else 
-                :value="scope.data.name" 
+                v-model="editNodeName"
                 :placeholder="t('不能为空')" 
                 type="text" 
                 class="rename-ipt"
-                :class="{ error: scope.data.name.trim() === '' }" 
+                :class="{ error: editNodeName.trim() === '' }"
                 @blur="handleChangeNodeName($event, scope.data)"
-                @input="handleWatchNodeInput($event)" 
                 @keydown.stop.enter="handleChangeNodeName($event, scope.data)"
               >
               <div class="more" @click.stop="handleShowContextmenu($event, scope.data)">
@@ -175,13 +172,12 @@
               </div>
               <input 
                 v-else 
-                :value="scope.data.name" 
+                v-model="editNodeName"
                 :placeholder="t('不能为空')" 
                 type="text" 
                 class="rename-ipt"
-                :class="{ error: scope.data.name.trim() === '' }" 
+                :class="{ error: editNodeName.trim() === '' }"
                 @blur="handleChangeNodeName($event, scope.data)"
-                @input="handleWatchNodeInput($event)" 
                 @keydown.stop.enter="handleChangeNodeName($event, scope.data)"
               >
               <!-- WebSocket Mock 状态指示器 -->
@@ -324,6 +320,7 @@ watch(bannerViewMode, (newVal) => {
 const pasteValue: Ref<ApidocBanner[] | null> = ref(null); //需要粘贴的数据
 const selectNodes: Ref<ApidocBannerWithProjectId[]> = ref([]); //当前选中节点
 const editNode: Ref<ApidocBanner | null> = ref(null); //正在编辑的节点
+const editNodeName = ref(''); //正在编辑的节点名称
 const showMoreNodeInfo = ref(false); //banner是否显示更多内容
 const enableDrag = ref(true);//是否允许拖拽
 const bannerStore = useBanner();
@@ -683,6 +680,7 @@ const handleNodeDropSuccess = (draggingNode: any, dropNode: any, type: 'before' 
 };
 //重命名节点
 const handleRenameNode = () => {
+  editNodeName.value = currentOperationalNode.value?.name || '';
   editNode.value = currentOperationalNode.value;
   setTimeout(() => {
     (document.querySelector('.rename-ipt') as HTMLElement).focus();
@@ -694,15 +692,6 @@ const handleChangeNodeName = (e: FocusEvent | KeyboardEvent, data: ApidocBanner)
   renameNode.call(this, e, data);
   editNode.value = null;
   enableDrag.value = true;
-}
-//监听输入框，输入值为空时候添加error样式
-const handleWatchNodeInput = (e: Event) => {
-  const iptValue = (e.target as HTMLInputElement).value;
-  if (iptValue.trim() === '') {
-    (e.target as HTMLInputElement).classList.add('error');
-  } else {
-    (e.target as HTMLInputElement).classList.remove('error');
-  }
 }
 /*
 |--------------------------------------------------------------------------
