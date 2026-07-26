@@ -82,7 +82,7 @@ test.describe('DeleteNode', () => {
       const deletedNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '待删除HTTP节点' });
       await expect(deletedNode).toBeHidden({ timeout: 5000 });
     });
-    test('选中httpNode节点按Ctrl+D可删除节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
+    test('选中httpNode节点按Delete可删除节点', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {
       await clearCache();
 
       await loginAccount();
@@ -105,8 +105,9 @@ test.describe('DeleteNode', () => {
       await contentPage.waitForTimeout(500);
       const httpNode = contentPage.locator('.el-tree-node__content').filter({ hasText: '快捷键删除HTTP节点' });
       await expect(httpNode).toBeVisible({ timeout: 5000 });
+      // 选中节点后按Delete触发删除
       await httpNode.click();
-      await contentPage.keyboard.press('Control+d');
+      await contentPage.keyboard.press('Delete');
       await contentPage.waitForTimeout(300);
       const confirmDialog = contentPage.locator('.cl-confirm-container');
       await expect(confirmDialog).toBeVisible({ timeout: 5000 });

@@ -795,17 +795,17 @@ test.describe('DeleteNode', () => {
       await expect(folderNode).toBeHidden({ timeout: 5000 });
     });
   });
-  test('Ctrl+D快捷键删除选中节点', async ({ contentPage, clearCache, createProject, createNode }) => {
+  test('Delete快捷键删除选中节点', async ({ contentPage, clearCache, createProject, createNode }) => {
     await clearCache();
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
-    await createNode(contentPage, { nodeType: 'http', name: 'CtrlD删除节点' });
+    await createNode(contentPage, { nodeType: 'http', name: 'Delete删除节点' });
     const bannerTree = contentPage.getByTestId('banner-doc-tree');
-    const node = bannerTree.locator('.el-tree-node__content', { hasText: 'CtrlD删除节点' }).first();
+    const node = bannerTree.locator('.el-tree-node__content', { hasText: 'Delete删除节点' }).first();
     await expect(node).toBeVisible({ timeout: 5000 });
-    // 选中节点后按Ctrl+D触发删除
+    // 选中节点后按Delete触发删除
     await node.click();
-    await contentPage.keyboard.press('Control+d');
+    await contentPage.keyboard.press('Delete');
     const confirmDialog = contentPage.locator('.cl-confirm-container');
     await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     await confirmDialog.locator('.el-button--primary').click();

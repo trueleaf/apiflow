@@ -806,14 +806,26 @@ const handleNodeKeydown = (e: KeyboardEvent) => {
     pressCtrl.value = true;
   }
   if (e.code === 'F2' && !currentOperationalNode.value?.readonly) {
+    e.preventDefault();
     handleRenameNode()
+  } else if (!editNode.value && e.key === 'Delete') {
+    e.preventDefault();
+    handleDeleteNodes();
   } else if (!editNode.value && e.ctrlKey && (e.key === 'D' || e.key === 'd')) {
+    e.preventDefault();
     handleDeleteNodes();
   } else if (!editNode.value && e.ctrlKey && (e.key === 'C' || e.key === 'c')) {
+    e.preventDefault();
     handleCopyNode();
   } else if (!editNode.value && e.ctrlKey && (e.key === 'V' || e.key === 'v')) {
-    handlePasteNode();
+    e.preventDefault();
+    if (currentOperationalNode.value && currentOperationalNode.value.type !== 'folder') {
+      handleForkNode();
+    } else {
+      handlePasteNode();
+    }
   } else if (!editNode.value && e.ctrlKey && (e.key === 'X' || e.key === 'x')) {
+    e.preventDefault();
     handleCutNode();
   }
 }

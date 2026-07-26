@@ -619,8 +619,8 @@ test.describe('CopyNode', () => {
     });
   });
   test.describe('快捷键复制粘贴', () => {
-    // 使用Ctrl+C和Ctrl+V复制粘贴节点
-    test('使用Ctrl+C和Ctrl+V复制粘贴节点', async ({ contentPage, clearCache, createProject }) => {
+    // 使用Ctrl+C和Ctrl+V生成及粘贴副本节点
+    test('使用Ctrl+C和Ctrl+V生成及粘贴副本节点', async ({ contentPage, clearCache, createProject }) => {
       await clearCache();
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
@@ -645,19 +645,20 @@ test.describe('CopyNode', () => {
       // 使用Ctrl+C复制
       await contentPage.keyboard.press('Control+c');
       await contentPage.waitForTimeout(300);
-      // 将“当前操作节点”切换为根节点（tree-wrap 右键会设置 currentOperationalNode 为 null）
-      await treeWrap.click({ button: 'right', position: { x: 100, y: 300 } });
-      await contentPage.waitForTimeout(200);
-      await contentPage.keyboard.press('Escape');
-      await contentPage.waitForTimeout(200);
-      // 保持焦点在节点上触发 keydown，但不触发 click（避免 currentOperationalNode 被重新赋值为 http 节点）
-      await sourceNode.focus();
-      // 使用Ctrl+V粘贴
+      // 在当前节点上使用Ctrl+V生成副本
       await contentPage.keyboard.press('Control+v');
       await contentPage.waitForTimeout(500);
       // 验证新节点出现
       const allNodes = contentPage.locator('.custom-tree-node').filter({ hasText: '快捷键测试节点' });
       await expect(allNodes).toHaveCount(2, { timeout: 5000 });
+      // 将操作目标切换为根节点后使用Ctrl+V粘贴
+      await treeWrap.click({ button: 'right', position: { x: 100, y: 300 } });
+      await contentPage.waitForTimeout(200);
+      await contentPage.keyboard.press('Escape');
+      await contentPage.waitForTimeout(200);
+      await allNodes.first().focus();
+      await contentPage.keyboard.press('Control+v');
+      await expect(allNodes).toHaveCount(3, { timeout: 5000 });
     });
   });
 });
