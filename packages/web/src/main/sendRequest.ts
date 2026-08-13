@@ -12,11 +12,14 @@ import mime from "mime";
 import fs from 'fs/promises';
 import http, { ClientRequest } from 'node:http';
 import type { OutgoingHttpHeaders } from 'node:http';
-import http2 from 'node:http';
+import https from 'node:https';
 import { basename } from 'path';
 import { generateEmptyResponse } from './utils';
 import { Buffer } from 'node:buffer';
 import { config } from '../config/config';
+
+const httpKeepAliveAgent = new http.Agent({ keepAlive: true });
+const httpsKeepAliveAgent = new https.Agent({ keepAlive: true });
 
 /*
 |--------------------------------------------------------------------------
@@ -239,9 +242,6 @@ export const gotRequest = async (options: GotRequestOptions) => {
         setHeaderValue(headers, key, headerValue!);
       }
     }
-    // undefined代表未设置值，null代表取消发送
-    const connectionHeader = getHeaderValue(options.headers, 'Connection');
-    const isConnectionKeepAlive = connectionHeader == undefined || connectionHeader === 'keep-alive';
     const hasFormData = isFormDataBody && (options.body!.value as RendererFormDataBody).some(item => (item.key));
     let willSendBody: undefined | string | FormData | Buffer = '';
     if (options.method.toLowerCase() === 'head') { //只有head请求body值为undefined,head请求不挟带body
@@ -262,8 +262,8 @@ export const gotRequest = async (options: GotRequestOptions) => {
       signal: abortController.signal,
       allowGetBody: true,
       agent: {
-        http: new http.Agent({ keepAlive: isConnectionKeepAlive }),
-        http2: new http2.Agent({ keepAlive: isConnectionKeepAlive }),
+        http: httpKeepAliveAgent,
+        https: httpsKeepAliveAgent,
       },
       body: willSendBody,
       headers,
