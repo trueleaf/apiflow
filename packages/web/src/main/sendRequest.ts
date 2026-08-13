@@ -10,16 +10,11 @@ import FormData from 'form-data';
 import { fileTypeFromBuffer, type FileTypeResult } from 'file-type';
 import mime from "mime";
 import fs from 'fs/promises';
-import http, { ClientRequest } from 'node:http';
-import type { OutgoingHttpHeaders } from 'node:http';
-import https from 'node:https';
+import type { ClientRequest, OutgoingHttpHeaders } from 'node:http';
 import { basename } from 'path';
 import { generateEmptyResponse } from './utils';
 import { Buffer } from 'node:buffer';
 import { config } from '../config/config';
-
-const httpKeepAliveAgent = new http.Agent({ keepAlive: true });
-const httpsKeepAliveAgent = new https.Agent({ keepAlive: true });
 
 /*
 |--------------------------------------------------------------------------
@@ -261,10 +256,6 @@ export const gotRequest = async (options: GotRequestOptions) => {
       method: options.method,
       signal: abortController.signal,
       allowGetBody: true,
-      agent: {
-        http: httpKeepAliveAgent,
-        https: httpsKeepAliveAgent,
-      },
       body: willSendBody,
       headers,
       followRedirect: options.followRedirect ?? config.httpNodeConfig.followRedirect,
