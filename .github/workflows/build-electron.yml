@@ -82,6 +82,11 @@ jobs:
             TAG_NAME="$VERSION"
             CREATE_TAG="false"  # tag已存在
           fi
+
+          if [ "$CREATE_TAG" = "true" ] && git rev-parse --verify --quiet "refs/tags/$TAG_NAME" >/dev/null; then
+            echo "::error::Git Tag $TAG_NAME 已存在，请使用新的版本号或先清理旧版本"
+            exit 1
+          fi
           
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "is_pre_release=$IS_PRE_RELEASE" >> $GITHUB_OUTPUT
