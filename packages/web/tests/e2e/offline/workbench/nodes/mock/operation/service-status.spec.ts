@@ -84,11 +84,10 @@ test.describe('MockNodeServiceStatus-Offline', () => {
     await expect(wsMockConfig.locator('.condition-content .port-input input').first()).toHaveValue('19132');
     await expect(wsMockConfig.locator('.condition-content .path-input input').first()).toHaveValue('/ws-mock/offline-status');
 
-    // 右键启动与停止服务，验证状态点变化
-    await wsMockNode.click({ button: 'right' });
-    const startMockItem = contentPage.locator('.s-contextmenu .s-contextmenu-item').filter({ hasText: /启动mock/ }).first();
-    await expect(startMockItem).toBeVisible({ timeout: 10000 });
-    await startMockItem.click();
+    // WebSocket Mock 使用配置页的启用开关，右键菜单仅提供 HTTP Mock 启停
+    const enabledSwitch = wsMockConfig.locator('.condition-content .el-switch');
+    await enabledSwitch.click();
+    await expect(enabledSwitch.getByRole('switch')).toBeChecked();
     const runningDot = wsMockNode.locator('.mock-status .status-dot.running');
     await expect(runningDot).toBeVisible({ timeout: 30000 });
 
@@ -102,10 +101,8 @@ test.describe('MockNodeServiceStatus-Offline', () => {
     await wsMockNode.click();
     await expect(runningDot).toBeVisible({ timeout: 30000 });
 
-    await wsMockNode.click({ button: 'right' });
-    const stopMockItem = contentPage.locator('.s-contextmenu .s-contextmenu-item').filter({ hasText: /停止mock/ }).first();
-    await expect(stopMockItem).toBeVisible({ timeout: 10000 });
-    await stopMockItem.click();
+    await enabledSwitch.click();
+    await expect(enabledSwitch.getByRole('switch')).not.toBeChecked();
     await expect(runningDot).toBeHidden({ timeout: 30000 });
   });
 });

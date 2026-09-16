@@ -13,10 +13,9 @@ test.describe('WebSocketNodeRequest', () => {
     await createNode(contentPage, { nodeType: 'websocket', name: 'WebSocket收发测试接口' });
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
     await expect(urlEditor).toBeVisible({ timeout: 5000 });
-    await urlEditor.click();
-    await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type(`ws://127.0.0.1:${MOCK_SERVER_PORT}/ws`);
-    await contentPage.keyboard.press('Enter');
+    await urlEditor.fill(`ws://127.0.0.1:${MOCK_SERVER_PORT}/ws`);
+    await expect(urlEditor).toHaveText(`ws://127.0.0.1:${MOCK_SERVER_PORT}/ws`);
+    await contentPage.getByTestId('websocket-operation-save-btn').click();
 
     // 发起连接并等待连接状态
     const connectBtn = contentPage.getByRole('button', { name: /发起连接|重新连接/ });
@@ -53,10 +52,9 @@ test.describe('WebSocketNodeRequest', () => {
     await createNode(contentPage, { nodeType: 'websocket', name: 'WebSocket断开连接测试' });
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
     await expect(urlEditor).toBeVisible({ timeout: 5000 });
-    await urlEditor.click();
-    await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type(`ws://127.0.0.1:${MOCK_SERVER_PORT}/ws`);
-    await contentPage.keyboard.press('Enter');
+    await urlEditor.fill(`ws://127.0.0.1:${MOCK_SERVER_PORT}/ws`);
+    await expect(urlEditor).toHaveText(`ws://127.0.0.1:${MOCK_SERVER_PORT}/ws`);
+    await contentPage.getByTestId('websocket-operation-save-btn').click();
 
     // 建立连接后断开
     const connectBtn = contentPage.getByRole('button', { name: /发起连接|重新连接/ });
@@ -83,10 +81,9 @@ test.describe('WebSocketNodeRequest', () => {
     await createNode(contentPage, { nodeType: 'websocket', name: 'WebSocket重连测试' });
     const urlEditor = contentPage.locator('.ws-operation .url-rich-input [contenteditable]').first();
     await expect(urlEditor).toBeVisible({ timeout: 5000 });
-    await urlEditor.click();
-    await contentPage.keyboard.press('Control+a');
-    await contentPage.keyboard.type(`ws://127.0.0.1:${MOCK_SERVER_PORT}/ws`);
-    await contentPage.keyboard.press('Enter');
+    await urlEditor.fill(`ws://127.0.0.1:${MOCK_SERVER_PORT}/ws`);
+    await expect(urlEditor).toHaveText(`ws://127.0.0.1:${MOCK_SERVER_PORT}/ws`);
+    await contentPage.getByTestId('websocket-operation-save-btn').click();
 
     // 首次连接
     const connectBtn = contentPage.getByRole('button', { name: /发起连接|重新连接/ });
@@ -122,5 +119,4 @@ test.describe('WebSocketNodeRequest', () => {
     await expect(wsView).toContainText('pong', { timeout: 10000 });
   });
 });
-
 

@@ -10,7 +10,7 @@ test.describe('AiConfigManagement', () => {
     await dialog.getByRole('button', { name: '设置', exact: true }).click();
     const form = dialog.locator('.ai-config-view');
     await expect(form.getByTestId('llm-vendor-select')).toContainText('DeepSeek');
-    await expect(form.getByTestId('llm-model-select')).toContainText('deepseek-v4-flash');
+    await expect(form.getByTestId('llm-model-select')).toContainText('deepseek-v4-pro');
     await expect(form.getByTestId('llm-save')).toBeDisabled();
     await expect(form.getByPlaceholder('请输入 API Base URL')).toHaveCount(0);
     // 同厂商切换模型复用密钥
@@ -67,7 +67,7 @@ test.describe('AiConfigManagement', () => {
     await dialog.getByRole('button', { name: '设置', exact: true }).click();
     const form = dialog.locator('.ai-config-view');
     await expect(form.getByTestId('llm-vendor-select')).toContainText('自定义');
-    await expect(form.getByPlaceholder('请输入 API Base URL')).toHaveValue('http://127.0.0.1:8080/chat/completions');
+    await expect(form.getByPlaceholder('请输入 API Base URL')).toHaveValue('http://127.0.0.1:8080');
     await expect(form.getByPlaceholder('请输入模型 ID')).toHaveValue('legacy-model');
     await form.getByTestId('llm-vendor-select').click();
     await contentPage.getByRole('option', { name: 'DeepSeek', exact: true }).click();
@@ -77,7 +77,7 @@ test.describe('AiConfigManagement', () => {
     const cache = await contentPage.evaluate(() => JSON.parse(localStorage.getItem('apiflow/ai/llmProvider') || '{}'));
     expect(cache).toMatchObject({ version: 2 });
     expect(cache.profiles.custom).toMatchObject({ id: 'legacy-id', apiKey: 'legacy-key', customHeaders: [{ key: 'X-Legacy', value: 'legacy-header' }], extraBody: '{"temperature":0.2}', thinkingMode: 'default', reasoningEffort: 'default', thinkingBudget: null, maxTokens: null });
-    expect(cache.profiles.deepseek).toMatchObject({ apiKey: 'new-deepseek-key', baseURL: 'https://api.deepseek.com/chat/completions', extraBody: '', customHeaders: [], thinkingMode: 'default' });
+    expect(cache.profiles.deepseek).toMatchObject({ apiKey: 'new-deepseek-key', baseURL: 'https://api.deepseek.com', extraBody: '', customHeaders: [], thinkingMode: 'default' });
     await form.getByTestId('llm-vendor-select').click();
     await contentPage.getByRole('option', { name: '自定义（OpenAI Compatible）', exact: true }).click();
     await form.getByPlaceholder('请输入 API Key').fill('');
@@ -138,13 +138,13 @@ test.describe('AiConfigManagement', () => {
       for await (const chunk of req) chunks.push(Buffer.from(chunk));
       const body = JSON.parse(Buffer.concat(chunks).toString()) as { model?: string; stream?: boolean };
       requests.push({ url: req.url, authorization: req.headers.authorization, body });
-      if (req.url === '/unauthorized') {
+      if (req.url?.startsWith('/unauthorized')) {
         res.writeHead(401, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: { message: 'invalid secret-draft-key' } }));
       } else if (body.stream) {
         res.writeHead(200, { 'Content-Type': 'text/event-stream' });
         res.write('data: ' + JSON.stringify({ choices: [{ delta: { reasoning_content: '模拟推理' } }] }) + '\n\n');
-        res.end('data: ' + JSON.stringify({ choices: [{ delta: { content: '流式验证成功' }, finish_reason: 'stop' }] }));
+        res.end('data: ' + JSON.stringify({ choices: [{ delta: { content: '流式验证成功' }, finish_reason: 'stop' }] }) + '\n\ndata: [DONE]\n\n');
       } else {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ choices: [{ message: { content: '普通验证成功', reasoning_content: '模拟推理' } }] }));
@@ -180,7 +180,8 @@ test.describe('AiConfigManagement', () => {
       await settings.getByTestId('llm-test-stream').click();
       await expect(settings.locator('.response-content')).toContainText('流式验证成功');
       expect(requests).toHaveLength(2);
-      expect(requests[0]).toMatchObject({ authorization: 'Bearer secret-draft-key', body: { model: 'draft-model', stream: false } });
+      expect(requests[0]).toMatchObject({ authorization: 'Bearer secret-draft-key', body: { model: 'draft-model' } });
+      expect(requests[0].body.stream).toBeUndefined();
       expect(requests[1]).toMatchObject({ body: { model: 'draft-model', stream: true } });
       expect(await contentPage.evaluate(() => JSON.parse(localStorage.getItem('apiflow/ai/llmProvider') || '{}').model)).toBe('saved-model');
       await settings.getByPlaceholder('请输入 API Base URL').fill('http://127.0.0.1:' + address.port + '/unauthorized');

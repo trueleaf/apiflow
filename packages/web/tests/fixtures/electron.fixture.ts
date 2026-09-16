@@ -2,7 +2,7 @@ import { test as base, _electron as electron, expect } from '@playwright/test';
 import type { ElectronApplication, Page } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { mkdtemp } from 'node:fs/promises';
+import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { startServer, isServerRunning, isMockServerOnPort, PORT } from '../mock-server/index';
 
@@ -57,23 +57,25 @@ export const test = base.extend<ElectronFixtures>({
     };
     delete launchEnv.ELECTRON_RUN_AS_NODE;
     const testUserDataDir = await mkdtemp(path.join(tmpdir(), 'apiflow-e2e-'));
-    const app = await electron.launch({
-      args: [mainPath, `--user-data-dir=${testUserDataDir}`],
-      env: {
-        ...launchEnv,
-      },
-    });
-    // 确认测试实例使用独立目录，避免清理用户日常数据
-    expect(await app.evaluate(({ app }) => app.getPath('userData'))).toBe(testUserDataDir);
-    // 等待应用完全启动并加载所有窗口
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    await use(app);
-    // 在关闭前等待一小段时间，避免 Playwright 内部 step id 错误
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    let app: ElectronApplication | undefined;
     try {
-      await app.close();
-    } catch {
-      // 忽略关闭时的错误（可能应用已经关闭）
+      app = await electron.launch({
+        args: [mainPath, `--user-data-dir=${testUserDataDir}`],
+        env: {
+          ...launchEnv,
+        },
+      });
+      // 确认测试实例使用独立目录，避免清理用户日常数据
+      expect(await app.evaluate(({ app }) => app.getPath('userData'))).toBe(testUserDataDir);
+      // 等待应用完全启动并加载所有窗口
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await use(app);
+    } finally {
+      await app?.close().catch(() => undefined);
+      // 只清理由本轮创建且已校验的独立测试目录
+      const resolvedTestDirectory = path.resolve(testUserDataDir);
+      if (path.dirname(resolvedTestDirectory) !== path.resolve(tmpdir()) || !path.basename(resolvedTestDirectory).startsWith('apiflow-e2e-')) throw new Error('拒绝清理非测试目录');
+      await rm(resolvedTestDirectory, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
     }
   },
   // 顶部栏视图 Page fixture（header.html）
@@ -87,7 +89,7 @@ export const test = base.extend<ElectronFixtures>({
   contentPage: async ({ electronApp }, use) => {
     // 使用辅助函数等待 index.html 窗口加载完成
     const contentPage = await waitForWindow(electronApp, (url) => {
-      return url.includes('index.html') || (!url.includes('header.html') && !url.includes('mcp.html') && (url.includes('app://') || url.includes('localhost:4000')));
+      return !url.includes('header.html') && !url.includes('mcp.html') && (url.includes('index.html') || url.includes('app://') || url.includes('localhost:4000'));
     });
     await contentPage.waitForLoadState('domcontentloaded');
     await use(contentPage);
@@ -96,65 +98,79 @@ export const test = base.extend<ElectronFixtures>({
   clearCache: async ({ contentPage, topBarPage }, use) => {
     const clear = async (options?: { skipExampleProject?: boolean }) => {
       const skipExampleProject = options?.skipExampleProject ?? true;
-      // 先清除 localStorage 和 sessionStorage，暂时设置 hasCreatedExampleProject 为 true 防止 reload 后自动创建示例项目
-      await contentPage.evaluate(() => {
-        localStorage.clear();
-        sessionStorage.clear();
-        localStorage.setItem('runtime/hasCreatedExampleProject', 'true');
+      // 清库前关闭同源 MCP 执行页，避免后台连接阻塞 IndexedDB 删除和路由初始化
+      const mcpSettings = await contentPage.evaluate(async () => {
+        const manager = window.electronAPI?.mcpManager;
+        if (!manager) return null;
+        const { enabled, port, readOnly, allowDestructive } = await manager.getStatus();
+        await manager.updateSettings({ enabled: false, port, readOnly, allowDestructive });
+        return { enabled, port, readOnly, allowDestructive };
       });
-      await topBarPage.evaluate(() => {
-        localStorage.clear();
-        sessionStorage.clear();
-      });
-      // 清空 tabs 并跳转到首页
-      await contentPage.evaluate(() => {
-        (window as unknown as { electronAPI?: { ipcManager?: { sendToMain: (channel: string, payload: { tabs: unknown[]; activeTabId: string; language: string; networkMode: string }) => void } } }).electronAPI?.ipcManager?.sendToMain('apiflow:content:to:topbar:init-tabs', {
-          tabs: [],
-          activeTabId: '',
-          language: 'zh-cn',
-          networkMode: 'offline'
+      try {
+        // 先清除 localStorage 和 sessionStorage，暂时设置 hasCreatedExampleProject 为 true 防止 reload 后自动创建示例项目
+        await contentPage.evaluate(() => {
+          localStorage.clear();
+          sessionStorage.clear();
+          localStorage.setItem('runtime/hasCreatedExampleProject', 'true');
         });
-      });
-      await expect(topBarPage.locator('[data-test-id^="header-tab-item-"]')).toHaveCount(0);
-      const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
-      await homeBtn.click();
-      await contentPage.waitForTimeout(300);
-      // 先 reload 页面以关闭所有数据库连接
-      await contentPage.reload();
-      await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(500);
-      // 删除所有 IndexedDB 数据库并设置是否跳过示例项目创建（合并为单次evaluate，避免导航竞态）
-      await contentPage.evaluate(async (params) => {
-        const dbNames = [
-          'httpNodeResponseCache',
-          'websocketNodeResponseCache',
-          'websocketHistoryCache',
-          'httpHistoryCache',
-          'sendHistoryCache',
-          'mockNodeVariableCache',
-          'mockNodeLogsCache',
-          'agentViewMessageCache',
-          'projectCache',
-          'apiNodesCache',
-          'commonHeadersCache',
-          'variablesCache',
-        ];
-        await Promise.all(dbNames.map((dbName) => {
-          return new Promise<void>((resolve) => {
-            const request = indexedDB.deleteDatabase(dbName);
-            request.onsuccess = () => resolve();
-            request.onerror = () => resolve();
-            request.onblocked = () => resolve();
+        await topBarPage.evaluate(() => {
+          localStorage.clear();
+          sessionStorage.clear();
+        });
+        // 清空 tabs 并跳转到首页
+        await contentPage.evaluate(() => {
+          (window as unknown as { electronAPI?: { ipcManager?: { sendToMain: (channel: string, payload: { tabs: unknown[]; activeTabId: string; language: string; networkMode: string }) => void } } }).electronAPI?.ipcManager?.sendToMain('apiflow:content:to:topbar:init-tabs', {
+            tabs: [],
+            activeTabId: '',
+            language: 'zh-cn',
+            networkMode: 'offline'
           });
-        }));
-        if (!params.skipExampleProject) {
-          localStorage.removeItem('runtime/hasCreatedExampleProject');
-        }
-      }, { skipExampleProject });
-      // 再次 reload 以应用缓存清除
-      await contentPage.reload();
-      await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(500);
+        });
+        await expect(topBarPage.locator('[data-test-id^="header-tab-item-"]')).toHaveCount(0);
+        const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
+        await homeBtn.click();
+        await contentPage.waitForTimeout(300);
+        // 先 reload 页面以关闭所有数据库连接
+        await contentPage.reload();
+        await contentPage.waitForLoadState('domcontentloaded');
+        await contentPage.waitForTimeout(500);
+        // 删除所有 IndexedDB 数据库并设置是否跳过示例项目创建（合并为单次evaluate，避免导航竞态）
+        await contentPage.evaluate(async (params) => {
+          const dbNames = [
+            'httpNodeResponseCache',
+            'websocketNodeResponseCache',
+            'websocketHistoryCache',
+            'httpHistoryCache',
+            'sendHistoryCache',
+            'mockNodeVariableCache',
+            'mockNodeLogsCache',
+            'agentViewMessageCache',
+            'agentDataCache',
+            'workspaceDataCache',
+            'projectCache',
+            'apiNodesCache',
+            'commonHeadersCache',
+            'variablesCache',
+          ];
+          await Promise.all(dbNames.map((dbName) => {
+            return new Promise<void>((resolve) => {
+              const request = indexedDB.deleteDatabase(dbName);
+              request.onsuccess = () => resolve();
+              request.onerror = () => resolve();
+              request.onblocked = () => resolve();
+            });
+          }));
+          if (!params.skipExampleProject) {
+            localStorage.removeItem('runtime/hasCreatedExampleProject');
+          }
+        }, { skipExampleProject });
+        // 再次 reload 以应用缓存清除
+        await contentPage.reload();
+        await contentPage.waitForLoadState('domcontentloaded');
+        await contentPage.waitForTimeout(500);
+      } finally {
+        if (mcpSettings) await contentPage.evaluate(settings => window.electronAPI?.mcpManager.updateSettings(settings), mcpSettings);
+      }
     };
     await use(clear);
   },
@@ -297,9 +313,7 @@ test.beforeAll(async () => {
   if (!isServerRunning()) {
     const isMockRunning = await isMockServerOnPort(PORT);
     if (!isMockRunning) {
-      console.log('🚀 单测模式：启动 Mock 服务器...');
       await startServer();
-      console.log(`✅ Mock 服务器已在端口 ${PORT} 上成功启动`);
     }
   }
 });

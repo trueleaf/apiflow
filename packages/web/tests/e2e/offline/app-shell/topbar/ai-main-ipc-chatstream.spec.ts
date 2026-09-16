@@ -1,185 +1,31 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/electron.fixture'
 
-test.describe('AiMainIpcChatStream', () => {
-  // 直接校验 preload 暴露的 aiManager.chatStream：增量分片、结束态、错误态
-  test('离线模式下 aiManager.chatStream 回调状态保持一致', async ({ contentPage, clearCache }) => {
-    await clearCache();
-
-    // 使用本地 mock 流式接口，校验 onData 与 onEnd 回调
-    const streamSuccessResult = await contentPage.evaluate(async () => {
-      const bridge = (window as Window & {
-        electronAPI?: {
-          aiManager?: {
-            updateConfig: (config: {
-              id: string;
-              name: string;
-              provider: 'DeepSeek' | 'OpenAICompatible';
-              apiKey: string;
-              baseURL: string;
-              model: string;
-              customHeaders: Array<{ key: string; value: string }>;
-              extraBody: string;
-            }) => void;
-            chatStream: (
-              body: { messages: Array<{ role: 'user' | 'system' | 'assistant' | 'tool'; content: string }> },
-              callbacks: {
-                onData: (chunk: Uint8Array) => void;
-                onEnd: () => void;
-                onError: (error: Error | string) => void;
-              }
-            ) => { abort: () => void };
-          };
-        };
-      }).electronAPI?.aiManager;
-      if (!bridge) {
-        return {
-          hasBridge: false,
-          chunkCount: 0,
-          ended: false,
-          errorMessage: '',
-        };
-      }
-      bridge.updateConfig({
-        id: 'e2e-openai-compatible',
-        name: 'E2E OpenAI Compatible',
-        provider: 'OpenAICompatible',
-        apiKey: 'sk-e2e-stream',
-        baseURL: 'http://127.0.0.1:3456/sse/chunked',
-        model: 'e2e-stream-model',
-        customHeaders: [],
-        extraBody: '',
-      });
-
-      const callbackState = {
-        chunkCount: 0,
-        ended: false,
-        errorMessage: '',
-      };
-
-      const streamController = bridge.chatStream({
-        messages: [{ role: 'user', content: '请返回流式分片' }],
-      }, {
-        onData: () => {
-          callbackState.chunkCount += 1;
-        },
-        onEnd: () => {
-          callbackState.ended = true;
-        },
-        onError: (error) => {
-          callbackState.errorMessage = typeof error === 'string' ? error : error.message;
-        },
-      });
-
-      await new Promise<void>((resolve) => {
-        const timeoutId = window.setTimeout(() => {
-          streamController.abort();
-          resolve();
-        }, 5000);
-        const pollId = window.setInterval(() => {
-          if (callbackState.ended || callbackState.errorMessage.length > 0) {
-            window.clearTimeout(timeoutId);
-            window.clearInterval(pollId);
-            resolve();
-          }
-        }, 80);
-      });
-
-      return {
-        hasBridge: true,
-        chunkCount: callbackState.chunkCount,
-        ended: callbackState.ended,
-        errorMessage: callbackState.errorMessage,
-      };
-    });
-
-    expect(streamSuccessResult.hasBridge).toBeTruthy();
-    expect(streamSuccessResult.chunkCount).toBeGreaterThan(0);
-    expect(streamSuccessResult.ended).toBeTruthy();
-    expect(streamSuccessResult.errorMessage).toBe('');
-
-    // 切换到不可达地址，校验 onError 错误回调可达
-    const streamErrorResult = await contentPage.evaluate(async () => {
-      const bridge = (window as Window & {
-        electronAPI?: {
-          aiManager?: {
-            updateConfig: (config: {
-              id: string;
-              name: string;
-              provider: 'DeepSeek' | 'OpenAICompatible';
-              apiKey: string;
-              baseURL: string;
-              model: string;
-              customHeaders: Array<{ key: string; value: string }>;
-              extraBody: string;
-            }) => void;
-            chatStream: (
-              body: { messages: Array<{ role: 'user' | 'system' | 'assistant' | 'tool'; content: string }> },
-              callbacks: {
-                onData: (chunk: Uint8Array) => void;
-                onEnd: () => void;
-                onError: (error: Error | string) => void;
-              }
-            ) => { abort: () => void };
-          };
-        };
-      }).electronAPI?.aiManager;
-      if (!bridge) {
-        return {
-          hasBridge: false,
-          hasError: false,
-          errorMessage: '',
-        };
-      }
-      bridge.updateConfig({
-        id: 'e2e-openai-compatible-error',
-        name: 'E2E OpenAI Compatible Error',
-        provider: 'OpenAICompatible',
-        apiKey: 'sk-e2e-stream-error',
-        baseURL: 'http://127.0.0.1:1/unreachable-chat-stream',
-        model: 'e2e-stream-model-error',
-        customHeaders: [],
-        extraBody: '',
-      });
-
-      let errorMessage = '';
-
-      const streamController = bridge.chatStream({
-        messages: [{ role: 'user', content: '请触发错误回调' }],
-      }, {
-        onData: () => {
-          // 错误分支无需处理增量数据
-        },
-        onEnd: () => {
-          // 错误分支无需处理结束态
-        },
-        onError: (error) => {
-          errorMessage = typeof error === 'string' ? error : error.message;
-        },
-      });
-
-      await new Promise<void>((resolve) => {
-        const timeoutId = window.setTimeout(() => {
-          streamController.abort();
-          resolve();
-        }, 5000);
-        const pollId = window.setInterval(() => {
-          if (errorMessage.length > 0) {
-            window.clearTimeout(timeoutId);
-            window.clearInterval(pollId);
-            resolve();
-          }
-        }, 80);
-      });
-
-      return {
-        hasBridge: true,
-        hasError: errorMessage.length > 0,
-        errorMessage,
-      };
-    });
-
-    expect(streamErrorResult.hasBridge).toBeTruthy();
-    expect(streamErrorResult.hasError).toBeTruthy();
-    expect(streamErrorResult.errorMessage.length).toBeGreaterThan(0);
-  });
-});
+test('离线 aiManager.chatStream 保留增量、完成与错误回调契约', async ({ contentPage, clearCache }) => {
+  await clearCache()
+  for (const model of ['ai-test-text', 'ai-test-error']) {
+    // 通过完整配置和 ai/test 模型验证兼容 IPC，不将任意 SSE 当成模型协议
+    const result = await contentPage.evaluate(async model => {
+      const bridge = window.electronAPI!.aiManager
+      bridge.updateConfig({ id: 'agent-e2e-compat', name: 'Test', provider: 'OpenAICompatible', vendor: 'custom', apiKey: '', baseURL: 'https://ai.test/v1', model, customHeaders: [], extraBody: '', thinkingMode: 'default', reasoningEffort: 'default', thinkingBudget: null, maxTokens: 64 })
+      return await new Promise<{ chunks: string[]; ended: boolean; error: string }>((resolve, reject) => {
+        const chunks: string[] = []
+        const timer = window.setTimeout(() => { controller.abort(); reject(new Error('Stream callback timeout')) }, 10000)
+        const controller = bridge.chatStream({ messages: [{ role: 'user', content: '请返回流式内容' }] }, {
+          onData: chunk => { chunks.push(new TextDecoder().decode(chunk)) },
+          onEnd: () => { window.clearTimeout(timer); resolve({ chunks, ended: true, error: '' }) },
+          onError: error => { window.clearTimeout(timer); resolve({ chunks, ended: false, error: typeof error === 'string' ? error : error.message }) },
+        })
+      })
+    }, model)
+    if (model === 'ai-test-text') {
+      expect(result.ended).toBe(true)
+      expect(result.error).toBe('')
+      expect(result.chunks.join('')).toContain('测试流式回答完成')
+      expect(result.chunks.join('')).toContain('reasoning_content')
+      expect(result.chunks.at(-1)).toContain('[DONE]')
+    } else {
+      expect(result.ended).toBe(false)
+      expect(result.error).toContain('test-model-error')
+    }
+  }
+})
