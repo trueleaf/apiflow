@@ -1,9 +1,21 @@
 import { setActivePinia, createPinia } from 'pinia'
-import { rawTools } from '@/store/ai/tools/tools'
+import { httpNodeTools } from '@/store/ai/tools/httpNodeTools'
+import { websocketNodeTools } from '@/store/ai/tools/websocketNodeTools'
+import { httpMockNodeTools } from '@/store/ai/tools/httpMockNodeTools'
+import { websocketMockNodeTools } from '@/store/ai/tools/websocketMockNodeTools'
+import { projectTools } from '@/store/ai/tools/projectTools'
+import { nodeOperationTools } from '@/store/ai/tools/nodeOperationTools'
+import { variableTools } from '@/store/ai/tools/variableTools'
+import { commonTools } from '@/store/ai/tools/commonTools'
+import { commonHeaderTools } from '@/store/ai/tools/commonHeaderTools'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import { useBanner } from '@/store/projectWorkbench/bannerStore'
 import { projectCache } from '@/cache/project/projectCache'
+import { apiNodesCache } from '@/cache/nodes/nodesCache'
+import { nodeVariableCache } from '@/cache/variable/nodeVariableCache'
+import { useVariable } from '@/store/projectWorkbench/variablesStore'
+import { assertMcpToolScope, getMcpToolAnnotations } from './toolGuards'
 import { router } from '@/router'
 import type { AgentTool, ToolExecuteResult } from '@src/types/ai'
 import type { McpToolCallPayload, McpToolCallResult, McpToolDefinition } from '@src/types/mcp'
@@ -100,7 +112,9 @@ const mcpToolNames = [
   'getFolderChildrenForRename',
 ] as const
 const mcpToolNameSet = new Set<string>(mcpToolNames)
+const mcpBusinessTools: AgentTool[] = [...httpNodeTools, ...websocketNodeTools, ...httpMockNodeTools, ...websocketMockNodeTools, ...projectTools, ...nodeOperationTools, ...variableTools, ...commonTools, ...commonHeaderTools]
 let initialized = false
+let toolQueue: Promise<unknown> = Promise.resolve()
 const ensureInitialized = () => {
   if (initialized) {
     return
@@ -115,23 +129,25 @@ const requiresProjectContext = (tool: AgentTool): boolean => {
   return true
 }
 const withProjectIdSchema = (tool: AgentTool): McpToolDefinition['inputSchema'] => {
-  if (!requiresProjectContext(tool) || 'projectId' in tool.parameters.properties) {
-    return tool.parameters
-  }
+  const needsProject = requiresProjectContext(tool)
+  const needsConfirmation = tool.needConfirm || getMcpToolAnnotations(tool).destructiveHint
   return {
     type: 'object',
     properties: {
-      projectId: {
+      ...(needsProject ? { projectId: {
         type: 'string',
         description: 'The explicit project id used by the MCP executor context',
-      },
+        minLength: 1,
+      } } : {}),
       ...tool.parameters.properties,
+      ...(needsConfirmation ? { confirmed: { type: 'boolean', description: 'Set true only after obtaining explicit user approval for this operation' } } : {}),
     },
-    required: ['projectId', ...tool.parameters.required],
+    required: [...new Set([...(needsProject ? ['projectId'] : []), ...tool.parameters.required])],
+    additionalProperties: false,
   }
 }
 const getMcpTools = (): AgentTool[] => {
-  return rawTools.filter(tool => mcpToolNameSet.has(tool.name))
+  return mcpBusinessTools.filter(tool => mcpToolNameSet.has(tool.name))
 }
 const getToolByName = (name: string): AgentTool | null => {
   return getMcpTools().find(tool => tool.name === name) ?? null
@@ -173,10 +189,14 @@ const prepareProjectContext = async (projectId: string): Promise<boolean> => {
       name: project.projectName,
       mode: 'edit',
     },
-  }).catch(() => undefined)
-  await projectWorkbenchStore.initProjectBaseInfo({ projectId }).catch(() => undefined)
+  })
+  if (router.currentRoute.value.query.id !== projectId) throw new Error('PROJECT_CONTEXT_FAILED')
+  const variables = await nodeVariableCache.getVariableByProjectId(projectId)
+  if (variables.code !== 0) throw new Error('PROJECT_CONTEXT_FAILED: Unable to load project variables')
+  useVariable().replaceVariables(variables.data)
   const bannerStore = useBanner()
-  await bannerStore.getDocBanner({ projectId }).catch(() => undefined)
+  apiNodesCache.invalidateProject(projectId)
+  await bannerStore.getDocBanner({ projectId })
   return true
 }
 export const listMcpTools = (): McpToolDefinition[] => {
@@ -192,9 +212,11 @@ export const listMcpTools = (): McpToolDefinition[] => {
     name: tool.name,
     description: tool.description,
     inputSchema: withProjectIdSchema(tool),
+    annotations: getMcpToolAnnotations(tool),
+    requiresConfirmation: tool.needConfirm || getMcpToolAnnotations(tool).destructiveHint,
   }))
 }
-export const callMcpTool = async (payload: McpToolCallPayload): Promise<McpToolCallResult> => {
+const executeMcpTool = async (payload: McpToolCallPayload): Promise<McpToolCallResult> => {
   ensureInitialized()
   forceOfflineMode()
   const tool = getToolByName(payload.name)
@@ -208,38 +230,45 @@ export const callMcpTool = async (payload: McpToolCallPayload): Promise<McpToolC
     }
   }
   const args = payload.arguments
-  if (requiresProjectContext(tool)) {
-    const projectId = typeof args.projectId === 'string' ? args.projectId : ''
-    if (!projectId) {
-      return {
-        code: 1,
-        error: {
-          code: 'INVALID_PARAMS',
-          message: 'projectId is required for MCP data tools',
-        },
-      }
-    }
-    const projectReady = await prepareProjectContext(projectId)
-    if (!projectReady) {
-      return {
-        code: 1,
-        error: {
-          code: 'PROJECT_NOT_FOUND',
-          message: `Project not found: ${projectId}`,
-        },
-      }
-    }
-  }
   try {
+    if (requiresProjectContext(tool)) {
+      const projectId = typeof args.projectId === 'string' ? args.projectId : ''
+      if (!projectId) {
+        return {
+          code: 1,
+          error: {
+            code: 'INVALID_PARAMS',
+            message: 'projectId is required for MCP data tools',
+          },
+        }
+      }
+      const projectReady = await prepareProjectContext(projectId)
+      if (!projectReady) {
+        return {
+          code: 1,
+          error: {
+            code: 'PROJECT_NOT_FOUND',
+            message: `Project not found: ${projectId}`,
+          },
+        }
+      }
+    }
+    await assertMcpToolScope(tool, args)
     const result = await tool.execute(args)
     return normalizeResult(result)
   } catch (error) {
     return {
       code: 1,
       error: {
-        code: 'TOOL_THROWN',
+        code: error instanceof Error && /^[A-Z_]+(?::|$)/.test(error.message) ? error.message.split(':')[0] : 'TOOL_THROWN',
         message: error instanceof Error ? error.message : 'Tool execution failed',
       },
     }
   }
+}
+// 串行执行工具并隔离项目上下文
+export const callMcpTool = (payload: McpToolCallPayload): Promise<McpToolCallResult> => {
+  const result = toolQueue.then(() => executeMcpTool(payload))
+  toolQueue = result.catch(() => undefined)
+  return result
 }

@@ -1,8 +1,9 @@
 import type { ApidocProperty } from '@src/types';
-import { openDB, type IDBPDatabase } from 'idb';
+import type { IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
 import { logger } from '@/helper/logger';
 import { cacheKey } from '../cacheKey';
+import { getWorkspaceDataDB } from '@/cache/workspaceDataCache';
 export class CommonHeaderCache {
   private db: IDBPDatabase | null = null;
   private storeName = config.cacheConfig.commonHeadersCache.storeName;
@@ -35,18 +36,10 @@ export class CommonHeaderCache {
     if (this.db) {
       return this.db;
     }
-    this.db = await openDB(
-      config.cacheConfig.commonHeadersCache.dbName,
-      config.cacheConfig.commonHeadersCache.version,
-      {
-        upgrade(db) {
-          if (!db.objectStoreNames.contains(config.cacheConfig.commonHeadersCache.storeName)) {
-            db.createObjectStore(config.cacheConfig.commonHeadersCache.storeName);
-          }
-        },
-      }
-    );
-    return this.db;
+    const database = await getWorkspaceDataDB() as unknown as IDBPDatabase;
+    database.addEventListener('versionchange', () => { this.db = null; });
+    this.db = database;
+    return database;
   }
   async getCommonHeaders(): Promise<ApidocProperty<'string'>[]> {
     const db = await this.getDB();

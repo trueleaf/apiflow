@@ -10,7 +10,7 @@
     </div>
     <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
     <ChangePasswordDialog v-model="changePasswordDialogVisible" @success="handleChangePasswordSuccess" />
-    <Ai v-show="agentViewDialogVisible" />
+    <Ai v-if="isElectronEnv && runtimeStore.networkMode === 'offline' && agentViewDialogVisible" />
     <!-- Electron 环境：语言菜单由 IPC 控制显示 -->
     <LanguageMenu v-if="isElectronEnv" :visible="languageMenuVisible" :position="languageMenuPosition"
       :current-language="runtimeStore.language" @language-select="handleLanguageSelect" @close="hideLanguageMenu" />
@@ -34,7 +34,8 @@
 
 <script setup lang="ts">
 import { config } from '@src/config/config';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { startWorkspaceSync } from '@/mcp/workspaceSync';
 import { useI18n } from 'vue-i18n';
 import { changeLanguage } from './i18n';
 import { useRouter } from 'vue-router';
@@ -221,7 +222,7 @@ const initAppHeaderEvent = () => {
     dialogVisible.value = true;
   });
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.showAiDialog, () => {
-    agentViewStore.showAgentViewDialog();
+    if (runtimeStore.networkMode === 'offline') agentViewStore.showAgentViewDialog();
   });
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.openMcpService, (payload: { projectId: string }) => {
     const currentProjectId = router.currentRoute.value.query.id
@@ -521,6 +522,8 @@ watch(
   { immediate: true }
 )
 
+const stopWorkspaceSync = startWorkspaceSync();
+onUnmounted(stopWorkspaceSync);
 onMounted(() => {
   if (brandConfig.offlineOnly) {
     runtimeStore.setNetworkMode('offline');
@@ -529,7 +532,7 @@ onMounted(() => {
   initLanguage();
   initTheme();
   initAppTitle();
-  llmClientStore.initLLMConfig();
+  if (isElectronEnv && runtimeStore.networkMode === 'offline') llmClientStore.initLLMConfig();
 
   if (isElectronEnv) {
     // Electron 环境初始化

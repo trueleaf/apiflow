@@ -2,6 +2,7 @@ import type { ProjectNavItem } from '@src/types/projectWorkbench/nav';
 import type { ApidocTab } from '@src/types/apidoc/tabs';
 import { logger } from '@/helper/logger';
 import { cacheKey } from '../cacheKey';
+import { isMcpExecutorWindow } from '@/mcp/executorContext';
 type ProjectWorkbenchPinOperation = {
   name: string;
   icon: string;
@@ -26,6 +27,7 @@ class ProjectWorkbenchCache {
   }
   // 设置项目工作区navs
   setProjectNavs(navs: Record<string, ProjectNavItem[]>) {
+    if (isMcpExecutorWindow()) return;
     try {
       localStorage.setItem(cacheKey.projectWorkbench.node.navs, JSON.stringify(navs));
     } catch (error) {

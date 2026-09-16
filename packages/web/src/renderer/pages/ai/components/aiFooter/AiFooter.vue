@@ -83,23 +83,18 @@ import { useI18n } from 'vue-i18n'
 import { Send, ChevronDown, Check, StopCircle, Plus, FolderKanban } from 'lucide-vue-next'
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import { useAgentViewStore } from '@/store/ai/agentView'
-import { useAgentStore } from '@/store/ai/agentStore'
-import { detectInputLanguage } from '@/i18n'
-import type { Language } from '@src/types'
+import type { ConversationMode } from '@src/types/ai'
 
 const isMacOS = navigator.platform.toUpperCase().includes('MAC')
 const modeOptions = ['agent', 'ask'] as const
-type AiMode = typeof modeOptions[number]
-const modeLabelMap: Record<AiMode, string> = {
+const modeLabelMap: Record<ConversationMode, string> = {
   agent: 'Agent',
   ask: 'Ask'
 }
 const { t } = useI18n()
-const { locale } = useI18n()
 const route = useRoute()
 const projectWorkbench = useProjectWorkbench()
 const agentViewStore = useAgentViewStore()
-const agentStore = useAgentStore()
 const inputWrapperRef = ref<HTMLElement | null>(null)
 const isModeMenuVisible = ref(false)
 const isProjectEditPage = computed(() => route.path.includes('/workbench'))
@@ -115,7 +110,7 @@ const handleToggleModeMenu = (event: MouseEvent) => {
   event.stopPropagation()
   isModeMenuVisible.value = !isModeMenuVisible.value
 }
-const handleSelectMode = (value: AiMode) => {
+const handleSelectMode = (value: ConversationMode) => {
   agentViewStore.setMode(value)
   isModeMenuVisible.value = false
 }
@@ -142,32 +137,11 @@ const closeMenus = () => {
   isModeMenuVisible.value = false
 }
 const handleStop = async () => {
-  if (agentViewStore.mode === 'agent') {
-    agentStore.stopAgent()
-    agentViewStore.stopCurrentAgentExecution()
-    agentViewStore.setWorkingStatus('finish')
-    return
-  }
   await agentViewStore.stopCurrentConversation()
 }
 const handleSend = async () => {
-  if (agentViewStore.mode === 'agent') {
-    const message = trimmedInput.value
-    if (!message) {
-      return
-    }
-    agentViewStore.inputMessage = ''
-    const detectedLanguage = detectInputLanguage(message, locale.value as Language)
-    agentViewStore.addMessage('agent', agentViewStore.createQuestionMessage(message, detectedLanguage))
-    agentViewStore.setWorkingStatus('working')
-    await agentStore.runAgent({ prompt: message })
-    agentViewStore.setWorkingStatus('finish')
-    return
-  }
-  if (!trimmedInput.value) {
-    return
-  }
-  await agentViewStore.sendAskFromInput()
+  if (!trimmedInput.value) return
+  await agentViewStore.sendCurrentInput()
 }
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
@@ -183,9 +157,13 @@ defineExpose({
 </script>
 
 <style scoped>
+.ai-dialog-footer { flex: 0 0 auto; padding: 0 16px 16px; background: var(--ai-dialog-bg); }
 .ai-input-wrapper {
   position: relative;
-  border-top: 1px solid var(--ai-input-border);
+  width: min(100%, 736px);
+  margin: 0 auto;
+  border: 1px solid var(--ai-input-border);
+  border-radius: 12px;
   background: var(--ai-input-bg);
 }
 .ai-input {

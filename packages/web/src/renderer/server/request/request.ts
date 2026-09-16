@@ -557,7 +557,8 @@ const convertObjectToProperty = (objectParams: Record<string, unknown>) => {
   return newQueryParams;
 }
 
-export const sendRequest = async () => {
+export const sendRequest = async (options?: { abortSignal?: AbortSignal }) => {
+  options?.abortSignal?.throwIfAborted();
   const worker = new preRequestWorker();
   const redirectList = ref<ResponseInfo['redirectList']>([]);
   const projectWorkbenchStore = useProjectWorkbench();
@@ -578,7 +579,10 @@ export const sendRequest = async () => {
   // 清理函数，确保资源释放
   const cleanup = () => {
     worker.terminate();
+    options?.abortSignal?.removeEventListener('abort', abortRequest);
   };
+  const abortRequest = () => { cleanup(); stopRequest(); };
+  options?.abortSignal?.addEventListener('abort', abortRequest, { once: true });
   const {
     changeResponseInfo,
     changeResponseBody,
@@ -677,6 +681,7 @@ export const sendRequest = async () => {
   }
   //实际发送请求
   const invokeRequest = async () => {
+    if (options?.abortSignal?.aborted) { cleanup(); return; }
     if (!isHeaderEditedByPreRequest) {
       finalSendHeaders = await getHeaders(copiedApidoc, requestTemporaryVariables);
     }
@@ -935,6 +940,7 @@ export const sendRequest = async () => {
     };
 
     //根据环境选择请求方式
+    if (options?.abortSignal?.aborted) { cleanup(); return; }
     if (isElectron()) {
       //Electron模式：使用IPC调用主进程
       window.electronAPI?.sendRequest(requestOptions);
@@ -993,6 +999,7 @@ export const sendRequest = async () => {
     sessionStorage: preRequestSessionStorage
   }
   // 处理前置脚本
+  if (options?.abortSignal?.aborted) { cleanup(); return; }
   worker.postMessage(initDataMessage);
   // 监听脚本处理
   worker.addEventListener('message', async (e: MessageEvent<ReceivedEvent>) => {

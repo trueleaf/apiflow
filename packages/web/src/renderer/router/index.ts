@@ -4,6 +4,7 @@ import "nprogress/nprogress.css";
 import { useRuntime } from "@/store/runtime/runtimeStore.ts";
 import { brandConfig } from "@src/config/brand";
 import { trackPageView } from '@/utils/analytics';
+import { isMcpExecutorWindow } from '@/mcp/executorContext';
 import { projectCache } from '@/cache/project/projectCache';
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { commonHeaderCache } from '@/cache/project/commonHeadersCache';
@@ -176,6 +177,7 @@ router.beforeEach(async (to, _, next) => {
 });
 
 router.afterEach((to) => {
+  if (isMcpExecutorWindow()) return;
   localStorage.setItem("history/lastVisitePage", to.fullPath);
   const runtimeStore = useRuntime();
   if (runtimeStore.networkMode !== 'offline') {

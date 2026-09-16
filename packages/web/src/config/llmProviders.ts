@@ -2,12 +2,13 @@ import { nanoid } from 'nanoid/non-secure';
 import type { ChatRequestBody, LLMProviderSetting, LLMReasoningEffort, LLMThinkingMode, LLMVendor } from '../types/ai/agent.type';
 
 export const llmPresetsCheckedAt = '2026-08-31';
+export const DEFAULT_DEEPSEEK_MODEL = 'deepseek-v4-pro';
 export const llmPresets = {
   deepseek: {
     label: 'DeepSeek',
-    baseURL: 'https://api.deepseek.com/chat/completions',
+    baseURL: 'https://api.deepseek.com',
     models: ['deepseek-v4-flash', 'deepseek-v4-pro'],
-    defaultModel: 'deepseek-v4-flash',
+    defaultModel: DEFAULT_DEEPSEEK_MODEL,
     keyURL: 'https://platform.deepseek.com/api_keys',
     docsURL: 'https://api-docs.deepseek.com/quick_start/pricing/',
     capabilities: {
@@ -19,7 +20,7 @@ export const llmPresets = {
   },
   qwen: {
     label: '通义千问（阿里云百炼）',
-    baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
+    baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     models: ['qwen3.7-plus', 'qwen3.7-flash', 'qwen3.8-max'],
     defaultModel: 'qwen3.7-plus',
     keyURL: 'https://bailian.console.aliyun.com/?tab=model#/api-key',
@@ -32,6 +33,8 @@ export const llmPresets = {
     },
   },
 } as const;
+// 统一模型服务 API 前缀
+export const normalizeLLMBaseURL = (baseURL: string): string => baseURL.trim().replace(/\/+$/, '').replace(/\/chat\/completions$/i, '');
 // 判断配置厂商
 export const isLLMVendor = (value: unknown): value is LLMVendor => value === 'deepseek' || value === 'qwen' || value === 'custom';
 // 判断思考模式
@@ -59,7 +62,7 @@ export const resolveLLMProvider = (config: LLMProviderSetting): LLMProviderSetti
     maxTokens: typeof config.maxTokens === 'number' ? config.maxTokens : null,
   };
   if (vendor === 'custom') {
-    return { ...normalized, customHeaders: config.customHeaders.map(header => ({ ...header })) };
+    return { ...normalized, baseURL: normalizeLLMBaseURL(config.baseURL), customHeaders: config.customHeaders.map(header => ({ ...header })) };
   }
   return { ...normalized, provider: 'OpenAICompatible', baseURL: llmPresets[vendor].baseURL, apiKey: config.apiKey.trim(), customHeaders: [], extraBody: '' };
 };
@@ -119,8 +122,11 @@ export const getLLMConfigError = (config: LLMProviderSetting): string => {
 // 归类请求错误并隐藏密钥和自定义请求头值
 export const getLLMRequestError = (error: unknown, config: LLMProviderSetting): string => {
   const raw = typeof error === 'string' ? error : error instanceof Error ? error.message : '请求失败';
-  const status = typeof error === 'object' && error !== null && 'response' in error
-    ? (error as { response?: { statusCode?: number } }).response?.statusCode
+  const status = typeof error === 'object' && error !== null
+    ? (error as { statusCode?: number; response?: { status?: number; statusCode?: number } }).statusCode
+      ?? (error as { response?: { status?: number; statusCode?: number } }).response?.statusCode
+      ?? (error as { response?: { status?: number } }).response?.status
+      ?? Number(raw.match(/(?:HTTP\s*|status code\s*[:=]?\s*)(\d{3})/i)?.[1])
     : Number(raw.match(/(?:HTTP\s*|status code\s*[:=]?\s*)(\d{3})/i)?.[1]);
   if (status === 401 || /invalid.?api.?key|authentication_error|incorrect api key/i.test(raw)) return 'API Key 无效或已失效，请检查密钥及所属地域';
   if (status === 403) return '没有模型访问权限，请检查账号授权及所属地域';

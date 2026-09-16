@@ -35,6 +35,7 @@
     "test": "npm run test:e2e",
     "test2": "npm run test:e2e:ui",
     "pretest:e2e": "vite build",
+    "pretest:e2e:web": "cross-env BUILD_TARGET=web vite build --outDir dist/web-test",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
@@ -46,9 +47,12 @@
     "release:test": "node scripts/serve-update.mjs"
   },
   "dependencies": {
+    "@ai-sdk/deepseek": "2.0.62",
+    "@ai-sdk/openai-compatible": "2.0.74",
     "@faker-js/faker": "^10.0.0",
     "@koa/bodyparser": "^6.0.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "ai": "6.0.273",
     "dayjs": "^1.11.12",
     "detect-port": "^2.1.0",
     "docx": "^9.5.1",
@@ -70,9 +74,14 @@
     "nanoid": "^5.0.7",
     "set-cookie-parser": "^2.7.1",
     "sharp": "^0.34.4",
-    "ws": "^8.18.3"
+    "ws": "^8.18.3",
+    "zod": "4.5.4"
   },
   "devDependencies": {
+    "@koa/cors": "^5.0.0",
+    "@koa/multer": "^4.0.0",
+    "@koa/router": "^14.0.0",
+    "@playwright/test": "^1.57.0",
     "@tiptap/core": "^3.3.0",
     "@tiptap/extension-history": "^3.3.0",
     "@tiptap/extension-link": "^3.11.0",
@@ -81,10 +90,6 @@
     "@tiptap/extension-task-list": "^3.11.0",
     "@tiptap/starter-kit": "^3.3.0",
     "@tiptap/vue-3": "^3.3.0",
-    "@koa/cors": "^5.0.0",
-    "@koa/multer": "^4.0.0",
-    "@koa/router": "^14.0.0",
-    "@playwright/test": "^1.57.0",
     "@types/detect-port": "^2.0.0",
     "@types/got": "^9.6.12",
     "@types/ip": "^1.1.3",

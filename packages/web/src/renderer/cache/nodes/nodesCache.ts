@@ -1,10 +1,12 @@
 import type { ApidocType, ApiNode } from "@src/types";
 import { nanoid } from "nanoid";
-import { openDB, type IDBPDatabase } from 'idb';
+import type { IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
 import { logger } from '@/helper/logger';
 import { convertNodesToBannerNodes } from '@/helper';
 import { projectCache } from '@/cache/project/projectCache';
+import { getWorkspaceDataDB } from '@/cache/workspaceDataCache';
+import { onWorkspaceDataChange } from '@/cache/workspaceDataEvents';
 export class ApiNodesCache {
   private bannerCache = new Map<
     string,
@@ -15,6 +17,9 @@ export class ApiNodesCache {
   private initPromise: Promise<void> | null = null;
   private storeName = config.cacheConfig.apiNodesCache.storeName;
   constructor() {
+    onWorkspaceDataChange(stores => {
+      if (stores.includes('httpNodeList')) this.bannerCache.clear();
+    });
   }
   private async initDB() {
     if (this.apiNodesDB) {
@@ -49,23 +54,14 @@ export class ApiNodesCache {
     if (this.apiNodesDB) {
       return this.apiNodesDB;
     }
-    this.apiNodesDB = await openDB(
-      config.cacheConfig.apiNodesCache.dbName,
-      config.cacheConfig.apiNodesCache.version,
-      {
-        upgrade(db) {
-          if (!db.objectStoreNames.contains(config.cacheConfig.apiNodesCache.storeName)) {
-            const httpNodeListStore = db.createObjectStore(config.cacheConfig.apiNodesCache.storeName);
-            httpNodeListStore.createIndex(
-              config.cacheConfig.apiNodesCache.projectIdIndex,
-              config.cacheConfig.apiNodesCache.projectIdIndex,
-              { unique: false }
-            );
-          }
-        },
-      }
-    );
-    return this.apiNodesDB;
+    const database = await getWorkspaceDataDB() as unknown as IDBPDatabase;
+    database.addEventListener('versionchange', () => { this.apiNodesDB = null; this.bannerCache.clear(); });
+    this.apiNodesDB = database;
+    return database;
+  }
+  // 使项目节点缓存失效
+  invalidateProject(projectId: string): void {
+    this.bannerCache.delete(projectId);
   }
   // 获取所有节点
   async getAllNodes(includeDeleted = false): Promise<ApiNode[]> {

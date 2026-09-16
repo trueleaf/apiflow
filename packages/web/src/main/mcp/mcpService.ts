@@ -1,7 +1,8 @@
 import { ipcMain } from 'electron'
 import { createServer, type IncomingMessage, type Server as HttpServer, type ServerResponse } from 'node:http'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
-import type { McpServerSettings, McpServerState, McpStatus } from '@src/types/mcp'
+import { timingSafeEqual } from 'node:crypto'
+import type { McpServerSettings, McpServerState, McpStatus, McpStoredSettings } from '@src/types/mcp'
 import { getMcpSettings, setMcpSettings } from '../store/appStore.ts'
 import {
   callMcpExecutorTool,
@@ -15,19 +16,31 @@ import { createMcpProtocolServer } from './mcpProtocol.ts'
 
 let server: HttpServer | null = null
 let serverState: McpServerState = 'stopped'
-let currentSettings: McpServerSettings = getMcpSettings()
+let currentSettings: McpStoredSettings = getMcpSettings()
 let currentPreloadPath = ''
 let handlersRegistered = false
 let errorCode = ''
 let errorMessage = ''
 const maxBodySize = 1024 * 1024 * 4
+const activeProtocols = new Set<ReturnType<typeof createMcpProtocolServer>>()
+let lifecycleQueue: Promise<unknown> = Promise.resolve()
+// 串行处理服务生命周期操作
+const enqueueLifecycle = <T>(operation: () => Promise<T>): Promise<T> => {
+  const result = lifecycleQueue.then(operation)
+  lifecycleQueue = result.catch(() => undefined)
+  return result
+}
 const getEndpoint = (port: number): string => {
   return `http://127.0.0.1:${port}/mcp`
 }
-const normalizeSettings = (settings: McpServerSettings): McpServerSettings => {
+const normalizeSettings = (settings: McpServerSettings): McpStoredSettings => {
+  const saved = getMcpSettings()
   return {
+    ...saved,
     enabled: settings.enabled,
     port: Number.isInteger(settings.port) && settings.port > 0 && settings.port <= 65535 ? settings.port : 34180,
+    readOnly: settings.readOnly ?? saved.readOnly,
+    allowDestructive: settings.allowDestructive ?? saved.allowDestructive,
   }
 }
 const createStatus = (): McpStatus => {
@@ -39,6 +52,9 @@ const createStatus = (): McpStatus => {
     executorState: getMcpExecutorState(),
     errorCode,
     errorMessage,
+    readOnly: currentSettings.readOnly,
+    allowDestructive: currentSettings.allowDestructive,
+    authToken: currentSettings.authToken,
   }
 }
 const clearError = () => {
@@ -75,10 +91,16 @@ const isAllowedOrigin = (request: IncomingMessage): boolean => {
   }
   try {
     const parsed = new URL(origin)
-    return isLocalhostName(parsed.hostname)
+    return ['http:', 'https:'].includes(parsed.protocol) && isLocalhostName(splitHost(parsed.host))
   } catch {
     return false
   }
+}
+// 验证本机客户端访问令牌
+const isAuthenticated = (request: IncomingMessage): boolean => {
+  const actual = Buffer.from(request.headers.authorization || '')
+  const expected = Buffer.from(`Bearer ${currentSettings.authToken}`)
+  return actual.length === expected.length && timingSafeEqual(actual, expected)
 }
 const sendJson = (response: ServerResponse, statusCode: number, payload: unknown) => {
   if (response.headersSent) {
@@ -125,12 +147,27 @@ const handleMcpRequest = async (request: IncomingMessage, response: ServerRespon
     response.end()
     return
   }
+  if (!isAuthenticated(request)) {
+    response.setHeader('WWW-Authenticate', 'Bearer realm="ApiFlow MCP"')
+    sendJson(response, 401, { error: 'Unauthorized' })
+    return
+  }
+  if (request.method !== 'POST') {
+    response.setHeader('Allow', 'POST, OPTIONS')
+    sendJson(response, 405, { error: 'Method not allowed' })
+    return
+  }
+  if (activeProtocols.size >= 64) {
+    response.setHeader('Retry-After', '1')
+    sendJson(response, 429, { error: 'Too many requests' })
+    return
+  }
   let parsedBody: unknown | undefined
   try {
     parsedBody = await readBody(request)
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Invalid request body'
-    sendJson(response, 400, {
+    sendJson(response, message === 'REQUEST_BODY_TOO_LARGE' ? 413 : 400, {
       jsonrpc: '2.0',
       error: {
         code: -32700,
@@ -140,14 +177,13 @@ const handleMcpRequest = async (request: IncomingMessage, response: ServerRespon
     })
     return
   }
+  if (response.destroyed || serverState !== 'running') {
+    sendJson(response, 503, { error: 'MCP service is stopping' })
+    return
+  }
   const protocolServer = createMcpProtocolServer({
-    listTools: async () => {
-      try {
-        return await listMcpExecutorTools()
-      } catch {
-        return []
-      }
-    },
+    accessPolicy: { readOnly: currentSettings.readOnly, allowDestructive: currentSettings.allowDestructive },
+    listTools: listMcpExecutorTools,
     callTool: async (name, args) => {
       try {
         return await callMcpExecutorTool({ name, arguments: args })
@@ -179,13 +215,22 @@ const handleMcpRequest = async (request: IncomingMessage, response: ServerRespon
   })
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
+    enableJsonResponse: true,
   })
+  activeProtocols.add(protocolServer)
   response.on('close', () => {
+    activeProtocols.delete(protocolServer)
     transport.close().catch(() => undefined)
     protocolServer.close().catch(() => undefined)
   })
-  await protocolServer.connect(transport)
-  await transport.handleRequest(request, response, parsedBody)
+  try {
+    await protocolServer.connect(transport)
+    await transport.handleRequest(request, response, parsedBody)
+  } catch (error) {
+    activeProtocols.delete(protocolServer)
+    await protocolServer.close().catch(() => undefined)
+    throw error
+  }
 }
 const listenServer = async (targetServer: HttpServer, port: number): Promise<void> => {
   await new Promise<void>((resolve, reject) => {
@@ -199,22 +244,24 @@ const listenServer = async (targetServer: HttpServer, port: number): Promise<voi
 export const getMcpStatus = (): McpStatus => {
   return createStatus()
 }
-export const stopMcpService = async (): Promise<void> => {
+const stopService = async (): Promise<void> => {
   clearError()
-  if (server) {
-    await new Promise<void>((resolve) => {
-      server?.close(() => resolve())
-    })
-    server = null
-  }
+  serverState = 'stopped'
+  const previousServer = server
+  server = null
+  const closed = previousServer ? new Promise<void>(resolve => previousServer.close(() => resolve())) : Promise.resolve()
+  previousServer?.closeAllConnections()
   await destroyMcpExecutor()
+  await Promise.allSettled([...activeProtocols].map(protocol => protocol.close()))
+  activeProtocols.clear()
+  await closed
   serverState = 'stopped'
 }
-export const startMcpService = async (): Promise<void> => {
+const startService = async (): Promise<void> => {
   clearError()
   currentSettings = normalizeSettings(getMcpSettings())
   if (!currentSettings.enabled) {
-    await stopMcpService()
+    await stopService()
     return
   }
   if (!currentPreloadPath) {
@@ -222,7 +269,7 @@ export const startMcpService = async (): Promise<void> => {
     return
   }
   if (server) {
-    await stopMcpService()
+    await stopService()
   }
   serverState = 'starting'
   try {
@@ -250,35 +297,56 @@ export const startMcpService = async (): Promise<void> => {
     setError(code, message)
   }
 }
-export const restartMcpService = async (): Promise<void> => {
-  await stopMcpService()
-  await startMcpService()
-}
-export const updateMcpSettings = async (settings: McpServerSettings): Promise<McpStatus> => {
+// 停止 MCP 服务和执行窗口
+export const stopMcpService = (): Promise<void> => enqueueLifecycle(stopService)
+// 启动 MCP 服务
+export const startMcpService = (): Promise<void> => enqueueLifecycle(startService)
+// 重启 MCP 服务
+export const restartMcpService = (): Promise<void> => enqueueLifecycle(async () => {
+  await stopService()
+  await startService()
+})
+// 保存配置并重启 MCP 服务
+export const updateMcpSettings = (settings: McpServerSettings): Promise<McpStatus> => enqueueLifecycle(async () => {
   currentSettings = normalizeSettings(settings)
   setMcpSettings(currentSettings)
-  await restartMcpService()
+  await stopService()
+  await startService()
   return getMcpStatus()
-}
+})
 const isSettingsPayload = (value: unknown): value is McpServerSettings => {
   if (!value || typeof value !== 'object') {
     return false
   }
   const payload = value as Record<string, unknown>
-  return typeof payload.enabled === 'boolean' && typeof payload.port === 'number'
+  return typeof payload.enabled === 'boolean' && typeof payload.port === 'number' && Number.isInteger(payload.port) && payload.port > 0 && payload.port <= 65535
+    && (payload.readOnly === undefined || typeof payload.readOnly === 'boolean')
+    && (payload.allowDestructive === undefined || typeof payload.allowDestructive === 'boolean')
+}
+// 仅允许本地设置页面访问服务配置
+const assertSettingsSender = (url: string) => {
+  const parsed = new URL(url)
+  const localApp = parsed.protocol === 'app:' && parsed.hostname === 'index.html' && ['', '/'].includes(parsed.pathname)
+  const developmentApp = __COMMAND__ !== 'build' && parsed.origin === 'http://localhost:4000' && ['/', '/index.html'].includes(parsed.pathname)
+  if (!localApp && !developmentApp) throw new Error('MCP_SETTINGS_ACCESS_DENIED')
 }
 const registerMcpIpcHandlers = () => {
   if (handlersRegistered) {
     return
   }
-  ipcMain.handle('mcp:renderer:to:main:get-status', () => getMcpStatus())
-  ipcMain.handle('mcp:renderer:to:main:update-settings', async (_, payload: unknown) => {
-    if (!isSettingsPayload(payload)) {
-      return getMcpStatus()
-    }
-    return updateMcpSettings(payload)
+  ipcMain.handle('mcp:renderer:to:main:get-status', event => {
+    assertSettingsSender(event.senderFrame?.url || '')
+    return getMcpStatus()
   })
-  ipcMain.handle('mcp:renderer:to:main:restart', async () => {
+  ipcMain.handle('mcp:renderer:to:main:update-settings', async (event, payload: unknown) => {
+    assertSettingsSender(event.senderFrame?.url || '')
+    if (!isSettingsPayload(payload)) {
+      throw new Error('INVALID_MCP_SETTINGS')
+    }
+    return updateMcpSettings({ enabled: payload.enabled, port: payload.port, readOnly: payload.readOnly, allowDestructive: payload.allowDestructive })
+  })
+  ipcMain.handle('mcp:renderer:to:main:restart', async event => {
+    assertSettingsSender(event.senderFrame?.url || '')
     await restartMcpService()
     return getMcpStatus()
   })

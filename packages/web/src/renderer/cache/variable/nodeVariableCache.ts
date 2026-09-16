@@ -1,8 +1,9 @@
 import type { ApidocVariable, CommonResponse } from '@src/types';
 import { nanoid } from "nanoid";
-import { openDB, type IDBPDatabase } from 'idb';
+import type { IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
 import { logger } from '@/helper/logger';
+import { getWorkspaceDataDB } from '@/cache/workspaceDataCache';
 export class NodeVariableCache {
   private db: IDBPDatabase | null = null;
   private storeName = config.cacheConfig.variablesCache.storeName;
@@ -36,23 +37,10 @@ export class NodeVariableCache {
     if (this.db) {
       return this.db;
     }
-    this.db = await openDB(
-      config.cacheConfig.variablesCache.dbName,
-      config.cacheConfig.variablesCache.version,
-      {
-        upgrade(db) {
-          if (!db.objectStoreNames.contains(config.cacheConfig.variablesCache.storeName)) {
-            const variablesStore = db.createObjectStore(config.cacheConfig.variablesCache.storeName);
-            variablesStore.createIndex(
-              config.cacheConfig.variablesCache.projectIdIndex,
-              config.cacheConfig.variablesCache.projectIdIndex,
-              { unique: false }
-            );
-          }
-        },
-      }
-    );
-    return this.db;
+    const database = await getWorkspaceDataDB() as unknown as IDBPDatabase;
+    database.addEventListener('versionchange', () => { this.db = null; });
+    this.db = database;
+    return database;
   }
   // 新增变量
   async addVariable(variable: Omit<ApidocVariable, '_id'> & { _id?: string }): Promise<CommonResponse<ApidocVariable>> {

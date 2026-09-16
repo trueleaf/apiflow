@@ -59,7 +59,7 @@
         <CacheManagement v-if="activeTab === 'local-data'" />
         <ProjectRecovery v-if="activeTab === 'project-recovery'" />
         <Shortcuts v-if="activeTab === 'shortcuts'" />
-        <AiSettings v-if="activeTab === 'ai-settings'" />
+        <AiSettings v-if="isAiAvailable && activeTab === 'ai-settings'" />
         <McpSettings v-if="activeTab === 'mcp-settings'" />
         <About v-if="activeTab === 'about'" @update-badge="handleUpdateBadge" />
         <AdminUser v-if="activeTab === 'admin-user'" />
@@ -77,6 +77,7 @@ import { computed, ref, watch, onMounted, onUnmounted, type Component } from 'vu
 import { useI18n } from 'vue-i18n'
 import { appStateCache } from '@/cache/appState/appStateCache.ts'
 import { useRuntime } from '@/store/runtime/runtimeStore'
+import { isElectron } from '@/helper'
 import CacheManagement from './cacheManager/CacheManagement.vue'
 import CommonSettings from './commonSettings/CommonSettings.vue'
 import AiSettings from './aiSettings/AiSettings.vue'
@@ -105,6 +106,7 @@ const showUpdateBadge = ref(false)
 const showAdminTabs = computed(() => {
   return runtimeStore.networkMode === 'online' && runtimeStore.userInfo.role === 'admin' && Boolean(runtimeStore.userInfo.id)
 })
+const isAiAvailable = computed(() => isElectron() && runtimeStore.networkMode === 'offline')
 const tabs = computed<TabItem[]>(() => [
   { name: t('通用配置'), icon: UserCircle, action: 'common-settings' },
   { name: t('本地数据'), icon: HardDrive, action: 'local-data' },
@@ -112,7 +114,7 @@ const tabs = computed<TabItem[]>(() => [
 ])
 const settingTabs = computed<TabItem[]>(() => [
   { name: t('快捷键'), icon: Command, action: 'shortcuts' },
-  { name: t('AI 设置'), icon: BrainCircuit, action: 'ai-settings' },
+  ...(isAiAvailable.value ? [{ name: t('AI 设置'), icon: BrainCircuit, action: 'ai-settings' }] : []),
   { name: t('MCP 服务'), icon: Cable, action: 'mcp-settings' },
   { name: t('关于'), icon: Info, action: 'about' }
 ])
@@ -132,6 +134,7 @@ const handleUpdateBadge = (show: boolean) => {
 watch(activeTab, (newValue) => {
   appStateCache.setActiveLocalDataMenu(newValue)
 }, { immediate: false })
+watch(isAiAvailable, available => { if (!available && activeTab.value === 'ai-settings') activeTab.value = 'common-settings' }, { immediate: true })
 
 onMounted(() => {
   window.electronAPI?.ipcManager.onMain('apiflow:topbar:to:content:open-settings-tab', (data?: { targetTab?: string }) => {

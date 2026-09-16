@@ -1,6 +1,7 @@
 import JSZip from 'jszip'
 import { openDB, type IDBPDatabase } from 'idb'
 import { config } from '@src/config/config'
+import { cacheKey } from '@/cache/cacheKey'
 
 type BackupManifestStoreV1 = {
   storeName: string
@@ -107,6 +108,17 @@ const parseBackupJson = <T>(json: string): T => {
 }
 const getManagedDbSchemas = (): ManagedDbSchema[] => {
   return [
+    {
+      dbName: config.cacheConfig.workspaceDataCache.dbName,
+      version: config.cacheConfig.workspaceDataCache.version,
+      stores: [
+        { storeName: 'projects', keyPath: null, indexes: [] },
+        { storeName: 'httpNodeList', keyPath: null, indexes: [{ name: 'projectId', keyPath: 'projectId', unique: false }] },
+        { storeName: 'variables', keyPath: null, indexes: [{ name: 'projectId', keyPath: 'projectId', unique: false }] },
+        { storeName: 'commonHeaders', keyPath: null, indexes: [] },
+      ],
+      isResponseCache: false,
+    },
     {
       dbName: config.cacheConfig.httpNodeResponseCache.dbName,
       version: config.cacheConfig.httpNodeResponseCache.version,
@@ -232,9 +244,10 @@ const openOrCreateManagedDB = async (
 }
 const readLocalStorageEntries = (): Array<{ key: string; value: string }> => {
   const entries: Array<{ key: string; value: string }> = []
+  const excludedKeys = new Set<string>([cacheKey.ai.config, cacheKey.ai.llmProvider])
   for (let i = 0; i < localStorage.length; i += 1) {
     const key = localStorage.key(i)
-    if (!key) {
+    if (!key || excludedKeys.has(key)) {
       continue
     }
     const value = localStorage.getItem(key) ?? ''

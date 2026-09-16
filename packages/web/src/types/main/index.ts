@@ -9,6 +9,7 @@ import type { StandaloneExportHtmlParams } from '../standalone';
 import { WebsocketConnectParams } from '../websocketNode';
 import { HttpMockNode, MockLog, MockStatusChangedPayload, WebSocketMockNode, WebSocketMockStatusChangedPayload } from '../mockNode';
 import { LLMProviderSetting, ChatRequestBody, OpenAiResponseBody, ChatStreamCallbacks } from '../ai/agent.type.ts';
+import type { AgentAbortRequest, AgentApprovalResponseRequest, AgentClientToolResult, AgentRuntimeEventPayload, AgentRunRequest, AgentRunResponse } from '../ai';
 import type { McpServerSettings, McpStatus } from '../mcp';
 
 // ============================================================================
@@ -108,6 +109,13 @@ export type ElectronAPI = {
     chatStream: (body: ChatRequestBody, callbacks: ChatStreamCallbacks, config?: LLMProviderSetting) => {
       abort: () => void;
     };
+    run: (request: AgentRunRequest) => Promise<AgentRunResponse>;
+    abort: (request: AgentAbortRequest) => Promise<AgentRunResponse>;
+    respondApproval: (request: AgentApprovalResponseRequest) => Promise<AgentRunResponse>;
+    onEvent: (callback: (payload: AgentRuntimeEventPayload) => void) => void;
+    onClientToolCommand: (callback: (event: AgentRuntimeEventPayload['event']) => void) => void;
+    sendClientToolResult: (result: AgentClientToolResult) => void;
+    removeListeners: () => void;
   };
   tempFileManager: {
     create: (content: string) => Promise<CommonResponse<{ path: string; size: number }>>;

@@ -145,27 +145,6 @@ export const generateCustomLLMProvider = (): LLMProviderSetting => ({
   thinkingBudget: null,
   maxTokens: null,
 })
-// 生成 Agent 执行消息
-export const generateAgentExecutionMessage = (_sessionId: string): import('@src/types/ai').ConversationMessage => ({
-  id: nanoid(),
-  kind: 'thinking',
-  content: '',
-  createdAt: Date.now(),
-})
-// 生成完成消息
-export const generateCompletionMessage = (_sessionId: string, content: string): import('@src/types/ai').ConversationMessage => ({
-  id: nanoid(),
-  kind: 'response',
-  content: content || '任务已完成',
-  createdAt: Date.now(),
-})
-// 生成信息消息
-export const generateInfoMessage = (_sessionId: string, content: string, _mode: 'agent' | 'ask', _totalTokens?: number, _toolNames?: string[]): import('@src/types/ai').ConversationMessage => ({
-  id: nanoid(),
-  kind: 'info',
-  content,
-  createdAt: Date.now(),
-})
 /*
 |--------------------------------------------------------------------------
 | 日志工具 (logger.ts)

@@ -142,6 +142,7 @@ onMounted(() => {
 
 <style scoped>
 .ai-dialog {
+  font-size: 14px;
   background: var(--ai-dialog-bg);
   border: 1px solid var(--ai-dialog-border);
   border-radius: 5px;
@@ -160,4 +161,3 @@ onMounted(() => {
   background: var(--ai-dialog-bg);
 }
 </style>
-

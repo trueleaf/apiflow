@@ -30,6 +30,20 @@
         </div>
         <ElInputNumber v-model="form.port" data-testid="mcp-port-input" :min="1" :max="65535" :disabled="saving" controls-position="right" />
       </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-title">{{ t('MCP 只读模式') }}</div>
+          <div class="setting-description">{{ t('只允许查询项目和接口数据，禁止创建、修改和删除') }}</div>
+        </div>
+        <ElSwitch v-model="form.readOnly" data-testid="mcp-readonly-switch" :disabled="saving" />
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-title">{{ t('允许 MCP 删除和覆盖数据') }}</div>
+          <div class="setting-description">{{ t('启用后，删除和整体替换操作仍需客户端明确确认') }}</div>
+        </div>
+        <ElSwitch v-model="form.allowDestructive" data-testid="mcp-destructive-switch" :disabled="saving || form.readOnly" />
+      </div>
       <div class="actions">
         <ElButton data-testid="mcp-save-settings-btn" type="primary" :loading="saving" @click="saveSettings">
           {{ t('保存并重启服务') }}
@@ -70,7 +84,14 @@
           <Copy :size="16" />
         </ElButton>
       </div>
-      <pre><code data-testid="mcp-codex-config">{{ codexConfig }}</code></pre>
+      <pre><code data-testid="mcp-codex-config">{{ displayedCodexConfig }}</code></pre>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-title">{{ t('MCP 访问令牌') }}</div>
+          <div class="setting-description">{{ t('连接需要访问令牌，复制配置时会自动包含令牌，请勿公开分享') }}</div>
+        </div>
+        <ElButton :disabled="!status.authToken" @click="copyText(status.authToken)">{{ t('复制访问令牌') }}</ElButton>
+      </div>
     </section>
     <div v-if="status.errorMessage" class="notice error-notice">
       <CircleAlert :size="18" />
@@ -102,6 +123,8 @@ const saving = ref(false)
 const form = reactive({
   enabled: true,
   port: 34180,
+  readOnly: false,
+  allowDestructive: false,
 })
 const status = ref<McpStatus>({
   enabled: true,
@@ -111,11 +134,16 @@ const status = ref<McpStatus>({
   executorState: 'not-created',
   errorCode: '',
   errorMessage: '',
+  readOnly: false,
+  allowDestructive: false,
+  authToken: '',
 })
 const syncForm = (nextStatus: McpStatus) => {
   status.value = nextStatus
   form.enabled = nextStatus.enabled
   form.port = nextStatus.port
+  form.readOnly = nextStatus.readOnly
+  form.allowDestructive = nextStatus.allowDestructive
 }
 const refreshStatus = async () => {
   loading.value = true
@@ -124,6 +152,8 @@ const refreshStatus = async () => {
     if (nextStatus) {
       syncForm(nextStatus)
     }
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : t('MCP 操作失败'))
   } finally {
     loading.value = false
   }
@@ -134,11 +164,15 @@ const saveSettings = async () => {
     const nextStatus = await window.electronAPI?.mcpManager.updateSettings({
       enabled: form.enabled,
       port: form.port,
+      readOnly: form.readOnly,
+      allowDestructive: form.allowDestructive,
     })
-    if (nextStatus) {
-      syncForm(nextStatus)
-    }
-    message.success(t('保存成功'))
+    if (!nextStatus) throw new Error(t('MCP 操作失败'))
+    syncForm(nextStatus)
+    if (nextStatus.serverState === 'error') message.error(nextStatus.errorMessage)
+    else message.success(t('保存成功'))
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : t('MCP 操作失败'))
   } finally {
     saving.value = false
   }
@@ -147,10 +181,12 @@ const restartService = async () => {
   saving.value = true
   try {
     const nextStatus = await window.electronAPI?.mcpManager.restart()
-    if (nextStatus) {
-      syncForm(nextStatus)
-    }
-    message.success(t('重启成功'))
+    if (!nextStatus) throw new Error(t('MCP 操作失败'))
+    syncForm(nextStatus)
+    if (nextStatus.serverState === 'error') message.error(nextStatus.errorMessage)
+    else message.success(t('重启成功'))
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : t('MCP 操作失败'))
   } finally {
     saving.value = false
   }
@@ -203,8 +239,10 @@ const executorStatusType = computed(() => {
 const codexConfig = computed(() => {
   return `[mcp_servers.apiflow]
 url = "${status.value.endpoint}"
+http_headers = { Authorization = "Bearer ${status.value.authToken}" }
 enabled = true`
 })
+const displayedCodexConfig = computed(() => status.value.authToken ? codexConfig.value.replace(status.value.authToken, '<TOKEN>') : codexConfig.value)
 onMounted(() => {
   refreshStatus()
 })

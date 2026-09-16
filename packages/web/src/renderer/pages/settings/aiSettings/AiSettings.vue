@@ -5,6 +5,7 @@
     </div>
     <div class="ai-settings-content">
       <div class="config-section">
+        <div class="security-notice"><ShieldAlert :size="17" /><span>{{ t('AI Key 仅保存在当前设备的 localStorage 中，不会进入本地备份；共享设备上请谨慎使用。后续将迁移到系统安全存储。') }}</span></div>
         <ProviderConfigPanel
           :is-loading="isLoading"
           :is-streaming="isStreaming"
@@ -40,6 +41,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { ShieldAlert } from 'lucide-vue-next'
 import ProviderConfigPanel from './ConfigPanel.vue'
 import DebugPanel from './DebugPanel.vue'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
@@ -251,6 +253,20 @@ onMounted(async () => {
   flex: 1;
   min-width: 0;
 }
+.security-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-bottom: 12px;
+  padding: 9px 10px;
+  border: 1px solid var(--el-color-warning-light-5);
+  border-radius: 7px;
+  background: var(--el-color-warning-light-9);
+  color: var(--gray-700);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.security-notice svg { flex: 0 0 auto; color: var(--el-color-warning); }
 
 .debug-section {
   flex: 1;

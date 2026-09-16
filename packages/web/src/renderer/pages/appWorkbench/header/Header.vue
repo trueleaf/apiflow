@@ -31,7 +31,7 @@
           <Download :size="14" />
           <span class="download-percent">{{ downloadPercent }}</span>
         </button>
-        <button class="icon-btn" :title="t('AI助手 Ctrl+L')" data-testid="header-ai-btn" @click="handleShowAiDialog" ref="aiButtonRef">
+        <button v-if="networkMode === 'offline'" class="icon-btn" :title="t('AI助手 Ctrl+L')" data-testid="header-ai-btn" @click="handleShowAiDialog" ref="aiButtonRef">
           <Bot :size="16" />
         </button>
         <button class="icon-btn icon-btn-with-text" :title="t('MCP 服务')" data-testid="header-mcp-service-btn" @click="handleOpenMcpService">

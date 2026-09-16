@@ -7,7 +7,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> => typeof va
 // 读取可选的正整数
 const readPositiveInteger = (value: unknown): number | null => typeof value === 'number' && Number.isInteger(value) && value > 0 ? value : null;
 // 读取配置字段并保留旧版自定义参数
-const readProvider = (value: unknown, vendor: LLMVendor): LLMProviderSetting | null => {
+const readProvider = (value: unknown, vendor: LLMVendor, migrateLegacyDefaults = false): LLMProviderSetting | null => {
   if (!isRecord(value) || typeof value.baseURL !== 'string' || typeof value.model !== 'string') return null;
   const defaults = createLLMProvider(vendor);
   return resolveLLMProvider({
@@ -16,7 +16,7 @@ const readProvider = (value: unknown, vendor: LLMVendor): LLMProviderSetting | n
     name: typeof value.name === 'string' ? value.name : defaults.name,
     apiKey: typeof value.apiKey === 'string' ? value.apiKey : '',
     baseURL: value.baseURL,
-    model: value.model,
+    model: migrateLegacyDefaults && vendor === 'deepseek' && ['deepseek-chat', 'deepseek-v4-flash'].includes(value.model) ? defaults.model : value.model,
     customHeaders: Array.isArray(value.customHeaders) ? value.customHeaders.filter(isRecord)
       .filter(header => typeof header.key === 'string' && typeof header.value === 'string')
       .map(header => ({ key: String(header.key), value: String(header.value) })) : [],
@@ -43,7 +43,7 @@ class LLMProviderCache {
         if ((parsed.version === 1 || parsed.version === 2) && isLLMVendor(parsed.activeVendor) && isRecord(parsed.profiles)) {
           const profiles: LLMProviderProfiles = {};
           for (const vendor of ['deepseek', 'qwen', 'custom'] as const) {
-            const provider = readProvider(parsed.profiles[vendor], vendor);
+            const provider = readProvider(parsed.profiles[vendor], vendor, parsed.version === 1);
             if (provider) profiles[vendor] = provider;
           }
           return { version: 2, activeVendor: parsed.activeVendor, profiles };

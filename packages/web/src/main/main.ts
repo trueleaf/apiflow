@@ -21,6 +21,7 @@ import {
   onLoadFailure,
   destroyContentViewLifecycle,
 } from './lifecycle/contentViewLifecycle.ts';
+import { agentRuntime } from './ai/runtime';
 import {
   initSafeIpcSend,
   flushContentViewMessageQueue,
@@ -49,6 +50,7 @@ protocol.registerSchemesAsPrivileged([
 export let mockManager = new HttpMockManager();
 export let websocketMockManager = new WebSocketMockManager();
 export let webSocketManager = new WebSocketManager();
+agentRuntime.setResourceCleaner(resource => resource.kind === 'websocket' ? webSocketManager.disconnectByNode(resource.nodeId) : resource.kind === 'httpMock' ? mockManager.removeHttpMockAndStopServer(resource.nodeId) : websocketMockManager.removeWebSocketMockAndStopServer(resource.nodeId));
 export let contentViewInstance: WebContentsView | null = null;
 export let mainWindowInstance: BrowserWindow | null = null;
 let appTray: Tray | null = null;
@@ -300,6 +302,7 @@ if (!gotTheLock) {
         return;
       }
       event.preventDefault();
+      agentRuntime.abortAll('window-closed');
       mainWindow.hide();
     });
     mainWindow.maximize();
@@ -332,6 +335,7 @@ if (!gotTheLock) {
 // 应用退出前清理
 app.on('before-quit', () => {
   isQuitting = true;
+  agentRuntime.abortAll('application-quit');
   stopMcpService().catch(() => undefined);
   appTray?.destroy();
   appTray = null;

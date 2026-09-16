@@ -11,6 +11,25 @@
  */
 
 export const IPC_EVENTS = {
+  ai: {
+    rendererToMain: {
+      run: 'ai:renderer:to:main:run',
+      abort: 'ai:renderer:to:main:abort',
+      approval: 'ai:renderer:to:main:approval',
+      clientToolResult: 'ai:renderer:to:main:client-tool-result',
+      updateConfig: 'ai:renderer:to:main:update-config',
+      chat: 'ai:renderer:to:main:chat',
+      chatStreamStart: 'ai:renderer:to:main:chat-stream-start',
+      chatStreamAbort: 'ai:renderer:to:main:chat-stream-abort',
+    },
+    mainToRenderer: {
+      event: 'ai:main:to:renderer:event',
+      clientToolCommand: 'ai:main:to:renderer:client-tool-command',
+      chatStreamChunk: 'ai:main:to:renderer:chat-stream-chunk',
+      chatStreamEnd: 'ai:main:to:renderer:chat-stream-end',
+      chatStreamError: 'ai:main:to:renderer:chat-stream-error',
+    },
+  },
   /**
    * 应用核心功能事件
    */

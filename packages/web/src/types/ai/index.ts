@@ -1,13 +1,4 @@
-export type {
-  ConversationMode,
-  ConversationMessageKind,
-  ConversationToolCallStatus,
-  ConversationToolCallTokenUsage,
-  ConversationToolCall,
-  ConversationToolGroup,
-  ConversationMessage,
-  ConversationCacheData,
-} from './conversation'
+export type { ConversationMode } from './conversation'
 
 export type {
   ToolErrorType,
@@ -15,6 +6,43 @@ export type {
   ToolSuccessResponse,
   ToolResponse,
 } from './toolError'
+
+export type {
+  AgentRunState,
+  AgentToolState,
+  AgentApprovalState,
+  AgentUsage,
+  AgentEventBase,
+  AgentEvent,
+  AgentConversation,
+  AgentConversationCache,
+} from './agentEvent'
+export type {
+  AgentToolEffect,
+  AgentToolRiskLevel,
+  AgentToolContext,
+  AgentToolResult,
+  AgentToolDefinition,
+} from './agentTool'
+export type {
+  ChangeSetStatus,
+  ChangeNodeType,
+  ChangeOperation,
+  ChangeSet,
+  ChangeSetPreviewItem,
+  ChangeSetPreview,
+} from './changeSet'
+export type {
+  AgentPromptMessage,
+  AgentRuntimeContext,
+  AgentRunRequest,
+  AgentRunResponse,
+  AgentAbortRequest,
+  AgentApprovalResponseRequest,
+  AgentClientToolResult,
+  AgentRuntimeEventPayload,
+} from './agentRuntime'
+export type { PanelToolMessage, PanelUIMessage } from './panel'
 
 //工具执行结果（兼容旧格式和新格式）
 export type ToolExecuteResult = {
@@ -64,4 +92,3 @@ export type OpenAiToolDefinition = {
     parameters: Record<string, unknown>;
   };
 }
-

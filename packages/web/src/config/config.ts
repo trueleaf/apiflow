@@ -15,17 +15,12 @@ export const config: Config = {
     },
     //AI对话框相关
     aiDialog: {
-      defaultWidth: 480,
-      defaultHeight: 520,
+      defaultWidth: 800,
+      defaultHeight: 720,
       minWidth: 300,
       maxWidth: 800,
       minHeight: 400,
       maxHeight: 900,
-    },
-    //Agent相关配置
-    agentConfig: {
-      maxIterations: 100,
-      maxToolsPerCall: 25, // 业界推荐值：单次LLM调用工具数量控制在20-30个以内
     },
     //http请求相关
     httpRequest: {
@@ -114,6 +109,18 @@ export const config: Config = {
       dbName: 'agentViewMessageCache',
       version: 1,
       storeName: 'messages'
+    },
+    agentDataCache: {
+      dbName: 'agentDataCache',
+      version: 2,
+      conversationStoreName: 'conversations',
+      changeSetStoreName: 'changeSets',
+      maxEventsPerConversation: 500,
+      maxConversationBytes: 2 * 1024 * 1024,
+    },
+    workspaceDataCache: {
+      dbName: 'workspaceDataCache',
+      version: 3,
     },
     projectCache: {
       dbName: 'projectCache',

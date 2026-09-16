@@ -9,7 +9,7 @@ import { IPC_EVENTS } from '@src/types/ipc'
 import { UPDATE_IPC_EVENTS } from '@src/types/ipc/update'
 import type { UpdateSettings } from '@src/types/update'
 import type { ChatRequestBody, LLMProviderSetting, OpenAiResponseBody, ChatStreamCallbacks } from '@src/types/ai/agent.type'
-import { globalLLMClient } from './ai/agent.ts'
+import type { AgentAbortRequest, AgentApprovalResponseRequest, AgentClientToolResult, AgentRuntimeEventPayload, AgentRunRequest, AgentRunResponse } from '@src/types/ai'
 import type { Method } from 'got'
 import type { McpServerSettings, McpStatus } from '@src/types/mcp'
 const openDevTools = () => {
@@ -218,13 +218,40 @@ const websocketMockGetAllStates = (projectId: string) => {
 
 // AI 相关方法
 const aiUpdateConfig = (config: LLMProviderSetting): void => {
-  globalLLMClient.updateConfig(config);
+  ipcRenderer.send(IPC_EVENTS.ai.rendererToMain.updateConfig, config);
 }
 const aiChat = async (body: ChatRequestBody, config?: LLMProviderSetting): Promise<OpenAiResponseBody> => {
- return globalLLMClient.chat(body, config);
+ return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.chat, body, config);
 }
 const aiChatStream = (body: ChatRequestBody, callbacks: ChatStreamCallbacks, config?: LLMProviderSetting) => {
-  return globalLLMClient.chatStream(body, callbacks, config);
+  const requestId = globalThis.crypto.randomUUID();
+  const onChunk = (_event: Electron.IpcRendererEvent, id: string, chunk: Uint8Array) => { if (id === requestId) callbacks.onData(chunk) };
+  const cleanup = (): void => {
+    ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.chatStreamChunk, onChunk);
+    ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.chatStreamEnd, onEnd);
+    ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.chatStreamError, onError);
+  };
+  const onEnd = (_event: Electron.IpcRendererEvent, id: string): void => { if (id !== requestId) return; cleanup(); callbacks.onEnd() };
+  const onError = (_event: Electron.IpcRendererEvent, id: string, message: string): void => { if (id !== requestId) return; cleanup(); callbacks.onError(new Error(message)) };
+  ipcRenderer.on(IPC_EVENTS.ai.mainToRenderer.chatStreamChunk, onChunk);
+  ipcRenderer.on(IPC_EVENTS.ai.mainToRenderer.chatStreamEnd, onEnd);
+  ipcRenderer.on(IPC_EVENTS.ai.mainToRenderer.chatStreamError, onError);
+  ipcRenderer.send(IPC_EVENTS.ai.rendererToMain.chatStreamStart, requestId, body, config);
+  return { abort: () => { cleanup(); ipcRenderer.send(IPC_EVENTS.ai.rendererToMain.chatStreamAbort, requestId) } };
+}
+const aiRun = (request: AgentRunRequest): Promise<AgentRunResponse> => ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.run, request)
+const aiAbort = (request: AgentAbortRequest): Promise<AgentRunResponse> => ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.abort, request)
+const aiRespondApproval = (request: AgentApprovalResponseRequest): Promise<AgentRunResponse> => ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.approval, request)
+const aiOnEvent = (callback: (payload: AgentRuntimeEventPayload) => void): void => {
+  ipcRenderer.on(IPC_EVENTS.ai.mainToRenderer.event, (_event, payload: AgentRuntimeEventPayload) => callback(payload))
+}
+const aiOnClientToolCommand = (callback: (event: AgentRuntimeEventPayload['event']) => void): void => {
+  ipcRenderer.on(IPC_EVENTS.ai.mainToRenderer.clientToolCommand, (_event, event: AgentRuntimeEventPayload['event']) => callback(event))
+}
+const aiSendClientToolResult = (result: AgentClientToolResult): void => ipcRenderer.send(IPC_EVENTS.ai.rendererToMain.clientToolResult, result)
+const aiRemoveListeners = (): void => {
+  ipcRenderer.removeAllListeners(IPC_EVENTS.ai.mainToRenderer.event)
+  ipcRenderer.removeAllListeners(IPC_EVENTS.ai.mainToRenderer.clientToolCommand)
 }
 
 // 临时文件管理方法
@@ -356,6 +383,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     updateConfig: aiUpdateConfig,
     chat: aiChat,
     chatStream: aiChatStream,
+    run: aiRun,
+    abort: aiAbort,
+    respondApproval: aiRespondApproval,
+    onEvent: aiOnEvent,
+    onClientToolCommand: aiOnClientToolCommand,
+    sendClientToolResult: aiSendClientToolResult,
+    removeListeners: aiRemoveListeners,
   },
   tempFileManager: {
     create: tempFileCreate,

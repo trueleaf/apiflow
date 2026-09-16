@@ -29,6 +29,8 @@ import { IPCProjectData, WindowState } from '@src/types/index.ts';
 
 // 导入 IPC 事件常量
 import { IPC_EVENTS } from '@src/types/ipc';
+import { agentRuntime } from '../ai/runtime';
+import { globalLLMClient } from '../ai/agent';
 
 // 握手状态管理器
 const createHandshakeManager = (contentView: WebContentsView, topBarView: WebContentsView) => {
@@ -133,6 +135,8 @@ const createHandshakeManager = (contentView: WebContentsView, topBarView: WebCon
 };
 
 export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsView, contentView: WebContentsView) => {
+  agentRuntime.init(contentView);
+  globalLLMClient.init(contentView);
   // 设置窗口引用到导出模块
   setMainWindow(mainWindow);
   setContentView(contentView);
@@ -186,6 +190,8 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   */
   // App.vue 发送初始化 tabs 数据给 header.vue
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.initTabs, (_, data: { tabs: any[], activeTabId: string, language: string, networkMode: RuntimeNetworkMode }) => {
+    agentRuntime.setNetworkMode(data.networkMode);
+    globalLLMClient.setNetworkMode(data.networkMode);
     // 缓存 tabs 数据，用于刷新后恢复
     handshakeManager.setCachedTabsData(data);
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.initTabsData, data);
@@ -412,6 +418,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
 
   // 顶部栏显示AI对话框请求
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.showAiDialog, (_, payload?: { position?: AnchorRect }) => {
+    if (!agentRuntime.isOffline()) return
     // 将焦点转移到 contentView，确保对话框中的输入框可以获取焦点
     contentView.webContents.focus()
     contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.showAiDialog, payload ?? {})
@@ -460,6 +467,8 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
 
   ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, (_, mode: RuntimeNetworkMode) => {
     const nextMode = brandConfig.offlineOnly ? 'offline' : mode;
+    agentRuntime.setNetworkMode(nextMode);
+    globalLLMClient.setNetworkMode(nextMode);
     handshakeManager.updateCachedTabsNetworkMode(nextMode);
     contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, nextMode)
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, nextMode)

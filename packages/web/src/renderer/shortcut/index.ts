@@ -30,8 +30,9 @@ class ShortcutManager {
           tabType: "",
         },
         handler: (event: KeyboardEvent) => {
-          event.preventDefault();
           const agentViewStore = useAgentViewStore();
+          if (!agentViewStore.isElectronOffline) return;
+          event.preventDefault();
           if (!agentViewStore.agentViewDialogVisible) {
             agentViewStore.showAgentViewDialog();
           }

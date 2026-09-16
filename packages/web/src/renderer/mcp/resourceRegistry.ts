@@ -60,6 +60,8 @@ const readProjectsResource = async (parts: string[]): Promise<McpResourceReadRes
     const project = await projectCache.getProjectInfo(projectId)
     return project ? { code: 0, data: project } : notFound('Project not found')
   }
+  if (!await projectCache.getProjectInfo(projectId)) return notFound('Project not found')
+  apiNodesCache.invalidateProject(projectId)
   if (parts.length === 2 && parts[1] === 'tree') {
     const nodes = await apiNodesCache.getApiNodesAsTree(projectId)
     return { code: 0, data: nodes }
@@ -68,6 +70,7 @@ const readProjectsResource = async (parts: string[]): Promise<McpResourceReadRes
     const projectVariables = await nodeVariableCache.getVariableByProjectId(projectId)
     const environments = await environmentCache.getEnvironmentByProjectId(projectId)
     const environmentVariables = await environmentVariableCache.getVariablesByProjectId(projectId)
+    if ([projectVariables, environments, environmentVariables].some(result => result.code !== 0)) throw new Error('VARIABLE_RESOURCE_READ_FAILED')
     return {
       code: 0,
       data: {
@@ -100,7 +103,8 @@ const readNodesResource = async (parts: string[]): Promise<McpResourceReadResult
   if (parts.length !== 1 || !parts[0]) {
     return invalidResource('Node id is required')
   }
-  const node = await apiNodesCache.getNodeById(parts[0], true)
+  const node = await apiNodesCache.getNodeById(parts[0])
+  if (node && !await projectCache.getProjectInfo(node.projectId)) return notFound('Project not found')
   return node ? { code: 0, data: node } : notFound('Node not found')
 }
 export const readMcpResource = async (uri: string): Promise<McpResourceReadResult> => {

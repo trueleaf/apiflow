@@ -50,6 +50,7 @@ export default defineConfig({
     {
       name: 'electron',
       testMatch: '**/*.spec.ts',
+      testIgnore: '**/*.live.spec.ts',
       dependencies: ['setup'],
     },
   ],

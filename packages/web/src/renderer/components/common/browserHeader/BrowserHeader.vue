@@ -26,9 +26,6 @@
     <button class="add-tab-btn" :title="t('新建项目')" data-testid="header-add-project-btn" @click="handleAddProject">+</button>
     
     <div class="right">
-      <button class="ai-trigger-btn" :title="t('AI助手 Ctrl+L')" data-testid="header-ai-btn" @click="handleShowAiDialog" ref="aiButtonRef">
-        <Bot :size="16" />
-      </button>
       <div class="navigation-control">
         <el-icon class="icon" size="16" :title="t('设置')" data-testid="header-settings-btn" @click="jumpToSettings">
           <Settings :size="16" />
@@ -88,13 +85,12 @@ import type { AnchorRect } from '@src/types/common'
 import type { AppWorkbenchHeaderTab } from '@src/types/appWorkbench/appWorkbenchType'
  import type { RuntimeNetworkMode } from '@src/types/runtime'
  import { useI18n } from 'vue-i18n'
- import { Folder, Settings, Bot, Home, User } from 'lucide-vue-next'
+ import { Folder, Settings, Home, User } from 'lucide-vue-next'
   import { changeLanguage } from '@/i18n'
   import { useAppSettings } from '@/store/appSettings/appSettingsStore'
   import { useRuntime } from '@/store/runtime/runtimeStore'
  import { useRouter } from 'vue-router'
  import { appWorkbenchCache } from '@/cache/appWorkbench/appWorkbenchCache'
-import { useAgentViewStore } from '@/store/ai/agentView'
 import LanguageMenu from '@/components/common/language/Language.vue'
 import UserMenu from '@/components/common/userMenu/UserMenu.vue'
 import { brandConfig } from '@src/config/brand'
@@ -106,11 +102,9 @@ const emit = defineEmits<{
 const router = useRouter()
 const appSettingsStore = useAppSettings()
 const runtimeStore = useRuntime()
-const agentViewStore = useAgentViewStore()
 const tabs = ref<AppWorkbenchHeaderTab[]>([])
 const activeTabId = ref('')
 const tabListRef = ref<ComponentPublicInstance | null>(null)
-const aiButtonRef = ref<HTMLElement>()
 const languageButtonRef = ref<HTMLElement>()
 const { t } = useI18n()
 const language = ref<Language>('zh-cn')
@@ -290,9 +284,6 @@ const toggleNetworkMode = () => {
 }
 const handleAddProject = () => {
   emit('createProject')
-}
-const handleShowAiDialog = () => {
-  agentViewStore.showAgentViewDialog()
 }
 // 添加项目 Tab
 const addProjectTab = (projectId: string, projectName: string) => {

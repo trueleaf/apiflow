@@ -1,8 +1,9 @@
 import type { ApidocProjectInfo } from '@src/types';
 import { cacheKey } from '../cacheKey';
-import { openDB, type IDBPDatabase } from 'idb';
+import type { IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
 import { logger } from '@/helper/logger';
+import { getWorkspaceDataDB } from '@/cache/workspaceDataCache';
 export class ProjectCache {
   private db: IDBPDatabase | null = null;
   private storeName = config.cacheConfig.projectCache.storeName;
@@ -35,18 +36,10 @@ export class ProjectCache {
     if (this.db) {
       return this.db;
     }
-    this.db = await openDB(
-      config.cacheConfig.projectCache.dbName,
-      config.cacheConfig.projectCache.version,
-      {
-        upgrade(db) {
-          if (!db.objectStoreNames.contains(config.cacheConfig.projectCache.storeName)) {
-            db.createObjectStore(config.cacheConfig.projectCache.storeName);
-          }
-        },
-      }
-    );
-    return this.db;
+    const database = await getWorkspaceDataDB() as unknown as IDBPDatabase;
+    database.addEventListener('versionchange', () => { this.db = null; });
+    this.db = database;
+    return database;
   }
   async getProjectList(): Promise<ApidocProjectInfo[]> {
     const db = await this.getDB();

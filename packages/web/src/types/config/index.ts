@@ -56,19 +56,6 @@ export type Config = {
       maxHeight: number,
     },
     /**
-     * Agent相关配置
-     */
-    agentConfig: {
-      /**
-       * 最大迭代次数
-       */
-      maxIterations: number,
-      /**
-       * 单次调用最大工具数量（业界推荐值：20-30）
-       */
-      maxToolsPerCall: number,
-    },
-    /**
      * http请求相关
      */
     httpRequest: {
@@ -210,6 +197,18 @@ export type Config = {
       version: number,
       storeName: string,
       projectIdIndex: string
+    },
+    agentDataCache: {
+      dbName: string,
+      version: number,
+      conversationStoreName: string,
+      changeSetStoreName: string,
+      maxEventsPerConversation: number,
+      maxConversationBytes: number,
+    },
+    workspaceDataCache: {
+      dbName: string,
+      version: number,
     },
     environmentCache: {
       dbName: string,
