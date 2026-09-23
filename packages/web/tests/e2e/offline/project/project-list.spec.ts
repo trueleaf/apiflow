@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron.fixture';
+import { test, expect } from '../../../fixtures/desktop.fixture';
 
 // 辅助函数：初始化测试环境
 const initTestEnv = async (topBarPage: any, contentPage: any, clearCache: () => Promise<void>, reload: () => Promise<void>) => {

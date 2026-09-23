@@ -6,13 +6,13 @@ import { cacheKey } from '../cacheKey';
 class AppSettingsCache {
   constructor() {
   }
-  // 检测是否为Electron环境
-  private isElectronEnv(): boolean {
+  // 检测是否为Tauri环境
+  private isDesktopEnv(): boolean {
     if (typeof window === 'undefined') {
       return false;
     }
-    const win = window as unknown as { electronAPI?: unknown };
-    return typeof win.electronAPI !== 'undefined';
+    const win = window as unknown as { desktopAPI?: unknown };
+    return typeof win.desktopAPI !== 'undefined';
   }
   // 获取应用标题
   getAppTitle(): string {
@@ -140,7 +140,7 @@ class AppSettingsCache {
       if (serverUrl) {
         return serverUrl;
       }
-      if (!config.isDev && !this.isElectronEnv() && typeof window !== 'undefined') {
+      if (!config.isDev && !this.isDesktopEnv() && typeof window !== 'undefined') {
         return window.location.origin;
       }
       return config.renderConfig.httpRequest.url;

@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop-online.fixture';
 
 test.describe('ResponseParams', () => {
   // 测试用例1: 返回参数可以新增,可以删除(但是必须保留一个),可以修改名称,可以修改状态码,可以数据类型

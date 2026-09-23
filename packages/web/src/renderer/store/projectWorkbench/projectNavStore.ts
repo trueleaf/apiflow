@@ -37,7 +37,7 @@ export const useProjectNav = defineStore('projectNav', () => {
     if (selectedNav) {
       changeExpandItems([selectedNav._id])
     }
-    navs.value[projectId] = localNavs[projectId];
+    navs.value[projectId] = localNavs[projectId] ?? [];
   }
   // 新增一个nav
   const addNav = (payload: ProjectNavItem): void => {
@@ -57,7 +57,7 @@ export const useProjectNav = defineStore('projectNav', () => {
     } else if (!fixed && unFixedNav && !hasNav) {
       // 检查被覆盖的导航项是否为WebSocket类型，如果是则断开连接
       if (unFixedNav.tabType === 'websocket') {
-        window.electronAPI?.websocket.disconnectByNode(unFixedNav._id).catch((error) => {
+        window.desktopAPI?.websocket.disconnectByNode(unFixedNav._id).catch((error) => {
           logger.error(`覆盖WebSocket导航项时断开连接失败 [${unFixedNav._id}]`, { error });
         });
       }
@@ -93,7 +93,7 @@ export const useProjectNav = defineStore('projectNav', () => {
     const deletedNav = navs.value[projectId][deleteIndex];
     // 删除导航项时断开对应的WebSocket连接（检查类型）
     if (deletedNav && deletedNav.tabType === 'websocket') {
-      window.electronAPI?.websocket.disconnectByNode(deletedNav._id).catch((error) => {
+      window.desktopAPI?.websocket.disconnectByNode(deletedNav._id).catch((error) => {
         logger.error(`删除WebSocket导航项时断开连接失败 [${deletedNav._id}]`, { error });
       });
     }
@@ -136,7 +136,7 @@ export const useProjectNav = defineStore('projectNav', () => {
     // 检查是否有WebSocket类型的导航项，如果有则清空所有WebSocket连接
     const hasWebSocketNavs = navsToDelete.some(nav => nav.tabType === 'websocket');
     if (hasWebSocketNavs) {
-      window.electronAPI?.websocket.clearAllConnections().catch((error) => {
+      window.desktopAPI?.websocket.clearAllConnections().catch((error) => {
         logger.error('强制关闭所有导航项时清空WebSocket连接失败', { error });
       });
     }
@@ -253,7 +253,7 @@ export const useProjectNav = defineStore('projectNav', () => {
   }
   // 获取当前选中的nav
   const getSelectedNav = (projectId: string) => {
-    return navs.value[projectId].find((nav) => nav.selected)
+    return navs.value[projectId]?.find((nav) => nav.selected)
   }
   return {
     navs,

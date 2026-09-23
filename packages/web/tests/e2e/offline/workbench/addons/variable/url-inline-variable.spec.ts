@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../fixtures/electron.fixture'
+import { test, expect } from '../../../../../fixtures/desktop.fixture'
 
 test.describe('UrlInlineVariable', () => {
   test('可在 URL 变量浮层中创建并编辑当前项目文本变量', async ({ contentPage, clearCache, createProject, createNode }) => {

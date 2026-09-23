@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('ContextMenu', () => {
   test.describe('空白区域右键菜单', () => {

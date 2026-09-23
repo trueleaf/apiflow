@@ -144,7 +144,7 @@ const handleLogin = async () => {
           refreshCaptcha()
         } else {
           runtimeStore.updateUserInfo(res.data)
-          window.electronAPI?.ipcManager.sendToMain(
+          window.desktopAPI?.ipcManager.sendToMain(
             IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged,
             {
               id: res.data.id,

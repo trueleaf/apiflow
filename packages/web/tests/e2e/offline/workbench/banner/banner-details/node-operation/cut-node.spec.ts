@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('CutNode', () => {
   test.describe('剪切HTTP节点', () => {

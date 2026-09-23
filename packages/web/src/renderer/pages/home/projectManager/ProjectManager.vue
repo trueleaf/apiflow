@@ -360,7 +360,7 @@ const deleteProject = (_id: string) => {
     type: 'warning'
   }).then(async () => {
     const notifyProjectDeleted = () => {
-      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectDeleted, _id);
+      window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectDeleted, _id);
     }
     const cleanupMockLogs = async () => {
       try {
@@ -496,7 +496,7 @@ const handleJumpToProject = (item: ApidocProjectInfo) => {
       mode: 'edit',
     },
   });
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectChanged, {
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectChanged, {
     projectId: item._id,
     projectName: item.projectName
   })
@@ -522,7 +522,7 @@ const handleAddSuccess = async (data: { projectId: string, projectName: string }
 const handleEditSuccess = (data?: { id: string, name: string }) => {
   getProjectList();
   if (data) {
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectRenamed, {
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectRenamed, {
       projectId: data.id,
       projectName: data.name
     });
@@ -643,7 +643,7 @@ const handleResetSearch = () => {
 // 跳转到节点
 const handleJumpToNode = async (item: SearchResultItem) => {
   await projectWorkbenchStore.initProjectBaseInfo({ projectId: item.projectId });
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectChanged, {
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectChanged, {
     projectId: item.projectId,
     projectName: item.projectName
   })

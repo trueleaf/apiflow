@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/desktop.fixture';
 
 test.describe('SettingsSecondaryTabs', () => {
   // 设置页离线可见二级菜单可依次切换并展示对应内容
@@ -43,18 +43,16 @@ test.describe('SettingsSecondaryTabs', () => {
     await expect(contentPage.locator('.common-settings-container .page-header')).toContainText('通用配置');
   });
   // 旧组件库跳转消息应回退到通用配置并更新菜单缓存
-  test('旧组件库 IPC 跳转目标回退到通用配置', async ({ electronApp, contentPage, clearCache, jumpToSettings }) => {
+  test('旧组件库 IPC 跳转目标回退到通用配置', async ({ desktopApp, contentPage, clearCache, jumpToSettings }) => {
     await clearCache();
     await jumpToSettings();
     await contentPage.getByTestId('settings-menu-about').click();
     await expect(contentPage.getByTestId('settings-menu-about')).toHaveClass(/active/);
     // 已移除的入口无法通过界面触发，模拟主进程发来的旧跳转消息
-    await electronApp.evaluate(({ webContents }) => {
-      const contentView = webContents.getAllWebContents().find(view => view.getURL().includes('index.html'));
-      if (!contentView) {
-        throw new Error('未找到设置内容视图');
-      }
-      contentView.send('apiflow:topbar:to:content:open-settings-tab', { targetTab: 'components' });
+    await contentPage.evaluate(() => {
+
+
+      (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'apiflow:topbar:to:content:open-settings-tab', payload: { targetTab: 'components' } } });
     });
     await expect(contentPage.getByTestId('settings-menu-common-settings')).toHaveClass(/active/);
     await expect(contentPage.locator('.common-settings-container .page-header')).toContainText('通用配置');

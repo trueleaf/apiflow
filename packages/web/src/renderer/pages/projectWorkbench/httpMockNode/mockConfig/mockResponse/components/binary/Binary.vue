@@ -32,48 +32,18 @@ const props = defineProps<Props>()
 const { t } = useI18n()
 
 // Binary 文件选择
-const handleSelectBinaryFile = () => {
-  // 创建一个临时的 input 元素
-  const input = document.createElement('input')
-  input.type = 'file'
-  input.style.display = 'none'
-  
-  input.onchange = (event: Event) => {
-    const target = event.target as HTMLInputElement
-    const file = target.files?.[0]
-    
-    if (!file) {
-      return
+const handleSelectBinaryFile = async () => {
+  try {
+    const file = await window.desktopAPI?.fileManager.selectFile();
+    if (!file) return;
+    if (file.size > 100 * 1024 * 1024) {
+      message.error(t('文件大小不能超过 100MB'));
+      return;
     }
-
-    const maxSize = 100 * 1024 * 1024 // 100MB
-    if (file.size > maxSize) {
-      message.error(t('文件大小不能超过 100MB'))
-      document.body.removeChild(input)
-      return
-    }
-
-    // 使用 Electron API 获取文件路径
-    if (window.electronAPI?.fileManager?.getFilePath) {
-      try {
-        const filePath = window.electronAPI.fileManager.getFilePath(file)
-        if (filePath) {
-          props.response.binaryConfig.filePath = filePath
-        } else {
-          message.error(t('文件路径获取失败，请重试'))
-        }
-      } catch (error) {
-        message.error(t('文件路径获取失败，请重试'))
-      }
-    } else {
-      message.error(t('文件选择功能不可用'))
-    }
-    
-    document.body.removeChild(input)
+    props.response.binaryConfig.filePath = file.path;
+  } catch {
+    message.error(t('文件路径获取失败，请重试'));
   }
-  
-  document.body.appendChild(input)
-  input.click()
 }
 </script>
 

@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('RequestUrlUndo', () => {
   // 快速输入URL后撤销一次恢复初始值

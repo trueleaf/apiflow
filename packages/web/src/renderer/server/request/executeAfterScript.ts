@@ -1,8 +1,8 @@
 import { i18n } from '@/i18n';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
-import { isElectron } from '@/helper';
+import { isDesktop } from '@/helper';
 import { webRequest } from './request.web';
-import type { GotRequestOptions, ResponseInfo } from '@src/types';
+import type { HttpRequestOptions, ResponseInfo } from '@src/types';
 import type { AfterRequestInfo, AfterResponseInfo, AfHttpResponse, WorkerMessage, OnHttpRequestEvent } from '@/worker/httpNodeAfterRequest/types/types';
 import HttpNodeAfterRequestWorker from '@/worker/httpNodeAfterRequest/httpNodeAfterRequest.ts?worker';
 
@@ -46,8 +46,8 @@ export const executeHttpAfterScript = async (
       const { requestId, options } = event.value;
       try {
         let response: AfHttpResponse | undefined;
-        if (isElectron()) {
-          response = await window.electronAPI?.afHttpRequest(options);
+        if (isDesktop()) {
+          response = await window.desktopAPI?.afHttpRequest(options);
         } else {
           response = await new Promise<AfHttpResponse>((resolveResponse, rejectResponse) => {
             const requestOptions = ({
@@ -65,7 +65,7 @@ export const executeHttpAfterScript = async (
               onError: (err: Error) => {
                 rejectResponse(err);
               },
-            } as unknown) as GotRequestOptions;
+            } as unknown) as HttpRequestOptions;
             webRequest(requestOptions);
           });
         }

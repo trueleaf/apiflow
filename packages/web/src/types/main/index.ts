@@ -3,7 +3,10 @@
 // 包含主进程API和窗口状态类型
 // ============================================================================
 
-import type { GotRequestOptions } from '../request';
+import type { DesktopFile } from '../desktop';
+import type { ApidocVariable } from '../httpNode/types';
+import type { UpdateSettings } from '../update';
+import type { HttpRequestOptions } from '../request';
 import type { CommonResponse } from '../project';
 import type { StandaloneExportHtmlParams } from '../standalone';
 import { WebsocketConnectParams } from '../websocketNode';
@@ -30,12 +33,12 @@ export type WindowState = {
 }
 
 // ============================================================================
-// Electron API类型
+// Tauri API类型
 // ============================================================================
 
-export type ElectronAPI = {
+export type DesktopAPI = {
   ip: string,
-  sendRequest: (options: GotRequestOptions) => Promise<void>,
+  sendRequest: (options: HttpRequestOptions) => Promise<void>,
   afHttpRequest: (options: {
     url: string;
     method: string;
@@ -63,7 +66,7 @@ export type ElectronAPI = {
   };
   fileManager: {
     readFileAsUint8Array: (path: string) => Promise<Uint8Array | string>;
-    getFilePath: (file: File) => string;
+    selectFile: (extensions?: string[]) => Promise<DesktopFile | null>;
   };
   ipcManager: {
     sendToMain: <T = unknown>(channel: string, ...args: T[]) => void;
@@ -93,7 +96,7 @@ export type ElectronAPI = {
     stopServer: (nodeId: string) => Promise<CommonResponse<null>>;
     getLogsByNodeId: (nodeId: string) => Promise<MockLog[]>;
     replaceById: (nodeId: string, httpMock: HttpMockNode) => Promise<CommonResponse<null>>;
-    syncProjectVariables: (projectId: string, variables: any[]) => Promise<CommonResponse<null>>;
+    syncProjectVariables: (projectId: string, variables: ApidocVariable[]) => Promise<CommonResponse<null>>;
     getAllStates: (projectId: string) => Promise<MockStatusChangedPayload[]>;
   };
   websocketMock: {
@@ -130,15 +133,11 @@ export type ElectronAPI = {
     pauseDownload: () => Promise<CommonResponse>;
     resumeDownload: () => Promise<CommonResponse>;
     getDownloadState: () => Promise<CommonResponse>;
-    syncSettings: (settings: any) => Promise<CommonResponse>;
+    syncSettings: (settings: UpdateSettings) => Promise<CommonResponse>;
     setAutoCheck: (autoCheck: boolean) => Promise<CommonResponse>;
     setUpdateSource: (source: 'github' | 'custom', customUrl?: string) => Promise<CommonResponse>;
     testConnection: (url: string) => Promise<CommonResponse>;
     isAppStore: () => Promise<boolean>;
-  };
-  projectScan: {
-    selectFolder: () => Promise<CommonResponse<{ folderPath: string; folderName: string; canceled?: boolean }>>;
-    readFiles: (folderPath: string) => Promise<CommonResponse<{ files: { relativePath: string; content: string }[]; totalFiles: number }>>;
   };
   // ContentView 生命周期管理
   contentViewRetry: () => void;
@@ -161,7 +160,7 @@ export type ElectronAPI = {
 
 declare global {
   interface Window {
-    electronAPI?: ElectronAPI;
+    desktopAPI?: DesktopAPI;
     js_beautify?: any;
   }
 }

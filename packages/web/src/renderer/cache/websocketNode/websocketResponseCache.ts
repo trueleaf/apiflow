@@ -27,6 +27,10 @@ class WebsocketResponseCache {
     }
     try {
       this.db = await openDB(this.dbName, this.version, {
+        blocking: (_currentVersion, _blockedVersion, event) => {
+          (event.target as IDBDatabase).close();
+          this.db = null;
+        },
         upgrade(db) {
           if (!db.objectStoreNames.contains('responses')) {
             const store = db.createObjectStore('responses', { keyPath: 'id' });

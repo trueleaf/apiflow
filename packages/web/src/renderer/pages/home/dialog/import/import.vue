@@ -240,7 +240,7 @@ import type { CommonResponse, ApidocProjectInfo, ApidocProjectListInfo, ApidocPr
 import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 import { requestMethods } from '@/data/data'
 import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
-import type { Method } from 'got'
+import type { Method } from '@src/types/request'
 import { brandConfig } from '@src/config/brand'
 
 type ProjectItem = {

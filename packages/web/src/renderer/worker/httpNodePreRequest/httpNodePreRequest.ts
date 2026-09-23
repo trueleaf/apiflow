@@ -17,7 +17,7 @@ const createRequestId = (() => {
   };
 })();
 
-// 发送 http 请求（由 renderer 转发到 preload/got 执行）
+// 发送 HTTP 请求（由渲染进程转发到桌面原生服务执行）
 const createHttpClient = () => {
   const pending = new Map<string, { resolve: (response: AfHttpResponse) => void; reject: (error: Error) => void }>();
   const request = async (url: string, options?: Omit<AfHttpRequestOptions, 'url'>): Promise<AfHttpResponse> => {

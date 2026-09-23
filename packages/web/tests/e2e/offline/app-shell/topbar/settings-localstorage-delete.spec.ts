@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/desktop.fixture';
 
 test.describe('SettingsLocalStorageDelete', () => {
   // 本地数据页删除 localStorage 单项后，表格与浏览器缓存应保持一致

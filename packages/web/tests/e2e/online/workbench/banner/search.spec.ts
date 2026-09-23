@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../fixtures/desktop-online.fixture';
 
 test.describe('Search', () => {
   // 测试用例1: 搜索框UI样式验证

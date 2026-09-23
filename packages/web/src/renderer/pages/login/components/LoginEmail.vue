@@ -162,7 +162,7 @@ const handleSubmit = async () => {
       };
       const res = await request.post<CommonResponse<PermissionUserInfo>, CommonResponse<PermissionUserInfo>>('/api/security/register_email', payload);
       runtimeStore.updateUserInfo(res.data);
-      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, {
+      window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, {
         id: res.data.id,
         loginName: res.data.loginName,
         role: res.data.role,
@@ -179,7 +179,7 @@ const handleSubmit = async () => {
       };
       const res = await request.post<CommonResponse<PermissionUserInfo>, CommonResponse<PermissionUserInfo>>('/api/security/login_email', payload);
       runtimeStore.updateUserInfo(res.data);
-      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, {
+      window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, {
         id: res.data.id,
         loginName: res.data.loginName,
         role: res.data.role,
@@ -205,14 +205,14 @@ const handleQuickLogin = async () => {
     const { password, ...safeUserInfo } = res.data
     runtimeStore.updateUserInfo(safeUserInfo)
     setQuickLoginCredential({ loginName: safeUserInfo.loginName, password })
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, {
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, {
       id: safeUserInfo.id,
       loginName: safeUserInfo.loginName,
       role: safeUserInfo.role,
       token: safeUserInfo.token,
       avatar: safeUserInfo.avatar,
     })
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, { loginName: safeUserInfo.loginName, password })
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, { loginName: safeUserInfo.loginName, password })
     trackEvent('user_login', { method: 'quick_login' });
     router.push('/home')
   } catch (error) {

@@ -77,7 +77,7 @@ import { computed, ref, watch, onMounted, onUnmounted, type Component } from 'vu
 import { useI18n } from 'vue-i18n'
 import { appStateCache } from '@/cache/appState/appStateCache.ts'
 import { useRuntime } from '@/store/runtime/runtimeStore'
-import { isElectron } from '@/helper'
+import { isDesktop } from '@/helper'
 import CacheManagement from './cacheManager/CacheManagement.vue'
 import CommonSettings from './commonSettings/CommonSettings.vue'
 import AiSettings from './aiSettings/AiSettings.vue'
@@ -106,7 +106,7 @@ const showUpdateBadge = ref(false)
 const showAdminTabs = computed(() => {
   return runtimeStore.networkMode === 'online' && runtimeStore.userInfo.role === 'admin' && Boolean(runtimeStore.userInfo.id)
 })
-const isAiAvailable = computed(() => isElectron() && runtimeStore.networkMode === 'offline')
+const isAiAvailable = computed(() => isDesktop() && runtimeStore.networkMode === 'offline')
 const tabs = computed<TabItem[]>(() => [
   { name: t('通用配置'), icon: UserCircle, action: 'common-settings' },
   { name: t('本地数据'), icon: HardDrive, action: 'local-data' },
@@ -137,7 +137,7 @@ watch(activeTab, (newValue) => {
 watch(isAiAvailable, available => { if (!available && activeTab.value === 'ai-settings') activeTab.value = 'common-settings' }, { immediate: true })
 
 onMounted(() => {
-  window.electronAPI?.ipcManager.onMain('apiflow:topbar:to:content:open-settings-tab', (data?: { targetTab?: string }) => {
+  window.desktopAPI?.ipcManager.onMain('apiflow:topbar:to:content:open-settings-tab', (data?: { targetTab?: string }) => {
     if (data?.targetTab) {
       activeTab.value = data.targetTab === 'components' ? 'common-settings' : data.targetTab
     }
@@ -145,7 +145,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  window.electronAPI?.ipcManager.removeListener('apiflow:topbar:to:content:open-settings-tab')
+  window.desktopAPI?.ipcManager.removeListener('apiflow:topbar:to:content:open-settings-tab')
 })
 </script>
 

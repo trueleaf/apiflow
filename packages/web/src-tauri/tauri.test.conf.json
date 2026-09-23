@@ -1,0 +1,5 @@
+{
+  "identifier": "cn.apiflow.test",
+  "build": { "beforeBuildCommand": "npm run build:renderer:tauri -- --mode test" },
+  "bundle": { "active": false }
+}

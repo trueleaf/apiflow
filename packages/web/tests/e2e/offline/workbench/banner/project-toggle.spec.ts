@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/desktop.fixture';
 
 test.describe('ProjectToggle', () => {
   // 测试用例1: 显示当前项目名称

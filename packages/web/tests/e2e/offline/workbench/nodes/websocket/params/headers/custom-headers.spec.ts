@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../../fixtures/desktop.fixture';
 
 test.describe('WebSocketCustomHeaders', () => {
   // 请求头key输入匹配时出现下拉列表

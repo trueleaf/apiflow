@@ -213,7 +213,7 @@ const checkIsConnection = () => {
   if (!currentSelectNav.value) {
     return;
   }
-  window.electronAPI?.websocket.checkNodeConnection(currentSelectNav.value._id).then((result) => {
+  window.desktopAPI?.websocket.checkNodeConnection(currentSelectNav.value._id).then((result) => {
     if (result.connected) {
       websocketStore.changeConnectionId(result.connectionId!);
       websocketStore.changeConnectionState('connected');
@@ -228,8 +228,8 @@ const checkIsConnection = () => {
   });
 };
 const initWebSocketEventListeners = () => {
-  if (!window.electronAPI) return;
-  window.electronAPI.ipcManager.onMain(IPC_EVENTS.websocket.mainToRenderer.opened, (data: { connectionId: string; nodeId: string; url: string }) => {
+  if (!window.desktopAPI) return;
+  window.desktopAPI.ipcManager.onMain(IPC_EVENTS.websocket.mainToRenderer.opened, (data: { connectionId: string; nodeId: string; url: string }) => {
     if (currentSelectNav.value && data.nodeId === currentSelectNav.value._id) {
       websocketStore.changeConnectionId(data.connectionId);
       websocketStore.changeConnectionState('connected');
@@ -253,7 +253,7 @@ const initWebSocketEventListeners = () => {
     }
   });
   // 监听WebSocket连接关闭事件
-  window.electronAPI.ipcManager.onMain(IPC_EVENTS.websocket.mainToRenderer.closed, (data: { connectionId: string; nodeId: string; code: number; reason: string; url: string }) => {
+  window.desktopAPI.ipcManager.onMain(IPC_EVENTS.websocket.mainToRenderer.closed, (data: { connectionId: string; nodeId: string; code: number; reason: string; url: string }) => {
     if (currentSelectNav.value && data.nodeId === currentSelectNav.value._id) {
       websocketStore.changeConnectionId('');
       websocketStore.changeConnectionState('disconnected');
@@ -281,7 +281,7 @@ const initWebSocketEventListeners = () => {
     }
   });
   // 监听WebSocket连接错误事件
-  window.electronAPI.ipcManager.onMain(IPC_EVENTS.websocket.mainToRenderer.error, (data: { connectionId: string; nodeId: string; error: string; url: string }) => {
+  window.desktopAPI.ipcManager.onMain(IPC_EVENTS.websocket.mainToRenderer.error, (data: { connectionId: string; nodeId: string; error: string; url: string }) => {
     if (currentSelectNav.value && data.nodeId === currentSelectNav.value._id) {
       websocketStore.changeConnectionId('');
       websocketStore.changeConnectionState('error');
@@ -306,7 +306,7 @@ const initWebSocketEventListeners = () => {
   });
 
   // 监听WebSocket接收消息事件
-  window.electronAPI.ipcManager.onMain(IPC_EVENTS.websocket.mainToRenderer.message, async (data: {
+  window.desktopAPI.ipcManager.onMain(IPC_EVENTS.websocket.mainToRenderer.message, async (data: {
     connectionId: string;
     nodeId: string;
     message: Uint8Array;
@@ -430,12 +430,12 @@ const initWebSocketEventListeners = () => {
 
 // 清理WebSocket事件监听器
 const cleanupWebSocketEventListeners = () => {
-  if (!window.electronAPI) return;
+  if (!window.desktopAPI) return;
   // 清理所有WebSocket事件监听器
-  window.electronAPI.ipcManager.removeListener('websocket-opened');
-  window.electronAPI.ipcManager.removeListener('websocket-closed');
-  window.electronAPI.ipcManager.removeListener('websocket-error');
-  window.electronAPI.ipcManager.removeListener('websocket-message');
+  window.desktopAPI.ipcManager.removeListener('websocket-opened');
+  window.desktopAPI.ipcManager.removeListener('websocket-closed');
+  window.desktopAPI.ipcManager.removeListener('websocket-error');
+  window.desktopAPI.ipcManager.removeListener('websocket-message');
 };
 
 watch(currentSelectNav, (val, oldVal) => {

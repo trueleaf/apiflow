@@ -1,4 +1,4 @@
-import { GotRequestOptions, ResponseInfo, ChunkWithTimestampe } from '@src/types';
+import { HttpRequestOptions, ResponseInfo, ChunkWithTimestampe } from '@src/types';
 import { appSettingsCache } from '@/cache/settings/appSettingsCache';
 
 type ResponseWrapperResult = { code: number; msg: string; data: unknown };
@@ -26,8 +26,8 @@ const resolveProxyControllerResult = (value: unknown): ProxyControllerResult => 
   return { success: true, data: unwrapped.data };
 };
 
-//将GotRequestOptions转换为代理请求参数
-const convertToProxyParams = (options: GotRequestOptions) => {
+//将HttpRequestOptions转换为代理请求参数
+const convertToProxyParams = (options: HttpRequestOptions) => {
   const proxyParams: Record<string, unknown> = {
     url: options.url,
     method: options.method,
@@ -66,7 +66,7 @@ const convertToProxyParams = (options: GotRequestOptions) => {
 const handleSSEStream = async (
   url: string,
   params: Record<string, unknown>,
-  options: GotRequestOptions
+  options: HttpRequestOptions
 ) => {
   try {
     const response = await fetch(url, {
@@ -156,7 +156,7 @@ const handleSSEStream = async (
 const handleNormalRequest = async (
   url: string,
   params: Record<string, unknown>,
-  options: GotRequestOptions
+  options: HttpRequestOptions
 ) => {
   try {
     const startTime = Date.now();
@@ -305,7 +305,7 @@ const handleNormalRequest = async (
 };
 
 //Web模式下的HTTP请求入口
-export const webRequest = async (options: GotRequestOptions) => {
+export const webRequest = async (options: HttpRequestOptions) => {
   const proxyServerUrl = appSettingsCache.getProxyServerUrl().trim();
   const normalizedProxyServerUrl = proxyServerUrl.endsWith('/') ? proxyServerUrl.slice(0, -1) : proxyServerUrl;
   const proxyUrl = normalizedProxyServerUrl ? `${normalizedProxyServerUrl}/api/proxy/http` : '/api/proxy/http';

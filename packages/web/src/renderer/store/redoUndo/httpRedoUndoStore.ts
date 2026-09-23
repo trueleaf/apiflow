@@ -115,6 +115,9 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
     const targetValue = operationType === "undo" ? operation.oldValue : operation.newValue;
 
     switch (operation.type) {
+      case 'requestParseOperation':
+        Object.assign(httpNodeStore.httpNodeInfo.item, cloneDeep(operationType === 'undo' ? operation.oldValue : operation.newValue));
+        break;
       case 'methodOperation':
         httpNodeStore.changeHttpNodeMethod(targetValue as HttpNodeRequestMethod);
         break;

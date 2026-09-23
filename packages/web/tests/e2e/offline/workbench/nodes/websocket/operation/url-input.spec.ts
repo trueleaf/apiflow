@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('WebSocketUrlInput', () => {
   // URL输入框支持输入WebSocket地址

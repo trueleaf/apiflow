@@ -17,26 +17,27 @@
     </div>
     <div v-if="bodyType === 'json' || bodyType === 'formdata' || bodyType === 'urlencoded'" class="params-wrap" @click="handleFocus">
       <SJsonEditor v-show="bodyType === 'json'" ref="jsonComponent" manual-undo-redo :model-value="rawJsonData" :config="jsonEditorConfig"
-        class="json-wrap" @ready="handleJsonEditorReady" @update:model-value="handleJsonChange" @undo="handleEditorUndo" @redo="handleEditorRedo"></SJsonEditor>
-      <SParamsTree 
-        v-if="bodyType === 'formdata'" 
+        class="json-wrap" @paste.capture="handleJsonPaste" @ready="handleJsonEditorReady" @update:model-value="handleJsonChange" @undo="handleEditorUndo" @redo="handleEditorRedo"></SJsonEditor>
+      <SParamsTree
+        v-if="bodyType === 'formdata'"
         ref="formdataParamsTreeRef"
-        enable-file 
-        show-checkbox 
+        enable-file
+        show-checkbox
         :data="formData"
         :edit-mode="isFormdataMultiline ? 'multiline' : 'table'"
         @change="handleFormdataChange"
       ></SParamsTree>
-      <SParamsTree 
-        v-if="bodyType === 'urlencoded'" 
+      <SParamsTree
+        v-if="bodyType === 'urlencoded'"
         ref="urlencodedParamsTreeRef"
-        show-checkbox 
+        show-checkbox
         :data="urlencodedData"
         :edit-mode="isUrlencodedMultiline ? 'multiline' : 'table'"
         @change="handleUrlencodedChange"
       ></SParamsTree>
       <div v-show="bodyType === 'json'" class="body-op">
         <span class="btn" @click="handleFormat">{{ t('格式化') }}</span>
+        <el-button link :icon="Sparkles" data-testid="body-ai-parser" @click.stop="openJsonParser()">{{ t('自然语言生成 JSON') }}</el-button>
         <!-- <span class="btn" @click="handleOpenSaveDialog">保存用例</span>
                 <span class="btn" @click="handleFormat">切换用例</span> -->
       </div>
@@ -77,21 +78,15 @@
       </el-radio-group>
       <div v-if="requestBody?.binary?.mode === 'var'" class="var-mode">
         <el-input
-          :model-value="requestBody?.binary?.varValue" 
-          :placeholder="t('输入变量；eg: ') + t('{0} fileValue {1}', ['{{', '}}'])" 
+          :model-value="requestBody?.binary?.varValue"
+          :placeholder="t('输入变量；eg: ') + t('{0} fileValue {1}', ['{{', '}}'])"
           class="w-20"
           @input="handleChangeBinaryVarValue">
         </el-input>
       </div>
       <div v-if="requestBody?.binary?.mode === 'file'" class="file-mode">
-        <label v-if="!requestBody?.binary.binaryValue.path"  for="binaryValue" class="label w-20">{{ t("选择文件") }}</label>
-        <input 
-          id="binaryValue" 
-          ref="fileInput" 
-          class="d-none" 
-          type="file"
-          @change="handleSelectFile"
-        ></input>
+        <label v-if="!requestBody?.binary.binaryValue.path"  @click="handleSelectFile" class="label w-20">{{ t("选择文件") }}</label>
+
         <div class="d-flex a-center w-100">
           <div v-if="requestBody?.binary.binaryValue.path" :title="requestBody?.binary.binaryValue.path" class="path text-ellipsis">{{ requestBody?.binary.binaryValue.path }}</div>
           <el-icon v-if="requestBody?.binary.binaryValue.path" class="close" :size="16" @click="handleClearSelectFile">
@@ -100,15 +95,16 @@
         </div>
       </div>
     </div>
+    <AiRequestParser v-if="aiParserVisible" mode="json" :initial-text="aiParserText" @close="aiParserVisible = false" />
     <!-- 右键菜单 -->
     <teleport to="body">
-      <SContextmenu 
-        v-if="showContextmenu" 
-        :left="contextmenuLeft" 
+      <SContextmenu
+        v-if="showContextmenu"
+        :left="contextmenuLeft"
         :top="contextmenuTop"
       >
-        <SContextmenuItem 
-          :label="t('切换多行编辑模式')" 
+        <SContextmenuItem
+          :label="t('切换多行编辑模式')"
           @click="handleToggleMultilineMode"
         ></SContextmenuItem>
       </SContextmenu>
@@ -120,6 +116,9 @@
 import { computed, ref, onMounted, onUnmounted, onActivated, Ref, watch, defineAsyncComponent } from 'vue'
 import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType, ApidocProperty } from '@src/types'
 import { useI18n } from 'vue-i18n'
+import { Sparkles } from 'lucide-vue-next'
+import AiRequestParser from '../../components/AiRequestParser.vue'
+import { isNaturalLanguageRequest, isValidJson } from '@/helper/aiRequestParser'
 import { appStateCache } from '@/cache/appState/appStateCache'
 import { useVariable } from '@/store/projectWorkbench/variablesStore';
 import { useHttpNode } from '@/store/httpNode/httpNodeStore';
@@ -240,6 +239,22 @@ const rawJsonData = computed({
     httpNodeStore.changeRawJson(val);
   }
 })
+const aiParserVisible = ref(false)
+const aiParserText = ref('')
+// 打开自然语言 JSON 解析
+const openJsonParser = (text = '') => {
+  aiParserText.value = text || (!isValidJson(rawJsonData.value) ? rawJsonData.value : '')
+  aiParserVisible.value = true
+}
+// 将自然语言粘贴交给预览面板
+const handleJsonPaste = (event: ClipboardEvent) => {
+  const text = event.clipboardData?.getData('text/plain') ?? ''
+  if (!isValidJson(text) && !/^[\s]*[\[{"']/.test(text) && isNaturalLanguageRequest(text)) {
+    event.preventDefault()
+    event.stopPropagation()
+    openJsonParser(text)
+  }
+}
 //处理JSON内容变化
 const handleJsonChange = (newValue: string) => {
   const oldValue = httpNodeStore.httpNodeInfo.item.requestBody.rawJson;
@@ -382,7 +397,7 @@ const handleFormdataChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
     contentType: httpNodeStore.httpNodeInfo.item.contentType
   };
   httpNodeStore.httpNodeInfo.item.requestBody.formdata = JSON.parse(JSON.stringify(newData)) as ApidocProperty<'string'>[];
-  
+
   const newValue = {
     requestBody: cloneDeep(httpNodeStore.httpNodeInfo.item.requestBody),
     contentType: httpNodeStore.httpNodeInfo.item.contentType
@@ -443,15 +458,14 @@ const handleChangeBinaryVarValue = (value: string) => {
   };
   recordBodyOperation(oldValue, newValue);
 }
-const handleSelectFile = (e: Event) => {
-  const { files } = (e.target as HTMLInputElement);
-  if (files?.length) {
+const handleSelectFile = async () => {
+  const file = await window.desktopAPI?.fileManager.selectFile();
+  if (file) {
     const oldValue = {
       requestBody: cloneDeep(httpNodeStore.httpNodeInfo.item.requestBody),
       contentType: httpNodeStore.httpNodeInfo.item.contentType
     };
-    const file = files[0];
-    const path = window.electronAPI?.fileManager.getFilePath(file) || "";
+    const path = file.path;
     httpNodeStore.handleChangeBinaryInfo({
       binaryValue: {
         path,
@@ -756,7 +770,7 @@ const recordRawDataOperation = (oldValue: { data: string; dataType: string }, ne
     border-top: 1px dashed var(--gray-400);
     position: relative;
     height: calc(100vh - 350px);
- 
+
     .var-mode {
       padding: 5px 5px;
       height: 30px;

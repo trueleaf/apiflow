@@ -74,7 +74,7 @@ const tabs = computed({
   set: (val) => shareStore.updateAllTabs({ shareId, tabs: val })
 });
 
-const ipAddress = computed(() => window.electronAPI?.ip)
+const ipAddress = computed(() => window.desktopAPI?.ip)
 
 // 请求方法配置
 const requestMethods = ref(defaultRequestMethods)

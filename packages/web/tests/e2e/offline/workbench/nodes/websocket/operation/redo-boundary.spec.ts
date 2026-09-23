@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('WebSocketRedoBoundary', () => {
   // 没有可重做的操作时重做按钮禁用

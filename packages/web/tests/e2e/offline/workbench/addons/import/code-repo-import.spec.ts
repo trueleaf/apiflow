@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../fixtures/desktop.fixture';
 
 test.describe('ImportSource', () => {
   test('导入页面仅提供4种数据来源', async ({ contentPage, clearCache, createProject }) => {

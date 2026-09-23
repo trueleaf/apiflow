@@ -235,18 +235,17 @@ curl -i localhost
 
 
 ### 环境要求
-- **Node.js**: >= 22.0.0
+- **Node.js**: >= 22.12.0
+- **Rust**：>= 1.85，并安装目标平台的原生编译工具链
 - **macOS**：需安装 Xcode Command Line Tools（`xcode-select --install`）
-- **Linux**：如需构建 `.deb` 包需安装 `fakeroot`、`dpkg`；构建 `.rpm` 需安装 `rpm`
+- **Linux**：需安装 WebKitGTK 4.1、AppIndicator、OpenSSL 开发包、`patchelf`、`fakeroot` 和 `dpkg`
 - Windows / macOS / Linux 安装包只能在对应平台上构建（不支持跨平台交叉编译）
 
 #### 第一步：切换下载源（可选）
 
 
-编辑项目根目录的 `.npmrc` 文件，取消以下三行的注释（删除行首的 `#` 符号）：
+如需使用 npm 镜像，编辑项目根目录的 `.npmrc` 文件，取消 registry 一行的注释：
 ```properties
-ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
-ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/
 registry=https://registry.npmmirror.com
 ```
 #### 第二步：克隆代码仓库并安装依赖
@@ -286,31 +285,37 @@ npm run web:build:local:mac
 # Linux
 npm run web:build:local:linux
 
-# 仅解压验证（不生成安装包，速度最快）
+# 仅构建原生程序（不生成安装包）
 npm run web:build:local:pack
+
+# Microsoft Store MSIX（需要 Windows SDK）
+npm run web:build:local:win:store
 ```
 
-> **提示（Windows）**：如果在 Windows 上执行打包命令失败，可尝试使用管理员权限打开终端后再次执行。
+> **提示（Windows）**：构建 MSIX 需要 Windows SDK；商店包会包含官方 WebView2 固定版运行时。
 
 ### 打包命令
 
 | 命令 | 说明 |
 |------|------|
-| `npm run web:build:local:pack` | 快速验证：仅解压到目录，不生成安装包，速度最快 |
-| `npm run web:build:local:win` | 构建 Windows 安装包（`.exe` NSIS 安装程序） |
-| `npm run web:build:local:mac` | 构建 macOS 安装包（`.dmg` + `.zip`，支持 x64/arm64） |
-| `npm run web:build:local:linux` | 构建 Linux 安装包（`.AppImage` + `.deb`，支持 x64/arm64） |
+| `npm run web:build:local:pack` | 仅构建 Tauri 原生程序，不生成安装包 |
+| `npm run web:build:local:win` | 构建 Windows NSIS `.exe` 和 MSI `.msi` 安装包 |
+| `npm run web:build:local:win:store` | 构建 Microsoft Store `.msix` 包 |
+| `npm run web:build:local:mac` | 在 macOS 构建 macOS 安装包 |
+| `npm run web:build:local:linux` | 在 Linux 构建 Linux 安装包 |
 
 ### 输出目录
 
-打包产物位于 `packages/web/release/` 目录下。
+Tauri 安装包位于 `packages/web/src-tauri/target/release/bundle/`，Microsoft Store 包位于 `packages/web/release/`。
+
+发布标签前，在仓库配置密钥 `TAURI_SIGNING_PRIVATE_KEY` 和变量 `TAURI_UPDATER_PUBLIC_KEY`；私钥设置了密码时，再配置 `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`。标签须为 `v` 加 `packages/web/package.json` 中的版本号。`.github/workflows/build-tauri.yml` 会生成签名的更新元数据和草稿 Release 产物；生成的 MSIX 仍需单独提交到 Partner Center。
 
 ---
 
 # 本地开发
 
 ## 环境要求
-- **Node.js**: >= 22.0.0
+- **Node.js**: >= 22.12.0
 - **MongoDB**: 本地运行或远程可访问
 - **Git**: 用于克隆代码仓库
 
@@ -320,11 +325,9 @@ npm run web:build:local:pack
 1. **将下载源切换为国内镜像（可选）**
 
 
-编辑项目根目录的 `.npmrc` 文件，取消以下三行的注释（删除行首的 `#` 符号）：
+如需使用 npm 镜像，编辑项目根目录的 `.npmrc` 文件，取消 registry 一行的注释：
 ```properties
 
-ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
-ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/
 registry=https://registry.npmmirror.com
 ```
 
@@ -345,7 +348,7 @@ npm run dev
 ```
 
 此命令会同时启动前端和后端开发服务器：
-- **前端 (Web)**: http://localhost:4000
+- **前端 (Tauri)**：桌面应用内访问 http://localhost:4000
 - **后端 (Server)**: http://localhost:7001
 
 ## 可用命令
@@ -353,8 +356,8 @@ npm run dev
 | 命令 | 说明 |
 |------|------|
 | `npm run dev` | 同时启动前端和后端开发服务器 |
-| `npm run dev:web` | 仅启动前端开发服务器 |
-| `npm run web:dev` | 仅启动前端开发服务器（备用） |
+| `npm run dev:web` | 仅启动浏览器版前端 |
+| `npm run web:dev` | 启动 Tauri 桌面前端 |
 | `npm run server:dev` | 仅启动后端开发服务器 |
 | `npm run web:build` | 构建 Web 应用 |
 | `npm run server:build` | 构建 Server 应用 |
@@ -365,7 +368,7 @@ npm run dev
 
 这是一个多包项目（monorepo）：
 
-- `packages/web` - 前端应用（Vite + Vue 3 + Electron）
+- `packages/web` - Web 与 Tauri 桌面应用（Vite + Vue 3 + Rust）
 - `packages/server` - 后端应用（Midway.js + MongoDB）
 - `packages/website` - 官网（Next.js）
 

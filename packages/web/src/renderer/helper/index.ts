@@ -1,3 +1,4 @@
+import { isTauri } from '@tauri-apps/api/core';
 import mitt from 'mitt'
 import type { ApidocTab } from '@src/types'
 import { ElMessage } from 'element-plus'
@@ -267,40 +268,17 @@ export const getCountdown = (expire: number) => {
 */
 
 /**
- * 检测是否在 Electron 环境中
+ * 检测是否在 Tauri 环境中
  */
-export const isElectron = () => {
-  if (
-    typeof window !== "undefined" &&
-    typeof window.process === "object" &&
-    window.process.type === "renderer"
-  ) {
-    return true;
-  }
-  if (
-    typeof process !== "undefined" &&
-    typeof process.versions === "object" &&
-    !!process.versions.electron
-  ) {
-    return true;
-  }
-  if (
-    typeof navigator === "object" &&
-    typeof navigator.userAgent === "string" &&
-    navigator.userAgent.indexOf("Electron") >= 0
-  ) {
-    return true;
-  }
-  return false;
-};
+export const isDesktop = () => typeof window !== "undefined" && isTauri();
 
 /**
  * 刷新应用（根据环境自动选择刷新方式）
  */
 export const reloadApp = async (): Promise<void> => {
-  if (isElectron() && window.electronAPI?.ipcManager) {
+  if (isDesktop() && window.desktopAPI?.ipcManager) {
     const { IPC_EVENTS } = await import('@src/types/ipc');
-    window.electronAPI.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.refreshApp);
+    window.desktopAPI.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.refreshApp);
   } else {
     window.location.reload();
   }

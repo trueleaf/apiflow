@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../../fixtures/desktop.fixture';
 
 test.describe('WebSocketMessageBlockCRUD', () => {
   // 添加与删除消息块后，列表数量应正确变化

@@ -30,7 +30,7 @@ const agentViewStore = useAgentViewStore()
 const handleGoToFullSettings = () => {
   appStateCache.setActiveLocalDataMenu('ai-settings')
   agentViewStore.agentViewDialogVisible = false
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab)
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab)
   router.push('/settings')
 }
 </script>

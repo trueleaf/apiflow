@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/desktop.fixture';
 
 test.describe('TabOperation', () => {
   // 测试用例1: 点击关闭按钮关闭当前tab

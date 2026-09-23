@@ -96,9 +96,9 @@ export const useBanner = defineStore('banner', () => {
   //批量查询并更新Mock节点状态
   const refreshMockNodeStates = async (projectId: string): Promise<void> => {
     // 刷新 HttpMock 状态
-    if (window.electronAPI?.mock?.getAllStates) {
+    if (window.desktopAPI?.mock?.getAllStates) {
       try {
-        const states = await window.electronAPI.mock.getAllStates(projectId);
+        const states = await window.desktopAPI.mock.getAllStates(projectId);
         if (states && states.length > 0) {
           states.forEach((statePayload: MockStatusChangedPayload) => {
             const node = findNodeById(banner.value, statePayload.nodeId, { idKey: '_id' }) as ApidocBannerOfHttpMockNode | null;
@@ -112,9 +112,9 @@ export const useBanner = defineStore('banner', () => {
       }
     }
     // 刷新 WebSocketMock 状态
-    if (window.electronAPI?.websocketMock?.getAllStates) {
+    if (window.desktopAPI?.websocketMock?.getAllStates) {
       try {
-        const states = await window.electronAPI.websocketMock.getAllStates(projectId);
+        const states = await window.desktopAPI.websocketMock.getAllStates(projectId);
         if (states && states.length > 0) {
           states.forEach((statePayload: MockStatusChangedPayload) => {
             const node = findNodeById(banner.value, statePayload.nodeId, { idKey: '_id' }) as ApidocBannerOfWebSocketMockNode | null;

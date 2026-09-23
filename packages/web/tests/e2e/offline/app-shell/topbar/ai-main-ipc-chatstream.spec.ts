@@ -1,11 +1,11 @@
-import { test, expect } from '../../../../fixtures/electron.fixture'
+import { test, expect } from '../../../../fixtures/desktop.fixture'
 
 test('离线 aiManager.chatStream 保留增量、完成与错误回调契约', async ({ contentPage, clearCache }) => {
   await clearCache()
   for (const model of ['ai-test-text', 'ai-test-error']) {
     // 通过完整配置和 ai/test 模型验证兼容 IPC，不将任意 SSE 当成模型协议
     const result = await contentPage.evaluate(async model => {
-      const bridge = window.electronAPI!.aiManager
+      const bridge = window.desktopAPI!.aiManager
       bridge.updateConfig({ id: 'agent-e2e-compat', name: 'Test', provider: 'OpenAICompatible', vendor: 'custom', apiKey: '', baseURL: 'https://ai.test/v1', model, customHeaders: [], extraBody: '', thinkingMode: 'default', reasoningEffort: 'default', thinkingBudget: null, maxTokens: 64 })
       return await new Promise<{ chunks: string[]; ended: boolean; error: string }>((resolve, reject) => {
         const chunks: string[] = []

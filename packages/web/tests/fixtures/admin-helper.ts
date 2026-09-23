@@ -1,5 +1,5 @@
 import type { Locator, Page } from '@playwright/test';
-import { expect } from './electron-online.fixture';
+import { expect } from './desktop-online.fixture';
 
 const escapeRegExp = (value: string) => {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

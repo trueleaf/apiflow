@@ -7,7 +7,7 @@ import { useSkill } from '@/store/ai/skillStore'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { simpleCreateHttpMockNodePrompt } from '@/store/ai/prompt/prompt'
 import { CreateHttpMockNodeOptions } from '@src/types/ai/tools.type'
-import type { Method } from 'got'
+import type { Method } from '@src/types/request'
 import { trackEvent } from '@/utils/analytics';
 
 type LLMInferredHttpMockParams = {
@@ -47,7 +47,7 @@ const isString = (value: unknown): value is string => typeof value === 'string'
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null
 //校验是否为数字
 const isNumber = (value: unknown): value is number => typeof value === 'number' && !Number.isNaN(value)
-//解析并校验Electron IPC返回
+//解析并校验Tauri IPC返回
 const normalizeIpcResult = (result: unknown): { ok: boolean; payload: unknown } => {
   if (!isRecord(result)) {
     return { ok: false, payload: result }
@@ -318,7 +318,7 @@ export const httpMockNodeTools: AgentTool[] = [
   },
   {
     name: 'startHttpMockServerByNodeId',
-    description: 'Start the HTTP Mock service for a specific mock node. Launches a local mock server that responds to requests according to the configured rules. Only available in Electron/desktop environment. Use this when the user wants to activate a mock endpoint for testing.',
+    description: 'Start the HTTP Mock service for a specific mock node. Launches a local mock server that responds to requests according to the configured rules. Only available in Tauri/desktop environment. Use this when the user wants to activate a mock endpoint for testing.',
     type: 'httpMockNode',
     parameters: {
       type: 'object',
@@ -331,7 +331,7 @@ export const httpMockNodeTools: AgentTool[] = [
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
-      if (!window.electronAPI?.mock?.startServer) {
+      if (!window.desktopAPI?.mock?.startServer) {
         return { code: 1, data: { error: '当前环境不支持启动HttpMock服务' } }
       }
       const httpMockStore = useHttpMockNode()
@@ -344,7 +344,7 @@ export const httpMockNodeTools: AgentTool[] = [
         await httpMockStore.getHttpMockNodeDetail({ id: nodeId, projectId })
       }
       const mockData = { ...httpMockStore.httpMock, projectId }
-      const result = await window.electronAPI.mock.startServer(JSON.parse(JSON.stringify(mockData)))
+      const result = await window.desktopAPI.mock.startServer(JSON.parse(JSON.stringify(mockData)))
       const normalized = normalizeIpcResult(result)
       if (normalized.ok) {
         trackEvent('mock_server_started', { type: 'http', node_id: nodeId });
@@ -354,7 +354,7 @@ export const httpMockNodeTools: AgentTool[] = [
   },
   {
     name: 'stopHttpMockServerByNodeId',
-    description: 'Stop the running HTTP Mock service for a specific mock node. Shuts down the local mock server and frees the port. Only available in Electron/desktop environment. Use this when the user wants to deactivate a mock endpoint.',
+    description: 'Stop the running HTTP Mock service for a specific mock node. Shuts down the local mock server and frees the port. Only available in Tauri/desktop environment. Use this when the user wants to deactivate a mock endpoint.',
     type: 'httpMockNode',
     parameters: {
       type: 'object',
@@ -366,14 +366,14 @@ export const httpMockNodeTools: AgentTool[] = [
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
-      if (!window.electronAPI?.mock?.stopServer) {
+      if (!window.desktopAPI?.mock?.stopServer) {
         return { code: 1, data: { error: '当前环境不支持停止HttpMock服务' } }
       }
       const nodeId = args.nodeId
       if (!isString(nodeId)) {
         return { code: 1, data: { error: 'nodeId必须为字符串' } }
       }
-      const result = await window.electronAPI.mock.stopServer(nodeId)
+      const result = await window.desktopAPI.mock.stopServer(nodeId)
       const normalized = normalizeIpcResult(result)
       if (normalized.ok) {
         trackEvent('mock_server_stopped', { type: 'http', node_id: nodeId });
@@ -383,7 +383,7 @@ export const httpMockNodeTools: AgentTool[] = [
   },
   {
     name: 'getHttpMockEnabledStatus',
-    description: 'Check whether an HTTP Mock service is currently running for a specific node. Returns enabled status. Only available in Electron/desktop environment. Use this to verify if a mock endpoint is active.',
+    description: 'Check whether an HTTP Mock service is currently running for a specific node. Returns enabled status. Only available in Tauri/desktop environment. Use this to verify if a mock endpoint is active.',
     type: 'httpMockNode',
     parameters: {
       type: 'object',

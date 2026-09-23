@@ -200,9 +200,9 @@ export const useWebSocketMockNode = defineStore('websocketMockNode', () => {
       // 检查 Mock 是否已启用，如果启用则更新主进程配置
       try {
         const isEnabled = await checkMockNodeEnabledStatus(websocketMockDetail._id);
-        if (isEnabled && window.electronAPI?.websocketMock?.replaceById) {
+        if (isEnabled && window.desktopAPI?.websocketMock?.replaceById) {
           const updateData = { ...websocketMockDetail, projectId };
-          await window.electronAPI.websocketMock.replaceById(websocketMockDetail._id, updateData);
+          await window.desktopAPI.websocketMock.replaceById(websocketMockDetail._id, updateData);
         }
       } catch (error) {
         logger.warn('更新主进程 WebSocket Mock 配置时发生错误', { error });
@@ -264,10 +264,10 @@ export const useWebSocketMockNode = defineStore('websocketMockNode', () => {
   // 检查 Mock 是否已启用
   const checkMockNodeEnabledStatus = async (nodeId: string): Promise<boolean> => {
     try {
-      if (!window.electronAPI?.websocketMock?.getMockByNodeId) {
+      if (!window.desktopAPI?.websocketMock?.getMockByNodeId) {
         return false;
       }
-      const mockData = await window.electronAPI.websocketMock.getMockByNodeId(nodeId);
+      const mockData = await window.desktopAPI.websocketMock.getMockByNodeId(nodeId);
       return mockData !== null;
     } catch (error) {
       logger.error('检查 WebSocket Mock 状态失败', { error });

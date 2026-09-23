@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('WebSocketQueryParamsUndo', () => {
   // 添加 Query 参数后点击撤销按钮应回退 URL 拼接

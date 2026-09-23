@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture'
+import { test, expect } from '../../../../fixtures/desktop.fixture'
 
 test.describe('SettingsIndexedDBErrorBranches', () => {
   // 本地数据页基于缓存脏数据触发 IndexedDB Worker 异常分支，覆盖详情和删除场景的错误处理

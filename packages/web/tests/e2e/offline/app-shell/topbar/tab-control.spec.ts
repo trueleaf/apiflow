@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/desktop.fixture';
 
 test.describe('Navigation', () => {
   test('项目tab显示项目图标,设置tab显示设置图标', async ({ topBarPage, contentPage, createProject, jumpToSettings }) => {

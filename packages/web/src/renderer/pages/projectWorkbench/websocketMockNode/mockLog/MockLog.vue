@@ -140,16 +140,16 @@ const handleLogsBatch = (batchLogs: WebSocketMockLog[]) => {
 }
 // 设置 IPC 监听
 onMounted(() => {
-  if (window.electronAPI?.ipcManager?.onMain) {
-    window.electronAPI.ipcManager.onMain(
+  if (window.desktopAPI?.ipcManager?.onMain) {
+    window.desktopAPI.ipcManager.onMain(
       IPC_EVENTS.websocketMock.mainToRenderer.logsBatch,
       handleLogsBatch
     )
   }
 })
 onUnmounted(() => {
-  if (window.electronAPI?.ipcManager?.removeListener) {
-    window.electronAPI.ipcManager.removeListener(
+  if (window.desktopAPI?.ipcManager?.removeListener) {
+    window.desktopAPI.ipcManager.removeListener(
       IPC_EVENTS.websocketMock.mainToRenderer.logsBatch
     )
   }

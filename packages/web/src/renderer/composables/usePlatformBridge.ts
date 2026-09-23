@@ -1,4 +1,4 @@
-import { isElectron } from '@/helper'
+import { isDesktop } from '@/helper'
 import mitt from 'mitt'
 import type { Language } from '@src/types'
 import type { RuntimeNetworkMode } from '@src/types/runtime'
@@ -26,10 +26,10 @@ export type BrowserBridgeEvents = {
 }
 // 浏览器事件总线
 const browserEventBus = mitt<BrowserBridgeEvents>()
-// 发送消息到 "主进程"（Electron 使用 IPC，浏览器使用事件总线）
+// 发送消息到 "主进程"（Tauri 使用 IPC，浏览器使用事件总线）
 export const sendToMain = <T>(event: string, payload?: T) => {
-  if (isElectron()) {
-    window.electronAPI?.ipcManager.sendToMain(event, payload)
+  if (isDesktop()) {
+    window.desktopAPI?.ipcManager.sendToMain(event, payload)
   } else {
     const eventName = eventToName(event)
     if (eventName) {
@@ -39,8 +39,8 @@ export const sendToMain = <T>(event: string, payload?: T) => {
 }
 // 监听来自 "主进程" 的消息
 export const onMain = <T>(event: string, callback: (payload: T) => void) => {
-  if (isElectron()) {
-    window.electronAPI?.ipcManager.onMain(event, callback)
+  if (isDesktop()) {
+    window.desktopAPI?.ipcManager.onMain(event, callback)
   } else {
     const eventName = eventToName(event)
     if (eventName) {
@@ -50,8 +50,8 @@ export const onMain = <T>(event: string, callback: (payload: T) => void) => {
 }
 // 移除监听
 export const offMain = <T>(event: string, callback: (payload: T) => void) => {
-  if (isElectron()) {
-    // Electron 环境下暂不支持移除
+  if (isDesktop()) {
+    window.desktopAPI?.ipcManager.removeListener(event, callback)
   } else {
     const eventName = eventToName(event)
     if (eventName) {
@@ -85,10 +85,10 @@ export const getBrowserEventBus = () => browserEventBus
 // 平台桥接 composable
 export const usePlatformBridge = () => {
   return {
-    isElectronEnv: isElectron(),
+    isDesktopEnv: isDesktop(),
     sendToMain,
     onMain,
     offMain,
-    browserEventBus: isElectron() ? null : browserEventBus,
+    browserEventBus: isDesktop() ? null : browserEventBus,
   }
 }

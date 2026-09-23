@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('OtherCases', () => {
   // 在根节点新增,粘贴非folder节点,会排序在末尾

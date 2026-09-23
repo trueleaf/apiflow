@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('VariableDialog', () => {
   // 测试用例1: 点击变量按钮打开变量管理页签,页签展示变量维护页面

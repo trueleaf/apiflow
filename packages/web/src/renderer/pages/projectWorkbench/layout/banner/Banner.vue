@@ -574,7 +574,7 @@ const handleStartMockServer = async () => {
       ...mockData,
       projectId: projectId.value,
     };
-    const result = await window.electronAPI?.mock?.startServer(JSON.parse(JSON.stringify(mockDataWithProject)));
+    const result = await window.desktopAPI?.mock?.startServer(JSON.parse(JSON.stringify(mockDataWithProject)));
     if (result?.code === 0) {
       isMockServerRunning.value = true;
       eventEmitter.emit('mock/server/statusChanged', { nodeId: currentOperationalNode.value._id, status: 'running' });
@@ -592,7 +592,7 @@ const handleStartMockServer = async () => {
 const handleStopMockServer = async () => {
   if (!currentOperationalNode.value) return;
   try {
-    const result = await window.electronAPI?.mock?.stopServer(currentOperationalNode.value._id);
+    const result = await window.desktopAPI?.mock?.stopServer(currentOperationalNode.value._id);
     if (result?.code === 0) {
       isMockServerRunning.value = false;
       eventEmitter.emit('mock/server/statusChanged', { nodeId: currentOperationalNode.value._id, status: 'stopped' });
@@ -610,7 +610,7 @@ const cutNodes: Ref<ApidocBannerWithProjectId[]> = ref([]);
 const handleCopyNode = () => {
   cutNodes.value = [];
   // const buffer = Buffer.from(JSON.stringify(selectNodes.value), 'utf8')
-  // window.electronAPI?.clipboard.writeBuffer('apiflow-apidoc-node', buffer)
+  // window.desktopAPI?.clipboard.writeBuffer('apiflow-apidoc-node', buffer)
   navigator.clipboard.writeText(JSON.stringify({
     type: "apiflow-apidoc-node",
     data: selectNodes.value
@@ -623,7 +623,7 @@ const handleForkNode = () => {
 const handleCutNode = () => {
   cutNodes.value = JSON.parse(JSON.stringify(selectNodes.value));
   // const buffer = Buffer.from(JSON.stringify(selectNodes.value), 'utf8')
-  // window.electronAPI?.clipboard.writeBuffer('apiflow-apidoc-node', buffer)
+  // window.desktopAPI?.clipboard.writeBuffer('apiflow-apidoc-node', buffer)
   navigator.clipboard.writeText(JSON.stringify({
     type: "apiflow-apidoc-node",
     data: selectNodes.value
@@ -632,7 +632,7 @@ const handleCutNode = () => {
 //粘贴节点
 const handlePasteNode = async () => {
   if (currentOperationalNode.value && currentOperationalNode.value.type !== 'folder') return //只允许根元素或者文件夹粘贴
-  // const copyData = window.electronAPI?.clipboard.readBuffer('apiflow-apidoc-node')?.toString();
+  // const copyData = window.desktopAPI?.clipboard.readBuffer('apiflow-apidoc-node')?.toString();
   try {
     const copyData = await navigator.clipboard.readText();
     const copyDataJson = JSON.parse(copyData);
@@ -892,18 +892,18 @@ onMounted(async () => {
   eventEmitter.on('nav:contextmenu:open', () => {
     showContextmenu.value = false;
   });
-  if (window.electronAPI?.ipcManager?.onMain) {
-    window.electronAPI.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.statusChanged, handleMockStatusChanged);
-    window.electronAPI.ipcManager.onMain(IPC_EVENTS.websocketMock.mainToRenderer.statusChanged, handleWebSocketMockStatusChanged);
+  if (window.desktopAPI?.ipcManager?.onMain) {
+    window.desktopAPI.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.statusChanged, handleMockStatusChanged);
+    window.desktopAPI.ipcManager.onMain(IPC_EVENTS.websocketMock.mainToRenderer.statusChanged, handleWebSocketMockStatusChanged);
   }
 })
 onUnmounted(() => {
   document.documentElement.removeEventListener('click', handleGlobalClick);
   document.removeEventListener('keyup', handleNodeKeyUp);
   eventEmitter.off('nav:contextmenu:open');
-  if (window.electronAPI?.ipcManager?.removeListener) {
-    window.electronAPI.ipcManager.removeListener(IPC_EVENTS.mock.mainToRenderer.statusChanged, handleMockStatusChanged);
-    window.electronAPI.ipcManager.removeListener(IPC_EVENTS.websocketMock.mainToRenderer.statusChanged, handleWebSocketMockStatusChanged);
+  if (window.desktopAPI?.ipcManager?.removeListener) {
+    window.desktopAPI.ipcManager.removeListener(IPC_EVENTS.mock.mainToRenderer.statusChanged, handleMockStatusChanged);
+    window.desktopAPI.ipcManager.removeListener(IPC_EVENTS.websocketMock.mainToRenderer.statusChanged, handleWebSocketMockStatusChanged);
   }
 })
 </script>

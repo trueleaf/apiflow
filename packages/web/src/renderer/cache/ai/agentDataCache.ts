@@ -44,6 +44,10 @@ export class AgentDataCache {
     if (this.db) return this.db
     if (this.initPromise) return this.initPromise
     this.initPromise = openDB(cacheConfig.dbName, cacheConfig.version, {
+        blocking: (_currentVersion, _blockedVersion, event) => {
+          (event.target as IDBDatabase).close();
+          this.db = null;
+        },
       upgrade(db) {
         if (!db.objectStoreNames.contains(cacheConfig.conversationStoreName)) db.createObjectStore(cacheConfig.conversationStoreName, { keyPath: 'id' })
         if (!db.objectStoreNames.contains(cacheConfig.changeSetStoreName)) {

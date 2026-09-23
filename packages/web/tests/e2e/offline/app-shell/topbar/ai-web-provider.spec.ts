@@ -1,12 +1,12 @@
-import { test, expect } from '../../../../fixtures/electron.fixture'
+import { test, expect, chromium } from '@playwright/test'
 import { createServer } from 'node:http'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
-test('Web 构建隐藏 AI 入口且不会发起模型请求', async ({ electronApp }) => {
+test('Web 构建隐藏 AI 入口且不会发起模型请求', async () => {
   test.setTimeout(60000)
   const unexpectedRequests: string[] = []
-  const root = path.resolve(process.env.APIFLOW_WEB_TEST_DIST || 'dist/web-test')
+  const root = path.resolve(process.env.APIFLOW_WEB_TEST_DIST || 'dist/web')
   const server = createServer(async (request, response) => {
     const pathname = new URL(request.url || '/', 'http://localhost').pathname
     const filePath = path.resolve(root, `.${pathname === '/' ? '/index.html' : decodeURIComponent(pathname)}`)
@@ -24,13 +24,8 @@ test('Web 构建隐藏 AI 入口且不会发起模型请求', async ({ electronA
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve))
   const address = server.address()
   if (!address || typeof address === 'string') throw new Error('静态服务地址异常')
-  await electronApp.evaluate(({ BrowserWindow }) => {
-    const window = new BrowserWindow({ show: false, width: 1440, height: 960, webPreferences: { sandbox: true, contextIsolation: true } })
-    void window.loadURL('about:blank#ai-web-boundary')
-  })
-  await expect.poll(async () => (await electronApp.windows()).some(window => window.url().includes('#ai-web-boundary'))).toBe(true)
-  const page = (await electronApp.windows()).find(window => window.url().includes('#ai-web-boundary'))
-  if (!page) throw new Error('Web boundary window was not created')
+  const browser = await chromium.launch({ channel: 'msedge' })
+  const page = await browser.newPage()
   const modelRequests: string[] = []
   page.on('request', request => { if (/chat\/completions|api\.deepseek\.com|ai\.test/.test(request.url())) modelRequests.push(new URL(request.url()).pathname) })
   try {
@@ -55,7 +50,7 @@ test('Web 构建隐藏 AI 入口且不会发起模型请求', async ({ electronA
     expect(modelRequests).toEqual([])
     expect(await page.evaluate(() => document.documentElement.dataset.aiKeyRead)).toBeUndefined()
   } finally {
-    await page.close()
+    await browser.close()
     server.closeAllConnections()
     await new Promise<void>(resolve => server.close(() => resolve()))
   }

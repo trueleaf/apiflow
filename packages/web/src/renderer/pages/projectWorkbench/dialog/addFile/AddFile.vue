@@ -561,7 +561,7 @@ const handleAddFile = () => {
 }
 const handleOpenAiSettings = () => {
   appStateCache.setActiveLocalDataMenu('ai-settings')
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab)
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab)
   router.push('/settings')
 }
 const handleClose = () => {

@@ -262,10 +262,10 @@ export const useHttpMockNode = defineStore('httpMockNode', () => {
       // 检查Mock是否已启用，如果启用则更新主进程配置
       try {
         const isEnabled = await checkMockNodeEnabledStatus(httpMockDetail._id);
-        if (isEnabled && window.electronAPI?.mock?.replaceById) {
+        if (isEnabled && window.desktopAPI?.mock?.replaceById) {
           // 准备更新数据，确保包含projectId
           const updateData = { ...httpMockDetail, projectId };
-          await window.electronAPI.mock.replaceById(httpMockDetail._id, updateData);
+          await window.desktopAPI.mock.replaceById(httpMockDetail._id, updateData);
         }
       } catch (error) {
         logger.warn('更新主进程Mock配置时发生错误', { error });
@@ -340,11 +340,11 @@ export const useHttpMockNode = defineStore('httpMockNode', () => {
   // 检查Mock是否已启用
   const checkMockNodeEnabledStatus = async (nodeId: string): Promise<boolean> => {
     try {
-      if (!window.electronAPI?.mock?.getMockByNodeId) {
+      if (!window.desktopAPI?.mock?.getMockByNodeId) {
         console.warn('Mock API not available');
         return false;
       }
-      const mockData = await window.electronAPI.mock.getMockByNodeId(nodeId);
+      const mockData = await window.desktopAPI.mock.getMockByNodeId(nodeId);
       return mockData !== null;
     } catch (error) {
       logger.error('检查Mock状态失败', { error });

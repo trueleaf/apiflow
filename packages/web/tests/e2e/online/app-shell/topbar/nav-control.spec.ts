@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../fixtures/desktop-online.fixture';
 
 test.describe('NavControl', () => {
   test('前进后退按钮按历史栈导航', async ({ topBarPage, contentPage, loginAccount, jumpToSettings }) => {

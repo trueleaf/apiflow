@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron.fixture';
+import { test, expect } from '../../../fixtures/desktop.fixture';
 
 test.describe('ShareRuntime', () => {
   // 分享态覆盖：接口正常/异常分支、密码缓存回滚、无权限到有权限切换、倒计时展示

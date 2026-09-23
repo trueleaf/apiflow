@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../../fixtures/desktop-online.fixture';
 
 test.describe('PostmanImport', () => {
   // 测试用例1: 打开导入页面验证Postman格式支持

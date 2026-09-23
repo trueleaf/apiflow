@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../fixtures/desktop-online.fixture';
 
 test.describe('ProjectList', () => {
   test('项目卡片包含关键信息与操作入口', async ({ topBarPage, contentPage, clearCache, createProject, loginAccount }) => {

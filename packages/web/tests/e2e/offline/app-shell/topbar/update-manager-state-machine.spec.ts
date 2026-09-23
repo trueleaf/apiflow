@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture'
+import { test, expect } from '../../../../fixtures/desktop.fixture'
 
 test.describe('UpdateManagerStateMachine', () => {
   // 关于页更新服务覆盖检查/下载/暂停/恢复/取消/状态读取的失败分支状态机
@@ -16,7 +16,7 @@ test.describe('UpdateManagerStateMachine', () => {
     // 设置不可达更新源，触发更新状态机失败链路
     const updateResult = await contentPage.evaluate(async () => {
       const bridge = (window as unknown as {
-        electronAPI?: {
+        desktopAPI?: {
           updateManager?: {
             setUpdateSource: (source: 'github' | 'custom', customUrl?: string) => Promise<{ code: number; msg: string; data: null }>
             testConnection: (url: string) => Promise<{ code: number; msg: string; data: null }>
@@ -28,7 +28,7 @@ test.describe('UpdateManagerStateMachine', () => {
             getDownloadState: () => Promise<{ code: number; msg: string; data: unknown }>
           }
         }
-      }).electronAPI
+      }).desktopAPI
       if (!bridge?.updateManager) {
         return {
           hasBridge: false,

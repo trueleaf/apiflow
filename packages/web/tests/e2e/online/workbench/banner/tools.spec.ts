@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../fixtures/desktop-online.fixture';
 
 test.describe('Tools', () => {
   // 测试用例1: 工具栏默认显示固定工具

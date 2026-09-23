@@ -1,11 +1,11 @@
 <template>
   <div class="ws-operation">
     <!-- 浏览器环境提示 -->
-    <el-alert 
-      v-if="!isElectronEnv" 
-      :title="t('浏览器环境不支持WebSocket连接功能，请使用Electron客户端')" 
-      type="warning" 
-      show-icon 
+    <el-alert
+      v-if="!isDesktopEnv"
+      :title="t('浏览器环境不支持WebSocket连接功能，请使用桌面客户端')"
+      type="warning"
+      show-icon
       :closable="false"
       class="browser-warning"
     />
@@ -30,27 +30,27 @@
           <div class="variable-token">{{ label }}</div>
         </template>
       </ClRichInput>
-      
+
       <div class="action-buttons">
-        <el-button 
-          v-if="connectionState === 'disconnected' || connectionState === 'error'" 
-          type="success" 
-          :disabled="!isElectronEnv"
+        <el-button
+          v-if="connectionState === 'disconnected' || connectionState === 'error'"
+          type="success"
+          :disabled="!isDesktopEnv"
           @click="handleConnect"
         >
           {{ connectButtonText }}
         </el-button>
-        <el-button 
-          v-if="connectionState === 'connected'" 
-          type="danger" 
-          :disabled="!isElectronEnv"
+        <el-button
+          v-if="connectionState === 'connected'"
+          type="danger"
+          :disabled="!isDesktopEnv"
           @click="handleDisconnect"
         >
           {{ t("断开连接") }}
         </el-button>
-        <el-button 
-          v-if="connectionState === 'connecting'" 
-          type="warning" 
+        <el-button
+          v-if="connectionState === 'connecting'"
+          type="warning"
         >
           {{ t("连接中") }}
         </el-button>
@@ -58,7 +58,7 @@
         <el-button type="primary" :icon="Refresh" :loading="refreshLoading" @click="handleRefresh">{{ t("刷新") }}</el-button>
       </div>
     </div>
-    
+
     <!-- 连接状态显示 -->
     <div class="status-wrap">
       <span class="label">{{ t("连接地址") }}：</span>
@@ -87,7 +87,7 @@ import { useVariable } from '@/store/projectWorkbench/variablesStore';
 import { useCookies } from '@/store/projectWorkbench/cookiesStore';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
 import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache';
-import { isElectron } from '@/helper';
+import { isDesktop } from '@/helper';
 import { handleFormatUrl } from './composables/url';
 
 import { message } from '@/helper'
@@ -103,7 +103,7 @@ const { currentSelectNav } = storeToRefs(projectNavStore);
 const { saveLoading, refreshLoading, websocketFullUrl: fullUrl, connectionState, connectionId } = storeToRefs(websocketStore);
 
 // 平台环境检测
-const isElectronEnv = isElectron();
+const isDesktopEnv = isDesktop();
 
 const protocol = computed({
   get: () => websocketStore.websocket.item.protocol,
@@ -272,7 +272,7 @@ const handleConnect = async () => {
       nodeId,
       headers
     };
-    window.electronAPI?.websocket.connect(connectParams).then((result) => {
+    window.desktopAPI?.websocket.connect(connectParams).then((result) => {
     if (result.code !== 0) {
       websocketStore.changeConnectionState('error');
       console.error('WebSocket连接失败:', result.msg);
@@ -316,7 +316,7 @@ const handleConnect = async () => {
   } catch (error) {
     websocketStore.changeConnectionState('error');
     console.error('WebSocket连接参数处理异常:', error);
-    
+
     // 添加连接参数处理异常消息
     const paramErrorMessage = {
       type: 'error' as const,
@@ -328,7 +328,7 @@ const handleConnect = async () => {
       }
     };
     websocketStore.addMessage(paramErrorMessage);
-    
+
     // 缓存连接参数处理异常消息到IndexedDB
     websocketResponseCache.setResponseByNodeId(currentTab._id, paramErrorMessage);
   }
@@ -339,7 +339,7 @@ const handleDisconnect = async () => {
     return;
   }
   const currentTab = currentSelectNav.value;
-  window.electronAPI?.websocket.disconnect(connectionId.value).then((result) => {
+  window.desktopAPI?.websocket.disconnect(connectionId.value).then((result) => {
     if (result.code !== 0) {
       websocketStore.changeConnectionState('error');
       console.error('WebSocket断开连接失败:', result.msg);
@@ -401,7 +401,7 @@ const handleRefresh = async () => {
       redoUndoStore.clearRedoUndoListByNodeId(nodeId);
       await websocketResponseCache.clearResponseByNodeId(nodeId);
     }
-    
+
     if (isStandalone.value) {
       if (currentSelectNav.value) {
         websocketStore.getWebsocketDetail({
@@ -461,7 +461,7 @@ const handleRefresh = async () => {
       flex: 1;
       border: 1px solid var(--el-border-color);
       margin-right: 10px;
-      
+
       :deep(.cl-rich-input__editor .ProseMirror p) {
         font-size: 13px;
         height: 28px;
@@ -481,12 +481,12 @@ const handleRefresh = async () => {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      
+
       .el-button {
         margin-left: 0;
       }
     }
-    
+
   }
 
   .status-wrap {
@@ -503,11 +503,11 @@ const handleRefresh = async () => {
     color: var(--text-primary);
     font-size: 12px;
     font-family: SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-    
+
     &::-webkit-scrollbar {
       height: 0px;
     }
-    
+
     .label {
       font-family: var(--font-family);
       user-select: none;
@@ -515,7 +515,7 @@ const handleRefresh = async () => {
       font-weight: 500;
       color: var(--el-text-color-primary);
     }
-    
+
     .url {
       display: flex;
       align-items: center;
@@ -528,12 +528,12 @@ const handleRefresh = async () => {
       color: var(--el-text-color-regular);
       margin: 0 8px;
       min-width: 0; /* 允许flex item收缩到内容宽度以下 */
-      
+
       &::-webkit-scrollbar {
         height: 0px;
       }
     }
-    
+
   }
 
 }

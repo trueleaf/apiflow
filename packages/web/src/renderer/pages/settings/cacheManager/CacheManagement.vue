@@ -126,7 +126,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/apidoc/cache'
-import { formatUnit, isElectron } from '@/helper'
+import { formatUnit, isDesktop } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
 import { appStateCache } from '@/cache/appState/appStateCache.ts'
 import { appSettingsCache } from '@/cache/settings/appSettingsCache'
@@ -330,8 +330,8 @@ const handleClearAllCache = async () => {
       await new Promise(resolve => setTimeout(resolve, 500))
     }
     let willRestart = false
-    if (isElectron()) {
-      willRestart = await window.electronAPI?.ipcManager.invoke(IPC_EVENTS.apiflow.rendererToMain.clearElectronStore) ?? false
+    if (isDesktop()) {
+      willRestart = await window.desktopAPI?.ipcManager.invoke(IPC_EVENTS.apiflow.rendererToMain.clearDesktopStore) ?? false
     }
     if (willRestart) {
       message.success(t('清空缓存成功，即将重启应用'))

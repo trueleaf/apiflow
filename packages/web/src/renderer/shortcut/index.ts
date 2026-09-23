@@ -31,7 +31,7 @@ class ShortcutManager {
         },
         handler: (event: KeyboardEvent) => {
           const agentViewStore = useAgentViewStore();
-          if (!agentViewStore.isElectronOffline) return;
+          if (!agentViewStore.isDesktopOffline) return;
           event.preventDefault();
           if (!agentViewStore.agentViewDialogVisible) {
             agentViewStore.showAgentViewDialog();

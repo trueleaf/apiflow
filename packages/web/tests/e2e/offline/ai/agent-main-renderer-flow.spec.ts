@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron.fixture'
+import { test, expect } from '../../../fixtures/desktop.fixture'
 
 test.describe('Agent 主进程到面板的确定性事件流', () => {
   test('用户发送消息后由 main 的测试模型流式展示开始、内容、来源、文件和完成事件', async ({ topBarPage, contentPage, clearCache }) => {

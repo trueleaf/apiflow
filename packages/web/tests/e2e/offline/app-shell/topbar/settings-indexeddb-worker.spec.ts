@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/desktop.fixture';
 
 test.describe('SettingsIndexedDBWorker', () => {
   // 本地数据页覆盖 IndexedDB Worker 全链路：列表、详情、删单条、删整仓、清空全部

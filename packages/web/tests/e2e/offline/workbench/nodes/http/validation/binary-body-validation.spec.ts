@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('BinaryBodyValidation', () => {
   // 切换到 Binary 后应展示二级模式入口

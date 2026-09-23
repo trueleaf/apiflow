@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/desktop.fixture';
 
 test.describe('SettingsCacheManagement', () => {
   // 本地数据页 localStorage 模块支持详情查看

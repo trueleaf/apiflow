@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron.fixture';
+import { test, expect } from '../../../fixtures/desktop.fixture';
 
 test.describe('CreateProject', () => {
   test('点击顶部栏新建项目按钮打开弹窗,输入框自动聚焦', async ({ topBarPage, contentPage }) => {

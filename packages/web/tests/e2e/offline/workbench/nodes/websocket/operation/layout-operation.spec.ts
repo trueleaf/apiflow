@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('WebSocketLayoutOperation', () => {
   // 点击水平布局按钮,参数区域和响应区域左右排列

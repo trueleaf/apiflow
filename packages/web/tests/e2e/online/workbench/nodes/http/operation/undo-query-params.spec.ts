@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop-online.fixture';
 
 test.describe('QueryParamsUndo', () => {
   // 测试用例1: query参数key输入字符串ab,按ctrl+z逐步撤销

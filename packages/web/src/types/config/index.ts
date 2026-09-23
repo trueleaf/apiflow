@@ -231,11 +231,11 @@ export type Config = {
  */
 export type MainConfig = {
   /**
-   * 默认electron窗口最小宽度
+   * 默认桌面窗口最小宽度
    */
   minWidth: number,
   /**
-   * 默认electron窗口最小高度
+   * 默认桌面窗口最小高度
    */
   minHeight: number,
   /**

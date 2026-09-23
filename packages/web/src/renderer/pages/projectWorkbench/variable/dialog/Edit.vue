@@ -36,12 +36,8 @@
       </el-form-item>
       <!-- 文件值 -->
       <el-form-item v-if="formInfo.type === 'file'" :label="`${t('变量值')}：`" prop="value">
-        <el-upload ref="uploadInstance" class="upload-demo" @change="handleSelectFile" @exceed="handleExceed" :limit="1"
-          :auto-upload="false" :show-file-list="false">
-          <template #trigger>
-            <el-button size='small'>{{ t('选择文件') }}</el-button>
-          </template>
-          <template #default>
+        <div class="upload-demo">
+          <el-button size="small" @click="handleSelectFile">{{ t('选择文件') }}</el-button>
             <div v-if="formInfo.fileValue.name">
               <div class="d-flex a-center">
                 <span class="flex0 theme-color">{{ t('文件名称') }}：</span>
@@ -57,10 +53,9 @@
                 }}</span>
               </div>
             </div>
-          </template>
-        </el-upload>
-      </el-form-item>
-      <!-- 任意类型 -->
+          </div>
+        </el-form-item>
+        <!-- 任意类型 -->
       <el-form-item v-if="formInfo.type === 'any'" :label="`${t('变量值')}：`" prop="value">
         <div class="h-300px w-100 editor-border">
           <SJsonEditor v-model="formInfo.anyValue" ref="jsonComponent" :config="{
@@ -85,7 +80,7 @@
 <script lang="ts" setup>
 import { request } from '@/api/api';
 import { config } from '@src/config/config';
-import { FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
+import { FormInstance } from 'element-plus';
 import { useI18n } from 'vue-i18n'
 import { computed, nextTick, PropType, ref, watch, defineAsyncComponent } from 'vue';
 import { AddProjectVariableFormInfo, AddProjectVariableParams } from '../Variable.vue';
@@ -125,7 +120,6 @@ const rules = ref({
 })
 const loading = ref(false);
 const formInstance = ref<FormInstance>();
-const uploadInstance = ref<UploadInstance>()
 const route = useRoute()
 const runtimeStore = useRuntime();
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
@@ -157,26 +151,11 @@ watch(() => props.editData, (val) => {
 | 方法定义
 |--------------------------------------------------------------------------
 */
-const handleSelectFile = (file: UploadFile) => {
-  const filePath = window.electronAPI?.fileManager.getFilePath(file.raw as File);
-  formInfo.value.fileValue = {
-    name: file.name,
-    path: filePath || '',
-    fileType: file.raw!.type,
-  }
-  return false;
-}
-const handleExceed: UploadProps['onExceed'] = (files) => {
-  uploadInstance.value!.clearFiles();
-  const file = files[0] as UploadRawFile
-  const filePath = window.electronAPI?.fileManager.getFilePath(file);
-  file.uid = genFileId()
-  uploadInstance.value!.handleStart(file)
-  formInfo.value.fileValue = {
-    name: file.name,
-    path: filePath || '',
-    fileType: file.type,
-  }
+// 选择原生文件并保留真实路径
+const handleSelectFile = async () => {
+  const file = await window.desktopAPI?.fileManager.selectFile();
+  if (!file) return;
+  formInfo.value.fileValue = { name: file.name, path: file.path, fileType: file.type };
 }
 const handleClose = () => {
   modelValue.value = false

@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('MockNodeConflictAndLogs-Offline', () => {
   test('HTTP Mock 在端口被占用时展示错误态', async ({ contentPage, clearCache, createProject, createNode }) => {

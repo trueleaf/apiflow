@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../fixtures/desktop-online.fixture';
 
 test.describe('Online项目成员权限', () => {
   // 每个测试前统一登录并回到首页

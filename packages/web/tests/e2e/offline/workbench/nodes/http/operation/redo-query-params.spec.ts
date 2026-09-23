@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('QueryParamsRedo', () => {
   // 测试用例1: query参数key输入值后撤销,再重做,值恢复到撤销前的状态

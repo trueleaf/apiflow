@@ -72,7 +72,7 @@ const handleReport = () => {
 onMounted(async () => {
   
   try {
-    const result = await window.electronAPI?.updateManager?.isAppStore()
+    const result = await window.desktopAPI?.updateManager?.isAppStore()
     isAppStore.value = result || false
   } catch (error) {
     isAppStore.value = false

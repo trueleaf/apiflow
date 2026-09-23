@@ -10,21 +10,21 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '.env.test') });
 
 /**
- * Playwright Electron 配置文件
- * 用于测试 Electron 应用
- * 参考文档: https://playwright.dev/docs/api/class-electron
+ * Playwright Tauri 配置文件
+ * 用于测试 Tauri 应用
+ * 参考文档: https://playwright.dev/docs/api/class-browsertype#browser-type-connect-over-cdp
  */
 export default defineConfig({
   // 测试文件目录
   testDir: './tests/e2e',
 
   // 完全并行运行测试
-  fullyParallel: false, // Electron 测试建议串行执行，避免多个 Electron 实例冲突
+  fullyParallel: false, // Tauri 测试建议串行执行，避免多个 Tauri 实例冲突
 
   // CI 环境下禁止 test.only
   forbidOnly: !!process.env.CI,
 
-  // 使用 1 个 worker（Electron 应用测试建议单线程）
+  // 使用 1 个 worker（Tauri 应用测试建议单线程）
   workers: 1,
 
   // 测试报告生成 HTML 格式
@@ -48,7 +48,7 @@ export default defineConfig({
       testMatch: '**/setup/**/*.setup.ts',
     },
     {
-      name: 'electron',
+      name: 'desktop',
       testMatch: '**/*.spec.ts',
       testIgnore: '**/*.live.spec.ts',
       dependencies: ['setup'],
@@ -56,7 +56,7 @@ export default defineConfig({
   ],
 
   // 全局超时设置（30 秒）
-  timeout: 30 * 1000,
+  timeout: 60 * 1000,
 
   // 期望断言超时（5 秒）
   expect: {

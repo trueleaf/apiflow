@@ -72,10 +72,10 @@
             <el-switch 
               v-model="enabled" 
               :loading="enabledStatusLoading"
-              :disabled="!isElectronEnv"
+              :disabled="!isDesktopEnv"
               @change="handleEnabledToggle"
             />
-            <div v-if="!isElectronEnv" class="mock-warning">
+            <div v-if="!isDesktopEnv" class="mock-warning">
               {{ t('浏览器环境不支持启用Mock服务') }}
             </div>
             <div v-else-if="mockError" class="mock-error">
@@ -97,7 +97,7 @@ import { storeToRefs } from 'pinia'
 import { useWebSocketMockNode } from '@/store/websocketMockNode/websocketMockNodeStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { router } from '@/router/index'
-import { isElectron } from '@/helper'
+import { isDesktop } from '@/helper'
 
 const { t } = useI18n()
 const websocketMockNodeStore = useWebSocketMockNode()
@@ -105,7 +105,7 @@ const { websocketMock } = storeToRefs(websocketMockNodeStore)
 const projectNavStore = useProjectNav()
 
 // 平台环境检测
-const isElectronEnv = isElectron()
+const isDesktopEnv = isDesktop()
 const { currentSelectNav } = storeToRefs(projectNavStore)
 
 const enabled = ref(false)
@@ -115,7 +115,7 @@ const mockError = ref('')
 // 获取本机IP地址，失败则使用默认值
 const getLocalIp = () => {
   try {
-    return window.electronAPI?.ip || '127.0.0.1'
+    return window.desktopAPI?.ip || '127.0.0.1'
   } catch {
     return '127.0.0.1'
   }
@@ -162,7 +162,7 @@ const handleEnabledToggle = (val: string | number | boolean) => {
       if (newEnabled) {
         const projectId = router.currentRoute.value.query.id as string
         const mockData = { ...websocketMock.value, projectId }
-        return window.electronAPI!.websocketMock.startServer(JSON.parse(JSON.stringify(mockData)))
+        return window.desktopAPI!.websocketMock.startServer(JSON.parse(JSON.stringify(mockData)))
           .then((result) => {
             if (result.code === 0) {
               enabled.value = true
@@ -172,7 +172,7 @@ const handleEnabledToggle = (val: string | number | boolean) => {
             }
           })
       } else {
-        return window.electronAPI!.websocketMock.stopServer(currentSelectNav.value._id)
+        return window.desktopAPI!.websocketMock.stopServer(currentSelectNav.value._id)
           .then(async (result) => {
             if (result.code === 0) {
               if (currentSelectNav.value?._id) {

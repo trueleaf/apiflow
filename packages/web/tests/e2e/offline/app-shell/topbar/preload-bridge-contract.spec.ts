@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture'
+import { test, expect } from '../../../../fixtures/desktop.fixture'
 
 test.describe('PreloadBridgeContract', () => {
   // 离线设置页触发 preload bridge 契约校验：websocket/mock/websocketMock/updateManager
@@ -12,7 +12,7 @@ test.describe('PreloadBridgeContract', () => {
     await expect(contentPage.locator('.about-container .page-header')).toContainText('关于', { timeout: 5000 })
     const bridgeContractResult = await contentPage.evaluate(async () => {
       const bridge = (window as unknown as {
-        electronAPI?: {
+        desktopAPI?: {
           websocket?: {
             getConnectionIds: () => Promise<string[]>
             clearAllConnections: () => Promise<{ code: number; msg: string; data: { closedCount: number } }>
@@ -31,7 +31,7 @@ test.describe('PreloadBridgeContract', () => {
             isAppStore: () => Promise<boolean>
           }
         }
-      }).electronAPI
+      }).desktopAPI
       const hasBridge =
         !!bridge
         && !!bridge.websocket

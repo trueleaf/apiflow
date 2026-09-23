@@ -402,7 +402,7 @@ const handleSendBlock = async (block: WebsocketMessageBlock) => {
       console.warn('变量替换失败，使用原始内容', error)
     }
 
-    const result = await window.electronAPI?.websocket.send(connectionId.value, messageContent)
+    const result = await window.desktopAPI?.websocket.send(connectionId.value, messageContent)
     if (result?.code === 0) {
       const sendMessage = {
         type: 'send' as const,
@@ -488,7 +488,7 @@ const startAutoSend = () => {
           console.warn('自动发送变量替换失败，使用原始内容', error)
         }
 
-        const result = await window.electronAPI?.websocket.send(connectionId.value, autoSendContent)
+        const result = await window.desktopAPI?.websocket.send(connectionId.value, autoSendContent)
         if (result?.code === 0) {
           const autoSendMessage = {
             type: 'autoSend' as const,

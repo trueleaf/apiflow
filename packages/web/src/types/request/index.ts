@@ -1,12 +1,24 @@
 // ============================================================================
 // 底层HTTP请求模块
-// 只包含Got请求库相关的底层类型，不包含业务逻辑
+// 包含桌面与 Web 共用的请求和响应类型
 // ============================================================================
 
-import type { Method, Options, PlainResponse, RequestError } from "got";
-import type { Timings } from '@szmarczak/http-timer';
-import type { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http'
-import type FormData from 'form-data';
+export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE' | 'CONNECT' | 'get' | 'post' | 'put' | 'patch' | 'delete' | 'head' | 'options' | 'trace' | 'connect';
+export type Headers = Record<string, string | string[] | undefined> & { 'set-cookie'?: string[] };
+export type OutgoingHttpHeaders = Record<string, string | string[] | number | undefined>;
+export type Timings = {
+  start: number;
+  socket?: number;
+  lookup?: number;
+  connect?: number;
+  secureConnect?: number;
+  upload?: number;
+  response?: number;
+  end?: number;
+  error?: number;
+  abort?: number;
+  phases: Partial<Record<'wait' | 'dns' | 'tcp' | 'tls' | 'request' | 'firstByte' | 'download' | 'total', number>>;
+};
 
 // ============================================================================
 // SSE和数据流类型
@@ -70,7 +82,7 @@ export type ResponseInfo = {
   id: string;
   apiId: string;
   requestId: string;
-  headers: IncomingHttpHeaders,
+  headers: Headers,
   contentLength: number;
   finalRequestUrl: string;
   statusCode: number;
@@ -83,7 +95,7 @@ export type ResponseInfo = {
   redirectList: {
     url: string;
     statusCode: number;
-    responseHeaders: IncomingHttpHeaders;
+    responseHeaders: Headers;
     requestHeaders: OutgoingHttpHeaders;
     method: Method;
   }[];
@@ -126,31 +138,31 @@ export type RendererFormDataBody = {
 }[];
 
 export type RedirectOptions = {
-  plainResponse: PlainResponse,
+  plainResponse: { statusCode: number; url: string; rawHeaders: string[] },
   requestHeaders: OutgoingHttpHeaders,
   method: Method,
 }
 
 // ============================================================================
-// GOT请求选项类型
+// HTTP请求选项类型
 // ============================================================================
 
-export type GotRequestJsonBody = { type: "json", value: string }
-export type GotRequestFormdataBody = { type: "formdata", value: RendererFormDataBody }
-export type GotRequestBinaryBody = {
+export type HttpRequestJsonBody = { type: "json", value: string }
+export type HttpRequestFormdataBody = { type: "formdata", value: RendererFormDataBody }
+export type HttpRequestBinaryBody = {
   type: "binary", value: {
     mode: 'var' | 'file';
     path: string;
   }
 }
-export type GotRequestUrlencodedBody = { type: "urlencoded", value: string };
-export type GotRequestRawBody = { type: "raw", value: string };
+export type HttpRequestUrlencodedBody = { type: "urlencoded", value: string };
+export type HttpRequestRawBody = { type: "raw", value: string };
 
-export type GotRequestOptions = {
+export type HttpRequestOptions = {
   url: string;
   method: Method;
   timeout: number;
-  body: GotRequestJsonBody | GotRequestFormdataBody | GotRequestBinaryBody | GotRequestUrlencodedBody | GotRequestRawBody | undefined;
+  body: HttpRequestJsonBody | HttpRequestFormdataBody | HttpRequestBinaryBody | HttpRequestUrlencodedBody | HttpRequestRawBody | undefined;
   headers: Record<string, string | null>;
   followRedirect?: boolean;
   maxRedirects?: number;
@@ -161,9 +173,8 @@ export type GotRequestOptions = {
   onResponseData?: (chunk: ChunkWithTimestampe, loadedLength: number, totalLength: number) => void;
   onReadFileFormDataError?: (options: { id: string, msg: string, fullMsg: string }) => void;
   onReadBinaryDataError?: (options: { msg: string, fullMsg: string }) => void;
-  onError: (error: RequestError | Error) => void,
+  onError: (error: Error) => void,
   onAbort?: () => void,
   beforeRedirect: (options: RedirectOptions) => void,
-  beforeRequest?: (options: Options) => void,
-  beforeRetry?: (error: RequestError, retryCount: number) => void,
+  beforeRetry?: (error: Error, retryCount: number) => void,
 }

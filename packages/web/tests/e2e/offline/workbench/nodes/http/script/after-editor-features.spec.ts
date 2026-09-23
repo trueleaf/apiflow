@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('AfterScriptEditorFeatures', () => {
   // 测试用例1: 后置脚本编辑器支持JavaScript语法高亮

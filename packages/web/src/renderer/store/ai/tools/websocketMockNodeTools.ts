@@ -48,7 +48,7 @@ const isString = (value: unknown): value is string => typeof value === 'string'
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null
 // Validate if value is a number
 const isNumber = (value: unknown): value is number => typeof value === 'number' && !Number.isNaN(value)
-// Parse and validate Electron IPC return
+// Parse and validate Tauri IPC return
 const normalizeIpcResult = (result: unknown): { ok: boolean; payload: unknown } => {
   if (!isRecord(result)) {
     return { ok: false, payload: result }
@@ -296,7 +296,7 @@ export const websocketMockNodeTools: AgentTool[] = [
   },
   {
     name: 'startWebsocketMockServerByNodeId',
-    description: 'Start the WebSocket Mock service for a specific mock node (Electron environment). Launches a local WebSocket server that accepts connections and responds according to configured rules. Only available in Electron/desktop environment. Use this when the user wants to activate a mock WebSocket endpoint for testing.',
+    description: 'Start the WebSocket Mock service for a specific mock node (Tauri environment). Launches a local WebSocket server that accepts connections and responds according to configured rules. Only available in Tauri/desktop environment. Use this when the user wants to activate a mock WebSocket endpoint for testing.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
@@ -308,7 +308,7 @@ export const websocketMockNodeTools: AgentTool[] = [
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
-      if (!window.electronAPI?.websocketMock?.startServer) {
+      if (!window.desktopAPI?.websocketMock?.startServer) {
         return { code: 1, data: { error: 'Current environment does not support starting WebSocket Mock service' } }
       }
       const websocketMockStore = useWebSocketMockNode()
@@ -321,14 +321,14 @@ export const websocketMockNodeTools: AgentTool[] = [
         await websocketMockStore.getWebSocketMockNodeDetail({ id: nodeId, projectId })
       }
       const mockData = { ...websocketMockStore.websocketMock, projectId }
-      const result = await window.electronAPI.websocketMock.startServer(JSON.parse(JSON.stringify(mockData)))
+      const result = await window.desktopAPI.websocketMock.startServer(JSON.parse(JSON.stringify(mockData)))
       const normalized = normalizeIpcResult(result)
       return { code: normalized.ok ? 0 : 1, data: normalized.payload }
     },
   },
   {
     name: 'stopWebsocketMockServerByNodeId',
-    description: 'Stop the running WebSocket Mock service for a specific mock node (Electron environment). Shuts down the local WebSocket server and closes all client connections. Only available in Electron/desktop environment. Use this when the user wants to deactivate a mock endpoint.',
+    description: 'Stop the running WebSocket Mock service for a specific mock node (Tauri environment). Shuts down the local WebSocket server and closes all client connections. Only available in Tauri/desktop environment. Use this when the user wants to deactivate a mock endpoint.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',
@@ -339,21 +339,21 @@ export const websocketMockNodeTools: AgentTool[] = [
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
-      if (!window.electronAPI?.websocketMock?.stopServer) {
+      if (!window.desktopAPI?.websocketMock?.stopServer) {
         return { code: 1, data: { error: 'Current environment does not support stopping WebSocket Mock service' } }
       }
       const nodeId = args.nodeId
       if (!isString(nodeId)) {
         return { code: 1, data: { error: 'nodeId must be a string' } }
       }
-      const result = await window.electronAPI.websocketMock.stopServer(nodeId)
+      const result = await window.desktopAPI.websocketMock.stopServer(nodeId)
       const normalized = normalizeIpcResult(result)
       return { code: normalized.ok ? 0 : 1, data: normalized.payload }
     },
   },
   {
     name: 'getWebsocketMockEnabledStatus',
-    description: 'Check whether a WebSocket Mock service is currently running for a specific node (Electron environment). Returns enabled status. Only available in Electron/desktop environment. Use this to verify if a mock WebSocket endpoint is active and accepting connections.',
+    description: 'Check whether a WebSocket Mock service is currently running for a specific node (Tauri environment). Returns enabled status. Only available in Tauri/desktop environment. Use this to verify if a mock WebSocket endpoint is active and accepting connections.',
     type: 'websocketMockNode',
     parameters: {
       type: 'object',

@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('RequestUrlFormat', () => {
   // 输入URL后blur自动添加http://前缀，验证格式化操作不进入撤销栈

@@ -333,7 +333,7 @@
             <div class="web-limit-content">
               <p class="web-limit-desc">{{ t('由于浏览器的CORS安全策略限制，无法直接发送跨域HTTP请求。') }}</p>
               <div class="web-limit-features">
-                <p class="features-title">{{ t('下载Electron客户端可获得完整功能，包括：') }}</p>
+                <p class="features-title">{{ t('下载桌面客户端可获得完整功能，包括：') }}</p>
                 <ul class="features-list">
                   <li>
             <span>{{ t('无CORS限制，支持所有HTTP请求') }}</span>
@@ -349,7 +349,7 @@
               <div class="web-limit-actions">
                 <el-button type="primary" @click="handleDownloadClient">
                   <Download :size="16" class="btn-icon" />
-                  {{ t('下载Electron客户端') }}
+                  {{ t('下载桌面客户端') }}
                 </el-button>
               </div>
             </div>
@@ -367,7 +367,7 @@ import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchSt
 import { useHttpNodeResponse } from '@/store/httpNode/httpNodeResponseStore';
 import { computed, inject, onMounted, onUnmounted, ref, watch, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n'
-import { downloadStringAsText, isElectron } from '@/helper'
+import { downloadStringAsText, isDesktop } from '@/helper'
 import { formatHeader, formatUnit } from '@/helper'
 import { config } from '@src/config/config'
 import SSseView from '@/components/common/sseView/ClSseView.vue'
@@ -409,11 +409,11 @@ const isRedirectStatusCode = computed(() => {
 const videoRef = ref<HTMLVideoElement>();
 const { t } = useI18n()
 const clientDownloadUrl = 'https://github.com/trueleaf/apiflow/releases'
-const isElectronEnv = isElectron()
+const isDesktopEnv = isDesktop()
 const showClientDownloadLink = computed(() => {
-  return !isElectronEnv
+  return !isDesktopEnv
     && httpNodeResponseStore.responseInfo.responseData.canApiflowParseType === 'error'
-    && httpNodeResponseStore.responseInfo.responseData.errorData === t('浏览器环境不支持发送HTTP请求，请使用Electron客户端')
+    && httpNodeResponseStore.responseInfo.responseData.errorData === t('浏览器环境不支持发送HTTP请求，请使用桌面客户端')
 })
 
 const formatedText = ref('');

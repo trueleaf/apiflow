@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron.fixture';
+import { test, expect } from '../../../fixtures/desktop.fixture';
 
 test.describe('ExampleProject', () => {
   test('首次启动离线模式自动创建示例项目', async ({ contentPage, topBarPage, clearCache }) => {

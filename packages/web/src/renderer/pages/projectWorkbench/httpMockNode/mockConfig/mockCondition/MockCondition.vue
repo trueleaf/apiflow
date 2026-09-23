@@ -77,9 +77,9 @@
               v-model="enabled" 
               @change="handleEnabledToggle"
               :loading="enabledStatusLoading"
-              :disabled="!isElectronEnv"
+              :disabled="!isDesktopEnv"
             />
-            <div v-if="!isElectronEnv" class="mock-warning">
+            <div v-if="!isDesktopEnv" class="mock-warning">
               {{ t('浏览器环境不支持启用Mock服务') }}
             </div>
             <div v-else-if="mockError" class="mock-error">
@@ -102,7 +102,7 @@ import { storeToRefs } from 'pinia'
 import { useHttpMockNode } from '@/store/httpMockNode/httpMockNodeStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { router } from '@/router/index.ts'
-import { isElectron, eventEmitter } from '@/helper'
+import { isDesktop, eventEmitter } from '@/helper'
 
 const { t } = useI18n()
 const httpMockNodeStore = useHttpMockNode()
@@ -111,7 +111,7 @@ const projectNavStore = useProjectNav()
 const { currentSelectNav } = storeToRefs(projectNavStore)
 
 // 平台环境检测
-const isElectronEnv = isElectron()
+const isDesktopEnv = isDesktop()
 
 // 触发条件相关状态
 const enabled = ref(false)
@@ -121,7 +121,7 @@ const mockError = ref('')
 // 获取本机IP地址，失败则使用默认值
 const getLocalIp = () => {
   try {
-    return window.electronAPI?.ip || '127.0.0.1'
+    return window.desktopAPI?.ip || '127.0.0.1'
   } catch (error) {
     console.warn('获取本机IP失败，使用默认值:', error)
     return '127.0.0.1'
@@ -197,7 +197,7 @@ const handleEnabledToggle = (val: string | number | boolean) => {
       if (newEnabled) {
         const projectId = router.currentRoute.value.query.id as string;
         const mockData = { ...httpMock.value, projectId };
-        return window.electronAPI!.mock.startServer(JSON.parse(JSON.stringify(mockData)))
+        return window.desktopAPI!.mock.startServer(JSON.parse(JSON.stringify(mockData)))
           .then((result) => {
             if (result.code === 0) {
               enabled.value = true
@@ -208,7 +208,7 @@ const handleEnabledToggle = (val: string | number | boolean) => {
             }
           })
       } else {
-        return window.electronAPI!.mock.stopServer(currentSelectNav.value._id)
+        return window.desktopAPI!.mock.stopServer(currentSelectNav.value._id)
           .then(async (result) => {
             if (result.code === 0) {
               // 验证服务器确实已关闭

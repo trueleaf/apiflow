@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../fixtures/desktop.fixture';
 
 test.describe('OpenapiImport', () => {
   // 测试用例1: 打开导入页面验证OpenAPI/Swagger格式选择器

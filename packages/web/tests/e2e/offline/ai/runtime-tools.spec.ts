@@ -1,9 +1,9 @@
-import { test, expect } from '../../../fixtures/electron.fixture'
+import { test, expect } from '../../../fixtures/desktop.fixture'
 import { createServer } from 'node:http'
 import { WebSocketServer } from 'ws'
 
 for (const nodeType of ['http', 'websocket', 'httpMock', 'websocketMock'] as const) {
-  test(`Agent ${nodeType} 运行工具审批、状态与取消资源清理`, async ({ electronApp, topBarPage, contentPage, clearCache, createProject, createNode }) => {
+  test(`Agent ${nodeType} 运行工具审批、状态与取消资源清理`, async ({ desktopApp, topBarPage, contentPage, clearCache, createProject, createNode }) => {
     test.setTimeout(120000)
     let requests = 0
     let messages = 0
@@ -89,7 +89,7 @@ for (const nodeType of ['http', 'websocket', 'httpMock', 'websocketMock'] as con
       await approval.getByRole('button', { name: '允许', exact: true }).click()
       if (nodeType === 'http') await expect.poll(() => pendingRequests).toBe(1)
       else await expect(approval.getByRole('button', { name: '停止', exact: true })).toBeVisible()
-      await electronApp.close()
+      await desktopApp.close()
       if (nodeType === 'http') await expect.poll(() => pendingRequests).toBe(0)
       else if (nodeType === 'websocket') await expect.poll(() => connections).toBe(0)
       else await expect.poll(async () => { try { const response = await fetch(`http://127.0.0.1:${port}/agent-e2e`); return response.status } catch { return 0 } }).toBe(0)

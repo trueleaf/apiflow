@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/desktop.fixture';
 
 test.describe('SettingsNavigation', () => {
   test('点击设置按钮创建Tab并跳转设置页面', async ({ topBarPage, contentPage, clearCache }) => {

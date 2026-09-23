@@ -1,5 +1,5 @@
 import type { HttpNodeRequestMethod } from "../httpNode/types";
-import type { Headers } from 'got'
+import type { Headers } from '@src/types/request'
 
 export type ApidocRequest = {
   url: string, //请求url

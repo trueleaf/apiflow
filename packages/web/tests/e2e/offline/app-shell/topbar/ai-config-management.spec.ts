@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/desktop.fixture';
 import { createServer } from 'node:http';
 
 test.describe('AiConfigManagement', () => {

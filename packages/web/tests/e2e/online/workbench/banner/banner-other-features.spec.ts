@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../fixtures/desktop-online.fixture';
 
 test.describe('BannerOtherFeatures', () => {
   // ========================= 拖拽功能测试 =========================

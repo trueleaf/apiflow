@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron.fixture';
+import { test, expect } from '../../../fixtures/desktop.fixture';
 
 test.describe('SearchProject', () => {
   // 测试用例1: 搜索无结果展示

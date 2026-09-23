@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture'
+import { test, expect } from '../../../../../../fixtures/desktop.fixture'
 
 test.describe('MockIpcPayload', () => {
   // HTTP Mock 启停与请求日志通过 mainToRenderer 推送，载荷结构符合契约
@@ -23,12 +23,12 @@ test.describe('MockIpcPayload', () => {
     await mockConfig.getByRole('button', { name: /保存配置/ }).click()
     await contentPage.evaluate(() => {
       const bridge = (window as unknown as {
-        electronAPI?: {
+        desktopAPI?: {
           ipcManager?: {
             onMain: (channel: string, callback: (payload: unknown) => void) => void
           }
         }
-      }).electronAPI
+      }).desktopAPI
       const runtime = window as unknown as {
         __mockStatusPayloads?: unknown[]
         __mockLogBatchPayloads?: unknown[]
@@ -134,12 +134,12 @@ test.describe('MockIpcPayload', () => {
     await wsMockConfig.getByRole('button', { name: /保存配置/ }).click()
     await contentPage.evaluate(() => {
       const bridge = (window as unknown as {
-        electronAPI?: {
+        desktopAPI?: {
           ipcManager?: {
             onMain: (channel: string, callback: (payload: unknown) => void) => void
           }
         }
-      }).electronAPI
+      }).desktopAPI
       const runtime = window as unknown as {
         __wsMockStatusPayloads?: unknown[]
         __wsMockLogBatchPayloads?: unknown[]

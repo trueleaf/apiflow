@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../../fixtures/desktop-online.fixture';
 
 test.describe('CodeRepoImport', () => {
   // 导入页应提供 AI 智能识别入口并可在不同来源间切换

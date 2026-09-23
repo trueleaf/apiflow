@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('WebSocketAfterScriptEditorFeatures', () => {
   // 后置脚本编辑器应渲染 Monaco 且存在语法 token

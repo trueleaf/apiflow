@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('Remark', () => {
   // 测试用例1: 备注编辑器支持Markdown格式输入和预览

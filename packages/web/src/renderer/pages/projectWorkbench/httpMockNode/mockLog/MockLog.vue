@@ -520,11 +520,11 @@ watch(currentNodeId, (value, oldValue) => {
 }, { immediate: true })
 // 组件挂载时注册IPC监听器
 onMounted(() => {
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.logsBatch, handleLogsBatch)
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.logsBatch, handleLogsBatch)
 })
 // 组件卸载时移除监听器
 onUnmounted(() => {
-  window.electronAPI?.ipcManager.removeListener(IPC_EVENTS.mock.mainToRenderer.logsBatch, handleLogsBatch)
+  window.desktopAPI?.ipcManager.removeListener(IPC_EVENTS.mock.mainToRenderer.logsBatch, handleLogsBatch)
 })
 </script>
 

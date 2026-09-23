@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture'
+import { test, expect } from '../../../../fixtures/desktop.fixture'
 
 test.describe('SettingsShortcuts', () => {
   // 快捷键设置覆盖取消录制、保存持久化与重置默认全链路

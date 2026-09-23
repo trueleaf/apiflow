@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/desktop.fixture';
 
 test.describe('QuickIcons', () => {
   // 验证 AI 按钮打开弹窗且重复点击不会关闭

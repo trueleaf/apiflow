@@ -26,6 +26,10 @@ export class MockVariableCache {
     }
     try {
       this.db = await openDB<MockVariableCacheDBSchema>(this.dbName, this.version, {
+        blocking: (_currentVersion, _blockedVersion, event) => {
+          (event.target as IDBDatabase).close();
+          this.db = null;
+        },
         upgrade(database, _oldVersion, _newVersion, transaction) {
           const store = database.objectStoreNames.contains('mockVariables')
             ? transaction.objectStore('mockVariables')

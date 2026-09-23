@@ -22,8 +22,8 @@
         class="form-input"
       />
     </div>
-    <!-- 在线URL配置（仅Electron环境显示） -->
-    <template v-if="isElectronEnv">
+    <!-- 在线URL配置（仅Tauri环境显示） -->
+    <template v-if="isDesktopEnv">
       <div class="form-item">
         <div class="form-label">
           {{ t('在线页面地址') }}
@@ -67,7 +67,7 @@ import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 import { message } from '@/helper'
 import { updateAxiosBaseURL } from '@/api/api'
-import { isElectron } from '@/helper'
+import { isDesktop } from '@/helper'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { brandConfig } from '@src/config/brand'
 
@@ -75,7 +75,7 @@ const { t } = useI18n()
 const appSettingsStore = useAppSettings()
 const localServerUrl = ref(appSettingsStore.serverUrl)
 const localProxyServerUrl = ref(appSettingsStore.proxyServerUrl)
-const isElectronEnv = isElectron()
+const isDesktopEnv = isDesktop()
 const localOnlineUrl = ref('')
 const currentOnlineUrl = ref('')
 const isCheckingUrl = ref(false)
@@ -95,7 +95,7 @@ watch(localServerUrl, (newVal, oldVal) => {
 const hasChanges = computed(() => {
   const urlChanged = localServerUrl.value.trim() !== appSettingsStore.serverUrl ||
     localProxyServerUrl.value.trim() !== appSettingsStore.proxyServerUrl
-  const onlineUrlChanged = isElectronEnv && localOnlineUrl.value.trim() !== currentOnlineUrl.value
+  const onlineUrlChanged = isDesktopEnv && localOnlineUrl.value.trim() !== currentOnlineUrl.value
   return urlChanged || onlineUrlChanged
 })
 
@@ -128,9 +128,9 @@ const checkUrlAccessible = async (url: string): Promise<boolean> => {
 }
 // 获取当前在线URL配置
 const fetchCurrentOnlineUrl = async () => {
-  if (!isElectronEnv) return
+  if (!isDesktopEnv) return
   try {
-    const result = await window.electronAPI?.ipcManager.invoke<unknown, string>(IPC_EVENTS.apiflow.rendererToMain.getOnlineUrl)
+    const result = await window.desktopAPI?.ipcManager.invoke<unknown, string>(IPC_EVENTS.apiflow.rendererToMain.getOnlineUrl)
     currentOnlineUrl.value = result || ''
   } catch {
     currentOnlineUrl.value = ''
@@ -152,14 +152,14 @@ const handleSave = async () => {
     message.warning(t('请输入有效的HTTP代理地址'))
     return
   }
-  if (isElectronEnv && trimmedOnlineUrl && !validateUrl(trimmedOnlineUrl)) {
+  if (isDesktopEnv && trimmedOnlineUrl && !validateUrl(trimmedOnlineUrl)) {
     message.warning(t('请输入有效的在线页面地址'))
     return
   }
   appSettingsStore.setServerUrl(trimmedUrl)
   appSettingsStore.setProxyServerUrl(trimmedProxyUrl)
   updateAxiosBaseURL(trimmedUrl)
-  const onlineUrlChanged = isElectronEnv && trimmedOnlineUrl !== currentOnlineUrl.value
+  const onlineUrlChanged = isDesktopEnv && trimmedOnlineUrl !== currentOnlineUrl.value
   if (onlineUrlChanged) {
     isCheckingUrl.value = true
     try {
@@ -168,7 +168,7 @@ const handleSave = async () => {
         message.warning(t('无法访问该地址，请检查URL是否正确'))
         return
       }
-      await window.electronAPI?.ipcManager.invoke(IPC_EVENTS.apiflow.rendererToMain.setOnlineUrl, trimmedOnlineUrl)
+      await window.desktopAPI?.ipcManager.invoke(IPC_EVENTS.apiflow.rendererToMain.setOnlineUrl, trimmedOnlineUrl)
     } catch {
       message.error(t('保存失败'))
     } finally {
@@ -198,10 +198,10 @@ const handleReset = async () => {
   updateAxiosBaseURL(appSettingsStore.serverUrl)
   localServerUrl.value = appSettingsStore.serverUrl
   localProxyServerUrl.value = appSettingsStore.proxyServerUrl
-  const shouldRefresh = isElectronEnv && currentOnlineUrl.value
+  const shouldRefresh = isDesktopEnv && currentOnlineUrl.value
   if (shouldRefresh) {
     try {
-      await window.electronAPI?.ipcManager.invoke(IPC_EVENTS.apiflow.rendererToMain.setOnlineUrl, '')
+      await window.desktopAPI?.ipcManager.invoke(IPC_EVENTS.apiflow.rendererToMain.setOnlineUrl, '')
       message.success(t('配置已重置，即将刷新应用'))
     } catch {
       message.error(t('重置失败'))

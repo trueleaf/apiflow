@@ -30,6 +30,10 @@ class HttpNodeHistoryCache {
     }
     try {
       this.db = await openDB(this.dbName, this.version, {
+        blocking: (_currentVersion, _blockedVersion, event) => {
+          (event.target as IDBDatabase).close();
+          this.db = null;
+        },
         upgrade(db) {
           if (!db.objectStoreNames.contains('histories')) {
             const store = db.createObjectStore('histories', { keyPath: '_id' });

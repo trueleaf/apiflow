@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../fixtures/desktop.fixture';
 test.describe('AiDataImport', () => {
   test('导入页面提供 AI 智能识别入口并支持切换', async ({ contentPage, clearCache, createProject, reload }) => {
     await clearCache();

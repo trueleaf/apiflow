@@ -3,9 +3,7 @@
 // 包含Mock服务的核心类型定义
 // ============================================================================
 
-import { Method } from "got";
-import type http from 'http';
-import type Koa from 'koa';
+import type { Method } from '@src/types/request';
 import { ApidocBaseInfo, ApidocProperty } from "../httpNode/types";
 
 // Mock节点激活选项卡类型
@@ -297,11 +295,6 @@ type WebSocketMockErrorLog = {
 }
 export type WebSocketMockLog = WebSocketMockStartLog | WebSocketMockStopLog | WebSocketMockConnectLog | WebSocketMockDisconnectLog | WebSocketMockReceiveLog | WebSocketMockSendLog | WebSocketMockErrorLog;
 
-export type MockInstance = {
-  port: number;
-  app: Koa;
-  server: http.Server;
-}
 export type MockSSEEventData = {
   id?: string;
   event?: string;

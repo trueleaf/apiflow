@@ -1,5 +1,5 @@
 <template>
-  <div class="s-header" @click="handleDocumentClick">
+  <div class="s-header" data-tauri-drag-region @click="handleDocumentClick">
     <div class="logo">
       <img data-test-id="header-logo" :src="appSettingsStore.appLogo" :alt="appSettingsStore.appTitle" class="logo-img" width="24" height="24" draggable="false" @click="jumpToHome"/>
     </div>
@@ -10,7 +10,7 @@
     <div v-if="filteredTabs.length > 0" class="short-divider">
       <span class="short-divider-content"></span>
     </div>
-    <div class="tabs" data-test-id="header-tabs-container">
+    <div class="tabs" data-tauri-drag-region data-test-id="header-tabs-container">
       <draggable ref="tabListRef" v-model="draggableTabs" class="tab-list" :animation="150" ghost-class="sortable-ghost"
         chosen-class="sortable-chosen" drag-class="sortable-drag" item-key="id">
         <template #item="{ element: tab }">
@@ -161,10 +161,10 @@ const getProjectTabInsertIndex = () => {
 | 窗口控制
 |--------------------------------------------------------------------------
 */
-const minimize = () => window.electronAPI?.windowManager.minimizeWindow()
-const maximize = () => window.electronAPI?.windowManager.maximizeWindow()
-const unmaximize = () => window.electronAPI?.windowManager.unMaximizeWindow()
-const close = () => window.electronAPI?.windowManager.closeWindow()
+const minimize = () => window.desktopAPI?.windowManager.minimizeWindow()
+const maximize = () => window.desktopAPI?.windowManager.maximizeWindow()
+const unmaximize = () => window.desktopAPI?.windowManager.unMaximizeWindow()
+const close = () => window.desktopAPI?.windowManager.closeWindow()
 const handleWindowResize = (state: WindowState) => {
   isMaximized.value = state.isMaximized
 }
@@ -183,15 +183,15 @@ const scrollToActiveTab = () => {
 |--------------------------------------------------------------------------
 */
 const refreshApp = () => {
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.refreshApp)
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.refreshApp)
 }
 
 const goBack = () => {
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.goBack)
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.goBack)
 }
 
 const goForward = () => {
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.goForward)
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.goForward)
 }
 
 /*
@@ -211,8 +211,8 @@ const currentLanguageDisplay = computed(() => {
 const languageButtonRef = ref<HTMLElement>()
 const handleChangeLanguage = () => {
   if (languageButtonRef.value) {
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu)
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideHeaderTabContextmenu)
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu)
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideHeaderTabContextmenu)
     const rect = languageButtonRef.value.getBoundingClientRect()
     const buttonPosition = {
       x: rect.left,
@@ -222,7 +222,7 @@ const handleChangeLanguage = () => {
     }
 
     // 发送显示语言菜单事件到主进程，包含按钮位置信息
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.showLanguageMenu, {
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.showLanguageMenu, {
       position: buttonPosition,
       currentLanguage: language.value
     })
@@ -232,8 +232,8 @@ const handleChangeLanguage = () => {
 const userAvatarButtonRef = ref<HTMLElement>()
 const handleOpenUserMenu = () => {
   if (userAvatarButtonRef.value) {
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu)
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideHeaderTabContextmenu)
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu)
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideHeaderTabContextmenu)
     const rect = userAvatarButtonRef.value.getBoundingClientRect()
     const buttonPosition = {
       x: rect.left,
@@ -241,7 +241,7 @@ const handleOpenUserMenu = () => {
       width: rect.width,
       height: rect.height
     }
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.showUserMenu, {
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.showUserMenu, {
       position: buttonPosition
     })
   }
@@ -253,14 +253,14 @@ const handleOpenUserMenu = () => {
 */
 // 同步 tabs 到 contentView
 const syncTabsToContentView = () => {
-  window.electronAPI?.ipcManager.sendToMain(
+  window.desktopAPI?.ipcManager.sendToMain(
     IPC_EVENTS.apiflow.topBarToContent.tabsUpdated,
     JSON.parse(JSON.stringify(tabs.value))
   )
 }
 // 同步 activeTabId 到 contentView
 const syncActiveTabToContentView = () => {
-  window.electronAPI?.ipcManager.sendToMain(
+  window.desktopAPI?.ipcManager.sendToMain(
     IPC_EVENTS.apiflow.topBarToContent.activeTabUpdated,
     JSON.parse(JSON.stringify(activeTabId.value))
   )
@@ -300,12 +300,12 @@ const switchTab = (tabId: string) => {
   const currentTab = tabs.value.find(t => t.id === tabId);
   if (!currentTab) return;
   if (currentTab.type === 'project') {
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.switchProject, {
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.switchProject, {
       projectId: tabId,
       projectName: currentTab.title
     })
   } else if (currentTab.type === 'settings') {
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.navigate, '/settings')
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.navigate, '/settings')
   }
 }
 const deleteTabsByIds = (tabIds: string[], preferredActiveTabId?: string) => {
@@ -350,8 +350,8 @@ const handleHeaderTabContextAction = (payload: AppWorkbenchHeaderTabContextActio
   }
 }
 const handleTabContextmenu = (e: MouseEvent, tab: AppWorkbenchHeaderTab) => {
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu)
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu)
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu)
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu)
   const currentNetworkTabs = filteredTabs.value
   const tabIndex = currentNetworkTabs.findIndex(t => t.id === tab.id)
   const hasAny = currentNetworkTabs.length > 0
@@ -363,7 +363,7 @@ const handleTabContextmenu = (e: MouseEvent, tab: AppWorkbenchHeaderTab) => {
   const position = rect
     ? { x: rect.left, y: 0, width: rect.width, height: rect.height }
     : { x: e.clientX, y: 0, width: 0, height: 0 }
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.showHeaderTabContextmenu, {
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.showHeaderTabContextmenu, {
     position,
     tabId: tab.id,
     hasLeft,
@@ -383,7 +383,7 @@ const jumpToHome = () => {
   }
   activeTabId.value = '';
   syncActiveTabToContentView()
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.navigate, '/home')
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.navigate, '/home')
 }
 // 跳转到设置
 const jumpToSettings = (targetTab?: string) => {
@@ -400,7 +400,7 @@ const jumpToSettings = (targetTab?: string) => {
   }
   switchTab(settingsTabId);
   if (targetTab) {
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab, { targetTab })
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab, { targetTab })
   }
 }
 const toggleNetworkMode = () => {
@@ -412,16 +412,16 @@ const toggleNetworkMode = () => {
     runtimeStore.setNetworkMode(newMode)
   }
   networkMode.value = newMode
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, newMode)
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.reloadAfterNetworkModeChange)
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, newMode)
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.reloadAfterNetworkModeChange)
 }
-const handleAddProject = () => window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.createProject)
-const handleShowAiDialog = () => window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.showAiDialog)
+const handleAddProject = () => window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.createProject)
+const handleShowAiDialog = () => window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.showAiDialog)
 // 打开 MCP 服务页
 const handleOpenMcpService = () => {
   const currentProject = activeProjectTab.value
   if (currentProject) {
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openMcpService, { projectId: currentProject.id })
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openMcpService, { projectId: currentProject.id })
     return
   }
   jumpToSettings('mcp-settings')
@@ -439,17 +439,17 @@ const jumpToDownloadPage = () => {
     syncTabsToContentView()
   }
   switchTab(settingsTabId)
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab, { targetTab: 'about' })
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab, { targetTab: 'about' })
 }
 // 绑定事件
 const bindEvent = () => {
-  window.electronAPI?.windowManager.onWindowResize(handleWindowResize)
+  window.desktopAPI?.windowManager.onWindowResize(handleWindowResize)
   
-  window.electronAPI?.windowManager.getWindowState().then((state) => {
+  window.desktopAPI?.windowManager.getWindowState().then((state) => {
     isMaximized.value = state.isMaximized
   })
   
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.languageChanged, (lang: string) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.languageChanged, (lang: string) => {
     language.value = lang as Language
     changeLanguage(lang as Language)
     // 更新设置 tab 的标题
@@ -461,7 +461,7 @@ const bindEvent = () => {
     syncTabsToContentView()
   })
 
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.projectCreated, (data: { projectId: string, projectName: string }) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.projectCreated, (data: { projectId: string, projectName: string }) => {
     const insertIndex = getProjectTabInsertIndex()
     tabs.value.splice(insertIndex, 0, { id: data.projectId, title: data.projectName, type: 'project', network: networkMode.value })
     activeTabId.value = data.projectId
@@ -470,7 +470,7 @@ const bindEvent = () => {
     scrollToActiveTab()
   })
 
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.projectChanged, (data: { projectId: string, projectName: string }) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.projectChanged, (data: { projectId: string, projectName: string }) => {
     activeTabId.value = data.projectId;
     const matchedProject = tabs.value.find(t => t.id === data.projectId)
     if (!matchedProject) {
@@ -485,11 +485,11 @@ const bindEvent = () => {
     scrollToActiveTab()
   })
   
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.projectDeleted, (projectId: string) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.projectDeleted, (projectId: string) => {
     deleteTab(projectId)
   })
 
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.projectRenamed, (data: { projectId: string, projectName: string }) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.projectRenamed, (data: { projectId: string, projectName: string }) => {
     const index = tabs.value.findIndex(t => t.id === data.projectId)
     if (index !== -1) {
       tabs.value[index].title = data.projectName
@@ -497,15 +497,15 @@ const bindEvent = () => {
     }
   })
 
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab, (data?: { targetTab?: string }) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab, (data?: { targetTab?: string }) => {
     jumpToSettings(data?.targetTab)
   })
 
-  window.electronAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.downloadProgress, (data: DownloadProgress) => {
+  window.desktopAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.downloadProgress, (data: DownloadProgress) => {
     downloadState.percent = data.percent
   })
 
-  window.electronAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.downloadStateChanged, (data: { state: DownloadState; error?: string }) => {
+  window.desktopAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.downloadStateChanged, (data: { state: DownloadState; error?: string }) => {
     downloadState.state = data.state
     if (data.state === 'completed' || data.state === 'cancelled' || data.state === 'error') {
       downloadState.percent = 0
@@ -513,23 +513,23 @@ const bindEvent = () => {
   })
 
   // 监听导航到首页事件
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToHome, () => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToHome, () => {
     activeTabId.value = ''
     syncActiveTabToContentView()
   })
   // 监听导航到登录页事件（联网模式）
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToLogin, () => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToLogin, () => {
     activeTabId.value = 'login'
     syncActiveTabToContentView()
   })
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.activeTabUpdated, (nextActiveTabId: string) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.activeTabUpdated, (nextActiveTabId: string) => {
     activeTabId.value = nextActiveTabId
     syncActiveTabToContentView()
     scrollToActiveTab()
   })
 
   // 监听来自 App.vue 的初始化数据
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.initTabsData, (data: { tabs: AppWorkbenchHeaderTab[], activeTabId: string, language: Language, networkMode: RuntimeNetworkMode }) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.initTabsData, (data: { tabs: AppWorkbenchHeaderTab[], activeTabId: string, language: Language, networkMode: RuntimeNetworkMode }) => {
     tabs.value = brandConfig.offlineOnly ? (data.tabs || []).filter(tab => tab.network === 'offline') : data.tabs || [];
     activeTabId.value = tabs.value.some(tab => tab.id === data.activeTabId) ? data.activeTabId : '';
     language.value = data.language || 'zh-cn';
@@ -546,11 +546,11 @@ const bindEvent = () => {
   });
 
   // 监听网络模式变更
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, (mode: RuntimeNetworkMode) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, (mode: RuntimeNetworkMode) => {
     networkMode.value = brandConfig.offlineOnly ? 'offline' : mode;
   });
 
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.appSettingsChanged, (data?: { appTitle: string, appLogo: string, appTheme: string, serverUrl?: string }) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.appSettingsChanged, (data?: { appTitle: string, appLogo: string, appTheme: string, serverUrl?: string }) => {
     if (data) {
       appSettingsStore.updateFromIPC({
         appTitle: data.appTitle,
@@ -565,11 +565,11 @@ const bindEvent = () => {
     applyTheme(appSettingsStore.appTheme)
   });
 
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, (payload: Partial<PermissionUserInfo>) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, (payload: Partial<PermissionUserInfo>) => {
     runtimeStore.updateUserInfo(payload)
   })
 
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.headerTabContextAction, (payload: AppWorkbenchHeaderTabContextActionPayload) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.headerTabContextAction, (payload: AppWorkbenchHeaderTabContextActionPayload) => {
     handleHeaderTabContextAction(payload)
   })
 }
@@ -577,18 +577,18 @@ const bindEvent = () => {
 // 处理document点击事件以关闭语言菜单
 const handleDocumentClick = (event: MouseEvent) => {
   const clickedNode = event.target as Node
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideHeaderTabContextmenu)
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideHeaderTabContextmenu)
   if (languageButtonRef.value && !languageButtonRef.value.contains(clickedNode)) {
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu)
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu)
   }
   if (userAvatarButtonRef.value && !userAvatarButtonRef.value.contains(clickedNode)) {
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu)
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu)
   }
 }
 
 // Web环境下监听localStorage变化以同步用户信息
-const isElectronEnv = computed(() => {
-  return typeof window !== 'undefined' && typeof window.electronAPI !== 'undefined'
+const isDesktopEnv = computed(() => {
+  return typeof window !== 'undefined' && typeof window.desktopAPI !== 'undefined'
 })
 
 const handleStorageChange = (e: StorageEvent) => {
@@ -605,7 +605,7 @@ const handleStorageChange = (e: StorageEvent) => {
 // Web环境下定时同步用户信息
 let syncInterval: ReturnType<typeof setInterval> | null = null
 const startSyncUserInfo = () => {
-  if (!isElectronEnv.value) {
+  if (!isDesktopEnv.value) {
     syncInterval = setInterval(() => {
       runtimeStore.initUserInfo()
     }, 1000)
@@ -614,22 +614,22 @@ const startSyncUserInfo = () => {
 
 onMounted(async () => {
   // 检测是否为商店版本
-  if (isElectronEnv.value) {
-    isAppStore.value = await window.electronAPI?.updateManager.isAppStore() || false
+  if (isDesktopEnv.value) {
+    isAppStore.value = await window.desktopAPI?.updateManager.isAppStore() || false
   }
   
   runtimeStore.initUserInfo()
   bindEvent()
   scrollToActiveTab()
   
-  if (!isElectronEnv.value) {
+  if (!isDesktopEnv.value) {
     // Web环境：监听storage事件和定时同步
     window.addEventListener('storage', handleStorageChange)
     startSyncUserInfo()
   } else {
-    // Electron环境：使用IPC通信
+    // Tauri环境：使用IPC通信
     await nextTick()
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.topBarReady)
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.topBarReady)
   }
   
   window.addEventListener('click', handleDocumentClick)
@@ -637,7 +637,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('click', handleDocumentClick)
-  if (!isElectronEnv.value) {
+  if (!isDesktopEnv.value) {
     window.removeEventListener('storage', handleStorageChange)
     if (syncInterval) {
       clearInterval(syncInterval)

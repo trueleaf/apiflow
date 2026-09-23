@@ -1,0 +1,147 @@
+name: Build Tauri
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: tauri-release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: packages/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: packages/web/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/web/src-tauri
+      - run: npm ci
+      - run: npm run type-check
+      - run: npm run test:native
+      - run: npm run build:web
+      - run: npm run pretest:e2e
+      - run: npx playwright test tests/e2e/offline --project desktop
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: desktop-test-results
+          path: packages/web/playwright-report
+  bundle:
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: windows-11-vs2026-arm
+            target: aarch64-pc-windows-msvc
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: packages/web/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/web/src-tauri
+          key: ${{ matrix.target }}
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+      - run: npm ci
+        working-directory: packages/web
+      - name: Validate release version and signing configuration
+        shell: bash
+        env:
+          RELEASE_REF: ${{ github.ref_name }}
+          UPDATER_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          UPDATER_PUBLIC_KEY: ${{ vars.TAURI_UPDATER_PUBLIC_KEY }}
+        run: |
+          node --input-type=module -e 'import fs from "node:fs"; const version = JSON.parse(fs.readFileSync("packages/web/package.json", "utf8")).version; if (process.env.GITHUB_REF_TYPE === "tag" && process.env.RELEASE_REF !== "v" + version) throw new Error("Tag and package version must match"); if (!process.env.UPDATER_KEY || !process.env.UPDATER_PUBLIC_KEY) throw new Error("Configure TAURI_SIGNING_PRIVATE_KEY secret and TAURI_UPDATER_PUBLIC_KEY variable before release");'
+      - uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          TAURI_UPDATER_PUBLIC_KEY: ${{ vars.TAURI_UPDATER_PUBLIC_KEY }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        with:
+          projectPath: packages/web
+          args: --target ${{ matrix.target }} --config src-tauri/tauri.release.conf.json
+          tagName: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+          releaseName: 'ApiFlow v__VERSION__'
+          releaseDraft: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          uploadUpdaterJson: true
+          updaterJsonPreferNsis: true
+          retryAttempts: 3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tauri-${{ matrix.target }}
+          path: packages/web/src-tauri/target/${{ matrix.target }}/release/bundle
+          if-no-files-found: error
+  store:
+    needs: verify
+    strategy:
+      matrix:
+        include:
+          - architecture: x64
+            os: windows-latest
+          - architecture: arm64
+            os: windows-11-vs2026-arm
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: packages/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: packages/web/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-pc-windows-msvc
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/web/src-tauri
+          key: store-${{ matrix.architecture }}
+      - run: npm ci
+      - run: node scripts/build-store.mjs ${{ matrix.architecture == 'arm64' && '--arm64' || '' }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: microsoft-store-${{ matrix.architecture }}
+          path: packages/web/release/*.msix
+          if-no-files-found: error

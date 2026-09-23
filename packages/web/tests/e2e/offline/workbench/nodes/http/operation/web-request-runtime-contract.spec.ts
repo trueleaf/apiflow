@@ -16,12 +16,11 @@ test.describe('HttpWebRequestRuntimeContract', () => {
     expect(webRequestSource).toContain('if (isSSE) {');
     expect(webRequestSource).toContain('await handleSSEStream(proxyUrl, params, options);');
     expect(webRequestSource).toContain('await handleNormalRequest(proxyUrl, params, options);');
-    // 校验 sendRequest 与前置脚本 af.http 都保留 Electron/Web 双分支，避免 Web 模式回退到主进程路径
-    expect(requestSource).toContain("if (isElectron()) {");
-    expect(requestSource).toContain("window.electronAPI?.sendRequest(requestOptions);");
+    // 校验桌面原生请求与 Web 代理请求各自使用对应的执行路径
+    expect(requestSource).toContain("if (isDesktop()) {");
+    expect(requestSource).toContain("window.desktopAPI?.sendRequest(requestOptions);");
     expect(requestSource).toContain("await webRequest(requestOptions);");
-    expect(requestSource).toContain("window.electronAPI?.afHttpRequest(options);");
+    expect(requestSource).toContain("window.desktopAPI?.afHttpRequest(options);");
     expect(requestSource).toContain("webRequest(requestOptions);");
   });
 });
-

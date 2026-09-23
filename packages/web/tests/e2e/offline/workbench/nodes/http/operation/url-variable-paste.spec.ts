@@ -1,7 +1,7 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture'
+import { test, expect } from '../../../../../../fixtures/desktop.fixture'
 
 test.describe('UrlVariablePaste', () => {
-  test('粘贴完整请求地址时保留当前匹配的 URL 变量', async ({ electronApp, contentPage, clearCache, createProject, createNode, reload }) => {
+  test('粘贴完整请求地址时保留当前匹配的 URL 变量', async ({ desktopApp, contentPage, clearCache, createProject, createNode, reload }) => {
     await clearCache()
     await reload()
     await createProject()
@@ -24,8 +24,8 @@ test.describe('UrlVariablePaste', () => {
     await urlInput.fill('{{baseUrl}}/old-path')
     await urlInput.click()
     await contentPage.keyboard.press('ControlOrMeta+a')
-    await electronApp.evaluate(({ clipboard }) => {
-      clipboard.writeText('http://127.0.0.1:3456/echo')
+    await contentPage.evaluate(() => {
+      navigator.clipboard.writeText('http://127.0.0.1:3456/echo')
     })
     await contentPage.keyboard.press('ControlOrMeta+v')
     await expect(urlInput).toHaveText('{{baseUrl}}/echo')

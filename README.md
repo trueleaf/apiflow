@@ -199,18 +199,18 @@ docker compose up -d
 After deploying with Docker you can access the system directly via browser. If you want to use the full desktop experience, follow the steps below to build the client.
 
 ### Prerequisites
-- **Node.js**: >= 22.0.0
+- **Node.js**: >= 22.12.0
+- **Rust**: >= 1.85 with the native toolchain for your target platform
 - **macOS**: Xcode Command Line Tools required (`xcode-select --install`)
-- **Linux**: `fakeroot` and `dpkg` for `.deb`; `rpm` for `.rpm` packages
+- **Linux**: WebKitGTK 4.1, AppIndicator, OpenSSL development packages, `patchelf`, `fakeroot` and `dpkg`
 - Each platform's installer can only be built on its native OS (no cross-platform compilation)
 
 #### Step 1: Speed up downloads (optional)
 
-Edit the `.npmrc` file in the project root and uncomment the following lines (remove the leading `#`):
+If npm downloads are slow, uncomment the registry line in the root `.npmrc`:
 
 ```properties
-ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
-ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/
+registry=https://registry.npmmirror.com
 ```
 
 #### Step 2: Clone the repository and install dependencies
@@ -248,31 +248,37 @@ npm run web:build:local:mac
 # Linux
 npm run web:build:local:linux
 
-# Quick verification only (extract to directory, no installer, fastest)
+# Quick verification only (build the native binary without an installer)
 npm run web:build:local:pack
+
+# Microsoft Store MSIX (requires Windows SDK)
+npm run web:build:local:win:store
 ```
 
-> **Tip (Windows):** If the build command fails on Windows, try running the terminal as Administrator and execute the command again.
+> **Tip (Windows):** Install the Windows SDK to build MSIX packages. The Store package includes the official WebView2 fixed runtime.
 
 ### Build Commands
 
 | Command | Description |
 |---------|-------------|
-| `npm run web:build:local:pack` | Quick verification: extract to directory only, no installer, fastest option |
-| `npm run web:build:local:win` | Build Windows installer (`.exe` NSIS) |
-| `npm run web:build:local:mac` | Build macOS installer (`.dmg` + `.zip`, x64/arm64) |
-| `npm run web:build:local:linux` | Build Linux packages (`.AppImage` + `.deb`, x64/arm64) |
+| `npm run web:build:local:pack` | Build the Tauri binary without an installer |
+| `npm run web:build:local:win` | Build Windows NSIS `.exe` and MSI `.msi` installers |
+| `npm run web:build:local:win:store` | Build a Microsoft Store `.msix` package |
+| `npm run web:build:local:mac` | Build macOS bundles on macOS |
+| `npm run web:build:local:linux` | Build Linux packages on Linux |
 
 ### Output Directory
 
-Build artifacts are located in `packages/web/release/`.
+Tauri installers are located in `packages/web/src-tauri/target/release/bundle/`. Microsoft Store packages are written to `packages/web/release/`.
+
+For tagged releases, configure the repository secret `TAURI_SIGNING_PRIVATE_KEY` and variable `TAURI_UPDATER_PUBLIC_KEY` before running `.github/workflows/build-tauri.yml`. Set `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` if the key is encrypted. The tag must match `v` plus `packages/web/package.json`'s version. The workflow creates signed updater metadata and draft release assets; submit the generated MSIX to Partner Center separately.
 
 ---
 
 # Local Development
 
 ## Prerequisites
-- **Node.js**: >= 22.0.0
+- **Node.js**: >= 22.12.0
 - **MongoDB**: Running locally or accessible remotely
 - **Git**: For cloning the repository
 
@@ -293,7 +299,7 @@ npm run dev
 ```
 
 This command will start both the frontend and backend servers concurrently:
-- **Frontend (Web)**: http://localhost:4000
+- **Frontend (Tauri)**: http://localhost:4000 inside the desktop application
 - **Backend (Server)**: http://localhost:7001
 
 ## Available Commands
@@ -301,8 +307,8 @@ This command will start both the frontend and backend servers concurrently:
 | Command | Description |
 |---------|-------------|
 | `npm run dev` | Start both frontend and backend in development mode |
-| `npm run dev:web` | Start only the frontend |
-| `npm run web:dev` | Start only the frontend (alternative) |
+| `npm run dev:web` | Start the browser-only frontend |
+| `npm run web:dev` | Start the Tauri desktop frontend |
 | `npm run server:dev` | Start only the backend |
 | `npm run web:build` | Build the web application |
 | `npm run server:build` | Build the server application |
@@ -313,7 +319,7 @@ This command will start both the frontend and backend servers concurrently:
 
 This is a multi-package monorepo:
 
-- `packages/web` - Frontend application (Vite + Vue 3 + Electron)
+- `packages/web` - Web and Tauri desktop application (Vite + Vue 3 + Rust)
 - `packages/server` - Backend application (Midway.js + MongoDB)
 - `packages/website` - Marketing website (Next.js)
 

@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../../fixtures/desktop-online.fixture';
 
 test.describe('CallHistory', () => {
   // 测试用例1: 切换到调用历史Tab页,验证Tab切换功能和UI展示

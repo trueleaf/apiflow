@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron.fixture'
+import { test, expect } from '../../../fixtures/desktop.fixture'
 
 test.describe('ProjectRecoveryDocNum', () => {
   test('恢复项目后接口数量正确展示，folder节点不计入接口总数', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {

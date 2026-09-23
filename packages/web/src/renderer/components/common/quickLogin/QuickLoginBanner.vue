@@ -68,7 +68,7 @@ watch(
     }
   }
 );
-window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, (credential: QuickLoginCredential) => {
+window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, (credential: QuickLoginCredential) => {
   quickLoginCredential.value = credential;
   quickLoginTipDismissed.value = false;
 });

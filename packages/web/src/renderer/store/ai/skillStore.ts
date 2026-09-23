@@ -2430,7 +2430,7 @@ export const useSkill = defineStore('skill', () => {
     const projectManagerStore = useProjectManagerStore();
     const result = await projectManagerStore.updateProject(projectId, projectName);
     if (result) {
-      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectRenamed, { projectId, projectName });
+      window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectRenamed, { projectId, projectName });
     }
     return result;
   }
@@ -2439,7 +2439,7 @@ export const useSkill = defineStore('skill', () => {
     const projectManagerStore = useProjectManagerStore();
     const result = await projectManagerStore.deleteProject(projectId);
     if (result !== null) {
-      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectDeleted, projectId);
+      window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectDeleted, projectId);
     }
     return result !== null;
   }

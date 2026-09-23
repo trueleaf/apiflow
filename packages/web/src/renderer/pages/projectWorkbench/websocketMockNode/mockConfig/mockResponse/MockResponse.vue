@@ -27,7 +27,7 @@
             <el-switch
               v-model="websocketMock.config.echoMode"
               size="small"
-              @change="(val) => websocketMockNodeStore.changeWebSocketMockEchoMode(val as boolean)"
+              @change="(val: string | number | boolean) => websocketMockNodeStore.changeWebSocketMockEchoMode(val === true)"
             />
           </div>
           <div class="echo-tip">{{ t('开启后原样返回客户端发送的消息') }}</div>

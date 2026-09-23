@@ -1,0 +1,50 @@
+[package]
+name = "apiflow-desktop"
+version = "0.9.51"
+edition = "2021"
+rust-version = "1.85"
+license = "MIT"
+
+[features]
+app-store = []
+custom-protocol = ["tauri/custom-protocol"]
+
+[lib]
+name = "apiflow_core"
+crate-type = ["lib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "unstable", "image-png", "image-ico"] }
+tauri-plugin-single-instance = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-updater = "2"
+minisign-verify = "0.2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["fs", "io-util", "net", "sync", "time", "macros"] }
+tokio-util = { version = "0.7", features = ["io", "rt"] }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "stream", "multipart", "gzip", "brotli", "deflate", "json"] }
+futures-util = "0.3"
+uuid = { version = "1", features = ["v4", "serde"] }
+mime_guess = "2"
+tokio-tungstenite = { version = "0.28", features = ["rustls-tls-native-roots"] }
+infer = "0.19"
+rquickjs = "0.9"
+axum = { version = "0.8", features = ["ws"] }
+subtle = "2"
+regex = "1"
+tokio-stream = "0.1"
+base64 = "0.22"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.dev]
+debug = 0
+incremental = false

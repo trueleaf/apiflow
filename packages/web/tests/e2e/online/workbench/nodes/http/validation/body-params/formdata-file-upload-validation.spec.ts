@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../../../../fixtures/desktop-online.fixture';
 import { existsSync } from 'fs';
 import path from 'path';
 const MOCK_SERVER_PORT = 3456;

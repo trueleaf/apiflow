@@ -106,7 +106,7 @@ const handleLogin = async () => {
         } else {
           // 登录成功，更新用户信息到store
           runtimeStore.updateUserInfo(res.data);
-          window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: res.data.id, loginName: res.data.loginName, role: res.data.role, token: res.data.token, avatar: res.data.avatar })
+          window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: res.data.id, loginName: res.data.loginName, role: res.data.role, token: res.data.token, avatar: res.data.avatar })
           trackEvent('user_login', { method: 'account' });
           //检查是否需要显示邮箱绑定通知
           if (!res.data.email) {
@@ -143,8 +143,8 @@ const handleQuickLogin = () => {
     const { password, ...safeUserInfo } = res.data
     runtimeStore.updateUserInfo(safeUserInfo)
     setQuickLoginCredential({ loginName: safeUserInfo.loginName, password })
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: safeUserInfo.id, loginName: safeUserInfo.loginName, role: safeUserInfo.role, token: safeUserInfo.token, avatar: safeUserInfo.avatar })
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, { loginName: safeUserInfo.loginName, password })
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: safeUserInfo.id, loginName: safeUserInfo.loginName, role: safeUserInfo.role, token: safeUserInfo.token, avatar: safeUserInfo.avatar })
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, { loginName: safeUserInfo.loginName, password })
     trackEvent('user_login', { method: 'quick_login' });
     //快速登录账号默认没有邮箱，确保显示邮箱绑定提示
     if (!safeUserInfo.email) {

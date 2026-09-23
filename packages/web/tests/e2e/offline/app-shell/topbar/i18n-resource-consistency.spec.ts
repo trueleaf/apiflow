@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/desktop.fixture';
 import zhCnMessages from '../../../../../src/renderer/i18n/zh-cn';
 import enMessages from '../../../../../src/renderer/i18n/en';
 

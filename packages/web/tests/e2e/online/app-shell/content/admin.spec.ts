@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../fixtures/desktop-online.fixture';
 import { hasAdminMenu, openSettings, switchAdminTab, waitForUserListLoaded } from '../../../../fixtures/admin-helper';
 
 test.describe('Online后台管理权限', () => {

@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../fixtures/desktop.fixture';
 import fs from 'fs';
 import path from 'path';
 

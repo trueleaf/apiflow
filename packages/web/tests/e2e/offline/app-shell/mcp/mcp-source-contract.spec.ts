@@ -1,47 +1,29 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from '../../../../fixtures/desktop.fixture'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
 test.describe('McpSourceContract', () => {
-  test('主进程 MCP 服务保持本地固定端口和来源防护契约', async () => {
-    const serviceSource = await fs.readFile(path.resolve('src/main/mcp/mcpService.ts'), 'utf8')
-    expect(serviceSource).toContain("createServer((request, response) =>")
-    expect(serviceSource).toContain('StreamableHTTPServerTransport')
-    expect(serviceSource).toContain('sessionIdGenerator: undefined')
-    expect(serviceSource).toContain('targetServer.listen(port, \'127.0.0.1\'')
-    expect(serviceSource).toContain('return `http://127.0.0.1:${port}/mcp`')
-    expect(serviceSource).toContain('requestUrl.pathname !== \'/mcp\'')
-    expect(serviceSource).toContain('isAllowedHost(request)')
-    expect(serviceSource).toContain('isAllowedOrigin(request)')
-    expect(serviceSource).toContain("sendJson(response, 403, { error: 'Forbidden' })")
-    expect(serviceSource).toContain("const code = message.includes('EADDRINUSE') ? 'PORT_IN_USE' : 'SERVER_START_FAILED'")
-    expect(serviceSource).toContain('mcp:renderer:to:main:update-settings')
-    expect(serviceSource).toContain('mcp:renderer:to:main:restart')
-    expect(serviceSource).not.toContain('detect-port')
+  test('原生 MCP 服务拒绝缺失认证与外部来源，合法请求可读取工具', async ({ contentPage }) => {
+    const status = await contentPage.evaluate(() => window.desktopAPI!.mcpManager.updateSettings({ enabled: true, port: 43201 }));
+    const unauthorized = await fetch(status.endpoint, { method: 'POST' });
+    expect(unauthorized.status).toBe(401);
+    const forbidden = await fetch(status.endpoint, { method: 'POST', headers: { Authorization: 'Bearer ' + status.authToken, Origin: 'https://example.com' } });
+    expect(forbidden.status).toBe(403);
+    const valid = await fetch(status.endpoint, { method: 'POST', headers: { Authorization: 'Bearer ' + status.authToken, 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }) });
+    expect(valid.status).toBe(200);
+    const body = await valid.json();
+    expect(body.result.tools.map((tool: { name: string }) => tool.name)).toContain('getProjectList');
   })
-
-  test('隐藏 executor 保持无 UI 常驻和 request-response IPC 契约', async () => {
-    const executorSource = await fs.readFile(path.resolve('src/main/mcp/mcpExecutor.ts'), 'utf8')
-    expect(executorSource).toContain('new BrowserWindow')
-    expect(executorSource).toContain('show: false')
-    expect(executorSource).toContain('skipTaskbar: true')
-    expect(executorSource).toContain('app://index.html/mcp.html')
-    expect(executorSource).toContain('http://localhost:4000/mcp.html')
-    expect(executorSource).toContain('mcp:executor:to:main:ready')
-    expect(executorSource).toContain('mcp:executor:to:main:response')
-    expect(executorSource).toContain('EXECUTOR_NOT_READY')
-    expect(executorSource).toContain('TOOL_TIMEOUT')
-    expect(executorSource).toContain('unresponsive')
-    expect(executorSource).toContain('render-process-gone')
-    expect(executorSource).toContain('listMcpExecutorTools')
-    expect(executorSource).toContain('callMcpExecutorTool')
-    expect(executorSource).toContain('readMcpExecutorResource')
-    const rendererSource = await fs.readFile(path.resolve('src/renderer/mcp.ts'), 'utf8')
-    expect(rendererSource).toContain('mcp:main:to:executor:list-tools')
-    expect(rendererSource).toContain('mcp:main:to:executor:call-tool')
-    expect(rendererSource).toContain('mcp:main:to:executor:read-resource')
-    expect(rendererSource).toContain('mcp:executor:to:main:ready')
-    expect(rendererSource).not.toContain("from './main'")
+  test('后台执行页独立常驻，主页面刷新后 MCP 仍可用', async ({ contentPage, desktopApp }) => {
+    const before = await contentPage.evaluate(() => window.desktopAPI!.mcpManager.getStatus());
+    expect(before.executorState).toBe('ready');
+    const executor = desktopApp.contexts().flatMap(context => context.pages()).find(page => page.url().includes('mcp.html'));
+    expect(executor).toBeDefined();
+    await contentPage.reload();
+    await contentPage.waitForFunction(() => !!window.desktopAPI);
+    const after = await contentPage.evaluate(() => window.desktopAPI!.mcpManager.getStatus());
+    expect(after.executorState).toBe('ready');
+    expect(executor?.isClosed()).toBe(false);
   })
 
   test('MCP tool registry 只暴露核心离线工具并要求显式 projectId', async () => {
@@ -90,19 +72,18 @@ test.describe('McpSourceContract', () => {
   test('设置页、preload 和构建入口暴露 MCP 管理入口', async () => {
     const settingsSource = await fs.readFile(path.resolve('src/renderer/pages/settings/Settings.vue'), 'utf8')
     const mcpSettingsSource = await fs.readFile(path.resolve('src/renderer/pages/settings/mcpSettings/McpSettings.vue'), 'utf8')
-    const preloadSource = await fs.readFile(path.resolve('src/main/preload.ts'), 'utf8')
+    const preloadSource = await fs.readFile(path.resolve('src/renderer/platform/tauri/api.ts'), 'utf8')
     const typeSource = await fs.readFile(path.resolve('src/types/main/index.ts'), 'utf8')
     const viteSource = await fs.readFile(path.resolve('vite.config.ts'), 'utf8')
     expect(settingsSource).toContain("action: 'mcp-settings'")
     expect(settingsSource).toContain('Cable')
-    expect(await fs.readFile(path.resolve('src/main/main.ts'), 'utf8')).toContain('url.replace(/^(header|index|mcp)\\.html\\//')
-    expect(mcpSettingsSource).toContain('window.electronAPI?.mcpManager.getStatus()')
-    expect(mcpSettingsSource).toContain('window.electronAPI?.mcpManager.updateSettings')
-    expect(mcpSettingsSource).toContain('window.electronAPI?.mcpManager.restart()')
+    expect(mcpSettingsSource).toContain('window.desktopAPI?.mcpManager.getStatus()')
+    expect(mcpSettingsSource).toContain('window.desktopAPI?.mcpManager.updateSettings')
+    expect(mcpSettingsSource).toContain('window.desktopAPI?.mcpManager.restart()')
     expect(mcpSettingsSource).toContain("t('MCP 服务')")
     expect(mcpSettingsSource).not.toContain('$t(')
     expect(preloadSource).toContain('mcpManager')
     expect(typeSource).toContain('mcpManager: {')
-    expect(viteSource).toContain("mcp: resolve(__dirname, './mcp.html')")
+    expect(viteSource).toContain("mcp: resolve(import.meta.dirname, './mcp.html')")
   })
 })

@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('HttpMockConditionAndLog-Offline', () => {
   test('多响应条件脚本按顺序命中，首个命中后不再执行后续条件', async ({ contentPage, clearCache, createProject, createNode }) => {

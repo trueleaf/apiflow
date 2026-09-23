@@ -3,7 +3,7 @@ import { createServer } from 'node:http'
 import { createDeepSeek } from '@ai-sdk/deepseek'
 import { generateText, Output, streamText, tool } from 'ai'
 import { z } from 'zod'
-import { createLanguageModel } from '../../../../src/main/ai/provider'
+import { createLanguageModel } from '../../../../src/renderer/platform/tauri/ai/provider'
 import { getLLMRequestError } from '../../../../src/config/llmProviders'
 import type { LLMProviderSetting } from '../../../../src/types'
 
@@ -71,24 +71,24 @@ test('Provider contract 覆盖文本、thinking、JSON、工具分片、异常�
   const baseURL = `http://127.0.0.1:${address.port}/v1`
   const config: LLMProviderSetting = { id: 'contract', name: 'Contract', provider: 'OpenAICompatible', vendor: 'custom', apiKey: 'contract-secret', baseURL, model: 'text', customHeaders: [{ key: 'X-Contract', value: 'header-secret' }], extraBody: '{"safe":true,"model":"must-not-override"}', thinkingMode: 'default', reasoningEffort: 'default', thinkingBudget: null, maxTokens: 64 }
   try {
-    const textResult = await generateText({ model: createLanguageModel(config), messages: [{ role: 'user', content: 'text' }] })
+    const textResult = await generateText({ model: createLanguageModel(config, globalThis.fetch), messages: [{ role: 'user', content: 'text' }] })
     expect(textResult.text).toBe('文本-text')
     expect(textResult.reasoningText).toBe('推理内容')
     expect(requests.at(-1)).toMatchObject({ model: 'text', safe: true })
-    const jsonResult = await generateText({ model: createLanguageModel({ ...config, model: 'json' }), messages: [{ role: 'user', content: 'json' }], output: Output.json() })
+    const jsonResult = await generateText({ model: createLanguageModel({ ...config, model: 'json' }, globalThis.fetch), messages: [{ role: 'user', content: 'json' }], output: Output.json() })
     expect(jsonResult.output).toEqual({ ok: true })
     expect(requests.at(-1)).toMatchObject({ response_format: { type: 'json_object' } })
     const inspectTool = { inspect: tool({ inputSchema: z.object({ value: z.string() }).strict() }) }
-    const toolResult = await generateText({ model: createLanguageModel({ ...config, model: 'tool' }), messages: [{ role: 'user', content: 'tool' }], tools: inspectTool })
+    const toolResult = await generateText({ model: createLanguageModel({ ...config, model: 'tool' }, globalThis.fetch), messages: [{ role: 'user', content: 'tool' }], tools: inspectTool })
     expect(toolResult.finishReason).toBe('tool-calls')
     expect(toolResult.toolCalls).toMatchObject([{ toolCallId: 'call-contract', toolName: 'inspect', input: { value: 'ok' } }])
-    const duplicateResult = await generateText({ model: createLanguageModel({ ...config, model: 'duplicate-tool' }), messages: [{ role: 'user', content: 'duplicate' }], tools: inspectTool })
+    const duplicateResult = await generateText({ model: createLanguageModel({ ...config, model: 'duplicate-tool' }, globalThis.fetch), messages: [{ role: 'user', content: 'duplicate' }], tools: inspectTool })
     expect(duplicateResult.toolCalls).toHaveLength(2)
     expect(new Set(duplicateResult.toolCalls.map(call => call.toolCallId)).size).toBe(1)
-    const unknownResult = await generateText({ model: createLanguageModel({ ...config, model: 'unknown-tool' }), messages: [{ role: 'user', content: 'unknown' }], tools: inspectTool })
+    const unknownResult = await generateText({ model: createLanguageModel({ ...config, model: 'unknown-tool' }, globalThis.fetch), messages: [{ role: 'user', content: 'unknown' }], tools: inspectTool })
     expect(unknownResult.toolCalls).toMatchObject([{ toolName: 'missingTool', dynamic: true, invalid: true }])
     expect(unknownResult.steps[0].content.some(part => part.type === 'tool-error')).toBe(true)
-    await expect(generateText({ model: createLanguageModel({ ...config, model: 'invalid-json' }), messages: [{ role: 'user', content: 'invalid' }] })).rejects.toThrow()
+    await expect(generateText({ model: createLanguageModel({ ...config, model: 'invalid-json' }, globalThis.fetch), messages: [{ role: 'user', content: 'invalid' }] })).rejects.toThrow()
 
     const deepSeek = createDeepSeek({ apiKey: 'deepseek-contract', baseURL })
     const pro = await generateText({ model: deepSeek('deepseek-v4-pro'), messages: [{ role: 'user', content: 'pro' }], providerOptions: { deepseek: { thinking: { type: 'enabled' }, reasoningEffort: 'high' } } })
@@ -111,7 +111,7 @@ test('Provider contract 覆盖文本、thinking、JSON、工具分片、异常�
     expect(await toolStreamed.toolCalls).toMatchObject([{ toolCallId: 'call-stream', toolName: 'inspect', input: { value: 'ok' } }])
 
     for (const model of ['error-401', 'error-403', 'error-404', 'error-402', 'error-429', 'error-500']) {
-      await expect(generateText({ model: createLanguageModel({ ...config, model }), messages: [{ role: 'user', content: model }], maxRetries: 0 })).rejects.toThrow()
+      await expect(generateText({ model: createLanguageModel({ ...config, model }, globalThis.fetch), messages: [{ role: 'user', content: model }], maxRetries: 0 })).rejects.toThrow()
     }
     expect(getLLMRequestError(new Error('HTTP 401 contract-secret header-secret'), config)).toBe('API Key 无效或已失效，请检查密钥及所属地域')
     expect(getLLMRequestError(new Error('HTTP 403'), config)).toContain('没有模型访问权限')

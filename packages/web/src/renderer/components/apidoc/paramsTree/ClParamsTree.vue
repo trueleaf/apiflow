@@ -25,15 +25,15 @@
               <Loading />
             </el-icon>
           </el-icon>
-          <el-button 
+          <el-button
             size="small"
             data-testid="params-tree-cancel-btn"
             @click="handleCancelMultiline"
           >
             {{ t('返回') }}
           </el-button>
-          <el-button 
-            type="primary" 
+          <el-button
+            type="primary"
             size="small"
             :disabled="!multilineText.trim()"
             data-testid="params-tree-apply-btn"
@@ -52,21 +52,21 @@
         </div>
       </div>
     </div>
-    
+
     <!-- 表格模式 -->
     <el-tree
-      v-if="props.editMode !== 'multiline'" 
-       ref="treeRef" 
-       node-key="_id" 
-       :data="localData" 
-       :indent="50" 
-       :expand-on-click-node="false" 
-       :draggable="enableDrag" 
-       :allow-drop="handleAllowDrop" 
-       :show-checkbox="showCheckbox" 
-       :check-on-click-leaf="false" 
-       :default-checked-keys="defaultCheckedKeys" 
-       @node-drop="handleNodeDrop" 
+      v-if="props.editMode !== 'multiline'"
+       ref="treeRef"
+       node-key="_id"
+       :data="localData"
+       :indent="50"
+       :expand-on-click-node="false"
+       :draggable="enableDrag"
+       :allow-drop="handleAllowDrop"
+       :show-checkbox="showCheckbox"
+       :check-on-click-leaf="false"
+       :default-checked-keys="defaultCheckedKeys"
+       @node-drop="handleNodeDrop"
        @check-change="handleCheckChange"
      >
        <template #default="{ data }">
@@ -76,11 +76,11 @@
              :data-row-id="String(data._id)"
              :data-row-key="String(data.key || '')"
            >
-           <el-icon 
-             class="delete-icon" 
-             :class="{ disabled: localData.length <= 1 || data._disableDelete || isLastEmptyItem(data) }" 
-             :size="14" 
-             :title="getDeleteTooltip(data)" 
+           <el-icon
+             class="delete-icon"
+             :class="{ disabled: localData.length <= 1 || data._disableDelete || isLastEmptyItem(data) }"
+             :size="14"
+             :title="getDeleteTooltip(data)"
              data-testid="params-tree-delete-btn"
              @click="() => handleDeleteRow(data)"
            >
@@ -89,20 +89,20 @@
            <!-- 参数key -->
            <div class="w-15 flex0 mr-2 d-flex a-center" @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
              <div v-if="props.mindKeyParams && props.mindKeyParams.length > 0" class="w-100" data-testid="params-tree-key-autocomplete">
-               <el-autocomplete 
+               <el-autocomplete
                  class="w-100"
-                 popper-class="params-tree-autocomplete" 
-                 :model-value="data.key" 
-                 :debounce="0" 
-                 :placeholder="t('输入参数名称自动换行')" 
-                 :fetch-suggestions="querySearchKey" 
-                 :disabled="data._disableKey || props.disableKeyEdit" 
-                 :title="data._disableKeyTip || (props.disableKeyEdit ? t('Path参数名由URL自动解析，不可修改') : '')" 
-                 @select="(item: any) => handleSelectKey(item, data)" 
-                 @update:modelValue="(v: string | number) => handleChangeKey(String(v), data)" 
-                 @focus="handleFocusKey()" 
-                 @blur="handleEnableDrag()" 
-                 @keydown="(e: KeyboardEvent) => { handlePreventDefaultKeys(e); handleKeyDown(e, data); }" 
+                 popper-class="params-tree-autocomplete"
+                 :model-value="data.key"
+                 :debounce="0"
+                 :placeholder="t('输入参数名称自动换行')"
+                 :fetch-suggestions="querySearchKey"
+                 :disabled="data._disableKey || props.disableKeyEdit"
+                 :title="data._disableKeyTip || (props.disableKeyEdit ? t('Path参数名由URL自动解析，不可修改') : '')"
+                 @select="(item: any) => handleSelectKey(item, data)"
+                 @update:modelValue="(v: string | number) => handleChangeKey(String(v), data)"
+                 @focus="handleFocusKey()"
+                 @blur="handleEnableDrag()"
+                 @keydown="(e: KeyboardEvent) => { handlePreventDefaultKeys(e); handleKeyDown(e, data); }"
                  @paste="(event: ClipboardEvent) => handlePasteKey(event, data)"
                >
                  <template #default="{ item }">
@@ -113,31 +113,31 @@
                  </template>
                </el-autocomplete>
              </div>
-             <el-input 
-               v-else 
-               :model-value="data.key" 
-               :placeholder="t('输入参数名称自动换行')" 
-               :disabled="data._disableKey || props.disableKeyEdit" 
-               :title="data._disableKeyTip || (props.disableKeyEdit ? t('Path参数名由URL自动解析，不可修改') : '')" 
+             <el-input
+               v-else
+               :model-value="data.key"
+               :placeholder="t('输入参数名称自动换行')"
+               :disabled="data._disableKey || props.disableKeyEdit"
+               :title="data._disableKeyTip || (props.disableKeyEdit ? t('Path参数名由URL自动解析，不可修改') : '')"
                data-testid="params-tree-key-input"
-               @update:modelValue="v => handleChangeKey(v, data)" 
-               @focus="handleDisableDrag()" 
-               @blur="handleEnableDrag()" 
-               @keydown="handlePreventDefaultKeys" 
+               @update:modelValue="v => handleChangeKey(v, data)"
+               @focus="handleDisableDrag()"
+               @blur="handleEnableDrag()"
+               @keydown="handlePreventDefaultKeys"
                @paste="(event: ClipboardEvent) => handlePasteKey(event, data)"
              >
              </el-input>
            </div>
            <!-- 参数类型 -->
            <div class="w-15 flex0 mr-2" @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
-             <el-select 
-               class="w-100" 
-               :model-value="data.type" 
-               :placeholder="t('类型')" 
-               :size="config.renderConfig.layout.size" 
+             <el-select
+               class="w-100"
+               :model-value="data.type"
+               :placeholder="t('类型')"
+               :size="config.renderConfig.layout.size"
                :disabled="!props.enableFile"
                data-testid="params-tree-type-select"
-               @update:modelValue="v => handleChangeType(v as 'string' | 'file', data)"
+               @update:modelValue="(v: 'string' | 'file') => handleChangeType(v, data)"
                @keydown="handlePreventDefaultKeys"
              >
                <el-option label="String" value="string"></el-option>
@@ -145,8 +145,8 @@
              </el-select>
            </div>
            <!-- 参数值 string (临时文件模式) -->
-           <div 
-             v-if="data.type === 'string' && data._isTempFile" 
+           <div
+             v-if="data.type === 'string' && data._isTempFile"
              class="w-35 mr-2 temp-file-display"
              @mouseenter="handleDisableDrag()"
              @mouseleave="handleEnableDrag()"
@@ -160,40 +160,40 @@
              </div>
            </div>
            <!-- 参数值 string (普通模式) -->
-           <el-popover 
-             v-if="data.type === 'string' && !data._isTempFile" 
-             placement="top-start" 
-             width="auto" 
+           <el-popover
+             v-if="data.type === 'string' && !data._isTempFile"
+             placement="top-start"
+             width="auto"
              :visible="data._id === currentOpData?._id && (data.value || '').includes('@')"
            >
-             <SMock 
-               @close="handleCloseMock()" 
+             <SMock
+               @close="handleCloseMock()"
                @select="v => handleSelectMockValue(v, data)"
                @interaction="handleMockInteraction"
              ></SMock>
              <template #reference>
-               <div 
-                 class="value-input-wrap w-35 mr-2" 
-                 :class="{ 'is-multiline': multilineInputs[data._id], 'is-pinned': focusedInputId === data._id && multilineInputs[data._id] }" 
-                 @mouseenter="handleDisableDrag()" 
+               <div
+                 class="value-input-wrap w-35 mr-2"
+                 :class="{ 'is-multiline': multilineInputs[data._id], 'is-pinned': focusedInputId === data._id && multilineInputs[data._id] }"
+                 @mouseenter="handleDisableDrag()"
                  @mouseleave="handleEnableDrag()"
                >
-                 <ClRichInput 
+                 <ClRichInput
                    :ref="(el) => setValueRichInputRef(el as InstanceType<typeof ClRichInput> | null, data._id)"
-                   class="value-rich-input" 
-                   :model-value="data.value" 
-                   :placeholder="data._valuePlaceholder || t('输入@唤起变量弹窗')" 
-                   :min-height="28" 
-                   :max-height="280" 
-                   :trim-on-paste="true" 
-                   :expand-on-focus="true" 
-                   :disabled="data._disableValue" 
-                   disable-history 
+                   class="value-rich-input"
+                   :model-value="data.value"
+                   :placeholder="data._valuePlaceholder || t('输入@唤起变量弹窗')"
+                   :min-height="28"
+                   :max-height="280"
+                   :trim-on-paste="true"
+                   :expand-on-focus="true"
+                   :disabled="data._disableValue"
+                   disable-history
                    data-testid="params-tree-value-input"
-                   @update:modelValue="v => handleChangeValue(v, data)" 
-                   @focus="handleFocusValue(data)" 
-                   @blur="handleBlurValueAndEnableDrag()" 
-                   @multiline-change="(isMultiline) => handleMultilineChange(data._id, isMultiline)" 
+                   @update:modelValue="v => handleChangeValue(v, data)"
+                   @focus="handleFocusValue(data)"
+                   @blur="handleBlurValueAndEnableDrag()"
+                   @multiline-change="(isMultiline) => handleMultilineChange(data._id, isMultiline)"
                    @paste="handleRichInputPaste()"
                    @before-paste="(text, shouldPrevent) => handleBeforePasteValue(text, shouldPrevent, data)"
                  >
@@ -238,29 +238,29 @@
                  </div>
                </div>
                <!-- 变量模式输入框 -->
-               <el-input 
-                 v-if="data.fileValueType === 'var' && !data._isTempFile" 
-                 class="w-100" 
-                 :model-value="data.value" 
-                 :placeholder="data._valuePlaceholder || (t('变量模式') + ' (' + t('如') + ' ' + t('{0} fileValue {1}', ['{{', '}}']) + ')')" 
-                 :disabled="data._disableValue" 
+               <el-input
+                 v-if="data.fileValueType === 'var' && !data._isTempFile"
+                 class="w-100"
+                 :model-value="data.value"
+                 :placeholder="data._valuePlaceholder || (t('变量模式') + ' (' + t('如') + ' ' + t('{0} fileValue {1}', ['{{', '}}']) + ')')"
+                 :disabled="data._disableValue"
                  data-testid="params-tree-file-var-input"
-                 @update:modelValue="v => handleChangeValue(v, data)" 
-                 @blur="handleBlurValue()" 
+                 @update:modelValue="v => handleChangeValue(v, data)"
+                 @blur="handleBlurValue()"
                  @paste="(event: ClipboardEvent) => handlePasteValueInput(event, data)"
                >
                </el-input>
                <div v-if="data.fileValueType === 'file'" class="file-mode-wrap">
-                 <label v-show="!data.value" class="label" :for="data._id" data-testid="params-tree-file-select-label">{{ t('选择文件') }}</label>
+                 <label v-show="!data.value" class="label" @click.prevent="handleSelectFile(data)" data-testid="params-tree-file-select-label">{{ t('选择文件') }}</label>
                  <span class="text-wrap" :title="data.value">{{ data.value }}</span>
                  <el-icon v-if="data.value" class="close" :size="16" data-testid="params-tree-file-clear-btn" @click="handleClearFileValue(data)">
                    <close />
                  </el-icon>
                </div>
-               <div 
-                 v-if="data.fileValueType === 'file' || data.fileValueType === 'var'" 
-                 class="toggle-mode" 
-                 :title="t('切换变量选择模式，支持变量或者直接选择文件')" 
+               <div
+                 v-if="data.fileValueType === 'file' || data.fileValueType === 'var'"
+                 class="toggle-mode"
+                 :title="t('切换变量选择模式，支持变量或者直接选择文件')"
                  data-testid="params-tree-file-toggle-btn"
                  @click="handleToggleFileValueType(data)"
                >
@@ -268,42 +268,34 @@
                    <Switch />
                  </el-icon>
                </div>
-               <input 
-                 :id="data._id" 
-                 ref="fileInput" 
-                 class="d-none" 
-                 type="file" 
-                 data-testid="params-tree-file-input"
-                 @change="e => handleSelectFile(e, data)"
-               >
-               </input>
+
              </div>
              <div v-if="data._error" class="file-error">{{ data._error }}</div>
            </div>
            <!-- 参数是否必有 -->
-           <el-checkbox 
-             class="pr-2" 
-             :model-value="data.required" 
-             :label="t('必有')" 
-             :disabled="data.disabled" 
+           <el-checkbox
+             class="pr-2"
+             :model-value="data.required"
+             :label="t('必有')"
+             :disabled="data.disabled"
              data-testid="params-tree-required-checkbox"
-             @update:modelValue="v => handleChangeRequired(v as unknown as boolean, data)"
+             @update:modelValue="(v: string | number | boolean) => handleChangeRequired(v === true, data)"
            >
            </el-checkbox>
            <!-- 参数备注 -->
            <div class="w-30" @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
-             <el-input 
-               class="w-100" 
-               :model-value="data.description" 
-               :type="expandedInputs[data._id]?.description ? 'textarea' : 'text'" 
-               :autosize="expandedInputs[data._id]?.description ? { minRows: 2, maxRows: 6 } : undefined" 
-               :placeholder="t('参数描述与备注')" 
-               :disabled="data._disableDescription" 
+             <el-input
+               class="w-100"
+               :model-value="data.description"
+               :type="expandedInputs[data._id]?.description ? 'textarea' : 'text'"
+               :autosize="expandedInputs[data._id]?.description ? { minRows: 2, maxRows: 6 } : undefined"
+               :placeholder="t('参数描述与备注')"
+               :disabled="data._disableDescription"
                data-testid="params-tree-description-input"
-               @focus="handleFocusDescription(data)" 
-               @blur="handleEnableDrag()" 
-               @update:modelValue="v => handleChangeDescription(v, data)" 
-               @keydown="handlePreventDefaultKeys" 
+               @focus="handleFocusDescription(data)"
+               @blur="handleEnableDrag()"
+               @update:modelValue="v => handleChangeDescription(v, data)"
+               @keydown="handlePreventDefaultKeys"
                @paste="(event: ClipboardEvent) => handlePasteDescription(event, data)"
              >
              </el-input>
@@ -523,10 +515,10 @@ const handlePasteValueInput = async (event: ClipboardEvent, data: ApidocProperty
     return;
   }
   const text = clipboardData.getData('text').trim();
-  // 检查是否超过阈值且是在 Electron 环境
-  if (text.length > config.httpNodeConfig.tempFileSizeThreshold && window.electronAPI?.tempFileManager) {
+  // 检查是否超过阈值且是在 Tauri 环境
+  if (text.length > config.httpNodeConfig.tempFileSizeThreshold && window.desktopAPI?.tempFileManager) {
     event.preventDefault();
-    const result = await window.electronAPI.tempFileManager.create(text);
+    const result = await window.desktopAPI.tempFileManager.create(text);
     if (result.code === 0) {
       data.value = result.data.path;
       data._isTempFile = true;
@@ -554,9 +546,9 @@ const handleRichInputPaste = () => {
 // 富文本输入粘贴前检查大数据
 const handleBeforePasteValue = async (text: string, shouldPrevent: { value: boolean }, data: ApidocProperty<'string' | 'file'>) => {
   const trimmedText = text.trim();
-  if (trimmedText.length > config.httpNodeConfig.tempFileSizeThreshold && window.electronAPI?.tempFileManager) {
+  if (trimmedText.length > config.httpNodeConfig.tempFileSizeThreshold && window.desktopAPI?.tempFileManager) {
     shouldPrevent.value = true;
-    const result = await window.electronAPI.tempFileManager.create(trimmedText);
+    const result = await window.desktopAPI.tempFileManager.create(trimmedText);
     if (result.code === 0) {
       data.value = result.data.path;
       data._isTempFile = true;
@@ -770,8 +762,8 @@ const handleSelectMockValue = (item: { source: 'variable' | 'mockjs' | 'faker', 
 */
 // 清除临时文件
 const handleClearTempFile = (data: ApidocProperty<'string' | 'file'>) => {
-  if (data._isTempFile && data.value && window.electronAPI?.tempFileManager) {
-    window.electronAPI.tempFileManager.delete(data.value);
+  if (data._isTempFile && data.value && window.desktopAPI?.tempFileManager) {
+    window.desktopAPI.tempFileManager.delete(data.value);
   }
   data.value = '';
   data._isTempFile = undefined;
@@ -785,8 +777,8 @@ const handleClearTempFile = (data: ApidocProperty<'string' | 'file'>) => {
 */
 // 切换文件值类型
 const handleToggleFileValueType = (data: ApidocProperty<'string' | 'file'>) => {
-  if (data._isTempFile && data.value && window.electronAPI?.tempFileManager) {
-    window.electronAPI.tempFileManager.delete(data.value);
+  if (data._isTempFile && data.value && window.desktopAPI?.tempFileManager) {
+    window.desktopAPI.tempFileManager.delete(data.value);
   }
   data.fileValueType = data.fileValueType === 'var' ? 'file' : 'var';
   data.value = '';
@@ -800,22 +792,15 @@ const handleClearFileValue = (data: ApidocProperty<'string' | 'file'>) => {
   emitChange();
 };
 // 选择文件
-const handleSelectFile = (e: Event, data: ApidocProperty<'string' | 'file'>) => {
-  const files = (e.target as HTMLInputElement).files;
-  if (!files || files.length === 0) {
-    data.value = '';
-    emitChange();
-    return;
-  }
-  const f = files[0];
-  const path = window.electronAPI?.fileManager.getFilePath(f);
-  if (!path) {
+const handleSelectFile = async (data: ApidocProperty<'string' | 'file'>) => {
+  try {
+    const file = await window.desktopAPI?.fileManager.selectFile();
+    if (!file) return;
+    data._error = '';
+    data.value = file.path;
+  } catch {
     data._error = t('未能读取文件路径');
-    emitChange();
-    return;
   }
-  data._error = '';
-  data.value = path;
   emitChange();
 };
 /*
@@ -864,8 +849,8 @@ const handleDeleteRow = (data: ApidocProperty<'string' | 'file'>) => {
     return;
   }
   // 如果是临时文件，清理临时文件
-  if (data._isTempFile && data.value && window.electronAPI?.tempFileManager) {
-    window.electronAPI.tempFileManager.delete(data.value);
+  if (data._isTempFile && data.value && window.desktopAPI?.tempFileManager) {
+    window.desktopAPI.tempFileManager.delete(data.value);
   }
   const idx = localData.value.findIndex(i => i._id === data._id);
   if (idx > -1) {

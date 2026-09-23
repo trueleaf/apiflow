@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
@@ -18,6 +18,8 @@ test.describe('ResponseBasicInfo', () => {
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
+    await contentPage.getByTestId('http-params-layout-dropdown').click();
+    await contentPage.getByText('左右布局', { exact: true }).click();
     // 验证响应摘要区域存在
     const responseSummary = contentPage.locator('.response-summary-view');
     await expect(responseSummary).toBeVisible({ timeout: 5000 });
@@ -48,6 +50,8 @@ test.describe('ResponseBasicInfo', () => {
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
+    await contentPage.getByTestId('http-params-layout-dropdown').click();
+    await contentPage.getByText('左右布局', { exact: true }).click();
     // 测试200状态码 - 绿色
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
@@ -86,6 +90,8 @@ test.describe('ResponseBasicInfo', () => {
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
+    await contentPage.getByTestId('http-params-layout-dropdown').click();
+    await contentPage.getByText('左右布局', { exact: true }).click();
     // 发送快速响应请求
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
@@ -114,6 +120,8 @@ test.describe('ResponseBasicInfo', () => {
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
+    await contentPage.getByTestId('http-params-layout-dropdown').click();
+    await contentPage.getByText('左右布局', { exact: true }).click();
     // 发送请求
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();
@@ -142,6 +150,8 @@ test.describe('ResponseBasicInfo', () => {
     const confirmAddBtn = addFileDialog.locator('.el-button--primary').last();
     await confirmAddBtn.click();
     await contentPage.waitForTimeout(500);
+    await contentPage.getByTestId('http-params-layout-dropdown').click();
+    await contentPage.getByText('左右布局', { exact: true }).click();
     // 发送请求
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.click();

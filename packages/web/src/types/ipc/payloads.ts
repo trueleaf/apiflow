@@ -315,7 +315,7 @@ export interface IPCEventMap {
     response: string;
   };
 
-  [IPC_EVENTS.apiflow.rendererToMain.clearElectronStore]: {
+  [IPC_EVENTS.apiflow.rendererToMain.clearDesktopStore]: {
     request: void;
     response: boolean;
   };

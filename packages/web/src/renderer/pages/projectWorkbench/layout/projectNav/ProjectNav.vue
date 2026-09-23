@@ -344,7 +344,7 @@ const handleStartMockServer = async () => {
       projectId: router.currentRoute.value.query.id as string,
     };
     
-    const result = await window.electronAPI?.mock?.startServer(JSON.parse(JSON.stringify(mockDataWithProject)));
+    const result = await window.desktopAPI?.mock?.startServer(JSON.parse(JSON.stringify(mockDataWithProject)));
     if (result?.code === 0) {
       isMockServerRunning.value = true;
       eventEmitter.emit('mock/server/statusChanged', { nodeId: currentOperationNode.value._id, status: 'running' });
@@ -362,7 +362,7 @@ const handleStartMockServer = async () => {
 const handleStopMockServer = async () => {
   if (!currentOperationNode.value) return;
   try {
-    const result = await window.electronAPI?.mock?.stopServer(currentOperationNode.value._id);
+    const result = await window.desktopAPI?.mock?.stopServer(currentOperationNode.value._id);
     if (result?.code === 0) {
       isMockServerRunning.value = false;
       eventEmitter.emit('mock/server/statusChanged', { nodeId: currentOperationNode.value._id, status: 'stopped' });
@@ -398,7 +398,7 @@ const handleStartWsMockServer = async () => {
       ...mockData,
       projectId: router.currentRoute.value.query.id as string,
     };
-    const result = await window.electronAPI?.websocketMock?.startServer(JSON.parse(JSON.stringify(mockDataWithProject)));
+    const result = await window.desktopAPI?.websocketMock?.startServer(JSON.parse(JSON.stringify(mockDataWithProject)));
     if (result?.code === 0) {
       isWsMockServerRunning.value = true;
       ElMessage.success(t('启动mock成功'));
@@ -413,7 +413,7 @@ const handleStartWsMockServer = async () => {
 const handleStopWsMockServer = async () => {
   if (!currentOperationNode.value) return;
   try {
-    const result = await window.electronAPI?.websocketMock?.stopServer(currentOperationNode.value._id);
+    const result = await window.desktopAPI?.websocketMock?.stopServer(currentOperationNode.value._id);
     if (result?.code === 0) {
       isWsMockServerRunning.value = false;
     } else {

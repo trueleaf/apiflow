@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../fixtures/desktop-online.fixture';
 
 test.describe('BannerNavInteraction', () => {
   // 测试用例1: 单击左侧非folder类型节点,右侧导航栏会新增一个tab页签,并且页签为非固定状态,页签中字体为斜体

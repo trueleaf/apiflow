@@ -87,6 +87,7 @@
           </div>
         </template>
       </ClRichInput>
+      <el-button :icon="Sparkles" data-testid="url-ai-parser" @click="openAiParser()">{{ t('AI 解析') }}</el-button>
       <el-button 
         v-if="requestState === 'waiting' || requestState === 'finish'" 
         type="success" 
@@ -110,13 +111,16 @@
     </div>
   </div>
   <SSaveDocDialog v-if="saveDocDialogVisible" v-model="saveDocDialogVisible"></SSaveDocDialog>
+  <AiRequestParser v-if="aiParserVisible" mode="request" :initial-text="aiParserText" @close="aiParserVisible = false" />
 </template>
 
 <script lang="ts" setup>
 import { computed, ref, watch, reactive } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
-import { CircleAlert, RefreshCw } from 'lucide-vue-next'
+import { CircleAlert, RefreshCw, Sparkles } from 'lucide-vue-next'
+import AiRequestParser from '../components/AiRequestParser.vue'
+import { isNaturalLanguageRequest } from '@/helper/aiRequestParser'
 import { Effect, ElMessage } from 'element-plus'
 import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 import { config } from '@src/config/config'
@@ -155,6 +159,13 @@ const urlRichInputRef = ref<InstanceType<typeof ClRichInput> | null>(null)
 const quickVariableValue = ref('')
 const quickVariableLabel = ref('')
 const quickVariableSaving = ref(false)
+const aiParserVisible = ref(false)
+const aiParserText = ref('')
+// 打开自然语言请求解析
+const openAiParser = (text = '') => {
+  aiParserText.value = text || (isNaturalLanguageRequest(httpNodeStore.httpNodeInfo.item.url.path) ? httpNodeStore.httpNodeInfo.item.url.path : '')
+  aiParserVisible.value = true
+}
 const currentSelectNav = computed(() => {
   const navs = projectNavStore.navs[projectId];
   return navs?.find((nav) => nav.selected) || null;
@@ -357,6 +368,11 @@ const handleBeforePaste = async (text: string, shouldPrevent: { value: boolean }
     } catch {
       urlRichInputRef.value?.insertText(text, false)
     }
+    return
+  }
+  if (isNaturalLanguageRequest(text)) {
+    shouldPrevent.value = true
+    openAiParser(text)
     return
   }
   const restoredUrl = restoreUrlVariableOnPaste(text, requestPath.value, variableStore.objectVariable)

@@ -1,6 +1,6 @@
-import { test, expect } from '../../../fixtures/electron.fixture'
+import { test, expect } from '../../../fixtures/desktop.fixture'
 
-test('旧消息迁移后重开面板保留回答，刷新恢复中断与过期审批，清理不残留会话数据', async ({ electronApp, topBarPage, contentPage, clearCache }) => {
+test('旧消息迁移后重开面板保留回答，刷新恢复中断与过期审批，清理不残留会话数据', async ({ desktopApp, topBarPage, contentPage, clearCache }) => {
   test.setTimeout(90000)
   await clearCache()
   await contentPage.evaluate(() => {
@@ -15,10 +15,10 @@ test('旧消息迁移后重开面板保留回答，刷新恢复中断与过期�
   await expect(panel).not.toContainText('旧工具不得恢复执行')
   expect(await contentPage.evaluate(() => localStorage.getItem('apiflow/ai/conversation-v2'))).toBeNull()
   // 按逆序发送序列，随后刷新，验证事件排序与未完成审批恢复
-  await electronApp.evaluate(({ webContents }) => {
-    const target = webContents.getAllWebContents().find(item => item.getURL().includes('index.html') && !item.getURL().includes('mcp.html'))
+  await contentPage.evaluate(() => {
+
     const events = [{ type: 'run-state', state: 'running' }, { type: 'text', phase: 'delta', text: '有序内容' }, { type: 'approval', toolCallId: 'cache-tool', toolName: 'applyChangeSet', approvalId: 'cache-approval', state: 'requested' }, { type: 'run-state', state: 'waiting_approval' }]
-    events.map((event, index) => ({ ...event, eventId: `cache-${index}`, conversationId: 'migrated-agent', runId: 'cache-run', messageId: 'cache-message', sequence: index + 1, createdAt: 100 + index })).reverse().forEach(event => target?.send('ai:main:to:renderer:event', { event }))
+    events.map((event, index) => ({ ...event, eventId: `cache-${index}`, conversationId: 'migrated-agent', runId: 'cache-run', messageId: 'cache-message', sequence: index + 1, createdAt: 100 + index })).reverse().forEach(event => (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:event', payload: { event } } }))
   })
   await expect(panel.locator('.ai-approval-message').getByRole('button', { name: '允许', exact: true })).toBeVisible()
   await contentPage.reload()
@@ -38,14 +38,14 @@ test('旧消息迁移后重开面板保留回答，刷新恢复中断与过期�
   expect(remaining).not.toMatch(/旧问题|旧回答|cache-approval|有序内容/)
 })
 
-test('会话事件缓存限制条数和字节数并清除敏感工具参数', async ({ electronApp, topBarPage, contentPage }) => {
+test('会话事件缓存限制条数和字节数并清除敏感工具参数', async ({ desktopApp, topBarPage, contentPage }) => {
   test.setTimeout(90000)
   await topBarPage.getByTestId('header-ai-btn').click()
   await expect(contentPage.locator('.ai-dialog')).toBeVisible()
-  await electronApp.evaluate(({ webContents }) => {
-    const target = webContents.getAllWebContents().find(item => item.getURL().includes('index.html') && !item.getURL().includes('mcp.html'))
-    for (let index = 0; index < 520; index += 1) target?.send('ai:main:to:renderer:event', { event: { eventId: `capacity-${index}`, conversationId: 'capacity-conversation', runId: 'capacity-run', messageId: 'capacity-message', sequence: index + 1, createdAt: Date.now(), type: 'tool', toolCallId: `capacity-tool-${index}`, toolName: 'searchNodes', title: 'Cache', state: 'success', input: { password: 'cache-sensitive-input' }, displayData: { token: 'cache-sensitive-output' } } })
-    target?.send('ai:main:to:renderer:event', { event: { eventId: 'capacity-finish', conversationId: 'capacity-conversation', runId: 'capacity-run', messageId: 'capacity-message', sequence: 521, createdAt: Date.now(), type: 'run-state', state: 'completed' } })
+  await contentPage.evaluate(() => {
+
+    for (let index = 0; index < 520; index += 1) (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:event', payload: { event: { eventId: `capacity-${index}`, conversationId: 'capacity-conversation', runId: 'capacity-run', messageId: 'capacity-message', sequence: index + 1, createdAt: Date.now(), type: 'tool', toolCallId: `capacity-tool-${index}`, toolName: 'searchNodes', title: 'Cache', state: 'success', input: { password: 'cache-sensitive-input' }, displayData: { token: 'cache-sensitive-output' } } } } })
+    (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:event', payload: { event: { eventId: 'capacity-finish', conversationId: 'capacity-conversation', runId: 'capacity-run', messageId: 'capacity-message', sequence: 521, createdAt: Date.now(), type: 'run-state', state: 'completed' } } } })
   })
   await expect.poll(async () => contentPage.evaluate(async () => {
     const db = await new Promise<IDBDatabase>(resolve => { const request = indexedDB.open('agentDataCache'); request.onsuccess = () => resolve(request.result) })

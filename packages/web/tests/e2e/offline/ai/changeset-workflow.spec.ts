@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron.fixture'
+import { test, expect } from '../../../fixtures/desktop.fixture'
 
 test('项目中的创建、修改、变量、请求头、删除和恢复均经过 ChangeSet 审批', async ({ topBarPage, contentPage, clearCache, createProject, createNode }) => {
   test.setTimeout(120000)

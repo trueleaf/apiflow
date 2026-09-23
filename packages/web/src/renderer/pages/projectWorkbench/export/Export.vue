@@ -164,7 +164,7 @@ const handleExportAsHTML = async () => {
     const cpExportHtmlParams = JSON.parse(JSON.stringify(exportHtmlParams));
 
     try {
-      const exportHtml = window.electronAPI?.exportHtml
+      const exportHtml = window.desktopAPI?.exportHtml
       const htmlContent = exportHtml
         ? await exportHtml(cpExportHtmlParams)
         : await buildStandaloneShareHtml(cpExportHtmlParams)
@@ -275,7 +275,7 @@ const handleExportAsWord = async () => {
 
     const cpExportHtmlParams = JSON.parse(JSON.stringify(exportHtmlParams));
     try {
-      const exportWord = window.electronAPI?.exportWord
+      const exportWord = window.desktopAPI?.exportWord
       const blob = exportWord
         ? new Blob([await exportWord(cpExportHtmlParams)], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
         : await buildStandaloneWordBlob(cpExportHtmlParams)

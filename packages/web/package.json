@@ -8,7 +8,7 @@
   "version": "0.9.51",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "node scripts/tauri.mjs dev",
     "web": "cross-env BUILD_TARGET=web vite --host",
     "share": "vite --host --config build/share/vite.config.ts",
     "build:share": "vite build --config build/share/vite.config.ts && node scripts/move-share-html.mjs",
@@ -16,65 +16,62 @@
     "preview": "vite preview",
     "build:font": "node build/share/script/build-font.mjs",
     "type-check": "vue-tsc -p tsconfig.app.json --noEmit",
-    "build:ci:pack": "vite build && electron-builder --dir",
-    "build:ci": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder",
-    "build:ci:win": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && node scripts/build-electron.mjs win",
-    "build:ci:mac": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && node scripts/build-electron.mjs mac",
-    "build:ci:linux": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && node scripts/build-electron.mjs linux",
+    "build:ci:pack": "node scripts/tauri.mjs build --no-bundle",
+    "build:ci": "node scripts/tauri.mjs build",
+    "build:ci:win": "node scripts/tauri.mjs build",
+    "build:ci:mac": "node scripts/tauri.mjs build",
+    "build:ci:linux": "node scripts/tauri.mjs build",
     "build:clean": "node scripts/build-clean.mjs",
     "build:clean:pack": "node scripts/build-clean.mjs pack",
     "build:clean:win": "node scripts/build-clean.mjs win",
     "build:clean:mac": "node scripts/build-clean.mjs mac",
     "build:clean:linux": "node scripts/build-clean.mjs linux",
-    "build:local:pack": "vite build && electron-builder --dir",
-    "build:local:win": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --win --publish never",
-    "build:local:win:store": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --win appx --publish never",
-    "build:ci:win:store": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --win appx",
-    "build:local:mac": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --mac --publish never",
-    "build:local:linux": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --linux --publish never",
+    "build:local:pack": "node scripts/tauri.mjs build --no-bundle",
+    "build:local:win": "node scripts/tauri.mjs build",
+    "build:local:win:store": "node scripts/build-store.mjs",
+    "build:ci:win:store": "node scripts/build-store.mjs",
+    "build:local:mac": "node scripts/tauri.mjs build",
+    "build:local:linux": "node scripts/tauri.mjs build",
     "test": "npm run test:e2e",
     "test2": "npm run test:e2e:ui",
-    "pretest:e2e": "vite build",
+    "pretest:e2e": "node scripts/tauri.mjs build --debug --no-bundle --config src-tauri/tauri.test.conf.json",
     "pretest:e2e:web": "cross-env BUILD_TARGET=web vite build --outDir dist/web-test",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:report": "playwright show-report",
-    "test:e2e:trace": "playwright test --project=electron-trace",
+    "test:e2e:trace": "playwright test --trace on",
     "test:e2e:trace:show": "playwright show-trace",
-    "test:e2e:build": "vite build",
-    "release:test": "node scripts/serve-update.mjs"
+    "test:e2e:build": "npm run pretest:e2e",
+    "release:test": "node scripts/serve-update.mjs",
+    "tauri": "node scripts/tauri.mjs",
+    "tauri:dev": "node scripts/tauri.mjs dev",
+    "tauri:build": "node scripts/tauri.mjs build",
+    "dev:renderer:tauri": "cross-env BUILD_TARGET=tauri vite --host",
+    "build:renderer:tauri": "cross-env BUILD_TARGET=tauri vite build",
+    "test:native": "node scripts/cargo.mjs test --manifest-path src-tauri/Cargo.toml"
   },
   "dependencies": {
     "@ai-sdk/deepseek": "2.0.62",
     "@ai-sdk/openai-compatible": "2.0.74",
     "@faker-js/faker": "^10.0.0",
-    "@koa/bodyparser": "^6.0.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "@tauri-apps/api": "^2.11.1",
     "ai": "6.0.273",
     "dayjs": "^1.11.12",
-    "detect-port": "^2.1.0",
     "docx": "^9.5.1",
     "dotenv": "^17.2.3",
-    "electron-store": "^11.0.2",
     "file-type": "^19.6.0",
-    "form-data": "^4.0.1",
-    "got": "^14.4.3",
-    "ip": "^2.0.1",
     "js-sha256": "^0.11.1",
     "js-yaml": "^4.1.1",
     "json-stable-stringify": "^1.2.1",
     "json5": "^2.2.3",
     "jszip": "^3.10.1",
-    "koa": "^3.0.1",
     "mime": "^4.0.6",
-    "mime-types": "^3.0.1",
     "mockjs": "^1.1.0",
     "nanoid": "^5.0.7",
     "set-cookie-parser": "^2.7.1",
-    "sharp": "^0.34.4",
-    "ws": "^8.18.3",
     "zod": "4.5.4"
   },
   "devDependencies": {
@@ -82,6 +79,7 @@
     "@koa/multer": "^4.0.0",
     "@koa/router": "^14.0.0",
     "@playwright/test": "^1.57.0",
+    "@tauri-apps/cli": "^2.11.5",
     "@tiptap/core": "^3.3.0",
     "@tiptap/extension-history": "^3.3.0",
     "@tiptap/extension-link": "^3.11.0",
@@ -90,9 +88,6 @@
     "@tiptap/extension-task-list": "^3.11.0",
     "@tiptap/starter-kit": "^3.3.0",
     "@tiptap/vue-3": "^3.3.0",
-    "@types/detect-port": "^2.0.0",
-    "@types/got": "^9.6.12",
-    "@types/ip": "^1.1.3",
     "@types/js-beautify": "^1.14.3",
     "@types/js-cookie": "^3.0.6",
     "@types/js-yaml": "^4.0.9",
@@ -101,7 +96,6 @@
     "@types/lodash": "^4.17.7",
     "@types/lodash-es": "^4.17.12",
     "@types/markdown-it": "^14.1.2",
-    "@types/mime-types": "^3.0.1",
     "@types/mockjs": "^1.0.10",
     "@types/node": "^24.6.2",
     "@types/nprogress": "^0.2.3",
@@ -112,14 +106,9 @@
     "@vitejs/plugin-vue-jsx": "^5.1.3",
     "@vue/tsconfig": "^0.7.0",
     "axios": "^1.7.3",
-    "chokidar": "^4.0.1",
     "cross-env": "^10.1.0",
     "dexie": "^4.0.8",
-    "electron": "^32.3.3",
-    "electron-builder": "^26.4.0",
-    "electron-updater": "^6.7.3",
     "element-plus": "^2.11.1",
-    "esbuild": "^0.25.8",
     "eslint": "^9.8.0",
     "fast-glob": "^3.3.3",
     "franc-min": "^6.2.0",
@@ -148,173 +137,19 @@
     "typescript": "~5.6.2",
     "unplugin-auto-import": "^20.2.0",
     "unplugin-vue-components": "^29.1.0",
-    "vite": "8.0.0-beta.5",
-    "vite-plugin-singlefile": "^2.3.0",
+    "vite": "^8.3.0",
+    "vite-plugin-singlefile": "^2.3.3",
     "vue": "^3.5.25",
     "vue-i18n": "^10.0.8",
     "vue-markdown-render": "^2.3.0",
     "vue-router": "^4.4.2",
     "vue-tsc": "^2.1.10",
     "vuedraggable": "^4.1.0",
-    "vuex": "^4.1.0"
-  },
-  "main": "dist/main/main.mjs",
-  "build": {
-    "productName": "ApiFlow",
-    "appId": "cn.apiflow",
-    "copyright": "Copyright © 2025 TrueLeaf Team",
-    "directories": {
-      "app": ".",
-      "buildResources": "build",
-      "output": "release"
-    },
-    "asarUnpack": [
-      "node_modules/sharp/**/*"
-    ],
-    "files": [
-      "dist/main/**/*",
-      "dist/renderer/**/*",
-      "package.json"
-    ],
-    "extraResources": [
-      {
-        "from": "public/icons",
-        "to": "icons"
-      }
-    ],
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
-        {
-          "target": "appx",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ],
-      "icon": "public/icons/icon.ico",
-      "artifactName": "${productName}-${version}-${arch}.${ext}",
-      "requestedExecutionLevel": "asInvoker"
-    },
-    "appx": {
-      "applicationId": "TrueLeaf.ApiFlow",
-      "identityName": "TrueLeaf.ApiFlow",
-      "publisher": "CN=21922134-321C-42D0-80D1-D57E1992206A",
-      "publisherDisplayName": "orange pig",
-      "displayName": "ApiFlow",
-      "backgroundColor": "#ffffff",
-      "showNameOnTiles": true,
-      "languages": [
-        "zh-CN",
-        "en-US"
-      ],
-      "addAutoLaunchExtension": false
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "ApiFlow"
-    },
-    "mac": {
-      "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
-        {
-          "target": "zip",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ],
-      "icon": "public/icons/icon.icns",
-      "category": "public.app-category.developer-tools",
-      "artifactName": "${productName}-${version}-${arch}.${ext}",
-      "hardenedRuntime": true,
-      "gatekeeperAssess": false,
-      "entitlements": "build/entitlements.mac.plist",
-      "entitlementsInherit": "build/entitlements.mac.plist",
-      "notarize": false
-    },
-    "dmg": {
-      "title": "${productName} ${version}",
-      "icon": "public/icons/icon.icns",
-      "window": {
-        "width": 540,
-        "height": 380
-      },
-      "contents": [
-        {
-          "x": 410,
-          "y": 150,
-          "type": "link",
-          "path": "/Applications"
-        },
-        {
-          "x": 130,
-          "y": 150,
-          "type": "file"
-        }
-      ]
-    },
-    "linux": {
-      "maintainer": "TrueLeaf Team <2581105856@qq.com>",
-      "target": [
-        {
-          "target": "AppImage",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
-        {
-          "target": "deb",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ],
-      "icon": "public/icons",
-      "category": "Development",
-      "artifactName": "${productName}-${version}-${arch}.${ext}",
-      "desktop": {
-        "entry": {
-          "Name": "ApiFlow",
-          "Comment": "Visual API design tool",
-          "Categories": "Development;IDE;",
-          "Keywords": "api;design;development;rest;graphql;"
-        }
-      }
-    },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "trueleaf",
-        "repo": "apiflow"
-      }
-    ]
+    "vuex": "^4.1.0",
+    "koa": "^3.0.1",
+    "ws": "^8.18.3"
   },
   "engines": {
-    "node": ">=20.19.0"
-  },
-  "overrides": {
-    "vite-plugin-singlefile": {
-      "vite": "8.0.0-beta.5"
-    }
+    "node": ">=22.12.0"
   }
 }

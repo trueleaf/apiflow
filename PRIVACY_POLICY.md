@@ -203,7 +203,7 @@ When you enable analytics in the web version of Apiflow (online mode only), we u
 **Automatic Disabling**: Analytics is automatically disabled in the following scenarios:
 - Development mode
 - Offline mode
-- Desktop application (Electron version)
+- Desktop application (Tauri version)
 - When you explicitly disable it in settings
 
 ### 7.3 Data Processing

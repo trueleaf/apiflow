@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { test, expect } from '../../../../fixtures/electron.fixture'
+import { test, expect } from '../../../../fixtures/desktop.fixture'
 
 test.describe('SettingsBackupRestore', () => {
   // 本地数据管理覆盖备份导出与恢复导入核心流程，确保导出可执行、非法备份可拦截

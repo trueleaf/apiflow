@@ -5,7 +5,7 @@ import { HttpNode, ApidocProperty, ApidocVariable } from '@src/types';
 import { getFormDataFromFormDataParams, getObjectPathParams, getStringFromParams, safeDecodeURIComponent, getObjectVariable } from '@/helper'
 import { getCompiledTemplate } from '@/helper';
 import { useVariable } from '@/store/projectWorkbench/variablesStore';
-import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/index.ts';
+import { HttpRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/index.ts';
 import { computeCommonHeaderEffect, useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore';
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
@@ -22,12 +22,12 @@ import { useHttpNodeRequest } from '@/store/httpNode/httpNodeRequestStore';
 import { i18n } from '@/i18n';
 import { useCookies } from '@/store/projectWorkbench/cookiesStore';
 import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/httpNodePreRequest/types/types.ts';
-import { Method } from 'got';
+import type { Method } from '@src/types/request';
 import { parse } from 'set-cookie-parser';
 import preRequestWorker from '@/worker/httpNodePreRequest/httpNodePreRequest.ts?worker&inline';
 import { WebSocketNode } from '@src/types/websocketNode';
 import { useRuntime } from '@/store/runtime/runtimeStore';
-import { isElectron } from '@/helper';
+import { isDesktop } from '@/helper';
 import { trackEvent } from '@/utils/analytics';
 import { webRequest } from './request.web';
 import { executeHttpAfterScript } from './executeAfterScript';
@@ -352,7 +352,7 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
   // console.log('最终WebSocket请求头', headersObject);
   return headersObject;
 };
-const getBody = async (apidoc: HttpNode, temporaryVariables?: Record<string, unknown> | null): Promise<GotRequestOptions['body']> => {
+const getBody = async (apidoc: HttpNode, temporaryVariables?: Record<string, unknown> | null): Promise<HttpRequestOptions['body']> => {
   const { changeResponseInfo, changeRequestState } = useHttpNodeResponse()
   const variables = getMergedTemplateVariables(temporaryVariables, apidoc._id);
   const objectVariable = await getObjectVariable(variables)
@@ -722,7 +722,7 @@ export const sendRequest = async (options?: { abortSignal?: AbortSignal }) => {
     }
 
     //构建请求参数
-    const requestOptions: GotRequestOptions = {
+    const requestOptions: HttpRequestOptions = {
       url,
       method,
       timeout: 60000,
@@ -941,9 +941,9 @@ export const sendRequest = async (options?: { abortSignal?: AbortSignal }) => {
 
     //根据环境选择请求方式
     if (options?.abortSignal?.aborted) { cleanup(); return; }
-    if (isElectron()) {
-      //Electron模式：使用IPC调用主进程
-      window.electronAPI?.sendRequest(requestOptions);
+    if (isDesktop()) {
+      //Tauri模式：使用IPC调用主进程
+      window.desktopAPI?.sendRequest(requestOptions);
     } else {
       //Web模式：使用服务端代理
       await webRequest(requestOptions);
@@ -1129,9 +1129,9 @@ export const sendRequest = async (options?: { abortSignal?: AbortSignal }) => {
       try {
         let response;
         //根据环境选择请求方式
-        if (isElectron()) {
-          //Electron模式：使用IPC调用主进程的afHttpRequest
-          response = await window.electronAPI?.afHttpRequest(options);
+        if (isDesktop()) {
+          //Tauri模式：使用IPC调用主进程的afHttpRequest
+          response = await window.desktopAPI?.afHttpRequest(options);
         } else {
           //Web模式：使用webRequest (前置脚本中的HTTP请求也通过代理)
           //注意：这里需要将回调式API转换为Promise式
@@ -1153,7 +1153,7 @@ export const sendRequest = async (options?: { abortSignal?: AbortSignal }) => {
               onError: (err: Error) => {
                 reject(err);
               }
-            } as unknown) as GotRequestOptions;
+            } as unknown) as HttpRequestOptions;
             webRequest(requestOptions);
           });
         }

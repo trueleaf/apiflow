@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture'
+import { test, expect } from '../../../../../../fixtures/desktop.fixture'
 
 test.describe('WebSocketHeadersUndo', () => {
   // 添加Header后点击撤销恢复

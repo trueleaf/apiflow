@@ -23,6 +23,7 @@ test-results/
 test-results2/
 playwright-report/
 playwright/.cache/
+.playwright-cli/
 output/
 
 # Editor directories and files

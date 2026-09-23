@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron.fixture'
+import { test, expect } from '../../../fixtures/desktop.fixture'
 
 for (const mode of ['ask', 'agent']) {
   test(`${mode} 根据中英文和日文输入传递语言指令并展示对应生成内容`, async ({ topBarPage, contentPage }) => {

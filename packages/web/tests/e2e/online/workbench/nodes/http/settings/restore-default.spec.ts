@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop-online.fixture';
 
 test.describe('RestoreDefault', () => {
   // 测试用例1: 点击恢复默认按钮,所有配置项恢复为默认值

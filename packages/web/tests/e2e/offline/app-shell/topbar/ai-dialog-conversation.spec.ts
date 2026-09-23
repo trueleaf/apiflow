@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture'
+import { test, expect } from '../../../../fixtures/desktop.fixture'
 
 test.describe('Ask 离线运行边界', () => {
   test('Ask 支持流式回答、停止、第二轮上下文，并在切换在线后拒绝执行', async ({ topBarPage, contentPage, clearCache }) => {
@@ -38,7 +38,7 @@ test.describe('Ask 离线运行边界', () => {
     await expect(topBarPage.getByTestId('header-ai-btn')).toHaveCount(0)
     await expect(dialog).toBeHidden()
     const rejected = await contentPage.evaluate(async () => {
-      const manager = window.electronAPI?.aiManager
+      const manager = window.desktopAPI?.aiManager
       if (!manager) return null
       return await manager.run({
         conversationId: 'online-conversation', runId: 'online-run', messageId: 'online-message', mode: 'ask', prompt: 'must reject', history: [],

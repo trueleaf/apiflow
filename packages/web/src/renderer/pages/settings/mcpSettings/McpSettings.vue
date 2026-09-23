@@ -148,7 +148,7 @@ const syncForm = (nextStatus: McpStatus) => {
 const refreshStatus = async () => {
   loading.value = true
   try {
-    const nextStatus = await window.electronAPI?.mcpManager.getStatus()
+    const nextStatus = await window.desktopAPI?.mcpManager.getStatus()
     if (nextStatus) {
       syncForm(nextStatus)
     }
@@ -161,7 +161,7 @@ const refreshStatus = async () => {
 const saveSettings = async () => {
   saving.value = true
   try {
-    const nextStatus = await window.electronAPI?.mcpManager.updateSettings({
+    const nextStatus = await window.desktopAPI?.mcpManager.updateSettings({
       enabled: form.enabled,
       port: form.port,
       readOnly: form.readOnly,
@@ -180,7 +180,7 @@ const saveSettings = async () => {
 const restartService = async () => {
   saving.value = true
   try {
-    const nextStatus = await window.electronAPI?.mcpManager.restart()
+    const nextStatus = await window.desktopAPI?.mcpManager.restart()
     if (!nextStatus) throw new Error(t('MCP 操作失败'))
     syncForm(nextStatus)
     if (nextStatus.serverState === 'error') message.error(nextStatus.errorMessage)

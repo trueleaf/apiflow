@@ -40,6 +40,10 @@ export class EnvironmentVariableCache {
       config.cacheConfig.environmentVariableCache.dbName,
       config.cacheConfig.environmentVariableCache.version,
       {
+        blocking: (_currentVersion, _blockedVersion, event) => {
+          (event.target as IDBDatabase).close();
+          this.db = null;
+        },
         upgrade(db) {
           if (!db.objectStoreNames.contains(config.cacheConfig.environmentVariableCache.storeName)) {
             const store = db.createObjectStore(config.cacheConfig.environmentVariableCache.storeName, { keyPath: 'id' })

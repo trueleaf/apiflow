@@ -1,7 +1,7 @@
-import { test, expect } from '../../../fixtures/electron.fixture'
+import { test, expect } from '../../../fixtures/desktop.fixture'
 import type { AgentToolResult } from '../../../../src/types/ai'
 
-test('ChangeSet 执行层拒绝未审批、重复、循环父子关系和并发修订冲突', async ({ electronApp, topBarPage, contentPage, createProject, createNode }) => {
+test('ChangeSet 执行层拒绝未审批、重复、循环父子关系和并发修订冲突', async ({ topBarPage, contentPage, createProject, createNode }) => {
   test.setTimeout(120000)
   await createProject('agent-e2e-guard')
   await createNode(contentPage, { nodeType: 'folder', name: 'agent-e2e-parent-a' })
@@ -69,17 +69,17 @@ test('ChangeSet 执行层拒绝未审批、重复、循环父子关系和并发�
         db.close()
       }, node._id)
     }
-    const result = await electronApp.evaluate(({ ipcMain, webContents }, payload) => new Promise<AgentToolResult>((resolve, reject) => {
-      const channel = 'ai:renderer:to:main:client-tool-result'
-      const timer = setTimeout(() => { ipcMain.removeListener(channel, receive); reject(new Error('Client command timeout')) }, 10000)
-      const receive = (_event: unknown, value: { commandId: string; result: AgentToolResult }) => {
-        if (value.commandId !== payload.commandId) return
-        clearTimeout(timer)
-        ipcMain.removeListener(channel, receive)
-        resolve(value.result)
-      }
-      ipcMain.on(channel, receive)
-      webContents.getAllWebContents().find(item => item.getURL().includes('index.html') && !item.getURL().includes('mcp.html'))?.send('ai:main:to:renderer:client-tool-command', payload)
+    const result = await contentPage.evaluate(payload => new Promise<AgentToolResult>((resolve, reject) => {
+      const manager = window.desktopAPI!.aiManager;
+      const original = manager.sendClientToolResult;
+      const timer = setTimeout(() => { manager.sendClientToolResult = original; reject(new Error('Client command timeout')); }, 10000);
+      manager.sendClientToolResult = value => {
+        if (value.commandId !== payload.commandId) { original(value); return; }
+        clearTimeout(timer);
+        manager.sendClientToolResult = original;
+        resolve(value.result);
+      };
+      void (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:client-tool-command', payload } });
     }), { eventId: `guard-${index}`, conversationId: 'guard-conversation', runId: 'guard-run', messageId: 'guard-message', sequence: index + 1, createdAt: Date.now(), type: 'client-tool-command', commandId: `guard-command-${index}`, toolCallId: `guard-tool-${index}`, toolName: command.name, input: command.name.includes('ChangeSet') || command.name === 'setChangeSetApproval' ? { ...command.input, changeSetId } : command.input })
     expect(result.success, `${command.name}: ${result.summary}`).toBe(command.success)
     if (command.error) expect(result.summary).toContain(command.error)

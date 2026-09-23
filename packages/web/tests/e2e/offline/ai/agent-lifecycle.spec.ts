@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron.fixture'
+import { test, expect } from '../../../fixtures/desktop.fixture'
 
 for (const scenario of [
   { name: 'Ask 停止后可以继续第二轮并保留上下文', mode: 'ask', model: 'ai-test-slow', prompt: '请先介绍接口设计', expected: '第二轮上下文完成', stop: true },
@@ -75,7 +75,7 @@ for (const decision of ['允许', '拒绝', '停止'] as const) {
     await expect(panel.locator('.ai-stop-btn')).toHaveCount(0)
     await expect(approval).toContainText(decision === '允许' ? '已批准' : decision === '拒绝' ? '已拒绝' : '审批已过期')
     for (let repeat = 0; repeat < 2; repeat += 1) {
-      const replay = await contentPage.evaluate(request => window.electronAPI!.aiManager.respondApproval(request), approvalRequest)
+      const replay = await contentPage.evaluate(request => window.desktopAPI!.aiManager.respondApproval(request), approvalRequest)
       expect(replay).toMatchObject({ accepted: false, errorCode: 'AI_APPROVAL_EXPIRED' })
     }
     const state = await contentPage.evaluate(async () => {

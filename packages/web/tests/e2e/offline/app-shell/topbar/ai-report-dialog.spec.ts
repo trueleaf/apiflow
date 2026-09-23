@@ -1,32 +1,10 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/desktop.fixture';
 
 test.describe('AiReportDialog', () => {
   // AI 弹窗在应用商店态下可打开举报弹窗，并完成复制邮箱与关闭流程
-  test('离线模式下 AI 举报弹窗支持显示复制与关闭', async ({ electronApp, topBarPage, contentPage, clearCache }) => {
+  test('离线模式下 AI 举报弹窗支持显示复制与关闭', async ({ topBarPage, contentPage, clearCache }) => {
     await clearCache();
-    // 尝试切换 AppStore 判定态；若运行环境不支持，后续按真实环境结果决定是否跳过
-    await electronApp.evaluate(() => {
-      const mainProcess = process as NodeJS.Process & { windowsStore?: boolean; mas?: boolean };
-      try {
-        Object.defineProperty(mainProcess, 'windowsStore', {
-          value: true,
-          configurable: true,
-          writable: true
-        });
-      } catch {
-        try {
-          Object.defineProperty(mainProcess, 'mas', {
-            value: true,
-            configurable: true,
-            writable: true
-          });
-        } catch {
-          return;
-        }
-      }
-    });
-    await contentPage.reload();
-    await contentPage.waitForLoadState('domcontentloaded');
+    await contentPage.evaluate(() => { window.desktopAPI!.updateManager.isAppStore = async () => true; });
     // 打开 AI 弹窗并检查举报入口是否可见
     const aiBtn = topBarPage.locator('[data-testid="header-ai-btn"]');
     await aiBtn.click();

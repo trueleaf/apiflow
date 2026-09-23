@@ -213,7 +213,7 @@ onUnmounted(() => {
   handleCancel()
 })
 onMounted(async () => {
-  isAppStore.value = await window.electronAPI?.updateManager.isAppStore() || false
+  isAppStore.value = await window.desktopAPI?.updateManager.isAppStore() || false
 })
 </script>
 

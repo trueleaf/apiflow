@@ -19,6 +19,10 @@ export class HttpResponseCache {
         config.cacheConfig.httpNodeResponseCache.dbName,
         config.cacheConfig.httpNodeResponseCache.version,
         {
+        blocking: (_currentVersion, _blockedVersion, event) => {
+          (event.target as IDBDatabase).close();
+          this.httpResponseCacheDb = null;
+        },
           upgrade(db: IDBPDatabase) {
             if (!db.objectStoreNames.contains('responseMetadata')) {
               db.createObjectStore('responseMetadata');

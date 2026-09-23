@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('VariableCrud', () => {
   // 测试用例1: 新增string类型变量,输入变量名和值后保存成功

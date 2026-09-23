@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../../fixtures/desktop.fixture';
 
 test.describe('WebSocketDefaultHeaders', () => {
   // 默认请求头列表可见

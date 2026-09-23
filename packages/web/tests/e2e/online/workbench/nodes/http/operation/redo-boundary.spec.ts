@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop-online.fixture';
 
 test.describe('RedoBoundary', () => {
   // 测试用例1: 没有可重做的操作时,重做按钮置灰不可点击,ctrl+shift+z无反应

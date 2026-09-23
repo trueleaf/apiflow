@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../fixtures/desktop.fixture';
 
 test.describe('ApiflowImport', () => {
   // 测试用例1: 打开导入页面并选择本地文件导入方式

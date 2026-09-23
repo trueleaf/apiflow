@@ -44,12 +44,8 @@
         </el-form-item>
         <!-- 文件值 -->
         <el-form-item v-if="formInfo.type === 'file'" :label="`${t('变量值')}：`" prop="value">
-          <el-upload ref="upload" class="upload-demo" @change="handleSelectFile" @exceed="handleExceed" :limit="1"
-            :auto-upload="false" :show-file-list="false">
-            <template #trigger>
-              <el-button size='small'>{{ t('选择文件') }}</el-button>
-            </template>
-            <template #default>
+          <div class="upload-demo">
+            <el-button size="small" @click="handleSelectFile">{{ t('选择文件') }}</el-button>
               <div v-if="formInfo.fileValue.name">
                 <div class="d-flex a-center">
                   <span class="flex0 theme-color">{{ t('文件名称：') }}</span>
@@ -68,8 +64,7 @@
                   <span class="file-notice gray-600">{{ t('若file类型变量大于10kb则会自动转换为本地文件地址\n若协作者无此路径附件则会导致无法获取附件变量\n这也可能导致隐私泄露，请仅添加授信成员') }}</span>
                 </div>
               </div>
-            </template>
-          </el-upload>
+          </div>
         </el-form-item>
         <!-- 任意类型 -->
         <el-form-item v-if="formInfo.type === 'any'" :label="`${t('变量值')}：`" prop="value">
@@ -211,7 +206,7 @@ import { config } from '@src/config/config'
 import { useI18n } from 'vue-i18n'
 import { computed, ref, onMounted, defineAsyncComponent } from 'vue';
 import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
-import { FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
+import { FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { message } from '@/helper';
 import { useRoute } from 'vue-router';
@@ -285,7 +280,6 @@ const table = ref<{
 }>();
 const form = ref<FormInstance>();
 const variableStore = useVariable()
-const upload = ref<UploadInstance>()
 
 // 独立模式的数据状态
 const standaloneVariables = ref<ApidocVariable[]>([])
@@ -296,26 +290,11 @@ const standaloneLoading = ref(false)
 | 方法定义
 |--------------------------------------------------------------------------
 */
-const handleSelectFile = (file: UploadFile) => {
-  const filePath = window.electronAPI?.fileManager.getFilePath(file.raw as File);
-  formInfo.value.fileValue = {
-    name: file.name,
-    path: filePath || '',
-    fileType: file.raw!.type,
-  }
-  return false;
-}
-const handleExceed: UploadProps['onExceed'] = (files) => {
-  upload.value!.clearFiles();
-  const file = files[0] as UploadRawFile
-  file.uid = genFileId()
-  const filePath = window.electronAPI?.fileManager.getFilePath(file);
-  upload.value!.handleStart(file)
-  formInfo.value.fileValue = {
-    name: file.name,
-    path: filePath || '',
-    fileType: file.type,
-  }
+// 选择原生文件并保留真实路径
+const handleSelectFile = async () => {
+  const file = await window.desktopAPI?.fileManager.selectFile();
+  if (!file) return;
+  formInfo.value.fileValue = { name: file.name, path: file.path, fileType: file.type };
 }
 const getData = () => {
   if (isStandalone.value) {

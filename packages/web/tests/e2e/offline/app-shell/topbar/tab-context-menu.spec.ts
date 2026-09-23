@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/desktop.fixture';
 
 test.describe('TabContextMenu', () => {
   test('右键Tab显示上下文菜单', async ({ topBarPage, contentPage, clearCache, createProject }) => {

@@ -2,7 +2,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
 import { createServer, request } from 'node:http'
 import type { AddressInfo } from 'node:net'
-import { test, expect } from '../../../../fixtures/electron.fixture'
+import { test, expect } from '../../../../fixtures/desktop.fixture'
 
 test.describe('McpService', () => {
   test('设置页展示 MCP 服务状态和 Codex 配置', async ({ contentPage, clearCache, jumpToSettings }) => {
@@ -25,7 +25,7 @@ test.describe('McpService', () => {
     const targetPort = 38100 + Math.floor(Math.random() * 1000)
     try {
       originalSettings = await contentPage.evaluate(async () => {
-        const status = await window.electronAPI?.mcpManager.getStatus()
+        const status = await window.desktopAPI?.mcpManager.getStatus()
         if (!status) {
           throw new Error('MCP bridge missing')
         }
@@ -35,7 +35,7 @@ test.describe('McpService', () => {
         }
       })
       const updatedStatus = await contentPage.evaluate(async (settings: { enabled: boolean; port: number }) => {
-        const status = await window.electronAPI?.mcpManager.updateSettings(settings)
+        const status = await window.desktopAPI?.mcpManager.updateSettings(settings)
         if (!status) {
           throw new Error('MCP bridge missing')
         }
@@ -45,7 +45,7 @@ test.describe('McpService', () => {
       expect(updatedStatus.endpoint).toBe(`http://127.0.0.1:${targetPort}/mcp`)
       await expect.poll(async () => {
         return await contentPage.evaluate(async () => {
-          const status = await window.electronAPI?.mcpManager.getStatus()
+          const status = await window.desktopAPI?.mcpManager.getStatus()
           return `${status?.serverState ?? 'missing'}:${status?.executorState ?? 'missing'}`
         })
       }, { timeout: 15000 }).toBe('running:ready')
@@ -54,18 +54,18 @@ test.describe('McpService', () => {
     } finally {
       if (originalSettings) {
         await contentPage.evaluate(async (settings: { enabled: boolean; port: number }) => {
-          await window.electronAPI?.mcpManager.updateSettings(settings)
+          await window.desktopAPI?.mcpManager.updateSettings(settings)
         }, originalSettings)
       }
     }
   })
 
-  test('关闭主窗口后 MCP 服务继续在后台响应', async ({ electronApp, contentPage }) => {
+  test('关闭主窗口后 MCP 服务继续在后台响应', async ({ contentPage }) => {
     let originalSettings: { enabled: boolean; port: number } | null = null
     const targetPort = 38600 + Math.floor(Math.random() * 1000)
     try {
       originalSettings = await contentPage.evaluate(async () => {
-        const status = await window.electronAPI?.mcpManager.getStatus()
+        const status = await window.desktopAPI?.mcpManager.getStatus()
         if (!status) {
           throw new Error('MCP bridge missing')
         }
@@ -75,51 +75,34 @@ test.describe('McpService', () => {
         }
       })
       await contentPage.evaluate(async (settings: { enabled: boolean; port: number }) => {
-        await window.electronAPI?.mcpManager.updateSettings(settings)
+        await window.desktopAPI?.mcpManager.updateSettings(settings)
       }, { enabled: true, port: targetPort })
       await expect.poll(async () => {
         return await contentPage.evaluate(async () => {
-          const status = await window.electronAPI?.mcpManager.getStatus()
+          const status = await window.desktopAPI?.mcpManager.getStatus()
           return `${status?.serverState ?? 'missing'}:${status?.executorState ?? 'missing'}`
         })
       }, { timeout: 15000 }).toBe('running:ready')
-      const closeState = await electronApp.evaluate(async ({ BrowserWindow }) => {
-        const targetWindow = BrowserWindow.getAllWindows().find(window => !window.webContents.getURL().includes('mcp.html'))
-        if (!targetWindow) {
-          return {
-            found: false,
-            visible: false,
-            destroyed: true,
-          }
-        }
-        targetWindow.close()
-        await new Promise(resolve => setTimeout(resolve, 500))
-        return {
-          found: true,
-          visible: targetWindow.isVisible(),
-          destroyed: targetWindow.isDestroyed(),
-        }
+      const closeState = await contentPage.evaluate(async () => {
+        window.desktopAPI!.windowManager.closeWindow();
+        await new Promise(resolve => setTimeout(resolve, 300));
+        const state = await window.desktopAPI!.windowManager.getWindowState();
+        return { found: true, visible: state.isVisible, destroyed: false };
       })
       expect(closeState.found).toBeTruthy()
       expect(closeState.destroyed).toBeFalsy()
       expect(closeState.visible).toBeFalsy()
       const notFoundResponse = await fetch(`http://127.0.0.1:${targetPort}/not-found`)
       expect(notFoundResponse.status).toBe(404)
-      const showState = await electronApp.evaluate(async ({ BrowserWindow }) => {
-        const targetWindow = BrowserWindow.getAllWindows().find(window => !window.webContents.getURL().includes('mcp.html'))
-        if (!targetWindow) {
-          return false
-        }
-        targetWindow.show()
-        targetWindow.focus()
-        await new Promise(resolve => setTimeout(resolve, 300))
-        return targetWindow.isVisible()
+      const showState = await contentPage.evaluate(async () => {
+        await (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('window_action', { action: 'show' });
+        return (await window.desktopAPI!.windowManager.getWindowState()).isVisible;
       })
       expect(showState).toBeTruthy()
     } finally {
       if (originalSettings) {
         await contentPage.evaluate(async (settings: { enabled: boolean; port: number }) => {
-          await window.electronAPI?.mcpManager.updateSettings(settings)
+          await window.desktopAPI?.mcpManager.updateSettings(settings)
         }, originalSettings)
       }
     }
@@ -131,7 +114,7 @@ test.describe('McpService', () => {
     const targetPort = 39100 + Math.floor(Math.random() * 1000)
     try {
       originalSettings = await contentPage.evaluate(async () => {
-        const status = await window.electronAPI?.mcpManager.getStatus()
+        const status = await window.desktopAPI?.mcpManager.getStatus()
         if (!status) {
           throw new Error('MCP bridge missing')
         }
@@ -141,16 +124,16 @@ test.describe('McpService', () => {
         }
       })
       await contentPage.evaluate(async (settings: { enabled: boolean; port: number }) => {
-        await window.electronAPI?.mcpManager.updateSettings(settings)
+        await window.desktopAPI?.mcpManager.updateSettings(settings)
       }, { enabled: true, port: targetPort })
       await expect.poll(async () => {
         return await contentPage.evaluate(async () => {
-          const status = await window.electronAPI?.mcpManager.getStatus()
+          const status = await window.desktopAPI?.mcpManager.getStatus()
           return `${status?.serverState ?? 'missing'}:${status?.executorState ?? 'missing'}`
         })
       }, { timeout: 15000 }).toBe('running:ready')
       client = new Client({ name: 'apiflow-mcp-e2e', version: '1.0.0' })
-      const authToken = await contentPage.evaluate(async () => (await window.electronAPI?.mcpManager.getStatus())?.authToken)
+      const authToken = await contentPage.evaluate(async () => (await window.desktopAPI?.mcpManager.getStatus())?.authToken)
       const transport = new StreamableHTTPClientTransport(new URL(`http://127.0.0.1:${targetPort}/mcp`), { requestInit: { headers: { Authorization: `Bearer ${authToken}` } } })
       await client.connect(transport)
       const toolsResult = await client.listTools()
@@ -187,7 +170,7 @@ test.describe('McpService', () => {
       }
       if (originalSettings) {
         await contentPage.evaluate(async (settings: { enabled: boolean; port: number }) => {
-          await window.electronAPI?.mcpManager.updateSettings(settings)
+          await window.desktopAPI?.mcpManager.updateSettings(settings)
         }, originalSettings)
       }
     }
@@ -200,7 +183,7 @@ test.describe('McpService', () => {
     const projectName = `MCP离线项目-${Date.now()}`
     try {
       originalSettings = await contentPage.evaluate(async () => {
-        const status = await window.electronAPI?.mcpManager.getStatus()
+        const status = await window.desktopAPI?.mcpManager.getStatus()
         if (!status) {
           throw new Error('MCP bridge missing')
         }
@@ -210,16 +193,16 @@ test.describe('McpService', () => {
         }
       })
       await contentPage.evaluate(async (settings: { enabled: boolean; port: number }) => {
-        await window.electronAPI?.mcpManager.updateSettings(settings)
+        await window.desktopAPI?.mcpManager.updateSettings(settings)
       }, { enabled: true, port: targetPort })
       await expect.poll(async () => {
         return await contentPage.evaluate(async () => {
-          const status = await window.electronAPI?.mcpManager.getStatus()
+          const status = await window.desktopAPI?.mcpManager.getStatus()
           return `${status?.serverState ?? 'missing'}:${status?.executorState ?? 'missing'}`
         })
       }, { timeout: 15000 }).toBe('running:ready')
       client = new Client({ name: 'apiflow-mcp-data-e2e', version: '1.0.0' })
-      const authToken = await contentPage.evaluate(async () => (await window.electronAPI?.mcpManager.getStatus())?.authToken)
+      const authToken = await contentPage.evaluate(async () => (await window.desktopAPI?.mcpManager.getStatus())?.authToken)
       const transport = new StreamableHTTPClientTransport(new URL(`http://127.0.0.1:${targetPort}/mcp`), { requestInit: { headers: { Authorization: `Bearer ${authToken}` } } })
       await client.connect(transport)
       const createResult = await client.callTool({ name: 'createProject', arguments: { projectName } })
@@ -253,7 +236,7 @@ test.describe('McpService', () => {
       }
       if (originalSettings) {
         await contentPage.evaluate(async (settings: { enabled: boolean; port: number }) => {
-          await window.electronAPI?.mcpManager.updateSettings(settings)
+          await window.desktopAPI?.mcpManager.updateSettings(settings)
         }, originalSettings)
       }
     }
@@ -269,11 +252,11 @@ test.describe('McpService', () => {
     await expect.poll(() => new URLSearchParams(new URL(contentPage.url()).hash.split('?')[1]).get('id')).not.toBe(projectA)
     const projectB = new URLSearchParams(new URL(contentPage.url()).hash.split('?')[1]).get('id')
     expect(projectB).toBeTruthy()
-    const originalSettings = await contentPage.evaluate(async () => window.electronAPI?.mcpManager.getStatus())
+    const originalSettings = await contentPage.evaluate(async () => window.desktopAPI?.mcpManager.getStatus())
     if (!originalSettings) throw new Error('MCP bridge missing')
     const client = new Client({ name: 'apiflow-mcp-isolation-e2e', version: '1.0.0' })
     try {
-      const status = await contentPage.evaluate(async port => window.electronAPI?.mcpManager.updateSettings({ enabled: true, port, readOnly: false, allowDestructive: false }), 42100 + Math.floor(Math.random() * 1000))
+      const status = await contentPage.evaluate(async port => window.desktopAPI?.mcpManager.updateSettings({ enabled: true, port, readOnly: false, allowDestructive: false }), 42100 + Math.floor(Math.random() * 1000))
       if (!status) throw new Error('MCP bridge missing')
       expect(status.serverState).toBe('running')
       await client.connect(new StreamableHTTPClientTransport(new URL(status.endpoint), { requestInit: { headers: { Authorization: `Bearer ${status.authToken}` } } }))
@@ -303,15 +286,15 @@ test.describe('McpService', () => {
       await expect(client.readResource({ uri: 'apiflow://projects/missing-project/tree' })).rejects.toThrow('Project not found')
     } finally {
       await client.close()
-      await contentPage.evaluate(async settings => window.electronAPI?.mcpManager.updateSettings(settings), originalSettings)
+      await contentPage.evaluate(async settings => window.desktopAPI?.mcpManager.updateSettings(settings), originalSettings)
     }
   })
   test('访问令牌、只读、删除确认和重启约束对真实 MCP 客户端生效', async ({ contentPage, jumpToSettings }) => {
-    const originalSettings = await contentPage.evaluate(async () => window.electronAPI?.mcpManager.getStatus())
+    const originalSettings = await contentPage.evaluate(async () => window.desktopAPI?.mcpManager.getStatus())
     if (!originalSettings) throw new Error('MCP bridge missing')
     const client = new Client({ name: 'apiflow-mcp-policy-e2e', version: '1.0.0' })
     try {
-      const status = await contentPage.evaluate(async port => window.electronAPI?.mcpManager.updateSettings({ enabled: true, port, readOnly: false, allowDestructive: false }), 43100 + Math.floor(Math.random() * 1000))
+      const status = await contentPage.evaluate(async port => window.desktopAPI?.mcpManager.updateSettings({ enabled: true, port, readOnly: false, allowDestructive: false }), 43100 + Math.floor(Math.random() * 1000))
       if (!status) throw new Error('MCP bridge missing')
       expect(status.serverState).toBe('running')
       const unauthorized = await fetch(status.endpoint, { method: 'POST' })
@@ -346,7 +329,7 @@ test.describe('McpService', () => {
       expect((await client.listTools()).tools.length).toBeGreaterThan(0)
     } finally {
       await client.close()
-      await contentPage.evaluate(async settings => window.electronAPI?.mcpManager.updateSettings(settings), originalSettings)
+      await contentPage.evaluate(async settings => window.desktopAPI?.mcpManager.updateSettings(settings), originalSettings)
     }
   })
   test('MCP Host 和 Origin 防护拒绝非本机来源', async ({ contentPage }) => {
@@ -354,7 +337,7 @@ test.describe('McpService', () => {
     const targetPort = 40100 + Math.floor(Math.random() * 1000)
     try {
       originalSettings = await contentPage.evaluate(async () => {
-        const status = await window.electronAPI?.mcpManager.getStatus()
+        const status = await window.desktopAPI?.mcpManager.getStatus()
         if (!status) {
           throw new Error('MCP bridge missing')
         }
@@ -364,11 +347,11 @@ test.describe('McpService', () => {
         }
       })
       await contentPage.evaluate(async (settings: { enabled: boolean; port: number }) => {
-        await window.electronAPI?.mcpManager.updateSettings(settings)
+        await window.desktopAPI?.mcpManager.updateSettings(settings)
       }, { enabled: true, port: targetPort })
       await expect.poll(async () => {
         return await contentPage.evaluate(async () => {
-          const status = await window.electronAPI?.mcpManager.getStatus()
+          const status = await window.desktopAPI?.mcpManager.getStatus()
           return status?.serverState ?? 'missing'
         })
       }, { timeout: 15000 }).toBe('running')
@@ -430,7 +413,7 @@ test.describe('McpService', () => {
     } finally {
       if (originalSettings) {
         await contentPage.evaluate(async (settings: { enabled: boolean; port: number }) => {
-          await window.electronAPI?.mcpManager.updateSettings(settings)
+          await window.desktopAPI?.mcpManager.updateSettings(settings)
         }, originalSettings)
       }
     }
@@ -452,7 +435,7 @@ test.describe('McpService', () => {
     const address = occupiedServer.address() as AddressInfo
     try {
       originalSettings = await contentPage.evaluate(async () => {
-        const status = await window.electronAPI?.mcpManager.getStatus()
+        const status = await window.desktopAPI?.mcpManager.getStatus()
         if (!status) {
           throw new Error('MCP bridge missing')
         }
@@ -462,7 +445,7 @@ test.describe('McpService', () => {
         }
       })
       const failedStatus = await contentPage.evaluate(async (settings: { enabled: boolean; port: number }) => {
-        const status = await window.electronAPI?.mcpManager.updateSettings(settings)
+        const status = await window.desktopAPI?.mcpManager.updateSettings(settings)
         if (!status) {
           throw new Error('MCP bridge missing')
         }
@@ -478,7 +461,7 @@ test.describe('McpService', () => {
       })
       if (originalSettings) {
         await contentPage.evaluate(async (settings: { enabled: boolean; port: number }) => {
-          await window.electronAPI?.mcpManager.updateSettings(settings)
+          await window.desktopAPI?.mcpManager.updateSettings(settings)
         }, originalSettings)
       }
     }

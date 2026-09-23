@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../fixtures/desktop.fixture';
 
 test.describe('SettingsIpcCacheConsistency', () => {
   // AI 配置中的“更多设置”应通过 IPC 打开设置页并落到 ai-settings

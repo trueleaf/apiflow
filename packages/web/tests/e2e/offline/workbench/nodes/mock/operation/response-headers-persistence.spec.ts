@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture'
+import { test, expect } from '../../../../../../fixtures/desktop.fixture'
 
 test.describe('HttpMockResponseHeadersPersistence-Offline', () => {
   test('HTTP Mock 返回头保存后刷新页面保持不变', async ({ contentPage, clearCache, createProject, createNode, reload }) => {

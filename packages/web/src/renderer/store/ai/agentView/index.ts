@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid/non-secure'
 import { appStateCache } from '@/cache/appState/appStateCache'
 import { agentDataCache, normalizeAgentEvents } from '@/cache/ai/agentDataCache'
 import { detectInputLanguage, i18n } from '@/i18n'
-import { isElectron } from '@/helper'
+import { isDesktop } from '@/helper'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
@@ -39,8 +39,8 @@ export const useAgentViewStore = defineStore('agentView', () => {
   const retiredConversationIds = new Set<string>()
   const runControllers = new Map<string, AbortController>()
   let eventQueue = Promise.resolve()
-  const isElectronOffline = computed(() => isElectron() && runtimeStore.networkMode === 'offline')
-  const isAiConfigValid = computed(() => isElectronOffline.value && llmClientStore.isAvailable())
+  const isDesktopOffline = computed(() => isDesktop() && runtimeStore.networkMode === 'offline')
+  const isAiConfigValid = computed(() => isDesktopOffline.value && llmClientStore.isAvailable())
   const currentConversation = computed(() => conversations.value.find(item => item.id === currentConversationIds.value[mode.value]) ?? null)
   const currentEvents = computed(() => currentConversation.value?.events ?? [])
   const currentMessages = computed(() => mapAgentEventsToPanelMessages(currentEvents.value))
@@ -92,7 +92,7 @@ export const useAgentViewStore = defineStore('agentView', () => {
       logger.warn('忽略无效 client tool command', { error: redactAIText(error instanceof Error ? error.message : String(error)) })
       return
     }
-    if (event.type !== 'client-tool-command' || !isElectronOffline.value || !window.electronAPI?.aiManager) return
+    if (event.type !== 'client-tool-command' || !isDesktopOffline.value || !window.desktopAPI?.aiManager) return
     if (retiredConversationIds.has(event.conversationId)) return
     if (processedCommandIds.has(event.commandId)) return
     const existingConversation = conversations.value.find(item => item.id === event.conversationId)
@@ -104,7 +104,7 @@ export const useAgentViewStore = defineStore('agentView', () => {
     runControllers.set(event.runId, controller)
     const result = await executeAgentClientTool(event, controller.signal).catch(error => ({ success: false, errorCode: 'AI_CLIENT_TOOL_FAILED', retryable: false, summary: redactAIText(error instanceof Error ? error.message : String(error)) }))
     if (controller.signal.aborted) return
-    window.electronAPI.aiManager.sendClientToolResult({ conversationId: event.conversationId, runId: event.runId, messageId: event.messageId, commandId: event.commandId, toolCallId: event.toolCallId, result })
+    window.desktopAPI.aiManager.sendClientToolResult({ conversationId: event.conversationId, runId: event.runId, messageId: event.messageId, commandId: event.commandId, toolCallId: event.toolCallId, result })
   }
   // 恢复中断状态
   const recoverInterruptedRuns = async (): Promise<void> => {
@@ -130,9 +130,9 @@ export const useAgentViewStore = defineStore('agentView', () => {
   }
   // 初始化事件与缓存
   const initAgentRuntime = async (): Promise<void> => {
-    if (initialized.value || !isElectronOffline.value || !window.electronAPI?.aiManager) return
+    if (initialized.value || !isDesktopOffline.value || !window.desktopAPI?.aiManager) return
     if (initialization) return initialization
-    const manager = window.electronAPI.aiManager
+    const manager = window.desktopAPI.aiManager
     initialization = (async () => {
       await agentDataCache.migrateLegacyCache()
       conversations.value = await agentDataCache.getConversations()
@@ -153,14 +153,14 @@ export const useAgentViewStore = defineStore('agentView', () => {
   }
   // 显示面板
   const showAgentViewDialog = (): void => {
-    if (!isElectronOffline.value) return
+    if (!isDesktopOffline.value) return
     agentViewDialogVisible.value = true
     void initAgentRuntime().catch(error => logger.warn('初始化 Agent 会话失败', { error: redactAIText(String(error)) }))
   }
   // 隐藏面板
   const hideAgentViewDialog = (): void => { agentViewDialogVisible.value = false }
   // 打开设置
-  const openConfig = (): void => { if (isElectronOffline.value) view.value = 'config' }
+  const openConfig = (): void => { if (isDesktopOffline.value) view.value = 'config' }
   // 返回对话
   const backToChat = (): void => { view.value = 'chat' }
   // 切换模式
@@ -182,7 +182,7 @@ export const useAgentViewStore = defineStore('agentView', () => {
   // 发送当前输入
   const sendCurrentInput = async (): Promise<void> => {
     const prompt = inputMessage.value.trim()
-    if (!prompt || submitting || workingStatus.value === 'working' || !isAiConfigValid.value || !window.electronAPI?.aiManager) return
+    if (!prompt || submitting || workingStatus.value === 'working' || !isAiConfigValid.value || !window.desktopAPI?.aiManager) return
     submitting = true
     try {
       await initAgentRuntime()
@@ -197,7 +197,7 @@ export const useAgentViewStore = defineStore('agentView', () => {
       currentRunId.value = runId
       await ingestEvent(createLocalEvent(conversation.id, runId, messageId, 0, { type: 'user-message', text: prompt, language }))
       const activeNav = projectNavStore.currentSelectNav
-      const response = await window.electronAPI.aiManager.run({ conversationId: conversation.id, runId, messageId, mode: mode.value, prompt, history, context: { projectId: projectWorkbenchStore.projectId || null, activeNodeId: activeNav?._id ?? null, activeTabType: activeNav?.tabType ?? null, language, networkMode: runtimeStore.networkMode }, provider: JSON.parse(JSON.stringify(llmClientStore.LLMConfig)) })
+      const response = await window.desktopAPI.aiManager.run({ conversationId: conversation.id, runId, messageId, mode: mode.value, prompt, history, context: { projectId: projectWorkbenchStore.projectId || null, activeNodeId: activeNav?._id ?? null, activeTabType: activeNav?.tabType ?? null, language, networkMode: runtimeStore.networkMode }, provider: JSON.parse(JSON.stringify(llmClientStore.LLMConfig)) })
       if (!response.accepted) {
         await ingestEvent(createLocalEvent(conversation.id, runId, messageId, 1, { type: 'error', errorCode: response.errorCode ?? 'AI_RUN_REJECTED', message: response.message ?? i18n.global.t('AI功能不可用'), retryable: false }))
         await ingestEvent(createLocalEvent(conversation.id, runId, messageId, 2, { type: 'run-state', state: 'failed', detail: response.message }))
@@ -206,16 +206,16 @@ export const useAgentViewStore = defineStore('agentView', () => {
   }
   // 停止当前运行
   const stopCurrentConversation = async (): Promise<void> => {
-    if (!currentRunId.value || !currentConversation.value || !window.electronAPI?.aiManager) return
+    if (!currentRunId.value || !currentConversation.value || !window.desktopAPI?.aiManager) return
     runControllers.get(currentRunId.value)?.abort()
-    await window.electronAPI.aiManager.abort({ conversationId: currentConversation.value.id, runId: currentRunId.value })
+    await window.desktopAPI.aiManager.abort({ conversationId: currentConversation.value.id, runId: currentRunId.value })
   }
   // 回复审批
   const respondApproval = async (approved: boolean): Promise<void> => {
     const approval = pendingApproval.value
-    if (!approval || !currentConversation.value || !currentRunId.value || !window.electronAPI?.aiManager) return
+    if (!approval || !currentConversation.value || !currentRunId.value || !window.desktopAPI?.aiManager) return
     const request: AgentApprovalResponseRequest = { conversationId: currentConversation.value.id, runId: currentRunId.value, messageId: approval.messageId, approvalId: approval.approvalId, toolCallId: approval.toolCallId, approved }
-    await window.electronAPI.aiManager.respondApproval(request)
+    await window.desktopAPI.aiManager.respondApproval(request)
   }
   // 编辑已完成的用户消息
   const editUserMessage = (runId: string): void => {
@@ -244,5 +244,5 @@ export const useAgentViewStore = defineStore('agentView', () => {
     currentRunId.value = null
   }
   mode.value = appStateCache.getAiDialogMode() === 'ask' ? 'ask' : 'agent'
-  return { agentViewDialogVisible, view, mode, inputMessage, conversations, currentConversation, currentEvents, currentMessages, currentRunId, workingStatus, pendingApproval, isElectronOffline, isAiConfigValid, initAgentRuntime, showAgentViewDialog, hideAgentViewDialog, openConfig, backToChat, setMode, clearConversation, stopCurrentConversation, sendCurrentInput, respondApproval, editUserMessage, retryRun }
+  return { agentViewDialogVisible, view, mode, inputMessage, conversations, currentConversation, currentEvents, currentMessages, currentRunId, workingStatus, pendingApproval, isDesktopOffline, isAiConfigValid, initAgentRuntime, showAgentViewDialog, hideAgentViewDialog, openConfig, backToChat, setMode, clearConversation, stopCurrentConversation, sendCurrentInput, respondApproval, editUserMessage, retryRun }
 })

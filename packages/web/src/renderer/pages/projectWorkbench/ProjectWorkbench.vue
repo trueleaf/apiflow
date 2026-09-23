@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 // import { ref } from 'vue'
 import SaveDocDialog from './dialog/saveDoc/SaveDoc.vue'
 import Banner from './layout/banner/Banner.vue';
@@ -32,9 +32,9 @@ const websocketStore = useWebSocket()
 const commonHeaderStore = useCommonHeader();
 const projectWorkbenchStore = useProjectWorkbench();
 const { initCookies } = useCookies();
-const projectId = route.query.id as string;
 //当前选中的tab
 const currentSelectNav = computed(() => {
+  const projectId = route.query.id as string;
   const currentNavs = projectNavStore.navs[projectId];
   const selectedNav = currentNavs?.find((nav) => nav.selected) || null;
   return selectedNav;
@@ -50,6 +50,7 @@ const saveDocDialogVisible = computed({
 });
 //=====================================绑定快捷键====================================//
 const bindShortcut = (e: KeyboardEvent) => {
+  const projectId = route.query.id as string;
   const currentNavs = projectNavStore.navs[projectId];
   const hasNavs = currentNavs && currentNavs.length > 0;
   const currentTabIsDoc = currentSelectNav.value?.tabType === 'http' || currentSelectNav.value?.tabType === 'websocket';
@@ -72,9 +73,11 @@ const bindShortcut = (e: KeyboardEvent) => {
 }
 //=====================================基本数据获取====================================//
 //获取项目基本信息
-const getProjectInfo = () => {
-  projectWorkbenchStore.initProjectBaseInfo({ projectId });
-}
+watch(() => route.query.id, (projectId) => {
+  if (typeof projectId !== 'string' || !projectId) return;
+  void projectWorkbenchStore.initProjectBaseInfo({ projectId });
+  initCookies(projectId);
+}, { immediate: true });
 //初始化布局
 const initLayout = () => {
   projectWorkbenchStore.initLayout()
@@ -91,8 +94,6 @@ const handleWindowResize = () => {
 useWindowEvent('keydown', bindShortcut);
 useWindowEvent('resize', handleWindowResize);
 onMounted(() => {
-  getProjectInfo();
-  initCookies(projectId);
   initLayout();
   initCommonHeaders();
   handleWindowResize();

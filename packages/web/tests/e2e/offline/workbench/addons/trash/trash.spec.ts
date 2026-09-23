@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../fixtures/desktop.fixture';
 
 test.describe('Trash/回收站', () => {
   test('删除所有类型节点后同步展示到回收站，并可逐个恢复', async ({ contentPage, clearCache, createProject, createNode }) => {

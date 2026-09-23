@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../../fixtures/desktop-online.fixture';
 import type { Locator } from '@playwright/test';
 
 // 转义正则表达式特殊字符

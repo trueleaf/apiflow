@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture'
+import { test, expect } from '../../../../../../fixtures/desktop.fixture'
 
 test.describe('WebSocketQueryParamsRedo', () => {
   // 撤销Query参数后点击重做恢复

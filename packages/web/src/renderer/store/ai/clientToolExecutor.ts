@@ -76,7 +76,7 @@ const summarizeNode = (node: Awaited<ReturnType<typeof apiNodesCache.getNodeById
 const executeRuntimeTool = async (toolName: string, input: Record<string, unknown>, signal: AbortSignal): Promise<AgentToolResult> => {
   const action = getString(input, 'action')
   const nodeId = getString(input, 'nodeId')
-  if (toolName === 'manageWebSocketConnection' && action === 'status') return success('WebSocket status loaded', { nodeId, ...await window.electronAPI?.websocket.checkNodeConnection(nodeId) })
+  if (toolName === 'manageWebSocketConnection' && action === 'status') return success('WebSocket status loaded', { nodeId, ...await window.desktopAPI?.websocket.checkNodeConnection(nodeId) })
   const kind = getString(input, 'kind')
   const tools = toolName === 'manageWebSocketConnection' ? websocketNodeTools : kind === 'http' ? httpMockNodeTools : websocketMockNodeTools
   const names = toolName === 'manageWebSocketConnection' ? { connect: 'connectWebsocketByNodeId', send: 'sendWebsocketMessageByNodeId', disconnect: 'disconnectWebsocketByNodeId' } : kind === 'http' ? { status: 'getHttpMockEnabledStatus', start: 'startHttpMockServerByNodeId', stop: 'stopHttpMockServerByNodeId' } : { status: 'getWebsocketMockEnabledStatus', start: 'startWebsocketMockServerByNodeId', stop: 'stopWebsocketMockServerByNodeId' }
@@ -199,7 +199,7 @@ export const executeAgentClientTool = async (event: AgentEvent, signal: AbortSig
   if (event.toolName === 'manageWebSocketConnection' && nav?.tabType !== 'websocket') return failure('AI_CONTEXT_MISMATCH', 'The active tab is not a WebSocket node')
   if (event.toolName === 'manageMockServer' && nav?.tabType !== `${getString(input, 'kind')}Mock`) return failure('AI_CONTEXT_MISMATCH', 'The active tab does not match the mock server kind')
   const action = getString(input, 'action')
-  const alreadyActive = action === 'connect' ? (await window.electronAPI?.websocket.checkNodeConnection(nodeId))?.connected
+  const alreadyActive = action === 'connect' ? (await window.desktopAPI?.websocket.checkNodeConnection(nodeId))?.connected
     : action === 'start' ? await (getString(input, 'kind') === 'http' ? useHttpMockNode().checkMockNodeEnabledStatus(nodeId) : useWebSocketMockNode().checkMockNodeEnabledStatus(nodeId)) : false
   signal.throwIfAborted()
   if (alreadyActive) return success('Resource is already running; existing user resource was preserved', { nodeId, alreadyActive: true })

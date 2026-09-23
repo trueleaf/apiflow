@@ -73,13 +73,7 @@
         <div class="form-item full-width">
           <label class="form-label">{{ t('图片文件') }}</label>
           <div class="file-upload-wrapper">
-            <el-upload
-              :auto-upload="false"
-              :show-file-list="false"
-              accept="image/*"
-              :on-change="handleImageChange"
-              drag
-            >
+            <div ref="imageDropZone" class="image-file-picker" @click="handleSelectImage">
               <div v-if="!response.imageConfig.fixedFilePath" class="upload-trigger">
                 <el-icon class="upload-icon">
                   <Upload />
@@ -106,7 +100,7 @@
                   </div>
                 </div>
               </div>
-            </el-upload>
+            </div>
           </div>
         </div>
       </div>
@@ -115,12 +109,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onBeforeUnmount } from 'vue'
+import { listenForDroppedFiles } from '@/platform/tauri/fileDrop'
 import { useI18n } from 'vue-i18n'
-import { Upload } from '@element-plus/icons-vue'
+import { Upload } from 'lucide-vue-next'
 import mime from 'mime'
 import type { HttpMockNode } from '@src/types'
-import type { UploadFile } from 'element-plus'
+import type { DesktopFile } from '@src/types/desktop'
 
 
 import { message } from '@/helper'
@@ -135,33 +130,43 @@ const { t } = useI18n()
 
 // 图片预览状态
 const previewSrc = ref('')
+const imageDropZone = ref<HTMLElement>()
+let stopDrop: (() => void) | undefined
+let dropGeneration = 0
+watch(imageDropZone, async element => {
+  const generation = ++dropGeneration
+  stopDrop?.()
+  stopDrop = undefined
+  if (!element) return
+  const unlisten = await listenForDroppedFiles(element, files => { if (files[0]) handleImageChange(files[0]) })
+  if (generation === dropGeneration) stopDrop = unlisten
+  else unlisten()
+})
+onBeforeUnmount(() => { dropGeneration += 1; stopDrop?.() })
 
 // 图片文件变更处理
-const handleImageChange = (file: UploadFile) => {
-  if (!file.raw) {
-    return
-  }
+const handleImageChange = (file: DesktopFile) => {
 
   const maxSize = 1024 * 1024 * 1024
-  if (file.raw.size > maxSize) {
+  if (file.size > maxSize) {
     message.error(t('图片大小不能超过 1GB'))
     return
   }
 
   const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp', 'image/svg+xml', 'image/bmp']
-  if (!validTypes.includes(file.raw.type)) {
+  if (!validTypes.includes(file.type)) {
     message.error(t('不支持的图片格式，请选择 PNG、JPG、GIF、WEBP、SVG 或 BMP 格式'))
     return
   }
 
-  const filePath = window.electronAPI?.fileManager.getFilePath(file.raw)
+  const filePath = file.path
   if (!filePath) {
     message.error(t('图片路径获取失败，请重试'))
     return
   }
 
   props.response.imageConfig.fixedFilePath = filePath
-  loadPreviewFromFile(file.raw)
+  void loadPreviewFromPath(filePath)
 }
 
 // 获取图片文件名
@@ -181,24 +186,18 @@ const getImageFileName = (filePath: string): string => {
 }
 
 // 从文件加载预览
-const loadPreviewFromFile = (file: File) => {
-  const reader = new FileReader()
-  reader.onload = (event) => {
-    const result = event.target?.result
-    if (typeof result === 'string') {
-      previewSrc.value = result
-    }
-  }
-  reader.readAsDataURL(file)
+const handleSelectImage = async () => {
+  const file = await window.desktopAPI?.fileManager.selectFile(['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp']);
+  if (file) handleImageChange(file);
 }
 
 // 从文件路径加载预览
 const loadPreviewFromPath = async (filePath: string): Promise<void> => {
-  if (!window.electronAPI?.fileManager.readFileAsUint8Array) {
+  if (!window.desktopAPI?.fileManager.readFileAsUint8Array) {
     return
   }
   try {
-    const readResult = await window.electronAPI.fileManager.readFileAsUint8Array(filePath)
+    const readResult = await window.desktopAPI.fileManager.readFileAsUint8Array(filePath)
     if (!readResult || typeof readResult === 'string') {
       return
     }
@@ -315,12 +314,12 @@ watch(
   height: 200px;
 }
 
-.file-upload-wrapper :deep(.el-upload) {
+.file-upload-wrapper .image-file-picker {
   width: 100%;
   height: 100%;
 }
 
-.file-upload-wrapper :deep(.el-upload-dragger) {
+.file-upload-wrapper .image-file-picker {
   width: 200px;
   height: 200px;
   padding: 0;

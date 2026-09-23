@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop-online.fixture';
 
 test.describe('MockNodeServiceStatus-Online', () => {
   test('在线HTTP Mock 配置保存后可回填并可启停服务', async ({ contentPage, clearCache, createProject, createNode, loginAccount }) => {

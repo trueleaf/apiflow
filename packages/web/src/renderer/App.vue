@@ -1,7 +1,7 @@
 <template>
   <div class="app-layout">
     <!-- 浏览器环境：单视图架构，内嵌 Header -->
-    <BrowserHeader v-if="!isElectronEnv" ref="browserHeaderRef" @create-project="handleBrowserCreateProject" />
+    <BrowserHeader v-if="!isDesktopEnv" ref="browserHeaderRef" @create-project="handleBrowserCreateProject" />
     <div class="app-main">
       <NotificationBanner />
       <div class="app-content">
@@ -10,14 +10,14 @@
     </div>
     <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
     <ChangePasswordDialog v-model="changePasswordDialogVisible" @success="handleChangePasswordSuccess" />
-    <Ai v-if="isElectronEnv && runtimeStore.networkMode === 'offline' && agentViewDialogVisible" />
-    <!-- Electron 环境：语言菜单由 IPC 控制显示 -->
-    <LanguageMenu v-if="isElectronEnv" :visible="languageMenuVisible" :position="languageMenuPosition"
+    <Ai v-if="isDesktopEnv && runtimeStore.networkMode === 'offline' && agentViewDialogVisible" />
+    <!-- Tauri 环境：语言菜单由 IPC 控制显示 -->
+    <LanguageMenu v-if="isDesktopEnv" :visible="languageMenuVisible" :position="languageMenuPosition"
       :current-language="runtimeStore.language" @language-select="handleLanguageSelect" @close="hideLanguageMenu" />
-    <UserMenu v-if="isElectronEnv" :visible="userMenuVisible" :position="userMenuPosition" @logout="handleLogout"
+    <UserMenu v-if="isDesktopEnv" :visible="userMenuVisible" :position="userMenuPosition" @logout="handleLogout"
       @change-password="handleChangePassword" @close="hideUserMenu" />
     <HeaderTabContextmenu
-      v-if="isElectronEnv"
+      v-if="isDesktopEnv"
       :visible="headerTabContextmenuVisible"
       :position="headerTabContextmenuPosition"
       :has-left="headerTabContextmenuHasLeft"
@@ -70,7 +70,7 @@ import { useLLMClientStore } from '@/store/ai/llmClientStore';
 import { useSystemConfig } from '@/store/systemConfig/systemConfigStore';
 import { storeToRefs } from 'pinia';
 import { useTheme } from '@/hooks/useTheme';
-import { isElectron } from '@/helper';
+import { isDesktop } from '@/helper';
 import { trackEvent } from '@/utils/analytics';
 import { brandConfig } from '@src/config/brand';
 
@@ -86,10 +86,10 @@ const systemConfigStore = useSystemConfig();
 const { agentViewDialogVisible } = storeToRefs(agentViewStore);
 const { t } = useI18n()
 // 平台环境检测
-const isElectronEnv = isElectron()
+const isDesktopEnv = isDesktop()
 // 浏览器 Header 引用
 const browserHeaderRef = ref<InstanceType<typeof BrowserHeader> | null>(null)
-// 语言菜单相关状态（仅 Electron 环境使用）
+// 语言菜单相关状态（仅 Tauri 环境使用）
 const languageMenuVisible = ref(false)
 const languageMenuPosition = ref({ x: 0, y: 0, width: 0, height: 0 })
 const userMenuVisible = ref(false)
@@ -105,9 +105,9 @@ const headerTabContextmenuHasAny = ref(false)
 
 const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
   dialogVisible.value = false;
-  // Electron 环境：通过 IPC 通知 Header
-  if (isElectronEnv) {
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectCreated, {
+  // Tauri 环境：通过 IPC 通知 Header
+  if (isDesktopEnv) {
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectCreated, {
       projectId: data.projectId,
       projectName: data.projectName
     });
@@ -189,7 +189,7 @@ const hideHeaderTabContextmenu = () => {
 }
 const handleHeaderTabContextAction = (action: AppWorkbenchHeaderTabContextAction) => {
   if (!headerTabContextmenuTabId.value) return
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.headerTabContextAction, {
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.headerTabContextAction, {
     action,
     tabId: headerTabContextmenuTabId.value
   })
@@ -199,7 +199,7 @@ const handleLogout = () => {
   trackEvent('user_logout');
   runtimeStore.clearUserInfo()
   hideUserMenu()
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: '', loginName: '', role: 'user', token: '', avatar: '' })
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.userInfoChanged, { id: '', loginName: '', role: 'user', token: '', avatar: '' })
   router.push('/login')
 }
 const handleChangePassword = () => {
@@ -214,17 +214,17 @@ const handleLanguageSelect = (language: Language) => {
   changeLanguage(language)
   hideLanguageMenu()
   // 发送语言切换事件到主进程
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.languageChanged, language)
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.languageChanged, language)
 }
 
 const initAppHeaderEvent = () => {
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.createProject, () => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.createProject, () => {
     dialogVisible.value = true;
   });
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.showAiDialog, () => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.showAiDialog, () => {
     if (runtimeStore.networkMode === 'offline') agentViewStore.showAgentViewDialog();
   });
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.openMcpService, (payload: { projectId: string }) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.openMcpService, (payload: { projectId: string }) => {
     const currentProjectId = router.currentRoute.value.query.id
     if (router.currentRoute.value.path !== '/workbench' || currentProjectId !== payload.projectId) return
     projectNavStore.addNav({
@@ -238,14 +238,14 @@ const initAppHeaderEvent = () => {
       selected: true,
     })
   })
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.changeRoute, (path: string) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.changeRoute, (path: string) => {
     router.push(path)
   })
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab, (data?: { targetTab?: string }) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab, (data?: { targetTab?: string }) => {
     if (!data?.targetTab) return
     appStateCache.setActiveLocalDataMenu(data.targetTab === 'components' ? 'common-settings' : data.targetTab)
   })
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, (mode: RuntimeNetworkMode) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, (mode: RuntimeNetworkMode) => {
     if (brandConfig.offlineOnly) {
       runtimeStore.setNetworkMode('offline')
       return
@@ -255,44 +255,44 @@ const initAppHeaderEvent = () => {
     }
   })
 
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.goBack, () => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.goBack, () => {
     handleGoBack()
   })
 
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.goForward, () => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.goForward, () => {
     handleGoForward()
   })
 
   // 显示语言菜单事件监听
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.showLanguageMenu, (data: { position: any, currentLanguage: string }) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.showLanguageMenu, (data: { position: any, currentLanguage: string }) => {
     showLanguageMenu(data)
   })
 
   // 隐藏语言菜单事件监听
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu, () => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu, () => {
     hideLanguageMenu()
   })
 
   // 显示用户菜单事件监听
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.showUserMenu, (data: { position: AnchorRect }) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.showUserMenu, (data: { position: AnchorRect }) => {
     showUserMenu(data)
   })
 
   // 隐藏用户菜单事件监听
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu, () => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.hideUserMenu, () => {
     hideUserMenu()
   })
 
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.showHeaderTabContextmenu, (data: AppWorkbenchHeaderTabContextmenuData) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.showHeaderTabContextmenu, (data: AppWorkbenchHeaderTabContextmenuData) => {
     showHeaderTabContextmenu(data)
   })
 
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.hideHeaderTabContextmenu, () => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.hideHeaderTabContextmenu, () => {
     hideHeaderTabContextmenu()
   })
 
   // 监听项目切换事件
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.changeProject, async (data: { projectId: string, projectName: string }) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.changeProject, async (data: { projectId: string, projectName: string }) => {
     let matchedProject: ApidocProjectInfo | null = null;
 
     if (runtimeStore.networkMode === 'offline') {
@@ -318,12 +318,12 @@ const initAppHeaderEvent = () => {
         showClose: false,
         type: 'error'
       }).then(() => {
-        window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectDeleted, data.projectId)
+        window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectDeleted, data.projectId)
       })
       return
     }
     if (matchedProject.projectName !== data.projectName) {
-      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectRenamed, {
+      window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectRenamed, {
         projectId: data.projectId,
         projectName: matchedProject.projectName
       })
@@ -340,12 +340,12 @@ const initAppHeaderEvent = () => {
   })
 
   // 监听 Header Tabs 更新事件,进行缓存
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.tabsUpdated, (tabs: any[]) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.tabsUpdated, (tabs: any[]) => {
     appWorkbenchCache.setAppWorkbenchHeaderTabs(tabs)
   })
 
   // 监听 Header 激活 Tab 更新事件,进行缓存
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.activeTabUpdated, (activeTabId: string) => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.activeTabUpdated, (activeTabId: string) => {
     appWorkbenchCache.setAppWorkbenchHeaderActiveTab(activeTabId)
   })
 }
@@ -362,7 +362,7 @@ const initAppHeaderTabs = async () => {
   const cachedActiveTabId = appWorkbenchCache.getAppWorkbenchHeaderActiveTab() || ''
   const activeTabId = tabs.some(tab => tab.id === cachedActiveTabId) ? cachedActiveTabId : ''
   // 发送给 header.vue，包含当前的语言和网络模式
-  window.electronAPI?.ipcManager.sendToMain(
+  window.desktopAPI?.ipcManager.sendToMain(
     IPC_EVENTS.apiflow.contentToTopBar.initTabs,
     {
       tabs,
@@ -416,10 +416,10 @@ const initTheme = () => {
 const initAppTitle = () => {
   document.title = `${config.isDev ? `${config.appConfig.appTitle}(${t('本地')})` : config.appConfig.appTitle}`;
 }
-// 监听主进程推送的批量 Mock 日志（仅 Electron 环境）
+// 监听主进程推送的批量 Mock 日志（仅 Tauri 环境）
 const initMockLogsListener = () => {
-  if (!isElectronEnv) return
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.logsBatch, async (logs: MockLog[]) => {
+  if (!isDesktopEnv) return
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.logsBatch, async (logs: MockLog[]) => {
     if (!logs || !Array.isArray(logs)) {
       console.error('接收到的日志数据格式错误:', logs);
       return;
@@ -429,14 +429,14 @@ const initMockLogsListener = () => {
     }
   });
 }
-// 发送 content 就绪信号到主进程（仅 Electron 环境）
+// 发送 content 就绪信号到主进程（仅 Tauri 环境）
 const sendContentReadySignal = () => {
-  if (!isElectronEnv) return
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.contentReady);
+  if (!isDesktopEnv) return
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.contentReady);
   // 初始化窗口图标（从缓存读取自定义 Logo）
   const cachedLogo = appSettingsStore.appLogo
   if (cachedLogo) {
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.setWindowIcon, cachedLogo)
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.setWindowIcon, cachedLogo)
   }
 }
 // 初始化浏览器环境
@@ -455,17 +455,17 @@ const initBrowserEnv = async () => {
     }
   })
 }
-// 初始化 Electron Header 通信（仅 Electron 环境）
+// 初始化 Tauri Header 通信（仅 Tauri 环境）
 const initAppHeader = () => {
-  if (!isElectronEnv) return
+  if (!isDesktopEnv) return
   // 立即注册事件监听器，不依赖握手状态
   initAppHeaderEvent();
   // 等待 topBar 就绪后再发送初始化数据
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.topBarIsReady, async () => {
+  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.topBarIsReady, async () => {
     await router.isReady();
     await initAppHeaderTabs();
     // 主动推送应用设置给 topBarView，确保刷新后 topBarView 能获取最新设置
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.appSettingsChanged, {
+    window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.appSettingsChanged, {
       appTitle: appSettingsStore.appTitle,
       appLogo: appSettingsStore.appLogo,
       appTheme: appSettingsStore.appTheme
@@ -480,19 +480,19 @@ const initAppHeader = () => {
           const projectId = newRoute.query.id as string;
           const projectName = newRoute.query.name as string;
           if (projectId && projectName) {
-            window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectChanged, {
+            window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectChanged, {
               projectId: projectId,
               projectName: projectName
             })
           }
         } else if (newRoute.path === '/home') {
-          window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToHome)
+          window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToHome)
         } else if (newRoute.path === '/login') {
           if (!brandConfig.offlineOnly && runtimeStore.networkMode === 'online') {
-            window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToLogin)
+            window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToLogin)
           }
         } else if (newRoute.path === '/settings') {
-          window.electronAPI?.ipcManager.sendToMain(
+          window.desktopAPI?.ipcManager.sendToMain(
             IPC_EVENTS.apiflow.contentToTopBar.activeTabUpdated,
             `settings-${runtimeStore.networkMode}`
           )
@@ -509,7 +509,7 @@ const initAppHeader = () => {
       if (router.currentRoute.value.path !== '/home') {
         await router.push('/home')
       }
-      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.refreshContentView)
+      window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.refreshContentView)
     });
   });
 }
@@ -532,10 +532,10 @@ onMounted(() => {
   initLanguage();
   initTheme();
   initAppTitle();
-  if (isElectronEnv && runtimeStore.networkMode === 'offline') llmClientStore.initLLMConfig();
+  if (isDesktopEnv && runtimeStore.networkMode === 'offline') llmClientStore.initLLMConfig();
 
-  if (isElectronEnv) {
-    // Electron 环境初始化
+  if (isDesktopEnv) {
+    // Tauri 环境初始化
     initMockLogsListener();
     initAppHeader();
     sendContentReadySignal();

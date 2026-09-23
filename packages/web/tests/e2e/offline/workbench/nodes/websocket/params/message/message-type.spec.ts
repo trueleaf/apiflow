@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../../fixtures/desktop.fixture';
 
 test.describe('WebSocketMessageType', () => {
   // 消息块类型切换后，下拉框应反映当前类型，覆盖 JSON/XML/HTML/文本/Base64/Hex

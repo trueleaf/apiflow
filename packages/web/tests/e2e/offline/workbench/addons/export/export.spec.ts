@@ -1,12 +1,13 @@
-import { test, expect } from '../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../fixtures/desktop.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('Export', () => {
   test('导出弹窗显示HTML、WORD、JSON文档、OpenAPI四种导出类型', async ({ topBarPage, contentPage, clearCache, createProject }) => {
     await clearCache();
-    await createProject();
+    const projectName = await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await expect(contentPage.locator('.tool h2')).toHaveText(projectName);
     // 打开导出页面
     const moreBtn = contentPage.locator('[data-testid="banner-tool-more-btn"]');
     await moreBtn.click();

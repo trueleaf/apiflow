@@ -127,7 +127,7 @@ watch(
   }
 );
 //监听 IPC 事件，接收快速登录凭证
-window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, (credential: QuickLoginCredential) => {
+window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.quickLoginCredentialChanged, (credential: QuickLoginCredential) => {
   quickLoginCredential.value = credential;
   clearNotificationDismissed('quick-login');
   quickLoginDismissed.value = false;

@@ -75,7 +75,7 @@ const isRecordString = (value: unknown): value is Record<string, string> => {
 }
 //校验WebSocket协议
 const isWebSocketProtocol = (value: unknown): value is 'ws' | 'wss' => value === 'ws' || value === 'wss'
-//解析并校验Electron IPC返回
+//解析并校验Tauri IPC返回
 const normalizeIpcResult = (result: unknown): { ok: boolean; payload: unknown } => {
   if (!isRecord(result)) {
     return { ok: false, payload: result }
@@ -412,7 +412,7 @@ export const websocketNodeTools: AgentTool[] = [
   },
   {
     name: 'connectWebsocketByNodeId',
-    description: 'Establish WebSocket connection via nodeId and url (Electron environment). Headers are optional, enumeration validation is done in execute',
+    description: 'Establish WebSocket connection via nodeId and url (Tauri environment). Headers are optional, enumeration validation is done in execute',
     type: 'websocketNode',
     parameters: {
       type: 'object',
@@ -425,7 +425,7 @@ export const websocketNodeTools: AgentTool[] = [
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
-      if (!window.electronAPI?.websocket?.connect) {
+      if (!window.desktopAPI?.websocket?.connect) {
         return { code: 1, data: { error: 'Current environment does not support WebSocket connection' } }
       }
       const nodeId = args.nodeId
@@ -437,7 +437,7 @@ export const websocketNodeTools: AgentTool[] = [
       if (typeof headers !== 'undefined' && !isRecordString(headers)) {
         return { code: 1, data: { error: 'headers must be Record<string,string>' } }
       }
-      const result = await window.electronAPI.websocket.connect({
+      const result = await window.desktopAPI.websocket.connect({
         nodeId,
         url,
         headers: isRecordString(headers) ? headers : {},
@@ -460,7 +460,7 @@ export const websocketNodeTools: AgentTool[] = [
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
-      if (!window.electronAPI?.websocket?.checkNodeConnection || !window.electronAPI?.websocket?.send) {
+      if (!window.desktopAPI?.websocket?.checkNodeConnection || !window.desktopAPI?.websocket?.send) {
         return { code: 1, data: { error: 'Current environment does not support sending WebSocket messages' } }
       }
       const nodeId = args.nodeId
@@ -468,18 +468,18 @@ export const websocketNodeTools: AgentTool[] = [
       if (!isString(nodeId) || !isString(message)) {
         return { code: 1, data: { error: 'nodeId and message must be strings' } }
       }
-      const stateResult = await window.electronAPI.websocket.checkNodeConnection(nodeId)
+      const stateResult = await window.desktopAPI.websocket.checkNodeConnection(nodeId)
       if (!isRecord(stateResult) || stateResult.connected !== true || !isString(stateResult.connectionId)) {
         return { code: 1, data: { error: 'Current nodeId has not established a connection' } }
       }
-      const result = await window.electronAPI.websocket.send(stateResult.connectionId, message)
+      const result = await window.desktopAPI.websocket.send(stateResult.connectionId, message)
       const normalized = normalizeIpcResult(result)
       return { code: normalized.ok ? 0 : 1, data: normalized.payload }
     },
   },
   {
     name: 'disconnectWebsocketByNodeId',
-    description: 'Disconnect the WebSocket connection of the specified nodeId (Electron environment)',
+    description: 'Disconnect the WebSocket connection of the specified nodeId (Tauri environment)',
     type: 'websocketNode',
     parameters: {
       type: 'object',
@@ -490,14 +490,14 @@ export const websocketNodeTools: AgentTool[] = [
     },
     needConfirm: false,
     execute: async (args: Record<string, unknown>) => {
-      if (!window.electronAPI?.websocket?.disconnectByNode) {
+      if (!window.desktopAPI?.websocket?.disconnectByNode) {
         return { code: 1, data: { error: 'Current environment does not support disconnecting WebSocket connection' } }
       }
       const nodeId = args.nodeId
       if (!isString(nodeId)) {
         return { code: 1, data: { error: 'nodeId must be a string' } }
       }
-      const result = await window.electronAPI.websocket.disconnectByNode(nodeId)
+      const result = await window.desktopAPI.websocket.disconnectByNode(nodeId)
       const normalized = normalizeIpcResult(result)
       return { code: normalized.ok ? 0 : 1, data: normalized.payload }
     },

@@ -368,8 +368,8 @@ onUnmounted(() => {
   document.documentElement.removeEventListener('click', handleHidePopover);
 })
 //点击操作按钮
-const projectId = router.currentRoute.value.query.id as string;
 const handleEmit = (op: ApidocOperations) => {
+  const projectId = router.currentRoute.value.query.id as string;
   switch (op) {
     case 'addRootFolder': //新建文件夹
       addFolderDialogVisible.value = true;
@@ -822,7 +822,7 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
   }
   projectManagerStore.recordVisited(item._id);
   recordProjectVisit(item._id);
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.switchProject, {
+  window.desktopAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.switchProject, {
     projectId: item._id,
     projectName: item.projectName
   });

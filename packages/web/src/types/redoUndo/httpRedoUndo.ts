@@ -1,6 +1,17 @@
 import type { ApidocProperty, HttpNodeRequestMethod, HttpNodeBodyParams, HttpNodeResponseParams } from "../httpNode/types";
 import type { HttpNode } from "../httpNode/httpNode";
 import type * as monaco from 'monaco-editor';
+import type { RequestSnapshot } from '../ai/requestParser';
+
+export type HttpRequestParseOperation = {
+  nodeId: string;
+  type: 'requestParseOperation';
+  operationName: string;
+  affectedModuleName: HttpModuleName;
+  oldValue: RequestSnapshot;
+  newValue: RequestSnapshot;
+  timestamp: number;
+};
 
 // HTTP模块名称联合类型
 export type HttpModuleName =
@@ -192,6 +203,7 @@ export type HttpRemarksOperation = {
 
 // 所有HTTP操作
 export type HttpRedoUnDoOperation =
+  | HttpRequestParseOperation
   | HttpMethodOperation
   | HttpPrefixOperation
   | HttpPathOperation

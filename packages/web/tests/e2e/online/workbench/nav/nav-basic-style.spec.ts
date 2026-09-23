@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../fixtures/desktop-online.fixture';
 
 test.describe('NavBasicStyle', () => {
   // 测试用例1: 导航栏在项目工作区正确渲染

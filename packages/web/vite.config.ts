@@ -9,7 +9,7 @@ import { resolve } from 'path';
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
-import pkg from './package.json'
+import pkg from './package.json' with { type: 'json' }
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
@@ -32,25 +32,15 @@ const brandHtmlTitlePlugin = {
   },
 }
 
-export default defineConfig(async ({ mode, command }) => {
+export default defineConfig(({ command }) => {
   // 检测是否为纯 Web 构建模式
   const isWebOnly = process.env.BUILD_TARGET === 'web'
-  const execCodeModule = isWebOnly
-    ? path.resolve(__dirname, './src/shared/execCode.web.ts')
-    : path.resolve(__dirname, './src/shared/execCode.renderer.ts')
+  const execCodeModule = path.resolve(import.meta.dirname, './src/shared/execCode.platform.ts')
   
-  // 仅在非 Web 模式下动态导入 Electron 插件
-  let viteElectronPlugin = null
-  if (!isWebOnly) {
-    const electronModule = await import('./build/vite')
-    viteElectronPlugin = electronModule.viteElectronPlugin(mode, command)
-  }
   
   return {
     base: './',
     plugins: [
-      // 仅在非 Web 模式下加载 Electron 插件
-      viteElectronPlugin,
       vue(),
       brandHtmlTitlePlugin,
       vueJsx({
@@ -62,24 +52,26 @@ export default defineConfig(async ({ mode, command }) => {
       AutoImport({
         resolvers: [ElementPlusResolver()],
         imports: ['vue', 'vue-router', 'pinia'],
-        dts: 'src/types/auto-imports.d.ts',
+        dts: command === 'serve' ? 'src/types/auto-imports.d.ts' : false,
       }),
       // 自动导入 Element Plus 组件
       Components({
         resolvers: [ElementPlusResolver()],
-        dts: 'src/types/components.d.ts',
+        dts: command === 'serve' ? 'src/types/components.d.ts' : false,
       })
     ].filter(Boolean),
     server: {
       host: 'localhost',
-      port: 4000
+      port: 4000,
+      strictPort: true,
+      watch: { ignored: ['**/src-tauri/**'] },
     },
     resolve: {
       alias: {
         "@shared/execCode": execCodeModule,
-        "@": path.resolve(__dirname, './src/renderer'),
-        "@src": path.resolve(__dirname, "./src"),
-        "@shared": path.resolve(__dirname, "./src/shared"),
+        "@": path.resolve(import.meta.dirname, './src/renderer'),
+        "@src": path.resolve(import.meta.dirname, "./src"),
+        "@shared": path.resolve(import.meta.dirname, "./src/shared"),
       },
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
     },
@@ -124,17 +116,18 @@ export default defineConfig(async ({ mode, command }) => {
     build: {
       minify: false,
       target: 'esnext',
-      outDir: isWebOnly ? 'dist/web' : 'dist/renderer',
+      outDir: isWebOnly ? 'dist/web' : 'dist/tauri',
       emptyOutDir: true,
       sourcemap: false,
       reportCompressedSize: false,
       rollupOptions: {
         input: isWebOnly
-          ? { index: resolve(__dirname, './index.html') }
+          ? { index: resolve(import.meta.dirname, './index.html'), mcp: resolve(import.meta.dirname, './mcp.html') }
           : {
-              header: resolve(__dirname, './header.html'),
-              index: resolve(__dirname, './index.html'),
-              mcp: resolve(__dirname, './mcp.html'),
+              header: resolve(import.meta.dirname, './header.html'),
+              index: resolve(import.meta.dirname, './index.html'),
+              mcp: resolve(import.meta.dirname, './mcp.html'),
+              contentError: resolve(import.meta.dirname, './content-error.html'),
             },
         output: {
           manualChunks(id) {

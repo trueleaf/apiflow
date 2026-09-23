@@ -38,13 +38,6 @@ app.use(customDirective)
 
 app.mount("#app");
 
-// 页面卸载时清空所有 WebSocket 连接
-window.addEventListener("beforeunload", () => {
-  window.electronAPI?.websocket.clearAllConnections().catch((error) => {
-    console.error("页面卸载时清理 WebSocket 连接失败:", error);
-  });
-});
-
 // // 全局拦截 Monaco 等库在销毁阶段触发的 Promise 取消异常，避免刷新/快速切换时控制台报 Uncaught (in promise) Canceled
 // window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
 //   const reason: unknown = event?.reason;

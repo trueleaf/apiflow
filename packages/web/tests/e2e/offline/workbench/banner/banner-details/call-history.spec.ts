@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../fixtures/desktop.fixture';
 
 test.describe('CallHistory', () => {
   // 测试用例1: 切换到调用历史Tab页,验证Tab切换功能和UI展示

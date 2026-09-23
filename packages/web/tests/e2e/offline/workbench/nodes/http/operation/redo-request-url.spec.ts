@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('RequestUrlRedo', () => {
   // 测试用例1: 请求url中输入字符串ab,按ctrl+z撤销到a,再按ctrl+shift+z重做,url值为ab

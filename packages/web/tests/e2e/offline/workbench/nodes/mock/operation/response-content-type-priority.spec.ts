@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture'
+import { test, expect } from '../../../../../../fixtures/desktop.fixture'
 
 test.describe('HttpMockResponseContentTypePriority-Offline', () => {
   test('手动设置的返回头 Content-Type 优先于 json 数据结构默认类型', async ({ contentPage, clearCache, createProject, createNode }) => {

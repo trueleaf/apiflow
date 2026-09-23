@@ -11,7 +11,7 @@ test.describe('AiReportUiContract', () => {
     expect(aiHeaderSource).toContain('v-if="isAppStore"');
     expect(aiHeaderSource).toContain('@click="handleReport"');
     expect(aiHeaderSource).toContain('showReportDialog.value = true');
-    expect(aiHeaderSource).toContain('window.electronAPI?.updateManager?.isAppStore()');
+    expect(aiHeaderSource).toContain('window.desktopAPI?.updateManager?.isAppStore()');
     // 校验举报弹窗核心文案、复制邮箱按钮与关闭动作链路
     expect(reportDialogSource).toContain(":title=\"t('举报 AI 内容')\"");
     expect(reportDialogSource).toContain('2581105856@qq.com');

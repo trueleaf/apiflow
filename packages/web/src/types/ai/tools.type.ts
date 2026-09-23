@@ -5,7 +5,7 @@ import type {
   HttpNodeResponseParams,
   HttpNodeContentType,
 } from '../httpNode/types';
-import type { Method } from 'got';
+import type { Method } from '@src/types/request';
 
 // 创建HttpNode时的可选item参数
 export type CreateHttpNodeItemOptions = {

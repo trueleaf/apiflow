@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron.fixture';
+import { test, expect } from '../../../fixtures/desktop.fixture';
 
 test.describe('HandshakeMechanism', () => {
   test('应用启动时事件监听器立即可用', async ({ topBarPage, contentPage, clearCache }) => {
@@ -65,23 +65,18 @@ test.describe('HandshakeMechanism', () => {
     }
     // 额外等待以确保事件监听器注册完成
     await contentPage.waitForTimeout(500);
-    // 验证切换后AI按钮仍然可用
+    // AI 面板仅在离线模式开放
     const aiBtn = topBarPage.locator('[data-testid="header-ai-btn"]');
-    await aiBtn.click();
-    const aiDialog = contentPage.locator('.ai-dialog');
-    await expect(aiDialog).toBeVisible({ timeout: 5000 });
-    // 检查是否有确认对话框，如果有则关闭
-    const confirmDialog = contentPage.locator('.cl-confirm-wrapper');
-    const isConfirmVisible = await confirmDialog.isVisible({ timeout: 1000 }).catch(() => false);
-    if (isConfirmVisible) {
-      const confirmCloseBtn = confirmDialog.locator('.cl-confirm-close');
-      await confirmCloseBtn.click({ force: true });
-      await confirmDialog.waitFor({ state: 'hidden', timeout: 2000 }).catch(() => {});
+    if (isOnline) {
+      await aiBtn.click();
+      const aiDialog = contentPage.locator('.ai-dialog');
+      await expect(aiDialog).toBeVisible({ timeout: 5000 });
+      const closeBtn = aiDialog.locator('.ai-dialog-close');
+      await closeBtn.click({ force: true });
+      await expect(aiDialog).toBeHidden({ timeout: 5000 });
+    } else {
+      await expect(aiBtn).toHaveCount(0);
     }
-    // 关闭AI对话框
-    const closeBtn = aiDialog.locator('.ai-dialog-close');
-    await closeBtn.click({ force: true });
-    await expect(aiDialog).toBeHidden({ timeout: 5000 });
     // 验证设置按钮仍然可用
     const settingsBtn = topBarPage.locator('[data-testid="header-settings-btn"]');
     await settingsBtn.click();

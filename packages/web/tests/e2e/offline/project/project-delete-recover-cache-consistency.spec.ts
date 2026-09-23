@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/electron.fixture'
+import { test, expect } from '../../../fixtures/desktop.fixture'
 
 test.describe('ProjectDeleteRecoverCacheConsistency', () => {
   // 删除项目后再恢复，校验 docNum 与节点缓存一致性（无重复、删除态正确）

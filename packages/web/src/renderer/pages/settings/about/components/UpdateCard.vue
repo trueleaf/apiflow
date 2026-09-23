@@ -36,7 +36,7 @@
               </div>
               <div class="info-row" v-if="updateInfo.releaseNotes">
                 <span class="info-label">{{ t('更新内容') }}：</span>
-                <div class="release-notes" v-html="updateInfo.releaseNotes"></div>
+                <div class="release-notes">{{ updateInfo.releaseNotes }}</div>
               </div>
             </div>
           </div>
@@ -219,7 +219,7 @@ const handleCheckUpdate = async () => {
   errorInfo.value = null
   
   try {
-    const result = await window.electronAPI?.updateManager.checkForUpdates();
+    const result = await window.desktopAPI?.updateManager.checkForUpdates();
     if (result?.code !== 0) {
       status.value = 'error'
       errorInfo.value = {
@@ -239,7 +239,7 @@ const handleDownloadUpdate = async () => {
   status.value = 'downloading'
   
   try {
-    const result = await window.electronAPI?.updateManager.downloadUpdate()
+    const result = await window.desktopAPI?.updateManager.downloadUpdate()
     if (result?.code !== 0) {
       ElMessage.error(result?.msg || t('下载失败'))
       status.value = 'available'
@@ -251,13 +251,13 @@ const handleDownloadUpdate = async () => {
 }
 // 取消下载
 const handleCancelDownload = async () => {
-  await window.electronAPI?.updateManager.cancelDownload()
+  await window.desktopAPI?.updateManager.cancelDownload()
   status.value = 'idle'
 }
 // 暂停下载
 const handlePauseDownload = async () => {
   try {
-    const result = await window.electronAPI?.updateManager.pauseDownload()
+    const result = await window.desktopAPI?.updateManager.pauseDownload()
     if (result?.code === 0) {
       status.value = 'paused'
     } else {
@@ -270,7 +270,7 @@ const handlePauseDownload = async () => {
 // 恢复下载
 const handleResumeDownload = async () => {
   try {
-    const result = await window.electronAPI?.updateManager.resumeDownload()
+    const result = await window.desktopAPI?.updateManager.resumeDownload()
     if (result?.code === 0) {
       status.value = 'downloading'
     } else {
@@ -282,19 +282,19 @@ const handleResumeDownload = async () => {
 }
 // 安装更新
 const handleInstallUpdate = async () => {
-  await window.electronAPI?.updateManager.quitAndInstall()
+  await window.desktopAPI?.updateManager.quitAndInstall()
 }
 // 自动检查更新开关变化
 const handleAutoCheckChange = (value: boolean | string | number) => {
   const boolValue = Boolean(value)
   appStateCache.setAutoCheckUpdate(boolValue)
-  window.electronAPI?.updateManager.setAutoCheck(boolValue)
+  window.desktopAPI?.updateManager.setAutoCheck(boolValue)
 }
 // 更新源变化
 const handleSourceChange = (value: string | number | boolean | undefined) => {
   const sourceValue = value as 'github' | 'custom'
   appStateCache.setUpdateSource(sourceValue)
-  window.electronAPI?.updateManager.setUpdateSource(
+  window.desktopAPI?.updateManager.setUpdateSource(
     sourceValue,
     sourceValue === 'custom' ? settings.customUrl : undefined
   )
@@ -303,7 +303,7 @@ const handleSourceChange = (value: string | number | boolean | undefined) => {
 const handleCustomUrlChange = () => {
   if (settings.source === 'custom') {
     appStateCache.setCustomUpdateUrl(settings.customUrl)
-    window.electronAPI?.updateManager.setUpdateSource(
+    window.desktopAPI?.updateManager.setUpdateSource(
       'custom',
       settings.customUrl
     )
@@ -318,7 +318,7 @@ const handleTestConnection = async () => {
 
   testConnectionLoadinng.value = true
   try {
-    const result = await window.electronAPI?.updateManager.testConnection(
+    const result = await window.desktopAPI?.updateManager.testConnection(
       settings.customUrl
     )
     if (result?.code === 0) {
@@ -335,34 +335,34 @@ const handleTestConnection = async () => {
 // 监听IPC事件
 const initIPCListeners = () => {
   // 正在检查更新
-  window.electronAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.checkingForUpdate, () => {
+  window.desktopAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.checkingForUpdate, () => {
     status.value = 'checking'
   })
 
   // 发现新版本
-  window.electronAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.updateAvailable, (data: UpdateInfo) => {
+  window.desktopAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.updateAvailable, (data: UpdateInfo) => {
     status.value = 'available';
     updateInfo.value = data
   })
 
   // 已是最新版本
-  window.electronAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.updateNotAvailable, () => {
+  window.desktopAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.updateNotAvailable, () => {
     status.value = 'idle'
     ElMessage.success(t('已是最新版本'))
   })
 
   // 下载进度
-  window.electronAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.downloadProgress, (data: UpdateProgress) => {
+  window.desktopAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.downloadProgress, (data: UpdateProgress) => {
     Object.assign(downloadProgress, data)
   })
 
   // 下载完成
-  window.electronAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.updateDownloaded, () => {
+  window.desktopAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.updateDownloaded, () => {
     status.value = 'downloaded'
   })
 
   // 下载状态变化
-  window.electronAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.downloadStateChanged, (data: { state: string; error?: string }) => {
+  window.desktopAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.downloadStateChanged, (data: { state: string; error?: string }) => {
     if (data.state === 'downloading') {
       status.value = 'downloading'
     } else if (data.state === 'paused') {
@@ -380,7 +380,7 @@ const initIPCListeners = () => {
   })
 
   // 错误
-  window.electronAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.error, (data: UpdateError) => {
+  window.desktopAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.error, (data: UpdateError) => {
     status.value = 'error'
     errorInfo.value = data
   })
@@ -389,7 +389,7 @@ const initIPCListeners = () => {
 // 组件挂载
 onMounted(async () => {
   // 检测是否为商店版本
-  isAppStore.value = await window.electronAPI?.updateManager.isAppStore() || false
+  isAppStore.value = await window.desktopAPI?.updateManager.isAppStore() || false
   
   // 商店版本不需要初始化更新相关功能
   if (isAppStore.value) {
@@ -402,7 +402,7 @@ onMounted(async () => {
     settings.source = 'custom'
   }
   // 同步配置到主进程，需要转换为普通对象
-  window.electronAPI?.updateManager.syncSettings({
+  window.desktopAPI?.updateManager.syncSettings({
     autoCheck: settings.autoCheck,
     source: settings.source,
     customUrl: settings.customUrl,
@@ -414,7 +414,7 @@ onMounted(async () => {
 // 恢复下载状态
 const restoreDownloadState = async () => {
   try {
-    const result = await window.electronAPI?.updateManager.getDownloadState();
+    const result = await window.desktopAPI?.updateManager.getDownloadState();
     if (result?.code === 0 && result.data) {
       const taskState = result.data as DownloadTask
       if (taskState.state === 'downloading') {
@@ -436,13 +436,13 @@ const restoreDownloadState = async () => {
 
 // 组件卸载
 onUnmounted(() => {
-  window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.checkingForUpdate)
-  window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.updateAvailable)
-  window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.updateNotAvailable)
-  window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.downloadProgress)
-  window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.updateDownloaded)
-  window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.downloadStateChanged)
-  window.electronAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.error)
+  window.desktopAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.checkingForUpdate)
+  window.desktopAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.updateAvailable)
+  window.desktopAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.updateNotAvailable)
+  window.desktopAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.downloadProgress)
+  window.desktopAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.updateDownloaded)
+  window.desktopAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.downloadStateChanged)
+  window.desktopAPI?.ipcManager.removeListener(UPDATE_IPC_EVENTS.error)
 })
 </script>
 
@@ -519,6 +519,7 @@ onUnmounted(() => {
             }
             
             .release-notes {
+                white-space: pre-wrap;
               margin-top: 4px;
               padding: 8px;
               background: var(--bg-primary);

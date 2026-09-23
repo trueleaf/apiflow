@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../fixtures/desktop-online.fixture';
 
 test.describe('UserMenu ChangePassword', () => {
   test('用户头像菜单显示修改密码选项', async ({ topBarPage, contentPage, clearCache, loginAccount }) => {

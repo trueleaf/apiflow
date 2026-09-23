@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 const MOCK_SERVER_PORT = 3456;
 
@@ -31,12 +31,12 @@ test.describe('WebSocketConnectionPool-Offline', () => {
     // 断言连接池中已记录当前连接
     const firstConnections = await contentPage.evaluate(async () => {
       const api = (window as unknown as {
-        electronAPI?: {
+        desktopAPI?: {
           websocket?: {
             getAllConnections: () => Promise<Array<{ connectionId: string; state: number }>>;
           };
         };
-      }).electronAPI;
+      }).desktopAPI;
       if (!api?.websocket?.getAllConnections) {
         return [];
       }
@@ -47,12 +47,12 @@ test.describe('WebSocketConnectionPool-Offline', () => {
     // 调用 disconnectByNode 后，页面需回到可连接状态
     const disconnectByNodeResult = await contentPage.evaluate(async (nodeId: string) => {
       const api = (window as unknown as {
-        electronAPI?: {
+        desktopAPI?: {
           websocket?: {
             disconnectByNode: (id: string) => Promise<{ code: number; msg: string; data: null }>;
           };
         };
-      }).electronAPI;
+      }).desktopAPI;
       if (!api?.websocket?.disconnectByNode) {
         return { code: 1, msg: 'disconnectByNode 不可用', data: null };
       }
@@ -83,12 +83,12 @@ test.describe('WebSocketConnectionPool-Offline', () => {
     // 清空所有连接后，所有节点都应回到未连接状态
     const clearAllResult = await contentPage.evaluate(async () => {
       const api = (window as unknown as {
-        electronAPI?: {
+        desktopAPI?: {
           websocket?: {
             clearAllConnections: () => Promise<{ code: number; msg: string; data: { closedCount: number } }>;
           };
         };
-      }).electronAPI;
+      }).desktopAPI;
       if (!api?.websocket?.clearAllConnections) {
         return { code: 1, msg: 'clearAllConnections 不可用', data: { closedCount: 0 } };
       }
@@ -102,12 +102,12 @@ test.describe('WebSocketConnectionPool-Offline', () => {
     // 连接池清空后连接数量应为 0
     const finalConnections = await contentPage.evaluate(async () => {
       const api = (window as unknown as {
-        electronAPI?: {
+        desktopAPI?: {
           websocket?: {
             getAllConnections: () => Promise<Array<{ connectionId: string; state: number }>>;
           };
         };
-      }).electronAPI;
+      }).desktopAPI;
       if (!api?.websocket?.getAllConnections) {
         return [];
       }

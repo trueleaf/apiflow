@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../../fixtures/desktop-online.fixture';
 
 test.describe('Export', () => {
   test('导出弹窗显示HTML、WORD、JSON文档、OpenAPI四种导出类型', async ({ topBarPage, contentPage, clearCache, createProject, createNode, loginAccount }) => {

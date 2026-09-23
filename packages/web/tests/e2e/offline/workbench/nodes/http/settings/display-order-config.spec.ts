@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('DisplayOrderConfig', () => {
   // 测试用例1: 拖拽调整Body参数模式显示顺序后,Body区域按新顺序展示

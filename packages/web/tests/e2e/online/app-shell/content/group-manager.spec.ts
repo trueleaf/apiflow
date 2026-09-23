@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../fixtures/desktop-online.fixture';
 import { confirmDeleteDialog } from '../../../../fixtures/admin-helper';
 
 test.describe('online团队管理', () => {

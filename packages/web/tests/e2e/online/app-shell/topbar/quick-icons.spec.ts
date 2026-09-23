@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../fixtures/desktop-online.fixture';
 
 test.describe('QuickIcons', () => {
   // 验证 AI 助理入口可打开弹窗且重复点击不会关闭

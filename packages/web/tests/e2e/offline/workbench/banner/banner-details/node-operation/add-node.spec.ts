@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('AddNode', () => {
   test('鼠标右键空白区域可新增 HTTP 节点', async ({ contentPage, clearCache, createProject, reload }) => {

@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('MockNodeServiceStatus-Offline', () => {
   test('HTTP Mock 配置保存后可回填并可启停服务', async ({ contentPage, clearCache, createProject, createNode }) => {

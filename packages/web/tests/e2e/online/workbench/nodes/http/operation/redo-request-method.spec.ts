@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop-online.fixture';
 
 test.describe('RequestMethodRedo', () => {
   // 测试用例1: 切换请求方法两次后点击撤销按钮,再点击重做按钮,请求方法恢复到撤销前的状态

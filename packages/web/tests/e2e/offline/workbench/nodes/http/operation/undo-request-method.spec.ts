@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../../../fixtures/electron.fixture';
+import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 
 test.describe('RequestMethodUndo', () => {
   // 测试用例1: 切换请求方法两次,点击撤销按钮,请求方法恢复到上一次的状态

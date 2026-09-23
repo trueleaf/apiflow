@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../fixtures/electron-online.fixture';
+import { test, expect } from '../../../../fixtures/desktop-online.fixture';
 
 test('contentViewLifecycle 错误页 state 保持 failed', async ({ contentPage, clearCache }) => {
   await clearCache();
@@ -9,12 +9,12 @@ test('contentViewLifecycle 错误页 state 保持 failed', async ({ contentPage,
   // 初始化生命周期并触发一次必失败的加载
   await contentPage.evaluate(({ fallbackUrl, failUrl }) => {
     const api = (window as unknown as {
-      electronAPI?: {
+      desktopAPI?: {
         ipcManager?: {
           invoke?: (channel: string, payload?: unknown) => Promise<unknown>;
         };
       };
-    }).electronAPI;
+    }).desktopAPI;
 
     if (!api?.ipcManager?.invoke) {
       throw new Error('ipcManager.invoke 不存在');
@@ -37,7 +37,7 @@ test('contentViewLifecycle 错误页 state 保持 failed', async ({ contentPage,
   // 校验错误页展示期间 state 仍然是 failed
   const loadStateAfterFail = await contentPage.evaluate(async () => {
     const api = (window as unknown as {
-      electronAPI?: {
+      desktopAPI?: {
         contentViewGetLoadState?: () => Promise<{
           state: 'idle' | 'loading' | 'loaded' | 'failed';
           failureInfo: {
@@ -49,7 +49,7 @@ test('contentViewLifecycle 错误页 state 保持 failed', async ({ contentPage,
           currentUrl: string;
         }>;
       };
-    }).electronAPI;
+    }).desktopAPI;
 
     if (!api?.contentViewGetLoadState) return null;
     return await api.contentViewGetLoadState();
@@ -69,7 +69,7 @@ test('contentViewLifecycle 错误页 state 保持 failed', async ({ contentPage,
       try {
         const loadStateAfterFallback = await contentPage.evaluate(async () => {
           const api = (window as unknown as {
-            electronAPI?: {
+            desktopAPI?: {
               contentViewGetLoadState?: () => Promise<{
                 state: 'idle' | 'loading' | 'loaded' | 'failed';
                 failureInfo: {
@@ -81,7 +81,7 @@ test('contentViewLifecycle 错误页 state 保持 failed', async ({ contentPage,
                 currentUrl: string;
               }>;
             };
-          }).electronAPI;
+          }).desktopAPI;
           if (!api?.contentViewGetLoadState) return null;
           return await api.contentViewGetLoadState();
         });

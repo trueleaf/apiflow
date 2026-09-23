@@ -16,8 +16,8 @@ export const useAppSettings = defineStore('appSettings', () => {
   const appLogo = computed(() => _appLogo.value || defaultLogoImg)
 
   const notifyAppSettingsChanged = (): void => {
-    if (window.electronAPI?.ipcManager) {
-      window.electronAPI.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.appSettingsChanged, {
+    if (window.desktopAPI?.ipcManager) {
+      window.desktopAPI.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.appSettingsChanged, {
         appTitle: appTitle.value,
         appLogo: appLogo.value,
         appTheme: appTheme.value,
@@ -29,8 +29,8 @@ export const useAppSettings = defineStore('appSettings', () => {
   }
   // 通知主进程更新窗口图标
   const notifyWindowIconChanged = (iconDataUrl: string): void => {
-    if (window.electronAPI?.ipcManager) {
-      window.electronAPI.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.setWindowIcon, iconDataUrl)
+    if (window.desktopAPI?.ipcManager) {
+      window.desktopAPI.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.setWindowIcon, iconDataUrl)
     }
   }
 
