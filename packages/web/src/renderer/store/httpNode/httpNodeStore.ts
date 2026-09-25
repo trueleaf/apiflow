@@ -532,6 +532,26 @@ export const useHttpNode = defineStore('httpNode', () => {
         projectId: payload.projectId,
         _id: payload.id,
       }
+      // 接口不存在时提示用户关闭接口（数据为 null 或返回 4001）
+      const promptCloseMissingDoc = () => {
+        ClConfirm({
+          content: i18n.global.t('当前接口不存在，可能已经被删除'),
+          title: i18n.global.t('提示'),
+          confirmButtonText: i18n.global.t('关闭接口'),
+          cancelButtonText: i18n.global.t('取消'),
+          type: 'warning',
+        }).then(() => {
+          deleteNavByIds({
+            projectId: payload.projectId,
+            ids: [payload.id]
+          })
+        }).catch((err) => {
+          if (err === 'cancel' || err === 'close') {
+            return;
+          }
+          console.error(err);
+        });
+      }
       axiosInstance.get<CommonResponse<HttpNode>, CommonResponse<HttpNode>>('/api/project/doc_detail', {
         params,
         cancelToken: new axios.CancelToken((c) => {
@@ -539,29 +559,18 @@ export const useHttpNode = defineStore('httpNode', () => {
         }),
       }).then((res) => {
         if (res.data === null) { //接口不存在提示用户删除接口
-          ClConfirm({
-            content: i18n.global.t('当前接口不存在，可能已经被删除'),
-            title: i18n.global.t('提示'),
-            confirmButtonText: i18n.global.t('关闭接口'),
-            cancelButtonText: i18n.global.t('取消'),
-            type: 'warning',
-          }).then(() => {
-            deleteNavByIds({
-              projectId: payload.projectId,
-              ids: [payload.id]
-            })
-          }).catch((err) => {
-            if (err === 'cancel' || err === 'close') {
-              return;
-            }
-            console.error(err);
-          });
+          promptCloseMissingDoc();
           return;
         }
         changeHttpNodeInfo(res.data);
         changeOriginHttpNodeInfo()
         resolve()
       }).catch((err) => {
+        if ((err as { code?: number })?.code === 4001) { //接口不存在（含无效的文档id）
+          promptCloseMissingDoc();
+          reject(err);
+          return;
+        }
         console.error(err);
         reject(err);
       }).finally(() => {

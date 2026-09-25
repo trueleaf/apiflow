@@ -192,13 +192,16 @@ axiosInstance.interceptors.response.use(
         case 4004: //暂无当前接口权限
           message.warning(i18n.global.t(res.data.msg || '暂无当前接口权限'));
           return Promise.reject(new Error(i18n.global.t(res.data.msg || '暂无当前接口权限')));
-        default:
+        default: {
           ElMessageBox.confirm(i18n.global.t(res.data.msg ? res.data.msg : '操作失败'), i18n.global.t('提示'), {
             confirmButtonText: i18n.global.t('确定/ApiErrorDialog'),
             showCancelButton: false,
             type: 'warning',
           });
-          return Promise.reject(new Error(i18n.global.t(res.data.msg)));
+          const bizError = new Error(i18n.global.t(res.data.msg)) as Error & { code?: number };
+          bizError.code = res.data.code;
+          return Promise.reject(bizError);
+        }
       }
       return result;
     }

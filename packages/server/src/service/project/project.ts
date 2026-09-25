@@ -122,11 +122,18 @@ export class ProjectService {
         throwError(1014, '项目成员数量超过限制')
       }
       const groupInfo = await this.groupModel.findOne({ _id: id }).lean();
+      if (!groupInfo) {
+        throwError(1003, '团队不存在')
+      }
+      if (projectInfo.groups.some(group => group.groupId === id)) {
+        throwError(1003, '该用户组已在项目内')
+      }
       await this.projectModel.findByIdAndUpdate({ _id: projectId }, {
         $push: { groups: {
           groupId: id,
           groupName: name,
-          permission
+          permission,
+          groupUsers: groupInfo.members
         } }
       });
       const memberIds = groupInfo.members.map(v => v.userId);

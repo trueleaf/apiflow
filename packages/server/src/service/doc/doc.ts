@@ -533,6 +533,9 @@ export class DocService {
   async getDocDetail(params: GetDocDetailDto) {
     const { _id, projectId } = params;
     await this.commonControl.checkDocOperationPermissions(projectId, 'readOnly');
+    if (!Types.ObjectId.isValid(_id)) {
+      throwError(4001, '暂无文档信息')
+    }
     const result = await this.docModel.findOne({ _id }, { pid: 0, sort: 0, isEnabled: 0 }).lean();
     if (!result) {
       throwError(4001, '暂无文档信息')
