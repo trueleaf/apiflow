@@ -113,7 +113,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, onMounted, onUnmounted, onActivated, Ref, watch, defineAsyncComponent } from 'vue'
+import { computed, ref, onMounted, onUnmounted, onActivated, Ref, watch, defineAsyncComponent, nextTick } from 'vue'
 import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType, ApidocProperty } from '@src/types'
 import { useI18n } from 'vue-i18n'
 import { Sparkles } from 'lucide-vue-next'
@@ -143,7 +143,7 @@ const bodyTipUrl = new URL('@/assets/imgs/apidoc/body-tip.png', import.meta.url)
 const rawEditor = ref<{
   changeLanguage: (lang: string) => void,
   getCursorPosition?: () => Monaco.Position | null,
-  setCursorPosition?: (position: Monaco.Position) => void,
+  setCursorPosition?: (position: Monaco.IPosition) => void,
 } | null>(null)
 const httpNodeStore = useHttpNode()
 const httpRedoUndoStore = useHttpRedoUndo()
@@ -157,7 +157,7 @@ const jsonComponent: Ref<null | {
   format: () => void,
   focus: () => void,
   getCursorPosition?: () => Monaco.Position | null,
-  setCursorPosition?: (position: Monaco.Position) => void,
+  setCursorPosition?: (position: Monaco.IPosition) => void,
 }> = ref(null)
 
 //根据参数内容校验对应的contentType值
@@ -196,7 +196,6 @@ const checkContentType = () => {
 }
 //改变bodytype类型
 const changeBodyType = () => {
-  checkContentType();
   jsonComponent.value?.focus()
 }
 //不再显示body提示信息
@@ -213,7 +212,18 @@ const bodyType = computed<HttpNodeBodyMode>({
     return httpNodeStore.httpNodeInfo.item.requestBody.mode;
   },
   set(val) {
+    if (val === httpNodeStore.httpNodeInfo.item.requestBody.mode) return;
+    const oldValue = {
+      requestBody: cloneDeep(httpNodeStore.httpNodeInfo.item.requestBody),
+      contentType: httpNodeStore.httpNodeInfo.item.contentType
+    };
     httpNodeStore.changeBodyMode(val);
+    checkContentType();
+    const newValue = {
+      requestBody: cloneDeep(httpNodeStore.httpNodeInfo.item.requestBody),
+      contentType: httpNodeStore.httpNodeInfo.item.contentType
+    };
+    recordBodyOperation(oldValue, newValue);
   },
 });
 const requestBody = computed<HttpNodeBodyParams>(() => {
@@ -258,30 +268,35 @@ const handleJsonPaste = (event: ClipboardEvent) => {
 //处理JSON内容变化
 const handleJsonChange = (newValue: string) => {
   const oldValue = httpNodeStore.httpNodeInfo.item.requestBody.rawJson;
+  const oldContentType = httpNodeStore.httpNodeInfo.item.contentType;
   httpNodeStore.changeRawJson(newValue);
-  recordJsonOperation(oldValue, newValue);
   checkContentType();
+  recordJsonOperation(oldValue, newValue, oldContentType, httpNodeStore.httpNodeInfo.item.contentType);
 }
 //处理编辑器undo
-const handleEditorUndo = () => {
+const handleEditorUndo = async () => {
   const nodeId = currentSelectNav.value?._id;
   if (nodeId) {
     const result = httpRedoUndoStore.httpUndo(nodeId);
     if (result.code === 0 && result.operation?.type === 'rawJsonOperation') {
-      if (result.operation.cursorPosition) {
-        jsonComponent.value?.setCursorPosition?.(result.operation.cursorPosition);
+      const position = result.operation.oldCursorPosition ?? result.operation.cursorPosition;
+      if (position) {
+        await nextTick();
+        jsonComponent.value?.setCursorPosition?.(position);
       }
     }
   }
 }
 //处理编辑器redo
-const handleEditorRedo = () => {
+const handleEditorRedo = async () => {
   const nodeId = currentSelectNav.value?._id;
   if (nodeId) {
     const result = httpRedoUndoStore.httpRedo(nodeId);
     if (result.code === 0 && result.operation?.type === 'rawJsonOperation') {
-      if (result.operation.cursorPosition) {
-        jsonComponent.value?.setCursorPosition?.(result.operation.cursorPosition);
+      const position = result.operation.newCursorPosition ?? result.operation.cursorPosition;
+      if (position) {
+        await nextTick();
+        jsonComponent.value?.setCursorPosition?.(position);
       }
     }
   }
@@ -608,11 +623,14 @@ onUnmounted(() => {
 });
 
 //JSON记录函数
-const recordJsonOperation = (oldValue: string, newValue: string) => {
+const recordJsonOperation = (oldValue: string, newValue: string, oldContentType: HttpNodeContentType, newContentType: HttpNodeContentType) => {
   if (!currentSelectNav.value || oldValue === newValue) return;
-
-  const cursorPosition = jsonComponent.value?.getCursorPosition?.() || undefined;
-
+  let prefixLength = 0;
+  while (prefixLength < Math.min(oldValue.length, newValue.length) && oldValue[prefixLength] === newValue[prefixLength]) prefixLength++;
+  let suffixLength = 0;
+  while (suffixLength < Math.min(oldValue.length, newValue.length) - prefixLength && oldValue[oldValue.length - 1 - suffixLength] === newValue[newValue.length - 1 - suffixLength]) suffixLength++;
+  const oldCursorPosition = getJsonPositionAtOffset(oldValue, oldValue.length - suffixLength);
+  const newCursorPosition = getJsonPositionAtOffset(newValue, newValue.length - suffixLength);
   httpRedoUndoStore.recordOperation({
     nodeId: currentSelectNav.value._id,
     type: "rawJsonOperation",
@@ -620,9 +638,17 @@ const recordJsonOperation = (oldValue: string, newValue: string) => {
     affectedModuleName: "rawJson",
     oldValue,
     newValue,
-    cursorPosition,
+    oldContentType,
+    newContentType,
+    oldCursorPosition,
+    newCursorPosition,
     timestamp: Date.now()
   });
+};
+//计算JSON文本偏移量对应的光标位置
+const getJsonPositionAtOffset = (value: string, offset: number) => {
+  const lines = value.slice(0, offset).split('\n');
+  return { lineNumber: lines.length, column: lines[lines.length - 1].length + 1 };
 };
 //请求体记录函数
 const recordBodyOperation = (oldValue: { requestBody: HttpNodeBodyParams, contentType: HttpNodeContentType }, newValue: { requestBody: HttpNodeBodyParams, contentType: HttpNodeContentType }) => {

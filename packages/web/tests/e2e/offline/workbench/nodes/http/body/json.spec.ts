@@ -217,6 +217,35 @@ test.describe('Json', () => {
     await expect(editorContent).toContainText('test', { timeout: 5000 });
     await expect(editorContent).toContainText('age', { timeout: 5000 });
   });
+  test('JSON Body快捷键逐步撤销重做并同步请求头', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
+    await createNode(contentPage, { nodeType: 'http', name: 'JSON撤销重做测试' });
+    await contentPage.getByTestId('http-params-tab-body').click();
+    await contentPage.locator('.el-radio').filter({ hasText: /json/i }).click();
+    const editor = contentPage.locator('.body-params .json-wrap .monaco-editor');
+    await editor.click({ force: true });
+    // 分两次输入，确认一次快捷键只撤销一条历史记录
+    await contentPage.keyboard.type('a');
+    await contentPage.waitForTimeout(600);
+    await contentPage.keyboard.type('b');
+    await expect(editor.locator('.view-lines')).toHaveText('ab');
+    await contentPage.keyboard.press('ControlOrMeta+z');
+    await expect(editor.locator('.view-lines')).toHaveText('a');
+    await contentPage.keyboard.press('ControlOrMeta+y');
+    await expect(editor.locator('.view-lines')).toHaveText('ab');
+    // 撤销到空内容后，自动生成的 Content-Type 应同时消失
+    await contentPage.keyboard.press('ControlOrMeta+z');
+    await contentPage.keyboard.press('ControlOrMeta+z');
+    await expect(editor.locator('.view-lines')).toHaveText('');
+    await contentPage.getByTestId('http-params-tab-headers').click();
+    const headers = contentPage.locator('.header-info');
+    if (await headers.locator('.default-headers-wrap').isHidden()) {
+      await headers.getByTestId('toggle-hidden-headers').click();
+    }
+    await expect(headers).not.toContainText('application/json');
+  });
 });
 
 

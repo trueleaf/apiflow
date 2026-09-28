@@ -121,6 +121,10 @@ export type HttpRawJsonOperation = {
   affectedModuleName: HttpModuleName;
   oldValue: string;
   newValue: string;
+  oldContentType?: HttpNode['item']['contentType'];
+  newContentType?: HttpNode['item']['contentType'];
+  oldCursorPosition?: monaco.IPosition;
+  newCursorPosition?: monaco.IPosition;
   cursorPosition?: monaco.Position;
   timestamp: number;
 };

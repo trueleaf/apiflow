@@ -23,6 +23,7 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
   const httpUndoList = ref<Record<string, HttpRedoUnDoOperation[]>>({});
   const httpNodeStore = useHttpNode();
   const pathOperationMergeMs = 250;
+  const jsonOperationMergeMs = 500;
   /**
    * 记录操作
    */
@@ -40,6 +41,20 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
       operation.timestamp - lastOperation.timestamp <= pathOperationMergeMs
     ) {
       lastOperation.newValue = operation.newValue;
+      lastOperation.timestamp = operation.timestamp;
+      httpRedoList.value[nodeId] = [];
+      httpRedoUndoCache.setRedoUndoListByNodeId(nodeId, httpRedoList.value[nodeId], httpUndoList.value[nodeId]);
+      return;
+    }
+    if (
+      operation.type === 'rawJsonOperation' &&
+      lastOperation?.type === 'rawJsonOperation' &&
+      operation.oldValue === lastOperation.newValue &&
+      operation.timestamp - lastOperation.timestamp <= jsonOperationMergeMs
+    ) {
+      lastOperation.newValue = operation.newValue;
+      lastOperation.newContentType = operation.newContentType;
+      lastOperation.newCursorPosition = operation.newCursorPosition;
       lastOperation.timestamp = operation.timestamp;
       httpRedoList.value[nodeId] = [];
       httpRedoUndoCache.setRedoUndoListByNodeId(nodeId, httpRedoList.value[nodeId], httpUndoList.value[nodeId]);
@@ -155,6 +170,10 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
 
       case 'rawJsonOperation':
         httpNodeStore.changeRawJson(targetValue as string);
+        if (httpNodeStore.httpNodeInfo.item.requestBody.mode === 'json') {
+          const contentType = operationType === 'undo' ? operation.oldContentType : operation.newContentType;
+          httpNodeStore.changeContentType(contentType ?? (targetValue ? 'application/json' : ''));
+        }
         break;
 
       case 'rawDataOperation':

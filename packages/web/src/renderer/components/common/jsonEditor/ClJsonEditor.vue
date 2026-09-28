@@ -365,7 +365,7 @@ const getCursorPosition = () => {
 }
 
 // 设置光标位置
-const setCursorPosition = (position:  monaco.Position) => {
+const setCursorPosition = (position: monaco.IPosition) => {
   if (!monacoInstance) return;
   monacoInstance.setPosition(position);
   monacoInstance.focus();

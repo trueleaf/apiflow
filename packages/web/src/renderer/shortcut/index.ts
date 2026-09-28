@@ -47,7 +47,8 @@ class ShortcutManager {
           route: "/workbench",
           tabType: "http",
         },
-        handler: () => {
+        handler: (event: KeyboardEvent) => {
+          if (event.target instanceof Element && event.target.closest('.monaco-editor') && (event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey && event.key.toLowerCase() === 'z') return;
           const currentRoute = router.currentRoute.value?.path || "";
           const currentNavType = projectNavStore.currentSelectNav?.tabType;
           if (currentRoute !== "/workbench" || currentNavType !== "http") {
@@ -67,7 +68,8 @@ class ShortcutManager {
           route: "/workbench",
           tabType: "http",
         },
-        handler: () => {
+        handler: (event: KeyboardEvent) => {
+          if (event.target instanceof Element && event.target.closest('.monaco-editor') && (event.ctrlKey || event.metaKey) && !event.altKey && ((event.key.toLowerCase() === 'y' && !event.shiftKey) || (event.key.toLowerCase() === 'z' && event.shiftKey))) return;
           const currentRoute = router.currentRoute.value?.path || "";
           const currentNavType = projectNavStore.currentSelectNav?.tabType;
           if (currentRoute !== "/workbench" || currentNavType !== "http") {
