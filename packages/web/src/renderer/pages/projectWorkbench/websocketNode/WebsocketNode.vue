@@ -484,10 +484,25 @@ onUnmounted(() => {
   // 连接编辑区域
   .connection-layout {
     flex: 1;
+    min-width: 0;
     overflow: hidden;
     border-right: 1px solid var(--gray-400);
     display: flex;
     flex-direction: column;
+    :deep(.ws-params) {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      min-height: 0;
+    }
+    :deep(.ws-params .quick-actions) {
+      flex-shrink: 0;
+    }
+    :deep(.ws-params .params-tabs) {
+      flex: 1;
+      min-height: 0;
+      height: auto;
+    }
 
     &.vertical {
       flex: 1;

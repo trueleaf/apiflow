@@ -432,7 +432,8 @@ const handleRefresh = async () => {
   box-shadow: 0 3px 2px var(--gray-400);
   background: var(--white);
   z-index: var(--zIndex-request-info-wrap);
-  height: var(--apiflow-apidoc-operation-height);
+  min-height: var(--apiflow-apidoc-operation-height);
+  flex-shrink: 0;
 
   .browser-warning {
     margin-bottom: 10px;
@@ -440,6 +441,8 @@ const handleRefresh = async () => {
 
   .op-wrap {
     display: flex;
+    flex-wrap: wrap;
+    row-gap: 10px;
     margin-top: 10px;
 
     .protocol-select {
@@ -458,7 +461,8 @@ const handleRefresh = async () => {
     }
 
     .url-rich-input {
-      flex: 1;
+      flex: 1 1 140px;
+      min-width: 0;
       border: 1px solid var(--el-border-color);
       margin-right: 10px;
 
@@ -481,6 +485,7 @@ const handleRefresh = async () => {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
+      margin-left: auto;
 
       .el-button {
         margin-left: 0;

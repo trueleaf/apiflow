@@ -58,6 +58,8 @@ test.describe('WebSocketResponseDisplay', () => {
     await createProject();
     await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
     await createNode(contentPage, { nodeType: 'websocket', name: '基本信息显示测试' });
+    // 窄屏左右布局仍须保留可编辑的连接地址
+    await contentPage.setViewportSize({ width: 1024, height: 768 });
     // 确保是水平布局
     const layoutDropdown = contentPage.locator('.ws-params .action-item').filter({ hasText: /布局/ });
     await layoutDropdown.click();
