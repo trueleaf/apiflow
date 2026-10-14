@@ -103,6 +103,12 @@ jobs:
           & icacls.exe $runtimeExecutable.DirectoryName /grant '*S-1-15-2-2:(OI)(CI)(RX)' '*S-1-15-2-1:(OI)(CI)(RX)' /T | Out-Null
           if ($LASTEXITCODE -ne 0) { throw 'WebView2 运行时读取权限配置失败' }
           "WEBVIEW2_BROWSER_EXECUTABLE_FOLDER=$($runtimeExecutable.DirectoryName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $webviewPolicy = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge\WebView2'
+          New-Item -Path "$webviewPolicy\BrowserExecutableFolder" -Force | Out-Null
+          New-ItemProperty -Path "$webviewPolicy\BrowserExecutableFolder" -Name 'apiflow-desktop.exe' -Value $runtimeExecutable.DirectoryName -PropertyType String -Force | Out-Null
+          New-Item -Path "$webviewPolicy\AdditionalBrowserArguments" -Force | Out-Null
+          New-ItemProperty -Path "$webviewPolicy\AdditionalBrowserArguments" -Name 'apiflow-desktop.exe' -Value '--remote-debugging-port=9222 --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-background-timer-throttling' -PropertyType String -Force | Out-Null
+          'APIFLOW_TEST_CDP_PORT=9222' | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           Write-Output '使用 WebView2 固定运行时 155.0.4283.45'
       - name: Verify desktop startup and import
         run: npx playwright test tests/e2e/offline/workbench/addons/import/import-flat-nodes.spec.ts --project desktop --reporter=list

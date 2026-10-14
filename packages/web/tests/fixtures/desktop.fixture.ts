@@ -29,7 +29,7 @@ export const test = base.extend<DesktopFixtures>({
   desktopApp: async ({ remoteContentUrl }, use) => {
     if (process.platform !== 'win32') throw new Error('Tauri 界面测试使用 Windows WebView2 CDP；其他平台由原生测试和构建验证');
     const portServer = createServer();
-    await new Promise<void>(resolve => portServer.listen(0, '127.0.0.1', resolve));
+    await new Promise<void>(resolve => portServer.listen(Number(process.env.APIFLOW_TEST_CDP_PORT || 0), '127.0.0.1', resolve));
     const address = portServer.address();
     if (!address || typeof address === 'string') throw new Error('无法分配调试端口');
     const port = address.port;
