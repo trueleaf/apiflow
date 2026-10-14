@@ -313,7 +313,7 @@ npm run web:build:local:win:store
 
 Tauri 安装包位于 `packages/web/src-tauri/target/release/bundle/`，Microsoft Store 包位于 `packages/web/release/`。
 
-发布标签前，在仓库配置密钥 `TAURI_SIGNING_PRIVATE_KEY` 和变量 `TAURI_UPDATER_PUBLIC_KEY`；私钥设置了密码时，再配置 `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`。标签须为 `v` 加 `packages/web/package.json` 中的版本号。`.github/workflows/build-tauri.yml` 会生成签名的更新元数据和草稿 Release 产物；生成的 MSIX 仍需单独提交到 Partner Center。
+发布标签前，在仓库配置密钥 `TAURI_SIGNING_PRIVATE_KEY` 和变量 `TAURI_UPDATER_PUBLIC_KEY`；私钥设置了密码时，再配置 `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`。标签须为 `v` 加 `packages/web/package.json` 中的版本号。`.github/workflows/build-tauri.yml` 会将签名安装包及 MSIX 上传为 Actions 构建产物。验证通过后，将安装包及签名上传到 GitHub Release 草稿，根据签名产物生成 `latest.json`，最后正式发布；MSIX 仍需单独提交到 Partner Center。
 
 发布流程修复后需要重新构建已有标签时，从 `main` 分支运行 **Build Tauri**，将 `release_tag` 填为目标标签（例如 `v0.9.82`）。所有验证与打包任务都会检出该标签对应的代码。
 

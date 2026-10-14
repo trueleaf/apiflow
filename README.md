@@ -275,7 +275,7 @@ npm run web:build:local:win:store
 
 Tauri installers are located in `packages/web/src-tauri/target/release/bundle/`. Microsoft Store packages are written to `packages/web/release/`.
 
-For tagged releases, configure the repository secret `TAURI_SIGNING_PRIVATE_KEY` and variable `TAURI_UPDATER_PUBLIC_KEY` before running `.github/workflows/build-tauri.yml`. Set `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` if the key is encrypted. The tag must match `v` plus `packages/web/package.json`'s version. The workflow creates signed updater metadata and draft release assets; submit the generated MSIX to Partner Center separately.
+For tagged releases, configure the repository secret `TAURI_SIGNING_PRIVATE_KEY` and variable `TAURI_UPDATER_PUBLIC_KEY` before running `.github/workflows/build-tauri.yml`. Set `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` if the key is encrypted. The tag must match `v` plus `packages/web/package.json`'s version. The workflow uploads signed installers and MSIX packages as Actions artifacts. After verification, upload the installers and their signatures to a draft GitHub Release, generate `latest.json` from the signed artifacts, then publish the release. Submit MSIX packages to Partner Center separately.
 
 To rebuild an existing release tag after a workflow fix, run **Build Tauri** from the `main` branch and set `release_tag` to that tag (for example, `v0.9.82`). All verification and packaging jobs check out the selected tag.
 

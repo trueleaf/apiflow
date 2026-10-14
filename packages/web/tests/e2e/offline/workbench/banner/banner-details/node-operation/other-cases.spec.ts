@@ -168,7 +168,10 @@ test.describe('OtherCases', () => {
     const batchCopyItem = contentPage.locator('.s-contextmenu .s-contextmenu-item', { hasText: /批量复制/ });
     await expect(batchCopyItem).toBeVisible();
     await batchCopyItem.click();
-    await contentPage.waitForTimeout(300);
+    await expect.poll(() => contentPage.evaluate(async () => {
+      const clipboard = JSON.parse(await navigator.clipboard.readText()) as { data: unknown[] };
+      return clipboard.data.length;
+    })).toBe(2);
     // 在空白区域右键粘贴
     await treeWrap.click({ button: 'right', position: { x: 100, y: 400 } });
     await contentPage.waitForTimeout(300);
@@ -177,6 +180,8 @@ test.describe('OtherCases', () => {
     await contentPage.waitForTimeout(500);
     // 获取所有根节点
     const treeNodes = contentPage.locator('.el-tree > .el-tree-node');
+    await expect(treeNodes.filter({ hasText: '源文件夹' })).toHaveCount(2);
+    await expect(treeNodes.filter({ hasText: '源HTTP节点' })).toHaveCount(2);
     const nodeTexts = await treeNodes.evaluateAll((els) => els.map((el) => (el.textContent ?? '').replace(/\s+/g, ' ').trim()));
     const folderIndexes = nodeTexts
       .map((t, idx) => ({ t, idx }))

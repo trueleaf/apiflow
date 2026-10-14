@@ -36,8 +36,8 @@ test.describe('Json', () => {
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入json5格式数据
     const monacoEditor = contentPage.locator('.s-json-editor').first();
-    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor textarea, .s-json-editor textarea, .s-json-editor .monaco-editor, .s-json-editor').first();
-    await editorTarget.click({ force: true });
+    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor [role="textbox"]').first();
+    await editorTarget.focus();
     await contentPage.waitForTimeout(300);
     // 清空编辑器内容并输入json5格式数据
     await contentPage.keyboard.press('ControlOrMeta+a');
@@ -117,8 +117,8 @@ test.describe('Json', () => {
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入包含变量的JSON数据
     const monacoEditor = contentPage.locator('.s-json-editor').first();
-    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor textarea, .s-json-editor textarea, .s-json-editor .monaco-editor, .s-json-editor').first();
-    await editorTarget.click({ force: true });
+    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor [role="textbox"]').first();
+    await editorTarget.focus();
     await contentPage.waitForTimeout(300);
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('{"user_id": "{{user_id}}", "name": "test"}');
@@ -169,8 +169,8 @@ test.describe('Json', () => {
     await contentPage.waitForTimeout(300);
     // 在JSON编辑器中输入包含超大数字的JSON数据
     const monacoEditor = contentPage.locator('.s-json-editor').first();
-    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor textarea, .s-json-editor textarea, .s-json-editor .monaco-editor, .s-json-editor').first();
-    await editorTarget.click({ force: true });
+    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor [role="textbox"]').first();
+    await editorTarget.focus();
     await contentPage.waitForTimeout(300);
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('{"big_number": 9007199254740992, "name": "test"}');
@@ -201,8 +201,8 @@ test.describe('Json', () => {
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
     // 在编辑器中输入压缩的JSON
-    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor textarea, .s-json-editor textarea, .s-json-editor .monaco-editor, .s-json-editor').first();
-    await editorTarget.click({ force: true });
+    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor [role="textbox"]').first();
+    await editorTarget.focus();
     await contentPage.waitForTimeout(300);
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('{"name":"test","age":25}');

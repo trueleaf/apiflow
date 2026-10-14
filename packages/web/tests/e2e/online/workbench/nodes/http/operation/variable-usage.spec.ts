@@ -126,8 +126,8 @@ test.describe('VariableUsage', () => {
     await bodyTab.click();
     const jsonRadio = contentPage.locator('.el-radio').filter({ hasText: /json/i }).first();
     await jsonRadio.click();
-    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor textarea, .s-json-editor textarea, .s-json-editor .monaco-editor').first();
-    await editorTarget.click({ force: true });
+    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor [role="textbox"]').first();
+    await editorTarget.focus();
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('{"name":"{{userName}}"}');
     await contentPage.locator('[data-testid="operation-send-btn"]').click();

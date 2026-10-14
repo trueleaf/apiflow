@@ -55,6 +55,7 @@ export const test = base.extend<DesktopFixtures>({
       // 固定初始测试语言，保留测试中切换语言后的持久化结果
       if (!remoteContentUrl) {
         for (const context of app.contexts()) {
+          await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://tauri.localhost' });
           await context.addInitScript(() => {
             if (!localStorage.getItem('runtime/language')) localStorage.setItem('runtime/language', 'zh-cn');
           });
@@ -137,15 +138,15 @@ export const test = base.extend<DesktopFixtures>({
         return { enabled, port, readOnly, allowDestructive };
       });
       try {
-        // 先清除 localStorage 和 sessionStorage，暂时设置 hasCreatedExampleProject 为 true 防止 reload 后自动创建示例项目
+        // 两个视图共享 localStorage，先清理顶部栏再设置内容页的初始化标记
+        await topBarPage.evaluate(() => {
+          localStorage.clear();
+          sessionStorage.clear();
+        });
         await contentPage.evaluate(() => {
           localStorage.clear();
           sessionStorage.clear();
           localStorage.setItem('runtime/hasCreatedExampleProject', 'true');
-        });
-        await topBarPage.evaluate(() => {
-          localStorage.clear();
-          sessionStorage.clear();
         });
         // 清空 tabs 并跳转到首页
         await contentPage.evaluate(() => {
@@ -159,41 +160,26 @@ export const test = base.extend<DesktopFixtures>({
         await expect(topBarPage.locator('[data-test-id^="header-tab-item-"]')).toHaveCount(0);
         const homeBtn = topBarPage.locator('[data-testid="header-home-btn"]');
         await homeBtn.click();
-        await contentPage.waitForTimeout(300);
+        await contentPage.waitForURL(/#\/home/);
         // 先 reload 页面以关闭所有数据库连接
         await contentPage.reload();
         await contentPage.waitForLoadState('domcontentloaded');
         await contentPage.waitForTimeout(500);
-        // 删除所有 IndexedDB 数据库并设置是否跳过示例项目创建（合并为单次evaluate，避免导航竞态）
-        await contentPage.evaluate(async (params) => {
-          const dbNames = [
-            'httpNodeResponseCache',
-            'websocketNodeResponseCache',
-            'websocketHistoryCache',
-            'httpHistoryCache',
-            'sendHistoryCache',
-            'mockNodeVariableCache',
-            'mockNodeLogsCache',
-            'agentViewMessageCache',
-            'agentDataCache',
-            'workspaceDataCache',
-            'projectCache',
-            'apiNodesCache',
-            'commonHeadersCache',
-            'variablesCache',
-          ];
-          await Promise.all(dbNames.map((dbName) => {
-            return new Promise<void>((resolve) => {
-              const request = indexedDB.deleteDatabase(dbName);
-              request.onsuccess = () => resolve();
-              request.onerror = () => resolve();
-              request.onblocked = () => resolve();
-            });
-          }));
-          if (!params.skipExampleProject) {
+        // 等待浏览器完成数据库清理，避免阻塞的删除请求在示例项目创建后继续执行
+        const storageSession = await contentPage.context().newCDPSession(contentPage);
+        try {
+          await storageSession.send('Storage.clearDataForOrigin', {
+            origin: new URL(contentPage.url()).origin,
+            storageTypes: 'indexeddb',
+          });
+        } finally {
+          await storageSession.detach();
+        }
+        await contentPage.evaluate(skip => {
+          if (!skip) {
             localStorage.removeItem('runtime/hasCreatedExampleProject');
           }
-        }, { skipExampleProject });
+        }, skipExampleProject);
         // 再次 reload 以应用缓存清除
         await contentPage.reload();
         await contentPage.waitForLoadState('domcontentloaded');

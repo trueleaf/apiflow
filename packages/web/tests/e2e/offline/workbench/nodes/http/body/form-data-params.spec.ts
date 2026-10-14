@@ -94,7 +94,8 @@ test.describe('FormDataParams', () => {
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
-      const responseBody = responseArea.locator('.s-json-editor').first();
+      await responseArea.locator('#tab-SRawBodyView').click();
+      const responseBody = responseArea.locator('#pane-SRawBodyView .s-json-editor').first();
       // 验证Content-Type包含multipart/form-data
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
       // 验证表单数据正确发送
@@ -170,7 +171,8 @@ test.describe('FormDataParams', () => {
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
-      const responseBody = responseArea.locator('.s-json-editor').first();
+      await responseArea.locator('#tab-SRawBodyView').click();
+      const responseBody = responseArea.locator('#pane-SRawBodyView .s-json-editor').first();
       // 验证变量被正确替换
       await expect(responseBody).toContainText('mobile_app', { timeout: 10000 });
       await expect(responseBody).toContainText('token_abc123', { timeout: 10000 });
@@ -228,7 +230,8 @@ test.describe('FormDataParams', () => {
       const statusCode = responseArea.getByTestId('status-code');
       await expect(statusCode).toBeVisible({ timeout: 10000 });
       await expect(statusCode).toContainText('200', { timeout: 10000 });
-      const responseBody = responseArea.locator('.s-json-editor').first();
+      await responseArea.locator('#tab-SRawBodyView').click();
+      const responseBody = responseArea.locator('#pane-SRawBodyView .s-json-editor').first();
       await expect(responseBody).toBeVisible({ timeout: 10000 });
       // 验证Content-Type包含multipart/form-data
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 20000 });
@@ -299,7 +302,8 @@ test.describe('FormDataParams', () => {
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
-      const responseBody = responseArea.locator('.s-json-editor').first();
+      await responseArea.locator('#tab-SRawBodyView').click();
+      const responseBody = responseArea.locator('#pane-SRawBodyView .s-json-editor').first();
       // 验证混合变量被正确替换
       await expect(responseBody).toContainText('user_query', { timeout: 10000 });
       await expect(responseBody).toContainText('REQ_', { timeout: 10000 });
@@ -358,7 +362,8 @@ test.describe('FormDataParams', () => {
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
-      const responseBody = responseArea.locator('.s-json-editor').first();
+      await responseArea.locator('#tab-SRawBodyView').click();
+      const responseBody = responseArea.locator('#pane-SRawBodyView .s-json-editor').first();
       await expect(responseBody).toContainText('username', { timeout: 10000 });
       await expect(responseBody).toContainText('admin', { timeout: 10000 });
       // 验证password没有被发送
@@ -491,7 +496,8 @@ test.describe('FormDataParams', () => {
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
-      const responseBody = responseArea.locator('.s-json-editor').first();
+      await responseArea.locator('#tab-SRawBodyView').click();
+      const responseBody = responseArea.locator('#pane-SRawBodyView .s-json-editor').first();
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
       await expect(responseBody).toContainText('avatar', { timeout: 10000 });
       await expect(responseBody).toContainText('File:', { timeout: 10000 });
@@ -626,7 +632,8 @@ test.describe('FormDataParams', () => {
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
-      const responseBody = responseArea.locator('.s-json-editor').first();
+      await responseArea.locator('#tab-SRawBodyView').click();
+      const responseBody = responseArea.locator('#pane-SRawBodyView .s-json-editor').first();
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
       await expect(responseBody).toContainText('avatar', { timeout: 10000 });
       await expect(responseBody).toContainText('File:', { timeout: 10000 });
@@ -839,7 +846,8 @@ test.describe('FormDataParams', () => {
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
-      const responseBody = responseArea.locator('.s-json-editor').first();
+      await responseArea.locator('#tab-SRawBodyView').click();
+      const responseBody = responseArea.locator('#pane-SRawBodyView .s-json-editor').first();
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
       await expect(responseBody).toContainText('avatar', { timeout: 10000 });
       await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
@@ -910,7 +918,8 @@ test.describe('FormDataParams', () => {
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
-      const responseBody = responseArea.locator('.s-json-editor').first();
+      await responseArea.locator('#tab-SRawBodyView').click();
+      const responseBody = responseArea.locator('#pane-SRawBodyView .s-json-editor').first();
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
       await expect(responseBody).toContainText('File:', { timeout: 10000 });
       await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
@@ -994,7 +1003,8 @@ test.describe('FormDataParams', () => {
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
-      const responseBody = responseArea.locator('.s-json-editor').first();
+      await responseArea.locator('#tab-SRawBodyView').click();
+      const responseBody = responseArea.locator('#pane-SRawBodyView .s-json-editor').first();
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
       await expect(responseBody).toContainText('file_user', { timeout: 10000 });
       await expect(responseBody).toContainText('logo.png', { timeout: 10000 });
@@ -1074,7 +1084,8 @@ test.describe('FormDataParams', () => {
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
-      const responseBody = responseArea.locator('.s-json-editor').first();
+      await responseArea.locator('#tab-SRawBodyView').click();
+      const responseBody = responseArea.locator('#pane-SRawBodyView .s-json-editor').first();
       await expect(responseBody).toContainText('username', { timeout: 10000 });
       await expect(responseBody).toContainText('admin', { timeout: 10000 });
       const responseText = await responseBody.textContent();
@@ -1153,7 +1164,8 @@ test.describe('FormDataParams', () => {
       const responseArea = contentPage.getByTestId('response-area');
       await expect(responseArea).toBeVisible({ timeout: 10000 });
       await expect(responseArea.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
-      const responseBody = responseArea.locator('.s-json-editor').first();
+      await responseArea.locator('#tab-SRawBodyView').click();
+      const responseBody = responseArea.locator('#pane-SRawBodyView .s-json-editor').first();
       await expect(responseBody).toContainText('multipart/form-data', { timeout: 10000 });
       await expect(responseBody).toContainText('username', { timeout: 10000 });
       await expect(responseBody).toContainText('testuser', { timeout: 10000 });

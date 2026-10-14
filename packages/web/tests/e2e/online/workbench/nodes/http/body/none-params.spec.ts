@@ -54,8 +54,8 @@ test.describe('NoneParams', () => {
     const jsonRadio = contentPage.locator('.body-params .el-radio', { hasText: /json/i }).first();
     await jsonRadio.click();
     await contentPage.waitForTimeout(300);
-    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor textarea, .s-json-editor textarea, .s-json-editor .monaco-editor, .s-json-editor').first();
-    await editorTarget.click({ force: true });
+    const editorTarget = contentPage.locator('.s-json-editor .monaco-editor [role="textbox"]').first();
+    await editorTarget.focus();
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('{"noneSwitch":"shouldNotSend"}');
     await contentPage.waitForTimeout(300);

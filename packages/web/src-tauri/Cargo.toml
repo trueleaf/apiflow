@@ -40,6 +40,9 @@ regex = "1"
 tokio-stream = "0.1"
 base64 = "0.22"
 
+[target.'cfg(all(target_arch = "aarch64", target_os = "windows"))'.dependencies]
+rquickjs = { version = "0.9", features = ["bindgen"] }
+
 [profile.release]
 lto = true
 codegen-units = 1

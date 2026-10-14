@@ -106,7 +106,7 @@ jobs:
           Write-Output '使用 WebView2 固定运行时 155.0.4283.45'
       - name: Verify desktop startup and import
         run: npx playwright test tests/e2e/offline/workbench/addons/import/import-flat-nodes.spec.ts --project desktop --reporter=list
-      - run: npx playwright test tests/e2e/offline --project desktop --shard=${{ matrix.shard }}/8 --max-failures=1
+      - run: npx playwright test tests/e2e/offline --project desktop --shard=${{ matrix.shard }}/8
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -154,7 +154,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf xdg-utils
       - run: npm ci
         working-directory: packages/web
       - name: Validate release version and signing configuration
@@ -165,29 +165,29 @@ jobs:
           UPDATER_PUBLIC_KEY: ${{ vars.TAURI_UPDATER_PUBLIC_KEY }}
         run: |
           node --input-type=module -e 'import fs from "node:fs"; const version = JSON.parse(fs.readFileSync("packages/web/package.json", "utf8")).version; if (process.env.RELEASE_REF && process.env.RELEASE_REF !== "v" + version) throw new Error("Tag and package version must match"); if (!process.env.UPDATER_KEY || !process.env.UPDATER_PUBLIC_KEY) throw new Error("Configure TAURI_SIGNING_PRIVATE_KEY secret and TAURI_UPDATER_PUBLIC_KEY variable before release"); const config = JSON.parse(fs.readFileSync("packages/web/src-tauri/tauri.conf.json", "utf8")); if (config.plugins.updater.pubkey !== process.env.UPDATER_PUBLIC_KEY) throw new Error("Configured updater public key must match TAURI_UPDATER_PUBLIC_KEY");'
-      - uses: tauri-apps/tauri-action@v1
+      - name: Configure optional Apple signing credentials
+        shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          TAURI_UPDATER_PUBLIC_KEY: ${{ vars.TAURI_UPDATER_PUBLIC_KEY }}
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          node --input-type=module -e 'import fs from "node:fs"; for (const name of ["APPLE_CERTIFICATE", "APPLE_CERTIFICATE_PASSWORD", "APPLE_SIGNING_IDENTITY", "APPLE_ID", "APPLE_PASSWORD", "APPLE_TEAM_ID"]) { const value = process.env[name]; if (value) fs.appendFileSync(process.env.GITHUB_ENV, name + "<<APIFLOW_APPLE_VALUE\n" + value + "\nAPIFLOW_APPLE_VALUE\n"); }'
+      - uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          TAURI_UPDATER_PUBLIC_KEY: ${{ vars.TAURI_UPDATER_PUBLIC_KEY }}
         with:
           projectPath: packages/web
           args: --target ${{ matrix.target }} --config src-tauri/tauri.release.conf.json
-          tagName: ${{ env.RELEASE_TAG }}
-          releaseName: 'ApiFlow v__VERSION__'
-          releaseDraft: true
-          prerelease: ${{ contains(env.RELEASE_TAG, '-') }}
-          uploadUpdaterJson: true
-          updaterJsonPreferNsis: true
           retryAttempts: 3
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: tauri-${{ matrix.target }}
           path: packages/web/src-tauri/target/${{ matrix.target }}/release/bundle
@@ -196,6 +196,7 @@ jobs:
     needs: verify
     if: ${{ !inputs.verification_only }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - architecture: x64

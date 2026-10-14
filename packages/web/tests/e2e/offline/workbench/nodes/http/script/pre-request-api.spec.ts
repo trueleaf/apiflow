@@ -129,9 +129,9 @@ test.describe('AfRequestApi', () => {
     await contentPage.getByRole('option', { name: 'POST' }).click();
     await contentPage.locator('[data-testid="http-params-tab-body"]').click();
     await contentPage.locator('.el-radio', { hasText: /json/i }).first().click();
-    const jsonEditor = contentPage.locator('.s-json-editor .monaco-editor textarea, .s-json-editor textarea, .s-json-editor .monaco-editor').first();
+    const jsonEditor = contentPage.locator('.s-json-editor .monaco-editor [role="textbox"]').first();
     await expect(jsonEditor).toBeVisible({ timeout: 5000 });
-    await jsonEditor.click({ force: true });
+    await jsonEditor.focus();
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('{"username":"olduser","email":"old@test.com"}');
     // 编写前置脚本修改JSON body

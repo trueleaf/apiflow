@@ -1,7 +1,7 @@
 import { test, expect } from '../../../../../fixtures/desktop.fixture'
 
 test.describe('UrlInlineVariable', () => {
-  test('可在 URL 变量浮层中创建并编辑当前项目文本变量', async ({ contentPage, clearCache, createProject, createNode }) => {
+  test('可在 URL 变量浮层中创建并编辑当前项目文本变量', async ({ contentPage, clearCache, createProject, createNode, reload }) => {
     await clearCache()
     await createProject(`URL快速变量-${Date.now()}`)
     await createNode(contentPage, { nodeType: 'http', name: 'URL快速变量接口' })
@@ -22,6 +22,9 @@ test.describe('UrlInlineVariable', () => {
     await expect(valueInput).toHaveValue('http://127.0.0.1:3456')
     await valueInput.fill('http://127.0.0.1:3457')
     await contentPage.locator('[data-testid="url-variable-save-btn"]').click()
+    await expect(requestUrl).toContainText('http://127.0.0.1:3457/health', { timeout: 5000 })
+    await contentPage.getByTestId('operation-save-btn').click()
+    await reload()
     await expect(requestUrl).toContainText('http://127.0.0.1:3457/health', { timeout: 5000 })
   })
 })

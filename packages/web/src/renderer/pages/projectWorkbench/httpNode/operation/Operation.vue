@@ -292,7 +292,7 @@ const updateQuickVariable = async (variable: ApidocVariable, value: string) => {
     value,
   }
   if (runtimeStore.networkMode === 'offline') {
-    const response = await nodeVariableCache.updateVariableById(variable._id, nextVariable)
+    const response = await nodeVariableCache.updateVariableById(variable._id, { value })
     if (response.code !== 0) {
       throw new Error(response.msg)
     }
