@@ -3,10 +3,18 @@ on:
   push:
     tags: ['v*.*.*']
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing release tag to rebuild and verify
+        type: string
+        required: false
+        default: ''
 permissions:
   contents: write
+env:
+  RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || inputs.release_tag }}
 concurrency:
-  group: tauri-release-${{ github.ref }}
+  group: tauri-release-${{ inputs.release_tag || github.ref_name }}
   cancel-in-progress: false
 jobs:
   verify:
@@ -16,6 +24,8 @@ jobs:
         working-directory: packages/web
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -45,7 +55,7 @@ jobs:
         working-directory: packages/server
   e2e:
     needs: verify
-    runs-on: windows-latest
+    runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:
@@ -55,6 +65,8 @@ jobs:
         working-directory: packages/web
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -65,7 +77,9 @@ jobs:
         with:
           name: desktop-test-app
           path: packages/web/src-tauri/target/debug
-      - run: npx playwright test tests/e2e/offline --project desktop --shard=${{ matrix.shard }}/8
+      - name: Verify desktop startup and import
+        run: npx playwright test tests/e2e/offline/workbench/addons/import/import-flat-nodes.spec.ts --project desktop --reporter=list
+      - run: npx playwright test tests/e2e/offline --project desktop --shard=${{ matrix.shard }}/8 --max-failures=1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -94,6 +108,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -116,11 +132,11 @@ jobs:
       - name: Validate release version and signing configuration
         shell: bash
         env:
-          RELEASE_REF: ${{ github.ref_name }}
+          RELEASE_REF: ${{ env.RELEASE_TAG }}
           UPDATER_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           UPDATER_PUBLIC_KEY: ${{ vars.TAURI_UPDATER_PUBLIC_KEY }}
         run: |
-          node --input-type=module -e 'import fs from "node:fs"; const version = JSON.parse(fs.readFileSync("packages/web/package.json", "utf8")).version; if (process.env.GITHUB_REF_TYPE === "tag" && process.env.RELEASE_REF !== "v" + version) throw new Error("Tag and package version must match"); if (!process.env.UPDATER_KEY || !process.env.UPDATER_PUBLIC_KEY) throw new Error("Configure TAURI_SIGNING_PRIVATE_KEY secret and TAURI_UPDATER_PUBLIC_KEY variable before release"); const config = JSON.parse(fs.readFileSync("packages/web/src-tauri/tauri.conf.json", "utf8")); if (config.plugins.updater.pubkey !== process.env.UPDATER_PUBLIC_KEY) throw new Error("Configured updater public key must match TAURI_UPDATER_PUBLIC_KEY");'
+          node --input-type=module -e 'import fs from "node:fs"; const version = JSON.parse(fs.readFileSync("packages/web/package.json", "utf8")).version; if (process.env.RELEASE_REF && process.env.RELEASE_REF !== "v" + version) throw new Error("Tag and package version must match"); if (!process.env.UPDATER_KEY || !process.env.UPDATER_PUBLIC_KEY) throw new Error("Configure TAURI_SIGNING_PRIVATE_KEY secret and TAURI_UPDATER_PUBLIC_KEY variable before release"); const config = JSON.parse(fs.readFileSync("packages/web/src-tauri/tauri.conf.json", "utf8")); if (config.plugins.updater.pubkey !== process.env.UPDATER_PUBLIC_KEY) throw new Error("Configured updater public key must match TAURI_UPDATER_PUBLIC_KEY");'
       - uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -136,10 +152,10 @@ jobs:
         with:
           projectPath: packages/web
           args: --target ${{ matrix.target }} --config src-tauri/tauri.release.conf.json
-          tagName: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+          tagName: ${{ env.RELEASE_TAG }}
           releaseName: 'ApiFlow v__VERSION__'
           releaseDraft: true
-          prerelease: ${{ contains(github.ref_name, '-') }}
+          prerelease: ${{ contains(env.RELEASE_TAG, '-') }}
           uploadUpdaterJson: true
           updaterJsonPreferNsis: true
           retryAttempts: 3
@@ -163,6 +179,8 @@ jobs:
         working-directory: packages/web
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
