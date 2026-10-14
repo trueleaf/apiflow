@@ -1,6 +1,6 @@
 {
   "name": "@apiflow/server",
-  "version": "0.9.81",
+  "version": "0.9.82",
   "description": "",
   "type": "module",
   "private": true,

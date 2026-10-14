@@ -17,7 +17,7 @@
       "csp": "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' asset: http: https: data: blob:; font-src 'self' data:; connect-src ipc: http: https: ws: wss: blob:; worker-src 'self' blob:; frame-src 'self' blob: data:; media-src 'self' blob: data: http: https:"
     }
   },
-  "plugins": { "updater": { "pubkey": "", "requireSignedVersion": true } },
+  "plugins": { "updater": { "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDVDRUM5RkNBNUE5MkI5MTUKUldRVnVaSmF5cC9zWEl4VEJPTVNzVE9Oc0FJeXFrU29zK0ZXNmlFaHgyWktjN1ovNFVhMGIvME0K", "requireSignedVersion": true } },
   "bundle": {
     "active": true,
     "targets": "all",

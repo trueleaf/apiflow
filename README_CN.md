@@ -74,6 +74,9 @@ Postman / Apifox 开源替代方案
 
 ## OpenAPI 友好
 - 支持 **OpenAPI 3.x** 导入 / 导出
+- 将已完成的 JSON、文本和空 HTTP 响应保存为命名示例，保留状态码与响应类型
+- 离线 OpenAPI 导出包含同一状态码下的多条响应示例
+- 导入 OpenAPI 文档时保留文件夹分组与 URL 前缀
 - 可无缝迁移到：
   - Postman
   - Insomnia
@@ -104,6 +107,8 @@ Postman / Apifox 开源替代方案
 | Windows | https://github.com/trueleaf/apiflow/releases |
 | macOS | https://github.com/trueleaf/apiflow/releases |
 | Linux | https://github.com/trueleaf/apiflow/releases |
+
+从 v0.9.82 起，桌面客户端使用 Tauri 与 Rust。由旧 Electron 客户端升级时，请先在“设置 → 本地数据 → 数据备份/导出”中备份本地数据，再安装新版并恢复备份。本次升级请直接下载安装包；新版使用带签名的 Tauri 更新源。
 
 ---
 

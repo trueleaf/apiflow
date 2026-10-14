@@ -77,6 +77,9 @@ It supports **API testing**, **mocking**, **WebSocket**, **AI agents**, **team c
 
 ## OpenAPI Friendly
 - Import & export **OpenAPI 3.x**
+- Save completed JSON, text, and empty HTTP responses as named examples, including their status codes and content types
+- Include multiple examples for the same status code in offline OpenAPI exports
+- Preserve folder grouping and URL prefixes when importing OpenAPI documents
 - Seamlessly migrate data to:
   - Postman
   - Insomnia
@@ -110,6 +113,7 @@ Download the latest version for your platform:
 | macOS | https://github.com/trueleaf/apiflow/releases |
 | Linux | https://github.com/trueleaf/apiflow/releases |
 
+Desktop releases from v0.9.82 use Tauri and Rust. When upgrading from an Electron-based release, back up your local data using **Settings → Local Data → Data Backup / Export**, then install the new package and restore the backup in the new client. Download the installer directly for this transition; the new client uses a signed Tauri update feed.
 
 ---
 
