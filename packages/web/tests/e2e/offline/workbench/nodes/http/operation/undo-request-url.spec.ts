@@ -24,7 +24,7 @@ test.describe('RequestUrlUndo', () => {
     await urlInput.click();
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('http://example.com/api/test');
-    await contentPage.locator('.api-operation').click();
+    await urlInput.press('Tab');
     await contentPage.waitForTimeout(300);
     await expect(urlInput).toHaveText(/example\.com\/api\/test/, { timeout: 5000 });
     // 点击撤销按钮应一次恢复为初始值
@@ -51,7 +51,7 @@ test.describe('RequestUrlUndo', () => {
     await urlInput.click();
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('http://example.com/ctrl-z-test');
-    await contentPage.locator('.api-operation').click();
+    await urlInput.press('Tab');
     await contentPage.waitForTimeout(300);
     await expect(urlInput).toHaveText(/ctrl-z-test/, { timeout: 5000 });
     // 使用Ctrl+Z快捷键撤销

@@ -408,9 +408,14 @@ test.describe('FormDataParams', () => {
         await toggleBtn.dispatchEvent('click');
       }
       await expect(selectLabel).toBeVisible({ timeout: 5000 });
-      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
-      const fileInput = fileValueWrapper.locator('[data-testid="params-tree-file-input"]');
-      await fileInput.setInputFiles(logoFilePath);
+      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');      // 原生文件选择框返回真实文件信息，其余选择与上传过程通过界面执行
+      await contentPage.evaluate(selectedPath => {
+        window.desktopAPI!.fileManager.selectFile = async () => {
+          const native = (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: { path: string }) => Promise<{ path: string; name: string; size: number; type: string }> } }).__TAURI_INTERNALS__;
+          return native.invoke('file_info', { path: selectedPath });
+        };
+      }, logoFilePath);
+      await selectLabel.click();
       const fileText = fileValueWrapper.locator('.file-mode-wrap .text-wrap');
       await expect(fileText).toContainText('logo.png', { timeout: 5000 });
       // 切换到变量模式，应清空之前的文件选择
@@ -471,8 +476,14 @@ test.describe('FormDataParams', () => {
         await toggleBtn.click();
       }
       await expect(selectLabel).toBeVisible({ timeout: 5000 });
-      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
-      await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
+      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');      // 原生文件选择框返回真实文件信息，其余选择与上传过程通过界面执行
+      await contentPage.evaluate(selectedPath => {
+        window.desktopAPI!.fileManager.selectFile = async () => {
+          const native = (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: { path: string }) => Promise<{ path: string; name: string; size: number; type: string }> } }).__TAURI_INTERNALS__;
+          return native.invoke('file_info', { path: selectedPath });
+        };
+      }, logoFilePath);
+      await selectLabel.click();
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
@@ -813,8 +824,14 @@ test.describe('FormDataParams', () => {
       if (varInputVisible) {
         await toggleBtn.click();
       }
-      await expect(selectLabel).toBeVisible({ timeout: 5000 });
-      await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
+      await expect(selectLabel).toBeVisible({ timeout: 5000 });      // 原生文件选择框返回真实文件信息，其余选择与上传过程通过界面执行
+      await contentPage.evaluate(selectedPath => {
+        window.desktopAPI!.fileManager.selectFile = async () => {
+          const native = (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: { path: string }) => Promise<{ path: string; name: string; size: number; type: string }> } }).__TAURI_INTERNALS__;
+          return native.invoke('file_info', { path: selectedPath });
+        };
+      }, logoFilePath);
+      await selectLabel.click();
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
@@ -878,8 +895,14 @@ test.describe('FormDataParams', () => {
         await toggleBtn.click();
       }
       await expect(selectLabel).toBeVisible({ timeout: 5000 });
-      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
-      await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
+      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');      // 原生文件选择框返回真实文件信息，其余选择与上传过程通过界面执行
+      await contentPage.evaluate(selectedPath => {
+        window.desktopAPI!.fileManager.selectFile = async () => {
+          const native = (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: { path: string }) => Promise<{ path: string; name: string; size: number; type: string }> } }).__TAURI_INTERNALS__;
+          return native.invoke('file_info', { path: selectedPath });
+        };
+      }, logoFilePath);
+      await selectLabel.click();
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
@@ -956,8 +979,14 @@ test.describe('FormDataParams', () => {
         await toggleBtn.click();
       }
       await expect(selectLabel).toBeVisible({ timeout: 5000 });
-      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
-      await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
+      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');      // 原生文件选择框返回真实文件信息，其余选择与上传过程通过界面执行
+      await contentPage.evaluate(selectedPath => {
+        window.desktopAPI!.fileManager.selectFile = async () => {
+          const native = (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: { path: string }) => Promise<{ path: string; name: string; size: number; type: string }> } }).__TAURI_INTERNALS__;
+          return native.invoke('file_info', { path: selectedPath });
+        };
+      }, logoFilePath);
+      await selectLabel.click();
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();
@@ -1026,8 +1055,14 @@ test.describe('FormDataParams', () => {
         await toggleBtn.click();
       }
       await expect(selectLabel).toBeVisible({ timeout: 5000 });
-      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
-      await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
+      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');      // 原生文件选择框返回真实文件信息，其余选择与上传过程通过界面执行
+      await contentPage.evaluate(selectedPath => {
+        window.desktopAPI!.fileManager.selectFile = async () => {
+          const native = (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: { path: string }) => Promise<{ path: string; name: string; size: number; type: string }> } }).__TAURI_INTERNALS__;
+          return native.invoke('file_info', { path: selectedPath });
+        };
+      }, logoFilePath);
+      await selectLabel.click();
       // 取消勾选第二行参数的"是否发送"checkbox
       const avatarTreeNode = keyInputs.nth(1).locator('xpath=ancestor::*[contains(@class,"el-tree-node")]').first();
       const sendCheckbox = avatarTreeNode.locator('.el-tree-node__content > .el-checkbox').first();
@@ -1103,8 +1138,14 @@ test.describe('FormDataParams', () => {
         await toggleBtn.click();
       }
       await expect(selectLabel).toBeVisible({ timeout: 5000 });
-      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
-      await fileValueWrapper.locator('[data-testid="params-tree-file-input"]').setInputFiles(logoFilePath);
+      const logoFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');      // 原生文件选择框返回真实文件信息，其余选择与上传过程通过界面执行
+      await contentPage.evaluate(selectedPath => {
+        window.desktopAPI!.fileManager.selectFile = async () => {
+          const native = (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: { path: string }) => Promise<{ path: string; name: string; size: number; type: string }> } }).__TAURI_INTERNALS__;
+          return native.invoke('file_info', { path: selectedPath });
+        };
+      }, logoFilePath);
+      await selectLabel.click();
       // 发送请求
       const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
       await sendBtn.click();

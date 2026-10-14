@@ -29,7 +29,7 @@ test.describe('QueryParamsUndo', () => {
     // 验证key值为ab
     await expect(keyInput).toHaveValue('ab', { timeout: 5000 });
     // 切换焦点到非输入区域，触发全局撤销快捷键逻辑
-    await contentPage.locator('.api-operation').click();
+    await contentPage.getByTestId('url-input').locator('[contenteditable]').first().press('Tab');
     await contentPage.waitForTimeout(200);
     // 按ctrl+z快捷键
     await contentPage.keyboard.press('ControlOrMeta+z');
@@ -88,7 +88,7 @@ test.describe('QueryParamsUndo', () => {
     // 验证value值
     await expect(valueEditor).toHaveText('v1v2', { timeout: 5000 });
     // 切换焦点到非输入区域，触发全局撤销快捷键逻辑
-    await contentPage.locator('.api-operation').click();
+    await contentPage.getByTestId('url-input').locator('[contenteditable]').first().press('Tab');
     await contentPage.waitForTimeout(200);
     // 按ctrl+z快捷键
     await contentPage.keyboard.press('ControlOrMeta+z');

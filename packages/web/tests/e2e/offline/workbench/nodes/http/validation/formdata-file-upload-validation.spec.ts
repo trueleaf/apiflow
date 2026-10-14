@@ -58,9 +58,18 @@ test.describe('FormdataFileUploadValidation', () => {
     await visibleDropdown.getByRole('option', { name: /^file$/i }).first().click();
     await contentPage.waitForTimeout(300);
     // 选择文件上传
-    const fileInput = contentPage.locator('[data-testid="params-tree-file-input"]').first();
-    const testFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');
-    await fileInput.setInputFiles(testFilePath);
+    const testFilePath = path.resolve(__dirname, '../../../../../../../src/renderer/assets/imgs/logo.png');    // 原生文件选择框返回真实文件信息，其余选择与上传过程通过界面执行
+    await contentPage.evaluate(selectedPath => {
+      window.desktopAPI!.fileManager.selectFile = async () => {
+        const native = (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: { path: string }) => Promise<{ path: string; name: string; size: number; type: string }> } }).__TAURI_INTERNALS__;
+        return native.invoke('file_info', { path: selectedPath });
+      };
+    }, testFilePath);
+    const fileValueWrapper = contentPage.locator('.file-value-wrapper').first();
+    if (await fileValueWrapper.getByTestId('params-tree-file-var-input').isVisible()) {
+      await fileValueWrapper.getByTestId('params-tree-file-toggle-btn').click();
+    }
+    await contentPage.getByTestId('params-tree-file-select-label').first().click();
     await contentPage.waitForTimeout(500);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');

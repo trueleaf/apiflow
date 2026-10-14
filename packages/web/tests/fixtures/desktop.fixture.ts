@@ -52,6 +52,18 @@ export const test = base.extend<DesktopFixtures>({
         try { app = await chromium.connectOverCDP('http://127.0.0.1:' + port, { timeout: 1000 }); break; } catch { await new Promise(resolve => setTimeout(resolve, 100)); }
       }
       if (!app) throw new Error('连接 Tauri 超时: ' + output);
+      // 固定初始测试语言，保留测试中切换语言后的持久化结果
+      if (!remoteContentUrl) {
+        for (const context of app.contexts()) {
+          await context.addInitScript(() => {
+            if (!localStorage.getItem('runtime/language')) localStorage.setItem('runtime/language', 'zh-cn');
+          });
+          for (const page of context.pages().filter(page => page.url().includes('tauri.localhost') && !page.url().includes('mcp.html'))) {
+            await page.evaluate(() => localStorage.setItem('runtime/language', 'zh-cn'));
+            await page.reload();
+          }
+        }
+      }
       const disconnect = app.close.bind(app);
       app.close = async options => {
         if (child.exitCode === null && !child.killed) {
