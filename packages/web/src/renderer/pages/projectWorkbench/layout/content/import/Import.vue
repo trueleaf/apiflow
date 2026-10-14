@@ -249,10 +249,13 @@ const stats = computed(() => {
 })
 // 预览树形数据
 const previewNavTreeData = computed(() => {
-  const docs = formInfo.value.moyuData.docs || []
+  const docs = (formInfo.value.moyuData.docs || []).map(doc => ({
+    ...doc,
+    children: [] as (HttpNode | FolderNode)[],
+  }))
   const result: ((HttpNode | FolderNode) & { children?: (HttpNode | FolderNode)[] })[] = []
   for (let i = 0; i < docs.length; i += 1) {
-    const docInfo = docs[i] as (HttpNode | FolderNode) & { children?: (HttpNode | FolderNode)[] }
+    const docInfo = docs[i]
     if (!docInfo.pid) {
       docInfo.children = []
       result.push(docInfo)
@@ -405,8 +408,10 @@ const handleSubmit = async () => {
     }
     const mountedId = currentMountedNode.value?._id
     const docs = formInfo.value.moyuData.docs.map(val => {
+      const doc = { ...val } as (HttpNode | FolderNode) & { children?: unknown[] }
+      delete doc.children
       const normalizedDoc = {
-        ...val,
+        ...doc,
         pid: !val.pid && mountedId ? mountedId : val.pid,
         isFolder: val.info.type === 'folder',
         info: {
@@ -445,7 +450,20 @@ const handleSubmit = async () => {
     const params = {
       projectId,
       cover: formInfo.value.cover,
-      moyuData: { ...formInfo.value.moyuData, docs },
+      moyuData: {
+        ...formInfo.value.moyuData,
+        docs: docs.map(({ isDeleted, ...doc }) => {
+          const onlineDoc = { ...doc, isEnabled: !isDeleted }
+          if (!('item' in onlineDoc)) return onlineDoc
+          return {
+            ...onlineDoc,
+            item: {
+              ...onlineDoc.item,
+              url: { host: onlineDoc.item.url.prefix, path: onlineDoc.item.url.path },
+            },
+          }
+        }),
+      },
     }
     request
       .post('/api/project/import/moyu', params)
