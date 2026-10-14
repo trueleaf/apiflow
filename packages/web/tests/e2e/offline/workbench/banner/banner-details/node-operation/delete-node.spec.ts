@@ -7,6 +7,8 @@ test.describe('DeleteNode', () => {
       await createProject();
       await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 5000 });
       await contentPage.waitForTimeout(500);
+      // 无关 JSON 剪贴板内容不能阻止创建节点或显示当前节点的删除菜单
+      await contentPage.evaluate(() => navigator.clipboard.writeText(JSON.stringify({ type: 'other-application', data: [] })));
       const treeWrap = contentPage.locator('.tree-wrap');
       await treeWrap.click({ button: 'right', position: { x: 100, y: 200 } });
       await contentPage.waitForTimeout(300);

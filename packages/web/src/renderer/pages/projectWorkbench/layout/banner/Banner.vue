@@ -349,10 +349,14 @@ const showContextmenu = ref(false); //是否显示contextmenu
 const contextmenuLeft = ref(0); //contextmenu left值
 const contextmenuTop = ref(0); //contextmenu top值
 
-const handleShowContextmenu = async (evt: Event, data: any) => {
+const handleShowContextmenu = async (evt: Event, data: ApidocBanner) => {
   const e = evt as MouseEvent;
-  const bannerData = data as ApidocBanner;
+  const bannerData = data;
   eventEmitter.emit('banner:contextmenu:open');
+  currentOperationalNode.value = data;
+  contextmenuLeft.value = e.clientX;
+  contextmenuTop.value = e.clientY;
+  pasteValue.value = null;
   showContextmenu.value = true;
   const isAlreadySelected = selectNodes.value.find(v => v._id === bannerData._id);
   if (!isAlreadySelected) {
@@ -367,35 +371,27 @@ const handleShowContextmenu = async (evt: Event, data: any) => {
   try {
     
     const copyData = await navigator.clipboard.readText();
-    const copyDataJson = JSON.parse(copyData);
-    if (copyDataJson.type !== 'apiflow-apidoc-node') {
-      return
-    }
-    pasteValue.value = copyDataJson;
+    const copyDataJson = JSON.parse(copyData) as { type?: string; data?: ApidocBanner[] };
+    pasteValue.value = copyDataJson?.type === 'apiflow-apidoc-node' && Array.isArray(copyDataJson.data) ? copyDataJson.data : null;
   } catch {
     pasteValue.value = null;
   }
-  contextmenuLeft.value = e.clientX;
-  contextmenuTop.value = e.clientY;
-  currentOperationalNode.value = data;
 }
 const handleWrapContextmenu = async (e: MouseEvent) => {
   eventEmitter.emit('banner:contextmenu:open');
   selectNodes.value = [];
+  currentOperationalNode.value = null;
+  contextmenuLeft.value = e.clientX;
+  contextmenuTop.value = e.clientY;
+  pasteValue.value = null;
+  showContextmenu.value = true;
   try {
     const copyData = await navigator.clipboard.readText();
-    const copyDataJson = JSON.parse(copyData);
-    if (copyDataJson.type !== 'apiflow-apidoc-node') {
-      return
-    }
-    pasteValue.value = copyDataJson;
+    const copyDataJson = JSON.parse(copyData) as { type?: string; data?: ApidocBanner[] };
+    pasteValue.value = copyDataJson?.type === 'apiflow-apidoc-node' && Array.isArray(copyDataJson.data) ? copyDataJson.data : null;
   } catch {
     pasteValue.value = null;
   }
-  currentOperationalNode.value = null;
-  showContextmenu.value = true;
-  contextmenuLeft.value = e.clientX;
-  contextmenuTop.value = e.clientY;
 }
 /*
 |--------------------------------------------------------------------------
