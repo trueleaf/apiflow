@@ -9,6 +9,11 @@ on:
         type: string
         required: false
         default: ''
+      verification_only:
+        description: Rerun verification for an existing release without rebuilding installers
+        type: boolean
+        required: false
+        default: false
 permissions:
   contents: write
 env:
@@ -77,6 +82,28 @@ jobs:
         with:
           name: desktop-test-app
           path: packages/web/src-tauri/target/debug
+      - uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/apiflow-webview2-155
+          key: webview2-fixed-155.0.4283.45-x64
+      - name: Set up fixed WebView2 runtime
+        shell: pwsh
+        run: |
+          $runtimeDirectory = Join-Path $env:RUNNER_TEMP 'apiflow-webview2-155'
+          $runtimeExecutable = Get-ChildItem -LiteralPath $runtimeDirectory -Recurse -Filter msedgewebview2.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (!$runtimeExecutable) {
+            New-Item -ItemType Directory -Path $runtimeDirectory -Force | Out-Null
+            $runtimeArchive = Join-Path $env:RUNNER_TEMP 'apiflow-webview2-155.cab'
+            Invoke-WebRequest -Uri 'https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/01b0fbd9-6ea3-4e12-818a-a71f73f3855b/Microsoft.WebView2.FixedVersionRuntime.155.0.4283.45.x64.cab' -OutFile $runtimeArchive
+            & "$env:SystemRoot/System32/expand.exe" $runtimeArchive '-F:*' $runtimeDirectory | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw 'WebView2 解压失败' }
+            $runtimeExecutable = Get-ChildItem -LiteralPath $runtimeDirectory -Recurse -Filter msedgewebview2.exe | Select-Object -First 1
+          }
+          if (!$runtimeExecutable -or $runtimeExecutable.VersionInfo.ProductVersion -ne '155.0.4283.45') { throw 'WebView2 固定版本校验失败' }
+          & icacls.exe $runtimeExecutable.DirectoryName /grant '*S-1-15-2-2:(OI)(CI)(RX)' '*S-1-15-2-1:(OI)(CI)(RX)' /T | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'WebView2 运行时读取权限配置失败' }
+          "WEBVIEW2_BROWSER_EXECUTABLE_FOLDER=$($runtimeExecutable.DirectoryName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Output '使用 WebView2 固定运行时 155.0.4283.45'
       - name: Verify desktop startup and import
         run: npx playwright test tests/e2e/offline/workbench/addons/import/import-flat-nodes.spec.ts --project desktop --reporter=list
       - run: npx playwright test tests/e2e/offline --project desktop --shard=${{ matrix.shard }}/8 --max-failures=1
@@ -89,6 +116,7 @@ jobs:
             packages/web/test-results
   bundle:
     needs: verify
+    if: ${{ !inputs.verification_only }}
     strategy:
       fail-fast: false
       matrix:
@@ -166,6 +194,7 @@ jobs:
           if-no-files-found: error
   store:
     needs: verify
+    if: ${{ !inputs.verification_only }}
     strategy:
       matrix:
         include:
