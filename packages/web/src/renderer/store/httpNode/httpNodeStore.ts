@@ -10,7 +10,8 @@ import {
   HttpNode,
   HttpNodeRequestMethod,
   ApidocProperty,
-  HttpNodeBodyParams
+  HttpNodeBodyParams,
+  HttpNodeResponseParams
 } from '@src/types'
 import { defineStore, storeToRefs } from "pinia"
 import axios, { Canceler } from 'axios'
@@ -265,8 +266,16 @@ export const useHttpNode = defineStore('httpNode', () => {
     httpNodeInfo.value.item.responseParams[index].value.strJson = value;
   }
   //新增一个response
-  const addResponseParam = (): void => {
-    httpNodeInfo.value.item.responseParams.push({
+  const addResponseParam = (example?: HttpNodeResponseParams): void => {
+    const responses = httpNodeInfo.value.item.responseParams;
+    const placeholder = responses[0];
+    if (example && responses.length === 1 && (placeholder.title === '成功返回' || placeholder.title === i18n.global.t('成功返回')) && placeholder.statusCode === 200
+      && placeholder.value.dataType === 'application/json' && !placeholder.value.strJson && !placeholder.value.text
+      && !placeholder.value.file.url && !placeholder.value.file.raw) {
+      httpNodeInfo.value.item.responseParams = [example];
+      return;
+    }
+    responses.push(example || {
       _id: nanoid(),
       title: i18n.global.t('返回参数名称'),
       statusCode: 200,
@@ -582,6 +591,7 @@ export const useHttpNode = defineStore('httpNode', () => {
       const currentSelectNav = currentNavs?.find((nav) => nav.selected) || null;
       if (!currentSelectNav) {
         logger.warn('缺少nav信息');
+        reject(new Error(i18n.global.t('保存失败')));
         return;
       }
       changeSaveHttpNodeLoading(true);
@@ -602,7 +612,14 @@ export const useHttpNode = defineStore('httpNode', () => {
       };
       if (isOffline()) {
         httpNodeDetail.updatedAt = new Date().toISOString();
-        await apiNodesCache.replaceNode(httpNodeDetail);
+        try {
+          const saved = await apiNodesCache.replaceNode(httpNodeDetail);
+          if (!saved) throw new Error(i18n.global.t('保存失败'));
+        } catch (error) {
+          changeSaveHttpNodeLoading(false);
+          reject(error);
+          return;
+        }
         //改变nav请求方法
         changeNavInfoById({
           id: currentSelectNav._id,
@@ -639,6 +656,7 @@ export const useHttpNode = defineStore('httpNode', () => {
         setTimeout(() => {
           changeSaveHttpNodeLoading(false);
         }, 100);
+        resolve();
         return
       }
 

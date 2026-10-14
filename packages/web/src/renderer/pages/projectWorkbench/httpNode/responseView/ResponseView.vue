@@ -9,6 +9,18 @@
       data-testid="response-area"
       :class="{ vertical: layout === 'vertical' }">
       <div v-if="responseInfo.statusCode" class="e2e-status-code" data-testid="status-code">{{ responseInfo.statusCode }}</div>
+      <el-button
+        v-if="responseInfo.statusCode"
+        class="save-response-example"
+        size="small"
+        :title="httpNodeStore.httpNodeInfo._id.startsWith('local_') ? t('请先保存接口再保存响应示例') : t('仅支持保存已完成的文本响应或空响应')"
+        :disabled="!canSaveResponseExample"
+        :loading="savingResponseExample"
+        data-testid="response-save-example-btn"
+        @click="handleSaveResponseExample">
+        <BookmarkPlus v-if="!savingResponseExample" :size="14" />
+        <span>{{ t('保存为示例') }}</span>
+      </el-button>
       <el-tabs v-model="activeName" class="h-100 w-100" data-testid="response-tabs">
         <el-tab-pane :label="t('返回值')" name="SBodyView" data-testid="response-tab-body">
           <SBodyView></SBodyView>
@@ -61,6 +73,11 @@ import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchSt
 import { useHttpNode } from '@/store/httpNode/httpNodeStore'
 import SLoading from '@/components/common/loading/ClLoading.vue'
 import { responseBodyViewContextKey } from './responseBodyViewContext'
+import { BookmarkPlus } from 'lucide-vue-next'
+import { nanoid } from 'nanoid/non-secure'
+import { cloneDeep } from 'lodash-es'
+import { message } from '@/helper'
+import type { HttpNodeResponseParams } from '@src/types'
 
 const { t } = useI18n()
 
@@ -120,6 +137,49 @@ const headers = computed(() => {
 const layout = computed(() => projectWorkbenchStore.layout);
 const requestState = computed(() => httpNodeResponseStore.requestState); //请求状态
 const responseBodyLoading = computed(() => httpNodeStore.responseBodyLoading); //返回体加载状态
+const savingResponseExample = ref(false);
+const canSaveResponseExample = computed(() => {
+  const { statusCode, responseData } = responseInfo.value;
+  return requestState.value === 'finish'
+    && statusCode > 0
+    && !responseBodyLoading.value
+    && !savingResponseExample.value
+    && !httpNodeStore.saveHttpNodeLoading
+    && !httpNodeStore.httpContentLoading
+    && !httpNodeStore.httpNodeInfo._id.startsWith('local_')
+    && (httpNodeResponseStore.isResponseBodyEmpty || ['json', 'text', 'xml', 'html', 'js', 'css', 'csv'].includes(responseData.canApiflowParseType));
+});
+// 保存当前响应为接口示例
+const handleSaveResponseExample = async () => {
+  if (!canSaveResponseExample.value) return;
+  const { statusCode, contentType, responseData } = responseInfo.value;
+  const nodeId = httpNodeStore.httpNodeInfo._id;
+  const previousResponses = cloneDeep(httpNodeStore.httpNodeInfo.item.responseParams);
+  const example: HttpNodeResponseParams = {
+    _id: nanoid(),
+    title: t('响应示例 {statusCode}', { statusCode }),
+    statusCode,
+    value: {
+      dataType: httpNodeResponseStore.isResponseBodyEmpty ? '' : (contentType.split(';')[0].trim().toLowerCase() || (responseData.canApiflowParseType === 'json' ? 'application/json' : 'text/plain')) as HttpNodeResponseParams['value']['dataType'],
+      strJson: responseData.canApiflowParseType === 'json' ? responseData.jsonData : '',
+      text: responseData.canApiflowParseType === 'json' ? '' : responseData.textData,
+      file: { url: '', raw: '' },
+    },
+  };
+  savingResponseExample.value = true;
+  httpNodeStore.addResponseParam(example);
+  try {
+    await httpNodeStore.saveHttpNode();
+    message.success(t('响应示例已保存'));
+  } catch {
+    if (httpNodeStore.httpNodeInfo._id === nodeId) {
+      httpNodeStore.httpNodeInfo.item.responseParams = previousResponses;
+    }
+    message.error(t('保存响应示例失败'));
+  } finally {
+    savingResponseExample.value = false;
+  }
+};
 watch(() => [
   requestState.value,
   responseInfo.value.contentType,
@@ -137,6 +197,7 @@ watch(() => [
   position: relative;
 }
 .remote-response-wrap {
+  position: relative;
   height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - var(--apiflow-response-summary-height));
   overflow-y: auto;
 
@@ -152,6 +213,16 @@ watch(() => [
   :deep(.el-tabs__header) {
     margin-bottom: 0px;
     height: var(--apiflow-response-tabs-header-height);
+    padding-right: 130px;
+  }
+  .save-response-example {
+    position: absolute;
+    top: 4px;
+    right: 12px;
+    z-index: 1;
+    span {
+      margin-left: 4px;
+    }
   }
   
   .el-tabs__content {

@@ -1,59 +1,6 @@
 import type { HttpNode, HttpNodeBodyParams, HttpNodeResponseParams } from '@src/types';
 import json5 from 'json5';
-
-type OpenAPISpec = {
-  openapi: string;
-  info: {
-    title: string;
-    description: string;
-    version: string;
-    contact: {
-      name: string;
-    };
-  };
-  servers: {
-    url: string;
-    description: string;
-  }[];
-  paths: Record<string, Record<string, OpenAPIOperation>>;
-  components: {
-    schemas: Record<string, unknown>;
-    securitySchemes: Record<string, unknown>;
-  };
-};
-
-type OpenAPIOperation = {
-  summary: string;
-  description: string;
-  tags: string[];
-  parameters: OpenAPIParameter[];
-  requestBody?: OpenAPIRequestBody;
-  responses: Record<string, OpenAPIResponse>;
-};
-
-type OpenAPIParameter = {
-  name: string;
-  in: 'path' | 'query' | 'header';
-  required: boolean;
-  description: string;
-  schema: {
-    type: string;
-  };
-};
-
-type OpenAPIRequestBody = {
-  required: boolean;
-  content: Record<string, {
-    schema: unknown;
-  }>;
-};
-
-type OpenAPIResponse = {
-  description: string;
-  content?: Record<string, {
-    schema: unknown;
-  }>;
-};
+import type { OpenAPISpec, OpenAPIOperation, OpenAPIRequestBody, OpenAPIResponse } from '@src/types/importExport/openapi';
 
 export class OpenAPIConverter {
   convertToOpenAPI(
@@ -151,10 +98,29 @@ export class OpenAPIConverter {
           }
         }
         if (doc.item.responseParams && doc.item.responseParams.length > 0) {
-          doc.item.responseParams.forEach(response => {
-            const responseObj = this.convertResponse(response);
-            if (responseObj) {
+          doc.item.responseParams.forEach((response, index) => {
+            const responseObj = this.convertResponse(response, index);
+            const existingResponse = operation.responses[response.statusCode];
+            if (!existingResponse) {
               operation.responses[response.statusCode] = responseObj;
+              return;
+            }
+            if (responseObj.content) {
+              const existingContent = existingResponse.content ??= {};
+              Object.entries(responseObj.content).forEach(([dataType, mediaType]) => {
+                const existingMediaType = existingContent[dataType];
+                if (!existingMediaType) {
+                  existingContent[dataType] = mediaType;
+                } else if (mediaType.examples) {
+                  if (!existingMediaType.examples) {
+                    existingMediaType.schema = mediaType.schema;
+                    existingResponse.description = response.title;
+                  } else if (JSON.stringify(existingMediaType.schema) !== JSON.stringify(mediaType.schema)) {
+                    existingMediaType.schema = { anyOf: [existingMediaType.schema, mediaType.schema] };
+                  }
+                  existingMediaType.examples = { ...existingMediaType.examples, ...mediaType.examples };
+                }
+              });
             }
           });
         }
@@ -263,31 +229,34 @@ export class OpenAPIConverter {
     }
     return null;
   }
-  private convertResponse(response: HttpNodeResponseParams): OpenAPIResponse | null {
+  private convertResponse(response: HttpNodeResponseParams, index: number): OpenAPIResponse {
     const responseObj: OpenAPIResponse = {
       description: response.title,
     };
-    const dataType = response.value.dataType;
+    const dataType = response.value.dataType.split(';')[0].trim();
     if (!dataType) {
       return responseObj;
     }
     const content: NonNullable<OpenAPIResponse['content']> = {};
     const jsonText = response.value.strJson || response.value.text;
-    if (dataType === 'application/json') {
+    if (dataType === 'application/json' || dataType.endsWith('+json')) {
       try {
+        const exampleValue: unknown = jsonText ? json5.parse(jsonText) : undefined;
         const jsonSchema = jsonText ? this.parseJsonToSchema(jsonText) : {
           type: 'object',
           description: 'JSON响应'
         };
-        content['application/json'] = {
-          schema: jsonSchema
+        content[dataType] = {
+          schema: jsonSchema,
+          ...(exampleValue !== undefined ? { examples: { [`example${index + 1}`]: { summary: response.title, value: exampleValue } } } : {}),
         };
       } catch {
-        content['application/json'] = {
+        content[dataType] = {
           schema: {
-            type: 'object',
+            type: 'string',
             description: 'JSON响应'
-          }
+          },
+          examples: { [`example${index + 1}`]: { summary: response.title, value: jsonText } },
         };
       }
     } else {
@@ -295,7 +264,8 @@ export class OpenAPIConverter {
         schema: {
           type: 'string',
           description: '响应内容'
-        }
+        },
+        examples: { [`example${index + 1}`]: { summary: response.title, value: response.value.text } },
       };
     }
     responseObj.content = content;
@@ -314,7 +284,7 @@ export class OpenAPIConverter {
   }
   private convertJsonToSchema(obj: unknown): unknown {
     if (obj === null) {
-      return { type: 'null' };
+      return { nullable: true };
     }
     if (Array.isArray(obj)) {
       if (obj.length === 0) {

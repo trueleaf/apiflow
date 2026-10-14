@@ -1195,6 +1195,12 @@ export default {
   // Common operation messages
   移除成功: 'Removed',
   保存成功: 'Saved',
+  '保存为示例': 'Save as Example',
+  '响应示例 {statusCode}': 'Response Example {statusCode}',
+  '响应示例已保存': 'Response example saved',
+  '保存响应示例失败': 'Failed to save response example',
+  '请先保存接口再保存响应示例': 'Save the API before saving a response example',
+  '仅支持保存已完成的文本响应或空响应': 'Only completed text or empty responses can be saved as examples',
   重置成功: 'Reset',
   修改失败: 'Modification failed',
   '确实要{action}该用户吗': '{action} this user?',

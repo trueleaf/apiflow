@@ -392,6 +392,12 @@ export const createMockServer = (): Koa => {
         }
       }
     }
+    // HTML 响应示例路由
+    if (ctx.path === '/response-example/html') {
+      ctx.type = 'text/html';
+      ctx.body = '<h1>Example response</h1>';
+      return;
+    }
     // 状态码测试路由 - 返回指定状态码
     if (ctx.path.startsWith('/status/')) {
       const match = ctx.path.match(/\/status\/(\d+)/);

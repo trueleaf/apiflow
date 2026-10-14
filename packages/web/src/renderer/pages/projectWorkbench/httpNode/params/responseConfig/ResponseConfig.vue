@@ -292,7 +292,7 @@ onUnmounted(() => {
 */
 const checkDisplayType = (mimeType: HttpNodeResponseContentType): 'text' | 'json' | 'audio' | 'video' | 'image' | 'pdf' | 'download' | 'unknown' => {
   // 文本展示
-  if (mimeType === 'text/csv' || mimeType === 'text/plain' || mimeType === 'text/html' || mimeType === 'application/xml' || mimeType === 'text/css' || mimeType === 'text/javascript') {
+  if (mimeType.startsWith('text/') || mimeType === 'application/xml' || mimeType.endsWith('+xml') || mimeType === 'application/javascript') {
     return 'text';
   }
   // 图片展示
@@ -317,7 +317,7 @@ const checkDisplayType = (mimeType: HttpNodeResponseContentType): 'text' | 'json
     return 'pdf';
   }
   //json格式
-  if (mimeType === 'application/json') {
+  if (mimeType === 'application/json' || mimeType.endsWith('+json')) {
     return 'json';
   }
   return 'unknown'

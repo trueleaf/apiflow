@@ -145,6 +145,7 @@ export type HttpNodeContentType =
 
 export type HttpNodeResponseContentType =
   | HttpNodeContentType
+  | 'application/javascript'
   | 'application/xml'
   | 'application/json'
   | 'text/html'

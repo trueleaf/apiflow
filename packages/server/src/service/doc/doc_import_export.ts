@@ -18,6 +18,7 @@ import { Types } from 'mongoose';
 import { DocPrefix } from '../../entity/doc/doc_prefix.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import type { OpenAPIResponse } from '../../types/doc/openapi.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -680,7 +681,7 @@ export class DocImportAndExportService {
         tags: [doc.info.type || 'api'],
         parameters: [],
         requestBody: null,
-        responses: {}
+        responses: {} as Record<string, OpenAPIResponse>
       };
 
       // 处理路径参数
@@ -828,36 +829,55 @@ export class DocImportAndExportService {
 
       // 处理响应
       if (doc.item.responseParams && doc.item.responseParams.length > 0) {
-        doc.item.responseParams.forEach(response => {
-          const responseObj = {
+        doc.item.responseParams.forEach((response, index) => {
+          const responseObj: OpenAPIResponse = {
             description: response.title,
-            content: {}
           };
-
-          if (response.value.dataType === 'application/json' && response.value.strJson) {
+          const dataType = response.value.dataType.split(';')[0].trim();
+          const content: NonNullable<OpenAPIResponse['content']> = {};
+          const jsonText = response.value.strJson || response.value.text;
+          if (dataType === 'application/json' || dataType.endsWith('+json')) {
             try {
-              const jsonSchema = this.parseJsonToSchema(response.value.strJson);
-              responseObj.content['application/json'] = {
-                schema: jsonSchema
+              const exampleValue: unknown = jsonText ? JSON.parse(jsonText) : undefined;
+              content[dataType] = {
+                schema: jsonText ? this.convertJsonToSchema(exampleValue) : { type: 'object' },
+                ...(exampleValue !== undefined ? { examples: { [`example${index + 1}`]: { summary: response.title, value: exampleValue } } } : {}),
               };
-            } catch (error) {
-              responseObj.content['application/json'] = {
-                schema: {
-                  type: 'object',
-                  description: 'JSON响应'
-                }
+            } catch {
+              content[dataType] = {
+                schema: { type: 'string' },
+                examples: { [`example${index + 1}`]: { summary: response.title, value: jsonText } },
               };
             }
-          } else if (response.value.text) {
-            responseObj.content['text/plain'] = {
-              schema: {
-                type: 'string',
-                description: '文本响应'
-              }
+          } else if (dataType) {
+            content[dataType] = {
+              schema: { type: 'string' },
+              examples: { [`example${index + 1}`]: { summary: response.title, value: response.value.text } },
             };
           }
-
-          operation.responses[response.statusCode] = responseObj;
+          if (dataType) responseObj.content = content;
+          const existingResponse = operation.responses[response.statusCode];
+          if (!existingResponse) {
+            operation.responses[response.statusCode] = responseObj;
+            return;
+          }
+          if (responseObj.content) {
+            const existingContent = existingResponse.content ??= {};
+            Object.entries(responseObj.content).forEach(([mimeType, mediaType]) => {
+              const existingMediaType = existingContent[mimeType];
+              if (!existingMediaType) {
+                existingContent[mimeType] = mediaType;
+              } else if (mediaType.examples) {
+                if (!existingMediaType.examples) {
+                  existingMediaType.schema = mediaType.schema;
+                  existingResponse.description = response.title;
+                } else if (JSON.stringify(existingMediaType.schema) !== JSON.stringify(mediaType.schema)) {
+                  existingMediaType.schema = { anyOf: [existingMediaType.schema, mediaType.schema] };
+                }
+                existingMediaType.examples = { ...existingMediaType.examples, ...mediaType.examples };
+              }
+            });
+          }
         });
       }
 
@@ -868,13 +888,10 @@ export class DocImportAndExportService {
     this.ctx.set('content-disposition', `attachment;filename=${encodeURIComponent(`${projectInfo.projectName}.openapi.json`)}`);
     return Buffer.from(JSON.stringify(openApiSpec, null, 2), 'utf-8');
   }
-
-  /**
-   * 解析JSON字符串为OpenAPI Schema
-   */
-  private parseJsonToSchema(jsonString: string): any {
+  // 解析JSON字符串为OpenAPI Schema
+  private parseJsonToSchema(jsonString: string): unknown {
     try {
-      const jsonObj = JSON.parse(jsonString);
+      const jsonObj: unknown = JSON.parse(jsonString);
       return this.convertJsonToSchema(jsonObj);
     } catch (error) {
       return {
@@ -883,13 +900,10 @@ export class DocImportAndExportService {
       };
     }
   }
-
-  /**
-   * 将JSON对象转换为OpenAPI Schema
-   */
-  private convertJsonToSchema(obj: any): any {
+  // 将JSON对象转换为OpenAPI Schema
+  private convertJsonToSchema(obj: unknown): unknown {
     if (obj === null) {
-      return { type: 'null' };
+      return { nullable: true };
     }
     
     if (Array.isArray(obj)) {
@@ -905,8 +919,8 @@ export class DocImportAndExportService {
     if (typeof obj === 'object') {
       const schema = {
         type: 'object',
-        properties: {},
-        required: []
+        properties: {} as Record<string, unknown>,
+        required: [] as string[]
       };
       
       for (const [key, value] of Object.entries(obj)) {

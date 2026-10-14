@@ -349,11 +349,11 @@ const responseNum = computed(() => {
   resParams.forEach(response => {
     const resValue = response.value;
     const { dataType } = resValue;
-    if (dataType === 'application/json') {
+    if (dataType === 'application/json' || dataType.endsWith('+json')) {
       if (resValue.strJson.length > 0) {
         resNum += 1;
       }
-    } else if (dataType === 'text/javascript' || dataType === 'text/plain' || dataType === 'text/html' || dataType === 'application/xml') {
+    } else if (dataType.startsWith('text/') || dataType === 'application/xml' || dataType.endsWith('+xml') || dataType === 'application/javascript') {
       if (resValue.text.length > 0) {
         resNum += 1;
       }
