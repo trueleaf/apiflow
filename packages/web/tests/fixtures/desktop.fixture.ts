@@ -106,6 +106,7 @@ export const test = base.extend<DesktopFixtures>({
       return !!page;
     }, { timeout: remoteContentUrl ? 45000 : 15000 }).toBe(true);
     if (!page) throw new Error('未找到内容视图');
+    await page.setViewportSize({ width: 1920, height: 1080 });
     await page.waitForLoadState('domcontentloaded');
     const session = await page.context().newCDPSession(page);
     await session.send('Emulation.setFocusEmulationEnabled', { enabled: true });
