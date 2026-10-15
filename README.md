@@ -90,7 +90,7 @@ It supports **API testing**, **mocking**, **WebSocket**, **AI agents**, **team c
 
 # Core Capabilities
 
-- HTTP API testing (RESTful)
+- HTTP API testing (RESTful) with connection pooling and keep-alive reuse
 - WebSocket testing
 - Mock Server (HTTP / WebSocket / SSE)
 - Environment & variable system

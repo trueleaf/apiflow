@@ -4,7 +4,93 @@ use std::sync::Arc;
 use tokio::{io::{AsyncReadExt, AsyncWriteExt}, net::TcpListener};
 
 #[tokio::test]
+async fn reuses_tcp_connection_across_requests_without_leaking_headers() {
+    let client = create_client().unwrap();
+    let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let counts = Arc::new(Mutex::new(HashMap::new()));
+    // 由服务端按真实 TCP 对端计数，验证默认及显式 keep-alive 共用连接
+    let app = axum::Router::new().route("/", axum::routing::get(move |axum::extract::ConnectInfo(peer): axum::extract::ConnectInfo<std::net::SocketAddr>, headers: axum::http::HeaderMap| {
+        let counts = counts.clone();
+        async move {
+            let count = {
+                let mut counts = counts.lock().unwrap();
+                let count = counts.entry(peer).or_insert(0_usize);
+                *count += 1;
+                *count
+            };
+            axum::Json(json!({"port":peer.port(), "count":count, "marker":headers.get("x-marker").and_then(|value| value.to_str().ok())}))
+        }
+    }));
+    let server = tokio::spawn(async move { axum::serve(listener, app.into_make_service_with_connect_info::<std::net::SocketAddr>()).await.unwrap(); });
+    let mut port = None;
+    for (index, headers) in [json!({"X-Marker":"first"}), json!({"Connection":"keep-alive", "X-Marker":"second"}), json!({})].into_iter().enumerate() {
+        let messages = Arc::new(Mutex::new(Vec::<Value>::new()));
+        let captured = messages.clone();
+        let output = Channel::new(move |body| { captured.lock().unwrap().push(body.deserialize::<Value>().unwrap()); Ok(()) });
+        let options = serde_json::from_value(json!({"requestId":format!("keep-alive-{index}"), "url":format!("http://{address}/"), "method":"GET", "headers":headers, "timeout":5000, "followRedirect":false, "maxRedirects":0, "maxSendFileSize":0})).unwrap();
+        tokio::time::timeout(Duration::from_secs(5), run_request(&client, options, &output)).await.unwrap().unwrap();
+        let messages = messages.lock().unwrap();
+        let bytes: Vec<u8> = messages.iter().filter_map(|item| item["data"].as_array()).flatten().map(|byte| byte.as_u64().unwrap() as u8).collect();
+        let body: Value = serde_json::from_slice(&bytes).unwrap();
+        assert_eq!(body["count"], index + 1, "连续请求应复用同一条 TCP 连接");
+        if let Some(port) = port { assert_eq!(body["port"].as_u64(), Some(port)); }
+        else { port = body["port"].as_u64(); }
+        assert_eq!(body["marker"], [json!("first"), json!("second"), Value::Null][index], "请求头不得在共享客户端上残留");
+        assert_eq!(messages.last().unwrap()["kind"], "end");
+    }
+    server.abort();
+    let _ = server.await;
+}
+#[tokio::test]
+async fn respects_connection_close_from_client_and_server() {
+    let client = create_client().unwrap();
+    for close_source in ["client", "server"] {
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        let counts = Arc::new(Mutex::new(HashMap::new()));
+        // 分别由请求头和响应头关闭连接，后续请求应新建连接并继续复用
+        let app = axum::Router::new().route("/{action}", axum::routing::get(move |axum::extract::ConnectInfo(peer): axum::extract::ConnectInfo<std::net::SocketAddr>, axum::extract::Path(action): axum::extract::Path<String>| {
+            let counts = counts.clone();
+            async move {
+                let count = {
+                    let mut counts = counts.lock().unwrap();
+                    let count = counts.entry(peer).or_insert(0_usize);
+                    *count += 1;
+                    *count
+                };
+                let mut headers = axum::http::HeaderMap::new();
+                if action == "server" { headers.insert(axum::http::header::CONNECTION, axum::http::HeaderValue::from_static("close")); }
+                (headers, axum::Json(json!({"port":peer.port(), "count":count})))
+            }
+        }));
+        let server = tokio::spawn(async move { axum::serve(listener, app.into_make_service_with_connect_info::<std::net::SocketAddr>()).await.unwrap(); });
+        let mut responses = Vec::new();
+        for index in 0..3 {
+            let messages = Arc::new(Mutex::new(Vec::<Value>::new()));
+            let captured = messages.clone();
+            let output = Channel::new(move |body| { captured.lock().unwrap().push(body.deserialize::<Value>().unwrap()); Ok(()) });
+            let action = if index == 0 { close_source } else { "keep" };
+            let headers = if index == 0 && close_source == "client" { json!({"Connection":"close"}) } else { json!({}) };
+            let options = serde_json::from_value(json!({"requestId":format!("close-{index}"), "url":format!("http://{address}/{action}"), "method":"GET", "headers":headers, "timeout":5000, "followRedirect":false, "maxRedirects":0, "maxSendFileSize":0})).unwrap();
+            tokio::time::timeout(Duration::from_secs(5), run_request(&client, options, &output)).await.unwrap().unwrap();
+            let messages = messages.lock().unwrap();
+            let bytes: Vec<u8> = messages.iter().filter_map(|item| item["data"].as_array()).flatten().map(|byte| byte.as_u64().unwrap() as u8).collect();
+            responses.push(serde_json::from_slice::<Value>(&bytes).unwrap());
+            assert_eq!(messages.last().unwrap()["kind"], "end");
+        }
+        assert_eq!(responses[0]["count"], 1);
+        assert_eq!(responses[1]["count"], 1);
+        assert_eq!(responses[2]["count"], 2, "重建后的 TCP 连接应能继续复用");
+        assert_ne!(responses[0]["port"], responses[1]["port"], "Connection: close 后必须重新建连");
+        assert_eq!(responses[1]["port"], responses[2]["port"]);
+        server.abort();
+        let _ = server.await;
+    }
+}
+#[tokio::test]
 async fn receives_http_errors_and_duplicate_cookies_without_losing_body() {
+    let client = create_client().unwrap();
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let address = listener.local_addr().unwrap();
     // 返回 HTTP 错误及多个 Cookie，验证错误响应仍可被 API 调试器查看
@@ -18,7 +104,7 @@ async fn receives_http_errors_and_duplicate_cookies_without_losing_body() {
     let captured = messages.clone();
     let output = Channel::new(move |body| { captured.lock().unwrap().push(body.deserialize::<Value>().unwrap()); Ok(()) });
     let options = serde_json::from_value(json!({"requestId":"cookies", "url":format!("http://{address}/"), "method":"GET", "headers":{}, "timeout":5000, "followRedirect":true, "maxRedirects":5, "maxSendFileSize":0})).unwrap();
-    tokio::time::timeout(Duration::from_secs(5), run_request(options, &output)).await.unwrap().unwrap();
+    tokio::time::timeout(Duration::from_secs(5), run_request(&client, options, &output)).await.unwrap().unwrap();
     server.await.unwrap();
     let messages = messages.lock().unwrap();
     assert_eq!(messages[0]["response"]["status"], 422);
@@ -29,6 +115,7 @@ async fn receives_http_errors_and_duplicate_cookies_without_losing_body() {
 }
 #[tokio::test]
 async fn follows_post_redirect_without_leaking_credentials_to_another_origin() {
+    let client = create_client().unwrap();
     let source = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let destination = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let source_address = source.local_addr().unwrap();
@@ -55,7 +142,7 @@ async fn follows_post_redirect_without_leaking_credentials_to_another_origin() {
     let captured = messages.clone();
     let output = Channel::new(move |body| { captured.lock().unwrap().push(body.deserialize::<Value>().unwrap()); Ok(()) });
     let options = serde_json::from_value(json!({"requestId":"redirect", "url":format!("http://{source_address}/"), "method":"POST", "headers":{"Authorization":"secret", "Cookie":"session=secret", "Content-Type":"application/json"}, "body":{"kind":"json", "text":"{}"}, "timeout":5000, "followRedirect":true, "maxRedirects":5, "maxSendFileSize":0})).unwrap();
-    tokio::time::timeout(Duration::from_secs(5), run_request(options, &output)).await.unwrap().unwrap();
+    tokio::time::timeout(Duration::from_secs(5), run_request(&client, options, &output)).await.unwrap().unwrap();
     first.await.unwrap();
     second.await.unwrap();
     let messages = messages.lock().unwrap();
@@ -64,6 +151,7 @@ async fn follows_post_redirect_without_leaking_credentials_to_another_origin() {
 }
 #[tokio::test]
 async fn streams_sse_before_the_server_finishes() {
+    let client = create_client().unwrap();
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let address = listener.local_addr().unwrap();
     let (continue_sender, continue_receiver) = tokio::sync::oneshot::channel();
@@ -86,7 +174,7 @@ async fn streams_sse_before_the_server_finishes() {
         Ok(())
     });
     let options = serde_json::from_value(json!({"requestId":"stream", "url":format!("http://{address}/"), "method":"GET", "headers":{}, "timeout":5000, "followRedirect":false, "maxRedirects":0, "maxSendFileSize":0})).unwrap();
-    tokio::time::timeout(Duration::from_secs(5), run_request(options, &output)).await.unwrap().unwrap();
+    tokio::time::timeout(Duration::from_secs(5), run_request(&client, options, &output)).await.unwrap().unwrap();
     server.await.unwrap();
     let messages = messages.lock().unwrap();
     assert!(messages.iter().filter(|item| item["kind"] == "data").count() >= 2);
@@ -94,6 +182,7 @@ async fn streams_sse_before_the_server_finishes() {
 }
 #[tokio::test]
 async fn multipart_generates_a_matching_boundary_and_repeated_fields() {
+    let client = create_client().unwrap();
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let address = listener.local_addr().unwrap();
     // 用户提供的 Content-Type 不得覆盖原生 multipart 自动生成的 boundary
@@ -122,6 +211,6 @@ async fn multipart_generates_a_matching_boundary_and_repeated_fields() {
     });
     let output = Channel::new(|_| Ok(()));
     let options = serde_json::from_value(json!({"requestId":"multipart", "url":format!("http://{address}/"), "method":"POST", "headers":{"Content-Type":"multipart/form-data"}, "body":{"kind":"formdata", "fields":[{"id":"1", "key":"tag", "kind":"string", "value":"one"}, {"id":"2", "key":"tag", "kind":"string", "value":"two"}]}, "timeout":5000, "followRedirect":false, "maxRedirects":0, "maxSendFileSize":0})).unwrap();
-    tokio::time::timeout(Duration::from_secs(5), run_request(options, &output)).await.unwrap().unwrap();
+    tokio::time::timeout(Duration::from_secs(5), run_request(&client, options, &output)).await.unwrap().unwrap();
     server.await.unwrap();
 }

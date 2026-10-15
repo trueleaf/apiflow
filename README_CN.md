@@ -87,7 +87,7 @@ Postman / Apifox 开源替代方案
 
 # 核心能力一览
 
-- HTTP API 测试（RESTful）
+- HTTP API 测试（RESTful），支持连接池与 keep-alive 连接复用
 - WebSocket 测试
 - Mock Server（HTTP / WebSocket / SSE）
 - 环境变量与变量系统

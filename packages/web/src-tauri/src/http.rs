@@ -12,6 +12,10 @@ impl Requests {
         if let Ok(requests) = self.0.lock() { for ((view, _), token) in requests.iter() { if view == owner { token.cancel(); } } }
     }
 }
+// 创建应用共享的 HTTP 客户端和连接池
+pub fn create_client() -> Result<Client, reqwest::Error> {
+    Client::builder().redirect(reqwest::redirect::Policy::none()).build()
+}
 pub fn timestamp() -> u64 {
     SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_millis() as u64
 }
@@ -28,8 +32,7 @@ async fn file_part(path: &str, limit: u64) -> Result<multipart::Part, String> {
     multipart::Part::stream_with_length(reqwest::Body::wrap_stream(ReaderStream::new(file)), metadata.len())
         .file_name(name.to_owned()).mime_str(&mime).map_err(|error| error.to_string())
 }
-async fn run_request(options: HttpRequest, output: &Channel<HttpEvent>) -> Result<(), String> {
-    let client = Client::builder().redirect(reqwest::redirect::Policy::none()).build().map_err(|error| error.to_string())?;
+async fn run_request(client: &Client, options: HttpRequest, output: &Channel<HttpEvent>) -> Result<(), String> {
     let mut url = Url::parse(&options.url).map_err(|error| error.to_string())?;
     if !matches!(url.scheme(), "http" | "https") { return Err("UNSUPPORTED_URL_SCHEME".into()); }
     let mut method = Method::from_bytes(options.method.to_uppercase().as_bytes()).map_err(|error| error.to_string())?;
@@ -146,7 +149,7 @@ async fn run_request(options: HttpRequest, output: &Channel<HttpEvent>) -> Resul
     }
 }
 #[tauri::command]
-pub async fn http_request(webview: Webview, requests: State<'_, Requests>, options: HttpRequest, output: Channel<HttpEvent>) -> Result<(), String> {
+pub async fn http_request(webview: Webview, requests: State<'_, Requests>, client: State<'_, Client>, options: HttpRequest, output: Channel<HttpEvent>) -> Result<(), String> {
     if options.request_id.is_empty() { return Err("MISSING_REQUEST_ID".into()); }
     let key = (webview.label().to_owned(), options.request_id.clone());
     let cancellation = CancellationToken::new();
@@ -161,8 +164,8 @@ pub async fn http_request(webview: Webview, requests: State<'_, Requests>, optio
     }
     let timeout = options.timeout;
     let run = async {
-        if timeout == 0 { run_request(options, &output).await }
-        else { tokio::time::timeout(Duration::from_millis(timeout), run_request(options, &output)).await.map_err(|_| "REQUEST_TIMEOUT".to_owned())? }
+        if timeout == 0 { run_request(&client, options, &output).await }
+        else { tokio::time::timeout(Duration::from_millis(timeout), run_request(&client, options, &output)).await.map_err(|_| "REQUEST_TIMEOUT".to_owned())? }
     };
     let result = tokio::select! {
         result = run => result,

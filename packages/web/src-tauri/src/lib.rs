@@ -142,6 +142,7 @@ pub fn run() {
         .manage(std::sync::Mutex::new(shell::ShellState::default()))
         .invoke_handler(tauri::generate_handler![desktop_info, is_app_store, window_action, window_state, http::http_request, http::http_cancel, files::read_file, files::stage_file, files::temporary_file, files::select_files, files::file_info, files::save_file, websocket::websocket_connect, websocket::websocket_action, script::execute_script, shell::route_message, executor::executor_ready, executor::executor_reply, mcp::mcp_action, mock::mock_action, content::shell_query, content::content_load, update::update_action])
         .setup(|app| {
+            app.manage(http::create_client()?);
             app.manage(settings::Store::load(app.handle()).map_err(std::io::Error::other)?);
             tauri::async_runtime::block_on(app.state::<update::Updates>().restore(app.handle())).map_err(std::io::Error::other)?;
             create_window(app)?;

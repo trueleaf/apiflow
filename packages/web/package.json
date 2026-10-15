@@ -5,7 +5,7 @@
   "license": "MIT",
   "homepage": "https://github.com/trueleaf/apiflow",
   "private": true,
-  "version": "0.9.82",
+  "version": "0.9.83",
   "type": "module",
   "scripts": {
     "dev": "node scripts/tauri.mjs dev",
