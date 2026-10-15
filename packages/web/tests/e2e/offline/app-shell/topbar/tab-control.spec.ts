@@ -133,10 +133,11 @@ test.describe('Navigation', () => {
 
   test('可以拖拽tab改变顺序', async ({ topBarPage, createProject, clearCache }) => {
     await clearCache();
-    // 创建3个项目
-    const projectAName = await createProject(`拖拽A-${Date.now()}`);
-    const projectBName = await createProject(`拖拽B-${Date.now()}`);
-    const projectCName = await createProject(`拖拽C-${Date.now()}`);
+    await topBarPage.setViewportSize({ width: 1024, height: 35 });
+    // 保证三个标签在窄屏内可见，验证拖拽排序
+    const projectAName = await createProject('拖拽A');
+    const projectBName = await createProject('拖拽B');
+    const projectCName = await createProject('拖拽C');
     await topBarPage.waitForTimeout(500);
     // 获取初始顺序
     const allTabs = topBarPage.locator('[data-test-id^="header-tab-item-"]');
