@@ -208,7 +208,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, defineAsyncComponent } from 'vue';
+import { ref, computed, watch, defineAsyncComponent } from 'vue';
 import { storeToRefs } from 'pinia'
 import { ArrowDown } from '@element-plus/icons-vue';
 import { formatDate } from '../helper'
@@ -230,14 +230,9 @@ const expandedBlocks = ref({
   response: true,
 });
 
-onMounted(() => {
-  if (mockInfo.value?._id) {
-    const cache = getShareCollapseState(mockInfo.value._id);
-    if (cache) {
-      expandedBlocks.value = { ...expandedBlocks.value, ...cache };
-    }
-  }
-});
+watch(() => mockInfo.value?._id, docId => {
+  expandedBlocks.value = { condition: true, response: true, ...(docId ? getShareCollapseState(docId) : {}) };
+}, { immediate: true });
 
 const toggleBlock = (block: 'condition' | 'response') => {
   expandedBlocks.value[block] = !expandedBlocks.value[block];

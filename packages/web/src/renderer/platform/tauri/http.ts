@@ -2,6 +2,7 @@ import { Channel, invoke } from '@tauri-apps/api/core';
 import { fileTypeFromBuffer } from 'file-type';
 import { generateEmptyResponse } from '@/helper';
 import { config } from '@src/config/config';
+import { i18n } from '@/i18n';
 import type { CanApiflowParseType, HttpRequestOptions, ResponseInfo } from '@src/types';
 import type { DesktopHttpEvent, DesktopHttpRequest, DesktopResponseHead } from '@src/types/desktop';
 
@@ -44,7 +45,7 @@ const responseType = (contentType: string): CanApiflowParseType => {
   if (mime.includes('zip') || mime.includes('tar') || mime.includes('rar') || mime.includes('compressed')) return 'archive';
   if (mime.includes('msdownload')) return 'exe';
   if (mime.includes('octet-stream') || mime.includes('force-download')) return 'forceDownload';
-  return 'text';
+  return mime.startsWith('text/') ? 'text' : 'unknown';
 };
 // 接收原生 HTTP 流并通知现有请求工作流
 export const sendDesktopRequest = async (options: HttpRequestOptions): Promise<void> => {
@@ -78,7 +79,7 @@ export const sendDesktopRequest = async (options: HttpRequestOptions): Promise<v
     }
     if (event.kind === 'error' || event.kind === 'file-error') {
       finished = true;
-      const message = event.message || 'HTTP_REQUEST_FAILED';
+      const message = event.message === 'FILE_NOT_FOUND' ? i18n.global.t('文件不存在') : event.message || 'HTTP_REQUEST_FAILED';
       if (event.kind === 'file-error' && event.fieldId && options.onReadFileFormDataError) {
         options.onReadFileFormDataError({ id: event.fieldId, msg: message, fullMsg: message });
       } else if (event.kind === 'file-error' && options.body?.type === 'binary' && options.onReadBinaryDataError) {
@@ -106,7 +107,8 @@ export const sendDesktopRequest = async (options: HttpRequestOptions): Promise<v
       response.timings.response = head.timestamp;
       response.requestData.url = head.url;
       response.requestData.method = head.method;
-      response.requestData.headers = head.requestHeaders;
+      const originalHeaderNames = new Map(Object.keys(options.headers).map(name => [name.toLowerCase(), name]));
+      response.requestData.headers = Object.fromEntries(Object.entries(head.requestHeaders).map(([name, value]) => [originalHeaderNames.get(name.toLowerCase()) || name, value]));
       response.requestData.host = new URL(head.url).host;
       response.responseData.canApiflowParseType = responseType(response.contentType);
       options.onResponse?.(structuredClone(response));

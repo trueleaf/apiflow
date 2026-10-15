@@ -100,7 +100,7 @@ test.describe('HttpMockConditionAndLog-Offline', () => {
     const noMatchResponse = await contentPage.request.get('http://127.0.0.1:19182/mock/http-condition-false');
     expect(noMatchResponse.status()).toBe(500);
     const noMatchText = await noMatchResponse.text();
-    expect(noMatchText).toMatch(/条件不满足|Condition script|not/);
+    expect(noMatchText).toMatch(/条件不满足|Condition script|No matching response condition/);
 
     // 创建“脚本异常”节点并写入 throw Error 脚本
     await createNode(contentPage, { nodeType: 'httpMock', name: '离线-条件脚本异常分支' });

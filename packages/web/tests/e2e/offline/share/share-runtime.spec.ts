@@ -156,7 +156,7 @@ test.describe('ShareRuntime', () => {
     });
     // 通过用户侧跳转进入分享页
     await contentPage.evaluate(() => {
-      window.location.hash = '#/share';
+      window.location.hash = '#/share?share_id=local_share';
     });
     await contentPage.waitForURL(/.*#\/share/, { timeout: 10000 });
     const noPermissionPanel = contentPage.locator('.no-permission');
@@ -305,7 +305,7 @@ test.describe('ShareRuntime', () => {
       });
     });
     await contentPage.evaluate(() => {
-      window.location.hash = '#/share';
+      window.location.hash = '#/share?share_id=local_share';
     });
     await contentPage.waitForURL(/.*#\/share/, { timeout: 10000 });
     await expect(contentPage.locator('.doc-share')).toBeVisible({ timeout: 10000 });

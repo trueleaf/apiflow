@@ -131,7 +131,8 @@ test.describe('Navigation', () => {
     expect(projectBIndex).toBeLessThan(settingsIndex);
   });
 
-  test('可以拖拽tab改变顺序', async ({ topBarPage, createProject }) => {
+  test('可以拖拽tab改变顺序', async ({ topBarPage, createProject, clearCache }) => {
+    await clearCache();
     // 创建3个项目
     const projectAName = await createProject(`拖拽A-${Date.now()}`);
     const projectBName = await createProject(`拖拽B-${Date.now()}`);
@@ -535,7 +536,8 @@ test.describe('Navigation', () => {
     await expect(contentPage).toHaveURL(/.*#\/home/, { timeout: 5000 });
   });
 
-  test('右键菜单项禁用状态正确', async ({ topBarPage, contentPage, createProject }) => {
+  test('右键菜单项禁用状态正确', async ({ topBarPage, contentPage, createProject, clearCache }) => {
+    await clearCache();
     // 创建三个项目tab
     const projectAName = await createProject(`禁用A-${Date.now()}`);
     const projectBName = await createProject(`禁用B-${Date.now()}`);

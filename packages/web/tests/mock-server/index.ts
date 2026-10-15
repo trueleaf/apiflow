@@ -428,7 +428,7 @@ export const createMockServer = (): Koa => {
       }
     }
     // AI 成功响应路由 - 用于测试 AI 导入成功链路
-    if (ctx.path === '/ai/mock/success') {
+    if (ctx.path === '/ai/mock/success' || ctx.path === '/ai/mock/success/chat/completions') {
       ctx.status = 200;
       ctx.body = {
         id: 'chatcmpl-mock-success',
@@ -491,12 +491,10 @@ export const createMockServer = (): Koa => {
       return;
     }
     // AI 失败响应路由 - 用于测试 AI 导入失败提示
-    if (ctx.path === '/ai/mock/fail') {
-      ctx.status = 200;
+    if (ctx.path === '/ai/mock/fail' || ctx.path === '/ai/mock/fail/chat/completions') {
+      ctx.status = 500;
       ctx.body = {
-        success: false,
-        code: 'AI_MOCK_FAIL',
-        message: 'AI mock failure',
+        error: { message: 'AI mock failure', type: 'server_error', code: 'AI_MOCK_FAIL' },
       };
       return;
     }

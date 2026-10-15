@@ -264,8 +264,8 @@ test.describe('McpService', () => {
         client.callTool({ name: 'createVariable', arguments: { projectId: projectA, name: 'onlyInA', value: 'valueA' } }),
         client.callTool({ name: 'createVariable', arguments: { projectId: projectB, name: 'onlyInB', value: 'valueB' } }),
       ])
-      expect(createdA.isError).toBe(false)
-      expect(createdB.isError).toBe(false)
+      expect(createdA.isError, JSON.stringify(createdA)).toBe(false)
+      expect(createdB.isError, JSON.stringify(createdB)).toBe(false)
       for (let index = 0; index < 3; index += 1) {
         const [variablesA, variablesB] = await Promise.all([
           client.callTool({ name: 'getVariables', arguments: { projectId: projectA } }),

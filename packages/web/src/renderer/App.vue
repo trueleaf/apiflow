@@ -372,7 +372,7 @@ const initAppHeaderTabs = async () => {
     }
   );
   // 如果没有 activeTabId，跳转到主页
-  if (!activeTabId) {
+  if (!activeTabId && router.currentRoute.value.path !== '/share') {
     await router.push('/home');
   }
 };
@@ -444,7 +444,7 @@ const initBrowserEnv = async () => {
   await router.isReady()
   // 从缓存读取上次的路由状态
   const cachedActiveTabId = appWorkbenchCache.getAppWorkbenchHeaderActiveTab()  
-  if (!cachedActiveTabId && router.currentRoute.value.path !== '/admin') {
+  if (!cachedActiveTabId && !['/admin', '/share'].includes(router.currentRoute.value.path)) {
     await router.push('/home')
   }
   // 监听网络模式变化

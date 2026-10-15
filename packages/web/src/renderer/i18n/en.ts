@@ -1,4 +1,7 @@
 export default {
+  '文件不存在': 'File does not exist',
+  'Mock 端口被占用': 'The Mock port is already in use',
+  'Mock 路径已被使用': 'The Mock path is already in use',
   desktop: { loadFailed: 'Workspace failed to load', loadFailedDescription: 'Check your connection and page address, or open the bundled local version.', retry: 'Retry', useLocal: 'Use local version' },
   "智能解析请求": "Parse request with AI",
   "自然语言生成 JSON": "Generate JSON from text",

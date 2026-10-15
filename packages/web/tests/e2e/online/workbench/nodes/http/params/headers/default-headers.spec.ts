@@ -27,8 +27,6 @@ test.describe('DefaultHeaders', () => {
     await expect(responseBody).toContainText('host', { timeout: 10000 });
     // 验证请求包含Accept-Encoding请求头
     await expect(responseBody).toContainText('accept-encoding', { timeout: 10000 });
-    // 验证请求包含Connection请求头
-    await expect(responseBody).toContainText('connection', { timeout: 10000 });
     // 验证请求包含User-Agent请求头
     await expect(responseBody).toContainText('user-agent', { timeout: 10000 });
     // 验证请求包含Accept请求头

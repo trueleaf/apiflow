@@ -196,7 +196,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed, watch, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
+import { ref, reactive, computed, watch, onUnmounted, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
@@ -338,9 +338,12 @@ const fetchLogs = async () => {
   }
   loading.value = true
   errorMessage.value = ''
+  const nodeId = currentNodeId.value
   try {
-    const allLogs = await httpMockLogsCache.getLogsByNodeId(currentNodeId.value)
-    requestLogs.value = allLogs.filter((log): log is Extract<MockLog, { type: 'request' }> => log.type === 'request')
+    const allLogs = await httpMockLogsCache.getLogsByNodeId(nodeId)
+    if (currentNodeId.value !== nodeId) return
+    const cachedLogs = allLogs.filter((log): log is Extract<MockLog, { type: 'request' }> => log.type === 'request')
+    requestLogs.value = [...new Map([...cachedLogs, ...requestLogs.value.filter(log => log.nodeId === nodeId)].map(log => [log.id, log])).values()].sort((left, right) => left.timestamp - right.timestamp).slice(-MAX_LOGS_IN_MEMORY)
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '日志加载失败'
   } finally {
@@ -513,15 +516,13 @@ const formatConsoleLogValue = (value: unknown): string => {
   }
   return String(value)
 }
+// 先订阅日志，避免初始化缓存读取覆盖同时到达的实时日志
+window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.logsBatch, handleLogsBatch)
 watch(currentNodeId, (value, oldValue) => {
   if (value && value !== oldValue) {
     fetchLogs()
   }
 }, { immediate: true })
-// 组件挂载时注册IPC监听器
-onMounted(() => {
-  window.desktopAPI?.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.logsBatch, handleLogsBatch)
-})
 // 组件卸载时移除监听器
 onUnmounted(() => {
   window.desktopAPI?.ipcManager.removeListener(IPC_EVENTS.mock.mainToRenderer.logsBatch, handleLogsBatch)

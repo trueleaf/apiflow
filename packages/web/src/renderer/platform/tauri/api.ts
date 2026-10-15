@@ -10,11 +10,16 @@ import { globalLLMClient } from './ai/client';
 import { agentRuntime } from './ai/runtime';
 import { buildStandaloneShareHtml, buildStandaloneWordBlob } from '@/pages/projectWorkbench/export/standalone-export';
 import { runtimeCache } from '@/cache/runtime/runtimeCache';
+import { i18n } from '@/i18n';
 
 // 将原生结果转换为业务响应
 const result = async <T>(operation: Promise<T>, fallback: T): Promise<CommonResponse<T>> => {
   try { return { code: 0, msg: '', data: await operation }; }
-  catch (error) { return { code: 1, msg: String(error), data: fallback }; }
+  catch (error) {
+    const code = String(error);
+    const msg = code === 'MOCK_PORT_IN_USE' ? i18n.global.t('Mock 端口被占用') : code === 'MOCK_PATH_IN_USE' ? i18n.global.t('Mock 路径已被使用') : code;
+    return { code: 1, msg, data: fallback };
+  }
 };
 // 执行脚本专用的原生 HTTP 请求
 const afHttpRequest: DesktopAPI['afHttpRequest'] = async options => {

@@ -197,7 +197,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watchEffect, defineAsyncComponent, onMounted } from 'vue';
+import { ref, computed, watchEffect, defineAsyncComponent, watch } from 'vue';
 import { storeToRefs } from 'pinia'
 import { ArrowDown } from '@element-plus/icons-vue';
 import { formatDate, getCompiledTemplate } from '../helper'
@@ -225,14 +225,9 @@ const expandedBlocks = ref({
   response: true,
 });
 
-onMounted(() => {
-  if (apidocInfo.value?._id) {
-    const cache = getShareCollapseState(apidocInfo.value._id);
-    if (cache) {
-      expandedBlocks.value = { ...expandedBlocks.value, ...cache };
-    }
-  }
-});
+watch(() => apidocInfo.value?._id, docId => {
+  expandedBlocks.value = { query: true, headers: true, body: true, response: true, ...(docId ? getShareCollapseState(docId) : {}) };
+}, { immediate: true });
 
 watchEffect(async () => {
   if (!apidocInfo.value) return '';

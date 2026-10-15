@@ -53,6 +53,9 @@ pub fn route_message(app: AppHandle, view: Webview, state: State<'_, Mutex<Shell
         "apiflow:content:to:topbar:open-settings-tab" => return send(&app, "topbar", "apiflow:topbar:to:content:open-settings-tab", payload),
         "apiflow:content:to:topbar:language-changed" | "apiflow:topbar:to:content:network-mode-changed" => {
             let target = if channel.ends_with("language-changed") { "apiflow:topbar:to:content:language-changed" } else { "apiflow:topbar:to:content:network-mode-changed" };
+            if channel.ends_with("language-changed") {
+                if let Some(tabs) = state.tabs.as_mut() { tabs["language"] = payload.clone(); }
+            }
             if channel.ends_with("network-mode-changed") {
                 let mode = payload.as_str().filter(|mode| matches!(*mode, "offline" | "online")).ok_or("INVALID_NETWORK_MODE")?;
                 app.state::<crate::settings::Store>().update(|settings| settings.network_mode = Some(mode.to_owned()))?;

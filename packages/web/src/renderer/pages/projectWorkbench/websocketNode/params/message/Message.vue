@@ -14,7 +14,7 @@
         <div class="add-block-button" :title="t('添加消息块')" @click="handleAddMessageBlock">
           <el-icon><Plus /></el-icon>
         </div>
-        <el-popover v-model:visible="configPopoverVisible" placement="bottom" :width="400" trigger="click" transition="none" @show="handleConfigPopoverShow">
+        <el-popover v-model:visible="configPopoverVisible" placement="bottom" :width="400" trigger="click" transition="none">
           <template #reference>
             <div class="config-button">
               <el-icon>
@@ -292,6 +292,9 @@ const handleConfigPopoverShow = () => {
   tempAutoSendMessageType.value = websocketStore.websocket.config.autoSendMessageType
   tempQuickOperations.value = [...quickOperations.value]
 }
+watch(configPopoverVisible, visible => {
+  if (visible) handleConfigPopoverShow()
+}, { flush: 'sync' })
 
 // 处理临时快捷操作变化
 const handleTempQuickOperationChange = (operation: 'autoSend', enabled: boolean | string | number) => {

@@ -160,7 +160,7 @@ test.describe('RequestMethodValidation', () => {
     await expect(responseArea).toBeVisible({ timeout: 10000 });
     await expect(contentPage.getByTestId('status-code')).toContainText('200', { timeout: 10000 });
     // 验证HEAD方法响应不包含body（响应区域展示空态文案：数据为空）
-    await expect(responseArea).toContainText('数据为空', { timeout: 10000 });
+    await expect(responseArea).toContainText('响应体为空', { timeout: 10000 });
     await expect(responseArea).not.toContainText('"method":');
   });
   // 验证OPTIONS方法能正常发送

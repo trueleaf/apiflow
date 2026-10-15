@@ -2,7 +2,7 @@ import { test, expect } from '../../../fixtures/desktop.fixture'
 
 test('面板通过 IPC 展示全部事件、终态、折叠和安全 Markdown，并保持历史滚动位置', async ({ desktopApp, topBarPage, contentPage }, testInfo) => {
   test.setTimeout(90000)
-  await contentPage.evaluate(() => {
+  await contentPage.evaluate(async () => {
     localStorage.setItem('apiflow/ai/llmProvider', JSON.stringify({ version: 2, activeVendor: 'custom', profiles: { custom: { id: 'agent-e2e', name: 'Test', provider: 'OpenAICompatible', vendor: 'custom', apiKey: '', baseURL: 'https://ai.test/v1', model: 'ai-test-text', customHeaders: [], extraBody: '', thinkingMode: 'default', reasoningEffort: 'default', thinkingBudget: null, maxTokens: 128 } } }))
   })
   await contentPage.reload()
@@ -44,15 +44,15 @@ test('面板通过 IPC 展示全部事件、终态、折叠和安全 Markdown，
     { type: 'run-state', state: 'completed' },
   ]
   // 注入 main IPC 事件而非直接修改 Pinia，加入重复与未知事件验证容错
-  await contentPage.evaluate((payload) => {
+  await contentPage.evaluate(async (payload) => {
 
-    payload.data.forEach((event, index) => {
+    for (const [index, event] of payload.data.entries()) {
       const envelope = { eventId: `panel-${index}`, conversationId: payload.conversationId, runId: 'panel-run', messageId: 'panel-message', sequence: index + 1, createdAt: Date.now(), ...event }
-      (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:event', payload: { event: envelope } } })
-      (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:event', payload: { event: envelope } } })
-    })
-    (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:event', payload: { event: { type: 'unknown' } } } })
-    (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:event', payload: { event: { eventId: 'late', conversationId: payload.conversationId, runId: 'panel-run', messageId: 'panel-message', sequence: 1000, createdAt: Date.now(), type: 'text', phase: 'delta', text: '迟到内容不应展示' } } } })
+      await (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:event', payload: { event: envelope } } })
+      await (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:event', payload: { event: envelope } } })
+    }
+    await (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:event', payload: { event: { type: 'unknown' } } } })
+    await (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:event', payload: { event: { eventId: 'late', conversationId: payload.conversationId, runId: 'panel-run', messageId: 'panel-message', sequence: 1000, createdAt: Date.now(), type: 'text', phase: 'delta', text: '迟到内容不应展示' } } } })
   }, { conversationId, data })
   await expect(panel.locator('.ai-approval-message')).toHaveCount(4)
   await expect(panel.locator('.ai-invocation-message')).toHaveCount(5)
@@ -83,17 +83,17 @@ test('面板通过 IPC 展示全部事件、终态、折叠和安全 Markdown，
     expect(['18px', '21px']).toContain(size.gap)
   }
   await panel.locator('.ai-chat-view').evaluate(element => { element.scrollTop = 0; element.dispatchEvent(new Event('scroll')) })
-  await contentPage.evaluate((id) => {
+  await contentPage.evaluate(async (id) => {
 
-    (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:event', payload: { event: { eventId: 'scroll-test', conversationId: id, runId: 'scroll-run', messageId: 'scroll-message', sequence: 1, createdAt: Date.now(), type: 'text', phase: 'end', text: '长内容\n'.repeat(250) } } } })
+    await (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:event', payload: { event: { eventId: 'scroll-test', conversationId: id, runId: 'scroll-run', messageId: 'scroll-message', sequence: 1, createdAt: Date.now(), type: 'text', phase: 'end', text: '长内容\n'.repeat(250) } } } })
   }, conversationId)
   await expect(panel.locator('.ai-answer-message').last()).toContainText('长内容')
   expect(await panel.locator('.ai-chat-view').evaluate(element => element.scrollTop)).toBe(0)
   await panel.locator('.ai-chat-view').evaluate(element => { element.scrollTop = element.scrollHeight; element.dispatchEvent(new Event('scroll')) })
-  await contentPage.evaluate((id) => {
+  await contentPage.evaluate(async (id) => {
 
-    for (const [index, state] of ['cancelled', 'failed', 'interrupted'].entries()) (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:event', payload: { event: { eventId: `terminal-${state}`, conversationId: id, runId: `terminal-${state}`, messageId: `terminal-${state}`, sequence: 1, createdAt: Date.now() + index, type: 'run-state', state } } } })
-    (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:event', payload: { event: { eventId: 'follow', conversationId: id, runId: 'scroll-run', messageId: 'scroll-message', sequence: 2, createdAt: Date.now(), type: 'text', phase: 'end', text: '持续流式追加\n'.repeat(350) } } } })
+    for (const [index, state] of ['cancelled', 'failed', 'interrupted'].entries()) await (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:event', payload: { event: { eventId: `terminal-${state}`, conversationId: id, runId: `terminal-${state}`, messageId: `terminal-${state}`, sequence: 1, createdAt: Date.now() + index, type: 'run-state', state } } } })
+    await (window as unknown as { __TAURI_INTERNALS__: { invoke: (command: string, args: unknown) => Promise<void> } }).__TAURI_INTERNALS__.invoke('plugin:event|emit_to', { target: { kind: 'Webview', label: 'content' }, event: 'desktop-message', payload: { channel: 'ai:main:to:renderer:event', payload: { event: { eventId: 'follow', conversationId: id, runId: 'scroll-run', messageId: 'scroll-message', sequence: 2, createdAt: Date.now(), type: 'text', phase: 'end', text: '持续流式追加\n'.repeat(350) } } } })
   }, conversationId)
   for (const label of ['本次生成已取消', '运行失败', '运行已中断']) await expect(panel.locator('.ai-run-state-message').filter({ hasText: label })).toHaveCount(1)
   await expect.poll(async () => panel.locator('.ai-chat-view').evaluate(element => element.scrollHeight - element.scrollTop - element.clientHeight)).toBeLessThan(80)

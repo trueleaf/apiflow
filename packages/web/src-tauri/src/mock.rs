@@ -139,11 +139,18 @@ pub async fn mock_action(app: AppHandle, services: State<'_, Mocks>, kind: Strin
     let next = MockNode { kind: kind.clone(), data, cancellation: CancellationToken::new() };
     if !next.pattern().starts_with('/') { return Err("INVALID_MOCK_PATH".into()); }
     if kind == "http" && (!next.data["response"].is_array() || !next.data["requestCondition"]["method"].is_array()) { return Err("INVALID_MOCK_RESPONSE".into()); }
-    {
+    let path_in_use = {
         let inner = services.inner.lock().map_err(|error| error.to_string())?;
-        if kind == "websocket" && inner.nodes.iter().any(|node| node.kind == kind && node.port() == port && node.pattern() == next.pattern() && node.id() != next.id()) { return Err("MOCK_PATH_IN_USE".into()); }
+        kind == "websocket" && inner.nodes.iter().any(|node| node.kind == kind && node.port() == port && node.pattern() == next.pattern() && node.id() != next.id())
+    };
+    if path_in_use {
+        if action == "start" { services.notify_state(&app, &next, "error"); }
+        return Err("MOCK_PATH_IN_USE".into());
     }
-    services.ensure_server(&app, &next).await?;
+    if let Err(error) = services.ensure_server(&app, &next).await {
+        if action == "start" { services.notify_state(&app, &next, "error"); }
+        return Err(error);
+    }
     let previous = {
         let mut inner = services.inner.lock().map_err(|error| error.to_string())?;
         if let Some(index) = inner.nodes.iter().position(|node| node.kind == kind && node.id() == next.id()) { Some(std::mem::replace(&mut inner.nodes[index], next.clone())) }

@@ -166,16 +166,14 @@ export const test = base.extend<DesktopFixtures>({
         await contentPage.reload();
         await contentPage.waitForLoadState('domcontentloaded');
         await contentPage.waitForTimeout(500);
-        // 等待浏览器完成数据库清理，避免阻塞的删除请求在示例项目创建后继续执行
-        const storageSession = await contentPage.context().newCDPSession(contentPage);
-        try {
-          await storageSession.send('Storage.clearDataForOrigin', {
-            origin: new URL(contentPage.url()).origin,
-            storageTypes: 'indexeddb',
-          });
-        } finally {
-          await storageSession.detach();
-        }
+        // 通过版本变更通知其他视图释放缓存连接，等待全部数据库完成删除
+        await contentPage.evaluate(async () => {
+          await Promise.all((await indexedDB.databases()).filter(database => database.name).map(database => new Promise<void>((resolve, reject) => {
+            const request = indexedDB.deleteDatabase(database.name!);
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+          })));
+        });
         await contentPage.evaluate(skip => {
           if (!skip) {
             localStorage.removeItem('runtime/hasCreatedExampleProject');

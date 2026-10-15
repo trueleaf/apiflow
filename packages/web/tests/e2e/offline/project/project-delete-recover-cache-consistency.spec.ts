@@ -48,7 +48,7 @@ test.describe('ProjectDeleteRecoverCacheConsistency', () => {
     await expect(restoredProjectCard.locator('.project-api-count .teal')).toContainText('2')
     const cacheConsistency = await contentPage.evaluate(async ({ name }) => {
       const projectDb = await new Promise<IDBDatabase>((resolve, reject) => {
-        const request = indexedDB.open('projectCache')
+        const request = indexedDB.open('workspaceDataCache')
         request.onsuccess = () => resolve(request.result)
         request.onerror = () => reject(request.error)
       })
@@ -66,7 +66,7 @@ test.describe('ProjectDeleteRecoverCacheConsistency', () => {
         throw new Error('未找到目标项目ID')
       }
       const nodesDb = await new Promise<IDBDatabase>((resolve, reject) => {
-        const request = indexedDB.open('apiNodesCache')
+        const request = indexedDB.open('workspaceDataCache')
         request.onsuccess = () => resolve(request.result)
         request.onerror = () => reject(request.error)
       })

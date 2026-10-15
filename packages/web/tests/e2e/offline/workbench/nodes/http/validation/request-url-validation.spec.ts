@@ -21,6 +21,11 @@ test.describe('RequestUrlValidation', () => {
     // 设置请求URL为localhost格式
     const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]');
     await urlInput.fill(`http://localhost:${MOCK_SERVER_PORT}/echo`);
+    await contentPage.getByTestId('http-params-tab-settings').click();
+    const conversionSwitch = contentPage.locator('.config-item').filter({ hasText: /自动转换localhost为127\.0\.0\.1/ }).locator('.el-switch').first();
+    await expect(conversionSwitch).toBeVisible();
+    if (!await conversionSwitch.evaluate(element => element.classList.contains('is-checked'))) await conversionSwitch.click();
+    await expect(conversionSwitch).toHaveClass(/is-checked/);
     // 发送请求
     const sendBtn = contentPage.locator('[data-testid="operation-send-btn"]');
     await sendBtn.click();
@@ -58,6 +63,7 @@ test.describe('RequestUrlValidation', () => {
     const localhostConfigItem = contentPage.locator('.config-item').filter({ hasText: /自动转换localhost为127\.0\.0\.1|Auto-convert localhost to 127\.0\.0\.1/ });
     await expect(localhostConfigItem).toBeVisible({ timeout: 5000 });
     const localhostSwitch = localhostConfigItem.locator('.el-switch').first();
+    if (!await localhostSwitch.evaluate(element => element.classList.contains('is-checked'))) await localhostSwitch.click();
     await expect(localhostSwitch).toHaveClass(/is-checked/);
     await localhostSwitch.click();
     await expect(localhostSwitch).not.toHaveClass(/is-checked/);

@@ -19,7 +19,7 @@ fn event(kind: &'static str) -> HttpEvent {
     HttpEvent { kind, timestamp: timestamp(), response: None, data: None, message: None, field_id: None }
 }
 async fn file_part(path: &str, limit: u64) -> Result<multipart::Part, String> {
-    let file = tokio::fs::File::open(path).await.map_err(|error| error.to_string())?;
+    let file = tokio::fs::File::open(path).await.map_err(|error| if error.kind() == std::io::ErrorKind::NotFound { "FILE_NOT_FOUND".to_owned() } else { error.to_string() })?;
     let metadata = file.metadata().await.map_err(|error| error.to_string())?;
     if !metadata.is_file() { return Err("NOT_A_FILE".into()); }
     if limit != 0 && metadata.len() > limit { return Err("FILE_SIZE_LIMIT".into()); }

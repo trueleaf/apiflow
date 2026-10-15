@@ -130,7 +130,7 @@ test.describe('AfRequestApi', () => {
     await contentPage.locator('[data-testid="http-params-tab-body"]').click();
     await contentPage.locator('.el-radio', { hasText: /json/i }).first().click();
     const jsonEditor = contentPage.locator('.s-json-editor .monaco-editor [role="textbox"]').first();
-    await expect(jsonEditor).toBeVisible({ timeout: 5000 });
+    await expect(contentPage.locator('.body-params .s-json-editor').first()).toBeVisible({ timeout: 5000 });
     await jsonEditor.focus();
     await contentPage.keyboard.press('ControlOrMeta+a');
     await contentPage.keyboard.type('{"username":"olduser","email":"old@test.com"}');

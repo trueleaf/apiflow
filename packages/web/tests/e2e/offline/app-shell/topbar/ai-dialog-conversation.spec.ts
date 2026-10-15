@@ -34,9 +34,6 @@ test.describe('Ask 离线运行边界', () => {
     await input.fill('请使用上一轮上下文')
     await input.press('Enter')
     await expect(dialog.locator('.ai-answer-message').filter({ hasText: '第二轮上下文完成' })).toBeVisible({ timeout: 10000 })
-    await topBarPage.getByTestId('header-network-toggle').click()
-    await expect(topBarPage.getByTestId('header-ai-btn')).toHaveCount(0)
-    await expect(dialog).toBeHidden()
     const rejected = await contentPage.evaluate(async () => {
       const manager = window.desktopAPI?.aiManager
       if (!manager) return null
@@ -47,5 +44,9 @@ test.describe('Ask 离线运行边界', () => {
       })
     })
     expect(rejected).toMatchObject({ accepted: false, errorCode: 'AI_OFFLINE_ONLY' })
+    await topBarPage.getByTestId('header-network-toggle').click()
+    await expect(topBarPage.getByTestId('header-ai-btn')).toHaveCount(0)
+    await expect(dialog).toBeHidden()
+    expect(await contentPage.evaluate(() => !!window.desktopAPI?.aiManager)).toBe(false)
   })
 })

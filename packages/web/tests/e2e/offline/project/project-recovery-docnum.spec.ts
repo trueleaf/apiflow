@@ -23,7 +23,7 @@ test.describe('ProjectRecoveryDocNum', () => {
     }
     const projectId = await contentPage.evaluate(async ({ name }) => {
       const projectDb = await new Promise<IDBDatabase>((resolve, reject) => {
-        const req = indexedDB.open('projectCache')
+        const req = indexedDB.open('workspaceDataCache')
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
       })
@@ -71,7 +71,7 @@ test.describe('ProjectRecoveryDocNum', () => {
     await contentPage.evaluate(async ({ projectId: pid }) => {
       const now = new Date().toISOString()
       const nodesDb = await new Promise<IDBDatabase>((resolve, reject) => {
-        const req = indexedDB.open('apiNodesCache')
+        const req = indexedDB.open('workspaceDataCache')
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
       })
@@ -94,7 +94,7 @@ test.describe('ProjectRecoveryDocNum', () => {
       })
       nodesDb.close()
       const projectDb = await new Promise<IDBDatabase>((resolve, reject) => {
-        const req = indexedDB.open('projectCache')
+        const req = indexedDB.open('workspaceDataCache')
         req.onerror = () => reject(req.error)
         req.onsuccess = () => resolve(req.result)
       })

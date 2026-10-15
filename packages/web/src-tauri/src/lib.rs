@@ -74,7 +74,7 @@ fn create_window(app: &tauri::App) -> tauri::Result<()> {
     let window = tauri::window::WindowBuilder::new(app, "main").title(name).decorations(false).maximized(true)
         .inner_size(1280.0, 900.0).min_inner_size(1200.0, 900.0).build()?;
     let size = window.inner_size()?.to_logical::<f64>(window.scale_factor()?);
-    let mut topbar = tauri::webview::WebviewBuilder::new("topbar", WebviewUrl::App("header.html".into()));
+    let mut topbar = tauri::webview::WebviewBuilder::new("topbar", WebviewUrl::App("header.html".into())).disable_drag_drop_handler();
     if let Some(directory) = settings::test_directory(app.handle()) { topbar = topbar.data_directory(directory.join("webview")); }
     window.add_child(topbar, LogicalPosition::new(0.0, 0.0), LogicalSize::new(size.width, TOPBAR_HEIGHT))?;
     let navigation_app = app.handle().clone();

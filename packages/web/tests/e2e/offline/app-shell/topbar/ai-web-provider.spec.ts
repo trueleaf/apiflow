@@ -13,8 +13,9 @@ test('Web 构建隐藏 AI 入口且不会发起模型请求', async () => {
     if (!filePath.startsWith(`${root}${path.sep}`)) { response.writeHead(403); response.end(); return }
     try {
       const mime: Record<string, string> = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.woff2': 'font/woff2' }
+      const content = await readFile(filePath)
       response.writeHead(200, { 'Content-Type': mime[path.extname(filePath)] || 'application/octet-stream' })
-      response.end(await readFile(filePath))
+      response.end(content)
     } catch {
       unexpectedRequests.push(pathname)
       response.writeHead(404)
