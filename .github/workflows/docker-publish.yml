@@ -5,6 +5,12 @@ on:
     tags:
       - "v*"
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 已有发布标签，用当前构建配置重新发布该版本镜像
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -30,6 +36,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag && format('refs/tags/{0}', inputs.release_tag) || github.ref }}
+
+      - name: Checkout current server Dockerfile
+        if: ${{ inputs.release_tag && matrix.service == 'server' }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: .release-build
+          sparse-checkout: packages/server/Dockerfile
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -54,14 +72,16 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
+          context: git
           images: |
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.image }}
             ${{ secrets.ALIYUN_REGISTRY }}/${{ secrets.ALIYUN_NAMESPACE }}/${{ matrix.image }}
           tags: |
             type=raw,value=6,enable=${{ matrix.service == 'mongo' }}
-            type=semver,pattern={{version}},enable=${{ matrix.service != 'mongo' }}
-            type=semver,pattern={{major}}.{{minor}},enable=${{ matrix.service != 'mongo' }}
+            type=semver,pattern={{version}},value=${{ inputs.release_tag }},enable=${{ matrix.service != 'mongo' }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ inputs.release_tag }},enable=${{ matrix.service != 'mongo' }}
             type=ref,event=tag,enable=${{ matrix.service != 'mongo' }}
+            type=raw,value=${{ inputs.release_tag }},enable=${{ inputs.release_tag != '' && matrix.service != 'mongo' }}
             type=sha,enable=${{ matrix.service != 'mongo' }}
             type=raw,value=latest,enable=${{ matrix.service != 'mongo' }}
 
@@ -69,7 +89,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ${{ matrix.dockerfile }}
+          file: ${{ inputs.release_tag && matrix.service == 'server' && '.release-build/packages/server/Dockerfile' || matrix.dockerfile }}
           platforms: linux/amd64,linux/arm64
           push: true
           provenance: false

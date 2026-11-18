@@ -1,4 +1,5 @@
-FROM node:20-alpine AS build
+# 配置、依赖安装和 TypeScript 构建使用构建机架构
+FROM --platform=$BUILDPLATFORM node:20-alpine AS build
 
 ARG USE_NPM_MIRROR=false
 
