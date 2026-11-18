@@ -54,16 +54,17 @@ check_password_strength() {
 }
 prompt_password() {
   local password=""
-  print_step "请输入新密码（至少 8 位，且包含字母 + 数字）"
-  if command -v stty >/dev/null 2>&1; then
-    stty -echo
-    read -r password
-    stty echo
-    echo ""
-  else
-    read -r password
+  print_step "请输入新密码（至少 8 位，且包含字母 + 数字）" >&2
+  if [[ -t 0 ]]; then
+    if ! IFS= read -rs password; then
+      printf '\n' >&2
+      return 1
+    fi
+    printf '\n' >&2
+  elif ! IFS= read -r password; then
+    return 1
   fi
-  echo "$password"
+  printf '%s' "$password"
 }
 generate_salt_and_hash() {
   local password="$1"
@@ -72,7 +73,7 @@ generate_salt_and_hash() {
     print_error "请先安装 node，或手动在 MongoDB 中更新 security_users 的 salt/password 字段"
     exit 1
   fi
-  node -e "const {createHash,randomInt}=require('crypto');const password=process.argv[1]??'';const salt=String(randomInt(10000,10000000));const hash=createHash('md5').update((password+salt).slice(2)).digest('hex');process.stdout.write(salt+'\\n'+hash+'\\n');" "$password"
+  node -e "const {createHash,randomInt}=require('crypto');const password=process.argv[1]??'';const salt=String(randomInt(10000,10000000));const hash=createHash('md5').update((password+salt).slice(2)).digest('hex');process.stdout.write(salt+'\\n'+hash+'\\n');" -- "$password"
 }
 run_mongosh_docker() {
   local db_name="$1"
@@ -143,7 +144,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ -z "$PASSWORD" ]; then
-  PASSWORD="$(prompt_password)"
+  if ! PASSWORD="$(prompt_password)" || [ -z "$PASSWORD" ]; then
+    print_error "未读取到新密码" >&2
+    exit 1
+  fi
 fi
 if ! check_password_strength "$PASSWORD"; then
   print_warning "密码不满足强度要求（至少 8 位，且包含字母 + 数字），但仍会执行重置"

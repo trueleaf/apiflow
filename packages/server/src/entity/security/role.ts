@@ -1,5 +1,8 @@
 import { modelOptions, prop } from '@typegoose/typegoose';
 import { Timestamps } from '../common/common.js';
+
+export const ADMIN_ROLE_ID = '5edf71f2193c7d5fa0ec9b98';
+
 @modelOptions({
   schemaOptions: { timestamps: true, collection: 'security_role' },
 })

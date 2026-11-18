@@ -1,4 +1,5 @@
-import { Inject, Controller, Get, Put, Body } from '@midwayjs/core';
+import { Inject, Controller, Get, Put, Body, UseGuard } from '@midwayjs/core';
+import { AdminGuard } from '../../guard/admin.guard.js';
 import { SystemConfigService } from '../../service/security/system_config.js';
 
 @Controller('/api')
@@ -12,6 +13,7 @@ export class SystemConfigController {
   }
   // 更新系统配置（仅管理员+自部署模式）
   @Put('/system/config')
+  @UseGuard(AdminGuard)
   async updateSystemConfig(@Body() params: { enableGuest?: boolean; enableRegister?: boolean; enableForgotPassword?: boolean }) {
     const data = await this.systemConfigService.updateSystemConfig(params);
     return data;

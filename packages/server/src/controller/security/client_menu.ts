@@ -1,6 +1,7 @@
 import {
   Inject,
   Controller,
+  UseGuard,
   Post,
   Body,
   Put,
@@ -9,8 +10,10 @@ import {
 } from '@midwayjs/core';
 import { AddClientMenuDto, ChangeCLientMenuPositionDto, DeleteClientMenuDto, EditClientMenuDto } from '../../types/dto/security/client.menu.dto.js';
 import { ClientMenuService } from '../../service/security/client_menu.js';
+import { AdminGuard } from '../../guard/admin.guard.js';
 
 @Controller('/api')
+@UseGuard(AdminGuard)
 export class ClientMenuController {
   @Inject()
     clientMenuService: ClientMenuService;

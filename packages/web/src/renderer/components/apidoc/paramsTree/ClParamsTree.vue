@@ -67,7 +67,8 @@
        :check-on-click-leaf="false"
        :default-checked-keys="defaultCheckedKeys"
        @node-drop="handleNodeDrop"
-       @check-change="handleCheckChange"
+       @check-change="(data, selected) => !syncCheckedKeys && handleCheckChange(data, selected)"
+       @check="(data, { checkedKeys }) => syncCheckedKeys && handleCheckChange(data, checkedKeys.includes(data._id))"
      >
        <template #default="{ data }">
            <div
@@ -309,6 +310,7 @@
 import { ref, Ref, watch, nextTick, computed } from 'vue';
 import { Close, Switch, MagicStick, Loading } from '@element-plus/icons-vue';
 import { FileText as FileIcon } from 'lucide-vue-next';
+import type { TreeInstance } from 'element-plus';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 import type { ApidocProperty } from '@src/types';
 import { generateEmptyProperty, message, formatUnit } from '@/helper';
@@ -353,7 +355,7 @@ age=18 //Age`;
 | 响应式数据
 |--------------------------------------------------------------------------
 */
-const treeRef = ref();
+const treeRef = ref<TreeInstance>();
 const valueRichInputRefs = ref<Map<string, InstanceType<typeof ClRichInput>>>(new Map());
 const localData: Ref<ApidocProperty<'string' | 'file'>[]> = ref([]);
 const enableDrag = ref(true);
@@ -1091,6 +1093,9 @@ watch(
       localData.value.push(generateEmptyProperty<'string'>());
     }
     defaultCheckedKeys.value = localData.value.filter(item => item.select).map(item => item._id);
+    if (props.syncCheckedKeys) {
+      void nextTick(() => treeRef.value?.setCheckedKeys(defaultCheckedKeys.value));
+    }
     if (props.editMode === 'multiline') {
       multilineText.value = convertDataToMultilineText(localData.value);
       handleMultilineTextChange();

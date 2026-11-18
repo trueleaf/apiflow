@@ -3,6 +3,42 @@ import { test, expect } from '../../../../../../fixtures/desktop.fixture';
 const MOCK_SERVER_PORT = 3456;
 
 test.describe('Query', () => {
+  test('Query 参数可以全选、取消全选并撤销整次操作', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache();
+    await createProject();
+    await contentPage.waitForURL(/workbench/);
+    await createNode(contentPage, { nodeType: 'http', name: 'Query全选测试' });
+    await contentPage.getByTestId('http-params-tab-params').click();
+    const queryPanel = contentPage.locator('.query-path-params');
+    const selectAll = queryPanel.getByTestId('http-query-select-all');
+    const selectAllInput = selectAll.getByRole('checkbox');
+    await expect(selectAllInput).toBeDisabled();
+    // 填写两行参数并保留尾部的空白行
+    const keyInputs = queryPanel.getByPlaceholder('输入参数名称自动换行');
+    await keyInputs.nth(0).fill('page');
+    await keyInputs.nth(1).fill('size');
+    await expect(keyInputs).toHaveCount(3);
+    const pageCheckbox = queryPanel.locator('.el-tree-node__content:has([data-row-key="page"]) > .el-checkbox');
+    const sizeCheckbox = queryPanel.locator('.el-tree-node__content:has([data-row-key="size"]) > .el-checkbox');
+    await expect(selectAllInput).toBeChecked();
+    // 从部分勾选恢复全选，再取消全部已填写参数
+    await pageCheckbox.click();
+    await expect(selectAll).toHaveAttribute('aria-checked', 'mixed');
+    await selectAll.click();
+    await expect(pageCheckbox.getByRole('checkbox')).toBeChecked();
+    await expect(sizeCheckbox.getByRole('checkbox')).toBeChecked();
+    await selectAll.click();
+    await expect(pageCheckbox.getByRole('checkbox')).not.toBeChecked();
+    await expect(sizeCheckbox.getByRole('checkbox')).not.toBeChecked();
+    await expect(queryPanel.locator('.el-tree-node__content').nth(2).locator(':scope > .el-checkbox').getByRole('checkbox')).toBeChecked();
+    // 撤销和重做时，两行勾选状态一起恢复
+    await contentPage.getByTestId('http-params-undo-btn').click();
+    await expect(pageCheckbox.getByRole('checkbox')).toBeChecked();
+    await expect(sizeCheckbox.getByRole('checkbox')).toBeChecked();
+    await contentPage.getByTestId('http-params-redo-btn').click();
+    await expect(selectAllInput).not.toBeChecked();
+    await expect(sizeCheckbox.getByRole('checkbox')).not.toBeChecked();
+  });
   // query参数key输入值以后,如果不存在next节点,则自动新增一行数据
   test('query参数key输入后自动新增一行', async ({ contentPage, clearCache, createProject }) => {
     await clearCache();

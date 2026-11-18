@@ -1,6 +1,7 @@
 import {
   Inject,
   Controller,
+  UseGuard,
   Post,
   Body,
   Put,
@@ -14,8 +15,10 @@ import {
   EditClientRoutesDto,
 } from '../../types/dto/security/client.routes.dto.js';
 import { ClientRoutesService } from '../../service/security/client_routes.js';
+import { AdminGuard } from '../../guard/admin.guard.js';
 
 @Controller('/api')
+@UseGuard(AdminGuard)
 export class ClientRoutesController {
   @Inject()
     clientRoutesService: ClientRoutesService;

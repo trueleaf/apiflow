@@ -1,6 +1,16 @@
 <template>
   <div class="query-path-params">
     <div class="title">
+      <el-checkbox
+        v-if="!isQueryMultiline"
+        :model-value="allQueryParamsSelected"
+        :indeterminate="someQueryParamsSelected && !allQueryParamsSelected"
+        :disabled="selectableQueryParams.length === 0"
+        :aria-label="t('全选')"
+        :title="t(allQueryParamsSelected ? '取消全选' : '全选')"
+        data-testid="http-query-select-all"
+        @change="handleQuerySelectAll($event === true)"
+      />
       <span>Query&nbsp;{{ t("参数") }}</span>
       <span
         class="mode-toggle-icon"
@@ -20,6 +30,7 @@
     <SParamsTree
       ref="queryParamsTreeRef"
       show-checkbox
+      sync-checked-keys
       :data="queryTreeData"
       :edit-mode="isQueryMultiline ? 'multiline' : 'table'"
       @change="handleQueryParamsChange"
@@ -56,7 +67,10 @@ type ParamsTreeInstance = InstanceType<typeof SParamsTree> & {
 }
 const queryParamsTreeRef = ref<ParamsTreeInstance | null>(null)
 const pathTreeData = computed(() => JSON.parse(JSON.stringify(httpNodeStore.httpNodeInfo.item.paths)));
-const queryTreeData = computed(() => JSON.parse(JSON.stringify(httpNodeStore.httpNodeInfo.item.queryParams)));
+const queryTreeData = computed(() => cloneDeep(httpNodeStore.httpNodeInfo.item.queryParams));
+const selectableQueryParams = computed(() => queryTreeData.value.filter(param => param.key));
+const someQueryParamsSelected = computed(() => selectableQueryParams.value.some(param => param.select));
+const allQueryParamsSelected = computed(() => someQueryParamsSelected.value && selectableQueryParams.value.every(param => param.select));
 const isQueryMultiline = ref(false)
 //是否存在path参数
 const hasPathParams = computed(() => {
@@ -79,7 +93,10 @@ watch(queryParamsTreeRef, (instance) => {
   if (!instance?.onMultilineCancelled) return
   instance.onMultilineCancelled(handleQueryMultilineCancelled)
 })
-
+// 批量切换已填写的 Query 参数
+const handleQuerySelectAll = (select: boolean) => {
+  handleQueryParamsChange(queryTreeData.value.map(param => param.key ? { ...param, select } : param));
+};
 // 处理 Query 参数变化
 const handleQueryParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
   const oldValue = cloneDeep(httpNodeStore.httpNodeInfo.item.queryParams);
@@ -95,7 +112,6 @@ const handleQueryParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) =
     timestamp: Date.now()
   });
 };
-
 // 处理 Path 参数变化
 const handlePathParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
   const oldValue = cloneDeep(httpNodeStore.httpNodeInfo.item.paths);

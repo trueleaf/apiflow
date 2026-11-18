@@ -1,5 +1,6 @@
 import { MidwayConfig } from '@midwayjs/core';
 import { User } from '../entity/security/user.js';
+import { JwtSigningKey } from '../entity/security/jwt_signing_key.js';
 import { ClientMenu } from '../entity/security/client_menu.js';
 import { Role } from '../entity/security/role.js';
 import { ClientRoutes } from '../entity/security/client_routes.js';
@@ -81,6 +82,7 @@ export default (): MidwayConfig => {
           // 关联实体
           entities: [
             User,
+            JwtSigningKey,
             ClientMenu,
             ClientRoutes,
             Role,
@@ -129,7 +131,7 @@ export default (): MidwayConfig => {
       canManagedGroupNum: process.env.NODE_ENV === 'production' ? 10 : 5, //一个用户最多创建10个项目
     },
     jwtConfig: {
-      secretOrPrivateKey: 'apiflow', //私钥
+      secretOrPrivateKey: '', // 未配置私钥时从数据库加载
       expiresIn: `${1000 * 60 * 60 * 24 * 7}`, //过期时间
     },
     permission: {

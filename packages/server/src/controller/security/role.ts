@@ -1,6 +1,7 @@
 import {
   Inject,
   Controller,
+  UseGuard,
   Post,
   Body,
   Put,
@@ -10,8 +11,10 @@ import {
 } from '@midwayjs/core';
 import { AddRoleDto, DeleteRoleDto, EditRoleDto, GetRoleInfoDto, GetRoleListDto } from '../../types/dto/security/role.dto.js';
 import { RoleService } from '../../service/security/role.js';
+import { AdminGuard } from '../../guard/admin.guard.js';
 
 @Controller('/api')
+@UseGuard(AdminGuard)
 export class RoleController {
   @Inject()
     roleService: RoleService;

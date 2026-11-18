@@ -11,6 +11,7 @@ export type ClParamsTreeProps = {
   enableFile?: boolean;
   mindKeyParams?: ApidocProperty[];
   showCheckbox?: boolean;
+  syncCheckedKeys?: boolean;
   editMode?: 'table' | 'multiline';
   disableKeyEdit?: boolean;
 }

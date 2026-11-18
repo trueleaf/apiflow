@@ -55,4 +55,33 @@ test.describe('Online后台管理权限', () => {
     await expect(adminSectionTitle).toBeHidden();
     await expect(contentPage.locator('[data-testid="settings-menu-admin-user"]')).toHaveCount(0);
   });
+  test('管理员退出后，普通用户打开设置会进入通用配置', async ({ topBarPage, contentPage, clearCache, loginAccount }) => {
+    const loginName1 = process.env.TEST_LOGIN_NAME;
+    const password1 = process.env.TEST_LOGIN_PASSWORD;
+    const loginName2 = process.env.TEST_LOGIN_NAME2;
+    const password2 = process.env.TEST_LOGIN_PASSWORD2;
+    if (!loginName1 || !password1 || !loginName2 || !password2) {
+      test.skip(true, '需要配置管理员和普通账号');
+      return;
+    }
+    await clearCache();
+    const firstAccount = { loginName: loginName1, password: password1 };
+    const secondAccount = { loginName: loginName2, password: password2 };
+    await loginAccount(firstAccount);
+    await openSettings(topBarPage, contentPage);
+    const firstIsAdmin = await hasAdminMenu(contentPage);
+    if (!firstIsAdmin) {
+      await loginAccount(secondAccount);
+      await openSettings(topBarPage, contentPage);
+    }
+    test.skip(!(await hasAdminMenu(contentPage)), '未配置管理员账号');
+    // 让管理员标签留在缓存中，再通过登录流程切换账号
+    await switchAdminTab(contentPage, '用户管理');
+    await waitForUserListLoaded(contentPage);
+    await loginAccount(firstIsAdmin ? secondAccount : firstAccount);
+    await openSettings(topBarPage, contentPage);
+    test.skip(await hasAdminMenu(contentPage), '未配置普通账号');
+    await expect(contentPage.getByTestId('settings-menu-common-settings')).toHaveClass(/active/);
+    await expect(contentPage.locator('.settings .content-area .el-table')).toHaveCount(0);
+  });
 });

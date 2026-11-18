@@ -1,6 +1,7 @@
 import {
   Inject,
   Controller,
+  UseGuard,
   Post,
   Body,
   Put,
@@ -9,8 +10,10 @@ import {
 } from '@midwayjs/core';
 import { AddServerRouteDto, ChangeGroupNameByIdsDto, DeleteServerRouteDto, EditServerRouteDto } from '../../types/dto/security/server.routes.dto.js';
 import { ServerRoutesService } from '../../service/security/server_routes.js';
+import { AdminGuard } from '../../guard/admin.guard.js';
 
 @Controller('/api')
+@UseGuard(AdminGuard)
 export class ServerMenuController {
   @Inject()
     serverRoutesService: ServerRoutesService;

@@ -30,7 +30,7 @@ import { validatePassword } from '../../rules/rules.js';
 import { TableResponseWrapper } from '../../types/response/common/common.js';   
 import { ClientMenu } from '../../entity/security/client_menu.js';
 import { ClientRoutes } from '../../entity/security/client_routes.js';
-import { Role } from '../../entity/security/role.js';
+import { ADMIN_ROLE_ID, Role } from '../../entity/security/role.js';
 import { Group } from '../../entity/security/group.js';
 import { VerifyCodeService } from './verify_code.js';
 import { SystemConfigService } from './system_config.js';
@@ -43,7 +43,6 @@ import {
   SendEmailCodeDto,
 } from '../../types/dto/security/user.dto.js';
 
-const ADMIN_ROLE_ID = '5edf71f2193c7d5fa0ec9b98';
 const USER_ROLE_ID = '5ede0ba06f76185204584700';
 const require = createRequire(import.meta.url);
 const serverPackageJson = require('../../../package.json') as { version?: string };

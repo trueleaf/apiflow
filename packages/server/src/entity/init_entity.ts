@@ -2,7 +2,7 @@ import { ReturnModelType } from '@typegoose/typegoose';
 import { User } from './security/user.js';
 import { ServerRoutes } from './security/server_routes.js';
 import { ClientRoutes } from './security/client_routes.js';
-import { Role } from './security/role.js';
+import { ADMIN_ROLE_ID, Role } from './security/role.js';
 import { ClientMenu } from './security/client_menu.js';
 import { Attachment } from './attachment/attachment.js';
 
@@ -20,7 +20,7 @@ const INITIAL_USER = [
     password: '9326d7bc07bc0b581aad7229f0f399bc',
     lastLogin: new Date(),
     roleIds: [
-      '5edf71f2193c7d5fa0ec9b98',
+      ADMIN_ROLE_ID,
       '5ede0ba06f76185204584700',
     ],
     roleNames: ['管理员'],
@@ -896,7 +896,7 @@ const INITIAL_ROLE = [
     ],
   },
   {
-    _id: '5edf71f2193c7d5fa0ec9b98',
+    _id: ADMIN_ROLE_ID,
     clientBanner: ['5eddf6a821a5aa26cc316d28'],
     clientRoutes: ['5edd91c05fcdf3111671cbfa'],
     remark: '拥有完整权限',
@@ -1116,7 +1116,7 @@ export async function initRoles(roleModel: ReturnModelType<typeof Role>) {
   if (!roleInfo) {
     await roleModel.insertMany(INITIAL_ROLE);
   }
-  const roleIds = ['5ede0ba06f76185204584700', '5edf71f2193c7d5fa0ec9b98'];
+  const roleIds = ['5ede0ba06f76185204584700', ADMIN_ROLE_ID];
   const incrementalRouteIds = [
     '67f0a9b1c2d3e4f5a6b7c8d9',
     '67f0a9b1c2d3e4f5a6b7c8da',

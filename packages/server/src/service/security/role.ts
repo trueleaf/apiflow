@@ -2,12 +2,12 @@ import { Provide } from '@midwayjs/core';
 import { InjectEntityModel } from '@midwayjs/typegoose';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { throwError } from '../../utils/utils.js';
-import { Role } from '../../entity/security/role.js';
+import { ADMIN_ROLE_ID, Role } from '../../entity/security/role.js';
 import { AddRoleDto, DeleteRoleDto, EditRoleDto, GetRoleInfoDto, GetRoleListDto } from '../../types/dto/security/role.dto.js';
 import { TableResponseWrapper } from '../../types/response/common/common.js';
 
 
-const BUILTIN_ROLE_IDS = ['5ede0ba06f76185204584700', '5edf71f2193c7d5fa0ec9b98'];
+const BUILTIN_ROLE_IDS = ['5ede0ba06f76185204584700', ADMIN_ROLE_ID];
 
 @Provide()
 export class RoleService {

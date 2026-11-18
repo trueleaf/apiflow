@@ -2,6 +2,7 @@
 import { config as dotenvConfig } from 'dotenv';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { randomBytes } from 'node:crypto';
 dotenvConfig({ path: resolve(process.cwd(), '.env') });
 dotenvConfig({ path: resolve(process.cwd(), '../../.env'), override: false });
 
@@ -20,6 +21,7 @@ import {
 import { ResponseWrapperMiddleware } from './middleware/response.middleware.js';
 import { PermissionMiddleware } from './middleware/permission.middleware.js';
 import { User } from './entity/security/user.js';
+import { JwtSigningKey } from './entity/security/jwt_signing_key.js';
 import { UserLimitRecord } from './entity/security/user_limit_record.js';
 import { initClientMenus, initClientRoutes, initRoles, initServerRoutes, initUser } from './entity/init_entity.js';
 import { ServerRoutes } from './entity/security/server_routes.js';
@@ -65,6 +67,8 @@ export class ContainerLifeCycle {
     app: koa.Application;
   @InjectEntityModel(User)
     userModel: ReturnModelType<typeof User>;
+  @InjectEntityModel(JwtSigningKey)
+    jwtSigningKeyModel: ReturnModelType<typeof JwtSigningKey>;
   @InjectEntityModel(ServerRoutes)
     serverRoutesModel: ReturnModelType<typeof ServerRoutes>;
   @InjectEntityModel(ClientRoutes)
@@ -83,6 +87,8 @@ export class ContainerLifeCycle {
     cache: MidwayCache;
   @Config('signConfig')
     config: GlobalConfig['signConfig'];
+  @Config('jwtConfig')
+    jwtConfig: GlobalConfig['jwtConfig'];
   @Config('rateLimitConfig')
     rateLimitConfig: GlobalConfig['rateLimitConfig'];
 
@@ -226,6 +232,14 @@ export class ContainerLifeCycle {
     });
   }
   async onReady() {
+    if (!this.jwtConfig.secretOrPrivateKey || this.jwtConfig.secretOrPrivateKey === 'apiflow') {
+      const signingKey = await this.jwtSigningKeyModel.findOneAndUpdate(
+        { _id: '000000000000000000000001' },
+        { $setOnInsert: { secret: randomBytes(32).toString('hex') } },
+        { upsert: true, new: true },
+      );
+      this.jwtConfig.secretOrPrivateKey = signingKey.secret;
+    }
     this.app.useMiddleware([ResponseWrapperMiddleware, PermissionMiddleware]);
     this.app.useFilter([ValidateErrorFilter, AllServerErrorFilter]);
     await initUser(this.userModel);

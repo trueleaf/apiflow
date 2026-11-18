@@ -8,6 +8,7 @@ import {
   Body,
   Put,
   InjectClient,
+  UseGuard,
 } from '@midwayjs/core';
 import { Context } from '@midwayjs/koa';
 import {
@@ -38,6 +39,7 @@ import { CachingFactory, MidwayCache } from '@midwayjs/cache-manager';
 import { nanoid } from 'nanoid';
 import { ReqSign } from '../../decorator/req_sign.decorator.js';
 import { ReqLimit } from '../../decorator/req_limit.decorator.js';
+import { AdminGuard } from '../../guard/admin.guard.js';
 
 @Controller('/api')
 export class UserController {
@@ -95,6 +97,7 @@ export class UserController {
    * 管理员重置密码
    */
   @Put('/security/reset_password')
+  @UseGuard(AdminGuard)
   async resetPasswordByAdmin(@Body() params: ResetPasswordByAdminDto) {
     const data = await this.userService.resetPasswordByAdmin(params);
     return data;
@@ -103,6 +106,7 @@ export class UserController {
    * 手动添加用户
    */
   @Post('/security/useradd')
+  @UseGuard(AdminGuard)
   async addUser(@Body() params: AddUserDto) {
     const data = await this.userService.addUser(params);
     return data;
@@ -111,6 +115,7 @@ export class UserController {
    * 批量导入用户（CSV 解析后提交）
    */
   @Post('/security/add_user_by_excel')
+  @UseGuard(AdminGuard)
   async importUsers(@Body() params: ImportUsersDto) {
     const data = await this.userService.importUsers(params);
     return data;
@@ -119,6 +124,7 @@ export class UserController {
    * 获取用户列表
    */
   @Get('/security/user_list')
+  @UseGuard(AdminGuard)
   async getUserList(@Query() params: GetUserListDto) {
     const data = await this.userService.getUserList(params);
     return data;
@@ -127,6 +133,7 @@ export class UserController {
    * 禁用启用用户
    */
   @Put('/security/user_state')
+  @UseGuard(AdminGuard)
   async changeUserState(@Body() params: ChangeUserStateDto) {
     const data = await this.userService.changeUserState(params);
     return data;
@@ -135,6 +142,7 @@ export class UserController {
    * 根据用户id获取用户信息
    */
   @Get('/security/user_info_by_id')
+  @UseGuard(AdminGuard)
   async getUserInfoById(@Query() params: GetUserInfoByIdDto) {
     const data = await this.userService.getUserInfoById(params);
     return data;
@@ -171,6 +179,7 @@ export class UserController {
    * 改变用户权限，手机号，登录名称，昵称
    */
   @Put('/security/user_permission')
+  @UseGuard(AdminGuard)
   async changeUserInfo(@Body() params: ChangeUserInfoDto) {
     const data = await this.userService.changeUserInfo(params);
     return data;

@@ -62,11 +62,13 @@
         <AiSettings v-if="isAiAvailable && activeTab === 'ai-settings'" />
         <McpSettings v-if="activeTab === 'mcp-settings'" />
         <About v-if="activeTab === 'about'" @update-badge="handleUpdateBadge" />
-        <AdminUser v-if="activeTab === 'admin-user'" />
-        <AdminRole v-if="activeTab === 'admin-role'" />
-        <AdminClientRoutes v-if="activeTab === 'admin-client-routes'" />
-        <AdminServerRoutes v-if="activeTab === 'admin-server-routes'" />
-        <AdminSystemConfig v-if="activeTab === 'admin-system-config'" />
+        <template v-if="showAdminTabs">
+          <AdminUser v-if="activeTab === 'admin-user'" />
+          <AdminRole v-if="activeTab === 'admin-role'" />
+          <AdminClientRoutes v-if="activeTab === 'admin-client-routes'" />
+          <AdminServerRoutes v-if="activeTab === 'admin-server-routes'" />
+          <AdminSystemConfig v-if="activeTab === 'admin-system-config'" />
+        </template>
       </div>
     </div>
   </div>
@@ -131,10 +133,13 @@ const handleTabClick = (tab: TabItem) => {
 const handleUpdateBadge = (show: boolean) => {
   showUpdateBadge.value = show
 }
-watch(activeTab, (newValue) => {
-  appStateCache.setActiveLocalDataMenu(newValue)
-}, { immediate: false })
-watch(isAiAvailable, available => { if (!available && activeTab.value === 'ai-settings') activeTab.value = 'common-settings' }, { immediate: true })
+watch([activeTab, showAdminTabs, isAiAvailable], ([tab, canShowAdmin, canShowAi]) => {
+  const isAdminTab = adminTabs.value.some(item => item.action === tab)
+  if ((isAdminTab && !canShowAdmin) || (tab === 'ai-settings' && !canShowAi)) {
+    activeTab.value = 'common-settings'
+  }
+  appStateCache.setActiveLocalDataMenu(activeTab.value)
+}, { immediate: true })
 
 onMounted(() => {
   window.desktopAPI?.ipcManager.onMain('apiflow:topbar:to:content:open-settings-tab', (data?: { targetTab?: string }) => {
